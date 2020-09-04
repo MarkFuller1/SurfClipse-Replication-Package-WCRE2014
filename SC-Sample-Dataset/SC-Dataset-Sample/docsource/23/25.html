@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>RMI Connection Refused to Host - comp.lang.java.help</title>
+    <meta name="description" content="I am trying to get Java RMI to work on a simple tutorial case.  I have these classes to use in a Hello World example:  (HelloClient.java): import java... 1998103" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <link rel="canonical" href="/comp.lang.java.help/rmi-connection-refused-to-host/1998103" />
+    <script src="/js/article?v=3y_rYvn4Wo0MDgsJK6-E7xnJpJJBNWd_ch1Uf28nxkc1"></script>
+
+    <link href="/css/article?v=SQKgvbdm6KB8IVGQqVui6p9FlbQZnaV1ptJGrYM9PMc1" rel="stylesheet"/>
+    
+ 
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.2.7/jquery.devbridge-autocomplete.min.js"></script>
+</head>
+<body class="MainBody">
+         
+    <table class="MainTable" cellspacing="0"   >
+        <tr class="TopHeader">
+            <td class="MainLeft"></td>
+            <td class="Borders" >
+                    <table style="width: 100%; " cellpadding="0" cellspacing="0">
+                       
+                        <tr>
+                    <td >  
+</td>
+       <td align="right"><img src="/img/computer.png" />&nbsp;</td>
+                            <td class="MenuLinks">      
+                            <a href="/">COMPGROUPS.NET</a> | 
+                            <a href="/site~search"><img src="/img/icn/search.png" />Search</a> | 
+                          <a href="/article~post"><img src="/img/icn/add.png" />Post Question</a> | 
+                            <a href="/groups/"><img src="/img/icn/group.png" />Groups</a> | 
+                            <a href="/article~stream"><img src="/img/icn/lightning.png" />Stream</a> | 
+                            <a href="/site~about"><img src="/img/icn/i.png" />About</a> | 
+                           
+                            
+<b>
+   <a onclick="OpenModal('/fr~signin', 400, 350 )">
+        <img src="/img/icn/key.png" />Register</a></b>
+ 
+                                
+                    </td>
+                   
+                       </tr>
+                    </table>
+            </td><td class="MainRight"> 
+                     </td>       
+        </tr>         
+        <tr>
+            <td valign="top" class="MainLeft"> 
+                
+                 
+            </td>
+            <td class="MainContent BorderSides" style="width:900px"  >
+                
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td>  
+                            
+ 
+ 
+<h3>RMI Connection Refused to Host</h3> <ul class="Socials"><li><g:plusone size="medium"></g:plusone>
+                          <script type="text/javascript">                              (function () {
+                                  var po = document.createElement('script');
+                                  po.type = 'text/javascript'; po.async = true; po.src = 'https://apis.google.com/js/plusone.js';
+                                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                              })(); </script></li><li><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+<script>    !function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = "//platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs); } } (document, "script", "twitter-wjs");</script>
+</li><li><div class="fb-like" data-href="http://compgroups.net/comp.lang.java.help/rmi-connection-refused-to-host/1998103" data-send="false" data-layout="button_count" data-width="50" data-show-faces="true">
+                              </div>
+                              <div id="fb-root">
+                              </div>
+                              <script>
+                                (function (d, s, id) {
+                                      var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id))
+                                      { return; } js = d.createElement(s); js.id = id; js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+                                      fjs.parentNode.insertBefore(js, fjs);
+                                  } (document, 'script', 'facebook-jssdk'));   </script></li><li><span class="Button Color1" onclick="OpenModal('/fr~EmailArticle?i=1998103', 400, 220)">Email</span></li><li><span class="Button Color2" onclick="OpenModal('/fr~SubscribeArticle?i=1998103', 400, 300)">Follow</span></li></ul>
+     <br />
+     <br />
+    
+           
+<table> 
+    <tr>
+        <td style="width:700px" valign="top">
+ 
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">I am trying to get Java RMI to work on a simple tutorial case.  I have
+these classes to use in a Hello World example:
+
+(HelloClient.java):
+import java.rmi.Naming;
+public class HelloClient {
+   public static void main(String[] args) {
+      try {
+         HelloInterface hello = (HelloInterface)
+Naming.lookup(&quot;//localhost/Hello&quot;);
+         System.out.println (hello.say());
+       } catch (Exception e) {
+         System.out.println (&quot;HelloClient exception: &quot; + e);
+       }
+   }
+}
+
+(HelloServer.java):
+import java.rmi.Naming;
+public class HelloServer {
+   public static void main(String[] args) {
+      try {
+         Hello h = new Hello (&quot;Hello, world!&quot;);
+         Naming.rebind (&quot;Hello&quot;, h);
+         System.out.println (&quot;Hello Server is ready.&quot;);
+       } catch (Exception e) {
+         System.out.println (&quot;Hello Server failed: &quot; + e);
+       }
+   }
+}
+
+(Hello.java):
+import java.rmi.*;
+import java.rmi.server.*;
+public class Hello extends UnicastRemoteObject implements
+HelloInterface {
+   private String message;
+   /**
+    * Construct a remote object
+    * @param msg the message of the remote object, such as &quot;Hello,
+world!&quot;.
+    * @exception RemoteException if the object handle cannot be
+constructed.
+    */
+   public Hello (String msg) throws RemoteException {
+     message = msg;
+   }
+   /**
+    * Implementation of the remotely invocable method.
+    * @return the message of the remote object, such as &quot;Hello,
+world!&quot;.
+    * @exception RemoteException if the remote invocation fails.
+    */
+   public String say() throws RemoteException {
+     return message;
+   }
+}
+
+(HelloInterface.java):
+import java.rmi.*;
+public interface HelloInterface extends Remote {
+   /**
+    * Remotely invocable method.
+    * @return the message of the remote object, such as &quot;Hello,
+world!&quot;.
+    * @exception RemoteException if the remote invocation fails.
+    */
+   public String say() throws RemoteException;
+}
+
+I compiled all the classes &amp; used rmic (&gt;&gt;rmic Hello) which only
+created Hello_Stub.class, not Hello_Skel.class like is apparently
+supposed to happen.
+
+I can&#39;t get anywhere though since every time I start the HelloServer
+I instantly get this error:
+Trouble: java.rmi.ConnectException: Connection refused to host:
+192.168.0.102; nested exception is:
+	java.net.ConnectException: Connection refused: connect
+
+I have been trying other tutorials and on other computers but having no
+luck.  What am I doing wrong?
+
+Thanks,
+Jo
+
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem"  >
+        <td style="width:95px" >
+              <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticle($(this).closest('table'),'&lt;1165366577.501598.258340@j44g2000cwa.googlegroups.com&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticle($(this).closest('table'),'&lt;1165366577.501598.258340@j44g2000cwa.googlegroups.com&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+        </td>
+            <td>                      <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamArticle(1998103)" class="Clickable" />  
+            </td> 
+        <td >
+         
+                    <a class="Button Color1" href="#replyForm" >Reply</a>
+        </td>
+        <td style="width: 150px;">
+<span class="user"><a href="/user/jmecc"><img src="http://www.gravatar.com/avatar/4f908a8ffdc78783c66bc68c5d1cc546.jpg?s=24&d=identicon" /><b>jmecc</b></a> <b title="Points" style="color:green">(19)</b>   </span>
+        </td>
+      <td>12/6/2006 12:56:17 AM </td>
+            <td>   
+                                <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header" ><img src="/img/icn/header.gif" /></a>
+              
+        </td>  
+    </tr>
+</table>                <br /><b><a href="#similar"><img src="/img/icn/!.gif" />See related articles to this posting</a></b><br />
+          <br /> 
+
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">
+
+On Dec 6, 1:56 am, &quot;JMecc&quot; &lt;j...@telus.net&gt; wrote:
+&gt; I am trying to get Java RMI to work on a simple tutorial case.  I have
+&gt; these classes to use in a Hello World example:
+
+&lt;snip&gt;
+
+&gt; compiled all the classes &amp; used rmic (&gt;&gt;rmic Hello) which only
+&gt; created Hello_Stub.class, not Hello_Skel.class like is apparently
+&gt; supposed to happen.
+&gt;
+&gt; I can&#39;t get anywhere though since every time I start the HelloServer
+&gt; I instantly get this error:
+&gt; Trouble: java.rmi.ConnectException: Connection refused to host:
+&gt; 192.168.0.102; nested exception is:
+&gt;         java.net.ConnectException: Connection refused: connect
+&gt;
+&gt; I have been trying other tutorials and on other computers but having no
+&gt; luck.  What am I doing wrong?
+&gt;
+&gt; Thanks,
+&gt; Jo
+
+To work with rmi you&#39;ll have to start a RMI registry before binding
+objects. To start the registry you&#39;ve got 2 options:
+
+- run the &#39;rmiregistry&#39; command from the command line (in the directory
+where your compiled classes reside)
+- start the registry in your program:
+LocateRegistry.createRegistry(Registry.REGISTRY_PORT); (before binding
+in the server)
+
+The reason no skeletons are generated is because the 1.2 JRMP protocol
+no longer needs them. You can still generate them by telling the rmic
+compiler to do so, but I don&#39;t think you&#39;ll have to.
+
+Regards,
+
+Bart
+
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+        
+        <td style="width:95px">
+            <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;1165400258.622908.319960@f1g2000cwa.googlegroups.com&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;1165400258.622908.319960@f1g2000cwa.googlegroups.com&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+        </td>
+        <td>
+                <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3c1165400258.622908.319960%40f1g2000cwa.googlegroups.com%3e')" class="Clickable" />
+    </td>
+    <td>
+        
+        <a class="Button Color1" href="#replyForm">Reply</a>
+    </td>
+    <td style="width: 150px;">
+<span class="user"><a href="/user/bcremers"><img src="http://www.gravatar.com/avatar/9512240f5727c4dd694984599a5055e0.jpg?s=24&d=identicon" /><b>bcremers</b></a> <b title="Points" style="color:green">(150)</b>   </span>
+        
+    </td>
+    <td>
+        12/6/2006 10:17:38 AM
+    </td>
+    <td>
+                    <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header"><img src="/img/icn/header.gif" /></a>
+
+    </td>
+</tr>
+</table>
+                      <br />  <table width="100%" class="PostReply"><tr><td> <div id="azk25862"></div>  </td><td align="right">
+                           <div id="azk26003"></div>   </td> </tr></table>  
+          <br /> 
+
+<table width="100%" class="PostArticle" cellspacing="0" cellpadding="5">
+    <tr>
+        
+        <td align="left" valign="top" colspan="9">
+            <pre class="ForumPostContentText">Thanks Bart; I did forget to use rmiregistry and this got things going.
+ I read that for Windows it should be &#39;start rmiregistry&#39; but that
+didn&#39;t work, only &#39;rmiregistry &amp;&#39; did.
+
+So that worked for a bit and is now back to not working:
+
+C:\Java\RMI Sample Server&gt;rmic SampleServerImpl
+C:\Java\RMI Sample Server&gt;java -Djava.security.policy=policy.all
+SampleServerImpl
+Remote exception: java.rmi.ServerException: RemoteException occurred in
+server thread; nested exception is:
+        java.rmi.UnmarshalException: error unmarshalling arguments;
+nested exception is:
+        java.lang.ClassNotFoundException: SampleServerImpl_Stub
+C:\Java\RMI Sample Server&gt;dir
+ Directory of C:\Java\RMI Sample Server
+12/06/2006  08:06 PM    &lt;DIR&gt;          .
+12/06/2006  08:06 PM    &lt;DIR&gt;          ..
+12/06/2006  02:54 PM               226 .classpath
+12/06/2006  02:54 PM               393 .project
+12/06/2006  02:55 PM               130 policy.all
+12/06/2006  08:03 PM               288 policy.test
+12/06/2006  03:55 PM             1,643 SampleClient.class
+12/06/2006  03:55 PM             1,404 SampleClient.java
+12/06/2006  02:56 PM               203 SampleServer.class
+12/06/2006  02:56 PM               128 SampleServer.java
+12/06/2006  08:06 PM             1,475 SampleServerImpl.class
+12/06/2006  08:06 PM             1,228 SampleServerImpl.java
+12/06/2006  08:06 PM             1,774 SampleServerImpl_Stub.class
+
+It seems to work when I use &#39;rmiregistry &amp;&#39;, then kill it (cntr-c),
+then &#39;start rmiregistry&#39;, then &#39;rmiregistry &amp;&#39; again, or maybe it is
+that I have to use &#39;rmiregistry &amp;&#39; within the directory of my classes I
+want to set as remote.  I am not sure what the correct procedure is and
+so am playing around trying to get it working, but I&#39;d like to get a
+confirmed &#39;correct way&#39;.
+
+I was also trying to define a policy, but that is not going so well
+either.  The connection was made fine with
+
+grant {
+    permission java.security.AllPermission;
+};
+
+but I think this allows others to obtain my classes (&amp; then decompile
+them...).  I saw this in a tutorial:
+
+grant {
+	permission java.io.filePermission &quot;/tmp/*&quot;, &quot;read&quot;,
+&quot;write&quot;;
+	permission java.net.SocketPermission
+&quot;somehost.somedomain.com:999&quot;,&quot;connect&quot;;
+	permission java.net.SocketPermission
+&quot;*:1024-65535&quot;,&quot;connect,request&quot;;
+	permission java.net.SocketPermission &quot;*:80&quot;,&quot;connect&quot;;
+  };
+
+but all I got were cannot parse file errors:
+
+C:\Java\RMI Sample Server&gt;java -Djava.security.policy=policy.hkbu
+SampleServerImpl
+java.security.policy: error parsing
+file:/C:/Java/RMI%20Sample%20Server/policy.hkbu:
+        line 2: expected [;], found [?]
+Exception in thread &quot;main&quot; java.security.AccessControlException: access
+denied (java.net.SocketPermission 127.0.0.1:1099 connect,resolve)
+        at java.security.AccessControlContext.checkPermission(Unknown
+Source)
+        at java.security.AccessController.checkPermission(Unknown
+Source)
+        at java.lang.SecurityManager.checkPermission(Unknown Source)
+        at java.lang.SecurityManager.checkConnect(Unknown Source)
+        at java.net.Socket.connect(Unknown Source)
+        at java.net.Socket.connect(Unknown Source)
+        at java.net.Socket.&lt;init&gt;(Unknown Source)
+        at java.net.Socket.&lt;init&gt;(Unknown Source)
+        at
+sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(Unknown
+Source)
+        at
+sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(Unknown
+Source)
+        at sun.rmi.transport.tcp.TCPEndpoint.newSocket(Unknown Source)
+        at sun.rmi.transport.tcp.TCPChannel.createConnection(Unknown
+Source)
+        at sun.rmi.transport.tcp.TCPChannel.newConnection(Unknown
+Source)
+        at sun.rmi.server.UnicastRef.newCall(Unknown Source)
+        at sun.rmi.registry.RegistryImpl_Stub.rebind(Unknown Source)
+        at java.rmi.Naming.rebind(Unknown Source)
+        at SampleServerImpl.main(SampleServerImpl.java:33)
+
+Is it ok to just leave the policy to all &amp; use a wrapper class to pass
+the calls with arguments through to the real classes only if the
+password is correct or something like that?
+
+Jo
+
+</pre>
+        </td>
+    </tr>
+    <tr class="ListItem">
+        
+        <td style="width:95px">
+            <table style="text-align: center;  width:90px" class="Voting" voteSum="0">
+    <tr>
+        <td>
+            <img src="/img/icn/plus32.png"  height="20px"  style="cursor: pointer" title="Vote Up!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;1165461859.075809.250750@80g2000cwy.googlegroups.com&gt;', true);" />
+        </td>
+        <td style="color: Green; font-weight: bold; font-size: 15px" title="0 Total Votes" >
+           0
+        </td>
+        <td>
+            <img src="/img/icn/minus32.png"  height="20px"  style="cursor: pointer" title="Vote Down!" onclick="OnVoteArticleReply($(this).closest('table'),'&lt;1165461859.075809.250750@80g2000cwy.googlegroups.com&gt;', false);" />
+        </td>
+    </tr>
+</table>
+
+        </td>
+        <td>
+                <img title="Report As Spam" src="/img/icn/spam.png" onclick="ReportSpamReply('%3c1165461859.075809.250750%4080g2000cwy.googlegroups.com%3e')" class="Clickable" />
+    </td>
+    <td>
+        
+        <a class="Button Color1" href="#replyForm">Reply</a>
+    </td>
+    <td style="width: 150px;">
+<span class="user"><a href="/user/jmecc"><img src="http://www.gravatar.com/avatar/4f908a8ffdc78783c66bc68c5d1cc546.jpg?s=24&d=identicon" /><b>jmecc</b></a> <b title="Points" style="color:green">(19)</b>   </span>
+        
+    </td>
+    <td>
+        12/7/2006 3:24:19 AM
+    </td>
+    <td>
+                    <a onclick="OpenModal('/ifr/register', 350, 200)" title="Header"><img src="/img/icn/header.gif" /></a>
+
+    </td>
+</tr>
+</table>
+
+          </td>
+                  <td valign="top" rowspan="99">
+                      <table class="GroupLink"><tr><td><a href="/comp.lang.java.help/"><img src="/img/icn/group.png" /><b>comp.lang.java.help</b></a>
+<a href="/comp.lang.java.help/info"><img title="comp.lang.java.help Group Information" src="/img/icn/i.png" /></a> 
+<img src="/img/icn/article.gif" />11972 articles.  <img src="/img/icn/star2.gif" />5 followers. </td></tr></table><br />
+                      <img src="/img/icn/reply.png" />
+                      <b>2 Replies </b>
+                      <br />
+                      <img src="/img/icn/eye.png" />
+                      <b>12 Views</b>
+                      <br /><br /> 
+                      <b><a href="#similar"><img src="/img/icn/!.gif" />Similar Articles</a></b><br /><br /> 
+12/9/2013 4:42:56 AM<br /><div>page loaded in 65573 ms. (0)</div>
+                                                <br /><br /><div style="text-align:center"><div id="azk24097"></div>   </div>   
+                 </td>
+    </tr>
+     <tr>
+            <td valign="top">
+                <br />
+                  
+                
+<form id="replyForm">
+<table>
+    <tr>
+        <td>
+            <b>Reply:</b><br />
+            <textarea id="Body" name="Body" cols="83" rows="7" style="border:1px solid green"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="button" onclick="PostArticle($(this).closest('form'))" value=" Post Reply "
+                class="Button Color1" />
+              <input name="insertSignature" type="button" class="Button Color2" value="Insert Signature" onclick="InsertSignature( $('#Body'),'http://compgroups.net/comp.lang.java.help/rmi-connection-refused-to-host/1998103') " />
+           
+        </td>
+    </tr>
+</table>
+<input id="MessageId" name="MessageId" type="hidden" value="&lt;1165366577.501598.258340@j44g2000cwa.googlegroups.com>" />
+<input id="Group" name="Group" type="hidden" value="comp.lang.java.help" />
+<input id="Subject" name="Subject" type="hidden" value="RE: RMI Connection Refused to Host" />
+</form>
+ 
+                <br />
+                <b id="similar"><img src="/img/icn/!.gif" /> Similar Artilces:</b><br /><br />
+                <div id="divSimilar" style="overflow-x:hidden">
+                    
+                </div>  
+                   <br />  <br />  <table width="100%" class="PostReply"><tr><td> <div id="azk50008"></div>  </td><td align="right">
+                         <div id="azk15916"></div>   </td> </tr></table><br />
+            </td>
+        </tr>
+        <tr>
+            <td>
+            
+        </td>
+        </tr>
+</table> 
+
+                <script type="text/javascript">var p="http",d="static";if(document.location.protocol=="https:"){p+="s";d="engine";}var z=document.createElement("script");z.type="text/javascript";z.async=true;z.src=p+"://"+d+".adzerk.net/ados.js";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(z,s);</script>
+
+                <script type="text/javascript">
+          var ados = ados || {};
+          ados.run = ados.run || [];
+          ados.run.push(function() { 
+          ados_add_placement(2072, 17356, "azk25862", 5);
+          ados_add_placement(2072, 17356, "azk26003", 5);
+          ados_add_placement(2072, 17356, "azk50008", 5);
+          ados_add_placement(2072, 17356, "azk15916", 5);
+          ados_add_placement(2072, 17356, "azk24097", 6);
+          ados_load();
+          });
+        </script>
+      
+
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+            <td valign="top" style=" text-align: right;" class="MainRight">
+                 
+            </td>
+        </tr>
+        <tr >
+        <td  class="MainLeft"></td>
+        <td class="Footer" style="text-align:center;">           
+        <a href="/site~privacy">Privacy Policy</a>  |  All Times Are GMT(UTC)
+        </td>
+        <td  class="MainRight"></td>
+        </tr>
+    </table>    
+      
+
+<script type="text/javascript">
+	var clicky_site_ids = clicky_site_ids || [];
+clicky_site_ids.push(191998);
+(function() {
+  var s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.async = true;
+  s.src = '//static.getclicky.com/js';
+  ( document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0] ).appendChild( s );
+})();
+</script>
+
+    
+</body>
+</html>

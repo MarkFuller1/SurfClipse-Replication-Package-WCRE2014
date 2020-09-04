@@ -1,0 +1,2048 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>An Improved RMI Tutorial with Eclipse | Nomad Labs Code</title>
+
+<link rel="alternate" type="application/rss+xml" title="Nomad Labs Code RSS Feed" href="http://code.nomad-labs.com/feed/" />
+<link rel="alternate" type="application/atom+xml" title="Nomad Labs Code Atom Feed" href="http://code.nomad-labs.com/feed/atom/" />
+<link rel="pingback" href="http://code.nomad-labs.com/xmlrpc.php" />
+<link rel="shortcut icon" href="http://code.nomad-labs.com/wp-content/themes/arclite/favicon.ico" />
+
+<style type="text/css" media="all">
+@import "http://code.nomad-labs.com/wp-content/themes/arclite/style.css";
+@import "http://code.nomad-labs.com/wp-content/themes/arclite/options/header-default.css";
+@import "http://code.nomad-labs.com/wp-content/themes/arclite/options/side-gray.css";
+@import "http://code.nomad-labs.com/wp-content/themes/arclite/options/content-white.css";
+</style>
+
+<!--[if lte IE 6]>
+<style type="text/css" media="screen">
+@import "http://code.nomad-labs.com/wp-content/themes/arclite/ie6.css";
+</style>
+<![endif]-->
+
+  
+<link rel="alternate" type="application/rss+xml" title="Nomad Labs Code &raquo; An Improved RMI Tutorial with Eclipse Comments Feed" href="http://code.nomad-labs.com/2010/03/26/an-improved-rmi-tutorial-with-eclipse/feed/" />
+<script type='text/javascript' src='http://code.nomad-labs.com/wp-includes/js/l10n.js?ver=20101110'></script>
+<script type='text/javascript' src='http://code.nomad-labs.com/wp-includes/js/comment-reply.js?ver=20090102'></script>
+<script type='text/javascript' src='http://code.nomad-labs.com/wp-includes/js/jquery/jquery.js?ver=1.4.4'></script>
+<script type='text/javascript' src='http://code.nomad-labs.com/wp-content/themes/arclite/js/arclite.js?ver=3.1.1'></script>
+<script type='text/javascript' src='http://code.nomad-labs.com/wp-content/plugins/google-analyticator/external-tracking.min.js?ver=6.1.2'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://code.nomad-labs.com/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://code.nomad-labs.com/wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='Nomad Labs Code' href='http://code.nomad-labs.com/' />
+<link rel='start' title='Using Dropbox for Eclipse Projects' href='http://code.nomad-labs.com/2009/07/12/hello-world/' />
+<link rel='prev' title='Simulating dropped packets (aka crappy internets) with iptables' href='http://code.nomad-labs.com/2010/03/11/simulating-dropped-packets-aka-crappy-internets-with-iptables/' />
+<link rel='next' title='Identifying which Java Thread is consuming most CPU' href='http://code.nomad-labs.com/2010/11/18/identifying-which-java-thread-is-consuming-most-cpu/' />
+<meta name="generator" content="WordPress 3.1.1" />
+<link rel='shortlink' href='http://code.nomad-labs.com/?p=139' />
+
+<!-- All in One SEO Pack 1.6.13.2 by Michael Torbert of Semper Fi Web Design[261,330] -->
+<meta name="description" content="Introduction There are/have-been heaps of remoting frameworks in java, but RMI being part of the JRE/JDK and therefore having no external dependencies is" />
+<meta name="keywords" content="eclipse,java,rmi" />
+<link rel="canonical" href="http://code.nomad-labs.com/2010/03/26/an-improved-rmi-tutorial-with-eclipse/" />
+<!-- /all in one seo pack -->
+	<link href="http://code.nomad-labs.com/wp-content/plugins/google_code_prettify/prettify.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="http://code.nomad-labs.com/wp-content/plugins/google_code_prettify/prettify.js"></script>
+	<!-- Google Analytics Tracking by Google Analyticator 6.1.2: http://ronaldheft.com/code/analyticator/ -->
+<script type="text/javascript">
+	var analyticsFileTypes = [''];
+	var analyticsEventTracking = 'enabled';
+</script>
+<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-472321-13']);
+	_gaq.push(['_trackPageview']);
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+</script>
+
+</head>
+<body class="inner">
+ <!-- page wrap -->
+ <div id="page" class="with-sidebar">
+
+  <!-- header -->
+  <div id="header-wrap">
+   <div id="header" class="block-content">
+     <div id="pagetitle">
+
+            <h1 class="logo"><a href="http://code.nomad-labs.com/">Nomad Labs Code</a></h1>
+      
+      <h4>srasul&#039;s snippets of code and thought</h4>      <div class="clear"></div>
+
+                  <!-- search form -->
+      <div class="search-block">
+        <div class="searchform-wrap">
+          <form method="get" id="searchform" action="http://code.nomad-labs.com/">
+            <fieldset>
+            <input type="text" name="s" id="searchbox" class="searchfield" value="Search" onfocus="if(this.value == 'Search') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search';}" />
+             <input type="submit" value="Go" class="go" />
+            </fieldset>
+          </form>
+        </div>
+      </div>
+      <!-- /search form -->
+      
+     </div>
+
+     <!-- main navigation -->
+     <div id="nav-wrap1">
+      <div id="nav-wrap2">
+        <ul id="nav">
+                     <li id="nav-homelink"><a class="fadeThis" href="http://code.nomad-labs.com" title="Click for Home"><span>Home</span></a></li>
+                   <li class="page_item page-item-2"><a class="fadeThis" href="http://code.nomad-labs.com/about/" title="About"><span>About</span></a></li>
+<li class="page_item page-item-10"><a class="fadeThis" href="http://code.nomad-labs.com/eclipse-bulk-import/" title="Eclipse Bulk Import"><span>Eclipse Bulk Import</span></a></li>
+<li class="page_item page-item-61"><a class="fadeThis" href="http://code.nomad-labs.com/fix-message-viewer/" title="FIX Message Viewer"><span>FIX Message Viewer</span></a></li>
+        </ul>
+      </div>
+     </div>
+     <!-- /main navigation -->
+
+   </div>
+  </div>
+  <!-- /header -->
+
+<!-- main wrappers -->
+<div id="main-wrap1">
+ <div id="main-wrap2">
+
+  <!-- main page block -->
+  <div id="main" class="block-content">
+   <div class="mask-main rightdiv">
+    <div class="mask-left">
+
+     <!-- first column -->
+     <div class="col1">
+      <div id="main-content">
+
+
+              <div class="navigation">
+          <div class="alignleft">&laquo; <a href="http://code.nomad-labs.com/2010/03/11/simulating-dropped-packets-aka-crappy-internets-with-iptables/" rel="prev">Simulating dropped packets (aka crappy internets) with iptables</a></div>
+          <div class="alignright"><a href="http://code.nomad-labs.com/2010/11/18/identifying-which-java-thread-is-consuming-most-cpu/" rel="next">Identifying which Java Thread is consuming most CPU</a> &raquo;</div>
+          <div class="clear"></div>
+        </div>
+
+
+        <!-- post -->
+        <div id="post-139" class="post-139 post type-post status-publish format-standard hentry category-eclipse category-java category-rmi">
+           <h2>An Improved RMI Tutorial with Eclipse</h2>
+              <div class="post-content clearfix">
+    	       <h3>Introduction</h3>
+<p>
+There are/have-been heaps of remoting frameworks in java, but RMI being part of the JRE/JDK and therefore having no external dependencies is my personal preference for remoting with java. Its main drawback: the wire protocol is not web-friendly and therefore difficult to go through firewalls (although it is possible). But if used behind the firewall, it makes for an excellent way to do distributed computing using only the JDK (OMG! only the JDK?! no Spring? or JMS?!). It does have several killer features that are found in very few (if any) remoting frameworks: callbacks and remote classloading. In this tutorial, you will see remote classloading. Ever since JRE 5.0, you don&#8217;t need to compile stubs (meaning you don&#8217;t need an extra compile-time step to get RMI working). I am guessing someone decided to do away with those and use the jdk dynamic proxies.
+</p>
+<p><span id="more-139"></span></p>
+<p>
+I wrote this tutorial after going through the most execelent RMI Tutorial by SUN/Oracle that you can find <a href = "http://java.sun.com/docs/books/tutorial/rmi/index.html">here</a>. This tutorial has some aspects that complicate things:</p>
+<ul>
+<li>(a soft) requirement a webserver to download some code (wtf?! I just want to get RMI working. why do i need a webserver?)</li>
+<li>Defining and using security policy files that point to explicit paths (I just want to get RMI working)</li>
+<li>compiling stuff into 3 jars (with no build files provided this makes stuff very tedious) and having a big-ass command to run on the command line.</li>
+</ul>
+<p>
+I will still recommend that you read the concepts presented in RMI tutorial before attempting this one since I will only present the same code, with some instructions on how to get it running within eclipse.
+</p>
+</p>
+<p>And finally, to simplify things, we will use only eclipse to get this tutorial working. All eclipse projects (including sources) are attached at the end of this tutorial. I will also say that not all the code is written by me. Some is taken directly from Sun/Oracle&#8217;s RMI tutorial. Lets get started!
+</p>
+<h3>Eclipse Project Setups</h3>
+<p>
+The example application has 3 components:</p>
+<ol>
+<li>Some interfaces</li>
+<li>A Server component that implements these interfaces</li>
+<li>A Client components that uses these interfaces</li>
+</ol>
+<p><img src="http://code.nomad-labs.com/wp-content/uploads/2010/03/screenshot_002.png" alt="3 Eclipse Projects" /></p>
+<p>And so we will create 3 eclipse projects: rmi-base, rmi-server and rmi-client. In the rmi-base we will put all the interfaces and any classes that both the client and server might need. We will then set the project dependencies such that rmi-server and rmi-client projects depend on rmi-base. Be sure that the project dependencies are setup correctly. In eclipse you can do this via right-click on a project -> Properties -> Java Build Path -> Projects tab. For the rmi-server and rmi-client projects, in this Projects tab, we have to Add the rmi-base project.</p>
+<p><img src="http://code.nomad-labs.com/wp-content/uploads/2010/03/screenshot_007.png" alt="project setup 1" /></p>
+<p><img src="http://code.nomad-labs.com/wp-content/uploads/2010/03/screenshot_008.png" alt="project setup 2" /></p>
+<h4>The rmi-base Project</h4>
+<p>
+This project will contain our 2 interfaces for this RMI app: Compute and Task. The sample application defines a Compute interface that takes Task types, computes them and returns a result. A server component will implement the Compute interface and a client component will implement and send to the server a Task implementation.</p>
+<p><img src="http://code.nomad-labs.com/wp-content/uploads/2010/03/screenshot_003.png" alt="rmi-base project" /></p>
+<h5>The remote classloading</h5>
+<p>
+Here is where the remote classloading comes in. The server and client components will be running in different jvms. So even thought the server only knows the compute interface, it will acquire the implementation (defined in the client) from the client, run it and return the result. This can be very useful because most remoting frameworks transport data. RMI can transport data and logic.
+</p>
+<p>
+The code for these 2 interfaces is noting spectacular and is shown below:
+</p>
+<pre id="java" class="prettyprint">
+package saqib.rasul;
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface Compute extends Remote {
+
+    public static final String SERVICE_NAME = "ComputeEngine";
+
+    <T> T executeTask(Task<T> t) throws RemoteException;
+}
+</pre>
+<pre id="java" class="prettyprint">
+package saqib.rasul;
+
+public interface Task<T> {
+    T execute();
+}
+</pre>
+<p>Apart from these 2 interfaces we have 2 classes used by both client and server. One is the PolicyFileLocator whose task it is to give the path to the policy file. Our policy file, which by the way, is not secure at all in that it allows everything. The code of the PolicyFileLocator just finds this policy file (whether on the file sytem or in a jar), copies it to a temp-file and returns the path to this temp file. Unlike the last 2 interfaces, this class is much more spectacular.
+</p>
+<pre id="java" class="prettyprint">
+
+package saqib.rasul;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+
+/**
+ * class to locate our most "secure" policy file
+ *
+ * @author srasul
+ *
+ */
+public class PolicyFileLocator {
+
+    public static final String POLICY_FILE_NAME = "/allow_all.policy";
+
+    public static String getLocationOfPolicyFile() {
+        try {
+            File tempFile = File.createTempFile("rmi-base", ".policy");
+            InputStream is = PolicyFileLocator.class.getResourceAsStream(POLICY_FILE_NAME);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+            int read = 0;
+            while((read = is.read()) != -1) {
+                writer.write(read);
+            }
+            writer.close();
+            tempFile.deleteOnExit();
+            return tempFile.getAbsolutePath();
+        }
+        catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+</pre>
+<p>
+To go with this we have our policy file which allows all.
+</p>
+<pre id="java" class="prettyprint">
+grant {
+    permission java.security.AllPermission;
+};
+</pre>
+<p>To be able to do RMI we need to do 3 things beforhand:</p>
+<ul>
+<li>set the java.rmi.server.codebase system property (more about this later)</li>
+<li>set the java.security.policy system property to the path to a policy file</li>
+<li>set a new SecurityManager</li>
+</ul>
+<p>Since we need to do these three things for the server and client component, I decided to make a common class that does this: RmiStarter.</p>
+<h5>The java.rmi.server.codebase property</h5>
+<p>
+For the server component, this defines the location for classes originating <em>from</em> this server can be found. For the client, this defines the location where the client can find classes that originating <em>from</em> the client can be found. Since the server needs to expose these interfaces to the RMI registry, for the server we define the location of the 2 interfaces. For the client, it needs to expose/send-over an implementation of Task, so we need to define for it the location of the PI class. Using the class object we can find the location of where a class is living. And this location is the value for the java.rmi.server.codebase property.
+</p>
+<p>If this property is not defined, or defined wrong then you get nasty ClassNotFound exceptions when trying to use RMI:</p>
+<pre>
+java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:
+	java.rmi.UnmarshalException: error unmarshalling arguments; nested exception is:
+	java.lang.ClassNotFoundException: saqib.rasul.Compute
+	at sun.rmi.server.UnicastServerRef.oldDispatch(UnicastServerRef.java:396)
+	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:250)
+	at sun.rmi.transport.Transport$1.run(Transport.java:159)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at sun.rmi.transport.Transport.serviceCall(Transport.java:155)
+	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:535)
+	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:790)
+	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:649)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:619)
+	at sun.rmi.transport.StreamRemoteCall.exceptionReceivedFromServer(StreamRemoteCall.java:255)
+	at sun.rmi.transport.StreamRemoteCall.executeCall(StreamRemoteCall.java:233)
+	at sun.rmi.server.UnicastRef.invoke(UnicastRef.java:359)
+	at sun.rmi.registry.RegistryImpl_Stub.rebind(Unknown Source)
+	at saqib.rasul.server.TheRmiServer.doCustomRmiHandling(TheRmiServer.java:23)
+	at saqib.rasul.RmiStarter.<init>(RmiStarter.java:27)
+	at saqib.rasul.server.TheRmiServer.<init>(TheRmiServer.java:13)
+	at saqib.rasul.server.TheRmiServer.main(TheRmiServer.java:32)
+Caused by: java.rmi.UnmarshalException: error unmarshalling arguments; nested exception is:
+	java.lang.ClassNotFoundException: saqib.rasul.Compute
+	at sun.rmi.registry.RegistryImpl_Skel.dispatch(Unknown Source)
+	at sun.rmi.server.UnicastServerRef.oldDispatch(UnicastServerRef.java:386)
+	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:250)
+	at sun.rmi.transport.Transport$1.run(Transport.java:159)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at sun.rmi.transport.Transport.serviceCall(Transport.java:155)
+	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:535)
+	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:790)
+	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:649)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:619)
+Caused by: java.lang.ClassNotFoundException: saqib.rasul.Compute
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:202)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:190)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:307)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:248)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Class.java:247)
+	at sun.rmi.server.LoaderHandler.loadProxyInterfaces(LoaderHandler.java:711)
+	at sun.rmi.server.LoaderHandler.loadProxyClass(LoaderHandler.java:655)
+	at sun.rmi.server.LoaderHandler.loadProxyClass(LoaderHandler.java:592)
+	at java.rmi.server.RMIClassLoader$2.loadProxyClass(RMIClassLoader.java:628)
+	at java.rmi.server.RMIClassLoader.loadProxyClass(RMIClassLoader.java:294)
+	at sun.rmi.server.MarshalInputStream.resolveProxyClass(MarshalInputStream.java:238)
+	at java.io.ObjectInputStream.readProxyDesc(ObjectInputStream.java:1531)
+	at java.io.ObjectInputStream.readClassDesc(ObjectInputStream.java:1493)
+	at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1732)
+	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1329)
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:351)
+	... 12 more
+</pre>
+</p>
+<p>
+A clue here is the final exception. The Server is looking for the Compute class and can&#8217;t find it. So therefore the server&#8217;s java.rmi.server.codebase property should point to the location where it can find this class. For the rmi-server project, eclipse takes care of the classpath and so using the <code>Compute.class.getProtectionDomain().getCodeSource().getLocation()</code> we can find out where this class lives. We can then feed the location of this class (could be directory or a jar file) as the value for the java.rmi.server.codebase property.
+</p>
+<p>
+Here is the code for the RmiStarter class:
+</p>
+<pre id="java" class="prettyprint">
+
+package saqib.rasul;
+
+/**
+ * class to do some common things for client &#038; server to get RMI working
+ *
+ * @author srasul
+ *
+ */
+public abstract class RmiStarter {
+
+    /**
+     *
+     * @param clazzToAddToServerCodebase a class that should be in the java.rmi.server.codebase property.
+     */
+    public RmiStarter(Class<?> clazzToAddToServerCodebase) {
+
+        System.setProperty("java.rmi.server.codebase", clazzToAddToServerCodebase
+            .getProtectionDomain().getCodeSource().getLocation().toString());
+
+        System.setProperty("java.security.policy", PolicyFileLocator.getLocationOfPolicyFile());
+
+        if(System.getSecurityManager() == null) {
+            System.setSecurityManager(new SecurityManager());
+        }
+
+        doCustomRmiHandling();
+    }
+
+    /**
+     * extend this class and do RMI handling here
+     */
+    public abstract void doCustomRmiHandling();
+
+}
+</pre>
+<p>
+And with that we are over the hill. Its all downhill from here!
+</p>
+<h4>Writing the Server Component in the rmi-server Project</h4>
+<p><img src="http://code.nomad-labs.com/wp-content/uploads/2010/03/screenshot_004.png" alt="rmi-server project" /></p>
+<p>The server component consists of the implementation of the Compute interface. The code for this is:</p>
+<pre id="java" class="prettyprint">
+package saqib.rasul.server;
+
+import java.rmi.RemoteException;
+
+import saqib.rasul.Compute;
+import saqib.rasul.Task;
+
+public class ComputeEngine
+    implements Compute {
+
+    @Override
+    public <T> T executeTask(Task<T> t)
+        throws RemoteException {
+        System.out.println("got compute task: " + t);
+        return t.execute();
+    }
+}
+</pre>
+<p>And the code to start up the server component:</p>
+<pre id="java" class="prettyprint">
+
+package saqib.rasul.server;
+
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+
+import saqib.rasul.Compute;
+import saqib.rasul.RmiStarter;
+
+/**
+ * start the server component. this exposes the an implementation of the Compute interface as a service over RMI
+ *
+ * @author srasul
+ *
+ */
+public class ComputeEngineStarter
+    extends RmiStarter {
+
+    public ComputeEngineStarter() {
+        super(Compute.class);
+    }
+
+    @Override
+    public void doCustomRmiHandling() {
+        try {
+            Compute engine = new ComputeEngine();
+            Compute engineStub = (Compute)UnicastRemoteObject.exportObject(engine, 0);
+
+            Registry registry = LocateRegistry.getRegistry();
+            registry.rebind(Compute.SERVICE_NAME, engineStub);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void main(String[] args) {
+        new ComputeEngineStarter();
+    }
+}
+</pre>
+<p>And thats it for the server component. If we were to run the ComptueEngineStarter class by its main method it would expose an RMI service with the name &#8220;ComputeEngine&#8221;. I find that running 1 class is much simpler than writing out a big-ass command on the command line to run a class, define classpaths and define system properties.
+</p>
+<h4>Writing the Client Component in the rmi-client Project</h4>
+<p>
+The client contains an implementation of Task called PI. A snippet of code of this class is given below. This class calculates PI to a given number of decimal places.</p>
+<p><img src="http://code.nomad-labs.com/wp-content/uploads/2010/03/screenshot_005.png" alt="rmi-client project" /></p>
+<pre id="java" class="prettyprint">
+
+package saqib.rasul.client;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+import saqib.rasul.Task;
+
+public class PI
+    implements Task<BigDecimal>, Serializable {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3942967283733335029L;
+
+    /** constants used in pi computation */
+    private static final BigDecimal FOUR = BigDecimal.valueOf(4);
+
+    /** rounding mode to use during pi computation */
+    private static final int roundingMode = BigDecimal.ROUND_HALF_EVEN;
+
+    /** digits of precision after the decimal point */
+    private final int digits;
+
+    /**
+     * Construct a task to calculate pi to the specified precision.
+     */
+    public PI(int digits) {
+        this.digits = digits;
+    }
+
+    /**
+     * Calculate pi.
+     */
+    public BigDecimal execute() {
+        return computePi(digits);
+    }
+
+    // .... the rest is omitted for saving pixels
+    // .... 
+</pre>
+<p>
+And a starter class that sends this to the PI task to the ComputeEngine service.
+</p>
+<pre id="java" class="prettyprint">
+
+package saqib.rasul.client;
+
+import java.math.BigDecimal;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+import saqib.rasul.Compute;
+import saqib.rasul.RmiStarter;
+
+/**
+ * get the RMI Compute service and send a task to compute PI to N digits
+ *
+ * @author srasul
+ *
+ */
+public class StartComputeTaskPI
+    extends RmiStarter {
+
+    public StartComputeTaskPI() {
+        super(PI.class);
+    }
+
+    @Override
+    public void doCustomRmiHandling() {
+        try {
+            Registry registry = LocateRegistry.getRegistry();
+            Compute compute = (Compute)registry.lookup(Compute.SERVICE_NAME);
+            PI task = new PI(50);
+            BigDecimal pi = compute.executeTask(task);
+            System.out.println("computed pi: " + pi);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void main(String[] args) {
+        new StartComputeTaskPI();
+    }
+}
+</pre>
+<h3>Running it</h3>
+<p>
+First make sure you have the rmiregistry running by executing rmiregistry on the command line. See the original RMI tutorial for this
+</p>
+<p>Then in eclipse, first run the ComputeEngineStarter class and then the StartComputeTaskPI class. This will run those 2 classes in separate jvms and they will communicator over RMI.</p>
+<p><img src="http://code.nomad-labs.com/wp-content/uploads/2010/03/screenshot_006.png" alt="running in eclipse" /></p>
+<p>If you wanted to make jars out of the projects, that would work as well. Then you can run the classes on the command line as done in the original RMI tutorial. Except you dont need to define any system properties. You just run the 2 classes in different jvms:
+</p>
+<p><img src="http://code.nomad-labs.com/wp-content/uploads/2010/03/Screenshot.png" alt="Run RMI Command Line" /></p>
+<h3>The End &#038; The Downloads</h3>
+<p>
+Thats it for now. I hope you found the tutorial usefull and helpful. You can use the code in your projects. I have placed it under an Apache 2 License.
+</p>
+<p>
+<a href="http://dl.dropbox.com/u/1338234/rmi-tutorial.zip"><br />
+You can download a zip containing all 3 eclipse projects here.<br />
+</a></p>
+<p>
+              </div>
+                                          <p class="post-metadata">
+                    This entry was posted on Friday, March 26th, 2010 and is filed under <a href="http://code.nomad-labs.com/category/eclipse/" title="View all posts in eclipse" rel="category tag">eclipse</a>, <a href="http://code.nomad-labs.com/category/java/" title="View all posts in Java" rel="category tag">Java</a>, <a href="http://code.nomad-labs.com/category/rmi/" title="View all posts in RMI" rel="category tag">RMI</a>. You can follow any responses to this entry through <a href="http://code.nomad-labs.com/2010/03/26/an-improved-rmi-tutorial-with-eclipse/feed/" title="RSS 2.0">RSS 2.0</a>.
+                    You can <a href="#respond">leave a response</a>, or <a href="http://code.nomad-labs.com/2010/03/26/an-improved-rmi-tutorial-with-eclipse/trackback/" rel="trackback">trackback</a> from your own site.                        		  </p>
+
+        </div>
+        <!-- /post -->
+
+    	
+  
+  <h3 class="comments">
+    41 Comments (and 2 trackbacks)   </h3>
+
+  <!-- comments -->
+  <ul id="comments">
+    
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-527">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-527">#1</a> by <span class="with-tooltip"><a id="commentauthor-527" href="http://www.miun.se">Roger Norling</a></span> on June 24th, 2010        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-527', 'comment-527', 'comment-body-527', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-527">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/31f994d62e53a93b3d2f64f50bc32e5c?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Nice example. However, I have a problem running it. I get the following exception:</p>
+<p>Exception in thread &#8220;main&#8221; java.lang.NullPointerException<br />
+	at rmitest.PolicyFileLocator.getLocationOfPolicyFile(PolicyFileLocator.java:16)<br />
+	at rmitest.RmiStarter.(RmiStarter.java:9)<br />
+	at rmitest.ComputeEngineStarter.(ComputeEngineStarter.java:10)<br />
+	at rmitest.ComputeEngineStarter.main(ComputeEngineStarter.java:28)</p>
+<p>The offending line is:<br />
+InputStream is = PolicyFileLocator.class.getResourceAsStream(PolicyFileName);</p>
+<p>I didn&#8217;t use your already set up projects since I figured being able to set it up myself would be better practice. The policy file should be it the correct place as far as I can tell. Any ideas why it is not working?</p>
+         <a id="comment-reply-527"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-528">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-528">#2</a> by <span class="with-tooltip"><a id="commentauthor-528" href="http://www.miun.se">Roger Norling</a></span> on June 24th, 2010        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-528', 'comment-528', 'comment-body-528', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-528">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/31f994d62e53a93b3d2f64f50bc32e5c?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Sorry, let me be precise.. That was not the offending line, but rather the originating cause. The &#8216;is&#8217; variable is set to null, as if the resource wasn&#8217;t there.</p>
+         <a id="comment-reply-528"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-529">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-529">#3</a> by <span class="with-tooltip"><a id="commentauthor-529" href="http://www.miun.se">Roger Norling</a></span> on June 24th, 2010        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-529', 'comment-529', 'comment-body-529', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-529">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/31f994d62e53a93b3d2f64f50bc32e5c?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Oh, found the problem. The policy file should be directly under src, not under the package. It was slightly hard to see from the images above.</p>
+<p>However, another question.. This example only work locally on a host, right. How can a deployment with multiple hosts be realized?</p>
+         <a id="comment-reply-529"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment byuser comment-author-admin bypostauthor odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-532">
+   <div class="comment-mask admincomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-532">#4</a> by <span class="with-tooltip"><a id="commentauthor-532" href="http://code.nomad-labs.com">srasul</a></span> on June 26th, 2010        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-532', 'comment-532', 'comment-body-532', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-532">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/42deca2fda129e742efa3790811e9142?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Type your comment here<br />
+<blockquote cite="#comment-body-529">
+<strong><a href="#comment-529" rel="nofollow">Roger Norling</a> :</strong></p>
+<div class="avatar"><img alt="" src="http://www.gravatar.com/avatar/31f994d62e53a93b3d2f64f50bc32e5c?s=64&amp;d=http%3A%2F%2Fwww.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G" class="avatar avatar-64 photo" height="64" width="64"/></div>
+<p>Oh, found the problem. The policy file should be directly under src, not under the package. It was slightly hard to see from the images above.</p>
+<p>However, another question.. This example only work locally on a host, right. How can a deployment with multiple hosts be realized?</p>
+<p>         <a id="comment-reply-529" rel="nofollow"></a>
+       </p></blockquote>
+<p>Hi Roger,</p>
+<p>thanks for the feedback.</p>
+<p>to work with multiple hosts you need to run the rmi register on a host. Then using the <code>java.rmi.registry.LocateRegistry</code> class get the registry running on this host and use this to expose new services and get proxies to services exposed.</p>
+         <a id="comment-reply-532"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-533">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-533">#5</a> by <span class="with-tooltip"><a id="commentauthor-533" href="http://www.miun.se">Roger Norling</a></span> on June 26th, 2010        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-533', 'comment-533', 'comment-body-533', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-533">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/31f994d62e53a93b3d2f64f50bc32e5c?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Thanks for the response.</p>
+<p>Yes, the rmi registry need to run on the server&#8217;s host and the client need to be extended by specifying a host address in its getRegistry() call.</p>
+<p>However, what I&#8217;m unsure of is the java.rmi.server.codebase property and the propagation of the class code. In the inter-host senario e.g. &#8220;file:/C:/EclipseWorkspace/rmi-base/bin/&#8221; works fine, but how does this translate to an intra-host senario, where server and client are situated on different machines?</p>
+<p>Sun&#8217;s example use a class to implement a simple http server. I that needed, or would you imagen another solution? Would you please elaborate on this?</p>
+<p>Btw, while I remember it, I think the code in your example is quite beatiful and well designed.</p>
+         <a id="comment-reply-533"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment byuser comment-author-admin bypostauthor odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-537">
+   <div class="comment-mask admincomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-537">#6</a> by <span class="with-tooltip"><a id="commentauthor-537" href="http://code.nomad-labs.com">srasul</a></span> on June 27th, 2010        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-537', 'comment-537', 'comment-body-537', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-537">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/42deca2fda129e742efa3790811e9142?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Thanks again for the positive feedback. It will be great if you can use this code for some real-world use <img src='http://code.nomad-labs.com/wp-includes/images/smilies/icon_smile.gif' alt=':)' class='wp-smiley' /> </p>
+<p>The <code>java.rmi.server.codebase</code> is used (as far as my understanding of this variable goes) to specify code that will be used for remote-classloading. If your use of RMI used this feature, then you need to put these classes in a location where another host can get them (via http for example). This is because in RMI you can make a method call where one of the arguments is an implementation of an interface that the server does not know about. The server knows the interface (in this case the Task interface), but when you call the Compute services with an implementation of this interface, the server cannot know this implementation. And so the server cannot know what to &#8216;compute&#8217;. And this is where the <code>java.rmi.server.codebase</code> comes in. Using this variable you specify where the server can find any classes that it gets as method-args that it does not know about. I hope this clarifies the use of this system property.</p>
+<p>If, on the other hand, you do not use this feature, then the <code>java.rmi.server.codebase</code> should point to a local location containing the shared interfaces.</p>
+<p>Btw, in the example from Sun (and my eclipse-tutorial) we do use the remote-classloading feature.</p>
+         <a id="comment-reply-537"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-539">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-539">#7</a> by <span class="with-tooltip"><a id="commentauthor-539" href="http://www.miun.se">Roger Norling</a></span> on June 28th, 2010        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-539', 'comment-539', 'comment-body-539', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-539">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/31f994d62e53a93b3d2f64f50bc32e5c?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>I understand fairly well how the java.rmi.server.codebase is used and why it is needed. My understanding is that I need to use that http server class in order to cross the host boundaries when server and client is run separately.</p>
+<p>I will try to merge your utility class with the code from sun and get back to you with the result of my tinkering.</p>
+         <a id="comment-reply-539"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-575">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-575">#8</a> by <b id="commentauthor-575">Kristof</b> on July 20th, 2010        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-575', 'comment-575', 'comment-body-575', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-575">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/52b5748919f53506f3469bdecf89cf32?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Great tutorial. The part about referencing to the &#8216;Compute&#8217; class using Compute.class.getProtectionDomain().getCodeSource().getLocation().toString() solved an annoying fault in my application. Thanks!</p>
+         <a id="comment-reply-575"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-6024">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-6024">#9</a> by <b id="commentauthor-6024">Xinhua Zhu</b> on March 31st, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-6024', 'comment-6024', 'comment-body-6024', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-6024">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/11ca8a70f0b0417606b80751e5697536?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Hi, it works very well in java project.</p>
+<p>But when I move it into an Eclipse RCP project, some strange exception happens, something like:</p>
+<p>java.lang.NoClassDefFoundError: saqib/rasul/RmiStarter</p>
+<p>What is the reason? Thanks</p>
+         <a id="comment-reply-6024"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-6685">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-6685">#10</a> by <b id="commentauthor-6685">Parikshit Kansara</b> on April 20th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-6685', 'comment-6685', 'comment-body-6685', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-6685">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/fda2687fa9a0ebaa22e6c023d383ca9f?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>hi,I am working on Traveling Tournament problem project.I have already implemented this project in java. running on single system.I want implement this project in distributed environment and how i can implement this using RMI??</p>
+         <a id="comment-reply-6685"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-6686">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-6686">#11</a> by <b id="commentauthor-6686">Parikshit Kansara</b> on April 20th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-6686', 'comment-6686', 'comment-body-6686', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-6686">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/fda2687fa9a0ebaa22e6c023d383ca9f?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>hi,I am working on Traveling Tournament problem project.I have already implemented this project in java. running on single system.I want to implement this project in distributed environment and how can i implement this using RMI??</p>
+         <a id="comment-reply-6686"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-7832">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-7832">#12</a> by <b id="commentauthor-7832">Christopher</b> on May 24th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-7832', 'comment-7832', 'comment-body-7832', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-7832">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/c6c21087f630e45803d281d985562c34?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Really nice work! My RMI Server runs well and now i can see pi <img src='http://code.nomad-labs.com/wp-includes/images/smilies/icon_smile.gif' alt=':-)' class='wp-smiley' /> </p>
+<p>Really thank you!</p>
+         <a id="comment-reply-7832"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-10030">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-10030">#13</a> by <b id="commentauthor-10030">Mesut</b> on June 23rd, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-10030', 'comment-10030', 'comment-body-10030', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-10030">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/9a607ba03b3d082bc006cbe457673b56?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Nice work! It explains a lot.<br />
+Thank you.</p>
+         <a id="comment-reply-10030"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-11827">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-11827">#14</a> by <b id="commentauthor-11827">Carrion</b> on August 2nd, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-11827', 'comment-11827', 'comment-body-11827', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-11827">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/9d540520bd4d4cce24e123e465713a6b?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Thank you so much!! You saved my life! I was struggling for 1 week and you explained it so well&#8230; everything is there.<br />
+Thanks again <img src='http://code.nomad-labs.com/wp-includes/images/smilies/icon_smile.gif' alt=':)' class='wp-smiley' /> </p>
+         <a id="comment-reply-11827"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-12956">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-12956">#15</a> by <b id="commentauthor-12956">Kris</b> on August 28th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-12956', 'comment-12956', 'comment-body-12956', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-12956">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/47a7b8497e18eacf9df1773b23ed2250?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Great tutorial works like a charm! Is *almost* exactly what I was looking for. I need to talk to a &#8216;child&#8217; JVM on the same machine. RMI seems like the perfect solution. </p>
+<p>The only thing that bugs me a little is the need start an RMI registry process somehow<br />
+My main objection to it is the fact that I need to find a way to make sure it is started without user intervention (don&#8217;t want to bug the user with this).</p>
+<p>But as it turns out you don&#8217;t need the registry. It is possible to simply have the server write out the stub to a File using java serialization and then have the client read it in from the file.</p>
+<p>This works perfectly (I just tried it).</p>
+         <a id="comment-reply-12956"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-12960">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-12960">#16</a> by <b id="commentauthor-12960">Kris</b> on August 28th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-12960', 'comment-12960', 'comment-body-12960', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-12960">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/47a7b8497e18eacf9df1773b23ed2250?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Hey, I just put up something based on your sample code. I modified it only slightly so it doesn&#8217;t use the RMI registry. </p>
+<p><a href="http://code.nomad-labs.com/2010/03/26/an-improved-rmi-tutorial-with-eclipse/" rel="nofollow">http://code.nomad-labs.com/2010/03/26/an-improved-rmi-tutorial-with-eclipse/</a></p>
+         <a id="comment-reply-12960"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-12961">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-12961">#17</a> by <b id="commentauthor-12961">Kris</b> on August 28th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-12961', 'comment-12961', 'comment-body-12961', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-12961">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/47a7b8497e18eacf9df1773b23ed2250?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Oops, wrong link.. sorry. Too bad I can&#8217;t edit my previous comment to fix it.</p>
+<p><a href="http://krisdevolder.blogspot.com/2011/08/using-rmi-without-registry.html" rel="nofollow">http://krisdevolder.blogspot.com/2011/08/using-rmi-without-registry.html</a></p>
+         <a id="comment-reply-12961"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-14651">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-14651">#18</a> by <b id="commentauthor-14651">Jitendra Modi</b> on September 25th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-14651', 'comment-14651', 'comment-body-14651', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-14651">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/6eb7a4a46d9b4b7aa6aa99be4c65a2c2?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Hi,<br />
+  I follow given example. Create all three projects, classes and interfaces .<br />
+   In (Task.java) interface and Compute.java class you are using T. I dont found any Class T.<br />
+  waiting for your reply&#8230;.</p>
+         <a id="comment-reply-14651"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-14824">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-14824">#19</a> by <b id="commentauthor-14824">Suresh Chauhan</b> on September 28th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-14824', 'comment-14824', 'comment-body-14824', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-14824">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/69c1c669c3422d34e5d7ea1687939752?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <blockquote cite="#comment-body-527"><p>
+<strong><a href="#comment-527" rel="nofollow">Roger Norling</a> :</strong></p>
+<p>         Nice example. However, I have a problem running it. I get the following exception:<br />
+Exception in thread “main�? java.lang.NullPointerException<br />
+at rmitest.PolicyFileLocator.getLocationOfPolicyFile(PolicyFileLocator.java:16)<br />
+at rmitest.RmiStarter.(RmiStarter.java:9)<br />
+at rmitest.ComputeEngineStarter.(ComputeEngineStarter.java:10)<br />
+at rmitest.ComputeEngineStarter.main(ComputeEngineStarter.java:28)<br />
+The offending line is:<br />
+InputStream is = PolicyFileLocator.class.getResourceAsStream(PolicyFileName);<br />
+I didn’t use your already set up projects since I figured being able to set it up myself would be better practice. The policy file should be it the correct place as far as I can tell. Any ideas why it is not working?<br />
+         <a></a>
+       </p></blockquote>
+<p>Thank you so much it is very useful&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;..</p>
+         <a id="comment-reply-14824"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-17045">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-17045">#20</a> by <b id="commentauthor-17045">Leo</b> on November 6th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-17045', 'comment-17045', 'comment-body-17045', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-17045">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/328698cb41a992683f14f5b38fa96ba1?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>I got the following problem when running the starter:</p>
+<p>java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:<br />
+	java.rmi.UnmarshalException: error unmarshalling arguments; nested exception is:<br />
+	java.lang.ClassNotFoundException: access to class loader denied<br />
+	at sun.rmi.server.UnicastServerRef.oldDispatch(UnicastServerRef.java:419)<br />
+	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:267)<br />
+	at sun.rmi.transport.Transport$1.run(Transport.java:177)<br />
+	at sun.rmi.transport.Transport$1.run(Transport.java:174)<br />
+	at java.security.AccessController.doPrivileged(Native Method)<br />
+	at sun.rmi.transport.Transport.serviceCall(Transport.java:173)<br />
+	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:553)<br />
+	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:808)<br />
+	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:667)<br />
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)<br />
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)<br />
+	at java.lang.Thread.run(Thread.java:722)<br />
+	at sun.rmi.transport.StreamRemoteCall.exceptionReceivedFromServer(Unknown Source)<br />
+	at sun.rmi.transport.StreamRemoteCall.executeCall(Unknown Source)<br />
+	at sun.rmi.server.UnicastRef.invoke(Unknown Source)<br />
+	at sun.rmi.registry.RegistryImpl_Stub.rebind(Unknown Source)<br />
+	at saqib.rasul.server.ComputeEngineStarter.doCustomRmiHandling(ComputeEngineStarter.java:31)<br />
+	at saqib.rasul.RmiStarter.(RmiStarter.java:27)<br />
+	at saqib.rasul.server.ComputeEngineStarter.(ComputeEngineStarter.java:21)<br />
+	at saqib.rasul.server.ComputeEngineStarter.main(ComputeEngineStarter.java:40)<br />
+Caused by: java.rmi.UnmarshalException: error unmarshalling arguments; nested exception is:<br />
+	java.lang.ClassNotFoundException: access to class loader denied<br />
+	at sun.rmi.registry.RegistryImpl_Skel.dispatch(Unknown Source)<br />
+	at sun.rmi.server.UnicastServerRef.oldDispatch(UnicastServerRef.java:409)<br />
+	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:267)<br />
+	at sun.rmi.transport.Transport$1.run(Transport.java:177)<br />
+	at sun.rmi.transport.Transport$1.run(Transport.java:174)<br />
+	at java.security.AccessController.doPrivileged(Native Method)<br />
+	at sun.rmi.transport.Transport.serviceCall(Transport.java:173)<br />
+	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:553)<br />
+	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:808)<br />
+	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:667)<br />
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)<br />
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)<br />
+	at java.lang.Thread.run(Thread.java:722)<br />
+Caused by: java.lang.ClassNotFoundException: access to class loader denied<br />
+	at sun.rmi.server.LoaderHandler.loadProxyClass(LoaderHandler.java:605)<br />
+	at java.rmi.server.RMIClassLoader$2.loadProxyClass(RMIClassLoader.java:646)<br />
+	at java.rmi.server.RMIClassLoader.loadProxyClass(RMIClassLoader.java:311)<br />
+	at sun.rmi.server.MarshalInputStream.resolveProxyClass(MarshalInputStream.java:257)<br />
+	at java.io.ObjectInputStream.readProxyDesc(ObjectInputStream.java:1549)<br />
+	at java.io.ObjectInputStream.readClassDesc(ObjectInputStream.java:1511)<br />
+	at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1750)<br />
+	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1347)<br />
+	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:369)<br />
+	&#8230; 13 more<br />
+Caused by: java.security.AccessControlException: access denied (&#8220;java.io.FilePermission&#8221; &#8220;\C:\workspace\rmi-base\bin\-&#8221; &#8220;read&#8221;)<br />
+	at java.security.AccessControlContext.checkPermission(AccessControlContext.java:366)<br />
+	at java.security.AccessController.checkPermission(AccessController.java:555)<br />
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:549)<br />
+	at sun.rmi.server.LoaderHandler$Loader.checkPermissions(LoaderHandler.java:1176)<br />
+	at sun.rmi.server.LoaderHandler$Loader.access$000(LoaderHandler.java:1130)<br />
+	at sun.rmi.server.LoaderHandler.loadProxyClass(LoaderHandler.java:571)<br />
+	&#8230; 21 more</p>
+<p>any advise?<br />
+thanks</p>
+         <a id="comment-reply-17045"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-17639">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-17639">#21</a> by <b id="commentauthor-17639">kino</b> on November 16th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-17639', 'comment-17639', 'comment-body-17639', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-17639">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/69700ca6b3d3819681bbc63d834ad5af?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>great job,really helped !!!</p>
+         <a id="comment-reply-17639"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-18200">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-18200">#22</a> by <b id="commentauthor-18200">Manny</b> on November 25th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-18200', 'comment-18200', 'comment-body-18200', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-18200">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/7fcc544f21dc78b6859f07de038ee92d?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>I get the same error posted by kino&#8230;. Can you explain why access to rmi-server bin folder is happening?</p>
+         <a id="comment-reply-18200"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-18201">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-18201">#23</a> by <b id="commentauthor-18201">Manny</b> on November 25th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-18201', 'comment-18201', 'comment-body-18201', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-18201">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/7fcc544f21dc78b6859f07de038ee92d?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>I get the same error posted by kino…. Can you explain why access to rmi-server bin folder is denied?</p>
+         <a id="comment-reply-18201"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-18457">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-18457">#24</a> by <b id="commentauthor-18457">xavb</b> on November 28th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-18457', 'comment-18457', 'comment-body-18457', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-18457">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/b00f801511ed8cb2abe5963e627e927e?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>I got an AccessControlException, exactly the same got by Kino. What does it mean?<br />
+I got the same error with another RMI project which I&#8217;m trying to run.</p>
+         <a id="comment-reply-18457"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-18879">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-18879">#25</a> by <b id="commentauthor-18879">Leslie Jeffries</b> on December 3rd, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-18879', 'comment-18879', 'comment-body-18879', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-18879">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/9014e047aa75fc4223b2faa629a66a51?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>I really like the elegance of your solution, however I&#8217;m still frustrated since I can&#8217;t get it to work completely. The policy file finder is really nice.</p>
+<p>To let you know, my client and server work perfectly fine if the code for both is in the same directory. If I move the client code outside the folder where the server code is (as would be the case in Eclipse), I have all the finding the code problems.</p>
+<p>Anyway, when I try to make the call to export the stub in my app similar to this:<br />
+Compute engineStub = (Compute)UnicastRemoteObject.exportObject(engine, 0);</p>
+<p>I get the following error<br />
+java.rmi.server.ExportException: object already exported</p>
+<p>If I comment out that call I am back to this problem:<br />
+java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:<br />
+	java.rmi.UnmarshalException: error unmarshalling arguments; nested exception is:<br />
+	java.lang.ClassNotFoundException: saqib.rasul.Compute</p>
+<p>Any idea what I&#8217;m doing wrong.</p>
+         <a id="comment-reply-18879"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-19076">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-19076">#26</a> by <b id="commentauthor-19076">OrangeDog</b> on December 6th, 2011        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-19076', 'comment-19076', 'comment-body-19076', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-19076">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/a41efd005f1896e65b778a8f53aa259c?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>To srasul:thanx for your examples, it`s really helps to understend RMI;<br />
+To Leo: I had similar problem, try to fix JRE_HOME/lib/security/java.policy, I know, that is ugly but it must working</p>
+         <a id="comment-reply-19076"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+  <li class="trackback">
+   <div class="comment-mask">
+    <div class="comment-main">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+         <p class="with-tooltip"><span>Trackback:</span> <a href='http://pujakesuma.org/?option=com_content&#038;view=article&#038;id=8%3Apin-waja-gelar-silaturahmi-kebangsaan-gubsu-semua-etnis-miliki-tanggungjawab-bangun-sumut-&#038;catid=2%3Aeksternal&#038;Itemid=7&#038;am' rel='external nofollow' class='url'>Informasi Online Organisasi Masyarakat Jawa Keluyuran di Sumatera</a></p>
+        </div>
+      </div>
+     </div>
+    </div>
+   </div>
+
+
+ </li>
+  <li class="trackback">
+   <div class="comment-mask">
+    <div class="comment-main">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+         <p class="with-tooltip"><span>Trackback:</span> <a href='http://parcrosewood.net/register/' rel='external nofollow' class='url'>parc rosewood register</a></p>
+        </div>
+      </div>
+     </div>
+    </div>
+   </div>
+
+
+ </li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-46972">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-46972">#27</a> by <b id="commentauthor-46972">tunisian_girl</b> on September 2nd, 2012        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-46972', 'comment-46972', 'comment-body-46972', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-46972">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/113ef52e788f4649c777945ce491365e?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>t is a great tutorial thank you <img src='http://code.nomad-labs.com/wp-includes/images/smilies/icon_smile.gif' alt=':)' class='wp-smiley' /> .<br />
+But I&#8217;m trying to get a distributed example the server on a machine and the client on another machine. all my attempts to do that fail. if you have a distributed example can you put it thank you</p>
+         <a id="comment-reply-46972"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-47741">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-47741">#28</a> by <b id="commentauthor-47741">Didier</b> on September 13th, 2012        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-47741', 'comment-47741', 'comment-body-47741', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-47741">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/3e0126797db7d73fc48369a897688e26?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Thank you so much, was getting mad with the original tutorial <img src='http://code.nomad-labs.com/wp-includes/images/smilies/icon_smile.gif' alt=':)' class='wp-smiley' /> </p>
+         <a id="comment-reply-47741"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-60518">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-60518">#29</a> by <b id="commentauthor-60518">mamuka</b> on November 25th, 2012        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-60518', 'comment-60518', 'comment-body-60518', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-60518">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/d0876345e6f29aedd7916d9b6bffbad9?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Multiple markers at this line<br />
+	- implements saqib.rasul.Compute.executeTask<br />
+	- The method executeTask(Task) of type<br />
+	 ComputeEngine must override a superclass method<br />
+	- Return type for the method is missing</p>
+         <a id="comment-reply-60518"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-62882">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-62882">#30</a> by <span class="with-tooltip"><a id="commentauthor-62882" href="http://www.schornsteinkonfigurator24.de">www.schornsteinkonfigurator24.de</a></span> on December 9th, 2012        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-62882', 'comment-62882', 'comment-body-62882', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-62882">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/4414e6067e17159d1c0351ed027670f3?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>This is my first time go to see at here and i<br />
+am actually happy to read everthing at single place.</p>
+         <a id="comment-reply-62882"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-62984">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-62984">#31</a> by <span class="with-tooltip"><a id="commentauthor-62984" href="http://eckkaminofen.webs.com">kaminofen wasserfuehrend test</a></span> on December 9th, 2012        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-62984', 'comment-62984', 'comment-body-62984', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-62984">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/5ca99443b272c152f86cc269d9f39fd4?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>I have been surfing online more than three hours today, yet<br />
+I never found any attention-grabbing article like yours.<br />
+It&#8217;s beautiful worth sufficient for me. In my opinion, if all webmasters and bloggers made just right content material as you probably did, the internet will likely be much more useful than ever before.</p>
+         <a id="comment-reply-62984"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-72079">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-72079">#32</a> by <b id="commentauthor-72079">bs</b> on February 11th, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-72079', 'comment-72079', 'comment-body-72079', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-72079">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/7f63a73e68aed17c555fa1b2fb41f811?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Wonderful tutorial&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;was struggling to run RMI APPLICATION in eclipse&#8230;&#8230;this tutorial works. &#8230;..it&#8217;s gr8&#8230;&#8230;superb<br />
+Thanx thanx a lot</p>
+         <a id="comment-reply-72079"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-91179">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-91179">#33</a> by <span class="with-tooltip"><a id="commentauthor-91179" href="http://filmoza.net/komedi/7-all-inclusive-ili-vse-vklyucheno-2011-ts.html">новые фильмы</a></span> on June 1st, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-91179', 'comment-91179', 'comment-body-91179', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-91179">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/aba1dfbbc0cc84d11746c5d4db18b19f?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Hi my friend! I wish to say that this article is awesome, great written and come with approximately all significant infos. I would like to peer extra posts like this .</p>
+         <a id="comment-reply-91179"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-91342">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-91342">#34</a> by <span class="with-tooltip"><a id="commentauthor-91342" href="http://topsy.com/monikabus.pl/blog/">Ardis</a></span> on June 3rd, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-91342', 'comment-91342', 'comment-body-91342', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-91342">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/1b93958facc9ab738a5b9199c2e306d2?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Right now it appears like Expression Engine is the best blogging<br />
+platform out there right now. (from what I&#8217;ve read) Is that what you are using on your blog?<br />
+Ardis</p>
+         <a id="comment-reply-91342"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-94169">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-94169">#35</a> by <span class="with-tooltip"><a id="commentauthor-94169" href="http://dustystem1506.sosblogs.com/Editorial-System-b1/What-to-Expect-From-Laser-Tattoo-Removal-b1-p6.htm">laser tattoo removal stevenage</a></span> on June 23rd, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-94169', 'comment-94169', 'comment-body-94169', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-94169">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/da84ad525805535796b26b2117d29620?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>What&#8217;s up, its nice piece of writing regarding media print, we all know media is a wonderful source of information.</p>
+         <a id="comment-reply-94169"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-100976">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-100976">#36</a> by <b id="commentauthor-100976">Connor</b> on July 30th, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-100976', 'comment-100976', 'comment-body-100976', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-100976">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/7d4d08c75980fbecff84285283b384f9?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Thanks for making this available, I can now use RMI with eclipse</p>
+         <a id="comment-reply-100976"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-101017">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-101017">#37</a> by <span class="with-tooltip"><a id="commentauthor-101017" href="http://www.facebook.com/dailyhotgirl">sexy chicks</a></span> on July 31st, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-101017', 'comment-101017', 'comment-body-101017', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-101017">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/b890bd921d66c795f54c407866a156fb?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>This is a topic which is near to my heart&#8230; Take care!<br />
+Where are your contact details though?</p>
+         <a id="comment-reply-101017"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-103200">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-103200">#38</a> by <span class="with-tooltip"><a id="commentauthor-103200" href="http://www.thefreevps.com">The Free VPS</a></span> on August 4th, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-103200', 'comment-103200', 'comment-body-103200', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-103200">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/461148e0a218cc513d5170c9d064e1e7?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>When some one searches for his vital thing, therefore he/she needs to be available that<br />
+in detail, so that thing is maintained over here.</p>
+         <a id="comment-reply-103200"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-114911">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-114911">#39</a> by <span class="with-tooltip"><a id="commentauthor-114911" href="https://plus.google.com/b/100987602239876688973/100987602239876688973/posts/p/pub">Marisa</a></span> on September 10th, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-114911', 'comment-114911', 'comment-body-114911', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-114911">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/a7962620943c0f3bd5fecfd0cccbabd2?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Wonderful wweb site. Plenty of helpful information here.</p>
+<p>I am sending it to some friends ans additionnally sharing in delicious.</p>
+<p>And of course, thanks iin your effort!</p>
+         <a id="comment-reply-114911"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment odd alt thread-odd thread-alt depth-1 with-avatar" id="comment-124236">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-124236">#40</a> by <b id="commentauthor-124236">Xavier</b> on September 27th, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-124236', 'comment-124236', 'comment-body-124236', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-124236">
+                  <div class="avatar"><img alt='' src='http://1.gravatar.com/avatar/b41344b1d5fecfa52c647061dc844865?s=64&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>This tutorial really helped, but for one thing: the path returned by cl.getProtectionDomain().getCodeSource().getLocation().toString() on Windows gave me something beginning with file:/C:/&#8230;<br />
+I thought this was pretty uncommon syntax, but waited until I got an error related to this. It should be &#8220;file://C:/&#8230;&#8221;</p>
+<p>I don&#8217;t know how to make bug reports or whether this is a bug, but if you hit this, I&#8217;d be interested to know.</p>
+         <a id="comment-reply-124236"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+
+  <!-- comment entry -->
+  <li class="comment even thread-even depth-1 with-avatar" id="comment-143996">
+   <div class="comment-mask regularcomment">
+    <div class="comment-main tiptrigger">
+     <div class="comment-wrap1">
+      <div class="comment-wrap2">
+       <div class="comment-head">
+        <p>
+          <a href="#comment-143996">#41</a> by <b id="commentauthor-143996">Jason</b> on November 10th, 2013        </p>
+
+                <p class="controls tip">
+                           <a class="quote" title="Quote" href="javascript:void(0);" onclick="MGJS_CMT.quote('commentauthor-143996', 'comment-143996', 'comment-body-143996', 'comment');"><span>Quote</span></a> 
+        </p>
+               </div>
+       <div class="comment-body clearfix" id="comment-body-143996">
+                  <div class="avatar"><img alt='' src='http://0.gravatar.com/avatar/48f69380beb3a009e2d2b1c55d051620?s=64&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D64&amp;r=G' class='avatar avatar-64 photo' height='64' width='64' /></div>
+         
+         
+         <p>Not sure if someone already posted the a solution for the Unmarshall/ClassNotFound error, when you run &#8220;rmiregistry&#8221; make sure the rmi-base/bin directory is in it&#8217;s CLASSPATH</p>
+         <a id="comment-reply-143996"></a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+</li>
+   </ul>
+   <div class="clear"></div>
+   
+   
+   
+      <div id="respond">
+      <script type="text/javascript">
+       function validatecomment(form){
+         if(form.author.value == ('' || 'Your name (required)')){
+           alert('Please enter your name');
+           return false;
+         }
+         if(form.email.value == ('' || 'Your e-mail (required, will not be published)')){
+           alert('Please enter your email address');
+           return false;
+         }
+         if(form.comment.value == ('' || 'Type your comment here')){
+           alert('Please type a comment');
+           return false;
+         }
+         if(form.url.value == ('' || 'Your website')){
+           form.url.value = '';
+           return true;
+         }
+       }
+      </script>
+      <form action="http://code.nomad-labs.com/wp-comments-post.php" method="post" id="commentform" onsubmit="return validatecomment(this);">
+        <div class="cancel-comment-reply"><a rel="nofollow" id="cancel-comment-reply-link" href="/2010/03/26/an-improved-rmi-tutorial-with-eclipse/#respond" style="display:none;">Cancel Reply</a></div>          	                <div id="author_info">
+            <div class="row">
+              <input type="text" name="author" id="author" class="textfield required" size="34" tabindex="1" value="Your name (required)" onfocus="if( this.value == 'Your name (required)') {this.value = '';}"  onblur="if (this.value == '') { this.value = 'Your name (required)';}" />
+            </div>
+            <div class="row">
+              <input type="text" name="email" id="email" class="textfield required" value="Your e-mail (required, will not be published)" onfocus="if(this.value == 'Your e-mail (required, will not be published)') { this.value = '';}"  onblur="if (this.value == '') { this.value = 'Your e-mail (required, will not be published)';}" size="60" tabindex="2" />
+            </div>
+            <div class="row">
+              <input type="text" name="url" id="url" class="textfield" value="Your website" onfocus="if(this.value == 'Your website') { this.value = 'http://';}" onblur="if ((this.value == 'http://') || (this.value == '')) { this.value = 'Your website';}" size="60" tabindex="3" />
+            </div>
+
+  		  </div>
+                  
+        <!-- comment input -->
+        <div class="row">
+        	<textarea name="comment" id="comment" class="required" tabindex="4" rows="8" cols="60" onfocus="if(this.value == 'Type your comment here') {this.value = '';}" onblur="if(this.value == '') {this.value = 'Type your comment here';}">Type your comment here</textarea>
+        	            
+        	<input type='hidden' name='comment_post_ID' value='139' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="a9ca3c2e5d" /></p>        </div>
+        <!-- /comment input -->
+
+        <!-- comment submit and rss -->
+        <div id="submitbox" class="left">
+		<input name="submit" type="submit" id="submit" class="button" tabindex="5" value="Submit Comment" />
+         <input type="hidden" name="formInput" />
+        </div>
+      </form>
+    </div>
+        
+  <!-- /comments -->
+
+
+            </div>
+     </div>
+     <!-- /first column -->
+     
+<!-- 2nd column (sidebar) -->
+<div class="col2">
+ <ul id="sidebar">
+
+    
+        <li class="block">
+      <!-- sidebar menu (categories) -->
+      <ul class="menu">
+        	<li  class="cat-item cat-item-5"><a class="fadeThis" href="http://code.nomad-labs.com/category/bash/" title="View all posts filed under bash">bash</a><a class="rss tip" href="http://code.nomad-labs.com/category/bash/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-4"><a class="fadeThis" href="http://code.nomad-labs.com/category/eclipse/" title="View all posts filed under eclipse">eclipse</a><a class="rss tip" href="http://code.nomad-labs.com/category/eclipse/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-10"><a class="fadeThis" href="http://code.nomad-labs.com/category/financial/" title="View all posts filed under Financial">Financial</a><a class="rss tip" href="http://code.nomad-labs.com/category/financial/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-12"><a class="fadeThis" href="http://code.nomad-labs.com/category/firewall/" title="View all posts filed under firewall">firewall</a><a class="rss tip" href="http://code.nomad-labs.com/category/firewall/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-9"><a class="fadeThis" href="http://code.nomad-labs.com/category/fix/" title="View all posts filed under FIX">FIX</a><a class="rss tip" href="http://code.nomad-labs.com/category/fix/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-13"><a class="fadeThis" href="http://code.nomad-labs.com/category/iptables/" title="View all posts filed under iptables">iptables</a><a class="rss tip" href="http://code.nomad-labs.com/category/iptables/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-3"><a class="fadeThis" href="http://code.nomad-labs.com/category/java/" title="View all posts filed under Java">Java</a><a class="rss tip" href="http://code.nomad-labs.com/category/java/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-6"><a class="fadeThis" href="http://code.nomad-labs.com/category/linux/" title="View all posts filed under linux">linux</a><a class="rss tip" href="http://code.nomad-labs.com/category/linux/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-11"><a class="fadeThis" href="http://code.nomad-labs.com/category/perl/" title="View all posts filed under Perl">Perl</a><a class="rss tip" href="http://code.nomad-labs.com/category/perl/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-14"><a class="fadeThis" href="http://code.nomad-labs.com/category/rmi/" title="View all posts filed under RMI">RMI</a><a class="rss tip" href="http://code.nomad-labs.com/category/rmi/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-8"><a class="fadeThis" href="http://code.nomad-labs.com/category/ruby/" title="View all posts filed under ruby">ruby</a><a class="rss tip" href="http://code.nomad-labs.com/category/ruby/feed/"></a>
+</li>
+	<li  class="cat-item cat-item-1"><a class="fadeThis" href="http://code.nomad-labs.com/category/uncategorized/" title="View all posts filed under Uncategorized">Uncategorized</a><a class="rss tip" href="http://code.nomad-labs.com/category/uncategorized/feed/"></a>
+</li>
+
+        
+      </ul>
+      <!-- /sidebar menu -->
+    </li>
+    
+    		<li class="block widget widget_recent_entries" id="recent-posts-5"><div class="box"> <div class="wrapleft"><div class="wrapright"><div class="tr"><div class="bl"><div class="tl"><div class="br the-content">		<div class="titlewrap"><h4><span>Recent Posts</span></h4></div>		<ul>
+				<li><a href="http://code.nomad-labs.com/2012/12/20/some-tips-on-java-lang-outofmemoryerror-unable-to-create-new-native-thread/" title="Some tips on java.lang.OutOfMemoryError: unable to create new native thread">Some tips on java.lang.OutOfMemoryError: unable to create new native thread</a></li>
+				<li><a href="http://code.nomad-labs.com/2012/07/13/debugging-vs-writing-shit/" title="Debugging vs Writing shit">Debugging vs Writing shit</a></li>
+				<li><a href="http://code.nomad-labs.com/2011/12/09/mother-fk-the-scheduledexecutorservice/" title="Mother F**k the ScheduledExecutorService!">Mother F**k the ScheduledExecutorService!</a></li>
+				<li><a href="http://code.nomad-labs.com/2011/08/05/jdk-thread-pool-configuration/" title="JDK Thread Pool Configuration">JDK Thread Pool Configuration</a></li>
+				<li><a href="http://code.nomad-labs.com/2010/11/18/identifying-which-java-thread-is-consuming-most-cpu/" title="Identifying which Java Thread is consuming most CPU">Identifying which Java Thread is consuming most CPU</a></li>
+				</ul>
+		</div></div></div></div></div></div> </div></li><li class="block widget widget_categories" id="categories-3"><div class="box"> <div class="wrapleft"><div class="wrapright"><div class="tr"><div class="bl"><div class="tl"><div class="br the-content"><div class="titlewrap"><h4><span>Categories</span></h4></div>		<ul>
+	<li class="cat-item cat-item-5"><a href="http://code.nomad-labs.com/category/bash/" title="View all posts filed under bash">bash</a>
+</li>
+	<li class="cat-item cat-item-4"><a href="http://code.nomad-labs.com/category/eclipse/" title="View all posts filed under eclipse">eclipse</a>
+</li>
+	<li class="cat-item cat-item-10"><a href="http://code.nomad-labs.com/category/financial/" title="View all posts filed under Financial">Financial</a>
+</li>
+	<li class="cat-item cat-item-12"><a href="http://code.nomad-labs.com/category/firewall/" title="View all posts filed under firewall">firewall</a>
+</li>
+	<li class="cat-item cat-item-9"><a href="http://code.nomad-labs.com/category/fix/" title="View all posts filed under FIX">FIX</a>
+</li>
+	<li class="cat-item cat-item-13"><a href="http://code.nomad-labs.com/category/iptables/" title="View all posts filed under iptables">iptables</a>
+</li>
+	<li class="cat-item cat-item-3"><a href="http://code.nomad-labs.com/category/java/" title="View all posts filed under Java">Java</a>
+</li>
+	<li class="cat-item cat-item-6"><a href="http://code.nomad-labs.com/category/linux/" title="View all posts filed under linux">linux</a>
+</li>
+	<li class="cat-item cat-item-11"><a href="http://code.nomad-labs.com/category/perl/" title="View all posts filed under Perl">Perl</a>
+</li>
+	<li class="cat-item cat-item-14"><a href="http://code.nomad-labs.com/category/rmi/" title="View all posts filed under RMI">RMI</a>
+</li>
+	<li class="cat-item cat-item-8"><a href="http://code.nomad-labs.com/category/ruby/" title="View all posts filed under ruby">ruby</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="http://code.nomad-labs.com/category/uncategorized/" title="View all posts filed under Uncategorized">Uncategorized</a>
+</li>
+		</ul>
+</div></div></div></div></div></div> </div></li><li class="block widget widget_links" id="linkcat-2"><div class="box"> <div class="wrapleft"><div class="wrapright"><div class="tr"><div class="bl"><div class="tl"><div class="br the-content"><div class="titlewrap"><h4><span>Blogroll</span></h4></div>
+	<ul class='xoxo blogroll'>
+<li><a href="http://blog.insane-development.org/" title="Insane Development Blog">Insane Dev Blog</a></li>
+<li><a href="http://www.programmers-pain.de/">Programmer&#039;s Pain</a></li>
+
+	</ul>
+</div></div></div></div></div></div> </div></li>
+<li class="block widget widget_archive" id="archives-3"><div class="box"> <div class="wrapleft"><div class="wrapright"><div class="tr"><div class="bl"><div class="tl"><div class="br the-content"><div class="titlewrap"><h4><span>Archives</span></h4></div>		<ul>
+			<li><a href='http://code.nomad-labs.com/2012/12/' title='December 2012'>December 2012</a></li>
+	<li><a href='http://code.nomad-labs.com/2012/07/' title='July 2012'>July 2012</a></li>
+	<li><a href='http://code.nomad-labs.com/2011/12/' title='December 2011'>December 2011</a></li>
+	<li><a href='http://code.nomad-labs.com/2011/08/' title='August 2011'>August 2011</a></li>
+	<li><a href='http://code.nomad-labs.com/2010/11/' title='November 2010'>November 2010</a></li>
+	<li><a href='http://code.nomad-labs.com/2010/03/' title='March 2010'>March 2010</a></li>
+	<li><a href='http://code.nomad-labs.com/2009/10/' title='October 2009'>October 2009</a></li>
+	<li><a href='http://code.nomad-labs.com/2009/08/' title='August 2009'>August 2009</a></li>
+	<li><a href='http://code.nomad-labs.com/2009/07/' title='July 2009'>July 2009</a></li>
+		</ul>
+</div></div></div></div></div></div> </div></li> </ul>
+</div>
+<!-- /2nd column -->
+     
+
+    </div>
+   </div>
+   <div class="clear-content"></div>
+  </div>
+  <!-- /main page block -->
+
+ </div>
+</div>
+<!-- /main wrappers -->
+
+	<script type="text/javascript">
+		window.onload = function(){prettyPrint();};
+	</script>
+
+ <!-- footer -->
+ <div id="footer">
+
+  <!-- page block -->
+  <div class="block-content">
+
+    
+
+    
+    <div class="copyright">
+     <p>
+     <!-- please do not remove this. respect the authors :) -->
+     Arclite theme by <a href="http://digitalnature.ro/projects/arclite">digitalnature</a> | powered by <a href="http://wordpress.org/">WordPress</a>     </p>
+     <p>
+     <a class="rss" href="http://code.nomad-labs.com/feed/">Entries (RSS)</a> and <a href="http://code.nomad-labs.com/comments/feed/">Comments (RSS)</a> <a href="javascript:void(0);" class="toplink">TOP</a>
+     <!-- 23 queries. 1.821 seconds. -->
+     </p>
+    </div>
+
+  </div>
+  <!-- /page block -->
+
+ </div>
+ <!-- /footer -->
+
+</div>
+<!-- /page -->
+</body>
+</html>
+
+
+
+
+<!-- Dynamic page generated in 1.692 seconds. -->
+<!-- Cached page generated by WP-Super-Cache on 2013-12-14 00:00:14 -->
+<!-- super cache -->

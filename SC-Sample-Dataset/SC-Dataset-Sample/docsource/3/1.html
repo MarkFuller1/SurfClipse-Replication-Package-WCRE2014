@@ -1,0 +1,818 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>Numberformat exception (Java in General forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/503522/java/java/Numberformat-exception"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/503522/java/java/Numberformat-exception?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-1/java">Java in General</a>
+<div class="subject">Numberformat exception</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Abhradeep Banerjee, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 20, 2010 09:56:37</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I am having this error when going to the menu of remove or delete can anyone help where is the problem?
+<br /> 
+<br /> Exception in thread "main" java.lang.NumberFormatException: For input string: "S8470017G"
+<br />         at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+<br />         at java.lang.Integer.parseInt(Integer.java:449)
+<br />         at java.lang.Integer.&lt;init&gt;(Integer.java:660)
+<br />         at Travel.compareTo(Travel.java:33)
+<br />         at Travel.compareTo(Travel.java:1)
+<br />         at java.util.Arrays.mergeSort(Arrays.java:1144)
+<br />         at java.util.Arrays.sort(Arrays.java:1079)
+<br />         at java.util.Collections.sort(Collections.java:117)
+<br />         at lab6Ex1.main(lab6Ex1.java:110)
+<br /> Java Result: 1
+<br /> 
+<br /> 
+<br /> 
+<br /> main method
+<br /> <textarea name="code" class="java" cols="60" rows="10"> import java.io.*;
+import java.util.*;
+
+public class lab6Ex1 {
+
+    public static void main(String[] args) {
+
+
+        //declare variables FileReader, bufferedReader & inFile and line
+        FileReader fr = null;
+        BufferedReader br = null;
+        String inFile = "Travel_Records.txt";
+        String line = "";
+
+
+        //declare variables for Menus Input_prompt, IC_Prompt,etc
+        final String INPUT_PROMPT1 = "\nPlease select one of the following options: \n"
+                + "1)   Search flights by IC number \n"
+                + "2)   Search flights by departure date \n"
+                + "3)   Display all flights \n"
+                + "4)   Insert new record or remove old record \n"
+                + "5)   Exit program ";
+
+        final String IC_PROMPT = "\n\n\nPlease enter the IC number";
+        final String Dept_PROMPT = "\n\n\nPlease enter the departure date in the following format" + "dd/mm/yyyy";
+        final String Insert_Remove_PROMPT = "\n\n\n \n"
+                + "1) Remove Record\n"
+                + "2) Insert Record\n"
+                + "3) Return to previous menu\n"
+                + "4) Exit Program";
+
+        final String Insert_Record = "Please enter new record in the following format: Serial Number|SXXXXXXXG|Name"
+                + " | Country |MM/DD/YYYY | Time in 24 hr clock | Country | MM/DD/YYYY | Time in 24 hr clock";
+        final String Delete_Record = "Please enter the serial number of the record to delete";
+        //declare var to contain the record files
+
+
+        String NRIC;
+        String Name;
+        String srcCountry;
+        String deptDate;
+        String deptTime;
+        String destCountry;
+        String arrDate;
+        String arrTime;
+
+
+        //declare and initiate new linked list
+
+        LinkedList&lt;Travel&gt; LL = new LinkedList&lt;Travel&gt;();
+
+        try {
+
+            //initiate filereader and bufferedreader objects
+
+            fr = new FileReader(inFile);
+            br = new BufferedReader(fr);
+
+
+            // while line is not null
+            while ((line = br.readLine()) != null) {
+
+                StringTokenizer tokenizer = new StringTokenizer(line, "|");
+                
+                NRIC = tokenizer.nextToken();
+                Name = tokenizer.nextToken();
+
+                srcCountry = tokenizer.nextToken();
+                deptDate = tokenizer.nextToken();
+                deptTime = tokenizer.nextToken();
+                destCountry = tokenizer.nextToken();
+                arrDate = tokenizer.nextToken();
+                arrTime = tokenizer.nextToken();
+                //create new Travel object
+                Travel travel = new Travel(NRIC, Name, srcCountry, deptDate, deptTime, destCountry, arrDate, arrTime);
+
+                //  this item object to Llist
+                LL.addFirst(travel);
+
+            }
+            //close buffered reader
+            br.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("The file" + inFile + "was not found");
+        } catch (IOException e) {
+            System.out.println("Reading error");
+        } finally {
+            //close filereader
+            if (fr != null) {
+                try {
+                    fr.close();
+                } catch (IOException e) {
+                    System.out.println("error closing file");
+                }
+
+            }
+
+        }
+        //create readers to read from user input
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println(INPUT_PROMPT1);
+            //read one line from user
+            line = reader.readLine();
+
+            while (!line.equals("0")) {
+
+
+                //read one line from user
+                Collections.sort(LL);
+
+                if (line.equals("1")) {
+                    System.out.println(IC_PROMPT);
+
+                    BufferedReader IC = new BufferedReader(new InputStreamReader(System.in));
+                    line = IC.readLine();
+                    for (int n = 0; n &lt; LL.size(); n++) {
+
+                        if (LL.get(n).NRIC.toUpperCase().contains(line.toUpperCase())) {
+
+                            //printout information of the video
+                            System.out.println(LL.get(n));
+
+                        }
+                    }
+                } else if (line.equals("2")) {
+
+                    System.out.println(Dept_PROMPT);
+                    BufferedReader Dept = new BufferedReader(new InputStreamReader(System.in));
+                    line = Dept.readLine();
+                    for (int n = 0; n &lt; LL.size(); n++) {
+
+                        if (LL.get(n).deptDate.toUpperCase().contains(line.toUpperCase())) {
+
+                            //printout information of the video
+                            System.out.println(LL.get(n));
+                        }
+                    }
+                } else if (line.equals("3")) {
+                    for (int n = 0; n &lt; LL.size(); n++) {
+                        System.out.println(LL.get(n));
+                    }
+
+                } else if (line.equals("4")) {
+                    System.out.println(Insert_Remove_PROMPT);
+                    BufferedReader Insert = new BufferedReader(new InputStreamReader(System.in));
+                    line = Insert.readLine();
+
+
+
+                    if (line.equals("1")) {
+                                System.out.println(Delete_Record);
+
+
+                        BufferedReader delete = new BufferedReader(new InputStreamReader(System.in));
+                        line = delete.readLine();
+
+                        
+                   for (int n = 0; n &lt; LL.size(); n++) {
+                    System.out.println(LL.get(n));
+                    
+
+                   
+                       
+                    }
+
+
+
+
+
+
+
+
+                          FileWriter fwp = new FileWriter(inFile);
+                            BufferedWriter bwp = new BufferedWriter(fwp);
+                            PrintWriter outFile = new PrintWriter(bwp);
+
+
+
+
+
+                        
+                    } else if (line.equals("2")) {
+                        System.out.println(Insert_Record);
+                        BufferedReader insert = new BufferedReader(new InputStreamReader(System.in));
+                        line = insert.readLine();
+
+
+            FileWriter fwp = new FileWriter(inFile);
+            BufferedWriter bwp = new BufferedWriter(fwp);
+            PrintWriter outFile = new PrintWriter(bwp);
+
+
+                        StringTokenizer tokenizer = new StringTokenizer(line, "|");
+                        NRIC = tokenizer.nextToken();
+                        Name = tokenizer.nextToken();
+                        srcCountry = tokenizer.nextToken();
+                        deptDate = tokenizer.nextToken();
+                        deptTime = tokenizer.nextToken();
+                        destCountry = tokenizer.nextToken();
+                        arrDate = tokenizer.nextToken();
+                        arrTime = tokenizer.nextToken();
+
+                        //create new Travel object
+                        Travel travel = new Travel(NRIC, Name, srcCountry, deptDate, deptTime, destCountry, arrDate, arrTime);
+
+                        //add this item object to Llist
+                        LL.add(travel);
+
+                        for(int i = 0; i&lt;LL.size(); i++)
+                        {
+                        outFile.println(LL.get(i));
+                        }
+
+                        outFile.close();
+
+
+
+                    } else if (line.equals("3")) {
+                    } else if (line.equals("4")) {
+
+                        System.out.println("Are you sure you want to exit? Y/N");
+                        BufferedReader exit = new BufferedReader(new InputStreamReader(System.in));
+                        line = exit.readLine();
+                        if (line.equalsIgnoreCase("Y")) {
+                            System.exit(0);
+                        }
+                    }
+
+                } else if (line.equals("5")) {
+                    System.out.println("Are you sure you want to exit? Y/N");
+                    BufferedReader exit = new BufferedReader(new InputStreamReader(System.in));
+                    line = exit.readLine();
+                    if (line.equalsIgnoreCase("Y")) {
+                        System.exit(0);
+
+                    } else {
+                        System.out.println("Wrong entry");
+
+                    }
+                }
+                System.out.println(INPUT_PROMPT1);
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("error");
+        }
+    }
+}
+  </textarea>
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10"> public class Travel implements Comparable&lt;Travel&gt;  {
+
+    // declare all var to contain the fields of a record
+
+     String NRIC;
+     String Name;
+     String srcCountry;
+     String deptDate;
+     String deptTime;
+     String destCountry;
+     String arrDate;
+     String arrTime;
+
+    //creates constructor to store all the fields into the var
+
+    public Travel(String NRIC, String Name, String srcCountry, String deptDate, String deptTime, String destCountry, String arrDate, String arrTime)
+    {
+        this.NRIC = NRIC;
+        this.Name = Name;
+        this.srcCountry = srcCountry;
+        this.deptDate = deptDate;
+        this.deptTime = deptTime;
+        this.destCountry = destCountry;
+        this.arrDate = arrDate;
+        this.arrTime = arrTime;
+        // create  a toString () method to return sting in the same delimited
+        //format as input record
+    }
+        public String toString(){
+            return(NRIC + "|" + Name + "|" + srcCountry + "|" +deptDate + "|" +deptTime + "|" +destCountry + "|" + arrDate + "|" + arrTime );
+        }
+public int compareTo(Travel LL){
+    return new Integer(NRIC).compareTo(new Integer(LL.NRIC));
+}
+        
+    }
+
+
+   </textarea>
+<br /> 
+<br /> 
+<br /> text file
+<br /> 
+<br /> S8470017G|Abhradeep Banerjee | Singapore |09/07/2007 | 13:28 | Kolkata, India | 09/01/2010 | 16:28
+<br /> S22209619B|Debabrata Banerjee | Kolkata, India |09/08/2007 | 13:28 | Singapore| 09/01/2010 | 16:28
+<br /> S8328944B|Debabrata Banerjee | Kolkata, India |09/08/2007 | 13:28 | Singapore  | 09/01/2010 | 16:28
+<br /> S8470017G|Abhradeep Banerjee | Singapore |09/07/2007 | 13:28 | Kolkata, India | 09/07/2007 | 16:28
+<br /> S8470017G|Abhradeep Banerjee | Kolkata, India |09/08/2007 | 13:28 | Singapore| 09/08/2007 | 16:28
+<br /> 
+<br /> Thanks
+<br /> 
+<br /> 
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jan Hoppmann, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 20, 2010 10:03:52</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">You compare two Integers in Travel.compareTo(Travel), and if you construct a new Integer object with a String, it tries to cast it to a number. But if you try to cast "S8470017G", for example, the S and G are no numbers, so you get this exception.
+<br /> 
+<br /> Try this:
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+return NRIC.compareTo(LL.NRIC);
+</textarea>
+<br /> 
+<br /> This uses String.compareTo(String).</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Henry Wong, Sheriff<br />
+  on <span class="lastPostTime">Jul 20, 2010 10:07:33</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Abhradeep Banerjee wrote:</cite>I am having this error when going to the menu of remove or delete can anyone help where is the problem?
+<br /> 
+<br /> Exception in thread "main" java.lang.NumberFormatException: For input string: "S8470017G"
+<br />         at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+<br />         at java.lang.Integer.parseInt(Integer.java:449)
+<br />         at java.lang.Integer.&lt;init&gt;(Integer.java:660)
+<br />         at Travel.compareTo(Travel.java:33)
+<br />         at Travel.compareTo(Travel.java:1)
+<br />         at java.util.Arrays.mergeSort(Arrays.java:1144)
+<br />         at java.util.Arrays.sort(Arrays.java:1079)
+<br />         at java.util.Collections.sort(Collections.java:117)
+<br />         at lab6Ex1.main(lab6Ex1.java:110)
+<br /> Java Result: 1
+<br /> </div>
+		</blockquote>
+<br /> 
+<br /> 
+<br /> Basically, you are trying to call the collections sort() method, which will uses the Comparator interface... And your compareTo() method is trying to use the Integer comparator to compare two strings... And in converting the string, "S8470017G", to a Integer, it is failing -- as that is not a valid value for an integer.
+<br /> 
+<br /> [EDIT: Beaten to the answer again... <img src="http://cache-www.coderanch.com/images/smilies/3b63d1616c5dfcf29f8a7a031aaa7cad.gif" /> ]
+<br /> 
+<br /> Henry
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Abhradeep Banerjee, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 20, 2010 11:26:02</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">is it possible to use compareTo for Strings??</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jan Hoppmann, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 20, 2010 11:27:44</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Yup, String has a CompareTo method, as you can see here:
+<br /> <a class="snap_shots" href="http://download.oracle.com/docs/cd/E17409_01/javase/6/docs/api/java/lang/String.html" target="_new" >http://download.oracle.com/docs/cd/E17409_01/javase/6/docs/api/java/lang/String.html</a></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Abhradeep Banerjee, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 20, 2010 11:28:33</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">thanks Jan for the quick reply <img src="http://cache-www.coderanch.com/images/smilies/283a16da79f3aa23fe1025c96295f04f.gif" /></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Michael Angstadt, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 20, 2010 13:10:39</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Remember that String is oblivious to numeric values.  For example, "24" will come before "5" because the ascii value for "2" is less than the ascii value for "5".</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: satish varma, Greenhorn<br />
+  on <span class="lastPostTime">Jul 20, 2010 14:57:57</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody"><textarea name="code" class="java" cols="60" rows="10">public int compareTo(Travel LL){  
+    return new Integer(NRIC).compareTo(new Integer(LL.NRIC));
+}   </textarea>
+<br /> 
+<br />    instead of above code use below code, i think its work fine.(both are same)
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">public int compareTo(Object LL){
+    Integer NRIC1=Integer.valueOf(NRIC);
+    String s=((Travel)LL).NRIC;
+    Integer NRIC2=Integer.valueOf(s);
+    return NRIC1.compareTo(NRIC2); 
+}
+    </textarea>
+<br /> 
+<br /> 
+<br />   i think evrything is right in that code, the only problem is String characters entered as input values instead of Integer values, it causes NumberFormatException</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Abhradeep Banerjee, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 21, 2010 07:09:25</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">i tried both ways as you have stated im still getting the error <img src="http://cache-www.coderanch.com/images/smilies/8eb205fcc69b104dc7dacc0c97694f63.gif" border="0">
+<br /> 
+<br /> Exception in thread "main" java.lang.NumberFormatException: For input string: "S8470017G"
+<br />         at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+<br />         at java.lang.Integer.parseInt(Integer.java:449)
+<br />         at java.lang.Integer.&lt;init&gt;(Integer.java:660)
+<br />         at Travel.compareTo(Travel.java:33)
+<br />         at Travel.compareTo(Travel.java:2)
+<br />         at java.util.Arrays.mergeSort(Arrays.java:1144)
+<br />         at java.util.Arrays.sort(Arrays.java:1079)
+<br />         at java.util.Collections.sort(Collections.java:117)
+<br />         at lab6Ex1.main(lab6Ex1.java:110)
+<br /> Java Result: 1
+<br /> 
+<br /> Can anyone help me please 
+<br /> Thanks</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Mithun Kulkarni, Greenhorn<br />
+  on <span class="lastPostTime">Jul 21, 2010 07:29:50</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">As pointed out by Satish there is problem with your NRIC value. You need to parse the value from the input file and strip it to fetch only the number from that value.
+<br /> Then it should work without any further change.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Michael Angstadt, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 21, 2010 07:37:09</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Do you typically see letters inside of numbers?  Is "123ABC456" a number?  The answer is no because there are letters in it.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Rob Spoor, Sheriff<br />
+  on <span class="lastPostTime">Jul 21, 2010 08:41:19</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Michael Angstadt wrote:</cite>Do you typically see letters inside of numbers?  Is "123ABC456" a number?  The answer is no because there are letters in it.</div>
+		</blockquote>
+<br /> Actually, I'd say yes, but only if you use HEX when parsing <img src="http://cache-www.coderanch.com/images/smilies/8a80c6485cd926be453217d59a84a888.gif" /></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Michael Angstadt, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 21, 2010 08:48:28</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Rob Prime wrote:</cite>Actually, I'd say yes, but only if you use HEX when parsing <img src="http://cache-www.coderanch.com/images/smilies/8a80c6485cd926be453217d59a84a888.gif" /></div>
+		</blockquote>
+<br /> 
+<br /> Oh hohoho, I've been had  <img src="http://cache-www.coderanch.com/images/smilies/jr-redface.gif"  /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Campbell Ritchie, Sheriff<br />
+  on <span class="lastPostTime">Jul 21, 2010 09:03:18</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Rob Prime wrote:</cite> . . . only if you use HEX when parsing <img src="http://cache-www.coderanch.com/images/smilies/8a80c6485cd926be453217d59a84a888.gif" /></div>
+		</blockquote>At least you were awake when you saw that. More than I was  <img src="http://cache-www.coderanch.com/images/smilies/8a80c6485cd926be453217d59a84a888.gif" /> You can parse that with any radix &ge; 13.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: satish varma, Greenhorn<br />
+  on <span class="lastPostTime">Jul 22, 2010 06:06:47</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote class="uncited">
+			<div> i tried both ways as you have stated im still getting the error     </div>
+		</blockquote>
+<br /> 
+<br />   check what situations are causes NumberFormatException. see below example
+<br /> <textarea name="code" class="java" cols="60" rows="10">Integer I=Integer.parseInt("10");//here no problem
+Integer I=Integer.parseInt("TEN");//here raised NumberFormatException</textarea>
+<br />    i think same thing going on in this code, check once that only parse Integer values.
+<br /> 
+<br />   </span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/503522'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=1'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:21:21</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/1"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/503522/java/java/Numberformat-exception?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

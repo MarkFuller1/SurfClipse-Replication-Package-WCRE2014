@@ -1,0 +1,278 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>UnsupportedEncodingException (Java in General forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/559092/java/java/UnsupportedEncodingException"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/559092/java/java/UnsupportedEncodingException?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-1/java">Java in General</a>
+<div class="subject">UnsupportedEncodingException</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ralph Cook, Ranch Hand<br />
+  on <span class="lastPostTime">Nov 17, 2011 12:49:22</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I am attempting to use the encoding for EBCDIC:
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+package org.nccourts.ecitation.comm;
+
+import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
+
+public class TestTranslation
+{
+	public static void main(String[] args) throws Exception
+	{
+	    System.out.println(System.getProperty("java.version"));
+	    try
+                {
+                    String alpha = "ABCDEF";
+                    FileOutputStream outputFile = new FileOutputStream("asciiOutput.txt");
+                    outputFile.write(alpha.getBytes("Cp1047"));
+                    outputFile.close();
+                }
+            catch (UnsupportedEncodingException e)
+            {
+	        // TODO Auto-generated catch block
+	        System.out.println("Nope, didn't work: " + e.getMessage());
+            }
+    }
+}
+</textarea>
+<br /> <a class="snap_shots" href="http://download.oracle.com/javase/6/docs/technotes/guides/intl/encoding.doc.html" target="_blank" >http://download.oracle.com/javase/6/docs/technotes/guides/intl/encoding.doc.html</a>
+<br /> says this encoding is supported for version 6, and that "Cp1047" is the "canonical name"
+<br /> for the encoding for the java.io and java.lang classes.  What am I doing wrong?
+<br /> 
+<br /> rc</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Paul Clapham, Bartender<br />
+  on <span class="lastPostTime">Nov 17, 2011 13:00:53</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Well, just above the entry for Cp1047 in the page you linked to it says this:
+<br /> <blockquote class="uncited">
+			<div>Extended Encoding Set (contained in lib/charsets.jar)</div>
+		</blockquote>
+<br /> So perhaps that jar is missing, or needs to be in your classpath, or something like that?
+<br /> 
+<br /> Also I would suggest that using an OutputStreamWriter would be a more standard way of writing to EBCDIC than using getBytes():
+<br /> <textarea name="code" class="java" cols="60" rows="10">String alpha = "ABCDEF";  
+FileOutputStream outputFile = new FileOutputStream("asciiOutput.txt");  
+Writer outputWriter = new OutputStreamWriter(outputFile, "Cp1047");
+outputWriter.write(alpha);  
+outputWriter.close();  
+</textarea></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ralph Cook, Ranch Hand<br />
+  on <span class="lastPostTime">Nov 17, 2011 13:22:35</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I should have mentioned that I had tried adding the charsets.jar to my build path in eclipse.  No change.  It is also true that there is documentation saying that this encoding is included by at least Java 6, if not earlier, but I tried that anyway.
+<br /> 
+<br /> I tried your code for OutputStreamWriter.  No change.  
+<br /> 
+<br /> Anyone else have any ideas?
+<br /> 
+<br /> rc</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ralph Cook, Ranch Hand<br />
+  on <span class="lastPostTime">Nov 17, 2011 13:43:34</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Well, evidently the code pages for these things are not standardized.  I've got IBM's Rapid Application Development (RAD) installed, so I guess that means my code pages are IBM, not standard Java/Sun/Oracle.   I used Charset.availableCharsets().keySet() to get and list the character sets I had, then scrounged around to find which one of them did EBCDIC, and found an "IBM500" that does.  So now it is outputting the EBCDIC from that one, no problems.
+<br /> 
+<br /> So my question is now changed a bit.  If I wanted to include the character set in my application so that it was insulated against attempting to run on a different JVM installation and not having the character set, how would I do that?  Adding the "charsets.jar" to the build path doesn't seem to have done it.
+<br /> 
+<br /> rc</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Mike Seganti, Greenhorn<br />
+  on <span class="lastPostTime">Mar 13, 2012 10:41:37</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Old thread, but there's an updated solution to the issue. 
+<br /> 
+<br /> I ran across this problem as well and found that this was a Sun installer bug that didn't install the charset.jar file under Windows XP.  
+<br /> 
+<br /> This was in JRE 6, but it may be with JRE's prior to 6 as well.  It was reported to be fixed in JRE 7.  
+<br /> 
+<br /> Apparently, even if you copy the file to the appropriate place and use the automated java update, it hunts it down and kills it (deletes it), so be aware.  
+<br /> 
+<br /> I verified that the file installed correctly on my Windows 2003 Servers.  
+<br /> 
+<br /> Once the file is placed there, you shouldn't have any more issues. 
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+System.out.println("IBM500 Charsets: \n" + Charset.forName("IBM500").aliases());
+System.out.println("Available Charsets: \n" + Charset.availableCharsets().keySet());
+</textarea> 
+<br /> 
+<br /> 
+<br /> IBM500 Charsets: 
+<br /> [ibm-500, ebcdic-cp-bh, cp500, csIBM500, ibm500, ebcdic-cp-ch, 500]
+<br /> Available Charsets: 
+<br /> [Big5, Big5-HKSCS, EUC-JP, EUC-KR, GB18030, GB2312, GBK, IBM-Thai, IBM00858, IBM01140, IBM01141, IBM01142, IBM01143, IBM01144, IBM01145, IBM01146, IBM01147, IBM01148, IBM01149, IBM037, IBM1026, IBM1047, IBM273, IBM277, IBM278, IBM280, IBM284, IBM285, IBM297, IBM420, IBM424, IBM437, IBM500, IBM775, IBM850, IBM852, IBM855, IBM857, IBM860, IBM861, IBM862, IBM863, IBM864, IBM865, IBM866, IBM868, IBM869, IBM870, IBM871, IBM918, ISO-2022-CN, ISO-2022-JP, ISO-2022-JP-2, ISO-2022-KR, ISO-8859-1, ISO-8859-13, ISO-8859-15, ISO-8859-2, ISO-8859-3, ISO-8859-4, ISO-8859-5, ISO-8859-6, ISO-8859-7, ISO-8859-8, ISO-8859-9, JIS_X0201, JIS_X0212-1990, KOI8-R, KOI8-U, Shift_JIS, TIS-620, US-ASCII, UTF-16, UTF-16BE, UTF-16LE, UTF-32, UTF-32BE, UTF-32LE, UTF-8, windows-1250, windows-1251, windows-1252, windows-1253, windows-1254, windows-1255, windows-1256, windows-1257, windows-1258, windows-31j, x-Big5-HKSCS-2001, x-Big5-Solaris, x-euc-jp-linux, x-EUC-TW, x-eucJP-Open, x-IBM1006, x-IBM1025, x-IBM1046, x-IBM1097, x-IBM1098, x-IBM1112, x-IBM1122, x-IBM1123, x-IBM1124, x-IBM1381, x-IBM1383, x-IBM33722, x-IBM737, x-IBM833, x-IBM834, x-IBM856, x-IBM874, x-IBM875, x-IBM921, x-IBM922, x-IBM930, x-IBM933, x-IBM935, x-IBM937, x-IBM939, x-IBM942, x-IBM942C, x-IBM943, x-IBM943C, x-IBM948, x-IBM949, x-IBM949C, x-IBM950, x-IBM964, x-IBM970, x-ISCII91, x-ISO-2022-CN-CNS, x-ISO-2022-CN-GB, x-iso-8859-11, x-JIS0208, x-JISAutoDetect, x-Johab, x-MacArabic, x-MacCentralEurope, x-MacCroatian, x-MacCyrillic, x-MacDingbat, x-MacGreek, x-MacHebrew, x-MacIceland, x-MacRoman, x-MacRomania, x-MacSymbol, x-MacThai, x-MacTurkish, x-MacUkraine, x-MS932_0213, x-MS950-HKSCS, x-MS950-HKSCS-XP, x-mswin-936, x-PCK, x-SJIS_0213, x-UTF-16LE-BOM, X-UTF-32BE-BOM, X-UTF-32LE-BOM, x-windows-50220, x-windows-50221, x-windows-874, x-windows-949, x-windows-950, x-windows-iso2022jp]
+<br /> </span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/559092'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=1'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 17:10:25</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/1"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/559092/java/java/UnsupportedEncodingException?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>acquireInterruptibly =&gt; InterruptedException [Solved] (Threads forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/620365/threads/java/acquireInterruptibly-InterruptedException"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/620365/threads/java/acquireInterruptibly-InterruptedException?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-27/threads">Threads and Synchronization</a>
+<div class="subject">acquireInterruptibly =&gt; InterruptedException</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jean-Michel Vilain, Greenhorn<br />
+  on <span class="lastPostTime">Sep 20, 2013 20:20:35</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">This exception:
+<br /> java.lang.InterruptedException
+<br /> 	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireInterruptibly(AbstractQueuedSynchronizer.java:1219)
+<br /> 	at java.util.concurrent.locks.ReentrantLock.lockInterruptibly(ReentrantLock.java:340)
+<br /> 	at java.util.concurrent.ArrayBlockingQueue.put(ArrayBlockingQueue.java:321)
+<br /> 	at faeria.world.action.WorldScheduler.schedule(WorldScheduler.java:78)
+<br /> 	at faeria.game.core.FaeriaGame.run(FaeriaGame.java:131)
+<br /> 	at java.lang.Thread.run(Thread.java:724)
+<br /> 
+<br /> 
+<br /> My beautifully simple Scheduler's code:
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+public class WorldScheduler implements Runnable {
+    private final ArrayBlockingQueue&lt;WorldAction&gt; actions = new ArrayBlockingQueue&lt;&gt;(8192);
+    private WorldAction current_action = null;
+    public Thread thread;
+    private boolean is_running = false;
+
+    public WorldScheduler() {
+    }
+
+    @Override
+    public void run() {
+        while (is_running) {
+            try {
+                current_action = actions.take();
+                if (current_action != null) {
+                    current_action.run();
+                }
+            } catch (RuntimeException
+                    | AssertionError
+                    | InterruptedException e) {
+				Logger.crash.error("**********START-OF-ERROR**********");
+				blabla
+				Logger.crash.error("**********END-OF-ERROR**********");
+            }
+        }
+    }
+
+    public void start() {
+        is_running = true;
+        thread = new Thread(this, "WorldScheduler");
+        thread.start();
+    }
+
+    public void stop() {
+        is_running = false;
+        FaeriaWorld.getInstance().main_scheduler.thread.interrupt();
+        actions.clear();
+    }
+
+    public int getWaitingQueueLength() {
+        return actions.size();
+    }
+
+    public WorldAction getCurrentAction() {
+        return current_action;
+    }
+
+    public ArrayBlockingQueue&lt;WorldAction&gt; getActions() {
+        return actions;
+    }
+
+    public void schedule(WorldAction parAction) {
+        try {
+            actions.put(parAction); &gt;&gt;&gt; THIS IS THE LINE WHO CRASHES
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}</textarea>
+<br /> 
+<br /> Why? Happens very rarely... Where should I be looking for the cause?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Steve Luke, Bartender<br />
+  on <span class="lastPostTime">Sep 21, 2013 07:00:49</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">The thread which called the schedule method gets interrupted.  We don't have any information about where schedule gets called, or what might be happening in and to that thread, so it is impossible for us to say.  If you aren't sure of the sequence then start peppering your code with tons of log statements so you can see exactly the flow and what happens at or around the thread being interrupted.
+<br /> 
+<br /> edit: And remember: the interrupt doesn't have to happen while the put() operation is in progress, it just has to happen some time before the operation and not be cleared (using the Thread#interrupted() method, for example).</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jean-Michel Vilain, Greenhorn<br />
+  on <span class="lastPostTime">Sep 21, 2013 11:11:29</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Thanks a lot for your clarifications Steve.
+<br /> In my mind the put is almost instant so I found it very unlikely to have the thread interrupted right at this moment.
+<br /> Helps a lot!!</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/620365'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=27'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:40:30</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/27"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/620365/threads/java/acquireInterruptibly-InterruptedException?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+<title>Wyo Java Lecture Notes</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../../wyostyles.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+<!--
+.style1 {color: #FF0000}
+-->
+</style>
+</head>
+
+<body>
+<p class="pageTitle">Exceptions</p>
+
+<p class="columnSubtitle"><strong>Objective #1: Explain the difference between compile errors and run-time
+  errors.</strong></p>
+<ul>
+  <li class="bodyText">A <strong>compile error</strong> occurs when the Java compiler (j2sdk) and/or Eclipse finds a misspelled
+    keyword, a misplaced operator such as a semicolon, or similar typing mistake.</li>
+  <li class="bodyText">A <strong>run-time error</strong> occurs when the user enters a value that causes division
+    by zero, the Java Virtual Machine (JVM) promotes or casts an object incorrectly,
+    or another problem occurs while the program is executing. This type of run-time error is often called an exception error (even though it's an exception object that is being &quot;thrown&quot;).</li>
+</ul>
+<p class="columnSubtitle"><strong>Objective #2: Understand the underlying causes of several kinds of
+    exception errors.</strong></p>
+<ul>
+  <li><span class="bodyText">On the AP Exam, you are responsible for understanding the following types
+    of run-time exceptions:<br>
+    </span>
+    <ul>
+      <li class="bodyText"><span class="codeSegment"><strong>ArithmeticException</strong></span> -
+        thrown when an illegal arithmetic operation has occurred (e.g. division
+        by zero). A tricky exception to this is that when an arithmetic operation
+        with data type double occurs, Java doesn't throw an exception. </li>
+      <li class="bodyText"><span class="codeSegment"><strong>ArrayIndexOutOfBoundsException</strong></span> -
+        thrown when programmer attempts to access an  array index position
+        that doesn't exist</li>
+      <li class="bodyText"><span class="codeSegment"><strong>IndexOutOfBoundsException</strong></span> -
+        this is the parent class of <span class="codeSegment">ArrayIndexOutOfBoundsException</span> and is thrown
+        when an attempt to access a non-existent index position of an <span class="codeSegment">ArrayList</span>        is made</li>
+      <li class="bodyText"><span class="codeSegment"><strong>StringIndexOutOfBoundsException</strong></span> -
+        similar to <span class="codeSegment">ArrayIndexOutOfBoundsException</span> except
+        it is thrown specifically when an attempt is made to access a non-existent
+        character of a string object (e.g. <span class="codeSegment">System.out.println(&quot;wyomissing&quot;.charAt(-2));</span>        )</li>
+      <li class="bodyText"><span class="codeSegment"><strong>NullPointerException</strong></span> -
+        thrown when an attempt to use a method is made on an object variable
+        that is equal to <span class="codeSegment">null</span> and has not been
+        instantiated (e.g. the code segment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="codeSegment">Student
+        john = null; john.computeGrade();&nbsp;</span>&nbsp;&nbsp;&nbsp;would
+        cause this exception to be thrown since <span class="codeSegment">john</span> has
+        not been instantiated with the new operator so you can't compute his grade
+      yet.)</li>
+      <li class="bodyText"><span class="codeSegment"><strong>ClassCastException</strong></span> -
+        thrown when an attempt to cast an object to a subclass or other class
+        of which it is not an instance (e.g. you can't cast a <span class="codeSegment">Pencil</span> object
+      to a <span class="codeSegment">Walrus</span> object)</li>
+      <li class="bodyText"><span class="codeSegment"><strong>IllegalArgumentException</strong></span> -
+        thrown when a method is passed an illegal or inappropriate argument (e.g.
+        if you wrote a <span class="codeSegment">Student</span> class, you could
+        throw an <span class="codeSegment">IllegalArgumentException</span> object
+        from within a constructor that attempts to give a student a name that
+        starts with a numerical digit). This exception is usually not tested on the AP exam.</li>
+      <li class="bodyText"><span class="codeSegment"><strong>IllegalStateException</strong></span> -
+        thrown when a <strong>class invariant</strong> is violated and an object takes on an incorrect
+        property value or when a method is executed on an object at an illogical
+        time (e.g. if a class invariant of a <span class="codeSegment">Student</span> class
+        is that a student object will never have a negative grade point average
+        then a mathematical operation that causes the student's GPA to be negative
+        will throw this kind of exception). This exception is usually not tested on the AP exam.</li>
+    </ul>
+  </li>
+</ul>
+<p class="columnSubtitle"><strong><font color="#FF0000">The following is not covered on the AP exam or unit tests.</font></strong></p>
+<p class="columnSubtitle"><strong>Objective #3: Throw and catch exceptions where appropriate.</strong></p>
+<ul>
+  <li class="bodyText">Java provides a way for programmers to anticipate
+    the possibility of certain kinds of run-time errors through <strong>exception-handling</strong>.
+    A programmer, in anticipation
+    of a possible run-time error, can write code that will &quot;<strong>throw
+      an exception</strong>&quot; if
+    a run-time error occurs in a given code segment.</li>
+  <li class="bodyText">Actually, an <strong>exception</strong> is an object from an exception
+    class. &quot;Throwing
+    the exception&quot; amounts to ending the execution of a method prematurely
+    when an error occurs and sending (i.e. throwing) an exception object back
+    to the method that called the method where the run-time error occurred. This
+    is done with the keyword <span class="codeSegment">throw</span> rather than the keyword <span class="codeSegment">return</span>.</li>
+  <li class="bodyText">When running the program where an exception is thrown due to a run-time
+    error, the program ends with an error message like this:<br>
+      <br>
+      <em>Exception in thread &quot;main&quot; java.lang.ArrayIndexOutOfBoundsException
+        at Ch14Demo1.main(Ch14Demo1.java:5)</em><br>
+      <br>
+    which means that an error occurred on line 5 of the <span class="codeSegment">main</span> method in the class
+    named <span class="codeSegment">Ch14Demo1</span>. An <span class="codeSegment">ArrayIndexOutOfBoundsException</span> object was thrown. This
+    means that the programmer tried to access an element in an array that doesn't
+    exist. For example, if the array has a size of 10 and a programmer tried
+    to display or overwrite the value in the element with index position 10 this
+    kind of exception will be thrown. The Sun programmers who created the Array
+    class have a <span class="codeSegment">throw</span> statement somewhere in the Array class that throws this
+    exception object and error message.</li>
+  <li class="bodyText">There is a difference between checked and <strong>unchecked
+    exceptions</strong>. With checked exceptions you are required
+    to use a throws clause. You are not
+    required to use a throws clause with unchecked exceptions. Checked exceptions
+    often occur no matter how well you try to prevent them. They are often
+    the result
+    of
+    something that the user does which is out of your control as the programmer.
+    Unchecked exceptions are things that you can prevent with careful logic
+    and if statements. Unchecked exceptions are runtime exceptions while checked
+    exceptions are checked by the compiler. All of the exceptions explained
+    below are unchecked exceptions. AP students are
+    not responsible for understanding, interpreting, or throwing checked exceptions.</li>
+  <li class="bodyText12px">Your code does not need to explicitly throw an ArithmeticException, NullPointerException, ClassCastException, or ArrayIndexOutOfBoundsException since Java automatically throws those exceptions when the condition is triggered. </li>
+  <li><span class="bodyText">The following </span><span class="codeSegment">BankAccount</span><span class="bodyText"> class
+    constructor throws an </span><span class="codeSegment">IllegalStateException</span><span class="bodyText"> object
+      if an attempt to store a negative balance in a bank account is made:</span><br>
+    <br>
+    <span class="codeSegment">public BankAccount(double initialBalance)<br>
+    {<br>
+  &nbsp;&nbsp;&nbsp;if (initialBalance &lt; 0)<br>
+  &nbsp;&nbsp;&nbsp;{<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw new IllegalArgumentException(&quot;Initial
+      balance must be non-negative.&quot;);<br>
+  &nbsp;&nbsp;&nbsp;}<br>
+    <br>
+  &nbsp;&nbsp;&nbsp;balance = initialBalance;<br>
+    }</span><br>
+    <br>
+    <span class="bodyText">The </span><span class="codeSegment">throw</span><span class="bodyText"> statement
+      acts like a </span><span class="codeSegment">return</span><span class="bodyText"> statement.
+        The method ends when it reaches a </span><span class="codeSegment">throw</span><span class="bodyText"> statement. Note that the </span><span class="codeSegment">IllegalArgumentException</span><span class="bodyText"> object being thrown is an anonymous object. <br>
+        <br>
+        </span></li>
+  <li><span class="bodyText">The following </span><span class="codeSegment">BankAccount withdraw</span><span class="bodyText"> method throws an </span><span class="codeSegment">IllegalStateException</span><span class="bodyText"> object if an attempt to make the balance of the account  negative is made. <br>  
+      <br>  
+      <span class="codeSegment">public void withdraw(int amount)<br>
+{<br>
+&nbsp;&nbsp;&nbsp;if (balance - amount &lt; 0)<br>
+&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw new IllegalStateException(&quot;Balance cannot be negative.&quot;);<br>
+&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;balance -= amount;<br>
+}</span><br>
+    <br>
+  </span></li>
+  <li class="bodyText">To catch an exception, you use a <span class="codeSegment">try/catch/finally</span> statement. While you do not have to write any <span class="codeSegment">try/catch/finally</span> statements on the AP exam, it is good to know how to use this structure to make client programs more robust.<br>
+    <br>
+  The following code segment would handle the exception thrown by the constructor above.<br>
+    <br>
+    <span class="codeSegment">// user inputs values for userBalance &amp; userAmount <br> 
+    <br>
+    try<br>
+    {<br>
+&nbsp;&nbsp;&nbsp;BankAccount savings = new BankAccount(userBalance);<br>
+&nbsp;&nbsp;&nbsp;savings.withdraw(userAmount);<br>
+    }<br>
+    catch (IllegalStateException exception)<br>
+    {<br>
+&nbsp;&nbsp;&nbsp;System.out.println(exception);<br>
+}<br>
+catch (IllegalArgumentException exception)<br>
+{<br>
+&nbsp;&nbsp;&nbsp;System.out.println(exception);<br>
+}<br>
+finally<br>
+{<br>
+&nbsp;&nbsp;&nbsp;System.exit(0);<br>
+}<br>
+    </span><br>
+  The code in the <span class="codeSegment">finally</span> clause is guaranteed to execute even if an exception is thrown from the code in the <span class="codeSegment">try</span> clause and whether the exception is caught by one of the <span class="codeSegment">catch</span> handlers or not. </li>
+</ul>
+</body>
+</html>

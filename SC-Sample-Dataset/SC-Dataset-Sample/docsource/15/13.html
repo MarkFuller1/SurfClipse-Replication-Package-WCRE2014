@@ -1,0 +1,611 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<!-- Created with LatinByrd III -->
+<!-- File: /usr/axel/vorl/java/skript/skript/6__1.rtfd -->
+<!-- Date: Thu May 14 09:28:13 1998 -->
+<head>
+<title>6-1 Sockets</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#0000FF" alink="#FF00FF" vlink="#FF0000">
+
+<basefont size=3>
+
+<a href="../6__2.htmld/index.html"><img src="../../_right.gif" width=24 height=24></a>
+<a href="../6_Networking.htmld/index.html#TOC"><img src="../../_up.gif" width=24 height=24></a>
+<a href="../../../index.html"><img src="../../_toc.gif" width=24 height=24></a>
+<a href="../../_index.html"><img src="../../_index.gif" width=24 height=24></a>
+<a href="../6_Networking.htmld/index.html"><img src="../../_left.gif" width=24 height=24></a>
+<font size=-1>Copyright &copy;1996-1998 by <a href="mailto:ats@cs.rit.edu">Axel T. Schreiner</a>.&nbsp; All Rights Reserved.</font>
+
+<p><br><br>
+
+<p><font size=+1><b>Sockets</b></font>
+
+<p>Java supports <font size=-1>TCP</font> and <font size=-1>UDP</font> sockets -- endpoints for communication between processes that need not run on the same computer.
+
+<p>The endpoints have addresses consisting of the <font size=-1>IP</font> address of the computer and a <font size=-1>TCP</font> or <font size=-1>UDP </font>specific port number inside the computer that lead to a file descriptor at a process. The Domain Name Service (<font size=-1>DNS</font>) produces <font size=-1>IP</font> addresses for hierarchical computer names, e.g., <font size=-1><tt>131.173.13.2</tt></font> for <font size=-1><tt>luna.informatik.uni-osnabrueck.de</tt></font>. Some port numbers can be found in <i>/etc/services</i>.
+
+<p><font size=+1><b>TCP sockets</b></font>
+
+<p><font size=-1>TCP</font> is a secure, stream-oriented, bidirectional connection. The endpoints are a <font size=-1><tt>Socket <a href="../../jdk1.1.5/docs/api/java.net.Socket.html"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> at the client and a <font size=-1><tt>ServerSocket <a href="../../jdk1.1.5/docs/api/java.net.ServerSocket.html"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> at the server. The streams can be retrieved using <font size=-1><tt>getInputStream() <a href="../../jdk1.1.5/docs/api/java.net.Socket.html#getInputStream"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> and <font size=-1><tt>getOutputStream() <a href="../../jdk1.1.5/docs/api/java.net.Socket.html#getOutputStream"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font>, for data transfer one uses <font size=-1><tt>read() <a href="../../jdk1.1.5/docs/api/java.io.InputStream.html#read"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> and <font size=-1><tt>write() <a href="../../jdk1.1.5/docs/api/java.io.OutputStream.html#write"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font>.
+
+<p>Typical application examples are most internet protocols: <font size=-1>FTP</font>, <font size=-1>HTTP</font>, <font size=-1>SMTP</font>, <font size=-1>TELNET</font> and many others.
+
+<p><b>Line-oriented client -- <i>tcp/Talk.java <a href="../../../code/programs/tcp/Talk.java"><img src="../Images/url.gif" width=15 height=15 border=0></a></i></b>
+
+<p><i>Talk</i> connects to a <font size=-1>TCP</font> socket and handles a line-oriented dialog, i.e., it behaves much like <i>telnet</i>. A target port or host and port can be specified as arguments. <font size=-1><tt>-r</tt></font> requires that first a line is read from the server.
+
+<p><i>Talk</i> illustrates the code of a typical <font size=-1>TCP</font> client.
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Talk</b>&nbsp;&nbsp; # default: echo service</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>hello, world</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>hello, world</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><i>control-D</i><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Talk -r 13 &lt;/dev/null</b> # daytime service</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Sun Feb&nbsp; 8 23:20:10 1998</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Talk 79</b>&nbsp;&nbsp; # finger service</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>axel</b></tt></font>
+
+<p><i>Talk</i> demonstrates the limits of a line-oriented dialog: <i>fingerd</i> answers with many lines, but Talk alternates reading from standard-input and from the network.<br>
+<hr><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/tcp/Talk.java}</font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.io.*;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.net.*;</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** A class to talk -- line by line -- to a TCP socket */</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>public class Talk {</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public static void main (String args []) {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>String host = &quot;localhost&quot;; int port = 7; // default: local echo service</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>boolean rflag = false;&nbsp;&nbsp; // -r: read then write</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>if (args != null &amp;&amp; args.length &gt; 0) { // Talk [-r] [[host] port]</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>int n = 0;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>do</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>if (args[n].equals(&quot;-r&quot;)) rflag = true;</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>while (++n &lt; args.length);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>switch (args.length - n) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 0: break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 1: port = Integer.parseInt(args[n]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>default: host = args[n]; port = Integer.parseInt(args[n+1]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>try {</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>Socket sock = new Socket(host, port);</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>BufferedReader socketIn =</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt><b>new BufferedReader(new InputStreamReader(sock.getInputStream()));</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>PrintWriter socketOut = new PrintWriter(sock.getOutputStream());</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>BufferedReader in = new BufferedReader(new InputStreamReader(System.in));</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>PrintWriter out = new PrintWriter(System.out);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>if (rflag) copy(socketIn, out);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>for (;;) { copy(in, socketOut); copy(socketIn, out); }</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>} catch (UnknownHostException e) {</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>System.err.println(host+&quot;: not found&quot;); System.exit(1);</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (IOException e) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>e.printStackTrace(); System.exit(1);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected static void copy (BufferedReader in, PrintWriter out)</tt></font><br>
+<img src="../Images/sp.gif" width=315 height=1><font size=-1><tt>throws IOException {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>String line = in.readLine();</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>if (line == null) System.exit(0);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>out.println(line); <b>out.flush();</b></tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font><br>
+<font size=-1><tt>Socket <a href="../../jdk1.1.5/docs/api/java.net.Socket.html"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> is the client side of a TCP connection. With <font size=-1><tt>getInputStream() <a href="../../jdk1.1.5/docs/api/java.net.Socket.html#getInputStream"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> one can read from the server, <font size=-1><tt>getOutputStream() <a href="../../jdk1.1.5/docs/api/java.net.Socket.html#getOutputStream"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> is used to write. Depending on the protocol, buffering might have to be suppressed, e.g., with <font size=-1><tt>flush() <a href="../../jdk1.1.5/docs/api/java.io.PrintWriter.html#flush"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font>.<br>
+<hr><br>
+<b>Echo server -- <i>tcp/Echod.java <a href="../../../code/programs/tcp/Echod.java"><img src="../Images/url.gif" width=15 height=15 border=0></a></i></b>
+
+<p><i>Echod</i> accepts connection requests from <font size=-1>TCP</font> sockets and returns the data received; thus, it behaves like the <i>echo</i> service on port 7. The server port number can be specified as an argument; <font size=-1><tt>-w</tt></font> requires that first a line is written to the client, <font size=-1><tt>-v</tt></font> (verbose) produces a trace.
+
+<p><i>Echod</i> shows how to implement a typical <font size=-1>TCP</font> server that processes many connection requests, one after another.
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Echod -v -w 12345 &amp;</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>6640</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>listening on 12345</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>telnet localhost 12345</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Trying 127.0.0.1...</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>call from Socket[addr=localhost/127.0.0.1,port=9586,localport=12345]</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Connected to localhost.</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Escape character is '^]'.</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>at your service...</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>hi there</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>hi there</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>hi there</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>^]</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>telnet&gt; q</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Connection closed.</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>kill $!</b></tt></font><br>
+<hr><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/tcp/Echod.java}</font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.net.*;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.io.*;</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** A class to provide a TCP echo service */</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>public class Echod {</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public static void main (String args []) {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>int port = 0;&nbsp;&nbsp;&nbsp; // default: let system assign</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>boolean vflag = false;&nbsp;&nbsp; // -v: verbose</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>boolean wflag = false;&nbsp;&nbsp; // -w: write then read</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>if (args != null &amp;&amp; args.length &gt; 0) { // Echod [-v] [-w] [port]</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>int n = 0;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>do</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>if (args[n].equals(&quot;-v&quot;)) vflag = true;</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else if (args[n].equals(&quot;-w&quot;)) wflag = true;</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>while (++n &lt; args.length);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>switch (args.length - n) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 0: break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>default: port = Integer.parseInt(args[n]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>ServerSocket listen = new ServerSocket(port);</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>System.err.println(&quot;listening on &quot;+listen.getLocalPort());</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>for (;;) {</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt><b>Socket data = listen.accept();</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>if (vflag) System.err.println(&quot;call from &quot;+data);</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>BufferedReader in =</b></tt></font><br>
+<img src="../Images/sp.gif" width=100 height=1><font size=-1><tt><b>new BufferedReader(new InputStreamReader(data.getInputStream()));</b></tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>PrintWriter out = new PrintWriter(data.getOutputStream(), true);</b></tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>if (wflag) out.println(&quot;at your service...&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>String line;</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>while ((line = in.readLine()) != null) {</tt></font><br>
+<img src="../Images/sp.gif" width=100 height=1><font size=-1><tt>if (vflag) System.err.println(line);</tt></font><br>
+<img src="../Images/sp.gif" width=100 height=1><font size=-1><tt>out.println(line);</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>} catch (IOException e1) { e1.printStackTrace(); }</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt><b>try { data.close(); } catch (IOException e2) { e2.printStackTrace(); }</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (IOException e) { e.printStackTrace(); System.exit(1); }</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font><br>
+<font size=-1><tt>ServerSocket <a href="../../jdk1.1.5/docs/api/java.net.ServerSocket.html"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> is the server side of a <font size=-1>TCP</font> connection. <font size=-1><tt>accept() <a href="../../jdk1.1.5/docs/api/java.net.ServerSocket.html#accept"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> waits for a call from a client and produces a new socket. Using <font size=-1><tt>getInputStream() <a href="../../jdk1.1.5/docs/api/java.net.Socket.html#getInputStream"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> one can read from the client, using <font size=-1><tt>getOutputStream() <a href="../../jdk1.1.5/docs/api/java.net.Socket.html#getOutputStream"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> one can write. Buffering must be prevented, depending on protocol.<br>
+<hr><br>
+<b>Watching traffic -- <i>tcp/Snoop.java <a href="../../../code/programs/tcp/Snoop.java"><img src="../Images/url.gif" width=15 height=15 border=0></a></i></b>
+
+<p><i>Snoop</i> operates as a proxy of a socket and watches the traffic on a connection. <i>Snoop</i> accepts connections from TCP sockets and moves data between the caller and another socket. A proxy port, a target and a proxy port, or a target host and port and a proxy port can be specified as arguments. <font size=-1><tt>-y</tt></font> (yield) requires that blocking during <font size=-1><tt>read()</tt></font> should be prevented.
+
+<p><i>Snoop</i> shows how to implement a typical TCP server that accepts many connections simultaneously.
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Snoop 79 12345 &amp;</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>6674</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>listening on 12345</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>telnet localhost 12345</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Trying 127.0.0.1...</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Connected to localhost.</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Escape character is '^]'.</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:9644 started</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>axel</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&lt;localhost:9644</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;axel</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:9644</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Welcome to Linux version 2.0.30 at cindy.informatik.uni-osnabrueck.de !</tt></font>
+
+<p><img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>11:48pm&nbsp; up 12:28,&nbsp; 1 user,&nbsp; load average: 0.06, 0.02, 0.00</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Welcome to Linux version 2.0.30 at cindy.informatik.uni-osnabrueck.de !</tt></font>
+
+<p><img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>11:48pm&nbsp; up 12:28,&nbsp; 1 user,&nbsp; load average: 0.06, 0.02, 0.00</tt></font><br>
+...<br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:9644 closing</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:9644 done</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Connection closed by foreign host.</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:9644 done</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>kill $!</b></tt></font><br>
+<hr><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/tcp/Snoop.java}</font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.io.*;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.net.*;</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** A class to listen to TCP traffic */</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>public class Snoop extends Thread {</b></tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected static boolean yflag;&nbsp; // -y: yield if !ready()</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** Snoop [[-y] [[[host] port] proxy] */</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public static void main (String args []) {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>String host = &quot;localhost&quot;; int port = 7; // default: local echo service</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>int proxy = 0;&nbsp;&nbsp;&nbsp; // default: let system assign</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>if (args != null &amp;&amp; args.length &gt; 0) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>int n = 0;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>do</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>if (args[n].equals(&quot;-y&quot;)) yflag = true;</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>while (++n &lt; args.length);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>switch (args.length-n) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 0: break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 1: proxy = Integer.parseInt(args[n]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 2: port = Integer.parseInt(args[n]);</tt></font><br>
+<img src="../Images/sp.gif" width=123 height=1><font size=-1><tt>proxy = Integer.parseInt(args[n+1]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>default: host = args[n]; port = Integer.parseInt(args[n+1]);</tt></font><br>
+<img src="../Images/sp.gif" width=123 height=1><font size=-1><tt>proxy = Integer.parseInt(args[n+2]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>InetAddress remote = InetAddress.getByName(host);</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>ServerSocket listen = new ServerSocket(proxy);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>System.err.println(&quot;listening on &quot;+listen.getLocalPort());</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>for (;;) {</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>Socket data = listen.accept();</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>new Snoop(data, new Socket(remote, port)).start();</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>} catch (IOException e) { e.printStackTrace(); }</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (UnknownHostException e) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>System.err.println(host+&quot;: not found&quot;); System.exit(1);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (IOException e) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>e.printStackTrace(); System.exit(1);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font><br>
+The decisive idea is to have every call answered by a separate thread.
+
+<p><font size=-1><tt>InetAddress <a href="../../jdk1.1.5/docs/api/java.net.InetAddress.html#getByName"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> is used to compute and check the target address once.<br>
+<hr><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/tcp/Snoop.java}</font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected String tag; protected Thread to, fro;</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public Snoop (Socket it, Socket me) throws IOException {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>this.tag = it.getInetAddress().getHostName()+&quot;:&quot;+it.getPort();</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>to = new Copy(&quot;&lt;&quot;+tag, it.getInputStream(), me.getOutputStream());</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>fro = new Copy(&quot;&gt;&quot;+tag, me.getInputStream(), it.getOutputStream());</b></tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public synchronized void run () {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>System.err.println(tag+&quot; started&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>to.start(); fro.start();</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>try { wait(); } catch (InterruptedException ie) { }</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>to.stop();&nbsp; fro.stop();</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>System.err.println(tag+&quot; done&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected class Copy extends Thread {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>protected String tag; protected Reader in; protected Writer out;</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>public Copy (String tag, InputStream from, OutputStream to) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>this.tag = tag;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>in = new InputStreamReader(from); out = new OutputStreamWriter(to);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>public void run () {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>int n; char[] buf = new char[1024];</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>for (;;) {</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>if (yflag &amp;&amp; !in.ready()) {</tt></font><br>
+<img src="../Images/sp.gif" width=100 height=1><font size=-1><tt>System.err.println(tag+&quot; yields&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=100 height=1><font size=-1><tt><b>do Thread.yield(); while (!in.ready());</b></tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>if ((n = in.read(buf)) &lt;= 0) break;</b></tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>System.err.println(tag+&quot;\n\&quot;&quot;+new String(buf, 0, n)+&quot;\&quot;&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>out.write(buf, 0, n); out.flush();</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>} catch (IOException e) { e.printStackTrace(); }</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>System.err.println(tag+&quot; closing&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>try { in.close(); } catch (IOException ie) { ie.printStackTrace(); }</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>try { out.close(); } catch (IOException oe) { oe.printStackTrace(); }</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>synchronized (Snoop.this) { Snoop.this.notify(); }</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>System.err.println(tag+&quot; done&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font><br>
+<i>Snoop</i> only should watch data, i.e., it must transfer asynchronously in both directions. This requires two <font size=-1><tt>Copy</tt></font> threads that <font size=-1><tt>Snoop</tt></font> creates and starts in <font size=-1><tt>run()</tt></font>. Afterwards <font size=-1><tt>Snoop</tt></font> waits for <font size=-1><tt>notify()</tt></font> and eliminates both threads.
+
+<p><font size=-1><tt>Copy</tt></font> copies until end of input or an <font size=-1><tt>IOException</tt></font> and then cuts the connections. If requested, <font size=-1><tt>Copy</tt></font> yields to other threads <a href="../../jdk1.1.5/docs/api/java.lang.Thread.html#yield"><img src="../Images/url.gif" width=15 height=15 border=0></a> until <font size=-1><tt>read()</tt></font> will not block <a href="../../jdk1.1.5/docs/api/java.io.Reader.html#ready"><img src="../Images/url.gif" width=15 height=15 border=0></a>. Of course, this leads to busy wait across many threads and is unnecessary for socket connections.<br>
+<hr><br>
+<b>Asynchronous client -- <i>tcp/Client.java <a href="../../../code/programs/tcp/Client.java"><img src="../Images/url.gif" width=15 height=15 border=0></a></i></b>
+
+<p><i>Client</i> connects to a <font size=-1>TCP</font> socket and runs a dialog using two parallel threads, i.e., it behaves much like <i>Talk</i>. Arguments can be a target port or a target host and port. <font size=-1><tt>-y</tt></font> requests that blocking on <font size=-1><tt>read()</tt></font> is to be avoided -- this is essental, as reading standard input blocks the <font size=-1>VM</font> and thus <i>all</i> threads, i.e., without standard input replies from the socket are not seen.
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Client -y 79</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:79 started</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&lt;localhost:79 yields</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:79 yields</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>axel</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:79</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;axel</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:79 yields</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&lt;localhost:79</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Welcome to Linux version 2.0.30 at cindy.informatik.uni-osnabrueck.de !</tt></font>
+
+<p><img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>12:14am&nbsp; up 12:54,&nbsp; 1 user,&nbsp; load average: 0.15, 0.03, 0.01</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Welcome to Linux version 2.0.30 at cindy.informatik.uni-osnabrueck.de !</tt></font>
+
+<p><img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>12:14am&nbsp; up 12:54,&nbsp; 1 user,&nbsp; load average: 0.15, 0.03, 0.01</tt></font><br>
+...<br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&lt;localhost:79 yields</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>garbage</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:79</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;garbage</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&quot;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:79 yields</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>java.io.IOException: Broken pipe</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at java.net.SocketOutputStream.write(SocketOutputStream.java:91)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at java.io.OutputStreamWriter.flushBuffer(OutputStreamWriter.java)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at java.io.OutputStreamWriter.flush(OutputStreamWriter.java)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at Snoop$Copy.run(Snoop.java:78)</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:79 closing</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>java.io.IOException: Broken pipe</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at java.net.SocketOutputStream.write(SocketOutputStream.java:91)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at java.io.OutputStreamWriter.flushBuffer(OutputStreamWriter.java)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at java.io.OutputStreamWriter.flush(OutputStreamWriter.java)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at java.io.OutputStreamWriter.close(OutputStreamWriter.java)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at Snoop$Copy.run(Snoop.java:83)</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>&gt;localhost:79 done</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:79 done</tt></font>
+
+<p>It takes a while until <i>Client</i> notices that <i>fingerd</i> terminated the connection.<br>
+<hr><br>
+For <i>Client</i> the following constructor is added to <font size=-1><tt>Snoop</tt></font>:<br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/tcp/Snoop.java}</font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public Snoop (Socket sock) throws IOException {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>this.tag = sock.getInetAddress().getHostName()+&quot;:&quot;+sock.getPort();</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>to = new Copy(&quot;&lt;&quot;+tag, sock.getInputStream(), System.out);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>fro = new Copy(&quot;&gt;&quot;+tag, System.in, sock.getOutputStream());</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font><br>
+With that, implementing <i>Client</i> is trivial:<br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/tcp/Client.java}</font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.io.*;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.net.*;</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** A class to talk -- more or less asynchronously -- to a TCP socket */</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>public class Client extends Snoop {</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** Client [-y] [[host] port] */</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public static void main (String args []) {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>String host = &quot;localhost&quot;; int port = 7; // default: local echo service</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>if (args != null &amp;&amp; args.length &gt; 0) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>int n = 0;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>do</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>if (args[n].equals(&quot;-y&quot;)) yflag = true;</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>while (++n &lt; args.length);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>switch (args.length-n) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 0: break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 1: port = Integer.parseInt(args[n]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>default: host = args[n]; port = Integer.parseInt(args[n+1]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>Socket sock = new Socket(host, port);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>new Client(sock).start();</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (UnknownHostException e) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>System.err.println(host+&quot;: not found&quot;); System.exit(1);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (IOException e) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>e.printStackTrace(); System.exit(1);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt><b>public Client (Socket sock) throws IOException {</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>super(sock);</b></tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt><b>}</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font><br>
+<hr><br>
+<font size=+1><b>UDP sockets</b></font>
+
+<p><font size=-1>UDP</font> is an insecure connection for packet transfer. The endpoints are one <font size=-1><tt>DatagramSocket <a href="../../jdk1.1.5/docs/api/java.net.DatagramSocket.html"><img src="../Images/url.gif" width=15 height=15 border=0></a> </tt></font>each at client and server over which <font size=-1><tt>DatagramPacket</tt></font> objects <a href="../../jdk1.1.5/docs/api/java.net.DatagramPacket.html"><img src="../Images/url.gif" width=15 height=15 border=0></a> are sent with <font size=-1><tt>send() <a href="../../jdk1.1.5/docs/api/java.net.DatagramSocket.html#send"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> and received with <font size=-1><tt>receive() <a href="../../jdk1.1.5/docs/api/java.net.DatagramSocket.html#receive"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font>. Packet size is limited.
+
+<p>Typical application examples are informative internet protocols such as <font size=-1>DNS</font>, <font size=-1>NIS</font>, and <font size=-1>TFTP</font> as well as a variant of <i>Remote Procedure Calls</i> and on top of that <font size=-1>NFS</font>.
+
+<p><b>Line-oriented client -- <i>udp/Talk.java <a href="../../../code/programs/udp/Talk.java"><img src="../Images/url.gif" width=15 height=15 border=0></a></i></b>
+
+<p><i>Talk</i> targets an <font size=-1>UDP</font> socket and runs a line-oriented dialog. Arguments are a target port or a target host and port; <font size=-1><tt>-t</tt></font> increases <i>timeout</i> by one second each and requests that a query is repeated if an answer does not arrive in time.
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Talk</b>&nbsp;&nbsp; # echo service</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>hello, world</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>hello, world</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><i>control-D</i><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Talk 13</b>&nbsp;&nbsp; # daytime service</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><i>return</i><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Mon Feb&nbsp; 9 19:33:12 1998</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><i>return</i><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>Mon Feb&nbsp; 9 19:33:13 1998</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><i>control-D</i>
+
+<p><i>Talk</i> shows how to build a typical <font size=-1>UDP</font> client: One constructs a <font size=-1><tt>DatagramSocket <a href="../../jdk1.1.5/docs/api/java.net.DatagramSocket.html"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> and normally accepts the local port from the system. One constructs a <font size=-1><tt>DatagramPacket <a href="../../jdk1.1.5/docs/api/java.net.DatagramPacket.html"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> with the bytes [maximal length is limited], the <font size=-1><tt>InetAddress <a href="../../jdk1.1.5/docs/api/java.net.InetAddress.html#getByName"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> of the target host and port, and sends the packet with <font size=-1><tt>send() <a href="../../jdk1.1.5/docs/api/java.net.DatagramSocket.html#send"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font>. One constructs a <font size=-1><tt>DatagramPacket</tt></font> with an answer buffer and it's usable length(!) and receives bytes, peer address and port with <font size=-1><tt>receive() <a href="../../jdk1.1.5/docs/api/java.net.DatagramSocket.html#receive"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font>. By convention, the reply's port is used for further communication.
+
+<p>So that <font size=-1><tt>receive()</tt></font> does not block (even across thread interrupts!) <font size=-1><tt>setSoTimeout() <a href="../../jdk1.1.5/docs/api/java.net.DatagramSocket.html#setSoTimeout"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> is used to set a time limit. If it is exceeded, an <font size=-1><tt>InterruptedIOException <a href="../../jdk1.1.5/docs/api/java.io.InterruptedIOException.html"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> or <font size=-1><tt>SocketException <a href="../../jdk1.1.5/docs/api/java.net.SocketException.html"><img src="../Images/url.gif" width=15 height=15 border=0></a></tt></font> (for an interrupted system call) gets thrown.<br>
+<hr><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/udp/Talk.java}</font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.io.*;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.net.*;</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** A class to talk -- line by line -- to a UDP socket */</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>public class Talk {</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public static void main (String args []) {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>String host = &quot;localhost&quot;; int port = 7; // default: local echo service</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>int timeout = 0;&nbsp;&nbsp;&nbsp; // -t: ++timeout</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>if (args != null &amp;&amp; args.length &gt; 0) { // Talk [-t] [[host] port]</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>int n = 0;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>do</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>if (args[n].equals(&quot;-t&quot;)) ++ timeout;</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>while (++n &lt; args.length);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>switch (args.length - n) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 0: break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 1: port = Integer.parseInt(args[n]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>default: host = args[n]; port = Integer.parseInt(args[n+1]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>DatagramSocket sock = new DatagramSocket();</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>InetAddress server = InetAddress.getByName(host);</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt><b>if (timeout &gt; 0) sock.setSoTimeout(timeout * 1000); // millisec</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>BufferedReader in = new BufferedReader(new InputStreamReader(System.in));</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>PrintWriter out = new PrintWriter(System.out, true);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>String line;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>while ((line = in.readLine()) != null) {</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt><b>byte[] req = line.getBytes(), ans = new byte[1024];</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt><b>DatagramPacket r = new DatagramPacket(req, req.length, server, port),</b></tt></font><br>
+<img src="../Images/sp.gif" width=165 height=1><font size=-1><tt><b>a = new DatagramPacket(ans, ans.length);</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>for (;;) {</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>sock.send(r);</b></tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>try {</b></tt></font><br>
+<img src="../Images/sp.gif" width=100 height=1><font size=-1><tt><b>sock.receive(a); break;</b></tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>} catch (InterruptedIOException iie) { System.err.println(iie); }</b></tt></font><br>
+<img src="../Images/sp.gif" width=100 height=1><font size=-1><tt><b>catch (SocketException se) { System.err.println(se); }</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>out.println(new String(ans, 0, a.getLength()));</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt><b>if (a.getPort() != port)</b></tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>System.err.println((port = a.getPort())+&quot;: new port&quot;);</b></tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (UnknownHostException e) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>System.err.println(host+&quot;: not found&quot;); System.exit(1);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (IOException e) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>e.printStackTrace(); System.exit(1);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font><br>
+<hr><br>
+<b>Echo server -- <i>udp/Echod.java <a href="../../../code/programs/udp/Echod.java"><img src="../Images/url.gif" width=15 height=15 border=0></a></i></b>
+
+<p><i>Echod</i> accepts connections from <font size=-1>UDP</font> sockets and sends back the received data, i.e., it behaves like the <i>echo</i> service on port 7. A server port can be specified as an argument. <font size=-1><tt>-r </tt></font>(random) requests that 75% of the queries remain unanswered. <font size=-1><tt>-t</tt></font> increases the timeout by 10 seconds at a time and requests that a query is answered with a new port that exists until this timeout is exceeded. <font size=-1><tt>-v</tt></font> produces a trace.
+
+<p><i>Echod</i> shows how to create a typical <font size=-1>UDP</font> server that can handle many connections in parallel, too.
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Echod -v 12345 &amp;</b>&nbsp;&nbsp; # single-threaded</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>2206</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>listening on 12345</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Talk 12345</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>hi there</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:1525 hi there</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>hi there</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><i>control-D</i><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>kill $!</b></tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Echod -t -v 12345 &amp;</b>&nbsp; # multi-threaded</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>2238</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>listening on 12345</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Talk 12345</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>hello</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:1529 hello</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>hello</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>1533: new port</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>world</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:1529 world</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>world&nbsp;&nbsp;&nbsp;&nbsp; # &gt;10 seconds pause</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>java.net.DatagramSocket@80ce99a: closing</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>oops</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>java.io.IOException: Connection refused</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at java.net.DatagramSocket.receive(DatagramSocket.java:224)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>at Talk.main(Talk.java:35)</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>kill $!</b></tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Echod -r -v 12345 &amp;</b>&nbsp; # with errors</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>2270</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>listening on 12345</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>$ <b>java Talk -t 12345</b>&nbsp;&nbsp; # with timeout</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt><b>try again</b></tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:1537 try again</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>(: random failure :)</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1>...<br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>localhost:1537 try again</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>try again</tt></font><br>
+<hr><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/udp/Echod.java}</font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.net.*;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.io.*;</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>import java.util.*;</tt></font>
+
+<p><img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** A class to provide a UDP echo service */</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>public class Echod extends Thread {</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected static Random random;&nbsp; // -r: 75% random failures</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected static int timeout;&nbsp;&nbsp; // -t: timeout+=10</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected static boolean vflag;&nbsp; // -v: verbose</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public static void main (String args []) {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>int port = 0;&nbsp;&nbsp;&nbsp; // default: let system assign</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>if (args != null &amp;&amp; args.length &gt; 0) { // Echod [-r] [-t] [-v] [port]</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>int n = 0;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>do</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>if (args[n].equals(&quot;-r&quot;)) random = new Random();</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else if (args[n].equals(&quot;-t&quot;)) timeout += 10;</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else if (args[n].equals(&quot;-v&quot;)) vflag = true;</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>while (++n &lt; args.length);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>switch (args.length - n) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>case 0: break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>default: port = Integer.parseInt(args[n]); break;</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>new Echod(port);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>} catch (Exception e) { e.printStackTrace(); System.exit(1); }</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font><br>
+The main program creates an <font size=-1><tt>Echod</tt></font> object that is to receive packets on the ``known'' port. If the socket cannot be created, the server is terminated. Afterwards, the server must not terminate.
+
+<p>If a packet is received, either a new thread is started that processes further packets at it's own port (super server principle) or the <i>main</i> thread takes care of one packet at a time at the ``known'' port.
+
+<p>It turns out that all threads can share the same work loop in <font size=-1><tt>run()</tt></font>.<br>
+<hr><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{programs/udp/Echod.java}</font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected DatagramSocket sock;</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected byte[] req = new byte[1024];</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected DatagramPacket r = new DatagramPacket(req, req.length);</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** main thread: super server on known port */</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected Echod (int port) throws SocketException {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>sock = new DatagramSocket(port);</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>System.err.println(&quot;listening on &quot;+sock.getLocalPort());</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>for (;;) {&nbsp;&nbsp; // server cannot give up</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt><b>r.setLength(req.length); sock.receive(r);</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>if (timeout &gt; 0) // run daemon to answer the request</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>new Echod(r).start();</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>else break;&nbsp; // answer request in mainline</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>} catch (IOException e) { // SocketException extends IOException</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>e.printStackTrace();</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>run();</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** demon thread: answer until timeout */</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>protected Echod (DatagramPacket p) throws SocketException {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>sock = new DatagramSocket();</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt><b>sock.setSoTimeout(timeout * 1000); // millisec</b></tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>System.arraycopy(p.getData(), 0, req, 0, p.getLength()); // clone p</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>r.setAddress(p.getAddress()); r.setPort(p.getPort());</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>r.setLength(p.getLength());</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>/** working loop: answer packet r and get next question */</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>public void run () {</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>runloop: for (;;) {</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>if (vflag)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>System.err.println(r.getAddress().getHostName()+&quot;:&quot;+r.getPort()+&quot; &quot;+</tt></font><br>
+<img src="../Images/sp.gif" width=267 height=1><font size=-1><tt>new String(req, 0, r.getLength()));</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>if (random == null || random.nextFloat() &gt; 0.75)</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>sock.send(r);</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>} catch (IOException e) { e.printStackTrace(); }</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>else if (vflag) System.err.println(&quot;(: random failure :)&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=64 height=1><font size=-1><tt>for (;;)&nbsp;&nbsp; // must receive or end with timeout</tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>try {</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt><b>r.setLength(req.length); sock.receive(r); break;</b></tt></font><br>
+<img src="../Images/sp.gif" width=76 height=1><font size=-1><tt>} catch (InterruptedIOException e) { break runloop; }</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>catch (SocketException e) { break runloop; }</tt></font><br>
+<img src="../Images/sp.gif" width=219 height=1><font size=-1><tt>// quit daemon thread -- request is late</tt></font><br>
+<img src="../Images/sp.gif" width=88 height=1><font size=-1><tt>catch (IOException e) { e.printStackTrace(); }</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>if (vflag) System.err.println(sock+&quot;: closing&quot;);</tt></font><br>
+<img src="../Images/sp.gif" width=52 height=1><font size=-1><tt>sock.close();</tt></font><br>
+<img src="../Images/sp.gif" width=40 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=28 height=1><font size=-1><tt>}</tt></font><br>
+<img src="../Images/sp.gif" width=324 height=1><font size=-1>{}</font>
+
+
+
+<p>
+<a href="../6__2.htmld/index.html"><img src="../../_right.gif" width=24 height=24></a>
+<a href="../6_Networking.htmld/index.html#TOC"><img src="../../_up.gif" width=24 height=24></a>
+<a href="../../../index.html"><img src="../../_toc.gif" width=24 height=24></a>
+<a href="../../_index.html"><img src="../../_index.gif" width=24 height=24></a>
+<a href="../6_Networking.htmld/index.html"><img src="../../_left.gif" width=24 height=24></a>
+10/May/1998
+</body>
+</html>

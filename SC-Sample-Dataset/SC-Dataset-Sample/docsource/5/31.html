@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us" xml:lang="en-us">
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<meta name="copyright" content="© Copyright IBM Corporation 2010" />
+<meta name="DC.Rights.Owner" content="© Copyright IBM Corporation 2010" />
+<meta name="security" content="public" />
+<meta name="Robots" content="index,follow" />
+<meta http-equiv="PICS-Label" content='(PICS-1.1 "http://www.icra.org/ratingsv02.html" l gen true r (cz 1 lz 1 nz 1 oz 1 vz 1) "http://www.rsac.org/ratingsv01.html" l gen true r (n 0 s 0 v 0 l 0) "http://www.classify.org/safesurf/" l gen true r (SS~~000 1))' />
+<meta name="DC.Type" content="topic" />
+<meta name="DC.Title" content="OutOfMemoryError exceptions" />
+<meta name="abstract" content="The JVM throws a java.lang.OutOfMemoryError exception when the heap is full and the JVM cannot find space for object creation. Heap usage is a result of the application design, its use and creation of object populations, and the interaction between the heap and the garbage collector." />
+<meta name="description" content="The JVM throws a java.lang.OutOfMemoryError exception when the heap is full and the JVM cannot find space for object creation. Heap usage is a result of the application design, its use and creation of object populations, and the interaction between the heap and the garbage collector." />
+<meta name="DC.subject" content="z/OS, memory leaks, OutOfMemoryErrors, OutOfMemoryErrors, z/OS" />
+<meta name="keywords" content="z/OS, memory leaks, OutOfMemoryErrors, OutOfMemoryErrors, z/OS" />
+<meta name="DC.Relation" scheme="URI" content="../../diag/problem_determination/zos_memory.html" />
+<meta name="DC.Format" content="XHTML" />
+<meta name="DC.Identifier" content="zos_memory_oom" />
+<meta name="DC.Language" content="en-us" />
+<!-- Licensed Materials Property of IBM -->
+<!-- US Government Users Restricted Rights -->
+<!-- Use, duplication or disclosure restricted by -->
+<!-- GSA ADP Schedule Contract with IBM Corp. -->
+<link rel="stylesheet" type="text/css" href="../.././ibmdita.css" />
+<link rel="stylesheet" type="text/css" href="../.././swg_info_common.css" />
+<link rel="Start" href="../../diag/problem_determination/zos_memory.html" />
+<title>OutOfMemoryError exceptions</title>
+
+<script language="JavaScript" src="../../../../scriptsfiles/icscript.js"> </script>
+
+
+<script type="text/javascript" src="../../../../ver361/advanced/xmlajax.js"></script>
+ <script type='text/javascript'>
+<!--
+
+<!--
+ var xml = new Array();
+ function check(){
+ var len = xml.length; 
+for (var i=0;i<len;i++){
+var elementID = xml[i];
+var obj = document.getElementById(elementID);
+var url ="../../../../linkcheck?url=" + obj.getAttribute("href");
+linkCheck(url,obj);}
+} 
+//-->
+
+-->
+</script>
+<script type="text/javascript" src="../../../../ver361/advanced/synchWithToc.js"></script>
+
+<link rel="stylesheet" href="../../../../content/org.eclipse.help.webapp/advanced/breadcrumbs.css" charset="ISO-8859-1" type="text/css"></link>
+<script type="text/javascript" src="../../../../content/org.eclipse.help/livehelp.js"> </script>
+<script type="text/javascript">if( self == top ){ window.location.replace( "../../../../index.jsp?topic=%2Fcom.ibm.java.doc.diagnostics.50%2Fdiag%2Fproblem_determination%2Fzos_memory_oom.html");}</script>
+</head>
+<body id="zos_memory_oom" onload="check();">
+<div class="help_breadcrumbs"><a href="../../../../topic/com.ibm.java.doc.diagnostics.50/diag/welcome.html">Java Diagnostics Guide 5.0</a> > <a href="../../../../topic/com.ibm.java.doc.diagnostics.50/diag/problem_determination/pd.html">Problem determination</a> > <a href="../../../../topic/com.ibm.java.doc.diagnostics.50/diag/problem_determination/zos.html">z/OS problem determination</a> > <a href="../../../../topic/com.ibm.java.doc.diagnostics.50/diag/problem_determination/zos_memory.html">Understanding Memory Usage</a></div>
+<a name="zos_memory_oom"><!-- --></a>
+<h1 class="title topictitle1"><span class="keyword apiname">OutOfMemoryError</span> exceptions</h1>
+<div class="body"><p class="shortdesc">The JVM throws a <span class="keyword apiname">java.lang.OutOfMemoryError</span> exception
+when the heap is full and the JVM cannot find space for object creation.
+Heap usage is a result of the application design, its use and creation
+of object populations, and the interaction between the heap and the
+garbage collector.</p>
+<p class="p">The operation of the JVM's Garbage Collector is such that objects
+are continuously allocated on the heap by mutator (application) threads
+until an object allocation fails. At this point, a garbage collection
+cycle begins. At the end of the cycle, the allocation is tried again.
+If successful, the mutator threads resume where they stopped. If the
+allocation request cannot be fulfilled, an out-of-memory exception
+occurs. See <a class="xref" href="../understanding/memory_management.html#memory_management" title="This description of the Garbage Collector and Allocator provides background information to help you diagnose problems with memory management.">Memory management</a> for
+more detailed information.</p>
+<div class="p">An out-of-memory exception occurs when the live object population
+requires more space than is available in the Java™ managed
+heap. This situation can occur because of an object leak or because
+the Java heap is not large enough for the application
+that is running. If the heap is too small, you can use the <span class="keyword parmname parmname">-Xmx</span> option
+to increase the heap size and remove the problem, as follows: <pre class="pre codeblock">java -Xmx320m MyApplication</pre>
+</div>
+<div class="p">If the failure occurs under <span class="keyword cmdname">javac</span>, remember
+that the compiler is a Java program
+itself. To pass parameters to the JVM that is created for compilation,
+use the <span class="keyword parmname parmname">-J</span> option to pass the parameters that
+you normally pass directly. For example, the following option passes
+a 128 MB maximum heap to <span class="keyword cmdname">javac</span>: <pre class="pre codeblock">javac -J-Xmx128m MyApplication.java</pre>
+</div>
+<p class="p">In the case of a genuine object leak, the increased heap size does
+not solve the problem and also increases the time taken for a failure
+to occur.</p>
+<p class="p">Out-of-memory exceptions also occur when a JVM call to <span class="keyword apiname">malloc()</span> fails.
+This should normally have an associated error code.</p>
+<div class="p">If an out-of-memory exception occurs and no error message is produced,
+the Java heap is probably exhausted. To solve the
+problem:<ul class="ul"><li class="li">Increase the maximum Java heap
+size to allow for the possibility that the heap is not big enough
+for the application that is running.</li>
+<li class="li">Enable the z/OS® Heapdump.</li>
+<li class="li">Switch on <span class="keyword parmname parmname">-verbose:gc</span> output.</li>
+</ul>
+The <span class="keyword parmname parmname">-verbose:gc</span> (<span class="keyword parmname parmname">-verbose:gc</span>)
+switch causes the JVM to print out messages when a garbage collection
+cycle begins and ends. These messages indicate how much live data
+remains on the heap at the end of a collection cycle. In the case
+of a Java object leak, the amount of free space on
+the heap after a garbage collection cycle decreases over time. See <a class="xref" href="../tools/gcpd_verbosegc.html#gcpd_verbosegc" title="Verbose logging is intended as the first tool to be used when attempting to diagnose garbage collector problems; more detailed analysis can be performed by calling one or more -Xtgc (trace garbage collector) traces.">-verbose:gc logging</a>.</div>
+<p class="p">A Java object leak is caused when an application
+retains references to objects that are no longer in use. In a C application
+you must free memory when it is no longer required. In a Java application you must remove references
+to objects that are no longer required, usually by setting references
+to null. When references are not removed, the object and anything
+the object references stays in the Java heap
+and cannot be removed. This problem typically occurs when data collections
+are not managed correctly; that is, the mechanism to remove objects
+from the collection is either not used or is used incorrectly.</p>
+<p class="p">The output from a dump can be processed by the FindRoots package
+to produce a reference tree to point to any mismanaged data collections.
+See <a class="xref" href="zos_tools.html#zos_tools" title="A short guide to the diagnostic tools provided by the JVM and the z/OS commands that can be useful when diagnosing problems with the z/OS JVM.">General debugging techniques</a> above.</p>
+<p class="p">If an <span class="keyword apiname">OutOfMemoryError</span> exception
+is thrown due to private storage area exhaustion under the 31-bit
+JVM, verify if the environment variable <var class="keyword varname">_BPX_SHAREAS</var> is
+set to <span class="keyword">NO</span>. If <var class="keyword varname">_BPX_SHAREAS</var> is
+set to <span class="keyword">YES</span> multiple processes are allowed to share
+the same virtual storage (address space). The result is a much quicker
+depletion of private storage area. For more information on <var class="keyword varname">_BPX_SHAREAS</var>,
+see <a class="xref" href="http://publib.boulder.ibm.com/infocenter/zos/v1r10/topic/com.ibm.zos.r10.bpxb200/shbene.htm" target="_blank">http://publib.boulder.ibm.com/infocenter/zos/v1r10/topic/com.ibm.zos.r10.bpxb200/shbene.htm</a>.</p>
+</div>
+<div class="related-links">
+<div class="familylinks">
+<div class="parentlink"><strong>Parent topic:</strong> <a class="link" href="../../diag/problem_determination/zos_memory.html" title="To debug memory leaks you need to understand the mechanisms that can cause memory problems, how the JVM uses the LE HEAP, how the JVM uses z/OS virtual storage, and the possible causes of a java.lang.OutOfMemoryError exception.">Understanding Memory Usage</a></div>
+</div>
+</div><!--Start running footer.--><div class="runningfooter"><br /><hr align="left" />
+© Copyright IBM Corporation 2005, 2010. All Rights Reserved.
+<br />
+© Copyright Sun Microsystems, Inc. 1997, 2007, 901 San Antonio Rd., Palo Alto, CA 94303 USA. All rights reserved.
+<br />
+US Government Users Restricted Rights - Use, duplication or disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+<br />
+This information center is powered by Eclipse technology.  (http://www.eclipse.org/)
+<br /></div><!--End running footer.--></body>
+</html>

@@ -1,0 +1,308 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>java.text.ParseException: Unparseable date (Java in General forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/384793/java/java/java-text-ParseException-Unparseable-date"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/384793/java/java/java-text-ParseException-Unparseable-date?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-1/java">Java in General</a>
+<div class="subject">java.text.ParseException: Unparseable date</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Monica Marugan, Greenhorn<br />
+  on <span class="lastPostTime">Feb 26, 2008 05:36:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I have the next code for parse to date in my application server local Tomcat 5.0.28 and work ok.<br />  <br /> if(m_strType.equals("cadena")) {<br />              System.out.println("Formateamos fecha con cadena : " + strValue);<br />              SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");<br />              try {<br />              Date fecha = sdf.parse(strValue);<br />              SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy",new Locale("es,ES"));<br />              return(sdf2.format(fecha));<br />              }<br />              catch (Exception e) {<br />              e.printStackTrace();<br /> }<br />              <br />              }<br />  <br /> I put this class in other Tomcat 5.0.28 in other server and give me the next error:<br />  <br /> java.text.ParseException: Unparseable date: "18-abr-2007 0:00:00"<br /> .......<br />  <br /> What's problem? <br /> Thank you.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Joe Ess, Bartender<br />
+  on <span class="lastPostTime">Feb 26, 2008 06:17:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">My initial wild guess would be that the locales are different on the two computers.  Try creating your first SimpleDateFormat instance using the locale and see if that works.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Monica Marugan, Greenhorn<br />
+  on <span class="lastPostTime">Feb 26, 2008 06:47:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I change my code to:<br />  <br /> SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", new Locale("en,EN"));<br />  <br /> with Locale and the same error in my tomcat work ok in the other tomcat give me the same error.<br />  <br /> I don't understand.<br /> Thank you</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jesper de Jong, Bartender<br />
+  on <span class="lastPostTime">Feb 26, 2008 06:53:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Note that the date string you are putting in: "18-abr-2007 0:00:00" has only one digit for the hour: "0:00:00". If you specify "HH:mm:ss", then Java probably expects two digits, so it should look like "<b>00</b>:00:00".<br />  <br /> Try "H:mm:ss" for the format string. (I haven't tested it myself, but probably it works).</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Joe Ess, Bartender<br />
+  on <span class="lastPostTime">Feb 26, 2008 06:54:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">With an input of "18-abr-2007 0:00:00" I think you want that locale to be Locale("es,ES").  <br /> Are you expecting English or Spanish input?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Monica Marugan, Greenhorn<br />
+  on <span class="lastPostTime">Feb 26, 2008 08:14:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Give me the same error.<br />  <br /> more helps?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Joe Ess, Bartender<br />
+  on <span class="lastPostTime">Feb 26, 2008 09:16:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">What does your code look like now?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Monica Marugan, Greenhorn<br />
+  on <span class="lastPostTime">Feb 26, 2008 09:52:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy H:mm:ss", new Locale("es,ES"));<br />  <br /> I probe this code and <br />  <br /> SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss", new Locale("es,ES"));<br />  <br /> and give me error.<br /> more helps??<br /> thank you</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Joe Ess, Bartender<br />
+  on <span class="lastPostTime">Feb 26, 2008 10:56:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Have a look at the <a href="http://java.sun.com/javase/6/docs/api/java/util/Locale.html" target="_blank" >API Docs for Locale</a>.  The single string constructor takes the language code only (i.e. "es" or "en").  There is a two string constructor for specifying language and country ("es" and "ES" for Spain, for example).  <br /> This code works for me:<br /> <textarea name="code" class="java" cols="60" rows="10">sdf = new SimpleDateFormat("dd-MMM-yyyy H:mm:ss", new Locale("es", "ES"));</textarea></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Monica Marugan, Greenhorn<br />
+  on <span class="lastPostTime">Feb 26, 2008 11:06:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Thank you!!!<br />  <br /> It's work ok thank you</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/384793'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=1'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:50:14</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/1"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/384793/java/java/java-text-ParseException-Unparseable-date?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

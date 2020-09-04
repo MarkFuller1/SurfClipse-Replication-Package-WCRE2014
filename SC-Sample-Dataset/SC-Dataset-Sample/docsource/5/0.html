@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+	Design by Free CSS Templates
+	http://www.freecsstemplates.org
+	Released for free under a Creative Commons Attribution 2.5 License
+	Template by Eugene Strokin http://jyaga.com
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Opcode Java Blog</title>
+           <link rel="EditURI"   type="application/rsd+xml" title="RSD" href="http://blogs.opcodesolutions.com/roller/java/rsd"/>
+        
+            <link rel="alternate" type="application/atom+xml" title="Recent Entries (Atom)"  href="http://blogs.opcodesolutions.com/roller/java/feed/entries/atom" />
+    <link rel="alternate" type="application/rss+xml"  title="Recent Entries (RSS)"   href="http://blogs.opcodesolutions.com/roller/java/feed/entries/rss" />
+    <link rel="alternate" type="application/atom+xml" title="Recent Comments (Atom)" href="http://blogs.opcodesolutions.com/roller/java/feed/comments/atom" />
+    <link rel="alternate" type="application/rss+xml"  title="Recent Comments (RSS)"  href="http://blogs.opcodesolutions.com/roller/java/feed/comments/rss" />
+
+    
+    <link rel="stylesheet" type="text/css" href="/roller/java/page/custom.css"/>
+<style type="text/css">           #header
+{
+	padding: 0em 1.5em 0em 1.5em;
+	height: 8em;
+	width: 15em;
+	float: left;
+	position: relative;
+	background: #AF0A0A url('http://blogs.opcodesolutions.com/roller/java/resource/images/a1.gif') top right no-repeat;
+}
+
+#menu
+{
+	height: 8em;
+	background: #fafafa url('http://blogs.opcodesolutions.com/roller/java/resource/images/a2.gif') top left repeat-x;
+	margin-left: 18em;
+	position: relative;
+}
+
+#menu li a:hover
+{
+	background: #AF0A0A url('http://blogs.opcodesolutions.com/roller/java/resource/images/a4.gif') bottom left repeat-x;
+	color: #fff;
+}
+
+/* Content */
+
+#content
+{
+	background: #fff url('http://blogs.opcodesolutions.com/roller/java/resource/images/a3.gif') top left repeat-x;
+	margin-top: 1px;
+	padding-top: 1.5em;
+}
+
+    </style>
+</head>
+<body>
+<div id="outer">
+	<div id="header">
+	<h1><a href="http://blogs.opcodesolutions.com/roller/java/">Opcode Java Blog</a></h1>
+	<h2>Optimize Your Processes</h2>
+	</div>
+	<div id="menu">
+		<ul>
+					<li class="first active">
+					<a href="http://blogs.opcodesolutions.com/roller/java/" title="Home">All</a></li>
+								<li>
+						<a href="http://blogs.opcodesolutions.com/roller/java/category/General" title="General">General</a></li>
+								<li>
+						<a href="http://blogs.opcodesolutions.com/roller/java/category/News" title="Latest news about Java">News</a></li>
+								<li>
+						<a href="http://blogs.opcodesolutions.com/roller/java/category/Development" title="Related to Java development">Development</a></li>
+				</ul>
+	</div>
+	<div id="content">
+		<div id="primaryContentContainer">
+			<div id="primaryContent">
+						  			              <h2><a style="text-decoration: none; color: #6a6a6a;" href="http://blogs.opcodesolutions.com/roller/java/entry/solve_java_lang_outofmemoryerror_java">Solve java.lang.OutOfMemoryError: Java heap space</a></h2>
+<p>		
+  <p>An OOM or OOME (OutOfMemoryError) simply means that the JVM ran out of memory. When this occurs, you basically have 2 choices:</p><ul><li>Allow the JVM to use more memory using the -Xmx VM argument. For instance, to allow the JVM to use 1 GB (1024 MB) of memory:</li></ul><blockquote><blockquote><font face="courier new,courier,monospace">java -Xmx1024m ...</font></blockquote></blockquote><ul><li>Improve/Fix the application so that it uses less memory</li></ul><p>In many cases, like in the case of a memory leak, the second option is the only sound choice. A memory leak happens when the application keeps more and more references to objects and never releases them. The garbage collector will therefore never collect those objects and less and less free memory will be available until we reach the point where not enough free memory is available for the application to function normally. At this point, the JVM will throw an OOM.</p><p>A memory leak can be very latent. For instance, the application might behave flawlessly during development and QA. However, it suddenly throws a OOM after several days in production at customer site. To solve that issue, you first need to find the root cause of it. The root cause can be very hard to find in development if it cannot be reproduced in-house. Here are the steps to follow in order to find the root cause and fix that issue:</p><ul><li>Start the application with the VM argument <font face="courier new,courier,monospace">-XX:+HeapDumpOnOutOfMemoryError</font>. This will tell the VM to produce a heap dump when a OOM occurs:</li></ul><blockquote><blockquote><font face="courier new,courier,monospace">java -XX:+HeapDumpOnOutOfMemoryError ...</font></blockquote></blockquote><ul><li>Reproduce the problem. Well, if you cannot reproduce in dev, you will have to use the production environment.</li><li>Use <a title="VisualVM" href="https://visualvm.dev.java.net/">VisualVM</a> to read the heap dump file and diagnose the issue.</li></ul><p>First of all, a heap dump is the dump of the heap (duh!). It will allow you to navigate the heap and see what objects use all the heap memory and which are the ones that still keep a reference on them, and so on and so forth. This will give you very strong hints and you will (hopefully) be able to find the root cause of the problem. The problem could be a cache that grows indefinitely, a list that keeps collecting business-specific data in memory, a huge request that tries to load almost all data from database in memory, etc.</p><p>Once you know the root cause of the problem, you can elaborate solutions to fix it. In case of a cache that grows indefinitely, a good solution could be to set a reasonable limit to that cache. In case of a query that tries to load almost all data from database in memory, you may have to change the way you manipulate data; you could even have to change the behavior of some functionalities of the application.</p><p>If you do not want to wait for a OOM or if you just want to see what is in memory, you can still generate heap dump. To manually trigger a heap dump, you have 2 choices:</p><ul><li>Use <a title="VisualVM" href="https://visualvm.dev.java.net/">VisualVM</a>, right-click on the process on the left pane and select Heap Dump</li><li>If you do not have a graphical environment and can't use vnc (<a title="VisualVM" href="https://visualvm.dev.java.net/">VisualVM</a> needs a graphical environment), use <a title="Java Process Status" href="http://java.sun.com/j2se/1.5.0/docs/tooldocs/share/jps.html">jps</a> and <a title="Java Memory Map" href="http://java.sun.com/j2se/1.5.0/docs/tooldocs/share/jmap.html">jmap</a> to generate the heap dump file. Then copy the file to your workstation and use <a title="VisualVM" href="https://visualvm.dev.java.net/">VisualVM</a> to read the heap dump (File -&gt; Load...):</li></ul><blockquote><blockquote><font face="courier new,courier,monospace">user@host:~$ jps<br />20198<br />21734 WordFinder<br />21921 Jps<br />21168 Main</font><br /><font face="courier new,courier,monospace"><br />user@host:~$ jmap -dump:live,format=b,file=heap.bin 21734<br />Dumping heap to /home/user/heap.bin ...<br />Heap dump file created</font><br /></blockquote></blockquote>Here is what <a title="VisualVM" href="https://visualvm.dev.java.net/">VisualVM</a> looks with a heap dump:<p><img hspace="0" vspace="0" border="0" align="baseline" src="http://blogs.opcodesolutions.com/roller/java/resource/2009-04-21-201519_896x583_scrot.png" alt="Heap Dump in VisualVM" />&nbsp;</p><p>Alternatively, you can also use <a title="Java Heap Analysis Tool" href="http://java.sun.com/javase/6/docs/technotes/tools/share/jhat.html">jhat</a> to read heap dumps.</p>
+</p>
+    			  <div class="next-prev">
+			  			                                 &laquo; <a href="http://blogs.opcodesolutions.com/roller/java/entry/oracle_to_acquire_sun">Oracle to Acquire...</a> |  
+                <a href="/roller/java/">Main</a>
+                | <a href="http://blogs.opcodesolutions.com/roller/java/entry/uspeak_anonymous_discussions">USpeak - Anonymous...</a> &raquo;
+    			  			  </div>
+			  		<br/><br/>
+			         <a name="comments"></a>
+    <div class="comments" id="comments">
+
+            <div class="comments-head">Comments:</div>
+            
+    <br/>
+        </div>
+			     
+    <div class="comments-form">
+    <div class="comments-head">Post a Comment:</div>
+    <a name="comment-form"></a>
+
+    <span class="status">Comments are closed for this entry.</span>
+
+    </div>
+			  			</div>
+		</div>
+		<div id="secondaryContent">
+			<h3>Search</h3>
+			<p>
+			<form id="form1" method="get" action="/roller/java/search">
+			<div>
+				<input type="text" id="textfield1" name="q" value="" size="18" />
+				<input type="submit" id="submit1" name="submit1" value="Search" />
+			</div>
+			</form>
+			<br/>
+			</p>
+									<h3>Links</h3>
+			<ul class="rFolder">
+                    <li class="rFolderItem">
+                                <a href="http://blogs.sun.com/jtb"
+               title=""
+               class="rBookmark0">Jeff Blattman</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://rollerweblogger.org/lance"
+               title=""
+               class="rBookmark0">Lance Lavandowska</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://blogs.sun.com"
+               title=""
+               class="rBookmark0">blogs.sun.com</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://jroller.com"
+               title=""
+               class="rBookmark0">jroller.com</a>
+                </li>
+                    </ul>
+						<h3>Feeds</h3>
+			    <ul class="rFeeds">
+    <li><a href="http://blogs.opcodesolutions.com/roller/java/feed/entries/atom">All</a></li>
+                <li><a href="http://blogs.opcodesolutions.com/roller/java/feed/entries/atom?cat=%2FGeneral">/General</a></li>
+            <li><a href="http://blogs.opcodesolutions.com/roller/java/feed/entries/atom?cat=%2FNews">/News</a></li>
+            <li><a href="http://blogs.opcodesolutions.com/roller/java/feed/entries/atom?cat=%2FDevelopment">/Development</a></li>
+        <li><a href="http://blogs.opcodesolutions.com/roller/java/feed/comments/atom">Comments</a></li>
+    </ul>
+			<h3>Referers</h3>
+									<h3>Navigation</h3>
+			    <ul class="rNavigationBar">
+        <li class="rNavItem">
+            <a href="/roller/"><span>Optimize Your processes</span></a>
+        </li>
+        <li class="rNavItem">
+            <a href="http://blogs.opcodesolutions.com/roller/java/"><span>Weblog</span></a>
+        </li>
+                                                                                                                                                <li class="rNavItem">
+                    <a href="/roller/roller-ui/login-redirect.rol"><span>Login</span></a>
+                </li>
+                        </ul>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div id="footer">
+		<p>Copyright &copy; 2009 <a title="Opcode Solutions" href="http://www.opcodesolutions.com/">Opcode Solutions</a>. Designed by <a href="http://www.freecsstemplates.org">Free CSS Templates</a>. Template by <a href="http://rollerthemes.com">Roller&nbsp;Themes</a>. Powered by <a href="http://www.rollerweblogger.org">Roller Weblogger 4.0.1</a>.</p>
+	</div>
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-574976-5");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

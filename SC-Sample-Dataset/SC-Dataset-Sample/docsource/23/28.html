@@ -1,0 +1,428 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<title> java-programmer >>RMI Connection Refused to Host </title>
+<link rel="stylesheet" href="/fiapple/fiapple.css" type="text/css" />
+</head>
+
+<body>
+<a name="top" id="top"></a>
+<table border="0" cellpadding="0" cellspacing="0" class="ttb">
+<tr>
+<td><img src="/fiapple/images/tt12_l.gif" width="10" height="12" alt="" /></td>
+<td class="tt12bkg"><img src="/fiapple/images/spacer.gif" width="200" height="12" alt="" /></td>
+<td><img src="/fiapple/images/tt12_r.gif" width="10" height="12" alt="" /></td>
+</tr>
+</table>
+
+<table class="bodyline" width="100%" cellspacing="0" cellpadding="10" border="0">
+	<tr bgcolor="E9E9E9">
+  	<td><div align=center>
+<script type="text/javascript" src="/include/ggsearch.js"></script> 
+	</div></td>
+	</tr>
+	<tr height=1 bgcolor=C3C3C3><td height=1 bgcolor=C3C3C3></td></td>
+<tr>
+  <td>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td><img src="/fiapple/images/spacer.gif" width="200" height="8" alt="" /></td>
+</tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr>
+<td class="maintitle" valign="top">&nbsp;RMI Connection Refused to Host</td>
+<td class="gensmall" align="right" valign="bottom">
+&nbsp;
+</td>
+</tr>
+</table>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+                <td><img src="/fiapple/images/spacer.gif" alt="" width="15" height="26" /></td>
+                <td class="nav" width="100%">
+                <a href="/">Index</a>  <strong>&#8249;</strong> <a href="/forum/1/">java-programmer</a> 
+                 </td>
+
+                <td class="nav" nowrap="nowrap" valign="bottom">
+
+
+</td>
+        </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" class="ttb">
+        <tr>
+                <td><img src="/fiapple/images/tt12_l.gif" width="10" height="12" alt="" /></td>
+                <td class="tt12bkg"><img src="/fiapple/images/spacer.gif" width="200" height="12" alt="" /></td>
+                <td><img src="/fiapple/images/tt12_r.gif" width="10" height="12" alt="" /></td>
+        </tr>
+</table>
+<table class="forumline" width="100%" cellspacing="1" cellpadding="3" border="0">
+<tr>
+<th width="100" height="28">Author</th>
+<th width="100%">Message</th>
+</tr>
+
+<tr> 
+<td valign="top" class="row1" rowspan="2"><span class="name"><strong>JMecc</strong></span><br /> 
+<span class="postdetails"><br /><img src="/fiapple/images/mancini.gif" border="0" /><br /><br /><br /></span><br /> 
+<img src="/fiapple/images/spacer.gif" width="100" height="1" /> 
+</td> 
+ 
+<td class="row1" valign="top"> 
+ 
+<table width="100%" border="0" cellspacing="0" cellpadding="0"> 
+<tr> 
+  <td class="postdetails"><img src="/fiapple/images/icon_minipost.gif" width="12" height="9" alt="Post" title="Post" />Posted: 2006-12-6 8:56:00 </td> 
+  <td align="right" valign="top" nowrap="nowrap"><a href="#top">Top</a></td> 
+</tr> 
+</table> 
+ 
+<table width="100%" border="0" cellpadding="0" cellspacing="0"> 
+<tr><td valign="top" class="postbody"><hr /> 
+ java-programmer, RMI Connection Refused to Host  
+ 
+ <script type="text/javascript" src="/include/bgwhite.js"></script> 
+ I am trying to get Java RMI to work on a simple tutorial case.  I have<br />
+these classes to use in a Hello World example:<br />
+<br />
+(HelloClient.java):<br />
+import java.rmi.Naming;<br />
+public class HelloClient {<br />
+   public static void main(String[] args) {<br />
+      try {<br />
+         HelloInterface hello = (HelloInterface)<br />
+Naming.lookup("//localhost/Hello");<br />
+         System.out.println (hello.say());<br />
+       } catch (Exception e) {<br />
+         System.out.println ("HelloClient exception: " + e);<br />
+       }<br />
+   }<br />
+}<br />
+<br />
+(HelloServer.java):<br />
+import java.rmi.Naming;<br />
+public class HelloServer {<br />
+   public static void main(String[] args) {<br />
+      try {<br />
+         Hello h = new Hello ("Hello, world!");<br />
+         Naming.rebind ("Hello", h);<br />
+         System.out.println ("Hello Server is ready.");<br />
+       } catch (Exception e) {<br />
+         System.out.println ("Hello Server failed: " + e);<br />
+       }<br />
+   }<br />
+}<br />
+<br />
+(Hello.java):<br />
+import java.rmi.*;<br />
+import java.rmi.server.*;<br />
+public class Hello extends UnicastRemoteObject implements<br />
+HelloInterface {<br />
+   private String message;<br />
+   /**<br />
+    * Construct a remote object<br />
+    * @param msg the message of the remote object, such as "Hello,<br />
+world!".<br />
+    * @exception RemoteException if the object handle cannot be<br />
+constructed.<br />
+    */<br />
+   public Hello (String msg) throws RemoteException {<br />
+     message = msg;<br />
+   }<br />
+   /**<br />
+    * Implementation of the remotely invocable method.<br />
+    * @return the message of the remote object, such as "Hello,<br />
+world!".<br />
+    * @exception RemoteException if the remote invocation fails.<br />
+    */<br />
+   public String say() throws RemoteException {<br />
+     return message;<br />
+   }<br />
+}<br />
+<br />
+(HelloInterface.java):<br />
+import java.rmi.*;<br />
+public interface HelloInterface extends Remote {<br />
+   /**<br />
+    * Remotely invocable method.<br />
+    * @return the message of the remote object, such as "Hello,<br />
+world!".<br />
+    * @exception RemoteException if the remote invocation fails.<br />
+    */<br />
+   public String say() throws RemoteException;<br />
+}<br />
+<br />
+I compiled all the classes & used rmic (&gt;&gt;rmic Hello) which only<br />
+created Hello_Stub.class, not Hello_Skel.class like is apparently<br />
+supposed to happen.<br />
+<br />
+I can't get anywhere though since every time I start the HelloServer<br />
+I instantly get this error:<br />
+Trouble: java.rmi.ConnectException: Connection refused to host:<br />
+192.168.0.102; nested exception is:<br />
+	java.net.ConnectException: Connection refused: connect<br />
+<br />
+I have been trying other tutorials and on other computers but having no<br />
+luck.  What am I doing wrong?<br />
+<br />
+Thanks,<br />
+Jo<br />
+<br />
+ 
+  
+</td></tr> 
+<tr><td height="40" valign="bottom" class="genmed"><span class="postdetails">&nbsp;</span></td></tr> 
+</table> 
+ 
+</td></tr> 
+   <tr><td valign="bottom" nowrap="nowrap" class="row1"> <script type="text/javascript" src="/include/gglink.js"></script> </td></tr> 
+   <tr><td class="spacerow" colspan="2" height="1"><img src="/fiapple/images/icon_minipost.gif"  width="1" height="1" /></td></tr> 
+<tr> 
+<td valign="top" class="row1" rowspan="2"><span class="name"><strong>Bart Cremers</strong></span><br /> 
+<span class="postdetails"><br /><img src="/fiapple/images/mancini.gif" border="0" /><br /><br /><br /></span><br /> 
+<img src="/fiapple/images/spacer.gif" width="100" height="1" /> 
+</td> 
+ 
+<td class="row1" valign="top"> 
+ 
+<table width="100%" border="0" cellspacing="0" cellpadding="0"> 
+<tr> 
+  <td class="postdetails"><img src="/fiapple/images/icon_minipost.gif" width="12" height="9" alt="Post" title="Post" />Posted: 2006-12-6 18:18:00 </td> 
+  <td align="right" valign="top" nowrap="nowrap"><a href="#top">Top</a></td> 
+</tr> 
+</table> 
+ 
+<table width="100%" border="0" cellpadding="0" cellspacing="0"> 
+<tr><td valign="top" class="postbody"><hr /> 
+ java-programmer &gt;&gt; RMI Connection Refused to Host  
+ 
+  
+ <br />
+<br />
+On Dec 6, 1:56 am, "JMecc" &lt;email***@***.com&gt; wrote:<br />
+&gt; I am trying to get Java RMI to work on a simple tutorial case.  I have<br />
+&gt; these classes to use in a Hello World example:<br />
+<br />
+&lt;snip&gt;<br />
+<br />
+&gt; compiled all the classes & used rmic (&gt;&gt;rmic Hello) which only<br />
+&gt; created Hello_Stub.class, not Hello_Skel.class like is apparently<br />
+&gt; supposed to happen.<br />
+&gt;<br />
+&gt; I can't get anywhere though since every time I start the HelloServer<br />
+&gt; I instantly get this error:<br />
+&gt; Trouble: java.rmi.ConnectException: Connection refused to host:<br />
+&gt; 192.168.0.102; nested exception is:<br />
+&gt;         java.net.ConnectException: Connection refused: connect<br />
+&gt;<br />
+&gt; I have been trying other tutorials and on other computers but having no<br />
+&gt; luck.  What am I doing wrong?<br />
+&gt;<br />
+&gt; Thanks,<br />
+&gt; Jo<br />
+<br />
+To work with rmi you'll have to start a RMI registry before binding<br />
+objects. To start the registry you've got 2 options:<br />
+<br />
+- run the 'rmiregistry' command from the command line (in the directory<br />
+where your compiled classes reside)<br />
+- start the registry in your program:<br />
+LocateRegistry.createRegistry(Registry.REGISTRY_PORT); (before binding<br />
+in the server)<br />
+<br />
+The reason no skeletons are generated is because the 1.2 JRMP protocol<br />
+no longer needs them. You can still generate them by telling the rmic<br />
+compiler to do so, but I don't think you'll have to.<br />
+<br />
+Regards,<br />
+<br />
+Bart<br />
+<br />
+ 
+ <script type="text/javascript" src="/include/bgwhite.js"></script> 
+</td></tr> 
+<tr><td height="40" valign="bottom" class="genmed"><span class="postdetails">&nbsp;</span></td></tr> 
+</table> 
+ 
+</td></tr> 
+   <tr><td valign="bottom" nowrap="nowrap" class="row1"> <script type="text/javascript" src="/include/gglink.js"></script> </td></tr> 
+   <tr><td class="spacerow" colspan="2" height="1"><img src="/fiapple/images/icon_minipost.gif"  width="1" height="1" /></td></tr> 
+<tr> 
+<td valign="top" class="row1" rowspan="2"><span class="name"><strong>JMecc</strong></span><br /> 
+<span class="postdetails"><br /><img src="/fiapple/images/mancini.gif" border="0" /><br /><br /><br /></span><br /> 
+<img src="/fiapple/images/spacer.gif" width="100" height="1" /> 
+</td> 
+ 
+<td class="row1" valign="top"> 
+ 
+<table width="100%" border="0" cellspacing="0" cellpadding="0"> 
+<tr> 
+  <td class="postdetails"><img src="/fiapple/images/icon_minipost.gif" width="12" height="9" alt="Post" title="Post" />Posted: 2006-12-7 11:24:00 </td> 
+  <td align="right" valign="top" nowrap="nowrap"><a href="#top">Top</a></td> 
+</tr> 
+</table> 
+ 
+<table width="100%" border="0" cellpadding="0" cellspacing="0"> 
+<tr><td valign="top" class="postbody"><hr /> 
+ java-programmer &gt;&gt; RMI Connection Refused to Host  
+ 
+  
+ Thanks Bart; I did forget to use rmiregistry and this got things going.<br />
+ I read that for Windows it should be 'start rmiregistry' but that<br />
+didn't work, only 'rmiregistry &' did.<br />
+<br />
+So that worked for a bit and is now back to not working:<br />
+<br />
+C:\Java\RMI Sample Server&gt;rmic SampleServerImpl<br />
+C:\Java\RMI Sample Server&gt;java -Djava.security.policy=policy.all<br />
+SampleServerImpl<br />
+Remote exception: java.rmi.ServerException: RemoteException occurred in<br />
+server thread; nested exception is:<br />
+        java.rmi.UnmarshalException: error unmarshalling arguments;<br />
+nested exception is:<br />
+        java.lang.ClassNotFoundException: SampleServerImpl_Stub<br />
+C:\Java\RMI Sample Server&gt;dir<br />
+ Directory of C:\Java\RMI Sample Server<br />
+12/06/2006  08:06 PM    &lt;DIR&gt;          .<br />
+12/06/2006  08:06 PM    &lt;DIR&gt;          ..<br />
+12/06/2006  02:54 PM               226 .classpath<br />
+12/06/2006  02:54 PM               393 .project<br />
+12/06/2006  02:55 PM               130 policy.all<br />
+12/06/2006  08:03 PM               288 policy.test<br />
+12/06/2006  03:55 PM             1,643 SampleClient.class<br />
+12/06/2006  03:55 PM             1,404 SampleClient.java<br />
+12/06/2006  02:56 PM               203 SampleServer.class<br />
+12/06/2006  02:56 PM               128 SampleServer.java<br />
+12/06/2006  08:06 PM             1,475 SampleServerImpl.class<br />
+12/06/2006  08:06 PM             1,228 SampleServerImpl.java<br />
+12/06/2006  08:06 PM             1,774 SampleServerImpl_Stub.class<br />
+<br />
+It seems to work when I use 'rmiregistry &', then kill it (cntr-c),<br />
+then 'start rmiregistry', then 'rmiregistry &' again, or maybe it is<br />
+that I have to use 'rmiregistry &' within the directory of my classes I<br />
+want to set as remote.  I am not sure what the correct procedure is and<br />
+so am playing around trying to get it working, but I'd like to get a<br />
+confirmed 'correct way'.<br />
+<br />
+I was also trying to define a policy, but that is not going so well<br />
+either.  The connection was made fine with<br />
+<br />
+grant {<br />
+    permission java.security.AllPermission;<br />
+};<br />
+<br />
+but I think this allows others to obtain my classes (& then decompile<br />
+them...).  I saw this in a tutorial:<br />
+<br />
+grant {<br />
+	permission java.io.filePermission "/tmp/*", "read",<br />
+"write";<br />
+	permission java.net.SocketPermission<br />
+"somehost.somedomain.com:999","connect";<br />
+	permission java.net.SocketPermission<br />
+"*:1024-65535","connect,request";<br />
+	permission java.net.SocketPermission "*:80","connect";<br />
+  };<br />
+<br />
+but all I got were cannot parse file errors:<br />
+<br />
+C:\Java\RMI Sample Server&gt;java -Djava.security.policy=policy.hkbu<br />
+SampleServerImpl<br />
+java.security.policy: error parsing<br />
+file:/C:/Java/RMI%20Sample%20Server/policy.hkbu:<br />
+        line 2: expected [;], found [?]<br />
+Exception in thread "main" java.security.AccessControlException: access<br />
+denied (java.net.SocketPermission 127.0.0.1:1099 connect,resolve)<br />
+        at java.security.AccessControlContext.checkPermission(Unknown<br />
+Source)<br />
+        at java.security.AccessController.checkPermission(Unknown<br />
+Source)<br />
+        at java.lang.SecurityManager.checkPermission(Unknown Source)<br />
+        at java.lang.SecurityManager.checkConnect(Unknown Source)<br />
+        at java.net.Socket.connect(Unknown Source)<br />
+        at java.net.Socket.connect(Unknown Source)<br />
+        at java.net.Socket.&lt;init&gt;(Unknown Source)<br />
+        at java.net.Socket.&lt;init&gt;(Unknown Source)<br />
+        at<br />
+sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(Unknown<br />
+Source)<br />
+        at<br />
+sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(Unknown<br />
+Source)<br />
+        at sun.rmi.transport.tcp.TCPEndpoint.newSocket(Unknown Source)<br />
+        at sun.rmi.transport.tcp.TCPChannel.createConnection(Unknown<br />
+Source)<br />
+        at sun.rmi.transport.tcp.TCPChannel.newConnection(Unknown<br />
+Source)<br />
+        at sun.rmi.server.UnicastRef.newCall(Unknown Source)<br />
+        at sun.rmi.registry.RegistryImpl_Stub.rebind(Unknown Source)<br />
+        at java.rmi.Naming.rebind(Unknown Source)<br />
+        at SampleServerImpl.main(SampleServerImpl.java:33)<br />
+<br />
+Is it ok to just leave the policy to all & use a wrapper class to pass<br />
+the calls with arguments through to the real classes only if the<br />
+password is correct or something like that?<br />
+<br />
+Jo<br />
+<br />
+ 
+  
+</td></tr> 
+<tr><td height="40" valign="bottom" class="genmed"><span class="postdetails">&nbsp;</span></td></tr> 
+</table> 
+ 
+</td></tr> 
+   <tr><td valign="bottom" nowrap="nowrap" class="row1"> &nbsp; </td></tr> 
+   <tr><td class="spacerow" colspan="2" height="1"><img src="/fiapple/images/icon_minipost.gif"  width="1" height="1" /></td></tr> 
+
+
+<tr><td colspan="2" align="center" class="cat">&nbsp;</td></tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" class="ttb">
+  <tr>
+  <td><img src="/fiapple/images/tb12_l.gif" width="10" height="12" alt="" /></td>
+  <td class="tb12bkg"><img src="/fiapple/images/spacer.gif" width="200" height="12" alt="" /></td>
+  <td><img src="/fiapple/images/tb12_r.gif" width="10" height="12" alt="" /></td>
+  </tr>
+</table>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+  <td><img src="/fiapple/images/spacer.gif" alt="" width="15" height="26" /></td>
+  <td class="nav" width="100%"><a href="/">Index</a>  <strong>&#8249;</strong> <a href="/forum/1/1.html">java-programmer</a> </td>
+  <td valign="top">
+              
+
+
+  </td>
+  <td class="nav" nowrap="nowrap">&nbsp;</td>
+  </tr>
+</table>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr>
+  <td><br /></td>
+  <td class="gensmall" align="right" valign="top"><br /><br /></td>
+</tr></table>
+
+</td></tr></table>
+
+
+<table border="0" cellpadding="0" cellspacing="0" class="ttb">
+<tr>
+  <td><img src="/fiapple/images/tb12_l.gif" width="10" height="12" alt="" /></td>
+  <td class="tb12bkg"><img src="/fiapple/images/spacer.gif" width="200" height="12" alt="" /></td>
+  <td><img src="/fiapple/images/tb12_r.gif" width="10" height="12" alt="" /></td>
+</tr>
+</table>
+<script type="text/javascript" src="http://js.tongji.linezing.com/1176906/tongji.js"></script>
+</body>
+</html>

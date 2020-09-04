@@ -1,0 +1,835 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-us" xml:lang="en-us">
+<head>
+<script type="text/javascript" src="../../../../../ver362.6/advanced/xmlajax.js"></script>
+ <script type='text/javascript'>
+<!--
+
+<!--
+ var xml = new Array();
+ function check(){
+ var len = xml.length; 
+for (var i=0;i<len;i++){
+var elementID = xml[i];
+var obj = document.getElementById(elementID);
+var url ="../../../../../linkcheck?url=" + obj.getAttribute("href");
+linkCheck(url,obj);}
+} 
+//-->
+
+-->
+</script>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta content="public" name="security" />
+<meta content="index,follow" name="Robots" />
+<meta http-equiv="PICS-Label" content='(PICS-1.1 "http://www.icra.org/ratingsv02.html" l gen true r (cz 1 lz 1 nz 1 oz 1 vz 1) "http://www.rsac.org/ratingsv01.html" l gen true r (n 0 s 0 v 0 l 0) "http://www.classify.org/safesurf/" l gen true r (SS~~000 1))' />
+<meta content="reference" name="DC.Type" />
+<meta name="DC.Title" content="SPNEGO troubleshooting tips" />
+<meta name="abstract" content="You can securely negotiate and authenticate HTTP requests for secured resources in WebSphere Application Server by using the Simple and Protected GSS-API Negotiation Mechanism (SPNEGO). This article describes the issues you might encounter using Simple and Protected GSS-API Negotiation Mechanism (SPNEGO) as the Web authentication service for WebSphere Application Server." />
+<meta name="description" content="You can securely negotiate and authenticate HTTP requests for secured resources in WebSphere Application Server by using the Simple and Protected GSS-API Negotiation Mechanism (SPNEGO). This article describes the issues you might encounter using Simple and Protected GSS-API Negotiation Mechanism (SPNEGO) as the Web authentication service for WebSphere Application Server." />
+<meta scheme="URI" name="DC.Relation" content="tsec_trouble.html" />
+<meta scheme="URI" name="DC.Relation" content="http://support.microsoft.com/kb/951509/" />
+<meta name="copyright" content="IBM Corporation 2008, 2011" />
+<meta name="DC.Rights.Owner" content="IBM Corporation 2008, 2011" />
+<meta content="XHTML" name="DC.Format" />
+<meta content="rsec_SPNEGO_troubles" name="DC.Identifier" />
+<meta content="en-us" name="DC.Language" />
+<!-- All rights reserved. Licensed Materials Property of IBM -->
+<!-- US Government Users Restricted Rights -->
+<!-- Use, duplication or disclosure restricted by -->
+<!-- GSA ADP Schedule Contract with IBM Corp. -->
+<link href="../../ibmdita.css" type="text/css" rel="stylesheet" />
+<link href="../../swg_info_common.css" type="text/css" rel="stylesheet" />
+<link href="../../monospace.css" type="text/css" rel="stylesheet" disabled="" />
+<title>SPNEGO troubleshooting tips</title>
+<style type="text/css">
+        span.stealth { visibility:hidden; }
+   </style>
+<script language="JavaScript" src="../../../../../scriptsfiles/icscript.js"> </script>
+
+
+<script type="text/javascript" src="../../../../../ver362.6/advanced/synchWithToc.js"></script>
+
+<link rel="stylesheet" href="../../../../../content/org.eclipse.help.webapp/advanced/breadcrumbs.css" charset="ISO-8859-1" type="text/css"></link>
+<script type="text/javascript" src="../../../../../content/org.eclipse.help/livehelp.js"> </script>
+<script type="text/javascript">if( self == top ){ window.location.replace( "../../../../../index.jsp?topic=%2Fcom.ibm.websphere.nd.multiplatform.doc%2Finfo%2Fae%2Fae%2Frsec_SPNEGO_troubles.html");}</script>
+</head>
+<body xmlns:xalan="http://xml.apache.org/xslt" id="rsec_SPNEGO_troubles" onload="check();">
+<div class="help_breadcrumbs"><a href="../../../../../topic/com.ibm.websphere.nd.multiplatform.doc/info/ae/ae/welcome_ndmp.html">Network Deployment (All operating systems), Version 7.0</a> > <a href="../../../../../topic/com.ibm.websphere.nd.multiplatform.doc/info/ae/ae/welc_ref.html">Reference</a> > <a href="../../../../../topic/com.ibm.websphere.nd.multiplatform.doc/info/ae/ae/welc_ref_trb_tips.html">Troubleshooting tips</a></div>
+<a name="rsec_SPNEGO_troubles"><!-- --></a>
+<span style="display:none" class="stealth">File name: rsec_SPNEGO_troubles.html</span><br> </br>
+<h1 class="topictitle1">SPNEGO troubleshooting tips</h1>
+
+
+
+<div><p>You can securely negotiate and authenticate HTTP requests
+for secured resources in <span>WebSphere<sup>®</sup> Application Server</span> by using the Simple
+and Protected GSS-API Negotiation Mechanism (SPNEGO). This article
+describes the issues you might encounter using Simple and Protected
+GSS-API Negotiation Mechanism (SPNEGO) as the Web authentication service
+for <span>WebSphere Application Server</span>.</p>
+
+<div class="section"><h4 class="sectiontitle">SPNEGO issues and their possible solutions </h4><div class="p">The
+following are some issues you might encounter when you use SPNEGO
+as the Web authentication service for <span>WebSphere Application Server</span> and their possible
+solutions.<ul>
+<li><a href="#rsec_SPNEGO_troubles__spprincipal">Unable to resolve the Kerberos principal name</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__adcontrol">WebSphere Application Server and the time on the Active Directory (AD) domain controller are not synchronized within 5 minutes</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__getexcept">No factory is available to create name for mechanism 1.3.6.1.5.5.2</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__kerberror">A Kerberos error is received while decoding and verifying the SPNEGO token</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__sserror">Single sign-on does not occur</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__ssorc">Unable to use sign-on (SSO) with RC4-HMAC encryption</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__protectsso">Problems when accessing a protected URL through the SPNEGO single sign-on (SSO)</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__jgbs">Even with JGSS tracing disabled, some KRB_DBG_KDC messages appear in the SystemOut.log</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__ktpassprob">ktpass is unable to find the userid</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__creddel">Credential delegation might not work due to an invalid option in the ticket request</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__credchal">A user is challenged for credentials even though the browser is properly configured</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__novissue">A user using the Novell client cannot authenticate using SPNEGO</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__proxys">Accessing SPNEGO sites via some caching proxy servers can cause SPNEGO authentication issues</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__vpn">Virtual Private Networks (VPN) software and firewalls might interfere with SPNEGO operations</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__browsi">Possible browser issue when accessing a SPNEGO protected application</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__ie6p">Possible browser issue with Internet Explorer Version 6.0</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__ntlm">Error pages defined for the NTLMTokenReceivedPage or the SpnegoNotSupportedPage properties do load from an http:// URL</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__isa">A client browser single sign-on (SSO) attempt fails to authenticate with WebSphere Application Server when you use a SPNEGO token with Microsoft Internet Security Acceleration Server</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__encrypt">Microsoft Windows Version 7 and Internet Explorer Version 8 disables DES encryption type by default</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__formlogin">SPNEGO
+authentication fails when a web browser does not send a web form with
+the userid and password</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__SPNEGOrealm">Correcting
+realm change issues and subsequent SPNEGO logon failures</a></li>
+
+<li><a href="#rsec_SPNEGO_troubles__AES256">Establishing
+an unrestricted policy then using AES256 encryption</a></li>
+
+</ul>
+</div>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__spprincipal"><a name="rsec_SPNEGO_troubles__spprincipal"><!-- --></a><h4 class="sectiontitle">Unable to resolve the Kerberos principal
+name </h4><p>If you are unable to resolve the Kerberos principal
+name, as shown in the following trace example:</p>
+<pre>[11/11/03 1:42:29:795 EST] 1d01b21e GetKrbToken   &gt; Negotiation (GSS): Begin handshake
+[11/11/03 1:42:29:795 EST] 1d01b21e Context       &gt; GSS Context init, servername:HTTP@johnwang5.jwcmd.com
+[11/11/03 1:42:29:866 EST] 1d01b21e TraceNLS      u No message text associated with key Error.getting.the.Token,
+.GSS.Exception:org.ietf.jgss.GSSException,.major.code:.13,.minor.code:.0
+	major.string:.Invalid.credentials
+	minor.string:.Cannot.get.credential.from.JAAS.Subject.for.principal:.HTTP/192.168.0.4@168.0.4 in bundle 
+com.ibm.ejs.resources.security
+[11/11/03 1:42:29:866 EST] 1d01b21e GetKrbToken   E Error getting the Token, GSS Exception:org.ietf.jgss.GSSException, 
+major code: 13, minor code: 0
+	major string: Invalid credentials
+	minor string: Cannot get credential from JAAS Subject for principal: HTTP/192.168.0.4@168.0.4
+[11/11/03 1:42:29:876 EST] 1d01b21e TraceNLS      u No message text associated with key SpnegoTAI.exits.due.to.an.exception. 
+in bundle com.ibm.ejs.resources.security
+[11/11/03 1:42:29:876 EST] 1d01b21e SpnegoTAI     E SpnegoTAI exits due to an exception. </pre>
+<p>add
+the IP address of the server in its host file. You must also recycle
+the application server to load the new host file.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__adcontrol"><a name="rsec_SPNEGO_troubles__adcontrol"><!-- --></a><h4 class="sectiontitle">WebSphere Application Server and the time on
+the Active Directory (AD) domain controller are not synchronized within
+5 minutes </h4><div class="p">The <strong>trace.log</strong> file for this issue is similar
+to the following:<pre>[11/11/03 1:44:09:499 EST] 1d01b21e GetKrbToken   &gt; Negotiation (GSS): Begin handshake
+[11/11/03 1:44:09:499 EST] 1d01b21e Context       &gt; GSS Context init, servername:HTTP@backendrc4.ibm.net
+[11/11/03 1:44:09:499 EST] 1d01b21e Context       &gt; GSS Context init, done.
+[11/11/03 1:44:09:679 EST] 1d01b21e SpnegoTAI     &gt; Server response token as follows...
+0000:  6082014f 06062b06 01050502 a1820143     `?.O..+.....¡?.C
+0010:  3082013f a0030a01 01a10b06 092a8648     0?.? ....¡...*?H
+0020:  82f71201 0202a282 01290482 01256082     ?÷....¢?.).?.%`?
+0030:  01210609 2a864886 f7120102 0203007e     .!..*?H?÷......~
+0040:  82011030 82010ca0 03020105 a1030201     ?..0?.. ....¡...
+0050:  1ea41118 0f323030 33313131 31303634     .¤...20031111064
+0060:  3430395a a5050203 0a3548a6 03020125     409Z¥....5H¦...%
+0070:  a90b1b09 4a57434d 442e434f 4daa2630     ©.....IBM.NETª&amp;0
+0080:  24a00302 0100a11d 301b1b04 48545450     $ ....¡.0...HTTP
+0090:  1b136a6f 686e7761 6e67352e 6a77636d     ..backendrc4.ibm
+00a0:  642e636f 6dab81ab 1b81a86f 72672e69     .net.«?«.?¨org.i
+00b0:  6574662e 6a677373 2e475353 45786365     etf.jgss.GSSExce
+00c0:  7074696f 6e2c206d 616a6f72 20636f64     ption, major cod
+00d0:  653a2031 302c206d 696e6f72 20636f64     e: 10, minor cod
+00e0:  653a2033 370a096d 616a6f72 20737472     e: 37..major str
+00f0:  696e673a 20446566 65637469 76652074     ing: Defective t
+0100:  6f6b656e 0a096d69 6e6f7220 73747269     oken..minor stri
+0110:  6e673a20 436c6965 6e742074 696d6520     ng: Client time 
+0120:  54756573 6461792c 204e6f76 656d6265     Tuesday, Novembe
+0130:  72203131 2c203230 30332061 7420313a     r 11, 2003 at 1:
+0140:  33353a30 3120414d 20746f6f 20736b65     35:01 AM too ske
+0150:  776564                                  wed</pre>
+</div>
+<p>You
+can fix this issue in one of two ways. The preferred method is to
+synchronize the WebSphere system
+time to within 5 minutes of the time of the AD server. A best practice
+is to use a time server to keep all of the systems synchronized. Alternatively,
+you can also add or adjust the clockskew parameter in the Kerberos
+configuration file. Note that the default is 300 seconds (5 minutes).</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__getexcept"><a name="rsec_SPNEGO_troubles__getexcept"><!-- --></a><h4 class="sectiontitle">No factory is available to create name
+for mechanism 1.3.6.1.5.5.2 </h4><div class="p">If the <strong>systemout.log </strong> file
+contains an exception error similar to the following:<pre>[4/8/05 22:51:24:542 EDT] 5003e481 SystemOut     O [JGSS_DBG_PROV] Provider IBMJGSSProvider version 1.01 
+does not support mech 1.3.6.1.5.5.2
+[4/8/05 22:51:24:582 EDT] 5003e481 ServerCredent E com.ibm.ws.security.spnego.ServerCredential initialize() SPNEGO014: 
+Kerberos initialization Failure: org.ietf.jgss.GSSException, major code: 2, minor code: 0
+	major string: Unsupported mechanism
+	minor string: No factory available to create name for mechanism 1.3.6.1.5.5.2
+	at com.ibm.security.jgss.i18n.I18NException.throwGSSException(I18NException.java:30)
+	at com.ibm.security.jgss.GSSManagerImpl.a(GSSManagerImpl.java:36)
+	at com.ibm.security.jgss.GSSCredentialImpl.add(GSSCredentialImpl.java:217)
+	at com.ibm.security.jgss.GSSCredentialImpl.&lt;init&gt;(GSSCredentialImpl.java:264) 
+.
+. </pre>
+</div>
+<div class="p">make sure that the <strong>java.security</strong> file
+contains the IBMSPNEGO security provider and is defined correctly.
+It should contain a line similar to the following:<pre>security.provider.6=com.ibm.security.jgss.mech.spnego.IBMSPNEGO</pre>
+</div>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__kerberror"><a name="rsec_SPNEGO_troubles__kerberror"><!-- --></a><h4 class="sectiontitle"> A Kerberos error is received while
+decoding and verifying the SPNEGO token </h4><div class="p">You might receive
+the following exception error as the Java Generic
+Security Service (JGSS) library attempts to process the SPNEGO token:<pre>Error authenticating request. Reporting to client
+Major code = 11, Minor code = 31
+org.ietf.jgss.GSSException, major code: 11, minor code: 31
+	major string: General failure, unspecified at GSSAPI level
+	minor string: Kerberos error while decoding and verifying token: com.ibm.security.krb5.internal.KrbException, status code: 31
+	message: Integrity check on decrypted field failed</pre>
+</div>
+<div class="p">This
+error is caused when the ticket is encoded by using one key and then
+an attempt is made to decode the ticket by using another key. There
+are number of possible explanations for this:<ul>
+<li>The keytab file has not been copied to the server machine after
+it has been regenerated.</li>
+
+<li>The Kerberos configuration points to the wrong keytab file.</li>
+
+<li>The SPN was defined to Active Directory more than once. This is
+also caused by another userid with a similarly defined SPN (either
+the same name or it might differ by having a port defined as part
+of the SPN).</li>
+
+<li>If the encryption type is DES, the password associated with the
+Service userid might only exist for RC4-HMAC encryption. This occurs
+when a new userid is created, the SPN is defined, and the keytab is
+generated with the <tt>+DesOnly</tt> option. The service ticket generated
+for this SPN is encrypted with one secret that does not match that
+found in the keytab.</li>
+
+<li>An older version of the Microsoft<sup>®</sup> ktpass
+tool is being used. Older versions of the tool create keytab files
+that are incorrect and might result in this error. If you are using Windows<sup>®</sup> Server 2003 as your
+Domain controller, use the version of <strong>ktpass.exe</strong> that is part
+of Windows Server 2003 SP 2 (specifically,
+version 5.2.3790.2825).</li>
+
+</ul>
+</div>
+<p>If the problem is with the keytab file, then fix it. If
+the problem is with multiple SPN definitions, remove the extra or
+conflicting SPN, confirm that the SPN is no longer registered with
+AD, and then add the SPN again.  Read about <a href="tsec_kerb_create_spn.html">Creating a Kerberos service principal name and keytab file</a> for more information.
+The Active Directory might need to be searched for other entries with
+SPNs defined that clash with the SPN using an LDAP browser.</p>
+<div class="p">To
+confirm that the SPN is not registered, the following command:<pre>setspn –l userid</pre>
+should
+return with:<pre>Cannot find account userid</pre>
+</div>
+<p>If
+the userid and keytab are for DES-CBC-MD5, after you create the userid,
+change the password for the userid and then create the keytab file.
+If you are using Windows Server
+2003 upgrade to the latest version of ktpass.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__sserror"><a name="rsec_SPNEGO_troubles__sserror"><!-- --></a><h4 class="sectiontitle">Single sign-on does not occur </h4><div class="p">When
+trace is turned on, the following error message might appear:<pre>Client sent back a non-SPNEGO authentication header, SpnegoTAI exits</pre>
+</div>
+<div class="p">A
+possible reason for this error is that the client is returning an
+NT LAN manager (NTLM) response to the authorize challenge, not an
+SPNEGO token. This can occur due to one or more of the following issues:<ul>
+<li>The client has not been properly configured.</li>
+
+<li>The client is not using a supported browser. For instance, users
+of Internet Explorer 5.5 SP1 respond with a non-SPNEGO authentication
+header.</li>
+
+<li>The user has not logged into the AD domain or into a trusted domain,
+or the client used does not support Integrated Authentication with Windows. In this case, the TAI
+is working properly.</li>
+
+<li>The user accesses a service defined on the same machine as the
+client is running (the localhost). Internet Explorer resolves the
+hostname of the URL to <tt>http://localhost&lt;someURL&gt;</tt> instead
+of to the fully-qualified name that is provided. </li>
+
+<li>The SPN is not found in the Active Directory. The SPN must be
+of the format <tt>HTTP/server.realm.com.</tt> The command to add the
+SPN is: <pre>setspn –a HTTP/server.realm.com userid</pre>
+<p>If
+the SPN is defined incorrectly as <tt>HTTP/server.realm.com@REALM.COM</tt> with
+the addition of <tt>@REALM.COM</tt>, then delete the user, redefine
+it, and then redefine the SPN.</p>
+</li>
+
+<li>The hostname is resolved as a DNS Alias, not as a HOST record.
+Change the hostname to a HOST record.</li>
+
+<li>The account in AD that holds the ServicePrincipalName is in an
+AD domain that is remote from the AD domain that the user has logged
+into, and these domains are not Windows 2003
+domains. Migrate the domains to Windows 2003,
+or limit SSO to users within the same domain as the ServicePrincipalName
+userid.</li>
+
+</ul>
+</div>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__ssorc"><a name="rsec_SPNEGO_troubles__ssorc"><!-- --></a><h4 class="sectiontitle">Unable to use sign-on (SSO) with RC4-HMAC
+encryption </h4><div class="p">When trace is turned on you might receive the
+following error message:<pre>com.ibm.security.krb5.internal.crypto.KrbCryptoException, status code: 0
+message: Checksum error; received checksum does not match computed checksum</pre>
+</div>
+<div class="p">Some
+possible reasons for this error include the following<ul>
+<li>RC4-HMAC encryption is not supported with a Windows 2000 KDC. To confirm that this is
+a problem, examine the trace above where the exception is thrown.
+The content of the incoming ticket should be visible in the trace.
+While it is encrypted, the SPN name for the service is readable. If
+a Windows 2000 KDC is used,
+and the system is configured to use RC4-HMAC, the string representing
+the ticket for <tt>userid@REALM</tt>instead of the expected <tt>HTTP/hostname.realm@REALM</tt> 
+is shown. For example, this is beginning of the ticket received from
+a Windows 2000 KDC:<div class="p"><pre>0000: 01 00 6e 82 04 7f 30 82  04 7b a0 03 02 01 05 a1  ..n...0.........
+0010: 03 02 01 0e a2 07 03 05  00 20 00 00 00 a3 82 03  ................
+0020: a5 61 82 03 a1 30 82 03  9d a0 03 02 01 05 a1 0a  .a...0..........
+0030: 1b 08 45 50 46 44 2e 4e  45 54 a2 18 30 16 a0 03  ...REALM.COM.0..
+0040: 02 01 01 a1 0f 30 0d 1b  0b 65 70 66 64 77 61 73  .....0...userid
+0050: 75 6e 69 74 a3 82 03 6e  30 82 03 6a a0 03 02 01  .a.f...n0..j....</pre>
+</div>
+<div class="p">The
+realm is REALM.COM. The service name is userid. A correctly formed
+ticket for the same SPN is:<pre>0000: 01 00 6e 82 04 56 30 82  04 52 a0 03 02 01 05 a1  ..n..V0..R......
+0010: 03 02 01 0e a2 07 03 05  00 20 00 00 00 a3 82 03  ................
+0020: 82 61 82 03 7e 30 82 03  7a a0 03 02 01 05 a1 0a  .a...0..z.......
+0030: 1b 08 45 50 46 44 2e 4e  45 54 a2 2a 30 28 a0 03  ..REALM.COM.0...
+0040: 02 01 02 a1 21 30 1f 1b  04 48 54 54 50 1b 17 75  .....0...HTTP..u
+0050: 73 31 30 6b 65 70 66 77  61 73 73 30 31 2e 65 70  serid.realm.com.
+0060: 66 64 2e 6e 65 74 a3 82  03 39 30 82 03 35 a0 03  ...n.....90..5..</pre>
+</div>
+<p>To
+correct the problem, either use single DES encryption or use a Windows Server 2003 for a KDC.
+Remember to regenerate the SPN and the keytab file.</p>
+</li>
+
+<li>RC-HMAC encryption does not work when the credential delegation
+feature is used. To determine if you have this problem, enable JGSS
+and Krb5 tracing. If the SPN name is correct, messages such as the
+following might appear:<pre>[JGSS_DBG_CTX] Successfully decrypted ticket
+[JGSS_DBG_CTX] Put authz info in cache
+[JGSS_DBG_CTX] Session key type = rc4-hmac
+…
+[JGSS_DBG_CTX] Successfully decrypted authenticator
+[JGSS_DBG_CTX] Error authenticating request. Reporting to client
+…
+Major code = 11, Minor code = 0
+org.ietf.jgss.GSSException, major code: 11, minor code: 0
+	major string: General failure, unspecified at GSSAPI level
+	minor string: Kerberos error converting KRBCred: com.ibm.security.krb5.internal.crypto.KrbCryptoException, status code: 0
+	message: Checksum error; received checksum does not match computed checksum</pre>
+<p>This
+indicates that the delegated credential contained in the SPNEGO token
+was not encrypted with the proper key. </p>
+<p>Obtain APAR IY76826.
+This replaces <strong>ibmjgssprovider.jar</strong> with a version that can accept
+the Microsoft defined
+RC4 encrypted delegated credential.</p>
+</li>
+
+<li>The password used when generating the keytab file with ktpass
+does not match the password assigned to the service account. When
+the password changes you should regenerate and redistribute the keys.,
+even if it is reset to the same password. <div class="p">In addition, the ktpass
+tool might generate a keytab file with a non-matching password as
+in the following cases:<ul>
+<li>If the password entered to ktpass matches the password for the
+service account, then the produced keytab file does work.</li>
+
+<li>If the password entered to ktpass does not match the password
+for the service account, and is less than 7 characters in length,
+ktpass aborts and does not produce a keytab file.</li>
+
+<li>If the password entered to ktpass does not match the password
+for the service account, and is greater than 6 characters in length,
+ktpass does not abort. Instead, it produces a keytab file containing
+an invalid key. Use of this key to decrypt a SPNEGO token produces
+the checksum error listed above.</li>
+
+</ul>
+</div>
+<p>Use a non-null password for the service account, and then
+use that password when invoking ktpass.</p>
+</li>
+
+<li>The ktpass version 1830 (in Support Tools SP1) can produce the
+error in some Windows 2003
+Server environments. Use the SP2 version of the tool to avoid the
+error.<p>Use the Support Tools SP2 version of ktpass to generate the
+keytab file.</p>
+</li>
+
+</ul>
+</div>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__creddel"><a name="rsec_SPNEGO_troubles__creddel"><!-- --></a><h4 class="sectiontitle">Credential delegation might not work
+due to an invalid option in the ticket request </h4><div class="p">When trace
+is turned on, if the following error message appears:<pre>com.ibm.security.krb5.KrbException, status code: 101 message: Invalid option in ticket request</pre>
+</div>
+<p>the
+Kerberos configuration file is not properly configured. Ensure that
+neither renewable nor proxiable are set to <tt>true</tt>.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__protectsso"><a name="rsec_SPNEGO_troubles__protectsso"><!-- --></a><h4 class="sectiontitle">Problems when accessing a protected
+URL through the SPNEGO single sign-on (SSO) </h4><div class="p">You might receive
+an error similar to the following when accessing a protected URL through
+the SPNEGO SSO:<pre>Bad Request
+
+Your browser sent a request that this server could not understand.
+Size of request header field exceeds server limit.
+
+Authorization: Negotiate YII……</pre>
+</div>
+<p>This message is generated
+by the Apache/IBM HTTP Server, and indicates that the authorization
+header that your browser has returned is too large. The long string
+that follows the word Negotiate is the SPNEGO token. This SPNEGO token
+is a wrapper of the Windows Kerberos
+token. Windows includes
+the PAC information of the user in the Kerberos token. The more security
+groups that the user belongs to, the more PAC information is inserted
+in the Kerberos token, and the larger SPNEGO becomes. IBM<sup>®</sup> HTTP Server 2.0 (as well as Apache 2.0 and IBM HTTP Server 6.0) limit the size
+of any acceptable HTTP header to be 8K. In Windows domains with many groups, and with
+user membership in many groups, the size of the user's SPNEGO token
+can exceed the 8K limit. </p>
+<p>If possible, reduce the number of
+security groups that the user is a member of. IBM HTTP Server 2.0.47 cumulative fix PK01070
+allows for HTTP header sizes up to and beyond the Microsoft limit of 12K.</p>
+<p>After applying
+the fix you must specify the LimitRequestFieldSize parameter in the <strong>httpd.conf</strong> file
+to increase the size of allowable headers from the default of 8192.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__jgbs"><a name="rsec_SPNEGO_troubles__jgbs"><!-- --></a><h4 class="sectiontitle">Even with JGSS tracing disabled, some KRB_DBG_KDC
+messages appear in the SystemOut.log </h4><p>While most of the JGSS
+tracing is controlled by the <tt>com.ibm.security.jgss.debug</tt> property,
+a small set of messages are controlled by the <tt>com.ibm.security.krb5.Krb5Debug</tt> property.
+The default value of the krb5 property is to emit some messages to
+SystemOut.log. </p>
+<p>To remove all KRB_DBG_KDC messages from the
+SystemOut.log, set the JVM property to <tt>-Dcom.ibm.security.krb5.Krb5Debug=none</tt>.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__ktpassprob"><a name="rsec_SPNEGO_troubles__ktpassprob"><!-- --></a><h4 class="sectiontitle">ktpass is unable to find the userid </h4><div class="p">When
+using ktpass, you might receive an error message similar to the following:<pre>DsCrackNames returned 0x2 in the name entry for server3
+Failed getting target domain for specified user.</pre>
+</div>
+<p>In
+an Active Directory forest, the userid lookup used by the <strong>ktpass.exe</strong> does
+not have a default domain name to be used. This does not occur when
+the domain controller is not in a forest.</p>
+<p>To fix this problem,
+instead of specifying option <tt>-mapUser userid</tt>, use <tt>-mapUser
+userid@domain</tt> instead. For example, specify <tt>–mapUser server3@WIBM.NET</tt>.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__creddel2"><a name="rsec_SPNEGO_troubles__creddel2"><!-- --></a><h4 class="sectiontitle">Credential delegation does not work
+for any userid </h4><div class="p">If in the trace.log, an error exception similar
+to the following appears:<pre>&gt; com.ibm.ws.security.spnego.Context getDelegateCred() Entry
+d com.ibm.ws.security.spnego.Context getDelegateCred() unable to get Delegate Credential
+&lt; com.ibm.ws.security.spnego.Context getDelegateCred() Exit
+W com.ibm.ws.security.spnego.SpnegoHandler handleRequest() SPNEGO021: No delegated credentials were found for user: nauser@NA.IBM.NET</pre>
+</div>
+<p>the
+domain account on which the SPN is attached does not have the “Account
+is trusted for Delegation�? property defined.</p>
+<p>To address this
+issue, ensure that the domain account does define the “Account is
+trusted for Delegation�? property.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__credchal"><a name="rsec_SPNEGO_troubles__credchal"><!-- --></a><h4 class="sectiontitle">A user is challenged for credentials
+even though the browser is properly configured </h4><div class="p">A user might
+be challenged for credentials even though the browser is configured
+properly. The TAI might have obtained the user's credentials from
+the SPNEGO token, and the user might have failed to log in. In the
+trace.log an exception error similar to the following appears:<pre>&lt; com.ibm.ws.security.spnego.SpnegoTAI getAuthenticatedUsername(): lansche Exit
+d com.ibm.ws.security.spnego.SpnegoTAI negotiateValidateandEstablishTrust(): Handshake finished, sending 200 :SC_OK
+&lt; com.ibm.ws.security.spnego.SpnegoTAI negotiateAndValidateEstablishedTrust Exit
+A SECJ0222E: An unexpected exception occurred when trying to create a LoginContext. The LoginModule alias is system.WEB_INBOUND 
+and the exception is...</pre>
+</div>
+<div class="p">The userid (which is <tt>lansche</tt> in
+the example above) does not exist in the registry in use by WebSphere. This problem can
+be caused when: <ul>
+<li>The registry used by WebSphere is
+not the Active Directory domain LDAP, or Global Catalogue, but is
+some other virtual registry (for example, a file-based custom user
+registry).</li>
+
+<li>A custom IClientToServerUseridMapper implementation modifies the
+username such that the name it is mapped to does not exist in the
+registry.</li>
+
+<li>The attribute mapped to by the WebSphere LDAP
+User Filter property is incorrect.</li>
+
+</ul>
+</div>
+<p>To fix this problem, ensure that the user that is being
+asserted to <span>WebSphere Application Server</span> by
+the TAI is the configured WebSphere registry.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__novissue"><a name="rsec_SPNEGO_troubles__novissue"><!-- --></a><h4 class="sectiontitle">A user using the Novell client cannot
+authenticate using SPNEGO </h4><p>If a user using the Novell client
+cannot authenticate using SPNEGO they might receive a “An NTLM token
+is received.�? message.</p>
+<p>The user might have logged into the Novell
+Client but did not perform a Windows Kerberos
+login (this can be confirmed using the Kerbtray utility). If a user
+has logged onto the Windows domain
+and has a Kerberos ticket, the user cannot utilize SPNEGO authentication.</p>
+<p>To
+fix this problem, remove the Novell client and use the default Windows domain login.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__proxys"><a name="rsec_SPNEGO_troubles__proxys"><!-- --></a><h4 class="sectiontitle">Accessing SPNEGO sites via some caching
+proxy servers can cause SPNEGO authentication issues </h4><p>If
+you access SPNEGO sites via some caching proxy servers you might not
+be able to authenticate using SPNEGO. The message “SPNEGO authentication
+not supported on this client�? might be displayed.</p>
+<p>It is possible
+that the caching proxy is changing the hostname that returns on the
+HTTP 401 Authenticate Negotiate response.</p>
+<p>If you have this issue,
+contact your proxy vendor for a possible solution.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__vpn"><a name="rsec_SPNEGO_troubles__vpn"><!-- --></a><h4 class="sectiontitle">Virtual Private Networks (VPN) software and
+firewalls might interfere with SPNEGO operations </h4><p>You might
+experience problems with VPN software and firewalls that might interfere
+with SPNEGO operations.</p>
+<p>To resolve these issues, contact your
+VPN and or firewall vendors for any configuration changes that might
+be necessary.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__browsi"><a name="rsec_SPNEGO_troubles__browsi"><!-- --></a><h4 class="sectiontitle">Possible browser issue when accessing
+a SPNEGO protected application </h4><p>There might be a browser
+issue if you log onto a domain machine using one password (for example, <em>passwordA</em>)
+and then log onto a second domain machine by changing your original
+password (for example, you might change your password on the second
+domain machine to <em>passwordB</em>).</p>
+<p>Once you return to the
+original domain machine, you might not be able to obtain either a
+SPNEGO/Kerberos or an NTLM response to the Negotiate challenge. After
+two attempts, the browser displays an HTTP 404 error message.</p>
+<p>To
+resolve this issue, log off the original domain machine and log back
+on with the new password (<em>passwordB</em>).</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__ie6p"><a name="rsec_SPNEGO_troubles__ie6p"><!-- --></a><h4 class="sectiontitle">Possible browser issue with Internet Explorer
+Version 6.0 </h4><p>When <span>WebSphere Application Server</span> is configured
+with SPNEGO and fallback is enabled for a request, Internet Explorer
+Version 6.0 might fail to login to the form login pages.</p>
+<div class="p">To
+avoid this situation, complete one of the following  actions:<ul>
+<li>From the <span class="menucascade"><span class="uicontrol">Global security</span>
+ &gt; <span class="uicontrol">SPNEGO Web Authentication</span></span> panel,
+deselect the <span class="uicontrol">Allow fall back to application authentication
+mechanism</span> option if it is selected.</li>
+
+<li>Upgrade to Internet Explorer <span>Version 7.0</span></li>
+
+<li>Configure Internet Explorer Version 6.0 to use a different authentication
+page. The issue is with the basic authentication versus the form login
+authentication preference.</li>
+
+</ul>
+</div>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__ntlm"><a name="rsec_SPNEGO_troubles__ntlm"><!-- --></a><h4 class="sectiontitle">Error pages defined for the NTLMTokenReceivedPage
+or the SpnegoNotSupportedPage properties do load from an http:// URL </h4><div class="p">The
+error pages defined for the NTLMTokenReceivedPage or the SpnegoNotSupportedPage
+properties do load from an http:// URL. The following trace message
+might appear:<pre>Could not load the SPNEGO not supported content, going with the default content. 
+Exception received: java.net.ProtocolException: Server redirected too many  times (20)</pre>
+</div>
+<p>This
+issue occurs when the loaded file performs an automatic redirect.
+It is not possible to both load the file from a Web Server and also
+use an automatic redirection</p>
+<p>To resolve this issue, load the
+content from a file:/// URL, not an http:// URL.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__isa"><a name="rsec_SPNEGO_troubles__isa"><!-- --></a><h4 class="sectiontitle">A client browser single sign-on
+(SSO) attempt fails to authenticate with WebSphere Application Server when you use a
+SPNEGO token with Microsoft Internet
+Security Acceleration Server </h4><div class="p">When tracing is enabled, the
+following messages exist:<pre>com.ibm.ws.security.spnego.SpnegoHandler isAuthHeaderNotSPNEGO 
+ENTRY Negotiate                                                  </pre>
+<pre>com.ibm.ws.security.spnego.SpnegoHandler isAuthHeaderNotSPNEGO 
+Client sent back a non-SPNEGO authentication header</pre>
+</div>
+<p>When
+a Microsoft Internet Security
+Acceleration Server (ISA) exists between a client browser and <span>WebSphere Application Server</span>, ISA might intercept
+the SPNEGO authentication header from the client browser request.
+ISA converts the SPNEGO object identifier (OID) to a Kerberos OID.
+The authentication attempt with <span>WebSphere Application Server</span> fails because
+the SPNEGO OID has been converted and is now missing.</p>
+<p>For information
+about how to fix this issue, see the "Users cannot access a Web site
+that is published in ISA Server 2006 if the Web site accepts only
+the SPNEGO authentication package" topic on the Microsoft Corporation Support site.</p>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__encrypt"><a name="rsec_SPNEGO_troubles__encrypt"><!-- --></a><h4 class="sectiontitle">Microsoft Windows Version
+7 and Internet Explorer Version 8 disables DES encryption type by
+default </h4><div class="p">If you are using Microsoft Windows Version 7 with Internet
+Explorer Version 8, and you cannot get SPNEGO Single Sign On (SSO)
+to function, it could be because Windows Version
+7 disabled DES encryption type for Kerberos by default. When trace
+is turned on the following message appears:<pre>Client sent back a non-SPNEGO authentication header....</pre>
+</div>
+<p>It
+is recommended that you change your encryption type to RC4-HMAC or
+to AES. If you still choose to use the DES encryption type, however,
+you must refer to the Windows 7
+documentation for help on how to enable the DES encryption type.</p>
+<p>The
+following is an example of how to change your encryption type from
+DES to RC4:</p>
+<ol>
+<li>Make sure the Microsoft Active
+Directory account that you use to map to the SPN does not have the <strong>Use
+DES encryption type for this account</strong> box checked. In the Microsoft Active Directory
+machine:<ol type="a">
+<li>Click <strong>Start-&gt;Programs-&gt;Administrative Tools-&gt;Active Directory
+Users and Computers-&gt;Users</strong>.</li>
+
+<li>Click on the Microsoft Active
+Directory account that you use to map to the SPN.</li>
+
+<li>Select the account, and then make sure that the <strong>Use DES encryption
+type for this account</strong> box is not checked.</li>
+
+</ol>
+</li>
+
+<li>Reset the password for the Microsoft Active
+Directory account that you use to map to the SPN. You can reset it
+to the same password.</li>
+
+<li>Regenerate the keytab with the RC4 encryption type.</li>
+
+<li>Copy the new keytab file to the WebSphere Application Server servers.</li>
+
+<li>Update the Kerberos configuration (krb5.ini/krb5.conf) files to
+list RC4 first for the default_tkt_enctypes and default_tgs_enctypes
+attributes.<div class="p">For example:<pre>default_tkt_enctypes = rc4-hmac des-cbc-md5
+default_tgs_enctypes = rc4-hmac des-cbc-md5</pre>
+</div>
+. </li>
+
+<li>Stop and restart all WebSphere Application
+Server servers.</li>
+
+</ol>
+<div class="p"><div class="note"> <span class="notetitle">Note:</span> If you have more than one Microsoft Active Directory account that
+you use to map to different SPNs, then you must repeat  steps 1 through
+3 above for each SPN and the merging of all the keytab files.</div>
+</div>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__formlogin"><a name="rsec_SPNEGO_troubles__formlogin"><!-- --></a><h4 class="sectiontitle">SPNEGO authentication
+fails when a web browser does not send a web form with the user id
+and password </h4><p>A form login fails when the browser does not
+send user id or password. This condition can occur when SPNEGO authentication
+fails and SPNEGO fallback occurs. You can work around this condition
+as described below.</p>
+<div class="p">If you are using Microsoft Windows XP
+SP2 with Internet Explorer Version 6, you need to install the KB902409
+fix module plus edit the registry as follows:<pre>key: HKEY_CURRENT_USER or                                                      
+HKEY_LOCAL_MACHINE\Software\Microsoft\InternetExplorer\Main\FeatureControl     
+\FEATURE_HTTP_DISABLE_NTLM_PREAUTH_IF_ABORTED_KB902409                  
+name : Iexplore.exe                                                            
+type : REG_DWORD                                                               
+value: 1                                                                       
+name : Explorer.exe                                                            
+type : REG_DWORD                                                               
+value: 1                   </pre>
+</div>
+<p>If you are using Microsoft Windows XP SP3 with Internet Explorer Version
+6, you need to install the KB902409 fix module.</p>
+<div class="p">If you are using Microsoft Windows Version 7 with Internet Explorer
+Version 8, you need to install the KB902409 fix module and edit the
+registry as follows:<pre>key  :                                                                         
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\InternetSettings   
+name : DisableNTLMPreAuth                                                      
+type : REG_DWORD                                                               
+value: 1  </pre>
+</div>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__SPNEGOrealm"><a name="rsec_SPNEGO_troubles__SPNEGOrealm"><!-- --></a><h4 class="sectiontitle">Correcting realm change
+issues and subsequent SPNEGO logon failures </h4><p>In a SPNEGO
+web authentication environment in which a realm change is to occur,
+errors can occur in making the realm change, which then can lead to
+subsequent SPNEGO logon failures. The steps to correct these errors
+is as follows:</p>
+<div class="p"><strong>Realm Change:</strong> The realm can consist of
+identities in the file-based repository that is built into the system,
+in one or more external repositories, or in both the built-in, file-based
+repository and one or more external repositories. You can change realms
+in a SPNEGO environment by changing the name as follows:  <ol>
+<li>In the administrative console, click <strong>Security &gt; Global security
+&gt; Kerberos configuration &gt; SPNEGO Web authentication</strong> and uncheck
+the <strong>Enable SPNEGO</strong> checkbox.</li>
+
+<li>In the administrative console, click <strong>Security &gt; Global security</strong>.</li>
+
+<li>Under User account repository, select <strong>Federated repositories</strong> from
+the Available realm definitions field and click <strong>Configure</strong>.</li>
+
+<li>When you finish adding or updating your federated repository configuration,
+go to the <strong>Security &gt; Global security</strong> panel and click <strong>Apply</strong> to
+validate the changes.</li>
+
+<li>If you have removed a user/role identity and want it to function
+successfully under the new realm, you must add it back to the new
+realm after the realm name change.</li>
+
+<li>Restart the deployment manager to ensure that these the user/role
+identity can function under the new realm.</li>
+
+</ol>
+</div>
+<div class="p"><strong>SPNEGO Web authentication:</strong> To ensure that the user/role
+changes can successfully logon under this new realm, perform the following:<ol>
+<li>Ensure that the application server is running.</li>
+
+<li>In the administrative console, click <strong>Security &gt; Global security</strong></li>
+
+<li>Under Authentication, highlight the radio button for LTPA. <div class="note"> <span class="notetitle">Note:</span> The
+Kerberos and LTPA option is not be selectable unless you have configured
+Kerberos prior to this step. For SPNEGO, you ONLY need to use the
+LTPA option.</div>
+</li>
+
+<li>Click <strong>Apply</strong>. Users under the new realm can now SPNEGO logon.</li>
+
+</ol>
+</div>
+</div>
+
+<div class="section" id="rsec_SPNEGO_troubles__AES256"><a name="rsec_SPNEGO_troubles__AES256"><!-- --></a><h4 class="sectiontitle">Establishing an unrestricted
+policy then using AES256 encryption </h4><div class="p">You can use AES256 encryption
+after first establishing an unrestricted policy. Follow these steps:<ol>
+<li>Stop the application server.</li>
+
+<li>Download and install the new policy files. <div class="important"> <span class="importanttitle">Important:</span> Your
+country of origin might have restrictions on the import, possession,
+use, or re-export to another country, of encryption software. Before
+downloading or using the unrestricted policy files, you must check
+the laws of your country, its regulations, and its policies concerning
+the import, possession, use, and re-export of encryption software
+to ensure compliance.</div>
+<ol type="a">
+<li>Click on the appropriate SDK level.</li>
+
+<li>Scroll down the page then click <strong>IBM SDK policy files</strong>. The
+unrestricted JCE policy files for SDK web site displays. </li>
+
+<li>Click <strong>Sign in</strong> and provide your IBM.com ID and password.</li>
+
+<li> Select <strong>unrestricted JCE policy files for SDK</strong> and click <strong>Continue</strong>.</li>
+
+<li>View the license and click <strong>I Agree</strong> to continue.</li>
+
+<li> Extract the unlimited jurisdiction policy files that are packaged
+in the ZIP file. The ZIP file contains a <samp class="codeph">US_export_policy.jar</samp> file
+and a <samp class="codeph">local_policy.jar</samp> file.</li>
+
+<li>In your WebSphere Application Server installation, go to the <samp class="codeph">$JAVA_HOME/lib/security</samp> directory
+and back up your existing <samp class="codeph">US_export_policy.jar</samp> and <samp class="codeph">local_policy.jar
+files</samp>.</li>
+
+<li>Replace your <samp class="codeph">US_export_policy.jar</samp> and <samp class="codeph">local_policy.jar</samp> files
+with  the two files that you downloaded from the IBM.com web site.</li>
+
+</ol>
+<div class="note"> <span class="notetitle">Note:</span> Take a backup before replacing these files. An example
+of a path that would be used is <samp class="codeph">WAS_Install/java/jre/lib/security </samp>.</div>
+</li>
+
+<li>Start the application server.</li>
+
+</ol>
+</div>
+</div>
+
+</div>
+
+<br /><br /><hr align="left" /><div>
+<div class="familylinks">
+</div>
+<div class="reltasks"><strong>Related tasks</strong><br />
+<div><a href="tsec_trouble.html">Troubleshooting security configurations</a></div>
+</div>
+<div class="relinfo"><strong>Related information</strong><br />
+<div><div><a href="http://support.microsoft.com/kb/951509/ " target="_blank">Users cannot access a Web
+site that is published in ISA Server 2006 if the Web site accepts
+only the SPNEGO authentication package</a></div>
+</div>
+</div>
+</div>
+
+<span class="runningfooter"><img style="margin-top:8; border:0" alt="Reference topic" src="../../reference_obj.gif" /> <strong>Reference topic</strong></span>
+         
+   <br /><hr align="left" /><a href="../../terms_of_use.html" class="runningfooter"><strong>Terms and conditions for information centers</strong></a> |
+<a target="_blank" href="mailto:wasdoc@us.ibm.com" class="runningfooter"><strong>Feedback</strong></a>
+<br /><br /><img style="margin-right:4; border:0; valign:middle" alt="Last updated" src="../../timestamp.gif" /><span class="runningfooter">Last updated: Nov 5, 2013 10:13:59 PM CST </span><br />
+<span class="runningfooter">http://www14.software.ibm.com/webapp/wsbroker/redirect?version=compass&amp;product=was-nd-mp&amp;topic=rsec_SPNEGO_troubles<br />File name: rsec_SPNEGO_troubles.html</span><br /><br />
+<div id="ibm-metrics"><script type="text/javascript" src="//www.ibm.com/common/stats/stats.js">//</script></div></body>
+</html>

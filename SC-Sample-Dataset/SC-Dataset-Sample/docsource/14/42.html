@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Neo4j] Neo4j High Availability
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:user%40lists.neo4j.org?Subject=%5BNeo4j%5D%20Neo4j%20High%20Availability&In-Reply-To=">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="011570.html">
+   <LINK REL="Next"  HREF="011594.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Neo4j] Neo4j High Availability</H1>
+    <B>Madan Gubbala</B> 
+    <A HREF="mailto:user%40lists.neo4j.org?Subject=%5BNeo4j%5D%20Neo4j%20High%20Availability&In-Reply-To="
+       TITLE="[Neo4j] Neo4j High Availability">mgubbala at allianceglobalservices.com
+       </A><BR>
+    <I>Tue Aug 23 11:26:22 CEST 2011</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="011570.html">[Neo4j] [Spring Data Graph] Precisions about Detached Entities	and SDG under the hood
+</A></li>
+        <LI>Next message: <A HREF="011594.html">[Neo4j] Neo4j High Availability
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11568">[ date ]</a>
+              <a href="thread.html#11568">[ thread ]</a>
+              <a href="subject.html#11568">[ subject ]</a>
+              <a href="author.html#11568">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+I am trying to configure Neo4J High availability. But I am getting some exceptions. The following are the configuration details.
+
+We have 3 Linux servers (Amazon cloud instances).
+Each one has Zookeeper 3.3.2 and Jetty 7. Deployed web application in Jetty by giving corresponding ha-server.conf as follows:
+ha.machine_id=1
+ha.server=localhost:6001
+ha.zoo_keeper_servers=internalip:2180, internalip:2180, internalip:2180
+ha.pull_interval=5
+enable_remote_shell = port=1331
+Similary in linux server 2 and 3.
+
+Configured Zookeepr as follows:
+#server1.cfg
+tickTime=10000
+initLimit=50
+syncLimit=10
+dataDir=/usr/share/zookeeper-3.3.2/data/zookeeper1
+clientPort=2183
+server.1=ip-10-102-53-219.ec2.internal:2888:3888
+server.2=ip-10-84-29-207.ec2.internal:2888:3888
+server.3=ip-10-102-53-219.ec2.internal:2888:3888
+Similary in linux server 2 and 3.
+
+Now started Jetty servers and Zookeeper servers. But I am getting the following exception at Web server Jetty servers.
+[main-SendThread(ipaddtress:2180)] WARN  org.apache.zookeeper.ClientCnxn - Session 0x0 for server null, unexpected error, closing socket connection and attempting reconnect
+java.net.ConnectException: Connection refused
+        at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method) ~[na:1.6.0_18]
+        at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:592) ~[na:1.6.0_18]
+        at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1119) ~[zookeeper-3.3.2.jar:3.3.2-1031432]
+
+
+The following exceptions at Zookeeper servers:
+
+java.lang.InterruptedException
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.reportInterruptAfterWait(AbstractQueuedSynchronizer.java:2017)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2094)
+        at java.util.concurrent.ArrayBlockingQueue.poll(ArrayBlockingQueue.java:370)
+        at org.apache.zookeeper.server.quorum.QuorumCnxManager$SendWorker.run(QuorumCnxManager.java:601)
+2011-08-23 09:19:30,111 - WARN  [Thread-48:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 621</A>] - Send worker leaving thread
+2011-08-23 09:19:30,113 - INFO  [WorkerReceiver Thread:<A HREF="https://lists.neo4j.org/mailman/listinfo/user">FastLeaderElection at 496</A>] - Notification: 3 (n.leader), 4294967353 (n.zxid), 1 (n.round), FOLLOWING (n.state), 2 (n.sid), LEADING (my state)
+2011-08-23 09:20:30,127 - WARN  [Thread-51:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">RecvWorker at 702</A>] - Connection broken for id 2, my id = 3, error = java.nio.channels.AsynchronousCloseException
+2011-08-23 09:20:30,127 - WARN  [Thread-50:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 612</A>] - Interrupted while waiting for message on queue
+java.lang.InterruptedException
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.reportInterruptAfterWait(AbstractQueuedSynchronizer.java:2017)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2094)
+        at java.util.concurrent.ArrayBlockingQueue.poll(ArrayBlockingQueue.java:370)
+        at org.apache.zookeeper.server.quorum.QuorumCnxManager$SendWorker.run(QuorumCnxManager.java:601)
+2011-08-23 09:20:30,128 - WARN  [Thread-50:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 621</A>] - Send worker leaving thread
+2011-08-23 09:20:30,130 - WARN  [Thread-52:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 612</A>] - Interrupted while waiting for message on queue
+java.lang.InterruptedException
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.reportInterruptAfterWait(AbstractQueuedSynchronizer.java:2017)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2094)
+        at java.util.concurrent.ArrayBlockingQueue.poll(ArrayBlockingQueue.java:370)
+        at org.apache.zookeeper.server.quorum.QuorumCnxManager$SendWorker.run(QuorumCnxManager.java:601)
+2011-08-23 09:20:30,130 - WARN  [Thread-52:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 621</A>] - Send worker leaving thread
+2011-08-23 09:20:30,134 - INFO  [WorkerReceiver Thread:<A HREF="https://lists.neo4j.org/mailman/listinfo/user">FastLeaderElection at 496</A>] - Notification: 3 (n.leader), 4294967353 (n.zxid), 1 (n.round), FOLLOWING (n.state), 2 (n.sid), LEADING (my state)
+2011-08-23 09:21:30,145 - WARN  [Thread-54:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 612</A>] - Interrupted while waiting for message on queue
+java.lang.InterruptedException
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.reportInterruptAfterWait(AbstractQueuedSynchronizer.java:2017)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2094)
+        at java.util.concurrent.ArrayBlockingQueue.poll(ArrayBlockingQueue.java:370)
+        at org.apache.zookeeper.server.quorum.QuorumCnxManager$SendWorker.run(QuorumCnxManager.java:601)
+2011-08-23 09:21:30,147 - WARN  [Thread-54:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 621</A>] - Send worker leaving thread
+2011-08-23 09:21:30,149 - WARN  [Thread-55:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">RecvWorker at 702</A>] - Connection broken for id 2, my id = 3, error = java.nio.channels.AsynchronousCloseException
+2011-08-23 09:21:30,150 - INFO  [WorkerReceiver Thread:<A HREF="https://lists.neo4j.org/mailman/listinfo/user">FastLeaderElection at 496</A>] - Notification: 3 (n.leader), 4294967353 (n.zxid), 1 (n.round), FOLLOWING (n.state), 2 (n.sid), LEADING (my state)
+2011-08-23 09:22:30,162 - WARN  [Thread-57:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">RecvWorker at 702</A>] - Connection broken for id 2, my id = 3, error = java.nio.channels.AsynchronousCloseException
+2011-08-23 09:22:30,162 - WARN  [Thread-56:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 612</A>] - Interrupted while waiting for message on queue
+java.lang.InterruptedException
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.reportInterruptAfterWait(AbstractQueuedSynchronizer.java:2017)
+        at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(AbstractQueuedSynchronizer.java:2094)
+        at java.util.concurrent.ArrayBlockingQueue.poll(ArrayBlockingQueue.java:370)
+        at org.apache.zookeeper.server.quorum.QuorumCnxManager$SendWorker.run(QuorumCnxManager.java:601)
+2011-08-23 09:22:30,163 - WARN  [Thread-56:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 621</A>] - Send worker leaving thread
+2011-08-23 09:22:30,165 - ERROR [Thread-58:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 590</A>] - Failed to send last message. Shutting down thread.
+java.nio.channels.ClosedChannelException
+        at sun.nio.ch.SocketChannelImpl.ensureWriteOpen(SocketChannelImpl.java:144)
+        at sun.nio.ch.SocketChannelImpl.write(SocketChannelImpl.java:342)
+        at org.apache.zookeeper.server.quorum.QuorumCnxManager$SendWorker.send(QuorumCnxManager.java:579)
+        at org.apache.zookeeper.server.quorum.QuorumCnxManager$SendWorker.run(QuorumCnxManager.java:588)
+2011-08-23 09:22:30,165 - WARN  [Thread-58:QuorumCnxManager$<A HREF="https://lists.neo4j.org/mailman/listinfo/user">SendWorker at 621</A>] - Send worker leaving thread
+2011-08-23 09:22:30,167 - INFO  [WorkerReceiver Thread:<A HREF="https://lists.neo4j.org/mailman/listinfo/user">FastLeaderElection at 496</A>] - Notification: 3 (n.leader), 4294967353 (n.zxid), 1 (n.round), FOLLOWING (n.state), 2 (n.sid), LEADING (my state)
+
+
+Can someone help me please???
+
+Thanks,
+Madan Gubbala
+
+This communication (including any attachments) is for the use of the intended recipient(s) only and may contain information that is confidential, privileged or legally protected. Any unauthorized use or dissemination of this communication is strictly prohibited. If you have received this communication in error, please immediately notify the sender by return e-mail message and delete all copies of the original communication including attachments. Thank you for your cooperation.
+
+
+</PRE>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="011570.html">[Neo4j] [Spring Data Graph] Precisions about Detached Entities	and SDG under the hood
+</A></li>
+	<LI>Next message: <A HREF="011594.html">[Neo4j] Neo4j High Availability
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11568">[ date ]</a>
+              <a href="thread.html#11568">[ thread ]</a>
+              <a href="subject.html#11568">[ subject ]</a>
+              <a href="author.html#11568">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.neo4j.org/mailman/listinfo/user">More information about the User
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- code.jsp -->
+
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>org.springframework.remoting.rmi: RmiClientInterceptor.java</title>
+</head>
+<body style="padding:0 0 0 0;margin:0 0 0 0">
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/Spring-Framework-090522-code.html">Spring-Framework-090522</a> &#187; org.springframework &#187;  <a href='/docs/api/org/springframework/remoting/package-index.html'>remoting</a> &#187;  <a href='/docs/api/org/springframework/remoting/rmi/package-index.html'>rmi</a> &#187; 
+ [<a href="/docs/api/org/springframework/remoting/rmi/RmiClientInterceptor.html">javadoc</a> | source]
+</div>
+<pre>
+<a name='1'>    1 &nbsp; /*
+    2 &nbsp;  * Copyright 2002-2008 the original author or authors.
+    3 &nbsp;  *
+    4 &nbsp;  * Licensed under the Apache License, Version 2.0 (the "License");
+    5 &nbsp;  * you may not use this file except in compliance with the License.
+    6 &nbsp;  * You may obtain a copy of the License at
+    7 &nbsp;  *
+    8 &nbsp;  *      http://www.apache.org/licenses/LICENSE-2.0
+    9 &nbsp;  *
+   10 &nbsp;  * Unless required by applicable law or agreed to in writing, software
+<a name='11'>   11 &nbsp;  * distributed under the License is distributed on an "AS IS" BASIS,
+   12 &nbsp;  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13 &nbsp;  * See the License for the specific language governing permissions and
+   14 &nbsp;  * limitations under the License.
+   15 &nbsp;  */
+   16 &nbsp; 
+   17 &nbsp; <span class='kw'>package</span> <a href=/docs/api/org/springframework/remoting/rmi/package-index.html>org.springframework.remoting.rmi</a>;
+   18 &nbsp; 
+   19 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/IOException.html>java.io.IOException</a>;
+   20 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/lang/reflect/InvocationTargetException.html>java.lang.reflect.InvocationTargetException</a>;
+<a name='21'>   21 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/MalformedURLException.html>java.net.MalformedURLException</a>;
+   22 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/URL.html>java.net.URL</a>;
+   23 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/URLConnection.html>java.net.URLConnection</a>;
+   24 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/URLStreamHandler.html>java.net.URLStreamHandler</a>;
+   25 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/rmi/Naming.html>java.rmi.Naming</a>;
+   26 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/rmi/NotBoundException.html>java.rmi.NotBoundException</a>;
+   27 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/rmi/Remote.html>java.rmi.Remote</a>;
+   28 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/rmi/RemoteException.html>java.rmi.RemoteException</a>;
+   29 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/rmi/registry/LocateRegistry.html>java.rmi.registry.LocateRegistry</a>;
+   30 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/rmi/registry/Registry.html>java.rmi.registry.Registry</a>;
+<a name='31'>   31 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/rmi/server/RMIClientSocketFactory.html>java.rmi.server.RMIClientSocketFactory</a>;
+   32 &nbsp; 
+   33 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/aopalliance/intercept/MethodInterceptor.html>org.aopalliance.intercept.MethodInterceptor</a>;
+   34 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/aopalliance/intercept/MethodInvocation.html>org.aopalliance.intercept.MethodInvocation</a>;
+   35 &nbsp; 
+   36 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/springframework/aop/support/AopUtils.html>org.springframework.aop.support.AopUtils</a>;
+   37 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/springframework/remoting/RemoteConnectFailureException.html>org.springframework.remoting.RemoteConnectFailureException</a>;
+   38 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/springframework/remoting/RemoteInvocationFailureException.html>org.springframework.remoting.RemoteInvocationFailureException</a>;
+   39 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/springframework/remoting/RemoteLookupFailureException.html>org.springframework.remoting.RemoteLookupFailureException</a>;
+   40 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/springframework/remoting/support/RemoteInvocationBasedAccessor.html>org.springframework.remoting.support.RemoteInvocationBasedAccessor</a>;
+<a name='41'>   41 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/springframework/remoting/support/RemoteInvocationUtils.html>org.springframework.remoting.support.RemoteInvocationUtils</a>;
+   42 &nbsp; 
+   43 &nbsp; /**
+   44 &nbsp;  * {@link org.aopalliance.intercept.MethodInterceptor} for accessing conventional
+   45 &nbsp;  * RMI services or RMI invokers. The service URL must be a valid RMI URL
+   46 &nbsp;  * (e.g. "rmi://localhost:1099/myservice").
+   47 &nbsp;  *
+   48 &nbsp;  * &lt;p&gt;RMI invokers work at the RmiInvocationHandler level, needing only one stub for
+   49 &nbsp;  * any service. Service interfaces do not have to extend &lt;code&gt;java.rmi.Remote&lt;/code&gt;
+   50 &nbsp;  * or throw &lt;code&gt;java.rmi.RemoteException&lt;/code&gt;. Spring's unchecked
+<a name='51'>   51 &nbsp;  * RemoteAccessException will be thrown on remote invocation failure.
+   52 &nbsp;  * Of course, in and out parameters have to be serializable.
+   53 &nbsp;  *
+   54 &nbsp;  * &lt;p&gt;With conventional RMI services, this invoker is typically used with the RMI
+   55 &nbsp;  * service interface. Alternatively, this invoker can also proxy a remote RMI service
+   56 &nbsp;  * with a matching non-RMI business interface, i.e. an interface that mirrors the RMI
+   57 &nbsp;  * service methods but does not declare RemoteExceptions. In the latter case,
+   58 &nbsp;  * RemoteExceptions thrown by the RMI stub will automatically get converted to
+   59 &nbsp;  * Spring's unchecked RemoteAccessException.
+   60 &nbsp;  *
+<a name='61'>   61 &nbsp;  * @author Juergen Hoeller
+   62 &nbsp;  * @since 29.09.2003
+   63 &nbsp;  * @see RmiServiceExporter
+   64 &nbsp;  * @see RmiProxyFactoryBean
+   65 &nbsp;  * @see RmiInvocationHandler
+   66 &nbsp;  * @see org.springframework.remoting.RemoteAccessException
+   67 &nbsp;  * @see java.rmi.RemoteException
+   68 &nbsp;  * @see java.rmi.Remote
+   69 &nbsp;  */
+   70 &nbsp; public class RmiClientInterceptor extends RemoteInvocationBasedAccessor
+<a name='71'>   71 &nbsp; 		implements MethodInterceptor {
+   72 &nbsp; 
+   73 &nbsp; 	private boolean lookupStubOnStartup = true;
+   74 &nbsp; 
+   75 &nbsp; 	private boolean cacheStub = true;
+   76 &nbsp; 
+   77 &nbsp; 	private boolean refreshStubOnConnectFailure = false;
+   78 &nbsp; 
+   79 &nbsp; 	private RMIClientSocketFactory registryClientSocketFactory;
+   80 &nbsp; 
+<a name='81'>   81 &nbsp; 	private Remote cachedStub;
+   82 &nbsp; 
+   83 &nbsp; 	private final Object stubMonitor = new Object();
+   84 &nbsp; 
+   85 &nbsp; 
+   86 &nbsp; 	/**
+   87 &nbsp; 	 * Set whether to look up the RMI stub on startup. Default is "true".
+   88 &nbsp; 	 * &lt;p&gt;Can be turned off to allow for late start of the RMI server.
+   89 &nbsp; 	 * In this case, the RMI stub will be fetched on first access.
+   90 &nbsp; 	 * @see #setCacheStub
+<a name='91'>   91 &nbsp; 	 */
+   92 &nbsp; 	public void setLookupStubOnStartup(boolean lookupStubOnStartup) {
+   93 &nbsp; 		this.lookupStubOnStartup = lookupStubOnStartup;
+   94 &nbsp; 	}
+   95 &nbsp; 
+   96 &nbsp; 	/**
+   97 &nbsp; 	 * Set whether to cache the RMI stub once it has been located.
+   98 &nbsp; 	 * Default is "true".
+   99 &nbsp; 	 * &lt;p&gt;Can be turned off to allow for hot restart of the RMI server.
+  100 &nbsp; 	 * In this case, the RMI stub will be fetched for each invocation.
+<a name='101'>  101 &nbsp; 	 * @see #setLookupStubOnStartup
+  102 &nbsp; 	 */
+  103 &nbsp; 	public void setCacheStub(boolean cacheStub) {
+  104 &nbsp; 		this.cacheStub = cacheStub;
+  105 &nbsp; 	}
+  106 &nbsp; 
+  107 &nbsp; 	/**
+  108 &nbsp; 	 * Set whether to refresh the RMI stub on connect failure.
+  109 &nbsp; 	 * Default is "false".
+  110 &nbsp; 	 * &lt;p&gt;Can be turned on to allow for hot restart of the RMI server.
+<a name='111'>  111 &nbsp; 	 * If a cached RMI stub throws an RMI exception that indicates a
+  112 &nbsp; 	 * remote connect failure, a fresh proxy will be fetched and the
+  113 &nbsp; 	 * invocation will be retried.
+  114 &nbsp; 	 * @see java.rmi.ConnectException
+  115 &nbsp; 	 * @see java.rmi.ConnectIOException
+  116 &nbsp; 	 * @see java.rmi.NoSuchObjectException
+  117 &nbsp; 	 */
+  118 &nbsp; 	public void setRefreshStubOnConnectFailure(boolean refreshStubOnConnectFailure) {
+  119 &nbsp; 		this.refreshStubOnConnectFailure = refreshStubOnConnectFailure;
+  120 &nbsp; 	}
+<a name='121'>  121 &nbsp; 
+  122 &nbsp; 	/**
+  123 &nbsp; 	 * Set a custom RMI client socket factory to use for accessing the RMI registry.
+  124 &nbsp; 	 * @see java.rmi.server.RMIClientSocketFactory
+  125 &nbsp; 	 * @see java.rmi.registry.LocateRegistry#getRegistry(String, int, RMIClientSocketFactory)
+  126 &nbsp; 	 */
+  127 &nbsp; 	public void setRegistryClientSocketFactory(RMIClientSocketFactory registryClientSocketFactory) {
+  128 &nbsp; 		this.registryClientSocketFactory = registryClientSocketFactory;
+  129 &nbsp; 	}
+  130 &nbsp; 
+<a name='131'>  131 &nbsp; 
+  132 &nbsp; 	public void afterPropertiesSet() {
+  133 &nbsp; 		super.afterPropertiesSet();
+  134 &nbsp; 		prepare();
+  135 &nbsp; 	}
+  136 &nbsp; 
+  137 &nbsp; 	/**
+  138 &nbsp; 	 * Fetches RMI stub on startup, if necessary.
+  139 &nbsp; 	 * @throws RemoteLookupFailureException if RMI stub creation failed
+  140 &nbsp; 	 * @see #setLookupStubOnStartup
+<a name='141'>  141 &nbsp; 	 * @see #lookupStub
+  142 &nbsp; 	 */
+  143 &nbsp; 	public void prepare() throws RemoteLookupFailureException {
+  144 &nbsp; 		// Cache RMI stub on initialization?
+  145 &nbsp; 		if (this.lookupStubOnStartup) {
+  146 &nbsp; 			Remote remoteObj = lookupStub();
+  147 &nbsp; 			if (logger.isDebugEnabled()) {
+  148 &nbsp; 				if (remoteObj instanceof RmiInvocationHandler) {
+  149 &nbsp; 					logger.debug("RMI stub [" + getServiceUrl() + "] is an RMI invoker");
+  150 &nbsp; 				}
+<a name='151'>  151 &nbsp; 				else if (getServiceInterface() != null) {
+  152 &nbsp; 					boolean isImpl = getServiceInterface().isInstance(remoteObj);
+  153 &nbsp; 					logger.debug("Using service interface [" + getServiceInterface().getName() +
+  154 &nbsp; 					    "] for RMI stub [" + getServiceUrl() + "] - " +
+  155 &nbsp; 					    (!isImpl ? "not " : "") + "directly implemented");
+  156 &nbsp; 				}
+  157 &nbsp; 			}
+  158 &nbsp; 			if (this.cacheStub) {
+  159 &nbsp; 				this.cachedStub = remoteObj;
+  160 &nbsp; 			}
+<a name='161'>  161 &nbsp; 		}
+  162 &nbsp; 	}
+  163 &nbsp; 
+  164 &nbsp; 	/**
+  165 &nbsp; 	 * Create the RMI stub, typically by looking it up.
+  166 &nbsp; 	 * &lt;p&gt;Called on interceptor initialization if "cacheStub" is "true";
+  167 &nbsp; 	 * else called for each invocation by {@link #getStub()}.
+  168 &nbsp; 	 * &lt;p&gt;The default implementation looks up the service URL via
+  169 &nbsp; 	 * &lt;code&gt;java.rmi.Naming&lt;/code&gt;. This can be overridden in subclasses.
+  170 &nbsp; 	 * @return the RMI stub to store in this interceptor
+<a name='171'>  171 &nbsp; 	 * @throws RemoteLookupFailureException if RMI stub creation failed
+  172 &nbsp; 	 * @see #setCacheStub
+  173 &nbsp; 	 * @see java.rmi.Naming#lookup
+  174 &nbsp; 	 */
+  175 &nbsp; 	protected Remote lookupStub() throws RemoteLookupFailureException {
+  176 &nbsp; 		try {
+  177 &nbsp; 			Remote stub = null;
+  178 &nbsp; 			if (this.registryClientSocketFactory != null) {
+  179 &nbsp; 				// RMIClientSocketFactory specified for registry access.
+  180 &nbsp; 				// Unfortunately, due to RMI API limitations, this means
+<a name='181'>  181 &nbsp; 				// that we need to parse the RMI URL ourselves and perform
+  182 &nbsp; 				// straight LocateRegistry.getRegistry/Registry.lookup calls.
+  183 &nbsp; 				URL url = new URL(null, getServiceUrl(), new DummyURLStreamHandler());
+  184 &nbsp; 				String protocol = url.getProtocol();
+  185 &nbsp; 				if (protocol != null &amp;&amp; !"rmi".equals(protocol)) {
+  186 &nbsp; 					throw new MalformedURLException("Invalid URL scheme '" + protocol + "'");
+  187 &nbsp; 				}
+  188 &nbsp; 				String host = url.getHost();
+  189 &nbsp; 				int port = url.getPort();
+  190 &nbsp; 				String name = url.getPath();
+<a name='191'>  191 &nbsp; 				if (name != null &amp;&amp; name.startsWith("/")) {
+  192 &nbsp; 					name = name.substring(1);
+  193 &nbsp; 				}
+  194 &nbsp; 				Registry registry = LocateRegistry.getRegistry(host, port, this.registryClientSocketFactory);
+  195 &nbsp; 				stub = registry.lookup(name);
+  196 &nbsp; 			}
+  197 &nbsp; 			else {
+  198 &nbsp; 				// Can proceed with standard RMI lookup API...
+  199 &nbsp; 				stub = Naming.lookup(getServiceUrl());
+  200 &nbsp; 			}
+<a name='201'>  201 &nbsp; 			if (logger.isDebugEnabled()) {
+  202 &nbsp; 				logger.debug("Located RMI stub with URL [" + getServiceUrl() + "]");
+  203 &nbsp; 			}
+  204 &nbsp; 			return stub;
+  205 &nbsp; 		}
+  206 &nbsp; 		catch (MalformedURLException ex) {
+  207 &nbsp; 			throw new RemoteLookupFailureException("Service URL [" + getServiceUrl() + "] is invalid", ex);
+  208 &nbsp; 		}
+  209 &nbsp; 		catch (NotBoundException ex) {
+  210 &nbsp; 			throw new RemoteLookupFailureException(
+<a name='211'>  211 &nbsp; 					"Could not find RMI service [" + getServiceUrl() + "] in RMI registry", ex);
+  212 &nbsp; 		}
+  213 &nbsp; 		catch (RemoteException ex) {
+  214 &nbsp; 			throw new RemoteLookupFailureException("Lookup of RMI stub failed", ex);
+  215 &nbsp; 		}
+  216 &nbsp; 	}
+  217 &nbsp; 
+  218 &nbsp; 	/**
+  219 &nbsp; 	 * Return the RMI stub to use. Called for each invocation.
+  220 &nbsp; 	 * &lt;p&gt;The default implementation returns the stub created on initialization,
+<a name='221'>  221 &nbsp; 	 * if any. Else, it invokes {@link #lookupStub} to get a new stub for
+  222 &nbsp; 	 * each invocation. This can be overridden in subclasses, for example in
+  223 &nbsp; 	 * order to cache a stub for a given amount of time before recreating it,
+  224 &nbsp; 	 * or to test the stub whether it is still alive.
+  225 &nbsp; 	 * @return the RMI stub to use for an invocation
+  226 &nbsp; 	 * @throws RemoteLookupFailureException if RMI stub creation failed
+  227 &nbsp; 	 * @see #lookupStub
+  228 &nbsp; 	 */
+  229 &nbsp; 	protected Remote getStub() throws RemoteLookupFailureException {
+  230 &nbsp; 		if (!this.cacheStub || (this.lookupStubOnStartup &amp;&amp; !this.refreshStubOnConnectFailure)) {
+<a name='231'>  231 &nbsp; 			return (this.cachedStub != null ? this.cachedStub : lookupStub());
+  232 &nbsp; 		}
+  233 &nbsp; 		else {
+  234 &nbsp; 			synchronized (this.stubMonitor) {
+  235 &nbsp; 				if (this.cachedStub == null) {
+  236 &nbsp; 					this.cachedStub = lookupStub();
+  237 &nbsp; 				}
+  238 &nbsp; 				return this.cachedStub;
+  239 &nbsp; 			}
+  240 &nbsp; 		}
+<a name='241'>  241 &nbsp; 	}
+  242 &nbsp; 
+  243 &nbsp; 
+  244 &nbsp; 	/**
+  245 &nbsp; 	 * Fetches an RMI stub and delegates to &lt;code&gt;doInvoke&lt;/code&gt;.
+  246 &nbsp; 	 * If configured to refresh on connect failure, it will call
+  247 &nbsp; 	 * {@link #refreshAndRetry} on corresponding RMI exceptions.
+  248 &nbsp; 	 * @see #getStub
+  249 &nbsp; 	 * @see #doInvoke(MethodInvocation, Remote)
+  250 &nbsp; 	 * @see #refreshAndRetry
+<a name='251'>  251 &nbsp; 	 * @see java.rmi.ConnectException
+  252 &nbsp; 	 * @see java.rmi.ConnectIOException
+  253 &nbsp; 	 * @see java.rmi.NoSuchObjectException
+  254 &nbsp; 	 */
+  255 &nbsp; 	public Object invoke(MethodInvocation invocation) throws Throwable {
+  256 &nbsp; 		Remote stub = getStub();
+  257 &nbsp; 		try {
+  258 &nbsp; 			return doInvoke(invocation, stub);
+  259 &nbsp; 		}
+  260 &nbsp; 		catch (RemoteConnectFailureException ex) {
+<a name='261'>  261 &nbsp; 			return handleRemoteConnectFailure(invocation, ex);
+  262 &nbsp; 		}
+  263 &nbsp; 		catch (RemoteException ex) {
+  264 &nbsp; 			if (isConnectFailure(ex)) {
+  265 &nbsp; 				return handleRemoteConnectFailure(invocation, ex);
+  266 &nbsp; 			}
+  267 &nbsp; 			else {
+  268 &nbsp; 				throw ex;
+  269 &nbsp; 			}
+  270 &nbsp; 		}
+<a name='271'>  271 &nbsp; 	}
+  272 &nbsp; 
+  273 &nbsp; 	/**
+  274 &nbsp; 	 * Determine whether the given RMI exception indicates a connect failure.
+  275 &nbsp; 	 * &lt;p&gt;The default implementation delegates to
+  276 &nbsp; 	 * {@link RmiClientInterceptorUtils#isConnectFailure}.
+  277 &nbsp; 	 * @param ex the RMI exception to check
+  278 &nbsp; 	 * @return whether the exception should be treated as connect failure
+  279 &nbsp; 	 */
+  280 &nbsp; 	protected boolean isConnectFailure(RemoteException ex) {
+<a name='281'>  281 &nbsp; 		return RmiClientInterceptorUtils.isConnectFailure(ex);
+  282 &nbsp; 	}
+  283 &nbsp; 
+  284 &nbsp; 	/**
+  285 &nbsp; 	 * Refresh the stub and retry the remote invocation if necessary.
+  286 &nbsp; 	 * &lt;p&gt;If not configured to refresh on connect failure, this method
+  287 &nbsp; 	 * simply rethrows the original exception.
+  288 &nbsp; 	 * @param invocation the invocation that failed
+  289 &nbsp; 	 * @param ex the exception raised on remote invocation
+  290 &nbsp; 	 * @return the result value of the new invocation, if succeeded
+<a name='291'>  291 &nbsp; 	 * @throws Throwable an exception raised by the new invocation, if failed too.
+  292 &nbsp; 	 */
+  293 &nbsp; 	private Object handleRemoteConnectFailure(MethodInvocation invocation, Exception ex) throws Throwable {
+  294 &nbsp; 		if (this.refreshStubOnConnectFailure) {
+  295 &nbsp; 			if (logger.isDebugEnabled()) {
+  296 &nbsp; 				logger.debug("Could not connect to RMI service [" + getServiceUrl() + "] - retrying", ex);
+  297 &nbsp; 			}
+  298 &nbsp; 			else if (logger.isWarnEnabled()) {
+  299 &nbsp; 				logger.warn("Could not connect to RMI service [" + getServiceUrl() + "] - retrying");
+  300 &nbsp; 			}
+<a name='301'>  301 &nbsp; 			return refreshAndRetry(invocation);
+  302 &nbsp; 		}
+  303 &nbsp; 		else {
+  304 &nbsp; 			throw ex;
+  305 &nbsp; 		}
+  306 &nbsp; 	}
+  307 &nbsp; 
+  308 &nbsp; 	/**
+  309 &nbsp; 	 * Refresh the RMI stub and retry the given invocation.
+  310 &nbsp; 	 * Called by invoke on connect failure.
+<a name='311'>  311 &nbsp; 	 * @param invocation the AOP method invocation
+  312 &nbsp; 	 * @return the invocation result, if any
+  313 &nbsp; 	 * @throws Throwable in case of invocation failure
+  314 &nbsp; 	 * @see #invoke
+  315 &nbsp; 	 */
+  316 &nbsp; 	protected Object refreshAndRetry(MethodInvocation invocation) throws Throwable {
+  317 &nbsp; 		Remote freshStub = null;
+  318 &nbsp; 		synchronized (this.stubMonitor) {
+  319 &nbsp; 			this.cachedStub = null;
+  320 &nbsp; 			freshStub = lookupStub();
+<a name='321'>  321 &nbsp; 			if (this.cacheStub) {
+  322 &nbsp; 				this.cachedStub = freshStub;
+  323 &nbsp; 			}
+  324 &nbsp; 		}
+  325 &nbsp; 		return doInvoke(invocation, freshStub);
+  326 &nbsp; 	}
+  327 &nbsp; 
+  328 &nbsp; 	/**
+  329 &nbsp; 	 * Perform the given invocation on the given RMI stub.
+  330 &nbsp; 	 * @param invocation the AOP method invocation
+<a name='331'>  331 &nbsp; 	 * @param stub the RMI stub to invoke
+  332 &nbsp; 	 * @return the invocation result, if any
+  333 &nbsp; 	 * @throws Throwable in case of invocation failure
+  334 &nbsp; 	 */
+  335 &nbsp; 	protected Object doInvoke(MethodInvocation invocation, Remote stub) throws Throwable {
+  336 &nbsp; 		if (stub instanceof RmiInvocationHandler) {
+  337 &nbsp; 			// RMI invoker
+  338 &nbsp; 			try {
+  339 &nbsp; 				return doInvoke(invocation, (RmiInvocationHandler) stub);
+  340 &nbsp; 			}
+<a name='341'>  341 &nbsp; 			catch (RemoteException ex) {
+  342 &nbsp; 				throw RmiClientInterceptorUtils.convertRmiAccessException(
+  343 &nbsp; 				    invocation.getMethod(), ex, isConnectFailure(ex), getServiceUrl());
+  344 &nbsp; 			}
+  345 &nbsp; 			catch (InvocationTargetException ex) {
+  346 &nbsp; 				Throwable exToThrow = ex.getTargetException();
+  347 &nbsp; 				RemoteInvocationUtils.fillInClientStackTraceIfPossible(exToThrow);
+  348 &nbsp; 				throw exToThrow;
+  349 &nbsp; 			}
+  350 &nbsp; 			catch (Throwable ex) {
+<a name='351'>  351 &nbsp; 				throw new RemoteInvocationFailureException("Invocation of method [" + invocation.getMethod() +
+  352 &nbsp; 						"] failed in RMI service [" + getServiceUrl() + "]", ex);
+  353 &nbsp; 			}
+  354 &nbsp; 		}
+  355 &nbsp; 		else {
+  356 &nbsp; 			// traditional RMI stub
+  357 &nbsp; 			try {
+  358 &nbsp; 				return RmiClientInterceptorUtils.invokeRemoteMethod(invocation, stub);
+  359 &nbsp; 			}
+  360 &nbsp; 			catch (InvocationTargetException ex) {
+<a name='361'>  361 &nbsp; 				Throwable targetEx = ex.getTargetException();
+  362 &nbsp; 				if (targetEx instanceof RemoteException) {
+  363 &nbsp; 					RemoteException rex = (RemoteException) targetEx;
+  364 &nbsp; 					throw RmiClientInterceptorUtils.convertRmiAccessException(
+  365 &nbsp; 							invocation.getMethod(), rex, isConnectFailure(rex), getServiceUrl());
+  366 &nbsp; 				}
+  367 &nbsp; 				else {
+  368 &nbsp; 					throw targetEx;
+  369 &nbsp; 				}
+  370 &nbsp; 			}
+<a name='371'>  371 &nbsp; 		}
+  372 &nbsp; 	}
+  373 &nbsp; 
+  374 &nbsp; 	/**
+  375 &nbsp; 	 * Apply the given AOP method invocation to the given {@link RmiInvocationHandler}.
+  376 &nbsp; 	 * &lt;p&gt;The default implementation delegates to {@link #createRemoteInvocation}.
+  377 &nbsp; 	 * @param methodInvocation the current AOP method invocation
+  378 &nbsp; 	 * @param invocationHandler the RmiInvocationHandler to apply the invocation to
+  379 &nbsp; 	 * @return the invocation result
+  380 &nbsp; 	 * @throws RemoteException in case of communication errors
+<a name='381'>  381 &nbsp; 	 * @throws NoSuchMethodException if the method name could not be resolved
+  382 &nbsp; 	 * @throws IllegalAccessException if the method could not be accessed
+  383 &nbsp; 	 * @throws InvocationTargetException if the method invocation resulted in an exception
+  384 &nbsp; 	 * @see org.springframework.remoting.support.RemoteInvocation
+  385 &nbsp; 	 */
+  386 &nbsp; 	protected Object doInvoke(MethodInvocation methodInvocation, RmiInvocationHandler invocationHandler)
+  387 &nbsp; 	    throws RemoteException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+  388 &nbsp; 
+  389 &nbsp; 		if (AopUtils.isToStringMethod(methodInvocation.getMethod())) {
+  390 &nbsp; 			return "RMI invoker proxy for service URL [" + getServiceUrl() + "]";
+<a name='391'>  391 &nbsp; 		}
+  392 &nbsp; 
+  393 &nbsp; 		return invocationHandler.invoke(createRemoteInvocation(methodInvocation));
+  394 &nbsp; 	}
+  395 &nbsp; 
+  396 &nbsp; 
+  397 &nbsp; 	/**
+  398 &nbsp; 	 * Dummy URLStreamHandler that's just specified to suppress the standard
+  399 &nbsp; 	 * &lt;code&gt;java.net.URL&lt;/code&gt; URLStreamHandler lookup, to be able to
+  400 &nbsp; 	 * use the standard URL class for parsing "rmi:..." URLs.
+<a name='401'>  401 &nbsp; 	 */
+  402 &nbsp; 	private static class DummyURLStreamHandler extends URLStreamHandler {
+  403 &nbsp; 
+  404 &nbsp; 		protected URLConnection openConnection(URL url) throws IOException {
+  405 &nbsp; 			throw new UnsupportedOperationException();
+  406 &nbsp; 		}
+  407 &nbsp; 	}
+  408 &nbsp; 
+  409 &nbsp; }
+
+</pre>
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/Spring-Framework-090522-code.html">Spring-Framework-090522</a> &#187; org.springframework &#187;  <a href='/docs/api/org/springframework/remoting/package-index.html'>remoting</a> &#187;  <a href='/docs/api/org/springframework/remoting/rmi/package-index.html'>rmi</a> &#187; 
+ [<a href="/docs/api/org/springframework/remoting/rmi/RmiClientInterceptor.html">javadoc</a> | source]
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-138120-1");
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- end -->

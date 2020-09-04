@@ -1,0 +1,922 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>Netty使用初步_人人IT网</title>
+<meta name="description" content="人人IT网,是IT资料的聚合网,包括的资料有Java编程,Spring Struts Webwork框架深入,XMLHTTP AJAX开发,Java Web开发,Java企业应用,Java设计模式,Java开源框架,Java应用服务器,Rich Client讨论,Ruby编程,Ruby DSL开发,Ruby on rails实践,JavaScript编程,敏捷软件开发XP TDD,软件配置管理,软件测试,项目管理UML,数据库,C#/.net C/C++ Erlang/FP PHP/Linux平台,精通Hibernate等.JBoss Netty使用初步" />
+<meta name="keywords" content="Java编程 Spring框架 AJAX技术 Agile敏捷软件开发 ruby on rails实践 Linux,unix,Freebsd,Solaris,服务器,存储,数据库,开发,程序设计,网络,安全,备份,硬件,IT培训,IT招聘求职,IT业界,IT人物,IT评论,业界评论,计算机,数码,IT圈,下载,wiki,blog,博客,游戏.收藏自：http://www.kafka0102.com/2010/06/161.html?1、简介Java1.4提供了NIO使开发者可以使用Java编写高性能的服务端程序，但使用原生的N" />
+<link href="/templets/default/style/dedecms.css" rel="stylesheet" media="screen" type="text/css" />
+<link rel="stylesheet" href="/templets/default/style/dedecms_skins_0.css" type="text/css" id="cssfile" />
+<link href="/my/fload_ads/fload_ads_style.css" rel="stylesheet" media="screen" type="text/css" />
+<style>
+.div_round_right {
+float:right;
+}
+.div_round_left {
+float:left;
+}
+</style>
+<script language="javascript" type="text/javascript">
+ var randomNumber = Math.random()*10;
+ var adType;
+ if(Math.floor(randomNumber)<5){
+  adType = 1;
+ }else{
+  adType = 2;
+ }
+</script>
+<script language="javascript" type="text/javascript" src="/images/js/j.js" ></script>
+<script language="javascript" type="text/javascript" src="/templets/default/js/jquery.cookie.js"></script>
+<script language="javascript" type="text/javascript" src="/templets/default/js/changeSkin.js"></script>
+<script language="javascript" type="text/javascript" src="/include/dedeajax2.js"></script>
+<script language="javascript" type="text/javascript">
+<!--
+function CheckLogin(){
+	  var taget_obj = document.getElementById('_ajax_feedback');
+	  myajax = new DedeAjax(taget_obj,false,false,'','','');
+	  myajax.SendGet2("/member/ajax_feedback.php");
+	  DedeXHTTP = null;
+}
+function postBadGood(ftype,fid)
+{
+	var taget_obj = document.getElementById(ftype+fid);
+	var saveid = GetCookie('badgoodid');
+	if(saveid != null)
+	{
+		var saveids = saveid.split(',');
+		var hasid = false;
+		saveid = '';
+		j = 1;
+		for(i=saveids.length-1;i>=0;i--)
+		{
+			if(saveids[i]==fid && hasid) continue;
+			else {
+				if(saveids[i]==fid && !hasid) hasid = true;
+				saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+				j++;
+				if(j==10 && hasid) break;
+				if(j==9 && !hasid) break;
+			}
+		}
+		if(hasid) { alert('您刚才已表决过了喔！'); return false;}
+		else saveid += ','+fid;
+		SetCookie('badgoodid',saveid,1);
+	}
+	else
+	{
+		SetCookie('badgoodid',fid,1);
+	}
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	myajax.SendGet2("/plus/feedback.php?aid="+fid+"&action="+ftype+"&fid="+fid);
+}
+function postDigg(ftype,aid)
+{
+	var taget_obj = document.getElementById('newdigg');
+	var saveid = GetCookie('diggid');
+	if(saveid != null)
+	{
+		var saveids = saveid.split(',');
+		var hasid = false;
+		saveid = '';
+		j = 1;
+		for(i=saveids.length-1;i>=0;i--)
+		{
+			if(saveids[i]==aid && hasid) continue;
+			else {
+				if(saveids[i]==aid && !hasid) hasid = true;
+				saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+				j++;
+				if(j==20 && hasid) break;
+				if(j==19 && !hasid) break;
+			}
+		}
+		if(hasid) { alert("您已经顶过该帖，请不要重复顶帖 ！"); return; }
+		else saveid += ','+aid;
+		SetCookie('diggid',saveid,1);
+	}
+	else
+	{
+		SetCookie('diggid',aid,1);
+	}
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	var url = "/plus/digg_ajax.php?action="+ftype+"&id="+aid;
+	myajax.SendGet2(url);
+}
+function getDigg(aid)
+{
+	var taget_obj = document.getElementById('newdigg');
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	myajax.SendGet2("/plus/digg_ajax.php?id="+aid);
+	DedeXHTTP = null;
+}
+function check(){
+		if(document.formsearch.searchtype.value=="")
+		document.formsearch.action="http://www.google.cn/custom"
+		else
+		document.formsearch.action="/plus/search.php"
+	} 
+-->
+</script>
+</head>
+<body class="articleview">
+<div class="header">
+  <script language="javascript" type="text/javascript">
+	window.onload=function (){
+		setInterval("document.getElementById('time').innerHTML=new Date().toLocaleString()+' 星期'+'日一二三四五六'.charAt(new Date().getDay());",1000);
+	}
+  </script>
+    <div class="header_top w960">     
+     <ul id="dedecms_skins">
+        <li id="dedecms_skins_0" title="绿色">绿色</li>
+		<li id="dedecms_skins_1" title="蓝色">蓝色</li>
+		<li id="dedecms_skins_2" title="红色">红色</li>
+		<li id="dedecms_skins_3" title="桃红色">桃红色</li>
+		<li id="dedecms_skins_4" title="黑色">黑色</li>
+		<li id="dedecms_skins_5" title="褐色">褐色</li>
+      </ul>
+     <span id="time" class="time"></span>
+     <div class="toplinks"><a href="/images/tuijian/outad.htm" target="_blank"><font color=red><b>广告联系</b></font></a>|<a href="/plus/heightsearch.php" target="_blank">高级搜索</a>|<a href="/data/sitemap.html" target="_blank">网站地图</a>|<a href="tags.php">TAG标签</a>|<a href="/data/rssmap.html">RSS订阅</a><span>【<a href=""onclick="this.style.behavior='url(#default#homepage)';this.setHomePage('http://www.renren.it');">设为首页</a>】【<a href="javascript:window.external.AddFavorite('http://www.renren.it','人人IT网')">加入收藏</a>】</span></div>
+    </div>
+	<div class="top w960 center">
+      <div class="title">
+        <h1><a href="http://www.renren.it"><img src="/templets/default/images/logo.gif" height="54" width="216" alt="人人IT网"/></a> </h1>
+      </div>
+      <div id="headGoogleAd">
+				<script type="text/javascript" src="/my/google_ad_head_728_90.js"></script>
+	    </div>
+       
+	</div><!-- //top -->
+	<!-- //菜单 -->
+           <div id="outad"></div>
+	<div class="module blue mT10 wrapper w963">
+  	<div class="top">
+    	<div class="t_l"></div>
+    	<div class="t_r"></div>
+    	<!-- //如果不使用currentstyle，可以在channel标签加入 cacheid='channeltoplist' 属性提升性能 -->
+    <div id="navMenu">
+    	<ul>
+      	<li><a href='/'><span>主页</span></a></li>
+      	
+      	<li><a href='/a/ITxinwen/'  rel='dropmenu1'><span>IT新闻</span></a></li>
+      	
+      	<li><a href='/a/JAVAbiancheng/'  rel='dropmenu11'><span>JAVA编程</span></a></li>
+      	
+      	<li><a href='/a/bianchengyuyan/'  rel='dropmenu24'><span>编程语言</span></a></li>
+      	
+      	<li><a href='/a/caozuoxitong/'  rel='dropmenu35'><span>操作系统</span></a></li>
+      	
+      	<li><a href='/a/shujuku/'  rel='dropmenu41'><span>数据库</span></a></li>
+      	<li class='hover'><a href='/a/fuwuqiruanjian/'  rel='dropmenu49'><span>服务器软件</span></a></li>
+      	<li><a href='/a/kaifaguanli/'  rel='dropmenu55'><span>开发管理</span></a></li>
+      	
+      	<li><a href='/a/qitazonghe/'  rel='dropmenu73'><span>其它综合</span></a></li>
+      	
+    	</ul>
+    </div>	    
+    <div class="search">
+      <form  name="formsearch" action="" onSubmit="check();">
+      <input type="hidden" name="domains" value="www.renren.it">
+        <div class="form">
+          <h4>搜索</h4>
+           <input type="hidden" name="kwtype" value="0" />
+           <input name="q" type="text" class="search-keyword" id="search-keyword" value="在这里搜索..." onfocus="if(this.value=='在这里搜索...'){this.value='';}"  onblur="if(this.value==''){this.value='在这里搜索...';}" />
+           <select name="searchtype" class="search-option" id="search-option">
+               <option value="titlekeyword" selected='1'>站内搜索</option>
+               <option value="">google搜索</option>               
+           </select>
+          <button type="submit" class="search-submit">搜索</button>
+        </div>
+        <input type="hidden" name="client" value="pub-2476175026271293">
+        <input type="hidden" name="forid" value="1">
+    	<input type="hidden" name="ie" value="GB2312">
+    	<input type="hidden" name="oe" value="GB2312">
+    	<input type="hidden" name="safe" value="active">
+    	<input type="hidden" name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:336699;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;FORID:1">
+    	<input type="hidden" name="hl" value="zh-CN">
+        </form>
+        <div class="tags">
+          <h4>热门标签:</h4>
+          <ul>
+          
+            <li><a href='/tags.php?/%C0%EE%B0%BD%D6%AE%D7%D3/'>李敖之子</a></li>
+          
+            <li><a href='/tags.php?/%C2%ED%BB%AF%CC%DA+%CC%DA%D1%B6+%BF%AA%B7%C5API/'>马化腾 腾讯 开放API</a></li>
+          
+            <li><a href='/tags.php?/%C9%CF%B2%DE%CB%F9/'>上厕所</a></li>
+          
+            <li><a href='/tags.php?/nginx/'>nginx</a></li>
+          
+            <li><a href='/tags.php?/POST/'>POST</a></li>
+          
+            <li><a href='/tags.php?/Auctiva/'>Auctiva</a></li>
+          
+            <li><a href='/tags.php?/c%23/'>c#</a></li>
+          
+            <li><a href='/tags.php?/%B3%AC%CD%BC%C8%ED%BC%FE/'>超图软件</a></li>
+          
+            <li><a href='/tags.php?/%D7%D6%B7%FB%B1%E0%C2%EB/'>字符编码</a></li>
+          
+            <li><a href='/tags.php?/Mysql%B4%B4%BD%A8%D3%C3%BB%A7%D5%CA%BB%A7/'>Mysql创建用户帐户</a></li>
+          
+          </ul>
+        </div>
+    </div><!-- //search -->
+		</div>
+	</div>    
+</div><!-- //header -->
+<!-- /header -->
+<!--浮层(begin)-->
+<div id='pop-div' style="width: 620px;" class="pop-box">  
+	<div><table width="620px"><tr><td width="50%"><div id="popAdsTitle"></div></td><td align="right" width="50%"><label onclick="hideDiv('pop-div');">×</label></td></table></div>
+	<div class="pop-box-body"id="float_ads_iframe">
+	</div>
+</div>
+<!--浮层(end)-->
+<script language="javascript" type="text/javascript" src="/my/fload_ads/fload_ads.js"></script>
+<div class="channel-nav w960 center clear">
+	<div class='sonnav'>
+	
+		<span><a href='/a/fuwuqiruanjian/Apache/'>Apache</a></span>
+		<span><a href='/a/fuwuqiruanjian/Tomcat/'>Tomcat</a></span><span><a href='/a/fuwuqiruanjian/Jboss/' class='thisclass'>Jboss</a></span>
+		<span><a href='/a/fuwuqiruanjian/Weblogic/'>Weblogic</a></span>
+		<span><a href='/a/fuwuqiruanjian/Websphere/'>Websphere</a></span>
+		<span><a href='/a/fuwuqiruanjian/jetty/'>Jetty</a></span>
+	</div>
+	<span class="back">
+		<a href="/">返回首頁</a>
+	</span>
+</div><!-- /channel-nav -->
+<div class="w960 center clear mt1">
+	<div class="pleft">
+		<div class="place">
+			<strong>当前位置:</strong> <a href='http://www.renren.it/'>主页</a> > <a href='/a/fuwuqiruanjian/'>服务器软件</a> > <a href='/a/fuwuqiruanjian/Jboss/'>Jboss</a> > 
+		</div><!-- /place -->
+		<div class="viewbox">
+			<div class="title">
+				<h2>Netty使用初步</h2>
+			</div><!-- /title -->
+			<div class="info">
+				<small>时间:</small>2010-10-02 06:57<small>来源:</small>互联网 <small>作者:</small>互联网 <small>点击:</small><script src="/plus/count.php?view=yes&aid=28062&mid=1" type='text/javascript' language="javascript"></script>次</div><!-- /info -->
+				<div align="center">
+					<script type="text/javascript"><!--
+						google_ad_client = "pub-2476175026271293";
+						/* 468x15, 创建于 10-8-21 */
+						google_ad_slot = "8936592587";
+						google_ad_width = 468;
+						google_ad_height = 15;
+						//-->
+						</script>
+						<script type="text/javascript"
+						src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+					</script>
+				</div>
+                                           <div align="center"><script type="text/javascript" src="/images/tuijian/tuijian.js" charset="gbk"></script></div>
+            	<div class="intro">收藏自：http://www.kafka0102.com/2010/06/161.html
+
+?
+
+
+1、简介
+Java1.4提供了NIO使开发者可以使用Java编写高性能的服务端程序，但使用原生的N</div>
+			<div class="content">
+			<table width='100%'>
+				<tr>
+					<td>
+					<div id="upContentArea"></div>
+					<div id="contentGoogleAd">			
+						<script type="text/javascript" src="/my/google_ad_300_250.js"></script>
+					</div>
+					<script>
+							var className="";
+							if(adType==1){
+							className="div_round_left";
+							}else{
+							className="div_round_right";
+							}
+							document.getElementById("contentGoogleAd").className=className;
+					</script>
+					
+    <p><span style="font-family: tahoma, arial; font-size: 16px; color: #222222;">
+</span></p>
+<h2 style="padding-top: 6px; padding-right: 0px; padding-bottom: 6px; padding-left: 0px; font-size: 16px; margin: 0px;">收藏自：<span style="font-weight: normal; font-size: 12px;"><a href="http://www.kafka0102.com/2010/06/161.html">http://www.kafka0102.com/2010/06/161.html</a></span>
+</h2>
+<p>?</p>
+<p>
+</p>
+<h2 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">1、简介</h2>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">Java1.4提供了NIO使开发者可以使用Java编写高性能的服务端程序，但使用原生的NIO API就像Linux C中网络编程一样，还是需要做IO处理、协议处理等低层次工作。所以，就像C服务端程序大量使用libevent作为网络应用框架一样，Java社区也不断涌现出基于NIO的网络应用框架。在这其中，Jboss出品的Netty就是个中翘楚。Netty是个异步的事件驱动网络应用框架，具有高性能、高扩展性等特性。Netty提供了统一的底层协议接口，使得开发者从底层的网络协议（比如TCP/IP、UDP）中解脱出来。就使用来说，开发者只要参考 Netty提供的若干例子和它的指南文档，就可以放手开发基于Netty的服务端程序了。</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">在Java社区，最知名的开源Java NIO框架要属Mina和Netty，而且两者渊源颇多，对两者的比较自然不少。实际上，Netty的作者原来就是Mina作者之一，所以可以想到，Netty和Mina在设计理念上会有很多共同点。我对Mina没什么研究，但其作者介绍，Netty的设计对开发者有更友好的扩展性，并且性能方面要优于Mina，而Netty完善的文档也很吸引人。所以，如果你在寻找Java NIO框架，Netty是个很不错的选择。本文的内容就是围绕一个demo介绍使用Netty的点点滴滴。</p>
+<h2 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">2、服务端程序</h2>
+<h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">2.1、ChannelHandler</h3>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">服务端程序通常的处理过程是：解码请求数据、业务逻辑处理、编码响应。从框架角度来说，可以提供3个接口来控制并调度该处理过程；从更通用的角度来说，并不特化处理其中的每一步，而把每一步当做过滤器链中的一环，这也是Netty的做法。Netty对请求处理过程实现了过滤器链模式（ChannelPipeline），每个过滤器实现了ChannelHandler接口。Netty中有两种请求事件流类型也做了细分：</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">1）downstream event：其对应的ChannelHandler子接口是ChannelDownstreamHandler。downstream event是说从头到尾执行ChannelPipeline中的ChannelDownstreamHandler，这一过程相当于向外发送数据的过程。 downstream event有：”write”、”bind”、”unbind”、 “connect”、 “disconnect”、”close”。</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">2）upstream event：其对应的ChannelHandler子接口是ChannelUpstreamHandler。upstream event处理的事件方向和downstream event相反，这一过程相当于接收处理外来请求的过程。upstream event有：”messageReceived”、 “exceptionCaught”、”channelOpen”、”channelClosed”、 “channelBound”、”channelUnbound”、 “channelConnected”、”writeComplete”、”channelDisconnected”、”channelInterestChanged”。</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">Netty中有个注释@interface ChannelPipelineCoverage，它表示被注释的ChannelHandler是否能添加到多个ChannelPipeline中，其可选的值是”all”和”one”。”all”表示ChannelHandler是无状态的，可被多个ChannelPipeline共享，而”one”表示ChannelHandler只作用于单个ChannelPipeline中。但ChannelPipelineCoverage只是个注释而已，并没有实际的检查作用。对于ChannelHandler是”all”还是”one”，还是根据逻辑需要而定。比如，像解码请求handler，因为可能解码的数据不完整，需要等待下一次读事件来了之后再继续解析，所以解码请求handler就需要是”one”的（否则多个Channel共享数据就乱了）。而像业务逻辑处理hanlder通常是”all”的。</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">下面以一个简单的例子说明如何编写“解码请求数据、业务逻辑处理、编码响应”这一过程中涉及的ChannelHandler。该例子实现的协议格式很简单，请求和响应流中头4个字节表示后面跟的内容长度，根据该长度可得到内容体。</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">首先看下解码器的实现：</p>
+<div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;">
+<div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;">
+<pre class="java"><span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> MessageDecoder <span style="color: #000000; font-weight: bold;">extends</span> FrameDecoder <span style="color: #009900;">{</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">protected</span> <span style="color: #003399;">Object</span> decode<span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer<span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">(</span>buffer.<span style="color: #006633;">readableBytes</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span> <span style="color: #339933;">&lt;</span> <span style="color: #cc66cc;">4</span><span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+            <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #000066; font-weight: bold;">null</span><span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(1)</span>
+        <span style="color: #009900;">}</span>
+        <span style="color: #000066; font-weight: bold;">int</span> dataLength <span style="color: #339933;">=</span> buffer.<span style="color: #006633;">getInt</span><span style="color: #009900;">(</span>buffer.<span style="color: #006633;">readerIndex</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">(</span>buffer.<span style="color: #006633;">readableBytes</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span> <span style="color: #339933;">&lt;</span> dataLength <span style="color: #339933;">+</span> <span style="color: #cc66cc;">4</span><span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+            <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #000066; font-weight: bold;">null</span><span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(2)</span>
+        <span style="color: #009900;">}</span>
+?
+        buffer.<span style="color: #006633;">skipBytes</span><span style="color: #009900;">(</span><span style="color: #cc66cc;">4</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(3)</span>
+        <span style="color: #000066; font-weight: bold;">byte</span><span style="color: #009900;">[</span><span style="color: #009900;">]</span> decoded <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> <span style="color: #000066; font-weight: bold;">byte</span><span style="color: #009900;">[</span>dataLength<span style="color: #009900;">]</span><span style="color: #339933;">;</span>
+        buffer.<span style="color: #006633;">readBytes</span><span style="color: #009900;">(</span>decoded<span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #003399;">String</span> msg <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> <span style="color: #003399;">String</span><span style="color: #009900;">(</span>decoded<span style="color: #009900;">)</span><span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(4)</span>
+        <span style="color: #000000; font-weight: bold;">return</span> msg<span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span></pre>
+</div>
+</div>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">MessageDecoder继承自FrameDecoder，FrameDecoder是Netty codec包中的辅助类，它是个ChannelUpstreamHandler，decode方法是FrameDecoder子类需要实现的。在上面的代码中，有：</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">(1)检查ChannelBuffer中的字节数，如果ChannelBuffer可读的字节数少于4,则返回null等待下次读事件。<br>(2)继续检查ChannelBuffer中的字节数，如果ChannelBuffer可读的字节数少于dataLength + 4，则返回null等待下次读事件。<br>(3)越过dataLength的字节。<br>(4)构造解码的字符串返回。</p>
+<div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;">
+<div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;">
+<pre class="java">@ChannelPipelineCoverage<span style="color: #009900;">(</span><span style="color: #0000ff;">"all"</span><span style="color: #009900;">)</span>
+<span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> MessageServerHandler <span style="color: #000000; font-weight: bold;">extends</span> SimpleChannelUpstreamHandler <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">private</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #000000; font-weight: bold;">final</span> Logger logger <span style="color: #339933;">=</span> Logger.<span style="color: #006633;">getLogger</span><span style="color: #009900;">(</span>
+            MessageServerHandler.<span style="color: #000000; font-weight: bold;">class</span>.<span style="color: #006633;">getName</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> messageReceived<span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, MessageEvent e<span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">(</span><span style="color: #339933;">!</span><span style="color: #009900;">(</span>e.<span style="color: #006633;">getMessage</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">instanceof</span> <span style="color: #003399;">String</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+            <span style="color: #000000; font-weight: bold;">return</span><span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(1)</span>
+        <span style="color: #009900;">}</span>
+        <span style="color: #003399;">String</span> msg <span style="color: #339933;">=</span> <span style="color: #009900;">(</span><span style="color: #003399;">String</span><span style="color: #009900;">)</span> e.<span style="color: #006633;">getMessage</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #003399;">System</span>.<span style="color: #006633;">err</span>.<span style="color: #006633;">println</span><span style="color: #009900;">(</span><span style="color: #0000ff;">"got msg:"</span><span style="color: #339933;">+</span>msg<span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        e.<span style="color: #006633;">getChannel</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>.<span style="color: #006633;">write</span><span style="color: #009900;">(</span>msg<span style="color: #009900;">)</span><span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(2)</span>
+    <span style="color: #009900;">}</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> exceptionCaught<span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, ExceptionEvent e<span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+        logger.<span style="color: #006633;">log</span><span style="color: #009900;">(</span>
+                Level.<span style="color: #006633;">WARNING</span>,
+                <span style="color: #0000ff;">"Unexpected exception from downstream."</span>,
+                e.<span style="color: #006633;">getCause</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        e.<span style="color: #006633;">getChannel</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>.<span style="color: #006633;">close</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span></pre>
+</div>
+</div>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">MessageServerHandler是服务端业务处理handler，其继承自SimpleChannelUpstreamHandler，并主要实现messageReceived事件。关于该类，有如下注解：</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">(1)该upstream事件流中，首先经过MessageDecoder，其会将decode返回的解码后的数据构造成 MessageEvent.getMessage()，所以在handler上下文关系中，MessageEvent.getMessage()并不一定都返回ChannelBuffer类型的数据。<br>(2)MessageServerHandler只是简单的将得到的msg再写回给客户端。e.getChannel().write(msg);操作将触发DownstreamMessageEvent事件，也就是调用下面的MessageEncoder将编码的数据返回给客户端。</p>
+<div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;">
+<div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;">
+<pre class="java">@ChannelPipelineCoverage<span style="color: #009900;">(</span><span style="color: #0000ff;">"all"</span><span style="color: #009900;">)</span>
+<span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> MessageEncoder <span style="color: #000000; font-weight: bold;">extends</span> OneToOneEncoder <span style="color: #009900;">{</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">protected</span> <span style="color: #003399;">Object</span> encode<span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, Channel channel, <span style="color: #003399;">Object</span> msg<span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">(</span><span style="color: #339933;">!</span><span style="color: #009900;">(</span>msg <span style="color: #000000; font-weight: bold;">instanceof</span> <span style="color: #003399;">String</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+            <span style="color: #000000; font-weight: bold;">return</span> msg<span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(1)</span>
+        <span style="color: #009900;">}</span>
+?
+        <span style="color: #003399;">String</span> res <span style="color: #339933;">=</span> <span style="color: #009900;">(</span><span style="color: #003399;">String</span><span style="color: #009900;">)</span>msg<span style="color: #339933;">;</span>
+        <span style="color: #000066; font-weight: bold;">byte</span><span style="color: #009900;">[</span><span style="color: #009900;">]</span> data <span style="color: #339933;">=</span> res.<span style="color: #006633;">getBytes</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #000066; font-weight: bold;">int</span> dataLength <span style="color: #339933;">=</span> data.<span style="color: #006633;">length</span><span style="color: #339933;">;</span>
+        ChannelBuffer buf <span style="color: #339933;">=</span> ChannelBuffers.<span style="color: #006633;">dynamicBuffer</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(2)</span>
+        buf.<span style="color: #006633;">writeInt</span><span style="color: #009900;">(</span>dataLength<span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        buf.<span style="color: #006633;">writeBytes</span><span style="color: #009900;">(</span>data<span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #000000; font-weight: bold;">return</span> buf<span style="color: #339933;">;</span><span style="color: #666666; font-style: italic;">//(3)</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span></pre>
+</div>
+</div>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">MessageEncoder是个ChannelDownstreamHandler。对该类的注解如下：</p>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">(1)如果编码的msg不是合法类型，就直接返回该msg，之后OneToOneEncoder会调用 ctx.sendDownstream(evt);来调用下一个ChannelDownstreamHandler。对于该例子来说，这种情况是不应该出现的。<br>(2)开发者创建ChannelBuffer的用武之地就是这儿了，通常使用dynamicBuffer即可，表示得到的ChannelBuffer可动态增加大小。<br>(3)返回编码后的ChannelBuffer之后，OneToOneEncoder会调用Channels.write将数据写回客户端。</p>
+<h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">2.2、MessageServerPipelineFactory</h3>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">创建了3个ChannelHandler，需要将他们注册到ChannelPipeline，而ChannelPipeline又是和Channel对应的（是全局单例还是每个Channel对应一个ChannelPipeline实例依赖于实现）。可以实现ChannelPipeline的工厂接口 ChannelPipelineFactory实现该目的。MessageServerPipelineFactory的代码如下：</p>
+<div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;">
+<div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;">
+<pre class="java"><span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> MessageServerPipelineFactory <span style="color: #000000; font-weight: bold;">implements</span>
+        ChannelPipelineFactory <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">public</span> ChannelPipeline getPipeline<span style="color: #009900;">(</span><span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        ChannelPipeline pipeline <span style="color: #339933;">=</span> pipeline<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+        pipeline.<span style="color: #006633;">addLast</span><span style="color: #009900;">(</span><span style="color: #0000ff;">"decoder"</span>, <span style="color: #000000; font-weight: bold;">new</span> MessageDecoder<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        pipeline.<span style="color: #006633;">addLast</span><span style="color: #009900;">(</span><span style="color: #0000ff;">"encoder"</span>, <span style="color: #000000; font-weight: bold;">new</span> MessageEncoder<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        pipeline.<span style="color: #006633;">addLast</span><span style="color: #009900;">(</span><span style="color: #0000ff;">"handler"</span>, <span style="color: #000000; font-weight: bold;">new</span> MessageServerHandler<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+        <span style="color: #000000; font-weight: bold;">return</span> pipeline<span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span></pre>
+</div>
+</div>
+<h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">2.3、MessageServer</h3>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">服务端程序就剩下启动代码了，使用Netty的ServerBootstrap三下五除二完成之。</p>
+<div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;">
+<div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;">
+<pre class="java"><span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> MessageServer <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #000066; font-weight: bold;">void</span> main<span style="color: #009900;">(</span><span style="color: #003399;">String</span><span style="color: #009900;">[</span><span style="color: #009900;">]</span> args<span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        <span style="color: #666666; font-style: italic;">// Configure the server.</span>
+        ServerBootstrap bootstrap <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> ServerBootstrap<span style="color: #009900;">(</span>
+                <span style="color: #000000; font-weight: bold;">new</span> NioServerSocketChannelFactory<span style="color: #009900;">(</span>
+                        Executors.<span style="color: #006633;">newCachedThreadPool</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>,
+                        Executors.<span style="color: #006633;">newCachedThreadPool</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+        <span style="color: #666666; font-style: italic;">// Set up the default event pipeline.</span>
+        bootstrap.<span style="color: #006633;">setPipelineFactory</span><span style="color: #009900;">(</span><span style="color: #000000; font-weight: bold;">new</span> MessageServerPipelineFactory<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+        <span style="color: #666666; font-style: italic;">// Bind and start to accept incoming connections.</span>
+        bootstrap.<span style="color: #006633;">bind</span><span style="color: #009900;">(</span><span style="color: #000000; font-weight: bold;">new</span> InetSocketAddress<span style="color: #009900;">(</span><span style="color: #cc66cc;">8080</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span></pre>
+</div>
+</div>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">稍加补充的是，该Server程序并不完整，它没有处理关闭时的资源释放，尽管暴力的来看并不一定需要做这样的善后工作。</p>
+<h2 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">3、客户端程序</h2>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">客户端程序和服务端程序处理模型上是很相似的，这里还是付上代码并作简要说明。</p>
+<h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">3.1、 ChannelHandler</h3>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">客户端是先发送数据到服务端（downstream事件流），然后是处理从服务端接收的数据（upstream事件流）。这里有个问题是，怎么把需要发送的数据送到downstream事件流里呢？这就用到了ChannelUpstreamHandler的channelConnected事件了。实现的 MessageClientHandler代码如下：</p>
+<div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;">
+<div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;">
+<pre class="java">@ChannelPipelineCoverage<span style="color: #009900;">(</span><span style="color: #0000ff;">"all"</span><span style="color: #009900;">)</span>
+<span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> MessageClientHandler <span style="color: #000000; font-weight: bold;">extends</span> SimpleChannelUpstreamHandler <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">private</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #000000; font-weight: bold;">final</span> Logger logger <span style="color: #339933;">=</span> Logger.<span style="color: #006633;">getLogger</span><span style="color: #009900;">(</span>
+            MessageClientHandler.<span style="color: #000000; font-weight: bold;">class</span>.<span style="color: #006633;">getName</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> channelConnected<span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, ChannelStateEvent e<span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+        <span style="color: #003399;">String</span> message <span style="color: #339933;">=</span> <span style="color: #0000ff;">"hello kafka0102"</span><span style="color: #339933;">;</span>
+        e.<span style="color: #006633;">getChannel</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>.<span style="color: #006633;">write</span><span style="color: #009900;">(</span>message<span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> messageReceived<span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, MessageEvent e<span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+        <span style="color: #666666; font-style: italic;">// Send back the received message to the remote peer.</span>
+        <span style="color: #003399;">System</span>.<span style="color: #006633;">err</span>.<span style="color: #006633;">println</span><span style="color: #009900;">(</span><span style="color: #0000ff;">"messageReceived send message "</span><span style="color: #339933;">+</span>e.<span style="color: #006633;">getMessage</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #000000; font-weight: bold;">try</span> <span style="color: #009900;">{</span>
+            <span style="color: #003399;">Thread</span>.<span style="color: #006633;">sleep</span><span style="color: #009900;">(</span><span style="color: #cc66cc;">1000</span><span style="color: #339933;">*</span><span style="color: #cc66cc;">3</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #009900;">}</span> <span style="color: #000000; font-weight: bold;">catch</span> <span style="color: #009900;">(</span><span style="color: #003399;">Exception</span> ex<span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+            ex.<span style="color: #006633;">printStackTrace</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #009900;">}</span>
+        e.<span style="color: #006633;">getChannel</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>.<span style="color: #006633;">write</span><span style="color: #009900;">(</span>e.<span style="color: #006633;">getMessage</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> exceptionCaught<span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, ExceptionEvent e<span style="color: #009900;">)</span> <span style="color: #009900;">{</span>
+        <span style="color: #666666; font-style: italic;">// Close the connection when an exception is raised.</span>
+        logger.<span style="color: #006633;">log</span><span style="color: #009900;">(</span>
+                Level.<span style="color: #006633;">WARNING</span>,
+                <span style="color: #0000ff;">"Unexpected exception from downstream."</span>,
+                e.<span style="color: #006633;">getCause</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        e.<span style="color: #006633;">getChannel</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>.<span style="color: #006633;">close</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span></pre>
+</div>
+</div>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">对于编码和解码Handler，复用MessageEncoder和MessageDecoder即可。</p>
+<h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">3.2、 MessageClientPipelineFactory</h3>
+<div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;">
+<div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;">
+<pre class="java">    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> MessageClientPipelineFactory <span style="color: #000000; font-weight: bold;">implements</span>
+        ChannelPipelineFactory <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">public</span> ChannelPipeline getPipeline<span style="color: #009900;">(</span><span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        ChannelPipeline pipeline <span style="color: #339933;">=</span> pipeline<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+        pipeline.<span style="color: #006633;">addLast</span><span style="color: #009900;">(</span><span style="color: #0000ff;">"decoder"</span>, <span style="color: #000000; font-weight: bold;">new</span> MessageDecoder<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        pipeline.<span style="color: #006633;">addLast</span><span style="color: #009900;">(</span><span style="color: #0000ff;">"encoder"</span>, <span style="color: #000000; font-weight: bold;">new</span> MessageEncoder<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        pipeline.<span style="color: #006633;">addLast</span><span style="color: #009900;">(</span><span style="color: #0000ff;">"handler"</span>, <span style="color: #000000; font-weight: bold;">new</span> MessageClientHandler<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+?
+        <span style="color: #000000; font-weight: bold;">return</span> pipeline<span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span></pre>
+</div>
+</div>
+<h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">3.3、MessageClient</h3>
+<div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;">
+<div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;">
+<pre class="java"><span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> MessageClient <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #000066; font-weight: bold;">void</span> main<span style="color: #009900;">(</span><span style="color: #003399;">String</span><span style="color: #009900;">[</span><span style="color: #009900;">]</span> args<span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        <span style="color: #666666; font-style: italic;">// Parse options.</span>
+        <span style="color: #003399;">String</span> host <span style="color: #339933;">=</span> <span style="color: #0000ff;">"127.0.0.1"</span><span style="color: #339933;">;</span>
+        <span style="color: #000066; font-weight: bold;">int</span> port <span style="color: #339933;">=</span> <span style="color: #cc66cc;">8080</span><span style="color: #339933;">;</span>
+        <span style="color: #666666; font-style: italic;">// Configure the client.</span>
+        ClientBootstrap bootstrap <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> ClientBootstrap<span style="color: #009900;">(</span>
+                <span style="color: #000000; font-weight: bold;">new</span> NioClientSocketChannelFactory<span style="color: #009900;">(</span>
+                        Executors.<span style="color: #006633;">newCachedThreadPool</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>,
+                        Executors.<span style="color: #006633;">newCachedThreadPool</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #666666; font-style: italic;">// Set up the event pipeline factory.</span>
+        bootstrap.<span style="color: #006633;">setPipelineFactory</span><span style="color: #009900;">(</span><span style="color: #000000; font-weight: bold;">new</span> MessageClientPipelineFactory<span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #666666; font-style: italic;">// Start the connection attempt.</span>
+        ChannelFuture future <span style="color: #339933;">=</span> bootstrap.<span style="color: #006633;">connect</span><span style="color: #009900;">(</span><span style="color: #000000; font-weight: bold;">new</span> InetSocketAddress<span style="color: #009900;">(</span>host, port<span style="color: #009900;">)</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #666666; font-style: italic;">// Wait until the connection is closed or the connection attempt fails.</span>
+        future.<span style="color: #006633;">getChannel</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>.<span style="color: #006633;">getCloseFuture</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span>.<span style="color: #006633;">awaitUninterruptibly</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+        <span style="color: #666666; font-style: italic;">// Shut down thread pools to exit.</span>
+        bootstrap.<span style="color: #006633;">releaseExternalResources</span><span style="color: #009900;">(</span><span style="color: #009900;">)</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span></pre>
+</div>
+</div>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">在写客户端例子时，我想像的代码并不是这样的，对客户端的代码我也没做过多的研究，所以也可能没有找到更好的解决方案。在上面的例子中，bootstrap.connect方法中会触发实际的连接操作，接着触发 MessageClientHandler.channelConnected，使整个过程运转起来。但是，我想要的是一个连接池，并且如何写数据也不应该在channelConnected中，这样对于动态的数据，只能在构造函数中传递需要写的数据了。但到现在，我还不清楚如何将连接池和 ChannelPipeline有效的结合起来。或许，这样的需求可以跨过Netty来实现。</p>
+<h2 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">4、总结</h2>
+<p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">关于Netty的初步使用，尚且总结到这里。关于这篇文章，写得断断续续，以至于到后来我都没兴趣把内容都整理出来。当然，这多少也是因为我是先整理 Netty原理方面的东西所致。我也只能卑微的期望，该文对Netty入门者会有些许帮助。</p>
+<span style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"><br></span><span style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;">=============================== 华丽的终止符 ================================</span>
+<p>?</p>
+  </div>
+
+  
+
+  <div>
+      <script type="text/javascript">
+      alimama_pid="17340767"; 
+      alimama_titlecolor="0000FF"; 
+      alimama_descolor ="000000"; 
+      alimama_bgcolor="FFFFFF"; 
+      alimama_bordercolor="E6E6E6"; 
+      alimama_linkcolor="008000"; 
+      alimama_bottomcolor="FFFFFF"; 
+      alimama_anglesize="0"; 
+      alimama_bgpic="0"; 
+      alimama_icon="0"; 
+      alimama_sizecode="14"; 
+      alimama_width=468; 
+      alimama_height=60; 
+      alimama_type=2; 
+      </script>
+      <script src="http://a.alimama.cn/inf.js" type=text/javascript>
+      </script>  
+    </div>
+  
+  
+
+<br>本文摘自：http://crazier9527.javaeye.com/blog/768681
+					<div id="downContentArea1"></div>
+					<div id="downContentGoogleAd" align="center">
+						<script type="text/javascript" src="/my/google_ad_300_250_2.js"></script>
+					</div>
+					<div id="downContentArea2"></div>
+					</td>
+				</tr>
+			</table>
+			</div><!-- /content -->
+			<div class="dede_pages">
+				<ul class="pagelist">
+          
+				</ul>
+			</div><!-- /pages -->
+			
+			<!-- //顶踩 -->
+			<div class="newdigg" id="newdigg">
+				<div class="diggbox digg_good" onmousemove="this.style.backgroundPosition='left bottom';" onmouseout="this.style.backgroundPosition='left top';" onclick="javascript:postDigg('good',28062)">
+					<div class="digg_act">顶一下</div>
+					<div class="digg_num">(0)</div>
+					<div class="digg_percent">
+						<div class="digg_percent_bar"><span style="width:0%"></span></div>
+						<div class="digg_percent_num">0%</div>
+					</div>
+				</div>
+				<div class="diggbox digg_bad" onmousemove="this.style.backgroundPosition='right bottom';" onmouseout="this.style.backgroundPosition='right top';" onclick="javascript:postDigg('bad',28062)">
+					<div class="digg_act">踩一下</div>
+					<div class="digg_num">(0)</div>
+					<div class="digg_percent">
+						<div class="digg_percent_bar"><span style="width:0%"></span></div>
+						<div class="digg_percent_num">0%</div>
+					</div>
+				</div>
+			</div>
+			<script language="javascript" type="text/javascript">getDigg(28062);</script>
+			<!-- //顶踩部份的源码结束 -->
+			
+			<div class="boxoff">
+				<strong>------分隔线----------------------------</strong>
+			</div>
+			<div class="handle">
+				<div class="context">
+					<ul>
+						<li>上一篇：<a href='/a/fuwuqiruanjian/Jboss/20101002/28060.html'>使用Netty 构造一个异步的httpclient</a> </li>
+						<li>下一篇：<a href='/a/fuwuqiruanjian/Jboss/20101002/28065.html'>J2EE程序从JBoss4.0.0及3.2.x升级到4.0.1+的问题解决办法</a> </li>
+					</ul>
+				</div><!-- /context -->
+				<div class="actbox">
+					<ul>
+						<li id="act-fav"><a href="/plus/stow.php?aid=28062" target="_blank">收藏</a></li>
+						<li id="act-err"><a href="/plus/erraddsave.php?aid=28062&title=Netty使用初步" target="_blank">挑错</a></li>
+						<li id="act-pus"><a href="/plus/recommend.php?aid=28062" target="_blank">推荐</a></li>
+						<li id="act-pnt"><a href="#" onClick="window.print();">打印</a></li>
+					</ul>
+				</div><!-- /actbox -->
+			</div><!-- /handle -->
+		</div><!-- /viewbox -->
+		<!--
+		<div class="picnews">
+      <dl class="tbox light">
+        <div class="infiniteCarousel">
+        <div class="wrapper_article">
+          <ul><li><a href="/a/fuwuqiruanjian/Jboss/20110714/81437.html" title="一台JBOSS服务器同时运行多个WAR"><img src='/uploads/allimg/2011-07-14/1310640987116170.bmp' border='0' width='143' height='106' alt='一台JBOSS服务器同时运行多个WAR应用实例的配置方法。'></a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110613/73173.html" title="转：解决客户端调用EJB远程接口"><img src='/uploads/allimg/2011-06-13/1307939318630230.png' border='0' width='143' height='106' alt='转：解决客户端调用EJB远程接口传递基本数据类型数组失败'></a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/71284.html" title="JBoss初始"><img src='/uploads/allimg/2011-05-24/1306248334229283.jpg' border='0' width='143' height='106' alt='JBoss初始'></a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20100926/24576.html" title="jBPM(三): 如何在Eclipse搭建jBP"><img src='/uploads/allimg/2010-09-26/1285510468770717.bmp' border='0' width='143' height='106' alt='jBPM(三): 如何在Eclipse搭建jBPM环境?【转】'></a></li>
+
+          </ul>
+        </div>
+        </div>
+      </dl>
+    </div>
+    -->
+		<div id="recommandAreaDown"></div>
+
+<!-- //AJAX评论区 -->
+<!-- //主模板必须要引入/include/dedeajax2.js -->
+<a name='postform'></a>
+<div class="mt1">
+		<dl class="tbox">
+			<dt>
+				<strong>发表评论</strong>
+				<span class="more"></span>
+			</dt>
+			<dd>
+				<div class="dede_comment_post">
+          <form action="#" method="post" name="feedback">
+          <input type="hidden" name="dopost" value="send" />
+          <input type="hidden" name="comtype" value="comments">
+          <input type="hidden" name="aid" value="28062" />
+          <input type="hidden" name="fid" id='feedbackfid' value="0" />
+          <div class="dcmp-title">
+						<small>请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。</small>
+					</div><!-- /dcmp-title -->
+					<div class="dcmp-stand">
+						<strong>评价:</strong>
+							<input type="radio" name="feedbacktype" checked="1" value="feedback" id="dcmp-stand-neu" /><label for="dcmp-stand-neu"><img src="/templets/default/images/cmt-neu.gif" />中立</label>
+							<input type="radio" name="feedbacktype" value="good" id="dcmp-stand-good" /><label for="dcmp-stand-good"><img src="/templets/default/images/cmt-good.gif" />好评</label>
+							<input type="radio" name="feedbacktype" value="bad" id="dcmp-stand-bad" /><label for="dcmp-stand-bad"><img src="/templets/default/images/cmt-bad.gif" />差评</label>
+					</div><!-- /dcmp-stand -->
+                    <div class="clr"></div>
+                    <div class="dcmp-mood">
+						<strong>表情:</strong>
+						<ul>                               
+                                <li><input type="radio" name="face" value="1" checked="1" /><img src="/templets/default/images/mood/ico-mood-1.gif" /></li>
+                                <li><input type="radio" name="face" value="2"/><img src="/templets/default/images/mood/ico-mood-2.gif" /></li>
+                                <li><input type="radio" name="face" value="3"/><img src="/templets/default/images/mood/ico-mood-3.gif" /></li>
+                                <li><input type="radio" name="face" value="4"/><img src="/templets/default/images/mood/ico-mood-4.gif" /></li>
+                                <li><input type="radio" name="face" value="5"/><img src="/templets/default/images/mood/ico-mood-5.gif" /></li>
+                                <li><input type="radio" name="face" value="6"/><img src="/templets/default/images/mood/ico-mood-6.gif" /></li>
+                                <li><input type="radio" name="face" value="7"/><img src="/templets/default/images/mood/ico-mood-7.gif" /></li>
+                                <li><input type="radio" name="face" value="8"/><img src="/templets/default/images/mood/ico-mood-8.gif" /></li> 
+                                <li><input type="radio" name="face" value="9"/><img src="/templets/default/images/mood/ico-mood-9.gif" /></li>
+                                <li><input type="radio" name="face" value="10"/><img src="/templets/default/images/mood/ico-mood-10.gif" /></li>
+                                <li><input type="radio" name="face" value="11"/><img src="/templets/default/images/mood/ico-mood-11.gif" /></li> 
+                                <li><input type="radio" name="face" value="12"/><img src="/templets/default/images/mood/ico-mood-12.gif" /></li>
+						</ul>
+					</div><!-- /dcmp-mood -->
+					<div class="dcmp-content">
+						<textarea cols="60" name="msg" rows="5" class="ipt-txt"></textarea>
+					</div><!-- /dcmp-content -->
+					<div class="dcmp-post"><!--未登陆-->
+							<div class="dcmp-userinfo" id="_ajax_feedback">
+								
+                                验证码:<input type="text" name="validate" size="4" class="ipt-txt" style="text-transform:uppercase;"/><img src= "/include/vdimgck.php" id="validateimg" style="cursor:pointer" onclick="this.src=this.src+'?'" width="60" height="24"  title="点击我更换图片" alt="点击我更换图片" />
+                <input type="checkbox" name="notuser" id="dcmp-submit-guest" /><label for="dcmp-submit-guest" />匿名? </label>
+							</div>
+              
+							<div class="dcmp-submit">
+								<button type="button" onClick='PostComment()'>发表评论</button>
+							</div>
+						</div>
+        </form>
+				</div>
+			</dd>
+		</dl>
+	</div><!-- //评论表单区结束 -->
+
+<!-- //评论内容区 -->
+	<a name='commettop'></a>
+	<div class="mt1">
+			<dl class="tbox">
+				<dt>
+					<strong>最新评论</strong>
+					<span class="more"><a href="/plus/feedback.php?aid=28062">进入详细评论页&gt;&gt;</a></span>
+				</dt>
+				<!-- //这两个ID的区块必须存在，否则JS会出错 -->
+				<dd id='commetcontentNew'></dd>
+				<dd id='commetcontent'></dd>
+			</dl>
+	</div>
+<!--
+//由于评论载入时使用异步传输，因此必须在最后一步加载（DIGG和评论框须放在评论内容前面）
+//如果一定需要提前的把myajax.SendGet改为myajax.SendGet2，但可能会引起页面阻滞
+-->
+<script language='javascript'>
+function LoadCommets(page)
+{
+		var taget_obj = document.getElementById('commetcontent');
+		var waithtml = "<div style='line-height:50px'><img src='/images/loadinglit.gif' />评论加载中...</div>";
+		var myajax = new DedeAjax(taget_obj, true, true, '', 'x', waithtml);
+		myajax.SendGet2("/plus/feedback_ajax.php?dopost=getlist&aid=28062&page="+page);
+		DedeXHTTP = null;
+}
+function PostComment()
+{
+		var f = document.feedback;
+		var nface = '6';
+		var nfeedbacktype = 'feedback';
+		var nvalidate = '';
+		var nnotuser = '';
+		var nusername = '';
+		var npwd = '';
+		var taget_obj = $DE('commetcontentNew');
+		var waithtml = "<div style='line-height:30px'><img src='/images/loadinglit.gif' />正在发送中...</div>";
+		if(f.msg.value=='')
+		{
+			alert("评论内容不能为空！");
+			return;
+		}
+		if(f.validate)
+		{
+			if(f.validate.value=='') {
+				alert("请填写验证码！");
+				return;
+			}
+			else {
+				nvalidate = f.validate.value;
+			}
+		}
+		if(f.msg.value.length > 500)
+		{
+			alert("你的评论是不是太长了？请填写500字以内的评论。");
+			return;
+		}
+		if(f.feedbacktype) {
+			for(var i=0; i < f.feedbacktype.length; i++)
+				if(f.feedbacktype[i].checked) nfeedbacktype = f.feedbacktype[i].value;
+		}
+		if(f.face) {
+			for(var j=0; j < f.face.length; j++)
+				if(f.face[j].checked) nface = f.face[j].value;
+		}
+		if(f.notuser.checked) nnotuser = '1';
+		if(f.username) nusername = f.username.value;
+		if(f.pwd) npwd = f.pwd.value;
+		
+		var myajax = new DedeAjax(taget_obj, false, true, '', '', waithtml);
+		myajax.sendlang = 'gb2312';
+		myajax.AddKeyN('dopost', 'send');
+		myajax.AddKeyN('aid', '28062');
+		myajax.AddKeyN('fid', f.fid.value);
+		myajax.AddKeyN('face', nface);
+		myajax.AddKeyN('feedbacktype', nfeedbacktype);
+		myajax.AddKeyN('validate', nvalidate);
+		myajax.AddKeyN('notuser', nnotuser);
+		myajax.AddKeyN('username', nusername);
+		myajax.AddKeyN('pwd', npwd);
+		myajax.AddKeyN('msg', f.msg.value);
+		myajax.SendPost2('/plus/feedback_ajax.php');
+		f.msg.value = '';
+		f.fid.value = 0;
+		if(f.validate)
+		{
+			if($DE('validateimg')) $DE('validateimg').src = "/include/vdimgck.php?"+f.validate.value;
+			f.validate.value = '';
+		}
+}
+function quoteCommet(fid)
+{
+	document.feedback.fid.value = fid;
+}
+LoadCommets(1);
+</script><!-- //评论内容区结束 -->
+
+
+</div><!-- //左边内容结束 -->
+
+<!-- //右边内容开始 -->
+<div class="pright">
+ 		
+		
+		<div class="pright">
+        <!--div>
+          <dl class="tbox">
+				<dt><strong>栏目列表</strong></dt>
+				<dd>
+					<ul class="d6">
+                      
+		<li><a href='/a/fuwuqiruanjian/Apache/'>Apache</a></li>
+		<li><a href='/a/fuwuqiruanjian/Tomcat/'>Tomcat</a></li><li><a href='/a/fuwuqiruanjian/Jboss/' class='thisclass'>Jboss</a></li>
+		<li><a href='/a/fuwuqiruanjian/Weblogic/'>Weblogic</a></li>
+		<li><a href='/a/fuwuqiruanjian/Websphere/'>Websphere</a></li>
+		<li><a href='/a/fuwuqiruanjian/jetty/'>Jetty</a></li>
+					</ul>
+				</dd>
+			</dl>
+        </div-->
+		<!-- //推荐区 -->
+	  <div id="recommendArea">
+	   
+	  </div>
+		<div class="commend mt1">
+			<dl class="tbox light">
+				<dt class='light'><strong>推荐内容</strong></dt>
+				<dd class='light'>
+					<ul class="d4">
+           <li><a href="/a/fuwuqiruanjian/Jboss/20110617/73984.html">简单的JBOSS例子</a>
+            	<p>简单的jboss例子 
+ 
+ 简单的例子 1 创建一个接口IHello &nbsp; public interface IHel...</p>
+            </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110613/73169.html">tomcat6转jboss5发布ssh工程</a>
+            	<p>只需要删除
+xml-apis.jar”,servlet-api.jar
+即可
+?
+From：http://tankywang.iteye.co...</p>
+            </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/71291.html">Jboss4集群配置之一:前言与集群知识</a>
+            	<p>1.前言
+
+2006年,Jboss公司被Redhat公司收购了。这直接导致Jboss产品结构调整，并将以...</p>
+            </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/71286.html">Jboss环境搭建指南</a>
+            	<p>一 配置变量
+
+首先，要安装JDK，配置JAVA_HOME环境变量
+
+其次，将下载的JBoss解压，即...</p>
+            </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/71281.html">ejb3:Unable to build EntityManagerFactory</a>
+            	<p>开发环境为：
+&nbsp;&nbsp;&nbsp; jboss-5.1.0.GA
+&nbsp;&nbsp;&nbsp; Microsoft SQL ...</p>
+            </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/71276.html">Jboss+Myeclipse初学者常见问题</a>
+            	<p>1.要在Eclipse中JRE类库中加入%JBOSS_HOME%/client/jbossall-client.jar 否则会抛出异...</p>
+            </li>
+
+					</ul>
+				</dd>
+			</dl>
+		</div><!-- /commend -->
+
+		<div class="hot mt1">
+			<dl class="tbox light">
+				<dt class='light'><strong>热点内容</strong></dt>
+				<dd class='light'>
+					<ul class="c1 ico2">
+             <li><a href="/a/fuwuqiruanjian/Jboss/20110613/73171.html">Eclipse Debug不能热部署代码may</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110613/73168.html">jbpm 学习笔记02</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20101002/28062.html">Netty使用初步</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/71275.html">JBoss启动过程(译) zt</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20100821/14093.html">GateIn 3.0.0 Beta 5 发布，开源</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20100821/14097.html">如何把Domain Class的主键设为Se</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/71286.html">Jboss环境搭建指南</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20100926/24570.html">jBPM(五): 部署jBPM所用表到数据</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20101002/28056.html">web-jboss 的服务配置</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20101021/37886.html">使用netty思考</a></li>
+
+					</ul>
+				</dd>
+			</dl>
+		</div>
+		<div class="commend mt1" id="rightDownArea">
+		</div>
+	</div><!-- /pright -->
+</div>
+<div id="outad_foot"></div>
+<div id="hezuohuoban"></div>
+<!-- //底部模板 -->
+<div class="footer w960 center mt1 clear">
+    <div class="footer_left"></div>
+    <div class="footer_body">
+	<p>    
+		<div class="copyright">Copyright &copy; 2010-2020 RENREN.IT. 人人IT网 版权所有  </div>
+		<br />
+		Powered by <a href="http://www.dedecms.com" title="织梦内容管理系统(DedeCms)--国内最专业的PHP网站管理系统，轻松建站的首选利器。" target="_blank"><strong>DedeCMSV56_GBK</strong></a></p>        
+<!-- /powered -->
+   </div>
+   <div class="footer_right"></div>
+</div>
+<script type="text/javascript" src="/images/tuijian/common.js"></script>
+<div style="display:none">
+    <script src="http://s17.cnzz.com/stat.php?id=2425962&web_id=2425962" language="JavaScript"></script>
+    <script language="javascript" type="text/javascript" src="http://js.users.51.la/4119348.js"></script>
+</div>
+<div style="display:none">
+<iframe src="/data/sitemap.html" width="0" height="0"></iframe>
+<div>
+<!-- /footer -->
+
+</body>
+</html>

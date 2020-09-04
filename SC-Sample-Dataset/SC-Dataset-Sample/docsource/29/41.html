@@ -1,0 +1,1056 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Usage of Groovy ()</TITLE>
+<BASE href="http://comments.gmane.org">
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
+<link rel="SHORTCUT ICON" href="http://gmane.org/favicon.ico">
+<link rel="Up" href="/gmane.comp.lang.groovy.user>">
+<LINK href="http://gmane.org/img/leftmenu.css" type="text/css" rel="stylesheet">
+<LINK href="http://gmane.org/img/blog.css" type="text/css" rel="stylesheet">
+<style type="text/css" media="screen">
+h1.name {
+  background-image:  url(http://gmane.org/paint-blog-id.php?group=gmane.comp.lang.groovy.user);
+}
+</style>
+</HEAD>
+<BODY>
+<div id=banner>
+<h1 class=name>&nbsp;</h1>
+<span class=description>Usage of Groovy ()</span>
+</div>
+<script src="http://gmane.org/img/jsblog.js" type="text/javascript"></script>
+
+<DIV id=content>
+<DIV class=blog>
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o1');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Martin+Stephan&amp;sort=date" rel=nofollow>Martin Stephan</a>
+ | </span>
+<SPAN class=day>8 Sep 2008 22:28</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35650-picon-001.gif"></a>
+<br>
+</div>
+<H2 class=title>[groovy-user] Weird Classpath issue</h2><div id="o1" class="hidden">Martin Stephan &lt;<a target="_top" href="http://gmane.org/get-address.php?address=mail%2dg%2bMbMNrm22yQjrT5atazPA%40public.gmane.org" rel="nofollow">mail@...</a>&gt;<br>
+2008-09-08 20:28:13 GMT<br>
+</div>
+<p>
+<div><div dir="ltr">Hi,<br><br>I have a weird problem with running scripts in GroovyShell and their Classpath..<br><br>Here's my code:<br>------------------------<br>public static run(scriptName) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (new File("${scriptName}").exists()) {<br><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; def libClassPath = '.'<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; def libDir = new File("${Panacea.libDir}")<br><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (libDir.exists()) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; libDir.eachFileMatch(~/.*\.jar/) {jar -&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; libClassPath += ';'&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; libClassPath += jar<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; def config = new CompilerConfiguration()<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; config.setClasspath(libClassPath)<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; def file = new File(scriptName)<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; def shell = new GroovyShell(binding, config)<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; def script = shell.evaluate(file)<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; else {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; log.error("Script ${scriptName} could not be found.")<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; }<br><br>
+------------------------<br><br>I have two jars in my libDir, one is custom, one is the sqljdbc.jar MS SQL Server JDBC driver.<br>Now, I'm trying to execute a script that uses those two jars. And everything that needs my custom jar works fine. If I remove it from the libDir, it stops working.<br><br>However, when I try to use the JDBC driver in the second jar by doing:<br><br>...<br>def dbDriver = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'<br>def db = Sql.newInstance(dbUrl, dbUser, dbPw, dbDriver)<br>
+...<br><br>I always get this: <br><br>Exception in thread "main" java.lang.ClassNotFoundException: com.microsoft.sqlserver.jdbc.SQLServerDriver<br><br>To add to my confusion, when I call a simple script that also uses the sqljdbc.jar by:<br><br>groovy --classpath sqljdbc.jar test.groovy<br><br>it works fine.<br><br>I'm probably missing something very obvious but I simply cannot figure out why the sqljdbc.jar would work in the one classpath but not the other. Also the "other" classpath seems to work for different jars but not the sqljdbc.jar.<br><br>Any ideas?<br><br>Regards,<br><br>Martin<br>
+</div></div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35650:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35650">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35650" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o2');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Jochen+Theodorou&amp;sort=date" rel=nofollow>Jochen Theodorou</a>
+ | </span>
+<SPAN class=day>9 Sep 2008 21:12</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35662-picon-001.gif"></a>
+<br><a target="_top" href="http://gravatar.com/" rel="nofollow"><img border=0 alt="Gravatar" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35662-gravatar"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o2" class="hidden">Jochen Theodorou &lt;<a target="_top" href="http://gmane.org/get-address.php?address=blackdrag%2dBA%2bcFGlbTmA%40public.gmane.org" rel="nofollow">blackdrag@...</a>&gt;<br>
+2008-09-09 19:12:41 GMT<br>
+</div>
+<pre>
+Martin Stephan schrieb:
+&gt; Hi,
+&gt; 
+&gt; I have a weird problem with running scripts in GroovyShell and their 
+&gt; Classpath..
+[...]
+&gt; However, when I try to use the JDBC driver in the second jar by doing:
+&gt; 
+&gt; ...
+&gt; def dbDriver = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+&gt; def db = Sql.newInstance(dbUrl, dbUser, dbPw, dbDriver)
+&gt; ...
+&gt; 
+&gt; I always get this:
+&gt; 
+&gt; Exception in thread "main" java.lang.ClassNotFoundException: 
+&gt; com.microsoft.sqlserver.jdbc.SQLServerDriver
+&gt; 
+&gt; To add to my confusion, when I call a simple script that also uses the 
+&gt; sqljdbc.jar by:
+&gt; 
+&gt; groovy --classpath sqljdbc.jar test.groovy
+&gt; 
+&gt; it works fine.
+&gt; 
+&gt; I'm probably missing something very obvious but I simply cannot figure 
+&gt; out why the sqljdbc.jar would work in the one classpath but not the 
+&gt; other. Also the "other" classpath seems to work for different jars but 
+&gt; not the sqljdbc.jar.
+
+you need to load the driver by yourself and then hopefully it works...
+
+def dbDriver = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+def driver this.class.classLoader.loadClass(dbDriver).newInstance()
+def db = Sql.newInstance(dbUrl, dbUser, dbPw)
+
+if the loading works, but not the newInstance call on Sql, then you have 
+to manually register the driver at the DriverManager first:
+
+DriverManager.registerDriver(dirver)
+
+bye blackdrag
+
+<span class="togsig"><a rel=nofollow href="#" onclick="return toggle('sig2')">--</a></span>
+<span id="sig2" class=signature>
+-- 
+Jochen "blackdrag" Theodorou
+The Groovy Project Tech Lead (<a rel="nofollow" href="http://groovy.codehaus.org" target="_top">http://groovy.codehaus.org</a>)
+<a rel="nofollow" href="http://blackdragsview.blogspot.com/" target="_top">http://blackdragsview.blogspot.com/</a>
+<a rel="nofollow" href="http://www.g2one.com/" target="_top">http://www.g2one.com/</a>
+
+---------------------------------------------------------------------
+To unsubscribe from this list, please visit:
+
+    <a rel="nofollow" href="http://xircles.codehaus.org/manage_email" target="_top">http://xircles.codehaus.org/manage_email</a>
+
+</span></pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35662:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35662">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35662" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o3');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Martin+Stephan&amp;sort=date" rel=nofollow>Martin Stephan</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 08:26</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35675-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o3" class="hidden">Martin Stephan &lt;<a target="_top" href="http://gmane.org/get-address.php?address=mail%2dg%2bMbMNrm22yQjrT5atazPA%40public.gmane.org" rel="nofollow">mail@...</a>&gt;<br>
+2008-09-10 06:26:43 GMT<br>
+</div>
+<p>
+<div><div dir="ltr">Hi Jochen,<br><br>thanks you for your help but it doesn't quite work.<br><br>..<br>dbUrl = 'jdbc:sqlserver://localhost:1433;SelectMethod=cursor'<br>dbUser = 'demo'<br>dbPw = 'demo'<br>
+dbDriver = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'<br><br>def dbDriverLoader = this.class.classLoader.loadClass(dbDriver).newInstance()<br>DriverManager.registerDriver(dbDriverLoader)<br>def db = Sql.newInstance(dbUrl, dbUser, dbPw)<br>
+..<br><br>With and without the DriverManager.registerDriver I get the following exception:<br><br>Exception in thread "main" java.sql.SQLException: No suitable driver found for jdbc:sqlserver://localhost:1433;SelectMethod=cursor<br><br>So I wonder, what is the difference between the two classpath variants (command line vs. compilerconfig) as far as jdbc drivers are concerned.<br><br>Sadly, my knowledge regarding JDBC is basically non-existant, since so far it usually Just Worked (c) and I could contrate on the SQL part.<br><br>Regards<br><br>Martin<br><br><br><br><div class="gmail_quote">On Tue, Sep 9, 2008 at 9:12 PM, Jochen Theodorou <span dir="ltr">&lt;<a href="mailto:blackdrag-BA+cFGlbTmA@public.gmane.org">blackdrag-BA+cFGlbTmA@public.gmane.org</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">
+Martin Stephan schrieb:<div class="Ih2E3d">
+<br><blockquote class="gmail_quote">
+Hi,<br><br>
+I have a weird problem with running scripts in GroovyShell and their Classpath..<br>
+</blockquote>
+</div>
+[...]<div class="Ih2E3d">
+<br><blockquote class="gmail_quote">
+However, when I try to use the JDBC driver in the second jar by doing:<br><br>
+...<br>
+def dbDriver = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'<br>
+def db = Sql.newInstance(dbUrl, dbUser, dbPw, dbDriver)<br>
+...<br><br>
+I always get this:<br><br>
+Exception in thread "main" java.lang.ClassNotFoundException: com.microsoft.sqlserver.jdbc.SQLServerDriver<br><br>
+To add to my confusion, when I call a simple script that also uses the sqljdbc.jar by:<br><br>
+groovy --classpath sqljdbc.jar test.groovy<br><br>
+it works fine.<br><br>
+I'm probably missing something very obvious but I simply cannot figure out why the sqljdbc.jar would work in the one classpath but not the other. Also the "other" classpath seems to work for different jars but not the sqljdbc.jar.<br>
+</blockquote>
+<br>
+</div>
+you need to load the driver by yourself and then hopefully it works...<div class="Ih2E3d">
+<br><br>
+def dbDriver = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'<br>
+</div>
+def driver this.class.classLoader.loadClass(dbDriver).newInstance()<br>
+def db = Sql.newInstance(dbUrl, dbUser, dbPw)<br><br>
+if the loading works, but not the newInstance call on Sql, then you have to manually register the driver at the DriverManager first:<br><br>
+DriverManager.registerDriver(dirver)<br><br><br>
+bye blackdrag<br><br>
+-- <br>
+Jochen "blackdrag" Theodorou<br>
+The Groovy Project Tech Lead (<a href="http://groovy.codehaus.org" target="_blank">http://groovy.codehaus.org</a>)<br><a href="http://blackdragsview.blogspot.com/" target="_blank">http://blackdragsview.blogspot.com/</a><br><a href="http://www.g2one.com/" target="_blank">http://www.g2one.com/</a><br><br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br><br>
+ &nbsp; <a href="http://xircles.codehaus.org/manage_email" target="_blank">http://xircles.codehaus.org/manage_email</a><br><br><br>
+</blockquote>
+</div>
+<br>
+</div></div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35675:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35675">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35675" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o4');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Jochen+Theodorou&amp;sort=date" rel=nofollow>Jochen Theodorou</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 11:29</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35678-picon-001.gif"></a>
+<br><a target="_top" href="http://gravatar.com/" rel="nofollow"><img border=0 alt="Gravatar" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35678-gravatar"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o4" class="hidden">Jochen Theodorou &lt;<a target="_top" href="http://gmane.org/get-address.php?address=blackdrag%2dBA%2bcFGlbTmA%40public.gmane.org" rel="nofollow">blackdrag@...</a>&gt;<br>
+2008-09-10 09:29:22 GMT<br>
+</div>
+<pre>
+Martin Stephan schrieb:
+&gt; Hi Jochen,
+&gt; 
+&gt; thanks you for your help but it doesn't quite work.
+&gt; 
+&gt; ..
+&gt; dbUrl = 'jdbc:sqlserver://localhost:1433;SelectMethod=cursor'
+&gt; dbUser = 'demo'
+&gt; dbPw = 'demo'
+&gt; dbDriver = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'
+&gt; 
+&gt; def dbDriverLoader = 
+&gt; this.class.classLoader.loadClass(dbDriver).newInstance()
+&gt; DriverManager.registerDriver(dbDriverLoader)
+&gt; def db = Sql.newInstance(dbUrl, dbUser, dbPw)
+&gt; ..
+&gt; 
+&gt; With and without the DriverManager.registerDriver I get the following 
+&gt; exception:
+&gt; 
+&gt; Exception in thread "main" java.sql.SQLException: No suitable driver 
+&gt; found for jdbc:sqlserver://localhost:1433;SelectMethod=cursor
+
+hmm... I thought registering the driver would do the job... usually they 
+register themself once the class is loaded. But either that is not the 
+case here, or DriverManager doesn't like that.
+
+&gt; So I wonder, what is the difference between the two classpath variants 
+&gt; (command line vs. compilerconfig) as far as jdbc drivers are concerned.
+
+Let's say you have a ClassLoader A and B, where B is a child to A. Let 
+us also say that for some reason DriverManager uses A to look for the 
+driver class. If your class is known to B only, then it won't work. The 
+"solution" is then to either get DriverManager using B or to move the 
+class to A. Influencing DriverManager is cannot be done - afaik. Moving 
+the class to A is what you did.
+
+bye blackdrag
+
+&gt; Sadly, my knowledge regarding JDBC is basically non-existant, since so 
+&gt; far it usually Just Worked (c) and I could contrate on the SQL part.
+
+<span class="togsig"><a rel=nofollow href="#" onclick="return toggle('sig4')">--</a></span>
+<span id="sig4" class=signature>
+-- 
+Jochen "blackdrag" Theodorou
+The Groovy Project Tech Lead (<a rel="nofollow" href="http://groovy.codehaus.org" target="_top">http://groovy.codehaus.org</a>)
+<a rel="nofollow" href="http://blackdragsview.blogspot.com/" target="_top">http://blackdragsview.blogspot.com/</a>
+<a rel="nofollow" href="http://www.g2one.com/" target="_top">http://www.g2one.com/</a>
+
+---------------------------------------------------------------------
+To unsubscribe from this list, please visit:
+
+    <a rel="nofollow" href="http://xircles.codehaus.org/manage_email" target="_top">http://xircles.codehaus.org/manage_email</a>
+
+</span></pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35678:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35678">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35678" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o5');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Martin+Stephan&amp;sort=date" rel=nofollow>Martin Stephan</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 12:11</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35681-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o5" class="hidden">Martin Stephan &lt;<a target="_top" href="http://gmane.org/get-address.php?address=mail%2dg%2bMbMNrm22yQjrT5atazPA%40public.gmane.org" rel="nofollow">mail@...</a>&gt;<br>
+2008-09-10 10:11:02 GMT<br>
+</div>
+<p>
+<div><div dir="ltr">DriverManager.getDrivers().each {println it }<br><br>shows no difference after the loading of the driver. So, if I understood you correctly, the driver registers with a different classloader?<br><br>Maybe I should explain the structure of my little project.<br><br>Main class is called Panacea, which uses a scheduler (Quartz) to call a class ScriptRunner whenever it's time to run a script. It implements the 'execute' method Quartz needs.<br><br>The ScriptRunner in turn creates a new classpath for the script and provides a 'global' binding so that the scripts can have a 'memory'. The method in my first snippet does that<br><br>So, my guess is that Panacea and ScriptRunner belong to ClassLoader A and every script belongs to ClassLoader B, which is a child to A.<br><br>The driver registers with ClassLoader B.<br>The DriverManager looks into ClassLoader A.<br><br>So the solution, as you said, would be to register the driver with ClassLoader A.<br><br>However..<br><br>public ScriptRunner() {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; binding.setVariable("classloader", this.class.getClassLoader())<br>
+}<br><br>and then in the script<br><br>def dbDriverLoader = classloader.loadClass(dbDriver).newInstance()<br><br>doesn't seem to be the solution..<br><br>Exception in thread "main" groovy.lang.MissingPropertyException: No such property: classloader for class: TestScript<br><br>As you probably guessed I'm also not very familiar with classloaders, so I'm wondering how to best pass a reference to ClassLoader A to my scripts. Maybe google can help me..<br><br>Regards<br><br>Martin<br><br><div class="gmail_quote">On Wed, Sep 10, 2008 at 11:29 AM, Jochen Theodorou <span dir="ltr">&lt;<a href="mailto:blackdrag-BA+cFGlbTmA@public.gmane.org">blackdrag-BA+cFGlbTmA@public.gmane.org</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">
+Martin Stephan schrieb:<div class="Ih2E3d">
+<br><blockquote class="gmail_quote">
+Hi Jochen,<br><br>
+thanks you for your help but it doesn't quite work.<br><br>
+..<br>
+dbUrl = 'jdbc:sqlserver://localhost:1433;SelectMethod=cursor'<br>
+dbUser = 'demo'<br>
+dbPw = 'demo'<br>
+dbDriver = 'com.microsoft.sqlserver.jdbc.SQLServerDriver'<br><br>
+def dbDriverLoader = this.class.classLoader.loadClass(dbDriver).newInstance()<br>
+DriverManager.registerDriver(dbDriverLoader)<br>
+def db = Sql.newInstance(dbUrl, dbUser, dbPw)<br>
+..<br><br>
+With and without the DriverManager.registerDriver I get the following exception:<br><br>
+Exception in thread "main" java.sql.SQLException: No suitable driver found for jdbc:sqlserver://localhost:1433;SelectMethod=cursor<br>
+</blockquote>
+<br>
+</div>
+hmm... I thought registering the driver would do the job... usually they register themself once the class is loaded. But either that is not the case here, or DriverManager doesn't like that.<div class="Ih2E3d">
+<br><br><blockquote class="gmail_quote">
+So I wonder, what is the difference between the two classpath variants (command line vs. compilerconfig) as far as jdbc drivers are concerned.<br>
+</blockquote>
+<br>
+</div>
+Let's say you have a ClassLoader A and B, where B is a child to A. Let us also say that for some reason DriverManager uses A to look for the driver class. If your class is known to B only, then it won't work. The "solution" is then to either get DriverManager using B or to move the class to A. Influencing DriverManager is cannot be done - afaik. Moving the class to A is what you did.<br><br>
+bye blackdrag<div class="Ih2E3d">
+<br><br><blockquote class="gmail_quote">
+Sadly, my knowledge regarding JDBC is basically non-existant, since so far it usually Just Worked (c) and I could contrate on the SQL part.<br>
+</blockquote>
+<br><br><br>
+</div>
+<div>
+<div></div>
+<div class="Wj3C7c">
+-- <br>
+Jochen "blackdrag" Theodorou<br>
+The Groovy Project Tech Lead (<a href="http://groovy.codehaus.org" target="_blank">http://groovy.codehaus.org</a>)<br><a href="http://blackdragsview.blogspot.com/" target="_blank">http://blackdragsview.blogspot.com/</a><br><a href="http://www.g2one.com/" target="_blank">http://www.g2one.com/</a><br><br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br><br>
+ &nbsp; <a href="http://xircles.codehaus.org/manage_email" target="_blank">http://xircles.codehaus.org/manage_email</a><br><br><br>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div></div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35681:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35681">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35681" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o6');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Jochen+Theodorou&amp;sort=date" rel=nofollow>Jochen Theodorou</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 13:38</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35684-picon-001.gif"></a>
+<br><a target="_top" href="http://gravatar.com/" rel="nofollow"><img border=0 alt="Gravatar" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35684-gravatar"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o6" class="hidden">Jochen Theodorou &lt;<a target="_top" href="http://gmane.org/get-address.php?address=blackdrag%2dBA%2bcFGlbTmA%40public.gmane.org" rel="nofollow">blackdrag@...</a>&gt;<br>
+2008-09-10 11:38:59 GMT<br>
+</div>
+<pre>
+Martin Stephan schrieb:
+&gt; DriverManager.getDrivers().each {println it }
+&gt; 
+&gt; shows no difference after the loading of the driver. So, if I understood 
+&gt; you correctly, the driver registers with a different classloader?
+
+no, that's not what I ment... if the driver does not show up there, then 
+it does not register itself at the DriverManager... I have no idea why 
+this happens.
+
+&gt; Maybe I should explain the structure of my little project.
+&gt; 
+&gt; Main class is called Panacea, which uses a scheduler (Quartz) to call a 
+&gt; class ScriptRunner whenever it's time to run a script. It implements the 
+&gt; 'execute' method Quartz needs.
+&gt; 
+&gt; The ScriptRunner in turn creates a new classpath for the script and 
+&gt; provides a 'global' binding so that the scripts can have a 'memory'. The 
+&gt; method in my first snippet does that
+&gt; 
+&gt; So, my guess is that Panacea and ScriptRunner belong to ClassLoader A 
+&gt; and every script belongs to ClassLoader B, which is a child to A.
+&gt; 
+&gt; The driver registers with ClassLoader B.
+&gt; The DriverManager looks into ClassLoader A.
+&gt; 
+&gt; So the solution, as you said, would be to register the driver with 
+&gt; ClassLoader A.
+
+not really "register"... ClassLoader A knows the class and DriverManager 
+asks the classloader for that class. The registering I talked about 
+above is done by the Driver at the DriverManager.. normally at last.
+
+&gt; However..
+&gt; 
+&gt; public ScriptRunner() {
+&gt;         binding.setVariable("classloader", this.class.getClassLoader())
+&gt; }
+&gt; 
+&gt; and then in the script
+&gt; 
+&gt; def dbDriverLoader = classloader.loadClass(dbDriver).newInstance()
+&gt; 
+&gt; doesn't seem to be the solution..
+&gt; 
+&gt; Exception in thread "main" groovy.lang.MissingPropertyException: No such 
+&gt; property: classloader for class: TestScript
+
+if the script is a in ClassLoader B and a child to A, where A knows 
+dbDriver, then
+
+def dbDriverLoader = 
+this.class.classloader.loadClass(dbDriver).newInstance()
+
+should do too, because any class loader sould first ask its momy... 
+ehm... parent for the class before attempting to load it itself.
+
+Your MissingPropertyException comes from not sharing the binding... 
+which is an unrelated problem. The loadClass call does not give a 
+ClassNotFoundException, does it?
+
+&gt; As you probably guessed I'm also not very familiar with classloaders, so 
+
+many are not, don't worry.. class loaders can cause brain damage ;)
+
+&gt; I'm wondering how to best pass a reference to ClassLoader A to my 
+&gt; scripts. Maybe google can help me..
+
+the binding idea is ok, but you need to forward that binding
+
+bye blackdrag
+
+<span class="togsig"><a rel=nofollow href="#" onclick="return toggle('sig6')">--</a></span>
+<span id="sig6" class=signature>
+-- 
+Jochen "blackdrag" Theodorou
+The Groovy Project Tech Lead (<a rel="nofollow" href="http://groovy.codehaus.org" target="_top">http://groovy.codehaus.org</a>)
+<a rel="nofollow" href="http://blackdragsview.blogspot.com/" target="_top">http://blackdragsview.blogspot.com/</a>
+<a rel="nofollow" href="http://www.g2one.com/" target="_top">http://www.g2one.com/</a>
+
+---------------------------------------------------------------------
+To unsubscribe from this list, please visit:
+
+    <a rel="nofollow" href="http://xircles.codehaus.org/manage_email" target="_top">http://xircles.codehaus.org/manage_email</a>
+
+</span></pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35684:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35684">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35684" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o7');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Martin+Stephan&amp;sort=date" rel=nofollow>Martin Stephan</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 14:07</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35686-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o7" class="hidden">Martin Stephan &lt;<a target="_top" href="http://gmane.org/get-address.php?address=mail%2dg%2bMbMNrm22yQjrT5atazPA%40public.gmane.org" rel="nofollow">mail@...</a>&gt;<br>
+2008-09-10 12:07:57 GMT<br>
+</div>
+<p>
+<div><div dir="ltr">Actually I am forwarding the binding by doing <br><br>def shell = new GroovyShell(binding, config)<br><br>and it works for the other variables, so I assume the loader returns null.<br><br>And you are right, the loadClass does not give a ClassNotFoundException.<br><br>Is there a way to get the loader in a static context? Cause I would like to try the following<br><br>&nbsp;&nbsp;&nbsp; def loader = this.class.classLoader.rootLoader<br>&nbsp;&nbsp;&nbsp; def libDir = new File("${Panacea.libDir}")<br>&nbsp;&nbsp;&nbsp; if (libDir.exists()) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; libDir.eachFileMatch(~/.*\.jar/) {jar -&gt;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; loader.addURL(new File("${jar}").toURL())<br>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp; }<br><br>But I guess, doing that once is enough so I would like to do that in the Panacea.main.<br><br>All in all this is a very annoying problem <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png"><br><br>Martin<br><br><br><br><br><div class="gmail_quote">On Wed, Sep 10, 2008 at 1:38 PM, Jochen Theodorou <span dir="ltr">&lt;<a href="mailto:blackdrag-BA+cFGlbTmA@public.gmane.org">blackdrag-BA+cFGlbTmA@public.gmane.org</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">Martin Stephan schrieb:<div class="Ih2E3d">
+<br><blockquote class="gmail_quote">
+DriverManager.getDrivers().each {println it }<br><br>
+shows no difference after the loading of the driver. So, if I understood you correctly, the driver registers with a different classloader?<br>
+</blockquote>
+<br>
+</div>
+no, that's not what I ment... if the driver does not show up there, then it does not register itself at the DriverManager... I have no idea why this happens.<div class="Ih2E3d">
+<br><br><blockquote class="gmail_quote">
+Maybe I should explain the structure of my little project.<br><br>
+Main class is called Panacea, which uses a scheduler (Quartz) to call a class ScriptRunner whenever it's time to run a script. It implements the 'execute' method Quartz needs.<br><br>
+The ScriptRunner in turn creates a new classpath for the script and provides a 'global' binding so that the scripts can have a 'memory'. The method in my first snippet does that<br><br>
+So, my guess is that Panacea and ScriptRunner belong to ClassLoader A and every script belongs to ClassLoader B, which is a child to A.<br><br>
+The driver registers with ClassLoader B.<br>
+The DriverManager looks into ClassLoader A.<br><br>
+So the solution, as you said, would be to register the driver with ClassLoader A.<br>
+</blockquote>
+<br>
+</div>
+not really "register"... ClassLoader A knows the class and DriverManager asks the classloader for that class. The registering I talked about above is done by the Driver at the DriverManager.. normally at last.<div class="Ih2E3d">
+<br><br><blockquote class="gmail_quote">
+However..<br><br>
+public ScriptRunner() {<br>
+ &nbsp; &nbsp; &nbsp; &nbsp;binding.setVariable("classloader", this.class.getClassLoader())<br>
+}<br><br>
+and then in the script<br><br>
+def dbDriverLoader = classloader.loadClass(dbDriver).newInstance()<br><br>
+doesn't seem to be the solution..<br><br>
+Exception in thread "main" groovy.lang.MissingPropertyException: No such property: classloader for class: TestScript<br>
+</blockquote>
+<br>
+</div>
+if the script is a in ClassLoader B and a child to A, where A knows dbDriver, then<br><br>
+def dbDriverLoader = this.class.classloader.loadClass(dbDriver).newInstance()<br><br>
+should do too, because any class loader sould first ask its momy... ehm... parent for the class before attempting to load it itself.<br><br>
+Your MissingPropertyException comes from not sharing the binding... which is an unrelated problem. The loadClass call does not give a ClassNotFoundException, does it?<div class="Ih2E3d">
+<br><br><blockquote class="gmail_quote">
+As you probably guessed I'm also not very familiar with classloaders, so <br>
+</blockquote>
+<br>
+</div>
+many are not, don't worry.. class loaders can cause brain damage ;)<div class="Ih2E3d">
+<br><br><blockquote class="gmail_quote">
+I'm wondering how to best pass a reference to ClassLoader A to my scripts. Maybe google can help me..<br>
+</blockquote>
+<br>
+</div>
+the binding idea is ok, but you need to forward that binding<br><br>
+bye blackdrag<div>
+<div></div>
+<div class="Wj3C7c">
+<br><br>
+-- <br>
+Jochen "blackdrag" Theodorou<br>
+The Groovy Project Tech Lead (<a href="http://groovy.codehaus.org" target="_blank">http://groovy.codehaus.org</a>)<br><a href="http://blackdragsview.blogspot.com/" target="_blank">http://blackdragsview.blogspot.com/</a><br><a href="http://www.g2one.com/" target="_blank">http://www.g2one.com/</a><br><br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br><br>
+ &nbsp; <a href="http://xircles.codehaus.org/manage_email" target="_blank">http://xircles.codehaus.org/manage_email</a><br><br><br>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div></div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35686:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35686">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35686" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o8');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Jochen+Theodorou&amp;sort=date" rel=nofollow>Jochen Theodorou</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 14:13</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35687-picon-001.gif"></a>
+<br><a target="_top" href="http://gravatar.com/" rel="nofollow"><img border=0 alt="Gravatar" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35687-gravatar"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o8" class="hidden">Jochen Theodorou &lt;<a target="_top" href="http://gmane.org/get-address.php?address=blackdrag%2dBA%2bcFGlbTmA%40public.gmane.org" rel="nofollow">blackdrag@...</a>&gt;<br>
+2008-09-10 12:13:07 GMT<br>
+</div>
+<pre>
+Martin Stephan schrieb:
+&gt; Actually I am forwarding the binding by doing
+&gt; 
+&gt; def shell = new GroovyShell(binding, config)
+&gt; 
+&gt; and it works for the other variables, so I assume the loader returns null.
+&gt; 
+&gt; And you are right, the loadClass does not give a ClassNotFoundException.
+&gt; 
+&gt; Is there a way to get the loader in a static context? Cause I would like 
+&gt; to try the following
+&gt; 
+&gt;     def loader = this.class.classLoader.rootLoader
+&gt;     def libDir = new File("${Panacea.libDir}")
+&gt;     if (libDir.exists()) {
+&gt;          libDir.eachFileMatch(~/.*\.jar/) {jar -&gt;
+&gt;                loader.addURL(new File("${jar}").toURL())
+&gt;          }
+&gt;      }
+&gt; 
+&gt; But I guess, doing that once is enough so I would like to do that in the 
+&gt; Panacea.main.
+
+sure, this.classLoader.rootLoader in a static method will work. We 
+support "this" in a static context, but it will point to the surrounding 
+class, so basically XY.claassLoader.rootLoader will do too.
+
+&gt; All in all this is a very annoying problem <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png">
+
+indeed
+
+bye blackdrag
+
+<span class="togsig"><a rel=nofollow href="#" onclick="return toggle('sig8')">--</a></span>
+<span id="sig8" class=signature>
+-- 
+Jochen "blackdrag" Theodorou
+The Groovy Project Tech Lead (<a rel="nofollow" href="http://groovy.codehaus.org" target="_top">http://groovy.codehaus.org</a>)
+<a rel="nofollow" href="http://blackdragsview.blogspot.com/" target="_top">http://blackdragsview.blogspot.com/</a>
+<a rel="nofollow" href="http://www.g2one.com/" target="_top">http://www.g2one.com/</a>
+
+---------------------------------------------------------------------
+To unsubscribe from this list, please visit:
+
+    <a rel="nofollow" href="http://xircles.codehaus.org/manage_email" target="_top">http://xircles.codehaus.org/manage_email</a>
+
+</span></pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35687:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35687">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35687" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o9');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Martin+Stephan&amp;sort=date" rel=nofollow>Martin Stephan</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 14:27</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35688-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o9" class="hidden">Martin Stephan &lt;<a target="_top" href="http://gmane.org/get-address.php?address=mail%2dg%2bMbMNrm22yQjrT5atazPA%40public.gmane.org" rel="nofollow">mail@...</a>&gt;<br>
+2008-09-10 12:27:12 GMT<br>
+</div>
+<p>
+<div><div dir="ltr">Not quite <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png"><br><br>org.codehaus.groovy.control.MultipleCompilationErrorsException: startup failed,<br>E:\Entwicklung\EclipseWorkspaces\Martin\Panacea\src\de\martinstephan\Panacea.gro<br>ovy: 54: Non-static variable 'this' cannot be referenced from the static method<br>
+main.<br>&nbsp; &lt;at&gt;  line 54, column 20.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def loader = this.classLoader.rootLoader<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^<br><br>1 error<br><br>also changing that line to def loader = Panacea.classLoader.rootLoader gives me<br><br> Exception in thread "main" java.lang.NullPointerException: Cannot invoke method<br>addURL() on null object<br><br>As I said I had the feeling that I wasn't getting the right loader. But now I'm sincerely stumped.. The method using the CompilerConfiguration seemed perfect <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png"><br><br>I'm using Groovy 1.5.6 BTW maybe I should update to 1.6?<br><br>Martin<br><br><br><br><br><div class="gmail_quote">On Wed, Sep 10, 2008 at 2:13 PM, Jochen Theodorou <span dir="ltr">&lt;<a href="mailto:blackdrag-BA+cFGlbTmA@public.gmane.org">blackdrag-BA+cFGlbTmA@public.gmane.org</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">Martin Stephan schrieb:<div class="Ih2E3d">
+<br><blockquote class="gmail_quote">
+Actually I am forwarding the binding by doing<br><br>
+def shell = new GroovyShell(binding, config)<br><br>
+and it works for the other variables, so I assume the loader returns null.<br><br>
+And you are right, the loadClass does not give a ClassNotFoundException.<br><br>
+Is there a way to get the loader in a static context? Cause I would like to try the following<br><br>
+ &nbsp; &nbsp;def loader = this.class.classLoader.rootLoader<br>
+ &nbsp; &nbsp;def libDir = new File("${Panacea.libDir}")<br>
+ &nbsp; &nbsp;if (libDir.exists()) {<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; libDir.eachFileMatch(~/.*\.jar/) {jar -&gt;<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; loader.addURL(new File("${jar}").toURL())<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; }<br>
+ &nbsp; &nbsp; }<br><br>
+But I guess, doing that once is enough so I would like to do that in the Panacea.main.<br>
+</blockquote>
+<br>
+</div>
+sure, this.classLoader.rootLoader in a static method will work. We support "this" in a static context, but it will point to the surrounding class, so basically XY.claassLoader.rootLoader will do too.<div class="Ih2E3d">
+<br><br><blockquote class="gmail_quote">
+All in all this is a very annoying problem <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png"><br>
+</blockquote>
+<br>
+</div>
+indeed<div>
+<div></div>
+<div class="Wj3C7c">
+<br><br>
+bye blackdrag<br><br>
+-- <br>
+Jochen "blackdrag" Theodorou<br>
+The Groovy Project Tech Lead (<a href="http://groovy.codehaus.org" target="_blank">http://groovy.codehaus.org</a>)<br><a href="http://blackdragsview.blogspot.com/" target="_blank">http://blackdragsview.blogspot.com/</a><br><a href="http://www.g2one.com/" target="_blank">http://www.g2one.com/</a><br><br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br><br>
+ &nbsp; <a href="http://xircles.codehaus.org/manage_email" target="_blank">http://xircles.codehaus.org/manage_email</a><br><br><br>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div></div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35688:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35688">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35688" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o10');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Jochen+Theodorou&amp;sort=date" rel=nofollow>Jochen Theodorou</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 15:26</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35691-picon-001.gif"></a>
+<br><a target="_top" href="http://gravatar.com/" rel="nofollow"><img border=0 alt="Gravatar" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35691-gravatar"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o10" class="hidden">Jochen Theodorou &lt;<a target="_top" href="http://gmane.org/get-address.php?address=blackdrag%2dBA%2bcFGlbTmA%40public.gmane.org" rel="nofollow">blackdrag@...</a>&gt;<br>
+2008-09-10 13:26:49 GMT<br>
+</div>
+<pre>
+Martin Stephan schrieb:
+&gt; Not quite <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png">
+&gt; 
+&gt; org.codehaus.groovy.control.MultipleCompilationErrorsException: startup 
+&gt; failed,
+&gt; E:\Entwicklung\EclipseWorkspaces\Martin\Panacea\src\de\martinstephan\Panacea.gro
+&gt; ovy: 54: Non-static variable 'this' cannot be referenced from the static 
+&gt; method
+&gt; main.
+&gt;   &lt;at&gt;  line 54, column 20.
+&gt;                 def loader = this.classLoader.rootLoader
+&gt;                       ^
+&gt; 
+&gt; 1 error
+
+oh? that is a bug
+
+&gt; also changing that line to def loader = Panacea.classLoader.rootLoader 
+&gt; gives me
+&gt; 
+&gt; Exception in thread "main" java.lang.NullPointerException: Cannot invoke 
+&gt; method addURL() on null object
+
+rootLoader can be null if there is no RootLoader as parent. Usually when 
+executed from the console using the groovy command you have one. So you 
+need to provide one as parent loader for your GroovyShell if you don't 
+start from the command line.
+
+bye blackdrag
+
+<span class="togsig"><a rel=nofollow href="#" onclick="return toggle('sig10')">--</a></span>
+<span id="sig10" class=signature>
+-- 
+Jochen "blackdrag" Theodorou
+The Groovy Project Tech Lead (<a rel="nofollow" href="http://groovy.codehaus.org" target="_top">http://groovy.codehaus.org</a>)
+<a rel="nofollow" href="http://blackdragsview.blogspot.com/" target="_top">http://blackdragsview.blogspot.com/</a>
+<a rel="nofollow" href="http://www.g2one.com/" target="_top">http://www.g2one.com/</a>
+
+---------------------------------------------------------------------
+To unsubscribe from this list, please visit:
+
+    <a rel="nofollow" href="http://xircles.codehaus.org/manage_email" target="_top">http://xircles.codehaus.org/manage_email</a>
+
+</span></pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35691:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35691">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35691" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o11');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Martin+Stephan&amp;sort=date" rel=nofollow>Martin Stephan</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 16:12</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35695-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o11" class="hidden">Martin Stephan &lt;<a target="_top" href="http://gmane.org/get-address.php?address=mail%2dg%2bMbMNrm22yQjrT5atazPA%40public.gmane.org" rel="nofollow">mail@...</a>&gt;<br>
+2008-09-10 14:12:28 GMT<br>
+</div>
+<p>
+<div><div dir="ltr">Hi Jochen,<br><br>as you can see in my previous post (the one after the one you last quoted) it was indeed the rootLoader that caused problems.<br><br>Thanks again<br><br>Martin<br><br><div class="gmail_quote">
+On Wed, Sep 10, 2008 at 3:26 PM, Jochen Theodorou <span dir="ltr">&lt;<a href="mailto:blackdrag-BA+cFGlbTmA@public.gmane.org">blackdrag-BA+cFGlbTmA@public.gmane.org</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">
+Martin Stephan schrieb:<div class="Ih2E3d">
+<br><blockquote class="gmail_quote">
+Not quite <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png"><br><br>
+org.codehaus.groovy.control.MultipleCompilationErrorsException: startup failed,<br>
+E:\Entwicklung\EclipseWorkspaces\Martin\Panacea\src\de\martinstephan\Panacea.gro<br>
+ovy: 54: Non-static variable 'this' cannot be referenced from the static method<br>
+main.<br>
+&nbsp; &lt;at&gt;  line 54, column 20.<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;def loader = this.classLoader.rootLoader<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;^<br><br>
+1 error<br>
+</blockquote>
+<br>
+</div>
+oh? that is a bug<div class="Ih2E3d">
+<br><br><blockquote class="gmail_quote">
+also changing that line to def loader = Panacea.classLoader.rootLoader gives me<br><br>
+Exception in thread "main" java.lang.NullPointerException: Cannot invoke method addURL() on null object<br>
+</blockquote>
+<br>
+</div>
+rootLoader can be null if there is no RootLoader as parent. Usually when executed from the console using the groovy command you have one. So you need to provide one as parent loader for your GroovyShell if you don't start from the command line.<div>
+<div></div>
+<div class="Wj3C7c">
+<br><br>
+bye blackdrag<br><br>
+-- <br>
+Jochen "blackdrag" Theodorou<br>
+The Groovy Project Tech Lead (<a href="http://groovy.codehaus.org" target="_blank">http://groovy.codehaus.org</a>)<br><a href="http://blackdragsview.blogspot.com/" target="_blank">http://blackdragsview.blogspot.com/</a><br><a href="http://www.g2one.com/" target="_blank">http://www.g2one.com/</a><br><br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br><br>
+ &nbsp; <a href="http://xircles.codehaus.org/manage_email" target="_blank">http://xircles.codehaus.org/manage_email</a><br><br><br>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div></div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35695:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35695">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35695" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+</div>
+</div>
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o12');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Martin+Stephan&amp;sort=date" rel=nofollow>Martin Stephan</a>
+ | </span>
+<SPAN class=day>10 Sep 2008 15:03</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/comp/lang/groovy/user/35690-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>Re: [groovy-user] Weird Classpath issue</h3><div id="o12" class="hidden">Martin Stephan &lt;<a target="_top" href="http://gmane.org/get-address.php?address=mail%2dg%2bMbMNrm22yQjrT5atazPA%40public.gmane.org" rel="nofollow">mail@...</a>&gt;<br>
+2008-09-10 13:03:53 GMT<br>
+</div>
+<p>
+<div><div dir="ltr">Jochen,<br><br>thank you very much for your help and patience. You were a great help.<br><br>I think I fixed it now. <br><br>Setting the classpath in the CompilerConfiguration for GroovyShell worked nicely for regular jars, not for jdbc drivers.<br><br>setting the classpath in my main class worked when done like that:<br><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; def loader = Panacea.classLoader<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; def libDir = new File("${Panacea.libDir}")<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (libDir.exists()) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; libDir.eachFileMatch(~/.*\.jar/) {jar -&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; loader.addURL(new File("${jar}").toURL())<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br><br>The problem was the rootLoader, which was null.<br><br>Then in ScriptRunner.class<br><br>def shell = new GroovyShell(binding, config)<br>
+def script = shell.evaluate(file)<br><br>And last in the script:<br><br>def dbDriverLoader = this.class.classLoader.loadClass(dbDriver).newInstance()<br>def db = Sql.newInstance(dbUrl, dbUser, dbPw)<br><br><br>...<br><br>
+The DriverManager stuff is not necessary anymore.<br><br>I hope this helps the next person with such a problem..<br><br>Thanks again<br><br>Martin<br><br><br><br><div class="gmail_quote">On Wed, Sep 10, 2008 at 2:27 PM, Martin Stephan <span dir="ltr">&lt;<a href="mailto:mail-g+MbMNrm22yQjrT5atazPA@public.gmane.org">mail-g+MbMNrm22yQjrT5atazPA@public.gmane.org</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">
+<div dir="ltr">Not quite <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png"><br><br>org.codehaus.groovy.control.MultipleCompilationErrorsException: startup failed,<br>
+E:\Entwicklung\EclipseWorkspaces\Martin\Panacea\src\de\martinstephan\Panacea.gro<br>ovy: 54: Non-static variable 'this' cannot be referenced from the static method<br>
+main.<br>&nbsp; &lt;at&gt;  line 54, column 20.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def loader = this.classLoader.rootLoader<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^<br><br>1 error<br><br>also changing that line to def loader = Panacea.classLoader.rootLoader gives me<br><br> Exception in thread "main" java.lang.NullPointerException: Cannot invoke method<br>addURL() on null object<br><br>As I said I had the feeling that I wasn't getting the right loader. But now I'm sincerely stumped.. The method using the CompilerConfiguration seemed perfect <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png"><br><br>I'm using Groovy 1.5.6 BTW maybe I should update to 1.6?<br><br>Martin<div>
+<div></div>
+<div class="Wj3C7c">
+<br><br><br><br><br><div class="gmail_quote">On Wed, Sep 10, 2008 at 2:13 PM, Jochen Theodorou <span dir="ltr">&lt;<a href="mailto:blackdrag-BA+cFGlbTmA@public.gmane.org" target="_blank">blackdrag-BA+cFGlbTmA@public.gmane.org</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">Martin Stephan schrieb:<div>
+<br><blockquote class="gmail_quote">
+Actually I am forwarding the binding by doing<br><br>
+def shell = new GroovyShell(binding, config)<br><br>
+and it works for the other variables, so I assume the loader returns null.<br><br>
+And you are right, the loadClass does not give a ClassNotFoundException.<br><br>
+Is there a way to get the loader in a static context? Cause I would like to try the following<br><br>
+ &nbsp; &nbsp;def loader = this.class.classLoader.rootLoader<br>
+ &nbsp; &nbsp;def libDir = new File("${Panacea.libDir}")<br>
+ &nbsp; &nbsp;if (libDir.exists()) {<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; libDir.eachFileMatch(~/.*\.jar/) {jar -&gt;<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; loader.addURL(new File("${jar}").toURL())<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; }<br>
+ &nbsp; &nbsp; }<br><br>
+But I guess, doing that once is enough so I would like to do that in the Panacea.main.<br>
+</blockquote>
+<br>
+</div>
+sure, this.classLoader.rootLoader in a static method will work. We support "this" in a static context, but it will point to the surrounding class, so basically XY.claassLoader.rootLoader will do too.<div>
+<br><br><blockquote class="gmail_quote">
+All in all this is a very annoying problem <img alt=":-(" src="http://news.gmane.org/img/smilies/sad.png"><br>
+</blockquote>
+<br>
+</div>
+indeed<div>
+<div></div>
+<div>
+<br><br>
+bye blackdrag<br><br>
+-- <br>
+Jochen "blackdrag" Theodorou<br>
+The Groovy Project Tech Lead (<a href="http://groovy.codehaus.org" target="_blank">http://groovy.codehaus.org</a>)<br><a href="http://blackdragsview.blogspot.com/" target="_blank">http://blackdragsview.blogspot.com/</a><br><a href="http://www.g2one.com/" target="_blank">http://www.g2one.com/</a><br><br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br><br>
+ &nbsp; <a href="http://xircles.codehaus.org/manage_email" target="_blank">http://xircles.codehaus.org/manage_email</a><br><br><br>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+<br>
+</div></div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.lang.groovy.user:35690:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.lang.groovy.user/35690">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user&amp;followup=35690" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+
+</DIV>  
+</DIV>  
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</DIV>  
+
+</div>
+
+<div id="sidebox">
+
+<div class="sidetitle">Return</div>
+<div class="side">
+Return to <a href="http://blog.gmane.org/gmane.comp.lang.groovy.user">gmane.comp.lang.groovy.user</a>.
+</div>
+
+
+<div class="sidetitle">Advertisement</div>
+<div class="side" align="center">
+<script type="text/javascript"><!--
+amazon_ad_tag = "gmane-20"; amazon_ad_width = "300"; amazon_ad_height = "250";//--></script>
+<script type="text/javascript" src="http://www.assoc-amazon.com/s/ads.js"></script>
+</div>
+
+<div class="sidetitle">Project Web Page</div>
+<div class="side">
+   <a href="http://lists.codehaus.org/mailman/listinfo/groovy-user">Usage of Groovy ()</a>
+</div>
+
+<div class="sidetitle">Search Archive</div>
+<div class="side">
+<div align="center">
+<br/>
+<form action="http://search.gmane.org" method="get">
+<input name="query" value="" title="search_text"/><input type="submit" title="SUBMIT" value="Search"/>
+<input type=hidden name="group" value="gmane.comp.lang.groovy.user">
+</form>
+</div>
+</div>
+
+
+
+
+
+<div class="sidetitle">Language</div>
+<div class="side">
+   <a rel=nofollow href="http://gmane.org/language.php">Change language</a>
+</div>
+
+
+<div class="sidetitle">Options</div>
+<div class="side">
+Current view: 
+Threads only / Showing 
+whole messages /
+ Not hiding cited text.<br/>
+    Change to 
+<a rel=nofollow href="/gmane.comp.lang.groovy.user?set_blog_all=yes">All messages, </a><a rel=nofollow href="/gmane.comp.lang.groovy.user?set_lines=20">shortened messages</a>, or 
+<a rel=nofollow href="/gmane.comp.lang.groovy.user?set_cite=hide">hide cited text</a>.<br /><br />
+
+<a href="http://post.gmane.org/post.php?group=gmane.comp.lang.groovy.user" rel=nofollow>Post a message</a><br/>
+<a href="nntp://news.gmane.org/gmane.comp.lang.groovy.user">NNTP Newsgroup</a><br/>
+<a rel=nofollow href="http://news.gmane.org/find-root.php?message_id=%3c396d386a0809100603u5912df0bj35270c026013a7c3%40mail.gmail.com%3e">Classic Gmane web interface</a><br/>
+
+<a href="http://rss.gmane.org/gmane.comp.lang.groovy.user"><img src="http://gmane.org/img/xml.gif" alt="XML" border=0>&nbsp;RSS Feed</a><br/>
+<a href="http://dir.gmane.org/gmane.comp.lang.groovy.user">List Information</a><br/><br/>
+<a href="http://gmane.org/faq.php">About Gmane</a><br/>
+</div>
+
+</div>
+
+    <br clear="all" />
+
+<div class="bottombox"><p class="bottomtext"><a href="http://gmane.org/">Gmane</a></p></div>
+  </body>
+</html>
+
+

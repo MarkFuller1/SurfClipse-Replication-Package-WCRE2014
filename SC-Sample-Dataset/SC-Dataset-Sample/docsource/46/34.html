@@ -1,0 +1,731 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Netty使用�?步_StackDoc</title>
+<meta name="description" content="STACKDOC,是IT資料的�?��?�網,包括的資料有Java編程,Spring Struts Webwork框架深入,XMLHTTP AJAX開發,Java Web開發,Java�?業應用,Java設計模�?,Java開�?框架,Java應用�?務器,Rich Client討論,Ruby編程,Ruby DSL開發,Ruby on rails實�?,JavaScript編程,�?�?�軟件開發XP TDD,軟件�?置管�?�,軟件測試,項目管�?�UML,數據庫,C#/.net C/C++ Erlang/FP PHP/Linux平臺,精通Hibernate等.JBoss Netty使用�?步" />
+<meta name="keywords" content="Java編程 Spring框架 AJAX技術 Agile�?�?�軟件開發 ruby on rails實�? Linux,unix,Freebsd,Solaris,�?務器,存儲,數據庫,開發,程�?設計,網絡,安全,備份,硬件,IT培訓,IT招�?�求�?�,IT業界,IT人物,IT評論,業界評論,計算機,數碼,IT圈,下載,wiki,blog,�?�客,�?�戲.收�?自： http://www.kafka0102.com/2010/06/161.html 1�?簡介 Java1.4�??供了NIO使開發者�?�以使用Java編寫高性能的�?務端程�?，但使用原生的NIO " />
+<link href="/templets/default/style/dedecms.css" rel="stylesheet" media="screen" type="text/css" />
+<link href="/my/fload_ads/fload_ads_style.css" rel="stylesheet" media="screen" type="text/css" />
+<style>
+.div_round_right {
+float:right;
+}
+.div_round_left {
+float:left;
+}
+</style>
+<script language="javascript" type="text/javascript">
+ var randomNumber = Math.random()*10;
+ var adType;
+ if(Math.floor(randomNumber)<5){
+  adType = 1;
+ }else{
+  adType = 2;
+ }
+</script>
+<script type="text/javascript" src="/my/fload_ads/jquery-1.6.4.min.js"></script>
+<script language="javascript" type="text/javascript" src="/include/dedeajax2.js"></script>
+<script language="javascript" type="text/javascript">
+<!--
+function CheckLogin(){
+	  var taget_obj = document.getElementById('_ajax_feedback');
+	  myajax = new DedeAjax(taget_obj,false,false,'','','');
+	  myajax.SendGet2("/member/ajax_feedback.php");
+	  DedeXHTTP = null;
+}
+function postBadGood(ftype,fid)
+{
+	var taget_obj = document.getElementById(ftype+fid);
+	var saveid = GetCookie('badgoodid');
+	if(saveid != null)
+	{
+		var saveids = saveid.split(',');
+		var hasid = false;
+		saveid = '';
+		j = 1;
+		for(i=saveids.length-1;i>=0;i--)
+		{
+			if(saveids[i]==fid && hasid) continue;
+			else {
+				if(saveids[i]==fid && !hasid) hasid = true;
+				saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+				j++;
+				if(j==10 && hasid) break;
+				if(j==9 && !hasid) break;
+			}
+		}
+		if(hasid) { alert('您剛�?已表决�?�了喔�?'); return false;}
+		else saveid += ','+fid;
+		SetCookie('badgoodid',saveid,1);
+	}
+	else
+	{
+		SetCookie('badgoodid',fid,1);
+	}
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	myajax.SendGet2("/plus/feedback.php?aid="+fid+"&action="+ftype+"&fid="+fid);
+}
+function postDigg(ftype,aid)
+{
+	var taget_obj = document.getElementById('newdigg');
+	var saveid = GetCookie('diggid');
+	if(saveid != null)
+	{
+		var saveids = saveid.split(',');
+		var hasid = false;
+		saveid = '';
+		j = 1;
+		for(i=saveids.length-1;i>=0;i--)
+		{
+			if(saveids[i]==aid && hasid) continue;
+			else {
+				if(saveids[i]==aid && !hasid) hasid = true;
+				saveid += (saveid=='' ? saveids[i] : ','+saveids[i]);
+				j++;
+				if(j==20 && hasid) break;
+				if(j==19 && !hasid) break;
+			}
+		}
+		if(hasid) { alert("您已經頂�?�該帖，請�?�?�?�?頂帖 �?"); return; }
+		else saveid += ','+aid;
+		SetCookie('diggid',saveid,1);
+	}
+	else
+	{
+		SetCookie('diggid',aid,1);
+	}
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	var url = "/plus/digg_ajax.php?action="+ftype+"&id="+aid;
+	myajax.SendGet2(url);
+}
+function getDigg(aid)
+{
+	var taget_obj = document.getElementById('newdigg');
+	myajax = new DedeAjax(taget_obj,false,false,'','','');
+	myajax.SendGet2("/plus/digg_ajax.php?id="+aid);
+	DedeXHTTP = null;
+}
+-->
+</script>
+</head>
+<body class="articleview">
+<div class="header_top">  
+    <div class="w960 center">  
+     <span id="time" class="time"><a href="http://www.stackdoc.com" title="StackDoc，專業的IT資�?站">StackDoc<a></span>
+     <div class="toplinks"><a href="/plus/heightsearch.php" target="_blank">高級�?�索</a>|<a href="/data/sitemap.html" target="_blank">網站地圖</a>|<a href="/tags.php">TAG標簽</a><a href="/data/rssmap.html" class="rss">RSS訂閱</a><span>[<a href=""onclick="this.style.behavior='url(#default#homepage)';this.setHomePage('http://www.StackDoc.com');">設为首�?</a>] [<a href="javascript:window.external.AddFavorite('http://www.StackDoc.com','StackDoc')">加入收�?</a>]</span></div>
+    </div> 
+</div>
+<div class="header">
+	<div class="top w960 center">
+      <div class="title">
+        <h1><a href="http://www.StackDoc.com"><img src="/templets/default/images/logo.gif" height="54" width="216" alt="StackDoc"/></a> </h1>
+      </div>
+      <!--
+      <div class="banner"></div>
+      <div class="banner2"></div>
+      -->
+      <div id="topGoogleAd">
+      	<script type="text/javascript"><!--
+					google_ad_client = "pub-2476175026271293";
+					/* 728x90, 创建于 11-2-11 */
+					google_ad_slot = "4888237637";
+					google_ad_width = 728;
+					google_ad_height = 90;
+					//-->
+					</script>
+					<script type="text/javascript"
+					src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+				</script>
+      </div>
+       
+	</div><!-- //top --><div id="outad"></div>
+	<!-- //�?�單 -->
+	<div class="module blue mT10 wrapper w963">
+  	<div class="top">
+    	<!-- //如果�?使用currentstyle，�?�以在channel標簽加入 cacheid='channeltoplist' 屬性�??�?�性能 -->
+    <div id="navMenu">
+    	<ul>
+      	<li><a href='/'><span>主�?</span></a></li>
+      	
+      	<li><a href='/a/ITxinwen/'  rel='dropmenu1'><span>IT新�?�</span></a></li>
+      	
+      	<li><a href='/a/JAVAbiancheng/'  rel='dropmenu11'><span>JAVA編程</span></a></li>
+      	
+      	<li><a href='/a/bianchengyuyan/'  rel='dropmenu24'><span>編程語言</span></a></li>
+      	
+      	<li><a href='/a/caozuoxitong/'  rel='dropmenu35'><span>�?作系統</span></a></li>
+      	
+      	<li><a href='/a/shujuku/'  rel='dropmenu41'><span>數�?�庫</span></a></li>
+      	<li class='hover'><a href='/a/fuwuqiruanjian/'  rel='dropmenu49'><span>�?務器軟件</span></a></li>
+      	<li><a href='/a/kaifaguanli/'  rel='dropmenu55'><span>開發管�?�</span></a></li>
+      	
+      	<li><a href='/a/qitazonghe/'  rel='dropmenu73'><span>其它綜�?�</span></a></li>
+      	
+      	<li><a href='http://school.stackdoc.com' ><span>SCHOOL</span></a></li>
+      	
+    	</ul>
+    </div>	
+    <div class="search">
+      <form  name="formsearch" action="/plus/search.php">
+        <div class="form">
+          <h4>�?�索</h4>
+           <input type="hidden" name="kwtype" value="0" />
+           <input name="q" type="text" class="search-keyword" id="search-keyword" value="在這�?�?�索..." onfocus="if(this.value=='在這�?�?�索...'){this.value='';}"  onblur="if(this.value==''){this.value='在這�?�?�索...';}" />
+           <select name="searchtype" class="search-option" id="search-option">
+               <option value="title" selected='1'>檢索標題</option>
+               <option value="titlekeyword">智能模糊</option>
+           </select>
+          <button type="submit" class="search-submit">�?�索</button>
+        </div>
+        </form>
+        <div class="tags">
+          <h4>熱門標簽:</h4>
+          <ul>
+          
+            <li><a href='/tags.php?/nginx/'>nginx</a></li>
+          
+            <li><a href='/tags.php?/apache/'>apache</a></li>
+          
+            <li><a href='/tags.php?/%E7%BC%96%E8%AF%91%E8%AF%AD%E8%A8%80/'>编译语言</a></li>
+          
+            <li><a href='/tags.php?/Hibernate/'>Hibernate</a></li>
+          
+            <li><a href='/tags.php?/cobol/'>cobol</a></li>
+          
+            <li><a href='/tags.php?/test/'>test</a></li>
+          
+            <li><a href='/tags.php?/Eclipse%E6%8F%92%E4%BB%B6/'>Eclipse�?�件</a></li>
+          
+            <li><a href='/tags.php?/%E7%A8%8B%E5%BA%8F%E5%91%98/'>程�?员</a></li>
+          
+            <li><a href='/tags.php?/python/'>python</a></li>
+          
+            <li><a href='/tags.php?/C%2B%2B/'>C++</a></li>
+          
+          </ul>
+        </div>
+    </div><!-- //search -->
+		</div>
+	</div>
+</div><!-- //header -->
+
+<!-- /header -->
+<!--float(begin)-->
+<div id='pop-div' style="width: 620px;" class="pop-box">  
+	<div><table width="620px"><tr><td width="50%"><div id="popAdsTitle"></div></td><td align="right" width="50%"><label onclick="hideDiv('pop-div');">×</label></td></table></div>
+	<div class="pop-box-body"id="float_ads_iframe">
+	</div>
+</div>
+<!--float(end)-->
+<script language="javascript" type="text/javascript" src="/my/fload_ads/fload_ads.js"></script>
+<div class="w960 center clear mt1">
+<div class="pleft">
+ <div class="place"> <strong>當�?�?置:</strong> <a href='http://www.StackDoc.com/'>主�?</a> > <a href='/a/fuwuqiruanjian/'>�?務器軟件</a> > <a href='/a/fuwuqiruanjian/Jboss/'>Jboss</a> >  </div>
+ <!-- /place -->
+ <div class="viewbox">
+  <div class="title">
+   <h2>Netty使用�?步</h2>
+  </div>
+  <!-- /title -->
+  <div class="info"> <small>時間:</small>2010-10-02 06:57<small>來�?:</small>互�?�網 <small>作者:</small>互�?�網 <small>點擊:</small>
+   <script src="/plus/count.php?view=yes&aid=41670&mid=1" type='text/javascript' language="javascript"></script>
+   次</div>
+  <!-- /info -->
+  
+  <div class="intro">收�?自： http://www.kafka0102.com/2010/06/161.html  1�?簡介 Java1.4�??供了NIO使開發者�?�以使用Java編寫高性能的�?務端程�?，但使用原生的NIO </div>
+  
+  <div class="content">
+   <table width='100%'>
+    <tr>
+     <td><div id="contentMidPicAD" style="float:right; clear:both; top:0; vertical-align:top;"></div>
+		<div id="contentGoogleAd">			
+			<script type="text/javascript" src="/my/google_ad_300_250.js"></script>
+		</div>
+		<script>
+			var className="";
+			if(adType==1){
+			className="div_round_left";
+			}else{
+			className="div_round_right";
+			}
+			document.getElementById("contentGoogleAd").className=className;
+		</script>
+        <p><span style="font-family: tahoma, arial; font-size: 16px; color: #222222;">
+</span></p><h2 style="padding-top: 6px; padding-right: 0px; padding-bottom: 6px; padding-left: 0px; font-size: 16px; margin: 0px;">收�?自： <a href="http://www.kafka0102.com/2010/06/161.html"><span style="font-weight: normal; font-size: 12px;">http://www.kafka0102.com/2010/06/161.html</span></a> </h2><p></p><p></p><h2 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 1�?簡介</h2><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"> Java1.4�??供了NIO使開發者�?�以使用Java編寫高性能的�?務端程�?，但使用原生的NIO API就�?Linux C中網絡編程一樣，還是需�?�?�IO處�?��?�?�議處�?�等低層次工作。所以，就�?C�?務端程�?大�?使用libevent作為網絡應用框架一樣，Java社�?�也�?斷湧�?�出基於NIO的網絡應用框架。在這其中，Jboss出�?的Netty就是個中翹楚。 Netty是個異步的事件驅動網絡應用框架，具有高性能�?高擴展性等特性。 Netty�??供了統一的底層�?�議接�?�，使得開發者從底層的網絡�?�議（比如TCP/IP�?UDP）中解脫出來。就使用來說，開發者�?��?�?�考Netty�??供的若干例�?和它的指�?�文檔，就�?�以放手開發基於Netty的�?務端程�?了。 </p><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">在Java社�?�，最知�??的開�?Java NIO框架�?屬Mina和Netty，而且兩者淵�?頗多，�?兩者的比較自然�?少。實際上，Netty的作者原來就是Mina作者之一，所以�?�以想到，Netty和Mina在設計�?�念上會有很多共�?�點。我�?Mina沒什麼研究，但其作者介紹，Netty的設計�?開發者有更�?�好的擴展性，並且性能方�?��?優於Mina，而Netty完善的文檔也很�?�引人。所以，如果你在尋找Java NIO框架，Netty是個很�?錯的�?�擇。本文的內容就是�?繞一個demo介紹使用Netty的點點滴滴。 </p><h2 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 2�?�?務端程�?</h2><h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 2.1�?ChannelHandler </h3><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">�?務端程�?通常的處�?��?�程是：解碼請求數據�?業務�?輯處�?��?編碼響應。從框架角度來說，�?�以�??供3個接�?�來控制並調度該處�?��?�程；從更通用的角度來說，並�?特化處�?�其中的�?一步，而把�?一步當�?��?�濾器�?�中的一環，這也是Netty的�?�法。 Netty�?請求處�?��?�程實�?�了�?�濾器�?�模�?（ChannelPipeline），�?個�?�濾器實�?�了ChannelHandler接�?�。 Netty中有兩種請求事件�?類型也�?�了細分： </p><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"> 1）downstream event：其�?應的ChannelHandler�?接�?�是ChannelDownstreamHandler。 downstream event是說從頭到尾執行ChannelPipeline中的ChannelDownstreamHandler，這一�?�程相當於�?�外發�?數據的�?�程。 downstream event有：�?write�?�?�?bind�?�?�?unbind�?�? “connect�?�? “disconnect�?�?�?close�?。 </p><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"> 2）upstream event：其�?應的ChannelHandler�?接�?�是ChannelUpstreamHandler。 upstream event處�?�的事件方�?�和downstream event相�??，這一�?�程相當於接收處�?�外來請求的�?�程。 upstream event有：�?messageReceived�?�? “exceptionCaught�?�?�?channelOpen�?�?�?channelClosed�?�? “channelBound�?�?�?channelUnbound�?�? “channelConnected�?�?�?writeComplete�?�?�?channelDisconnected�?�?�?channelInterestChanged�?。 </p><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"> Netty中有個註釋@interface ChannelPipelineCoverage，它表示被註釋的ChannelHandler是�?�能添加到多個ChannelPipeline中，其�?��?�的值是�?all�?和�?one�?。 �?all�?表示ChannelHandler是無狀態的，�?�被多個ChannelPipeline共享，而�?one�?表示ChannelHandler�?�作用於單個ChannelPipeline中。但ChannelPipelineCoverage�?�是個註釋而已，並沒有實際的檢查作用。�?於ChannelHandler是�?all�?還是�?one�?，還是根據�?輯需�?而定。比如，�?解碼請求handler，因為�?�能解碼的數據�?完整，需�?等待下一次讀事件來了之後�?繼續解�?，所以解碼請求handler就需�?是�?one�?的（�?�則多個Channel共享數據就亂了） 。而�?業務�?輯處�?�hanlder通常是�?all�?的。 </p><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">下�?�以一個簡單的例�?說明如何編寫“解碼請求數據�?業務�?輯處�?��?編碼響應�?這一�?�程中涉�?�的ChannelHandler。該例�?實�?�的�?�議格�?很簡單，請求和響應�?中頭4個字節表示後�?�跟的內容長度，根據該長度�?�得到內容體。 </p><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">首先看下解碼器的實�?�：<html></p><div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;"><div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;"><pre class="java"> <span style="color: #000000; font-weight: bold;">public class</span> MessageDecoder <span style="color: #000000; font-weight: bold;">extends</span> FrameDecoder <span style="color: #009900;">{</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">protected</span> <span style="color: #003399;">Object</span> decode <span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer <span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">(</span> buffer. <span style="color: #006633;">readableBytes</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">&lt;</span> <span style="color: #cc66cc;">4</span> <span style="color: #009900;">) {</span>
+            <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #000066; font-weight: bold;">null</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(1)</span>
+        <span style="color: #009900;">}</span>
+        <span style="color: #000066; font-weight: bold;">int</span> dataLength <span style="color: #339933;">=</span> buffer. <span style="color: #006633;">getInt</span> <span style="color: #009900;">(</span> buffer. <span style="color: #006633;">readerIndex</span> <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">(</span> buffer. <span style="color: #006633;">readableBytes</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">&lt;</span> dataLength <span style="color: #339933;">+</span> <span style="color: #cc66cc;">4</span> <span style="color: #009900;">) {</span>
+            <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #000066; font-weight: bold;">null</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(2)</span>
+        <span style="color: #009900;">}</span>
+?
+        buffer. <span style="color: #006633;">skipBytes</span> <span style="color: #009900;">(</span> <span style="color: #cc66cc;">4</span> <span style="color: #009900;">)</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(3)</span>
+        <span style="color: #000066; font-weight: bold;">byte</span> <span style="color: #009900;">[ ]</span> decoded <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> <span style="color: #000066; font-weight: bold;">byte</span> <span style="color: #009900;">[</span> dataLength <span style="color: #009900;">]</span> <span style="color: #339933;">;</span>
+        buffer. <span style="color: #006633;">readBytes</span> <span style="color: #009900;">(</span> decoded <span style="color: #009900;">)</span> <span style="color: #339933;">;</span>
+        <span style="color: #003399;">String</span> msg <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> <span style="color: #003399;">String</span> <span style="color: #009900;">(</span> decoded <span style="color: #009900;">)</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(4)</span>
+        <span style="color: #000000; font-weight: bold;">return</span> msg <span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span> </pre></div></div><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"> MessageDecoder繼承自FrameDecoder，FrameDecoder是Netty codec包中的輔助類，它是個ChannelUpstreamHandler，decode方法是FrameDecoder�?類需�?實�?�的。在上�?�的代碼中，有： </p>argin: 0px;"&gt;(1)檢查ChannelBuffer中的字節數，如果ChannelBuffer�?�讀的字節數少於4,則返回null等待下次讀事件。 <br> (2)繼續檢查ChannelBuffer中的字節數，如果ChannelBuffer�?�讀的字節數少於dataLength + 4，則返回null等待下次讀事件。 <br> (3)越�?�dataLength的字節。 <br> (4)構造解碼的字符串返回。<html></p><div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;"><div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;"><pre class="java"> @ChannelPipelineCoverage <span style="color: #009900;">(</span> <span style="color: #0000ff;">"all"</span> <span style="color: #009900;">)</span>
+<span style="color: #000000; font-weight: bold;">public class</span> MessageServerHandler <span style="color: #000000; font-weight: bold;">extends</span> SimpleChannelUpstreamHandler <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">private static final</span> Logger logger <span style="color: #339933;">=</span> Logger. <span style="color: #006633;">getLogger</span> <span style="color: #009900;">(</span>
+            MessageServerHandler. <span style="color: #000000; font-weight: bold;">class</span> . <span style="color: #006633;">getName</span> <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> messageReceived <span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, MessageEvent e <span style="color: #009900;">) {</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">(</span> <span style="color: #339933;">!</span> <span style="color: #009900;">(</span> e. <span style="color: #006633;">getMessage</span> <span style="color: #009900;">( )</span> <span style="color: #000000; font-weight: bold;">instanceof</span> <span style="color: #003399;">String</span> <span style="color: #009900;">) ) {</span>
+            <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(1)</span>
+        <span style="color: #009900;">}</span>
+        <span style="color: #003399;">String</span> msg <span style="color: #339933;">=</span> <span style="color: #009900;">(</span> <span style="color: #003399;">String</span> <span style="color: #009900;">)</span> e. <span style="color: #006633;">getMessage</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span>
+        <span style="color: #003399;">System</span> . <span style="color: #006633;">err</span> . <span style="color: #006633;">println</span> <span style="color: #009900;">(</span> <span style="color: #0000ff;">"got msg:"</span> <span style="color: #339933;">+</span> msg <span style="color: #009900;">)</span> <span style="color: #339933;">;</span>
+        e. <span style="color: #006633;">getChannel</span> <span style="color: #009900;">( )</span> . <span style="color: #006633;">write</span> <span style="color: #009900;">(</span> msg <span style="color: #009900;">)</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(2)</span>
+    <span style="color: #009900;">}</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> exceptionCaught <span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, ExceptionEvent e <span style="color: #009900;">) {</span>
+        logger. <span style="color: #006633;">log</span> <span style="color: #009900;">(</span>
+                Level. <span style="color: #006633;">WARNING</span> ,
+                <span style="color: #0000ff;">"Unexpected exception from downstream."</span> ,
+                e. <span style="color: #006633;">getCause</span> <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+        e. <span style="color: #006633;">getChannel</span> <span style="color: #009900;">( )</span> . <span style="color: #006633;">close</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span> </pre></div></div>4px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"&gt;MessageServerHandler是�?務端業務處�?�handler，其繼承自SimpleChannelUpstreamHandler，並主�?實�?�messageReceived事件。關於該類，有如下註解： </p><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"> (1)該upstream事件�?中，首先經�?�MessageDecoder，其會將decode返回的解碼後的數據構造�?MessageEvent.getMessage()，所以在handler上下文關係中，MessageEvent.getMessage()並�?一定都返回ChannelBuffer類型的數據。 <br> (2)MessageServerHandler�?�是簡單的將得到的msg�?寫回給客戶端。 e.getChannel().write(msg);�?作將觸發DownstreamMessageEvent事件，也就是調用下�?�的MessageEncoder將編碼的數據返回給客戶端。 </p><div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;"><div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;"><pre class="java"> @ChannelPipelineCoverage <span style="color: #009900;">(</span> <span style="color: #0000ff;">"all"</span> <span style="color: #009900;">)</span>
+<span style="color: #000000; font-weight: bold;">public class</span> MessageEncoder <span style="color: #000000; font-weight: bold;">extends</span> OneToOneEncoder <span style="color: #009900;">{</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">protected</span> <span style="color: #003399;">Object</span> encode <span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, Channel channel, <span style="color: #003399;">Object</span> msg <span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        <span style="color: #000000; font-weight: bold;">if</span> <span style="color: #009900;">(</span> <span style="color: #339933;">!</span> <span style="color: #009900;">(</span> msg <span style="color: #000000; font-weight: bold;">instanceof</span> <span style="color: #003399;">String</span> <span style="color: #009900;">) ) {</span>
+            <span style="color: #000000; font-weight: bold;">return</span> msg <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(1)</span>
+        <span style="color: #009900;">}</span>
+?
+        <span style="color: #003399;">String</span> res <span style="color: #339933;">=</span> <span style="color: #009900;">(</span> <span style="color: #003399;">String</span> <span style="color: #009900;">)</span> msg <span style="color: #339933;">;</span>
+        <span style="color: #000066; font-weight: bold;">byte</span> <span style="color: #009900;">[ ]</span> data <span style="color: #339933;">=</span> res. <span style="color: #006633;">getBytes</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span>
+        <span style="color: #000066; font-weight: bold;">int</span> dataLength <span style="color: #339933;">=</span> data. <span style="color: #006633;">length</span> <span style="color: #339933;">;</span>
+        ChannelBuffer buf <span style="color: #339933;">=</span> ChannelBuffers. <span style="color: #006633;">dynamicBuffer</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(2)</span>
+        buf. <span style="color: #006633;">writeInt</span> <span style="color: #009900;">(</span> dataLength <span style="color: #009900;">)</span> <span style="color: #339933;">;</span>
+        buf. <span style="color: #006633;">writeBytes</span> <span style="color: #009900;">(</span> data <span style="color: #009900;">)</span> <span style="color: #339933;">;</span>
+        <span style="color: #000000; font-weight: bold;">return</span> buf <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">//(3)</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span> </pre></div></div><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"> MessageEncoder是個ChannelDownstreamHandler。�?該類的註解如下：<html></p><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;"> (1)如果編碼的msg�?是�?�法類型，就直接返回該msg，之後OneToOneEncoder會調用ctx.sendDownstream(evt);來調用下一個ChannelDownstreamHandler。�?於該例�?來說，這種情�?是�?應該出�?�的。 <br> (2)開發者創建ChannelBuffer的用武之地就是這兒了，通常使用dynamicBuffer�?��?�，表示得到的ChannelBuffer�?�動態增加大�?。 <br> (3)返回編碼後的ChannelBuffer之後，OneToOneEncoder會調用Channels.write將數據寫回客戶端。 </p><h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 2.2�?MessageServerPipelineFactory </h3><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">創建了3個ChannelHandler，需�?將他們註冊到ChannelPipeline，而ChannelPipeline�?�是和Channel�?應的（是全局單例還是�?個Channel�?應一個ChannelPipeline實例�?賴於實�?�）。�?�以實�?�ChannelPipeline的工廠接�?�ChannelPipelineFactory實�?�該目的。 MessageServerPipelineFactory的代碼如下： </p><div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;"><div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;"><pre class="java"> <span style="color: #000000; font-weight: bold;">public class</span> MessageServerPipelineFactory <span style="color: #000000; font-weight: bold;">implements</span>
+        ChannelPipelineFactory <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">public</span> ChannelPipeline getPipeline <span style="color: #009900;">( )</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        ChannelPipeline pipeline <span style="color: #339933;">=</span> pipeline <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span>
+?
+        pipeline. <span style="color: #006633;">addLast</span> <span style="color: #009900;">(</span> <span style="color: #0000ff;">"decoder"</span> , <span style="color: #000000; font-weight: bold;">new</span> MessageDecoder <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+        pipeline. <span style="color: #006633;">addLast</span> <span style="color: #009900;">(</span> <span style="color: #0000ff;">"encoder"</span> , <span style="color: #000000; font-weight: bold;">new</span> MessageEncoder <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+        pipeline. <span style="color: #006633;">addLast</span> <span style="color: #009900;">(</span> <span style="color: #0000ff;">"handler"</span> , <span style="color: #000000; font-weight: bold;">new</span> MessageServerHandler <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+?
+        <span style="color: #000000; font-weight: bold;">return</span> pipeline <span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span> </pre></div></div><h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 2.3�?MessageServer </h3><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">�?務端程�?就剩下啟動代碼了，使用Netty的ServerBootstrap三下五除二完�?之。 </p><div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;"><div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;"><pre class="java"> <span style="color: #000000; font-weight: bold;">public class</span> MessageServer <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">public static</span> <span style="color: #000066; font-weight: bold;">void</span> main <span style="color: #009900;">(</span> <span style="color: #003399;">String</span>9900;"&gt;[ <span style="color: #009900;">]</span> args <span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span> <span style="color: #666666; font-style: italic;">// Configure the server.</span> ServerBootstrap bootstrap <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> ServerBootstrap <span style="color: #009900;">(</span> <span style="color: #000000; font-weight: bold;">new</span> NioServerSocketChannelFactory <span style="color: #009900;">(</span> Executors. <span style="color: #006633;">newCachedThreadPool</span> <span style="color: #009900;">( )</span> , Executors. <span style="color: #006633;">newCachedThreadPool</span> <span style="color: #009900;">( ) ) )</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">// Set up the default event pipeline.</span> bootstrap . <span style="color: #006633;">setPipelineFactory</span> <span style="color: #009900;">(</span> <span style="color: #000000; font-weight: bold;">new</span> MessageServerPipelineFactory <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">// Bind and start to accept incoming connections.</span> bootstrap. <span style="color: #006633;">bind</span> <span style="color: #009900;">(</span> <span style="color: #000000; font-weight: bold;">new</span> InetSocketAddress <span style="color: #009900;">(</span> <span style="color: #cc66cc;">8080</span> <span style="color: #009900;">) )</span> <span style="color: #339933;">;</span> <span style="color: #009900;">} }</span> </pre></div></div><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">�?加補充的是，該Server程�?並�?完整，它沒有處�?�關閉時的資�?釋放，儘管暴力的來看並�?一定需�?�?�這樣的善後工作。 </p><h2 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 3�?客戶端程�?</h2><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">客戶端程�?和�?務端程�?處�?�模型上是很相似的，這裡還是付上代碼並作簡�?說明。 </p><h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 3.1�? ChannelHandler </h3><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">客戶端是先發�?數據到�?務端（downstream事件�?），然後是處�?�從�?務端接收的數據（upstream事件�?）。這裡有個�?題是，怎麼把需�?發�?的數據�?到downstream事件�?裡呢？這就用到了ChannelUpstreamHandler的channelConnected事件了。實�?�的MessageClientHandler代碼如下：<html></p><div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;"><div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;"><pre class="java"> @ChannelPipelineCoverage <span style="color: #009900;">(</span> <span style="color: #0000ff;">"all"</span> <span style="color: #009900;">)</span>
+<span style="color: #000000; font-weight: bold;">public class</span> MessageClientHandler <span style="color: #000000; font-weight: bold;">extends</span> SimpleChannelUpstreamHandler <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">private static final</span> Logger logger <span style="color: #339933;">=</span> Logger. <span style="color: #006633;">getLogger</span> <span style="color: #009900;">(</span>
+            MessageClientHandler. <span style="color: #000000; font-weight: bold;">class</span> . <span style="color: #006633;">getName</span> <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+?
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> channelConnected <span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, ChannelStateEvent e <span style="color: #009900;">) {</span>
+        <span style="color: #003399;">String</span> message <span style="color: #339933;">=</span> <span style="color: #0000ff;">"hello kafka0102"</span> <span style="color: #339933;">;</span>
+        e. <span style="color: #006633;">getChannel</span> <span style="color: #009900;">( )</span> . <span style="color: #006633;">write</span> <span style="color: #009900;">(</span> message <span style="color: #009900;">)</span> <span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> messageReceived <span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, MessageEvent e <span style="color: #009900;">) {</span>
+        <span style="color: #666666; font-style: italic;">// Send back the received message to the remote peer.</span>
+        <span style="color: #003399;">System</span> . <span style="color: #006633;">err</span> . <span style="color: #006633;">println</span> <span style="color: #009900;">(</span> <span style="color: #0000ff;">"messageReceived send message "</span> <span style="color: #339933;">+</span> e. <span style="color: #006633;">getMessage</span> <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+        <span style="color: #000000; font-weight: bold;">try</span> <span style="color: #009900;">{</span>
+            <span style="color: #003399;">Thread</span> . <span style="color: #006633;">sleep</span> <span style="color: #009900;">(</span> <span style="color: #cc66cc;">1000</span> <span style="color: #339933;">*</span> <span style="color: #cc66cc;">3</span> <span style="color: #009900;">)</span> <span style="color: #339933;">;</span>
+        <span style="color: #009900;">}</span> <span style="color: #000000; font-weight: bold;">catch</span> <span style="color: #009900;">(</span> <span style="color: #003399;">Exception</span> ex <span style="color: #009900;">) {</span>
+            ex. <span style="color: #006633;">printStackTrace</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span>
+        <span style="color: #009900;">}</span>
+        e. <span style="color: #006633;">getChannel</span> <span style="color: #009900;">( )</span> . <span style="color: #006633;">write</span> <span style="color: #009900;">(</span> e. <span style="color: #006633;">getMessage</span> <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+?
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000066; font-weight: bold;">void</span> exceptionCaught <span style="color: #009900;">(</span>
+            ChannelHandlerContext ctx, ExceptionEvent e <span style="color: #009900;">)</span>tyle="color: #009900;"&gt;{ <span style="color: #666666; font-style: italic;">// Close the connection when an exception is raised.</span> logger. <span style="color: #006633;">log</span> <span style="color: #009900;">(</span> Level. <span style="color: #006633;">WARNING</span> , <span style="color: #0000ff;">"Unexpected exception from downstream."</span> , e. <span style="color: #006633;">getCause</span> <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span> e. <span style="color: #006633;">getChannel</span> <span style="color: #009900;">( )</span> . <span style="color: #006633;">close</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span> <span style="color: #009900;">} }</span> </pre></div></div><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">�?於編碼和解碼Handler，復用MessageEncoder和MessageDecoder�?��?�。<html></p><h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 3.2�? MessageClientPipelineFactory </h3><div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;"><div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;"><pre class="java"> <span style="color: #000000; font-weight: bold;">public class</span> MessageClientPipelineFactory <span style="color: #000000; font-weight: bold;">implements</span>
+        ChannelPipelineFactory <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">public</span> ChannelPipeline getPipeline <span style="color: #009900;">( )</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        ChannelPipeline pipeline <span style="color: #339933;">=</span> pipeline <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span>
+?
+        pipeline. <span style="color: #006633;">addLast</span> <span style="color: #009900;">(</span> <span style="color: #0000ff;">"decoder"</span> , <span style="color: #000000; font-weight: bold;">new</span> MessageDecoder <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+        pipeline. <span style="color: #006633;">addLast</span> <span style="color: #009900;">(</span> <span style="color: #0000ff;">"encoder"</span> , <span style="color: #000000; font-weight: bold;">new</span> MessageEncoder <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+        pipeline. <span style="color: #006633;">addLast</span> <span style="color: #009900;">(</span> <span style="color: #0000ff;">"handler"</span> , <span style="color: #000000; font-weight: bold;">new</span> MessageClientHandler <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span>
+?
+        <span style="color: #000000; font-weight: bold;">return</span> pipeline <span style="color: #339933;">;</span>
+    <span style="color: #009900;">}</span>
+<span style="color: #009900;">}</span> </pre></div></div><h3 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 3.3�?MessageClient </h3><div class="wp_syntax" style="color: #110000; background-color: #f9f9f9; margin-top: 0px; margin-right: 0px; margin-bottom: 1.5em; margin-left: 0px; width: 853px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px; border: 1px solid silver;"><div class="code" style="vertical-align: top; padding-top: 2px; padding-right: 4px; padding-bottom: 2px; padding-left: 4px;"><pre class="java"> <span style="color: #000000; font-weight: bold;">public class</span> MessageClient <span style="color: #009900;">{</span>
+?
+    <span style="color: #000000; font-weight: bold;">public static</span> <span style="color: #000066; font-weight: bold;">void</span> main <span style="color: #009900;">(</span> <span style="color: #003399;">String</span> <span style="color: #009900;">[ ]</span> args <span style="color: #009900;">)</span> <span style="color: #000000; font-weight: bold;">throws</span> <span style="color: #003399;">Exception</span> <span style="color: #009900;">{</span>
+        <span style="color: #666666; font-style: italic;">// Parse options.</span>
+        <span style="color: #003399;">String</span> host <span style="color: #339933;">=</span> <span style="color: #0000ff;">"127.0.0.1"</span> <span style="color: #339933;">;</span>
+        <span style="color: #000066; font-weight: bold;">int</span> port <span style="color: #339933;">=</span> <span style="color: #cc66cc;">8080</span> <span style="color: #339933;">;</span>
+        <span style="color: #666666; font-style: italic;">// Configure the client.</span>
+        ClientBootstrap bootstrap <span style="color: #339933;">=</span> <span style="color: #000000; font-weight: bold;">new</span> ClientBootstrap <span style="color: #009900;">(</span>
+                <span style="color: #000000; font-weight: bold;">new</span> NioClientSocketChannelFactory <span style="color: #009900;">(</span>
+                        Executors.yle="color: #006633;"&gt;newCachedThreadPool <span style="color: #009900;">( )</span> , Executors. <span style="color: #006633;">newCachedThreadPool</span> <span style="color: #009900;">( ) ) )</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">// Set up the event pipeline factory.</span> bootstrap. <span style="color: #006633;">setPipelineFactory</span> <span style="color: #009900;">(</span> <span style="color: #000000; font-weight: bold;">new</span> MessageClientPipelineFactory <span style="color: #009900;">( ) )</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">// Start the connection attempt.</span> ChannelFuture future <span style="color: #339933;">=</span> bootstrap. <span style="color: #006633;">connect</span> <span style="color: #009900;">(</span> <span style="color: #000000; font-weight: bold;">new</span> InetSocketAddress <span style="color: #009900;">(</span> host, port <span style="color: #009900;">) )</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">// Wait until the connection is closed or the connection attempt fails.</span> future. <span style="color: #006633;">getChannel</span> <span style="color: #009900;">( )</span> . <span style="color: #006633;">getCloseFuture</span> <span style="color: #009900;">( )</span> . <span style="color: #006633;">awaitUninterruptibly</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span> <span style="color: #666666; font-style: italic;">// Shut down thread pools to exit .</span> bootstrap. <span style="color: #006633;">releaseExternalResources</span> <span style="color: #009900;">( )</span> <span style="color: #339933;">;</span> <span style="color: #009900;">} }</span> </pre></div></div><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">在寫客戶端例�?時，我想�?的代碼並�?是這樣的，�?客戶端的代碼我也沒�?��?�多的研究，所以也�?�能沒有找到更好的解決方案。在上�?�的例�?中，bootstrap.connect方法中會觸發實際的連接�?作，接著觸發MessageClientHandler.channelConnected，使整個�?�程�?�轉起來。但是，我想�?的是一個連接池，並且如何寫數據也�?應該在channelConnected中，這樣�?於動態的數據，�?�能在構造函數中傳�?�需�?寫的數據了。但到�?�在，我還�?清楚如何將連接池和ChannelPipeline有效的�?�?�起來。或許，這樣的需求�?�以跨�?�Netty來實�?�。 </p><h2 style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"> 4�?總�?</h2><p style="padding-top: 0px; padding-right: 0px; padding-bottom: 15px; padding-left: 0px; font-size: 14px; line-height: 20px; font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; margin: 0px;">關於Netty的�?步使用，尚且總�?到這裡。關於這篇文章，寫得斷斷續續，以至於到後來我都沒興趣把內容都整�?�出來。當然，這多少也是因為我是先整�?�Netty原�?�方�?�的�?�西所致。我也�?�能�?�微的期望，該文�?Netty入門者會有些許幫助。 </p> <span style="font-family: 'Trebuchet MS', verdana, arial, 'Times New Roman', serif; font-size: 13px; line-height: 20px;"><br> ===============================�?�麗的終止符=============== =================</span> <p></p></div><div><script type="text/javascript">
+      alimama_pid="17340767"; 
+      alimama_titlecolor="0000FF"; 
+      alimama_descolor ="000000"; 
+      alimama_bgcolor="FFFFFF"; 
+      alimama_bordercolor="E6E6E6"; 
+      alimama_linkcolor="008000"; 
+      alimama_bottomcolor="FFFFFF"; 
+      alimama_anglesize="0"; 
+      alimama_bgpic="0"; 
+      alimama_icon="0"; 
+      alimama_sizecode="14"; 
+      alimama_width=468; 
+      alimama_height=60; 
+      alimama_type=2; 
+      </script><script src="http://a.alimama.cn/inf.js" type=text/javascript>
+      </script></div><br>本文摘自：http://crazier9527.javaeye.com/blog/768681		
+        <div id="downContentArea1"></div>
+		<div id="downContentGoogleAd" align="center">
+			<script type="text/javascript" src="/my/google_ad_300_250_2.js"></script>
+		</div>
+		<div id="downContentArea2"></div>
+		</td>
+      
+      </td>
+    </tr>
+   </table>
+  </div>
+  <!-- /content -->
+  <div class="dede_pages">
+   <ul class="pagelist">
+    
+   </ul>
+  </div>
+  <!-- /pages -->
+  <!-- //頂踩 -->
+  <div class="newdigg" id="newdigg">
+   <div class="diggbox digg_good" onmousemove="this.style.backgroundPosition='left bottom';" onmouseout="this.style.backgroundPosition='left top';" onclick="javascript:postDigg('good',41670)">
+    <div class="digg_act">頂一下</div>
+    <div class="digg_num">(0)</div>
+    <div class="digg_percent">
+     <div class="digg_percent_bar"><span style="width:0%"></span></div>
+     <div class="digg_percent_num">0%</div>
+    </div>
+   </div>
+   <div class="diggbox digg_bad" onmousemove="this.style.backgroundPosition='right bottom';" onmouseout="this.style.backgroundPosition='right top';" onclick="javascript:postDigg('bad',41670)">
+    <div class="digg_act">踩一下</div>
+    <div class="digg_num">(0)</div>
+    <div class="digg_percent">
+     <div class="digg_percent_bar"><span style="width:0%"></span></div>
+     <div class="digg_percent_num">0%</div>
+    </div>
+   </div>
+  </div>
+  <script language="javascript" type="text/javascript">getDigg(41670);</script>
+  <!-- //頂踩部份的�?碼�?�?� -->
+  <!-- //分享代碼開始 -->
+  
+  <!-- //分享代碼�?�?� -->
+  <div class="boxoff"> <strong>------分隔線----------------------------</strong> </div>
+  <div class="handle">
+   <div class="context">
+    <ul>
+     <li>上一篇：<a href='/a/fuwuqiruanjian/Jboss/20101002/41668.html'>使用Netty 構造一個異步的httpclient</a> </li>
+     <li>下一篇：<a href='/a/fuwuqiruanjian/Jboss/20101002/41673.html'>J2EE程�?從JBoss4.0.0�?�3.2.x�?�級到4.0.1+的�?題解決辦法</a> </li>
+    </ul>
+   </div>
+   <!-- /context -->
+   <div class="actbox">
+    <ul>
+     <li id="act-fav"><a href="/plus/stow.php?aid=41670" target="_blank">收�?</a></li>
+     <li id="act-err"><a href="/plus/erraddsave.php?aid=41670&title=Netty使用�?步" target="_blank">挑錯</a></li>
+     <li id="act-pus"><a href="/plus/recommend.php?aid=41670" target="_blank">推薦</a></li>
+     <li id="act-pnt"><a href="#" onClick="window.print();">打�?�</a></li>
+    </ul>
+   </div>
+   <!-- /actbox -->
+  </div>
+  <!-- /handle -->
+ </div>
+ <!-- /viewbox -->
+ <div id="recommandAreaDown"></div>
+ <!-- //AJAX評論�?� -->
+ <!-- //主模�?�必須�?引入/include/dedeajax2.js -->
+<a name='postform'></a>
+<div class="mt1">
+		<dl class="tbox">
+			<dt>
+				<strong>發表評論</strong>
+				<span class="more"></span>
+			</dt>
+			<dd>
+				<div class="dede_comment_post">
+          <form action="#" method="post" name="feedback">
+          <input type="hidden" name="dopost" value="send" />
+          <input type="hidden" name="comtype" value="comments">
+          <input type="hidden" name="aid" value="41670" />
+          <input type="hidden" name="fid" id='feedbackfid' value="0" />
+          <div class="dcmp-title">
+						<small>請自覺�?�守互�?�網相關的政策法�?，嚴�?發布色情�?暴力�?�??動的言論。</small>
+					</div><!-- /dcmp-title -->
+					<div class="dcmp-stand">
+						<strong>評價:</strong>
+							<input type="radio" name="feedbacktype" checked="1" value="feedback" id="dcmp-stand-neu" /><label for="dcmp-stand-neu"><img src="/templets/default/images/cmt-neu.gif" />中立</label>
+							<input type="radio" name="feedbacktype" value="good" id="dcmp-stand-good" /><label for="dcmp-stand-good"><img src="/templets/default/images/cmt-good.gif" />好評</label>
+							<input type="radio" name="feedbacktype" value="bad" id="dcmp-stand-bad" /><label for="dcmp-stand-bad"><img src="/templets/default/images/cmt-bad.gif" />差評</label>
+					</div><!-- /dcmp-stand -->
+                    <div class="clr"></div>
+                    <div class="dcmp-mood">
+						<strong>表情:</strong>
+						<ul>            
+								<li><input type="radio" name="face" value="1" checked="1" /><img src="/templets/default/images/mood/ico-mood-1.gif" /></li><li><input type="radio" name="face" value="2" /><img src="/templets/default/images/mood/ico-mood-2.gif" /></li><li><input type="radio" name="face" value="3" /><img src="/templets/default/images/mood/ico-mood-3.gif" /></li><li><input type="radio" name="face" value="4" /><img src="/templets/default/images/mood/ico-mood-4.gif" /></li><li><input type="radio" name="face" value="5" /><img src="/templets/default/images/mood/ico-mood-5.gif" /></li><li><input type="radio" name="face" value="6" /><img src="/templets/default/images/mood/ico-mood-6.gif" /></li><li><input type="radio" name="face" value="7" /><img src="/templets/default/images/mood/ico-mood-7.gif" /></li><li><input type="radio" name="face" value="8" /><img src="/templets/default/images/mood/ico-mood-8.gif" /></li><li><input type="radio" name="face" value="9" /><img src="/templets/default/images/mood/ico-mood-9.gif" /></li><li><input type="radio" name="face" value="10" /><img src="/templets/default/images/mood/ico-mood-10.gif" /></li><li><input type="radio" name="face" value="11" /><img src="/templets/default/images/mood/ico-mood-11.gif" /></li>                   
+						</ul>
+					</div><!-- /dcmp-mood -->
+					<div class="dcmp-content">
+						<textarea cols="60" name="msg" rows="5" class="ipt-txt"></textarea>
+					</div><!-- /dcmp-content -->
+					<div class="dcmp-post"><!--未登陆-->
+							<div class="dcmp-userinfo" id="_ajax_feedback">
+								
+                                驗證碼:<input type="text" name="validate" size="4" class="ipt-txt" style="text-transform:uppercase;"/><img src= "/include/vdimgck.php" id="validateimg" style="cursor:pointer" onclick="this.src=this.src+'?'" title="點擊我更�?�圖片" alt="點擊我更�?�圖片" />
+                <input type="checkbox" name="notuser" id="dcmp-submit-guest" /><label for="dcmp-submit-guest" />匿�??? </label>
+							</div>
+              
+							<div class="dcmp-submit">
+								<button type="button" onClick='PostComment()'>發表評論</button>
+							</div>
+						</div>
+        </form>
+				</div>
+			</dd>
+		</dl>
+	</div><!-- //評論表單�?��?�?� -->
+
+<!-- //評論內容�?� -->
+	<a name='commettop'></a>
+	<div class="mt1">
+			<dl class="tbox">
+				<dt>
+					<strong>最新評論</strong>
+					<span class="more"><a href="/plus/feedback.php?aid=41670">進入詳細評論�?&gt;&gt;</a></span>
+				</dt>
+				<!-- //這兩個ID的�?�塊必須存在，�?�則JS會出錯 -->
+				<dd id='commetcontentNew'></dd>
+				<dd id='commetcontent'></dd>
+			</dl>
+	</div>
+<!--
+//由於評論載入時使用異步傳輸，因此必須在最後一步加載（DIGG和評論框須放在評論內容�?�?�）
+//如果一定需�?�??�?的把myajax.SendGet改为myajax.SendGet2，但�?�能會引起�?�?�阻滯
+-->
+<script language='javascript'>
+function LoadCommets(page)
+{
+		var taget_obj = document.getElementById('commetcontent');
+		var waithtml = "<div style='line-height:50px'><img src='/images/loadinglit.gif' />評論加載中...</div>";
+		var myajax = new DedeAjax(taget_obj, true, true, '', 'x', waithtml);
+		myajax.SendGet2("/plus/feedback_ajax.php?dopost=getlist&aid=41670&page="+page);
+		DedeXHTTP = null;
+}
+function PostComment()
+{
+		var f = document.feedback;
+		var nface = '6';
+		var nfeedbacktype = 'feedback';
+		var nvalidate = '';
+		var nnotuser = '';
+		var nusername = '';
+		var npwd = '';
+		var taget_obj = $DE('commetcontentNew');
+		var waithtml = "<div style='line-height:30px'><img src='/images/loadinglit.gif' />正在發�?中...</div>";
+		if(f.msg.value=='')
+		{
+			alert("評論內容�?能为空�?");
+			return;
+		}
+		if(f.validate)
+		{
+			if(f.validate.value=='') {
+				alert("請填寫驗證碼�?");
+				return;
+			}
+			else {
+				nvalidate = f.validate.value;
+			}
+		}
+		if(f.msg.value.length > 500)
+		{
+			alert("你的評論是�?是太長了？請填寫500字以內的評論。");
+			return;
+		}
+		if(f.feedbacktype) {
+			for(var i=0; i < f.feedbacktype.length; i++)
+				if(f.feedbacktype[i].checked) nfeedbacktype = f.feedbacktype[i].value;
+		}
+		if(f.face) {
+			for(var j=0; j < f.face.length; j++)
+				if(f.face[j].checked) nface = f.face[j].value;
+		}
+		if(f.notuser.checked) nnotuser = '1';
+		if(f.username) nusername = f.username.value;
+		if(f.pwd) npwd = f.pwd.value;
+		
+		var myajax = new DedeAjax(taget_obj, false, true, '', '', waithtml);
+		myajax.sendlang = 'utf-8';
+		myajax.AddKeyN('dopost', 'send');
+		myajax.AddKeyN('aid', '41670');
+		myajax.AddKeyN('fid', f.fid.value);
+		myajax.AddKeyN('face', nface);
+		myajax.AddKeyN('feedbacktype', nfeedbacktype);
+		myajax.AddKeyN('validate', nvalidate);
+		myajax.AddKeyN('notuser', nnotuser);
+		myajax.AddKeyN('username', nusername);
+		myajax.AddKeyN('pwd', npwd);
+		myajax.AddKeyN('msg', f.msg.value);
+		myajax.SendPost2('/plus/feedback_ajax.php');
+		f.msg.value = '';
+		f.fid.value = 0;
+		if(f.validate)
+		{
+			if($DE('validateimg')) $DE('validateimg').src = "/include/vdimgck.php?"+f.validate.value;
+			f.validate.value = '';
+		}
+}
+function quoteCommet(fid)
+{
+	document.feedback.fid.value = fid;
+}
+LoadCommets(1);
+</script><!-- //評論內容�?��?�?� -->
+ </div>
+<!-- //左邊內容�?�?� -->
+<!-- //�?�邊內容開始 -->
+<div class="pright"> 
+ <div class="pright">
+  <!-- //推�??区 -->
+  <div id="recommendArea">
+   
+  </div>
+  <div style="display:none">
+   <dl class="tbox">
+    <dt><strong>欄目列表</strong></dt>
+    <dd>
+     <ul class="d6">
+      
+      <li><a href='/a/fuwuqiruanjian/Apache/'>Apache</a></li>
+      
+      <li><a href='/a/fuwuqiruanjian/Tomcat/'>Tomcat</a></li>
+      <li><a href='/a/fuwuqiruanjian/Jboss/' class='thisclass'>Jboss</a></li>
+      <li><a href='/a/fuwuqiruanjian/Weblogic/'>Weblogic</a></li>
+      
+      <li><a href='/a/fuwuqiruanjian/Websphere/'>Websphere</a></li>
+      
+      <li><a href='/a/fuwuqiruanjian/jetty/'>Jetty</a></li>
+      
+     </ul>
+    </dd>
+   </dl>
+  </div>
+  <div id="contentRtPicAD" style="margin:10px auto"></div>
+  <div class="commend mt1">
+   <dl class="tbox light">
+    <dt class='light'><strong>推薦內容</strong></dt>
+    <dd class='light'>
+     <ul class="d4">
+      <li><a href="/a/fuwuqiruanjian/Jboss/20110617/89186.html">簡單的JBOSS例�?</a>
+       <p>簡單的jboss例�? 
+ 
+ 簡單的例�? 1 創建一個接�?�IHello &nbsp; public...</p>
+      </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110613/88545.html">tomcat6轉jboss5發布ssh工程</a>
+       <p>�?�需�?刪除
+xml-apis.jar�?,servlet-api.jar
+�?��?�
+?
+From：http://tankywang....</p>
+      </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/86669.html">Jboss4集群�?置之一:�?言與集群知識</a>
+       <p>1.�?言
+
+2006年,Jboss公�?�被Redhat公�?�收購了。這直接導致Jboss產�?�?...</p>
+      </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/86664.html">Jboss環境�?�建指�?�</a>
+       <p>一 �?置變�?
+
+首先，�?安�?JDK，�?置JAVA_HOME環境變�?
+
+其次，將...</p>
+      </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/86659.html">ejb3:Unable to build EntityManagerFactory</a>
+       <p>開發環境为：
+&nbsp;&nbsp;&nbsp; jboss-5.1.0.GA
+&nbsp;&nbsp;&nbsp; Microsoft...</p>
+      </li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/86654.html">Jboss+Myeclipse�?學者常見�?題</a>
+       <p>1.�?在Eclipse中JRE類庫中加入%JBOSS_HOME%/client/jbossall-client.jar �?�則會...</p>
+      </li>
+
+     </ul>
+    </dd>
+   </dl>
+  </div>
+  <!-- /commend -->
+  <div class="hot mt1">
+   <dl class="tbox light">
+    <dt class='light'><strong>熱點內容</strong></dt>
+    <dd class='light'>
+     <ul class="c1 ico2">
+      <li><a href="/a/fuwuqiruanjian/Jboss/20101002/41668.html">使用Netty 構造一個異步的</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20100926/38216.html">jboss部署web應用</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20100926/38192.html">Jboss下多war包session共享�?</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/86661.html">[翻譯]JBoss AS7 用戶指�?�</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20100926/38197.html">jBPM(四): 部署jBPM所用表到</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/86672.html">jboss將端�?�號修改为8088還</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20101002/41670.html">Netty使用�?步</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20110524/86643.html">JBPM5 �?�件安�?</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20101002/41657.html">Jboss中EJB使用時，�?�時調用</a></li>
+<li><a href="/a/fuwuqiruanjian/Jboss/20100821/14093.html">GateIn 3.0.0 Beta 5 發布，開�?</a></li>
+
+     </ul>
+    </dd>
+   </dl>
+  </div>
+		<div class="commend mt1" id="rightDownArea">
+		</div>
+  <div id="contentRtPicAD2" style="margin:10px auto"></div>
+ </div>
+ <!-- /pright -->
+</div>
+<div id="innerfooterAD2" style="margin:10px auto; width:726px"></div>
+<div id="outad_foot"></div>
+<div id="hezuohuoban"></div>
+<!-- //底部模�?� -->
+<div class="footer w960 center mt1 clear">
+    <div class="footer_left"></div>
+    <div class="footer_body">
+	<p class="powered">    
+		<div class="copyright">Copyright © 2010-2012 <A href=http://www.stackdoc.com>Www.StackDoc.Com</a>. StackDoc 版權所有   </div></p>
+<!-- /powered -->
+   </div>
+   <div class="footer_right"></div>
+</div>
+<script type="text/javascript" src="/my/common.js"></script>
+<div style="display:none">
+    <script src="http://s9.cnzz.com/stat.php?id=3293225&web_id=3293225" language="JavaScript"></script>
+</div>
+
+<!-- /footer -->
+</body>
+</html>

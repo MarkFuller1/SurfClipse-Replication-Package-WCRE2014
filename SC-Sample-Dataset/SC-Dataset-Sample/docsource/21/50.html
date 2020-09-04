@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chasing a Cunning Android bug</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="viewport" content="initial-scale=1">
+    <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <link href="/stylesheets/syntax.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    
+    
+    <link href="/stylesheets/print.css" media="print" rel="stylesheet" type="text/css" />
+    <!--[if lt IE 8]>
+      <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <![endif]-->
+
+    <link href="http://feeds.feedburner.com/corner-squareup-com" rel="alternate" title="RSS" type="application/rss+xml" />
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-9517040-13']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </head>
+
+  <body class="post">
+    <div class="body-inner">
+      <header class="header">
+        <div class="header-inner">
+          <a href="/">
+            <h2 class="title">
+            The Corner
+            </h2>
+            <p class="subtitle">Square Engineering Blog</p>
+          </a>
+          
+        </div>
+      </header>
+
+      <div id="content">
+        <div class="main-panel">
+          <div class="prose">
+  
+    <h1>Chasing a Cunning Android bug</h1>
+  
+  <div class="date full-date">August 06, 2012</div>
+  <p>Most software bugs are small, pesky problems with an obvious cause and a simple solution. But every once in a while I encounter a bug who is more advanced: a bug that hides in the shadows of other bugs, avoiding detection by its coffee-drinking predator. This week I had the opportunity to stalk an advanced bug that was hiding in the development version of Square Card Reader.</p>
+
+<h2 id='symptoms'>Symptoms</h2>
+
+<p>We never saw the bug on Android 4.0 (Ice Cream Sandwich). But it was easy to reproduce on my Android 2.2 (Froyo) test device. Clicking &#8216;Sign In&#8217; consistently failed with this exception:</p>
+
+<pre><code>java.lang.IllegalStateException: Could not find a method signIn(View) in the
+activity class com.squareup.ui.ReaderLandingActivity for onClick handler on
+view class android.widget.Button with id &#39;landing_sign_in_button&#39;
+    at android.view.View$1.onClick(View.java:2059)
+    at android.view.View.performClick(View.java:2408)
+    at android.view.View$PerformClick.run(View.java:8816)
+    at android.os.Handler.handleCallback(Handler.java:587)
+    at android.os.Handler.dispatchMessage(Handler.java:92)
+    at android.os.Looper.loop(Looper.java:123)
+    at android.app.ActivityThread.main(ActivityThread.java:4627)
+Caused by: java.lang.NoSuchMethodException
+    at java.lang.Class.getDeclaredMethods(Native Method)
+    at java.lang.ClassCache.getDeclaredPublicMethods(ClassCache.java:166)
+    at java.lang.ClassCache.getDeclaredMethods(ClassCache.java:179)
+    at java.lang.ClassCache.findAllMethods(ClassCache.java:249)
+    at java.lang.ClassCache.getFullListOfMethods(ClassCache.java:223)
+    at java.lang.ClassCache.getAllPublicMethods(ClassCache.java:204)
+    at java.lang.Class.getMethod(Class.java:984)
+    at android.view.View$1.onClick(View.java:2052)
+    ... 11 more</code></pre>
+
+<p>The Android framework was looking for <code>signIn(View)</code> because we&#8217;d registered an <code>onClick</code> handler in our XML layout:</p>
+<div class='highlight'><pre><code class='xml'><span class='nt'>&lt;Button</span>
+    <span class='na'>android:id=</span><span class='s'>&quot;@+id/landing_sign_in_button&quot;</span>
+    <span class='na'>android:layout_height=</span><span class='s'>&quot;wrap_content&quot;</span>
+    <span class='na'>android:layout_width=</span><span class='s'>&quot;match_parent&quot;</span>
+    <span class='na'>android:onClick=</span><span class='s'>&quot;signIn&quot;</span>
+    <span class='na'>android:text=</span><span class='s'>&quot;@string/sign_in&quot;</span>
+    <span class='nt'>/&gt;</span>
+</code></pre></div>
+<p>But this shouldn&#8217;t have failed! We properly declared that method in our <code>ReaderLandingActivity</code>:</p>
+<div class='highlight'><pre><code class='java'><span class='kd'>public</span> <span class='kt'>void</span> <span class='nf'>signIn</span><span class='o'>(</span><span class='n'>View</span> <span class='n'>v</span><span class='o'>)</span> <span class='o'>{</span>
+  <span class='n'>startActivity</span><span class='o'>(</span><span class='k'>new</span> <span class='n'>Intent</span><span class='o'>(</span><span class='k'>this</span><span class='o'>,</span> <span class='n'>ReaderLoginActivity</span><span class='o'>.</span><span class='na'>class</span><span class='o'>));</span>
+<span class='o'>}</span>
+</code></pre></div>
+<p>Something was going wrong in Dalvik, Android&#8217;s application runtime. It wasn&#8217;t seeing a method that I knew was there.</p>
+
+<h3 id='apis_from_the_future'>APIs from the future</h3>
+
+<p>To share code and structure, all of Square&#8217;s activities extend from a <a href='http://corner.squareup.com/2012/05/actionbarsherlock-as-a-base.html'>common superclass activity</a>. It declares a couple of methods involving types not introduced until Honeycomb:</p>
+<div class='highlight'><pre><code class='java'>  <span class='kd'>public</span> <span class='kd'>final</span> <span class='kt'>void</span> <span class='nf'>onActionModeStarted</span><span class='o'>(</span><span class='n'>android</span><span class='o'>.</span><span class='na'>view</span><span class='o'>.</span><span class='na'>ActionMode</span> <span class='n'>mode</span><span class='o'>)</span> <span class='o'>{</span>
+    <span class='o'>...</span>
+  <span class='o'>}</span>
+    
+  <span class='kd'>public</span> <span class='kd'>final</span> <span class='kt'>void</span> <span class='nf'>onActionModeFinished</span><span class='o'>(</span><span class='n'>android</span><span class='o'>.</span><span class='na'>view</span><span class='o'>.</span><span class='na'>ActionMode</span> <span class='n'>mode</span><span class='o'>)</span> <span class='o'>{</span>
+    <span class='o'>...</span>
+  <span class='o'>}</span>
+</code></pre></div>
+<p>This is generally okay. As long as we don&#8217;t call the method, Dalvik should ignore the missing classes.</p>
+
+<h3 id='dalvik_did_bulk_reflection_back_in_froyo'>Dalvik did bulk reflection back in Froyo</h3>
+
+<p>Suppose you&#8217;re calling <code>ReaderLandingActivity.class.getMethod(&quot;signIn&quot;, View.class)</code>.</p>
+
+<ul>
+<li>In Ice Cream Sandwich, Dalvik calls some C code that walks through the <code>.dex</code> file, finds the <code>signIn</code> method, and returns it as a <code>Method</code> object.</li>
+
+<li>In Froyo, Dalvik calls some C code that walks through the <code>.dex</code> file and finds <em>all</em> methods on <code>ReaderLandingActivity</code>. Then Java takes over and searches for the <code>signIn</code> method in that list.</li>
+</ul>
+
+<h3 id='dalvik_did_too_much_class_initialization_back_in_froyo'>Dalvik did too much class initialization back in Froyo</h3>
+
+<p>Just because I&#8217;m looking up a method doesn&#8217;t mean I&#8217;ll ever invoke it. For example, <a href='http://code.google.com/p/google-guice/'>Guice</a> just checks for an annotation and ignores it if unfound. Class initialization is expensive and should be put off until necessary.</p>
+
+<p>But in Froyo, Dalvik <a href='http://code.google.com/p/android/issues/detail?id=3005#c6'>eagerly initialized</a> each method&#8217;s return type and its parameter types. If any of those types failed to initialize, we have a problem.</p>
+
+<h3 id='squash_the_bug'>Squash the bug</h3>
+
+<p>We ask for one method, <code>signIn</code>. Dalvik loads all methods on <code>ReaderLandingActivity</code> and its supertypes. That includes <code>onActionModeStarted</code>, which takes a parameter that didn&#8217;t exist on Froyo. Dalvik cannot initialize the missing class so the failure cascades and causes our method lookup to fail.</p>
+
+<p>This was made especially difficult to find because of another bug. When a class fails to initialize during <code>getMethods()</code>, Dalvik swallows the missing class failure and throws a less useful <code>NoSuchMethodException</code>.</p>
+
+<p>We worked around the problem by declaring click handlers in code rather than XML. Though it&#8217;s more verbose, it also avoids potentially inefficient reflection calls on those devices where reflection is the slowest.</p>
+
+<p>Dalvik has steadily improved in quality and efficiency from release to release. But it means we need to be extra careful when we&#8217;re testing and optimizing our code for older devices.</p>
+</div>
+
+<div class="authors">
+  
+    <div class="author">
+      <div class="author-image" style="background-image: url(/images/authors/jwilson.jpg)"></div>
+      <div class="author-content">
+        <label>Author</label>
+        <div class="author-name">Jesse Wilson</div>
+        <div class="author-bio">Maker of Android <a href="https://play.google.com/store/apps/details?id=com.publicobject.shush">apps</a> and <a href="http://code.google.com/p/google-gson/">libraries</a> in Waterloo, Canada.</div>
+      </div>
+    </div>
+  
+</div>
+
+
+  
+  <div id="comments">
+    <div class="prose">
+      <h2>Comments</h2>
+      <!-- <a href="/2012/08/getting-to-the-bottom.html#disqus_thread">Comments</a> -->
+      <p>
+        Get support help at <a href="https://squareup.com/support">squareup.com/support</a>.
+        We'll delete off-topic comments.
+      </p>
+    </div>
+    <div id="disqus_thread"></div>
+    <noscript>Please enable JavaScript to view the comments.</noscript>
+  </div>
+  
+
+
+
+
+        </div>
+
+        <div class="sidebar-panel">
+          <section class="sidebar-section">
+            
+            <h4>Recent Posts</h4>
+            <ul class="latest-posts">
+              
+                <li><a href="/2013/12/evenly-joins-square.html">Evenly Joins Square&nbsp;<span class="arrow">&#9654;</span></a></li>
+              
+                <li><a href="/2013/12/securing-rubygems-with-tuf-part-3.html">Securing RubyGems with TUF, Part 3&nbsp;<span class="arrow">&#9654;</span></a></li>
+              
+                <li><a href="/2013/12/securing-rubygems-with-tuf-part-2.html">Securing RubyGems with TUF, Part 2&nbsp;<span class="arrow">&#9654;</span></a></li>
+              
+                <li><a href="/2013/12/securing-rubygems-with-tuf-part-1.html">Securing RubyGems with TUF, Part 1&nbsp;<span class="arrow">&#9654;</span></a></li>
+              
+                <li><a href="/2013/12/pair-programming-interviews-ii.html">Pair Programming Interviews, Part II&nbsp;<span class="arrow">&#9654;</span></a></li>
+              
+            </ul>
+            
+          </section>
+
+          <section class="sidebar-section">
+            <h4>Stay Connected</h4>
+            <ul class="stay-connected-nav">
+              <li class="stay-connected-item"><a href="https://squareup.com">Squareup.com</a></li>
+              <li class="stay-connected-item"><a href="http://twitter.com/square">@Square</a></li>
+              <li class="stay-connected-item"><a href="https://squareup.com/careers">Squareup.com/Careers</a></li>
+              <li class="stay-connected-item"><a href="http://twitter.com/squareeng">@SquareEng</a></li>
+              <li class="stay-connected-item"><a href="http://square.github.io">Square Open Source</a></li>
+            </ul>
+          </section>
+
+          <section class="sidebar-section">
+            <h4>Support</h4>
+            <p>
+              For answers on how to best use Square products, please go to our Help Center:
+              <a href="http://squareup.com/support">Squareup.com/Support</a>
+            </p>
+          </section>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="footer">
+      <nav class="footer-nav">
+        <ul class="nav-list">
+          <li class="nav-item"><a href="http://www.squareup.com/news">News</a></li>
+          <li class="nav-item"><a href="http://www.squareup.com/testimonials">Testimonials</a></li>
+          <li class="nav-item"><a href="http://www.squareup.com/pricing">Pricing</a></li>
+          <li class="nav-item"><a href="http://www.squareup.com/security">Security</a></li>
+          <li class="nav-item"><a href="http://www.squareup.com/legal">Legal</a></li>
+          <li class="nav-item"><a href="http://www.squareup.com/retail">Store Locator</a></li>
+          <li class="nav-item"><a href="http://www.squareup.com/careers">Careers</a></li>
+          <li class="nav-item"><a href="http://www.squareup.com/help">Help Center</a></li>
+        </ul>
+        <p class="copyright">© 2009-2013 Square, Inc. All rights reserved.</p>
+      </nav>
+    </footer>
+
+    
+
+    
+
+    
+      
+        <script type="text/javascript">
+          
+          if (document.domain == "corner.squareup.com") { // conditional should disable comments on non-production domain. Add "|| true" to see comments in dev.
+            var disqus_identifier = "/2012/08/getting-to-the-bottom";
+            (function() {
+              var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+              dsq.src = 'http://squarelabs.disqus.com/embed.js';
+              (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+            (function() {
+              var links = document.getElementsByTagName('a');
+              var query = '?';
+              for(var i = 0; i < links.length; i++) {
+                if(links[i].href.indexOf('#disqus_thread') >= 0) {
+                  query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+                }
+              }
+              document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/squarelabs/get_num_replies.js' + query + '"></' + 'script>');
+            })();
+          } else {
+            // hide comments content in development
+            document.getElementById("comments").style.display='none';
+          }
+        </script>
+      
+    
+
+  <!-- site.env: "" -->
+  </body>
+</html>

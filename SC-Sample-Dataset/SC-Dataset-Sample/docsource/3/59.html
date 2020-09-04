@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 2002 (1.62)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Example of exception handling</TITLE>
+<META NAME="description" CONTENT="Example of exception handling">
+<META NAME="keywords" CONTENT="uni09-main">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="uni09-main.css">
+
+<LINK REL="next" HREF="node23.html">
+<LINK REL="previous" HREF="node21.html">
+<LINK REL="up" HREF="uni09-main.html">
+<LINK REL="next" HREF="node23.html">
+</HEAD>
+
+<BODY>
+<!--Navigation Panel-->
+<A NAME="tex2html249" HREF="node23.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html247" HREF="uni09-main.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html241" HREF="node21.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html250" HREF="node23.html">Propagation of exceptions</A>
+<B> Up:</B> <A NAME="tex2html248" HREF="uni09-main.html">Unit 09</A>
+<B> Previous:</B> <A NAME="tex2html242" HREF="node21.html">The getMessage method</A>
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION1009022000000000000000">
+Example of exception handling</A>
+</H2>
+
+<P>
+Write a Java program that prints the maximum of the sequence of non negative
+integer values that are stored on the file <TT>data.txt</TT>.
+
+<P>
+We first concentrate on the problem without considering exceptions.
+<blockquote>
+<PRE>
+import java.io.*;
+
+public class MaximumWithoutExceptions {
+  public static void main (String args[]) throws IOException {
+    BufferedReader br = new BufferedReader(new FileReader("data.txt"));
+            // could generate FileNotFoundException (checked)
+    int max = -1;
+
+    String line = br.readLine();
+            // could generate IOException (checked)
+    while (line != null) {
+      int n = Integer.parseInt(line);
+          // could generate NumberFormatException (unchecked)
+      if (n &gt; max) max = n;
+      line = br.readLine();
+          // could generate IOException (checked)
+    }
+    System.out.println("Maximum = " + max);
+  }
+}
+</PRE>
+</blockquote>
+
+<P>
+Let us now consider exceptions.
+<blockquote>
+<PRE>
+import java.io.*;
+
+public class MaximumWithExceptions {
+  public static void main (String args[]) {
+    try {
+      BufferedReader br = new BufferedReader(new FileReader("data.txt"));
+                // could generate FileNotFoundException (checked)
+      int max = -1;
+
+      String line = br.readLine();
+                // could generate IOException (checked)
+      while (line != null) {
+        int n = Integer.parseInt(line);
+                // could generate NumberFormatException (unchecked)
+        if (n &gt; max) max = n;
+        line = br.readLine();
+                // could generate IOException (checked)
+      }
+      if (max == -1)
+         throw new Exception("File empty or all numbers &lt; 0");
+      else
+         System.out.println("Maximum = " + max);
+      }
+    catch (FileNotFoundException e) {
+       System.out.println("The file does not exist.");
+    }
+    catch (IOException e) {
+       System.out.println("The file cannot be read.");
+    }
+    catch (NumberFormatException e) {
+       System.out.println("The file contains non numeric data.");
+    }
+    catch (Exception e) {
+       System.out.println(e.getMessage());
+    }
+  }
+}
+</PRE>
+</blockquote>
+
+<P>
+If the file contains alphanumeric data that cannot be converted to integer
+values, the first program would generate the following error message:
+<PRE>
+Exception in thread "main" java.lang.NumberFormatException: For input string: "pippo"
+  at java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+  at java.lang.Integer.parseInt(Integer.java:468)
+  at java.lang.Integer.parseInt(Integer.java:518)
+  at MaximumWithoutExceptions.main(MaximumWithoutExceptions.java:12)
+</PRE>
+
+<P>
+The second program, instead, would handle the exception and print:
+<PRE>
+The file contains non numeric data.
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html249" HREF="node23.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html247" HREF="uni09-main.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html241" HREF="node21.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html250" HREF="node23.html">Propagation of exceptions</A>
+<B> Up:</B> <A NAME="tex2html248" HREF="uni09-main.html">Unit 09</A>
+<B> Previous:</B> <A NAME="tex2html242" HREF="node21.html">The getMessage method</A>
+<!--End of Navigation Panel-->
+
+</BODY>
+</HTML>

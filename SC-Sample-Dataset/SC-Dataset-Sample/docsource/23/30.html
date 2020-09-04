@@ -1,0 +1,247 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>RMI Client throws AccessControlException (Distributed Java forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/456816/java/java/RMI-Client-throws-AccessControlException"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/456816/java/java/RMI-Client-throws-AccessControlException?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-4/java">Distributed Java</a>
+<div class="subject">RMI Client throws AccessControlException</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Shani Gunarathna, Greenhorn<br />
+  on <span class="lastPostTime">Aug 03, 2009 03:37:45</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">hi,
+<br /> I am new to RMI and i am using Eclipse IDE with RMI plugin. Eventhough i was able to run the server application, i couldn't run client application.
+<br /> It gives an exception as follows;
+<br /> <textarea name="code" class="java" cols="60" rows="10">ComputePi exception: access denied (java.net.SocketPermission 127.0.0.1:1099 connect,resolve)
+java.security.AccessControlException: access denied (java.net.SocketPermission 127.0.0.1:1099 connect,resolve)
+	at java.security.AccessControlContext.checkPermission(AccessControlContext.java:323)
+	at java.security.AccessController.checkPermission(AccessController.java:546)
+	at java.lang.SecurityManager.checkPermission(SecurityManager.java:532)
+	at java.lang.SecurityManager.checkConnect(SecurityManager.java:1034)
+	at java.net.Socket.connect(Socket.java:513)
+	at java.net.Socket.connect(Socket.java:469)
+	at java.net.Socket.&lt;init&gt;(Socket.java:366)
+	at java.net.Socket.&lt;init&gt;(Socket.java:180)
+	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:22)
+	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:128)
+	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:595)
+	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:198)
+	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:184)
+	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:322)
+	at sun.rmi.registry.RegistryImpl_Stub.lookup(Unknown Source)
+	at client.ComputePi.main(ComputePi.java:17)
+</textarea>
+<br /> 
+<br /> 
+<br /> My Server class is as follows:
+<br /> <textarea name="code" class="java" cols="60" rows="10">package engine;
+
+import java.rmi.*;
+import java.rmi.registry.*;
+import java.rmi.server.*;
+import compute.*;
+
+public class ComputeEngine implements Compute
+{
+    public ComputeEngine() throws RemoteException {
+        super();
+    }
+
+    public Object executeTask(Task t) {
+        return t.execute();
+    }
+
+    public static void main(String[] args) {
+        if (System.getSecurityManager() == null) {
+            System.setSecurityManager(new RMISecurityManager());
+        }
+        
+        // the original example had "//host/Compute" here, which
+        // has to be replaced with a real host name. 
+        String name = "rmi//localhost/Compute";
+        try {
+            Compute engine = new ComputeEngine();
+            Registry registry = LocateRegistry.createRegistry(0);
+            registry.rebind(name, engine);
+            System.out.println("ComputeEngine bound");
+        } catch (Exception e) {
+            System.err.println("ComputeEngine exception: " + 
+			       e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}</textarea>
+<br /> 
+<br /> This works fine.
+<br /> 
+<br /> My client class is as follows:
+<br /> <textarea name="code" class="java" cols="60" rows="10">package client;
+
+import java.rmi.*;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.math.*;
+import compute.*;
+
+public class ComputePi {
+    public static void main(String args[]) {
+        if (System.getSecurityManager() == null) {
+            System.setSecurityManager(new RMISecurityManager());
+        }
+        try {
+            String name = "Compute";
+            Registry registry = LocateRegistry.getRegistry("localhost");
+            Compute comp = (Compute) registry.lookup(name);   
+            Pi task = new Pi(Integer.parseInt(args[1]));
+            BigDecimal pi = (BigDecimal) (comp.executeTask(task));
+            System.out.println(pi);
+        } catch (Exception e) {
+            System.err.println("ComputePi exception: " + 
+                               e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}</textarea>
+<br /> 
+<br /> Both the server and client policy files has following code:
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">grant {
+	permission java.security.AllPermission;
+};</textarea>
+<br /> 
+<br /> 
+<br /> 
+<br /> Can somebody please help me to resolve this?
+<br /> 
+<br /> Thanks and regards,
+<br /> Harshi
+<br /> 
+<br /> [NK: Added code tags.]</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Vijitha Kumara, Bartender<br />
+  on <span class="lastPostTime">Aug 03, 2009 05:39:07</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">First, Please <a class="snap_shots" href="http://faq.javaranch.com/java/UseCodeTags" target="_new" >UseCodeTags</a> when posting code. Are you able to run the server (which should display "ComputeEngine bound") ? And which parameters passed to it when running (codebase etc..). </span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/456816'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=4'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:51:52</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/4"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/456816/java/java/RMI-Client-throws-AccessControlException?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

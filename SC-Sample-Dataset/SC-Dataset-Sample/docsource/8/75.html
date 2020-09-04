@@ -1,0 +1,869 @@
+
+
+
+
+
+
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+	<head>
+
+		<title>Using java.lang.reflect.Proxy</title>
+        <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+        <link rel="stylesheet" type="text/css" href="/forums/style.jsp">
+<link href="/css/jl.css" rel="stylesheet" type="text/css" />
+<link href="/css/jlJive.css" rel="stylesheet" type="text/css" />
+<link href="/css/navmenu.css" rel="stylesheet" type="text/css" />
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+		<link rel="top" href="/" title="Javalobby Home Page">
+		<link rel="up" href="/java/forums/f18032.html" title="Up to thread list">
+
+		
+		
+				<link rel="prev"
+							href="/java/forums/t18782.html"
+							title="Previous thread" >
+		
+
+		
+		
+
+    
+        <link rel="alternate" type="application/rss+xml" title="RSS"
+         href="http://www.javalobby.org/rss/rssmessages.jspa?threadID=18631">
+
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+sfHover = function() {
+	var sfEls = document.getElementById("nav").getElementsByTagName("LI");
+	for (var i=0; i<sfEls.length; i++) {
+		sfEls[i].onmouseover=function() {
+			this.className+=" sfhover";
+		}
+		sfEls[i].onmouseout=function() {
+			this.className=this.className.replace(new RegExp(" sfhover\\b"), "");
+		}
+	}
+}
+if (document.all) { //MS IE
+	if (window.attachEvent) window.attachEvent("onload", sfHover);
+	else { //IE 5.2 Mac does not support attachEvent
+		var old = window.onload;
+		window.onload = function() { if (old) old(); sfHover(); }
+	}
+}
+//--><!]]></script>
+<!--[if IE]>
+<style>
+body {
+  height: 100%;
+  overflow: hidden;
+  font-size: 100%;
+  }
+div#wrap_outer {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  }
+div#glideDiv0 {
+  position: absolute;
+}
+#comments dd pre {
+	width: 100%;
+	overflow: scroll;
+}
+</style>
+<script type="text/javascript">
+onload = function() { wrap_outer.focus() }
+</script>
+<![endif]-->
+</head>
+    <body >
+    
+
+<div id="wrap_outer">
+<!-- TOP LEADERBOARD GOES HERE -->
+
+<div id="wrap_inner">
+<div id="header">
+	<div class="netbar">
+		<a href="http://www.javalobby.org/" title="Java & J2EE Programming community with Java forums, Java blogs, Java news & Java tutorials">Javalobby</a> |
+        <a href="http://www.eclipsezone.com/" title="Eclipse Developer and User Community">EclipseZone</a> |
+        <a href="http://www.javaforge.com/" title="Open Source Java Project Hosting">JavaForge</a> |
+		<a href="http://www.jroller.com/" title="Free Java Blogging community for Java & J2EE Developer blogs">JRoller</a> |
+		<a href="http://www.javablackbelt.com/" title="Java skill evaluation platform">JavaBlackBelt</a> |
+		<a href="http://www.jdocs.com/" title="Javadoc API docs for over 130 Java & J2EE libraries">JDocs</a> |
+        <a href="http://www.javacrawl.com/" title="RSS Portal for Java news & J2EE news">Javacrawl</a> |		
+        <a href="http://www.jugcentral.com/" title="Java User Group hosting & services for JUGs">JUGCentral</a> |
+		<a href="http://www.myjavaserver.com/" title="Free Java JSP & J2EE hosting for developers learning Java">MyJavaServer</a> |
+		<a href="http://www.dzone.com/advertise.jsp" title="Promote your products & services to Java developers"><b>ADVERTISE</b></a>
+	</div>
+	<div class="welcomebar">
+		
+				<form action="/forums/login.jspa" method="post" name="loginform">
+				Username/Email: <input type="text" name="username" size="20" maxlength="150" value="" tabindex="1" id="username01" />
+				Password: <input type="password" name="password" size="20" maxlength="150" value="" tabindex="2" id="password01" />
+				<input type="hidden" name="autoLogin" id="autoLogin01" value="true" />
+				<input type="hidden" name="successURL" id="successURL01" value="http://www.javalobby.org/java/forums/t18631.html" />
+
+				<a href="javascript:document.loginform.submit()">SIGN IN</a> | <a href="/account!default.jspa">JOIN NOW!</a>
+				</form>
+		
+	</div>
+	</div>
+<div id="navcontainer">
+	<ul id="nav">
+		<li><a href="/">Home</a></li>
+		<li><a href="#">Features</a>
+			<ul>
+				<li><a href="/forums/post!default.jspa?forumID=61">Submit&nbsp;an&nbsp;article</a></li>
+				<li><a href="/spotlights.jsp?view=all">Presentations and Articles</a></li>
+				<li><a href="/av/javapolis/">JavaPolis 2004 Online</a></li>
+                <li><a href="/av/javazone/">JavaZone 2005</a></li>
+
+				<li><a href="/java/forums/f17.html">Announcements</a></li>
+				<li><a href="/nl/index.jsp">Newsletters</a></li>
+
+			</ul>
+		</li>
+		<li><a href="/java/forums/c5601.html">Forums</a>
+			<ul>
+				<li><a href="/java/forums/c5601.html">Overview</a></li>
+				<li><a href="/forums/help.jspa">Help&nbsp;&amp;&nbsp;FAQ</a></li>
+				<li><a href="/notyet.jsp">Posting&nbsp;guidelines</a></li>
+				<li><a href="/notyet.jsp">Recent&nbsp;postings</a></li>
+				<li><a href="/notyet.jsp">Popular&nbsp;discussions</a></li>
+				
+				<li><a href="/forums/online.jspa">Who's&nbsp;online</a></li>
+			</ul>
+		</li>
+		<li><a href="#">Blogs</a>
+			<ul>
+				<li><a href="http://www.jroller.com/">Popular&nbsp;blogs</a></li>
+				<li><a href="http://www.jroller.com/user.do?method=registerUser">Start&nbsp;your&nbsp;free&nbsp;blog</a></li>
+				<li><a href="http://www.jroller.com/">Recent&nbsp;blog&nbsp;entries</a></li>
+			</ul>
+		</li>
+		<li><a href="#">JL Network</a>
+			<ul>
+				<li><a href="http://www.javalobby.org/" title="Java J2SE J2EE Programming community with Java forums, Java blogs, Java news & Java tutorials">Javalobby.org</a></li>
+        <li><a href="http://www.javacrawl.com/" title="RSS Portal for Java news & J2EE news">Javacrawl.com</a></li>
+				<li><a href="http://www.jdocs.com/" title="Javadoc API docs for over 130 Java & J2EE libraries">JDocs.com</a></li>
+				<li><a href="http://www.jroller.com/" title="Free Java blog network for over 7,000 Java & J2EE Developer blogs">JRoller.com</a></li>
+				<li><a href="http://www.jugcentral.com/" title="Java User Group hosting & services for JUGs">JUGCentral.com</a></li>
+				<li><a href="http://www.myjavaserver.com/" title="Free Java JSP & J2EE hosting for developers learning Java">MyJavaServer.com</a></li>
+				<li><a href="#">Friends&nbsp;&amp;&nbsp;Partners</a></li>
+			</ul>
+		</li>
+		<li><a href="#">Members&nbsp;Only</a>
+			<ul>
+				<li><a href="/forums/usersettings!default.jspa">Control&nbsp;Panel</a></li>
+				
+				<li><a href="/forums/accountEditNewsletter!default.jspa">Subscriptions</a></li>
+				<li><a href="/notyet.jsp">Downloads</a></li>
+				<li><a href="/notyet.jsp">Benefits</a></li>
+				<li><a href="/notyet.jsp">Special&nbsp;Offers</a></li>
+			</ul>
+		</li>
+		<li><a href="#">About JL</a>
+			<ul>
+				<li><a href="/about.jsp">Our&nbsp;story</a></li>
+				<li><a href="/network.jsp">Sites&nbsp;&amp;&nbsp;Services</a></li>
+				<li><a href="/notyet.jsp">In&nbsp;the&nbsp;News</a></li>
+				<li><a href="/privacy.jsp">Privacy&nbsp;policy</a></li>
+				<li><a href="/contact.jsp">Contact&nbsp;us</a></li>
+				<li><a href="/advertise.jsp">Advertising&nbsp;info</a></li>
+				<li><a href="/forums/help.jspa">FAQ</a></li>
+			</ul>
+		</li>
+	</ul>
+	<div style="clear: both;"> </div>
+</div>
+<div id="topLeaderboard">
+<!-- BEGIN ADVERTPRO ADVANCED CODE BLOCK -->
+
+<SCRIPT language="JavaScript" src="http://avpa.javalobby.org/servlet/view/javascript/zone?zid=32&pid=0&random=13795462" type="text/javascript"></SCRIPT>
+<NOSCRIPT>
+<IFRAME src="http://avpa.javalobby.org/servlet/view/html/zone?zid=32&pid=0&random=13795462" height="90" width="728" hspace="0" vspace="0" frameborder="0" marginwidth="0" marginheight="0" scrolling="no">
+<A href="http://avpa.javalobby.org/servlet/click/zone?zid=32&pid=0&lookup=true&random=13795462" target="_top">
+<IMG src="http://avpa.javalobby.org/servlet/view/image/zone?zid=32&pid=0&random=13795462" height="90" width="728" hspace="0" vspace="0" border="0" alt="Click Here!">
+</A>
+</IFRAME>
+</NOSCRIPT>
+
+<!-- END ADVERTPRO ADVANCED CODE BLOCK -->
+</div>
+    
+<div id="rightColumn">
+
+
+<div class="jljive-portlet">
+  <div class="header">
+
+    <h1>Popular @ <a href="http://www.dzone.com">
+      <img src="/images/std/dzone_130x24.gif" alt="dzone.com: fresh links for developers"
+           title="dzone.com: fresh links for developers"
+           style="border:none;vertical-align:text-top;padding-top:2px;"></a></h1></div>
+  <ul class="dzone">
+    
+    
+      <li>
+        <a href="http://www.dzone.com/links/r/hadoop_in_5_minutes_for_beginners.html" title="Hadoop in 5 minutes for beginners">
+        Hadoop in 5 minutes for beginners</a>
+        </li>
+    
+      <li>
+        <a href="http://www.dzone.com/links/r/functional_interfaces_and_lamda_expressions_in_ja.html" title="Functional Interfaces and lamda expressions in Java 8">
+        Functional Interfaces and lamda...</a>
+        </li>
+    
+      <li>
+        <a href="http://www.dzone.com/links/r/code_reviews_made_fun_codebrag_v10_has_arrived.html" title="Code reviews made fun - Codebrag v1.0 has arrived">
+        Code reviews made fun - Codebrag v1.0 has...</a>
+        </li>
+    
+      <li>
+        <a href="http://www.dzone.com/links/r/feathers_lightweight_web_application_framework.html" title="Feathers : Lightweight Web Application Framework">
+        Feathers : Lightweight Web Application...</a>
+        </li>
+    
+      <li>
+        <a href="http://www.dzone.com/links/r/7_million_sought_by_crowdfunding_campaign_for_nat.html" title="$7 million sought by crowdfunding campaign for native JVM in browsers">
+        $7 million sought by crowdfunding campaign...</a>
+        </li>
+    
+      <li>
+        <a href="http://www.dzone.com/links/r/a_programmers_guide_to_data_mining.html" title="A Programmer's Guide to Data Mining">
+        A Programmer's Guide to Data Mining</a>
+        </li>
+    
+      <li class="last">
+        <a href="http://www.dzone.com/links/r/angularjs_how_to_code_today_with_tomorrow_tools_t.html" title="AngularJS - How to code today with tomorrow tools - talk @ Codemotion Milan 2013">
+        AngularJS - How to code today with...</a>
+        </li>
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </ul>
+
+  <div class="footer">
+    <img src="/images/std/icons/write_16x16.gif" hspace="0" vspace="0" align="texttop"/>
+    <a href="http://www.dzone.com/links/add.html" class="post">Submit a story</a>
+    &nbsp;<img src="/images/std/icons/check_16x16.gif" hspace="0" vspace="0" align="texttop"/>
+    <a href="http://www.dzone.com/links/queue.html" class="post">Vote on new stories</a>
+  </div>
+</div>
+
+
+<div id="mpu">
+  <!-- BEGIN ADVERTPRO ADVANCED CODE BLOCK -->
+   <SCRIPT language="JavaScript" src="http://avpa.javalobby.org/servlet/view/javascript/zone?zid=33&pid=0&random=20979754" type="text/javascript"></SCRIPT>
+<NOSCRIPT>
+<IFRAME src="http://avpa.javalobby.org/servlet/view/html/zone?zid=33&pid=0&random=20979754" height="250" width="300" hspace="4" vspace="4" frameborder="0" marginwidth="0" marginheight="0" scrolling="no">
+<A href="http://avpa.javalobby.org/servlet/click/zone?zid=33&pid=0&lookup=true&random=20979754" target="_top">
+<IMG src="http://avpa.javalobby.org/servlet/view/image/zone?zid=33&pid=0&random=20979754" height="250" width="300" hspace="4" vspace="4" border="0" alt="Support Javalobby, visit our sponsors">
+</A>
+</IFRAME>
+</NOSCRIPT>
+
+   <!-- END ADVERTPRO ADVANCED CODE BLOCK -->
+  </div> <!-- end mpu DIV -->
+
+<div class="jljive-portlet">
+	<div class="header">Forum Controls</div>
+		
+		
+
+		
+		
+
+		
+			
+		
+	<ul>
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li><a href="/forums/post!reply.jspa?threadID=18631"
+	class="noborder"><img src="/images/std/icons/write_16x16.gif"
+	width="16" height="16" border="0"
+	alt="Reply to this Thread"></a> 
+<a href="/forums/post!reply.jspa?threadID=18631">Reply to this Thread</a></li>
+
+
+  
+
+<li><a href="/forums/search!default.jspa?objID=f18032"
+	class="noborder"><img src="images/search-16x16.gif" width="16"
+	height="16" border="0" alt="Search Forum"></a>
+ <a
+	href="/forums/search!default.jspa?objID=f18032">Search Forum</a></li>
+
+
+
+
+
+
+
+        <li>
+            <a href="/java/forums/f18032.html" class="noborder"
+             ><img src="images/arrow-left-16x16.gif" width="16" height="16" border="0" alt="Back to Thread List"></a>
+            
+            <a href="/java/forums/f18032.html"
+             >Back to Thread List</a></li>
+
+
+
+	</ul>
+              <div class="footer">
+                
+                Whos Online:
+
+                
+
+                
+                
+                        
+                        
+                128 guest(s), 0 user(s).
+
+                
+                <a href="/forums/online.jspa">More info &raquo;</a>
+            </div>
+
+</div>
+
+
+	
+
+
+
+
+		<div class="jljive-portlet">
+		<div class="header">Spotlight Features</div>
+		
+
+
+
+
+<div class="spotlight">
+
+
+</div>
+
+
+        <div class="footer"><a href="/spotlights.jsp">Read the Spotlight Archives</a></div>
+		</div>
+
+<!-- end rightColumn div --></div>
+
+<div id="leftColumn">
+     
+    
+		<span class="jljive-paginator">
+		
+		Replies:
+		1 -
+		
+		Pages:
+		1 &nbsp;
+
+		
+		</span>
+	
+	<br>
+	
+		<span class="jljive-paginator">
+			
+					
+					Threads:
+					[
+					
+							
+							<a href="/java/forums/t18782.html"
+							 >Previous</a>
+					
+					|
+					
+							
+							Next
+					
+					]
+			
+		</span>
+	
+    
+    <div id="comments">
+	<dl>
+		
+
+			
+				
+
+
+
+
+
+
+
+
+
+
+
+    
+
+		<div class="rootmsg">
+			<div class="rm_header">
+				<a name="91832992"></a>
+				<div class="msgControls">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        
+
+                        
+                        
+                        
+                        
+
+                            <td>&nbsp;</td>
+                            <td class="jive-icon">
+                                <a href="/forums/post!reply.jspa?messageID=91832992" title="Click to reply to this thread"
+                                 ><img src="/images/std/icons/write_16x16.gif" width="16" height="16" border="0" alt="Click to reply to this thread"></a>
+                            </td>
+                            <td class="jive-icon-label">
+                                <a href="/forums/post!reply.jspa?messageID=91832992"
+                                 title="Click to reply to this thread"
+                                 >Reply</a>
+                            </td>
+
+                        
+                    </tr>
+                    </table>
+        </div><h1>Using java.lang.reflect.Proxy
+</h1>
+			
+				<h4>At 11:47 PM
+				on May 9, 2005, <a href="/forums/profile.jspa?userID=134758" class="author">Vitor Fernando Pamplona</a>  wrote:</h4>
+			</div>
+			<style type="text/css">
+        div#smalljobs a.post {
+            font-size: 70%;
+            margin-left: 1em;
+            color: #933;
+        }
+             div#smalljobs ul {
+       margin: 0;
+                 padding: 0;
+                 list-style: none;
+     }
+     div#smalljobs li {
+       border-bottom: none;
+         margin: 0px 0.0em 0px 1.5em;
+         line-height: 140%;
+         overflow: hidden;
+         height: 1.4em;
+       padding: 0;
+     }
+     div#smalljobs {
+         padding-left: 1em;
+         padding-bottom: 0.5em;
+         padding-right: 1em;
+         margin-bottom: 1em;
+         clear: both;
+         background-color: #f8f8f8;
+     }
+    </style>
+     <div id="smalljobs" class="thread">
+       <h3><a href="http://jobs.dzone.com">Fresh Jobs for Developers</a> <a href="https://jobs.dzone.com/jobs/new" class="post">Post a job opportunity</a></h3>
+       <ul>
+      
+         
+         
+       
+       </ul>
+   </div>
+                    
+                    
+                 <div id="dzone_vote_widget" style="float: left; margin-right: 8px;">
+                <script language="javascript" src="http://www.dzone.com/widgets/zoneit.js"></script></div>Do you remember that class that you would love put an "if" before each method? Or, that in witch you would love to catch all exceptions in a unique stretch of code? Some way to change the application flow without any change in existing class? If you are thinking in aspects, you're wrong! There is a way to make the same thing without add any class, api, framework, special compiler or virtual machine. It's pure and basic Java. In this step I would like to present the Proxy class at Reflection API that comes together with Java since version 1.3.
+<br><br>The Proxy is a special class that allows intercept a set of methods identified by an interface. You can, for example, intercept all methods of a class to check if an attribute is not null or to catch possible exceptions in methods. E.g.: Let's say that the class below is present in our commercial systems:
+<br><br><pre><font color="navy"><b>public</b></font> <font color="navy"><b>class</b></font> Sum <font color="navy">{</font>
+    <font color="navy"><b>public</b></font> Integer value1;
+    <font color="navy"><b>public</b></font> Integer value2;
+&nbsp;
+    <font color="navy"><b>public</b></font> Sum(Integer val1, Integer val2) <font color="navy">{</font>
+        value1 = val1;
+        value2 = val2;
+    <font color="navy">}</font>
+&nbsp;
+    <font color="navy"><b>public</b></font> Integer sum() <font color="navy">{</font>
+        <font color="navy"><b>return</b></font> <font color="navy"><b>new</b></font> Integer(value1.intValue() + value2.intValue());
+    <font color="navy">}</font>
+&nbsp;
+<font color="navy">}</font> 
+</pre><br><br>This class will run? It'll find the correct result? Well, being optimistical, yes, it will do. But, if a null value was passed as a parameter to the constructor, the method sum() will throw a pretty NullPointerException. Who is catching that? Anyone. Who will be using the class never will remember (and wouldn't have) that the method sum() can launch a exception. What we can do for solve? We can use reflection to help the user. Here we go.
+<br><br>First, we need an interface with the method to intercept. In our case, the sum(). 
+<br><br><pre><font color="navy"><b>public</b></font> <font color="navy"><b>interface</b></font> ISum <font color="navy">{</font>
+    <font color="navy"><b>public</b></font> Integer sum();
+<font color="navy">}</font>  
+</pre><br><br>After, we have to create a class that will handle the method call. This class will try to run the true method sum() in Sum class, if it fails, the NullPointerException must be catched and a zero value must return. The handle must implement the InvocationHandler interface and obviously implements the 
+<b>public Object invoke(Object proxy, Method method, Object[] args) 
+</b> method. This method will be called when the user invoke the method sum() in a Proxy class. The "try catch" will evict the NullPointerException. See above:
+<br><br><pre><font color="navy"><b>import</b></font> java.lang.reflect.InvocationHandler;
+<font color="navy"><b>import</b></font> java.lang.reflect.Method;
+&nbsp;
+<font color="navy"><b>public</b></font> <font color="navy"><b>class</b></font> Handler <font color="navy"><b>implements</b></font> InvocationHandler <font color="navy">{</font>
+&nbsp;
+    <font color="navy"><b>public</b></font> Sum trueSum;
+&nbsp;
+    <font color="navy"><b>public</b></font> Handler(Sum sum) <font color="navy">{</font>
+        this.trueSum = sum;
+    <font color="navy">}</font>
+&nbsp;
+    <font color="navy"><b>public</b></font> Object invoke(Object proxy, Method method, Object[] args) <font color="navy"><b>throws</b></font> Throwable <font color="navy">{</font>
+        <font color="navy"><b>try</b></font> <font color="navy">{</font>
+            <font color="navy"><b>return</b></font> method.invoke(trueSum, args);
+        <font color="navy">}</font> <font color="navy"><b>catch</b></font> ( Exception e ) <font color="navy">{</font>
+            <font color="navy"><b>return</b></font> <font color="navy"><b>new</b></font> Integer(0);
+        <font color="navy">}</font>
+    <font color="navy">}</font>
+<font color="navy">}</font> 
+</pre><br><br>And now, to be beautiful, we must implement a Sum factory. An object that will create the true Sum and the proxy class. Anyone can create a Sum class without this factory class. You can block this action with a private or protected constructor. 
+<br><br><pre><font color="navy"><b>import</b></font> java.lang.reflect.Proxy;
+&nbsp;
+<font color="navy"><b>public</b></font> <font color="navy"><b>class</b></font> SumFactory  <font color="navy">{</font>
+    <font color="navy"><b>public</b></font> ISum createSum(Integer val1, Integer val2) <font color="navy">{</font>
+         Sum sum = <font color="navy"><b>new</b></font> Sum(val1, val2);
+         Handler handler = <font color="navy"><b>new</b></font> Handler(sum);
+         Class[] interfacesArray = <font color="navy"><b>new</b></font> Class[] <font color="navy">{</font>ISum.class<font color="navy">}</font>;
+&nbsp;
+         <font color="navy"><b>return</b></font> (ISum) Proxy.newProxyInstance(Sum.class.getClassLoader(), interfacesArray, handler);
+    <font color="navy">}</font>
+<font color="navy">}</font> 
+</pre><br><br>As you can see, this class creates a Sum instance with the params to sum() and a handler to intercept the calls in a Proxy class. The var sum is passed into a Handler constructor to be the responsable to right result. The method newProxyInstance creates the Proxy class that will change the application flow, repassing responsibilities to handler. The var interfacesArray is an array of interfaces that have the methods to handler intercept. 
+<br><br>To finish, it's necessary declare Sum class implementing the ISum interface. If you don't do this the Proxy class will throw an Exception like: 
+<b>"Exception in thread "main" java.lang.IllegalArgumentException: object is not an instance of declaring class"
+</b> on constructor. 
+<br><br>After, all this work, you can test with a simple class, like: 
+<br><pre><font color="navy"><b>public</b></font> <font color="navy"><b>class</b></font> Test <font color="navy">{</font>
+    <font color="navy"><b>public</b></font> <font color="navy"><b>static</b></font> <font color="navy"><b>void</b></font> main(String[] args)  <font color="navy">{</font>
+        ISum s = <font color="navy"><b>new</b></font> SumFactory().createSum(null, <font color="navy"><b>new</b></font> Integer(2));
+        System.out.println(<font color="red">"Returns (null+2): "</font>+s.sum());
+       
+        s = <font color="navy"><b>new</b></font> SumFactory().createSum(<font color="navy"><b>new</b></font> Integer(3), <font color="navy"><b>new</b></font> Integer(2));
+        System.out.println(<font color="red">"Returns (3+2): "</font>+s.sum());
+     <font color="navy">}</font>
+<font color="navy">}</font> 
+</pre><br><br>Easy? Yes, the proxy class calls the handler that invokes que true sum() method and catch possible exceptions. 
+<br><br>Until next time, 
+<br><br>Vitor Fernando Pamplona
+<br><a href="http://www.jroller.com/page/vfpamp" target="_blank">http://www.jroller.com/page/vfpamp</a>
+<br><a href="http://www.javafree.com.br" target="_blank">http://www.javafree.com.br</a>
+
+      <div class="rm_footer">
+         <!-- BEGIN ADVERTPRO ADVANCED CODE BLOCK -->
+          <span style="float:right"> <SCRIPT language="JavaScript" src="http://avpa.javalobby.org/servlet/view/javascript/zone?zid=71&pid=0&random=43013645" type="text/javascript"></SCRIPT>
+<NOSCRIPT>
+<IFRAME src="http://avpa.javalobby.org/servlet/view/html/zone?zid=71&pid=0&random=43013645" height="60" width="234" hspace="4" vspace="4" frameborder="0" align="right" marginwidth="0" marginheight="0" scrolling="no">
+<A href="http://avpa.javalobby.org/servlet/click/zone?zid=71&pid=0&lookup=true&random=43013645" target="_top">
+<IMG src="http://avpa.javalobby.org/servlet/view/image/zone?zid=71&pid=0&random=43013645" height="60" width="234" hspace="4" vspace="4" border="0" alt="Support Javalobby, visit our sponsors" align="right">
+</A>
+</IFRAME>
+</NOSCRIPT>
+</span>
+          <!--<a href="http://avpa.javalobby.org/servlet/click/zone?zid=71&pid=0&lookup=true&position=1" target="_top">
+<img src="http://avpa.javalobby.org/servlet/view/banner/image/zone?zid=71&pid=0&position=1" height="60" width="234" hspace="0" vspace="4" align="right" border="0" alt="Click Here!">
+</a>-->   <!-- END ADVERTPRO ADVANCED CODE BLOCK -->
+
+				
+				<h3>1 replies
+					
+							 so far
+							
+							<span class="postYours">(<a href="/forums/post!reply.jspa?threadID=18631" style="border:none"
+							 ><img src="/images/std/icons/write_16x16.gif" title="Reply to this Thread"
+							 width="16" height="16" ></a>
+							<a href="/forums/post!reply.jspa?threadID=18631"
+							 >Post your own</a>)</span>
+					
+				</h3>
+				
+		</div>
+		</div>
+
+
+                <!-- Text ad at top of right column -->
+                
+	
+
+            
+
+		
+
+			
+				
+
+
+
+
+
+
+
+
+
+
+<a name="91833710"></a>
+<dt id="reply1" class="alt"><a href="#91833710"
+																				class="postno"
+																				title="Permlink to this reply">1
+	.</a>
+		<span class="replyInfo">At 2:30 AM
+		on May 18, 2005, <a
+				href="/forums/profile.jspa?userID=168577"
+				class="author">Mikhail Galyutin</a>
+
+
+            
+ wrote:</span>
+</dt>
+<dd class="alt">
+	<div class="msgControls">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        
+
+                        
+                        
+                        
+                        
+
+                            <td>&nbsp;</td>
+                            <td class="jive-icon">
+                                <a href="/forums/post!reply.jspa?messageID=91833710" title="Click to reply to this thread"
+                                 ><img src="/images/std/icons/write_16x16.gif" width="16" height="16" border="0" alt="Click to reply to this thread"></a>
+                            </td>
+                            <td class="jive-icon-label">
+                                <a href="/forums/post!reply.jspa?messageID=91833710"
+                                 title="Click to reply to this thread"
+                                 >Reply</a>
+                            </td>
+
+                        
+                    </tr>
+                    </table>
+        </div>
+	<h3>Re: Using java.lang.reflect.Proxy
+</h3>
+	It is probably not a best example to illustrate Proxy. I mean, the InvocationHandler 
+<b>public Object invoke(Object proxy, Method method, Object[] args)
+</b> the proxy argument will never be used. It is much easier for this case do not use Reflection at all. 
+<br><pre><font color="navy"><b>public</b></font> <font color="navy"><b>class</b></font> SumProxy <font color="navy"><b>implements</b></font> ISum <font color="navy">{</font>
+ 
+    <font color="navy"><b>public</b></font> Sum trueSum;
+ 
+    <font color="navy"><b>public</b></font> SumProxy(Sum sum) <font color="navy">{</font>
+        this.trueSum = sum;
+    <font color="navy">}</font>
+ 
+    <font color="navy"><b>public</b></font> Integer sum() <font color="navy">{</font>
+        <font color="navy"><b>try</b></font> <font color="navy">{</font>
+            <font color="navy"><b>return</b></font> trueSum.sum();
+        <font color="navy">}</font> <font color="navy"><b>catch</b></font> ( Exception e ) <font color="navy">{</font>
+            <font color="navy"><b>return</b></font> <font color="navy"><b>new</b></font> Integer(0);
+        <font color="navy">}</font>
+    <font color="navy">}</font>
+<font color="navy">}</font> 
+</pre><br>I'm not sure i can offer the example to illustrate the Proxy advances.
+
+
+	
+</dd>
+
+
+
+
+
+
+			
+
+		
+	</dl>
+	</div>
+
+</div>
+
+<div class="jive-message-list-footer">
+	
+		<span class="jljive-paginator">
+		
+		Replies:
+		1 -
+		
+		Pages:
+		1 &nbsp;
+
+		
+		</span>
+	
+	
+		<span class="jljive-paginator">
+			
+					
+					Threads:
+					[
+					
+							
+							<a href="/java/forums/t18782.html"
+							 >Previous</a>
+					
+					|
+					
+							
+							Next
+					
+					]
+			
+		</span>
+	
+</div>
+
+
+    <br>
+    <a href="/rss/rssmessages.jspa?threadID=18631"
+    title="Point your RSS reader here for a feed of the latest messages in this thread"><img src="images/rss-24x16.gif"
+    width="24" height="14" border="0" alt="thread.rss_message"></a>
+
+
+<!-- layers that slide go here.
+		 Be sure to include id for each layer in style sheet in head -->
+<div id="glideDiv0">
+	
+			
+			<a href="/forums/post!reply.jspa?threadID=18631"
+			 ><img src="/images/std/icons/write.gif" title="Reply to this Thread"
+			 width="24" height="24" align="right"></a>
+	
+
+	
+	<a href="/"
+	><img src="/images/std/icons/home.gif" title="Home"
+		width="24" height="24" align="right"></a>
+
+	
+	<a href="/java/forums/f18032.html"
+	><img src="/images/std/icons/folder_up.gif" title="Up to Thread List"
+		width="24" height="24" align="right"></a>
+
+	
+	
+			<img src="/images/std/icons/next_thread_off.gif" title="No Next Thread" width="24" height="24" align="right">
+	
+
+	
+	
+			<img src="/images/std/icons/next_messages_off.gif" title="No Additional Replies" width="24" height="24" align="right">
+	
+
+	
+	
+			<img src="/images/std/icons/prev_messages_off.gif" title="No Previous Replies" width="24" height="24" align="right">
+	
+
+	
+	
+			<a href="/java/forums/t18782.html"
+			 ><img src="/images/std/icons/prev_thread.gif" title="Previous Thread" width="24" height="24" align="right"></a>
+	
+
+	
+	
+			<img src="/images/std/icons/write_off.gif" title="No Email this thread to a friend" width="24" height="24" align="right">
+	
+
+</div>
+<br/><br/>
+<div id="footer">
+	<!-- BEGIN ADVERTPRO ADVANCED CODE BLOCK -->
+ <SCRIPT language="JavaScript" src="http://avpa.javalobby.org/servlet/view/javascript/zone?zid=24&pid=0&random=61079168" type="text/javascript"></SCRIPT>
+<NOSCRIPT>
+<IFRAME src="http://avpa.javalobby.org/servlet/view/html/zone?zid=24&pid=0&random=61079168" height="60" width="468" hspace="0" vspace="0" frameborder="0" marginwidth="0" marginheight="0" scrolling="no">
+<A href="http://avpa.javalobby.org/servlet/click/zone?zid=24&pid=0&lookup=true&random=61079168" target="_top">
+<IMG src="http://avpa.javalobby.org/servlet/view/image/zone?zid=24&pid=0&random=61079168" height="60" width="468" hspace="0" vspace="0" border="0" alt="Click Here!">
+</A>
+</IFRAME>
+</NOSCRIPT>
+
+ <!-- END ADVERTPRO ADVANCED CODE BLOCK -->
+<a href="http://www.spreadfirefox.com/?q=affiliates&amp;id=29092&amp;t=64" class="noborder"><img border="0" alt="Get Firefox!" title="Get Firefox!" src="/images/logos/get_firefox.gif"/></a>
+&nbsp;<a href="http://www.jivesoftware.com/poweredby?src=javalobby" style="font-size: 11px">Powered by Jive Software</a> <a href="http://www.caucho.com"><img border="0"
+                             alt="Powered by Caucho Resin!"
+                             title="Powed by Caucho Resin!"
+                             src="/images/logos/resin-powered.gif"/></a>
+<!-- end footer div--></div>
+
+<!-- end wrap_inner div--></div>
+<!-- end wrap_outer div--></div>
+	<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-410289-4";
+urchinTracker();
+</script>
+    <!-- Start Quantcast tag -->
+    <script type="text/javascript" src="http://edge.quantserve.com/quant.js"></script>
+    <script type="text/javascript">
+    _qacct="p-ebK_XdQH1HeLo";quantserve();</script>
+    <noscript>
+    <img src="http://pixel.quantserve.com/pixel/p-ebK_XdQH1HeLo.gif" style="display: none" height="1" width="1" alt="Quantcast"/></noscript>
+    <!-- End Quantcast tag -->
+    
+</body>
+</html>

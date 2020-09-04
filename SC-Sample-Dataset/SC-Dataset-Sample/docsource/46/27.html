@@ -1,0 +1,1791 @@
+
+
+
+<!DOCTYPE html>
+<html>
+  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# githubog: http://ogp.me/ns/fb/githubog#">
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=10">
+        <title>org.jboss.netty.channel.ChannelFuture.awaitUninterruptibly() hangs when closing a channel using SSL/TLS · Issue #343 · netty/netty · GitHub</title>
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub" />
+    <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-114.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-144.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144.png" />
+    <link rel="logo" type="image/svg" href="https://github-media-downloads.s3.amazonaws.com/github-logo.svg" />
+    <meta property="og:image" content="https://github.global.ssl.fastly.net/images/modules/logos_page/Octocat.png">
+    <meta name="hostname" content="github-fe124-cp1-prd.iad.github.net">
+    <meta name="ruby" content="ruby 1.9.3p194-tcs-github-tcmalloc (e1c0c3f392) [x86_64-linux]">
+    <link rel="assets" href="https://github.global.ssl.fastly.net/">
+    <link rel="conduit-xhr" href="https://ghconduit.com:25035/">
+    <link rel="xhr-socket" href="/_sockets" />
+    
+
+
+    <meta name="msapplication-TileImage" content="/windows-tile.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="selected-link" value="repo_issues" data-pjax-transient />
+    <meta content="collector.githubapp.com" name="octolytics-host" /><meta content="collector-cdn.github.com" name="octolytics-script-host" /><meta content="github" name="octolytics-app-id" /><meta content="80E93F25:2C4D:2173B8B:52ABA4B3" name="octolytics-dimension-request_id" />
+    
+
+    
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <meta content="authenticity_token" name="csrf-param" />
+<meta content="VxYCU6WYMMO5AUm+qsU29LLFFbpBlAdrqaZ4siDdYR8=" name="csrf-token" />
+
+    <link href="https://github.global.ssl.fastly.net/assets/github-57e7b076c45ea1a1a64bba5ee473eecb65fe9d7b.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="https://github.global.ssl.fastly.net/assets/github2-739ae94074bd58ea5f487331d9a79836678e5db7.css" media="all" rel="stylesheet" type="text/css" />
+    
+
+    
+
+      <script src="https://github.global.ssl.fastly.net/assets/frameworks-5970f5a0a3dcc441d5f7ff74326ffd59bbe9388e.js" type="text/javascript"></script>
+      <script src="https://github.global.ssl.fastly.net/assets/github-44188494b76ae62bb834f936309193eec69b2810.js" type="text/javascript"></script>
+      
+      <meta http-equiv="x-pjax-version" content="673481c1299373d170ad7f3d60ff3fc1">
+
+        <meta property="og:title" content="netty"/>
+  <meta property="og:type" content="githubog:gitrepository"/>
+  <meta property="og:url" content="https://github.com/netty/netty"/>
+  <meta property="og:image" content="https://github.global.ssl.fastly.net/images/gravatars/gravatar-user-420.png"/>
+  <meta property="og:site_name" content="GitHub"/>
+  <meta property="og:description" content="First issue was asked here.http://stackoverflow.com/questions/9804982/org-jboss-netty-channel-channelfuture-awaituninterruptibly-hangs-when-closing
+
+We are also noticing the same problem with Netty 3.3.1.Final where awaitUninterruptibly hangs and channel doesn&#39;t seem to get closed.
+
+As a work around, we tried this which seems to do the trick.
+
+
+   public class SslIdleStateHandler extends IdleStateHandler {
+
+      public SslIdleStateHandler(org.jboss.netty.util.Timer timer,
+                              i..."/>
+
+  <meta name="description" content="First issue was asked here.http://stackoverflow.com/questions/9804982/org-jboss-netty-channel-channelfuture-awaituninterruptibly-hangs-when-closing
+
+We are also noticing the same problem with Netty 3.3.1.Final where awaitUninterruptibly hangs and channel doesn&#39;t seem to get closed.
+
+As a work around, we tried this which seems to do the trick.
+
+
+   public class SslIdleStateHandler extends IdleStateHandler {
+
+      public SslIdleStateHandler(org.jboss.netty.util.Timer timer,
+                              i..." />
+
+  <meta content="473791" name="octolytics-dimension-user_id" /><meta content="netty" name="octolytics-dimension-user_login" /><meta content="1064563" name="octolytics-dimension-repository_id" /><meta content="netty/netty" name="octolytics-dimension-repository_nwo" /><meta content="true" name="octolytics-dimension-repository_public" /><meta content="false" name="octolytics-dimension-repository_is_fork" /><meta content="1064563" name="octolytics-dimension-repository_network_root_id" /><meta content="netty/netty" name="octolytics-dimension-repository_network_root_nwo" />
+  <link href="https://github.com/netty/netty/commits/master.atom" rel="alternate" title="Recent Commits to netty:master" type="application/atom+xml" />
+
+  </head>
+
+
+  <body class="logged_out  env-production  vis-public">
+    <div class="wrapper">
+      
+      
+      
+      
+
+
+      
+      <div class="header header-logged-out">
+  <div class="container clearfix">
+
+    <a class="header-logo-wordmark" href="https://github.com/">
+      <span class="mega-octicon octicon-logo-github"></span>
+    </a>
+
+    <div class="header-actions">
+        <a class="button primary" href="/join">Sign up</a>
+      <a class="button signin" href="/login?return_to=%2Fnetty%2Fnetty%2Fissues%2F343">Sign in</a>
+    </div>
+
+    <div class="command-bar js-command-bar  in-repository">
+
+      <ul class="top-nav">
+          <li class="explore"><a href="/explore">Explore</a></li>
+        <li class="features"><a href="/features">Features</a></li>
+          <li class="enterprise"><a href="https://enterprise.github.com/">Enterprise</a></li>
+          <li class="blog"><a href="/blog">Blog</a></li>
+      </ul>
+        <form accept-charset="UTF-8" action="/search" class="command-bar-form" id="top_search_form" method="get">
+
+<input type="text" data-hotkey="/ s" name="q" id="js-command-bar-field" placeholder="Search or type a command" tabindex="1" autocapitalize="off"
+    
+    
+      data-repo="netty/netty"
+      data-branch="master"
+      data-sha="2d50811492b3de54adae80e3b23a79e4ca58374a"
+  >
+
+    <input type="hidden" name="nwo" value="netty/netty" />
+
+    <div class="select-menu js-menu-container js-select-menu search-context-select-menu">
+      <span class="minibutton select-menu-button js-menu-target">
+        <span class="js-select-button">This repository</span>
+      </span>
+
+      <div class="select-menu-modal-holder js-menu-content js-navigation-container">
+        <div class="select-menu-modal">
+
+          <div class="select-menu-item js-navigation-item js-this-repository-navigation-item selected">
+            <span class="select-menu-item-icon octicon octicon-check"></span>
+            <input type="radio" class="js-search-this-repository" name="search_target" value="repository" checked="checked" />
+            <div class="select-menu-item-text js-select-button-text">This repository</div>
+          </div> <!-- /.select-menu-item -->
+
+          <div class="select-menu-item js-navigation-item js-all-repositories-navigation-item">
+            <span class="select-menu-item-icon octicon octicon-check"></span>
+            <input type="radio" name="search_target" value="global" />
+            <div class="select-menu-item-text js-select-button-text">All repositories</div>
+          </div> <!-- /.select-menu-item -->
+
+        </div>
+      </div>
+    </div>
+
+  <span class="octicon help tooltipped downwards" title="Show command bar help">
+    <span class="octicon octicon-question"></span>
+  </span>
+
+    <input type="hidden" name="type" value="Issues" />
+
+  <input type="hidden" name="ref" value="cmdform">
+
+</form>
+    </div>
+
+  </div>
+</div>
+
+
+      
+
+
+          <div class="site" itemscope itemtype="http://schema.org/WebPage">
+    
+    <div class="pagehead repohead instapaper_ignore readability-menu">
+      <div class="container">
+        
+
+<ul class="pagehead-actions">
+
+
+  <li>
+    <a href="/login?return_to=%2Fnetty%2Fnetty"
+    class="minibutton with-count js-toggler-target star-button tooltipped upwards"
+    title="You must be signed in to use this feature" rel="nofollow">
+    <span class="octicon octicon-star"></span>Star
+  </a>
+
+    <a class="social-count js-social-count" href="/netty/netty/stargazers">
+      2,363
+    </a>
+
+  </li>
+
+    <li>
+      <a href="/login?return_to=%2Fnetty%2Fnetty"
+        class="minibutton with-count js-toggler-target fork-button tooltipped upwards"
+        title="You must be signed in to fork a repository" rel="nofollow">
+        <span class="octicon octicon-git-branch"></span>Fork
+      </a>
+      <a href="/netty/netty/network" class="social-count">
+        955
+      </a>
+    </li>
+</ul>
+
+        <h1 itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="entry-title public">
+          <span class="repo-label"><span>public</span></span>
+          <span class="mega-octicon octicon-repo"></span>
+          <span class="author">
+            <a href="/netty" class="url fn" itemprop="url" rel="author"><span itemprop="title">netty</span></a>
+          </span>
+          <span class="repohead-name-divider">/</span>
+          <strong><a href="/netty/netty" class="js-current-repository js-repo-home-link">netty</a></strong>
+
+          <span class="page-context-loader">
+            <img alt="Octocat-spinner-32" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+          </span>
+
+        </h1>
+      </div><!-- /.container -->
+    </div><!-- /.repohead -->
+
+    <div class="container">
+
+      <div class="repository-with-sidebar repo-container  ">
+
+        <div class="repository-sidebar">
+            
+
+<div class="sunken-menu vertical-right repo-nav js-repo-nav js-repository-container-pjax js-octicon-loaders">
+  <div class="sunken-menu-contents">
+    <ul class="sunken-menu-group">
+      <li class="tooltipped leftwards" title="Code">
+        <a href="/netty/netty" aria-label="Code" class="js-selected-navigation-item sunken-menu-item" data-gotokey="c" data-pjax="true" data-selected-links="repo_source repo_downloads repo_commits repo_tags repo_branches /netty/netty">
+          <span class="octicon octicon-code"></span> <span class="full-word">Code</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+        <li class="tooltipped leftwards" title="Issues">
+          <a href="/netty/netty/issues" aria-label="Issues" class="selected js-selected-navigation-item sunken-menu-item js-disable-pjax" data-gotokey="i" data-selected-links="repo_issues /netty/netty/issues">
+            <span class="octicon octicon-issue-opened"></span> <span class="full-word">Issues</span>
+            <span class='counter'>118</span>
+            <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>        </li>
+
+      <li class="tooltipped leftwards" title="Pull Requests">
+        <a href="/netty/netty/pulls" aria-label="Pull Requests" class="js-selected-navigation-item sunken-menu-item js-disable-pjax" data-gotokey="p" data-selected-links="repo_pulls /netty/netty/pulls">
+            <span class="octicon octicon-git-pull-request"></span> <span class="full-word">Pull Requests</span>
+            <span class='counter'>9</span>
+            <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+
+        <li class="tooltipped leftwards" title="Wiki">
+          <a href="/netty/netty/wiki" aria-label="Wiki" class="js-selected-navigation-item sunken-menu-item" data-pjax="true" data-selected-links="repo_wiki /netty/netty/wiki">
+            <span class="octicon octicon-book"></span> <span class="full-word">Wiki</span>
+            <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>        </li>
+    </ul>
+    <div class="sunken-menu-separator"></div>
+    <ul class="sunken-menu-group">
+
+      <li class="tooltipped leftwards" title="Pulse">
+        <a href="/netty/netty/pulse" aria-label="Pulse" class="js-selected-navigation-item sunken-menu-item" data-pjax="true" data-selected-links="pulse /netty/netty/pulse">
+          <span class="octicon octicon-pulse"></span> <span class="full-word">Pulse</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+      <li class="tooltipped leftwards" title="Graphs">
+        <a href="/netty/netty/graphs" aria-label="Graphs" class="js-selected-navigation-item sunken-menu-item" data-pjax="true" data-selected-links="repo_graphs repo_contributors /netty/netty/graphs">
+          <span class="octicon octicon-graph"></span> <span class="full-word">Graphs</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+      <li class="tooltipped leftwards" title="Network">
+        <a href="/netty/netty/network" aria-label="Network" class="js-selected-navigation-item sunken-menu-item js-disable-pjax" data-selected-links="repo_network /netty/netty/network">
+          <span class="octicon octicon-git-branch"></span> <span class="full-word">Network</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+    </ul>
+
+
+  </div>
+</div>
+
+            <div class="only-with-full-nav">
+              
+
+  
+
+<div class="clone-url open"
+  data-protocol-type="http"
+  data-url="/users/set_protocol?protocol_selector=http&amp;protocol_type=clone">
+  <h3><strong>HTTPS</strong> clone URL</h3>
+  <div class="clone-url-box">
+    <input type="text" class="clone js-url-field"
+           value="https://github.com/netty/netty.git" readonly="readonly">
+
+    <span class="js-zeroclipboard url-box-clippy minibutton zeroclipboard-button" data-clipboard-text="https://github.com/netty/netty.git" data-copied-hint="copied!" title="copy to clipboard"><span class="octicon octicon-clippy"></span></span>
+  </div>
+</div>
+
+  
+
+<div class="clone-url "
+  data-protocol-type="subversion"
+  data-url="/users/set_protocol?protocol_selector=subversion&amp;protocol_type=clone">
+  <h3><strong>Subversion</strong> checkout URL</h3>
+  <div class="clone-url-box">
+    <input type="text" class="clone js-url-field"
+           value="https://github.com/netty/netty" readonly="readonly">
+
+    <span class="js-zeroclipboard url-box-clippy minibutton zeroclipboard-button" data-clipboard-text="https://github.com/netty/netty" data-copied-hint="copied!" title="copy to clipboard"><span class="octicon octicon-clippy"></span></span>
+  </div>
+</div>
+
+
+<p class="clone-options">You can clone with
+      <a href="#" class="js-clone-selector" data-protocol="http">HTTPS</a>,
+      or <a href="#" class="js-clone-selector" data-protocol="subversion">Subversion</a>.
+  <span class="octicon help tooltipped upwards" title="Get help on which URL is right for you.">
+    <a href="https://help.github.com/articles/which-remote-url-should-i-use">
+    <span class="octicon octicon-question"></span>
+    </a>
+  </span>
+</p>
+
+
+
+              <a href="/netty/netty/archive/master.zip"
+                 class="minibutton sidebar-button"
+                 title="Download this repository as a zip file"
+                 rel="nofollow">
+                <span class="octicon octicon-cloud-download"></span>
+                Download ZIP
+              </a>
+            </div>
+        </div><!-- /.repository-sidebar -->
+
+        <div id="js-repo-pjax-container" class="repository-content context-loader-container" data-pjax-container>
+          
+<style type="text/css" media="screen">
+  span.labelstyle-bfe5bf, .linked-labelstyle-bfe5bf {  background-color: #bfe5bf !important;  color: #2a332a !important;}.labelstyle-bfe5bf.selected {  background-color: #bfe5bf !important;  color: #2a332a !important;}.label-select-menu .labelstyle-bfe5bf.selected {  background:rgba(191, 229, 191, 0.12) !important;  color: #7f997f !important;}
+
+span.labelstyle-02d7e1, .linked-labelstyle-02d7e1 {  background-color: #02d7e1 !important;  color: #003033 !important;}.labelstyle-02d7e1.selected {  background-color: #02d7e1 !important;  color: #003033 !important;}.label-select-menu .labelstyle-02d7e1.selected {  background:rgba(2, 215, 225, 0.12) !important;  color: #019299 !important;}
+
+span.labelstyle-e10c02, .linked-labelstyle-e10c02 {  background-color: #e10c02 !important;  color: #fff !important;}.labelstyle-e10c02.selected {  background-color: #e10c02 !important;  color: #fff !important;}.label-select-menu .labelstyle-e10c02.selected {  background:rgba(225, 12, 2, 0.12) !important;  color: #990801 !important;}
+
+span.labelstyle-fbca04, .linked-labelstyle-fbca04 {  background-color: #fbca04 !important;  color: #332900 !important;}.labelstyle-fbca04.selected {  background-color: #fbca04 !important;  color: #332900 !important;}.label-select-menu .labelstyle-fbca04.selected {  background:rgba(251, 202, 4, 0.12) !important;  color: #997b02 !important;}
+
+span.labelstyle-0b02e1, .linked-labelstyle-0b02e1 {  background-color: #0b02e1 !important;  color: #fff !important;}.labelstyle-0b02e1.selected {  background-color: #0b02e1 !important;  color: #fff !important;}.label-select-menu .labelstyle-0b02e1.selected {  background:rgba(11, 2, 225, 0.30720418300653585) !important;  color: #040066 !important;}
+
+span.labelstyle-DDDDDD, .linked-labelstyle-DDDDDD {  background-color: #DDDDDD !important;  color: #333333 !important;}.labelstyle-DDDDDD.selected {  background-color: #DDDDDD !important;  color: #333333 !important;}.label-select-menu .labelstyle-DDDDDD.selected {  background:rgba(221, 221, 221, 0.12) !important;  color: #999999 !important;}
+
+span.labelstyle-02e10c, .linked-labelstyle-02e10c {  background-color: #02e10c !important;  color: #fff !important;}.labelstyle-02e10c.selected {  background-color: #02e10c !important;  color: #fff !important;}.label-select-menu .labelstyle-02e10c.selected {  background:rgba(2, 225, 12, 0.12) !important;  color: #019908 !important;}
+
+span.labelstyle-444444, .linked-labelstyle-444444 {  background-color: #444444 !important;  color: #fff !important;}.labelstyle-444444.selected {  background-color: #444444 !important;  color: #fff !important;}.label-select-menu .labelstyle-444444.selected {  background:rgba(68, 68, 68, 0.12) !important;  color: #999999 !important;}
+
+span.labelstyle-e102d8, .linked-labelstyle-e102d8 {  background-color: #e102d8 !important;  color: #fff !important;}.labelstyle-e102d8.selected {  background-color: #e102d8 !important;  color: #fff !important;}.label-select-menu .labelstyle-e102d8.selected {  background:rgba(225, 2, 216, 0.12) !important;  color: #990192 !important;}
+</style>
+
+
+
+<div id="issues_next">
+  <div class="tabnav tabnav-issues">
+    <div class="tabnav-right">
+      <div class="tabnav-widget ">
+        <a href="/netty/netty/issues/new" class="button minibutton primary bigger js-new-issue-button" data-hotkey="c">New Issue</a>
+      </div>
+    </div>
+
+    <ul class="tabnav-tabs">
+      <li><a href="/netty/netty/issues" class="tabnav-tab selected">Browse Issues</a></li>
+      <li><a href="/netty/netty/issues/milestones" class="tabnav-tab ">Milestones</a></li>
+    </ul>
+  </div>
+    <div id="show_issue" class="js-issues-results">
+
+      <div class="issue-head clearfix">
+        <span class="back">
+          <span class="octicon octicon-arrow-left"></span>
+          <a href="/netty/netty/issues" data-hotkey="u" id="to_isssues_list">Back to issue list</a>
+        </span>
+
+        <span class="number">
+          Issue <strong>#343</strong>
+        </span>
+      </div><!-- /.issue-head -->
+
+    <div id="discussion_bucket" class="tab-content">
+      <div class="discussion-sidebar">
+        
+<div id="js-discussion-stats"
+     class="discussion-stats js-socket-channel js-updatable-content"
+     data-channel="netty/netty:issue:4652728"
+     data-url="/netty/netty/issues/343/show_partial?partial=discussion_stats">
+
+    <span class="state-indicator closed">
+      Closed
+    </span>
+
+    <p>
+      <strong>23</strong>
+      comments
+    </p>
+</div>
+
+
+  <hr>
+  <div class="discussion-labels">
+    <div class="label-manager">
+  <strong>Labels</strong>
+</div>
+
+<ul class="color-label-list filter-list small">
+  
+    <li>
+      <span class="filter-item color-label labelstyle-e10c02" title="defect">defect</span>
+    </li>
+
+</ul>
+
+  </div>
+
+      </div>
+
+      <div class="discussion-timeline js-quote-selection-container">
+
+        <div class="js-discussion">
+            
+
+<div class="discussion-bubble js-comment-container js-task-list-container">
+  <a href="/charlesk40"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="48" /></a>
+
+  <div class="discussion-bubble-content bubble ">
+    <div class="discussion-bubble-inner">
+      <div class="js-comment comment discussion-topic starting-comment" id="issue-4652728" data-body-version="308c00c72263eebde1392d5df7c00163">
+
+        <div class="discussion-topic-header ">
+          <span class="discussion-topic-author"><a href="/charlesk40">charlesk40</a> opened this issue <time class="js-relative-date" datetime="2012-05-18T22:03:11-07:00" title="2012-05-18 22:03:11">May 18, 2012</time></span>
+            <h2 class="discussion-topic-title js-comment-body-title">org.jboss.netty.channel.ChannelFuture.awaitUninterruptibly() hangs when closing a channel using SSL/TLS</h2>
+        </div> <!-- /.topic-comment-header -->
+
+        <div class="discusion-topic-infobar js-infobar js-form-issues">
+          <div class="milestone infobar-widget">
+  <span class="text js-milestone-infobar-item-wrapper">
+      No milestone
+
+  </span>
+
+</div>
+
+<div class="assignee infobar-widget">
+  <span class="css-truncate text js-assignee-infobar-item-wrapper">
+      <span class="avatar"><img height="18" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="18" /></span>
+      <a href="/normanmaurer" class="css-truncate-target">normanmaurer</a> is assigned
+  </span>
+
+</div>
+        </div> <!-- /.discusion-topic-infobar -->
+
+        <div class="comment-content">
+
+          <div class="edit-comment-hide">
+            <div class="js-comment-body comment-body markdown-body markdown-format">
+                <p>First issue was asked here.<br><a href="http://stackoverflow.com/questions/9804982/org-jboss-netty-channel-channelfuture-awaituninterruptibly-hangs-when-closing">http://stackoverflow.com/questions/9804982/org-jboss-netty-channel-channelfuture-awaituninterruptibly-hangs-when-closing</a></p>
+
+<p>We are also noticing the same problem with Netty 3.3.1.Final where awaitUninterruptibly hangs and channel doesn't seem to get closed.</p>
+
+<p>As a work around, we tried this which seems to do the trick.</p>
+
+<ul>
+<li><br></li>
+<li>   public class SslIdleStateHandler extends IdleStateHandler {</li>
+<li><br></li>
+<li>      public SslIdleStateHandler(org.jboss.netty.util.Timer timer,</li>
+<li>                              int readerIdleTimeSeconds, int
+writerIdleTimeSeconds,</li>
+<li>                              int allIdleTimeSeconds) {</li>
+<li>                      super(timer, readerIdleTimeSeconds,
+writerIdleTimeSeconds, allIdleTimeSeconds);</li>
+<li>      }</li>
+<li><br></li>
+<li>      <a href="https://github.com/Override" class="user-mention">@Override</a>
+</li>
+<li>       protected void channelIdle(</li>
+<li>               ChannelHandlerContext ctx, IdleState state, long
+lastActivityTimeMillis) throws Exception {</li>
+<li>              if (config.getSslContext()!=null){</li>
+<li>                      ctx.getChannel().close();  //We close here which seems
+to do the trick. </li>
+<li>              }</li>
+<li>              super.channelIdle(ctx, state, lastActivityTimeMillis);</li>
+<li>       }</li>
+<li>   }
+}</li>
+</ul>
+            </div>
+          </div>
+
+          
+
+        </div> <!-- /.comment-content -->
+      </div> <!-- /.comment -->
+    </div> <!-- /.discussion-bubble-content -->
+  </div> <!-- /.discussion-bubble-inner -->
+</div> <!-- /.discussion-bubble -->
+
+
+            
+<div id="js-users-participants" class="js-socket-channel js-updatable-content"
+    data-channel="netty/netty:issue:4652728"
+      data-url="/netty/netty/issues/343/show_partial?partial=participants"
+  >
+  <div class="pull-participation">
+    <p class="quickstat"><a href="#pr_contributors_box" rel="facebox"><strong>5</strong> participants</a></p>
+
+      <a class="avatar tooltipped downwards" title="charlesk40" href="/charlesk40"><img height="24" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="24" /></a>
+      <a class="avatar tooltipped downwards" title="normanmaurer" href="/normanmaurer"><img height="24" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="24" /></a>
+      <a class="avatar tooltipped downwards" title="trustin" href="/trustin"><img height="24" src="https://0.gravatar.com/avatar/9bd0a2752ec49d888172ed1effd521d8?d=https%3A%2F%2Fidenticons.github.com%2F759a76d4d5876437b974a4ea9ed34b35.png&amp;r=x&amp;s=140" width="24" /></a>
+      <a class="avatar tooltipped downwards" title="alainw" href="/alainw"><img height="24" src="https://2.gravatar.com/avatar/7699f80549643103e6e46751d1a9ed85?d=https%3A%2F%2Fidenticons.github.com%2F49c6e62bf6031daecf9f80a89de089ca.png&amp;r=x&amp;s=140" width="24" /></a>
+      <a class="avatar tooltipped downwards" title="cloudaloe" href="/cloudaloe"><img height="24" src="https://2.gravatar.com/avatar/f8c21ab0ab4171c71b39fdcb85d39437?d=https%3A%2F%2Fidenticons.github.com%2Fbafb43dcdb9103992fb0e4b375f3c22a.png&amp;r=x&amp;s=140" width="24" /></a>
+  </div>
+</div>
+
+<div id="pr_contributors_box" style="display:none">
+  <h2 class="facebox-header">People participating in this issue</h2>
+  <ul class="facebox-user-list">
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/charlesk40">charlesk40</a>
+    </li>
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/normanmaurer">normanmaurer</a>
+    </li>
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://0.gravatar.com/avatar/9bd0a2752ec49d888172ed1effd521d8?d=https%3A%2F%2Fidenticons.github.com%2F759a76d4d5876437b974a4ea9ed34b35.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/trustin">trustin</a>
+    </li>
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://2.gravatar.com/avatar/7699f80549643103e6e46751d1a9ed85?d=https%3A%2F%2Fidenticons.github.com%2F49c6e62bf6031daecf9f80a89de089ca.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/alainw">alainw</a>
+    </li>
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://2.gravatar.com/avatar/f8c21ab0ab4171c71b39fdcb85d39437?d=https%3A%2F%2Fidenticons.github.com%2Fbafb43dcdb9103992fb0e4b375f3c22a.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/cloudaloe">cloudaloe</a>
+    </li>
+  </ul>
+</div>
+
+
+
+          
+
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5802348" class="js-comment comment  js-task-list-container" data-body-version="295cd3072f797eff1d709a40a20138c6">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5802348" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5802348">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5802348" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-19T08:01:00-07:00" title="2012-05-19 08:01:00">May 19, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/charlesk40" class="user-mention">@charlesk40</a>  Let me try to understand whats going on later.. BTW, could you upgrade to netty 3.4.5.Final and see if you still see this ? Just to be sure we not fixed it..</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/charlesk40"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5803183" class="js-comment comment  js-task-list-container" data-body-version="e1afb4eef5b7bffbac6118ec04cdb1db">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5803183" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/charlesk40" class="comment-header-author">charlesk40</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5803183">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5803183" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-19T09:59:29-07:00" title="2012-05-19 09:59:29">May 19, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Tried with netty 3.4.5.Final and I can still see that awaitUninterruptibly hangs.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5803191" class="js-comment comment  js-task-list-container" data-body-version="7c3eec9e175c49d9c1d47388683682bb">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5803191" class="comment-type-icon octicon octicon-mail-read tooltipped downwards" title="This comment left via email reply."></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5803191">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5803191" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-19T10:01:08-07:00" title="2012-05-19 10:01:08">May 19, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body email-format">
+                  <div class="email-fragment">Ok I will try to write test case..
+
+Sent from my iPhone. Excuse any typos....
+
+Am 19.05.2012 um 18:59 schrieb charlesk40&lt;reply@reply.github.com&gt;:</div>
+<span class="email-hidden-toggle"><a href="#">&#8230;</a></span><div class="email-hidden-reply" style="display:none">
+<div class="email-quoted-reply"> Tried with netty 3.4.5.Final and I can still see that awaitUninterruptibly hangs.
+
+ ---
+ Reply to this email directly or view it on GitHub:
+ <a href="https://github.com/netty/netty/issues/343#issuecomment-5803183">https://github.com/netty/netty/issues/343#issuecomment-5803183</a></div>
+</div>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  
+
+    
+
+    <div class="discussion-bubble discussion-commit-list js-comment-container">
+      <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+      <div class="discussion-bubble-content bubble">
+        <div class="discussion-bubble-inner">
+          <div class="js-comment comment" id="ref-commit-4bf2257">
+
+            <div class="comment-header">
+              <span class="comment-type-icon octicon octicon-move-left"></span>
+              <a href="/normanmaurer" class="comment-header-author" truncate="true">normanmaurer</a>
+              <span class='comment-header-action-text'>
+                <a href='#ref-commit-4bf2257'>
+                  referenced
+                  this issue
+                  from a commit
+                </a>
+              </span>
+              <span class="comment-header-right">
+                <a href="#ref-commit-4bf2257" class="comment-header-date">
+                  <time class="js-relative-date" datetime="2012-05-19T11:51:25-07:00" title="2012-05-19 11:51:25">May 19, 2012</time>
+                </a>
+              </span>
+            </div> <!-- ./comment-header -->
+
+            <div class="comment-content">
+              <table class='commits commits-condensed' cellspacing='0' width="100%">
+                
+
+
+  <tr class="commit js-details-container js-socket-channel js-updatable-content"
+        data-channel="netty/netty:commit:4bf2257d1adcaea802b0a1ca8802272b756905cc"
+        data-url="/netty/netty/commit/4bf2257d1adcaea802b0a1ca8802272b756905cc/show_partial?partial=condensed"
+        id="commit-4bf2257d1adcaea802b0a1ca8802272b756905cc"
+      >
+
+    <td class="gravatar" width="1%">
+        <span class="gravatar"><a href="/normanmaurer"><img height="16" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="16" /></a></span>
+    </td>
+
+    <td class="author">
+        <span class="commit-author">
+          <a href="/normanmaurer" rel="author">normanmaurer</a>
+        </span>
+    </td>
+
+    <td class="message">
+        <code><a href="/netty/netty/commit/4bf2257d1adcaea802b0a1ca8802272b756905cc" class="message" data-pjax="true" title="Try to add a testcase to reproduce #343">Try to add a testcase to reproduce</a> <a href="https://github.com/netty/netty/issues/343" class="issue-link" title="org.jboss.netty.channel.ChannelFuture.awaitUninterruptibly() hangs when closing a channel using SSL/TLS">#343</a></code>
+
+
+    </td>
+
+    <td class="commit-meta" width="1%">
+        
+
+
+        <code><a href="/netty/netty/commit/4bf2257d1adcaea802b0a1ca8802272b756905cc">4bf2257</a></code>
+    </td>
+
+  </tr>
+
+
+              </table>
+            </div> <!-- /.comment-content -->
+          </div> <!-- /.comment -->
+        </div>
+      </div>
+    </div><!-- /.discussion-bubble -->
+
+
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5803960" class="js-comment comment  js-task-list-container" data-body-version="ebc2e61482a5336fd7137e29af61d5ae">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5803960" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5803960">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5803960" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-19T11:52:17-07:00" title="2012-05-19 11:52:17">May 19, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/charlesk40" class="user-mention">@charlesk40</a> I tried to reproduce it via testcase but did not work. </p>
+
+<p>Can you see if I did it the right way: <br><a href="https://github.com/netty/netty/commit/4bf2257d1adcaea802b0a1ca8802272b756905cc" class="commit-link"><tt>4bf2257</tt></a></p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/charlesk40"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5836344" class="js-comment comment  js-task-list-container" data-body-version="978fbed2879b53c5b0750049c80a8d5f">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5836344" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/charlesk40" class="comment-header-author">charlesk40</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5836344">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5836344" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-21T16:26:38-07:00" title="2012-05-21 16:26:38">May 21, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Okay so by sending bad SSL request to a SSL enabled Server does close the Channel.</p>
+
+<p>However, sending a good SSL request to a SSL enable Server with IdleStateHandler enabled cause this state.<br>
+(Triggering a timeout)</p>
+
+<p>Trying to reproduce this with a testcase but no luck either.<br>
+However, I was able to locate where it might be causing the problem for Channel to NOT close in the SslHandler:</p>
+
+<p>write(ctx, future, msg) method inside of an wrapNonAppData called from closeOutboundAndChannel method could fail to set the future to completed which may cause ClosingChannelFutureListener to NOT close the channel properly.  I'm unable to reproduce this with an unit test but can cause it by using curl to send https request.</p>
+
+<p>private ChannelFuture wrapNonAppData(ChannelHandlerContext ctx, Channel channel) throws SSLException {<br>
+        ChannelFuture future = null;<br>
+        ByteBuffer outNetBuf = bufferPool.acquire();</p>
+
+<pre><code>    SSLEngineResult result;
+    try {
+        for (;;) {
+            synchronized (handshakeLock) {
+                result = engine.wrap(EMPTY_BUFFER, outNetBuf);
+            }
+
+            if (result.bytesProduced() &gt; 0) {
+                outNetBuf.flip();
+                ChannelBuffer msg = ChannelBuffers.buffer(outNetBuf.remaining());
+                msg.writeBytes(outNetBuf.array(), 0, msg.capacity());
+                outNetBuf.clear();
+
+                future = future(channel);
+                future.addListener(new ChannelFutureListener() {
+                    public void operationComplete(ChannelFuture future)
+                            throws Exception {
+                        if (future.getCause() instanceof ClosedChannelException) {
+                            synchronized (ignoreClosedChannelExceptionLock) {
+                                ignoreClosedChannelException ++;
+                            }
+                        }
+                    }
+                });
+
+                write(ctx, future, msg);
+            }
+
+            final HandshakeStatus handshakeStatus = result.getHandshakeStatus();
+            handleRenegotiation(handshakeStatus);
+            switch (handshakeStatus) {
+            case FINISHED:
+                setHandshakeSuccess(channel);
+                runDelegatedTasks();
+                break;
+            case NEED_TASK:
+                runDelegatedTasks();
+                break;
+            case NEED_UNWRAP:
+                if (!Thread.holdsLock(handshakeLock)) {
+                    // unwrap shouldn't be called when this method was
+                    // called by unwrap - unwrap will keep running after
+                    // this method returns.
+                    unwrap(ctx, channel, ChannelBuffers.EMPTY_BUFFER, 0, 0);
+                }
+                break;
+            case NOT_HANDSHAKING:
+            case NEED_WRAP:
+                break;
+            default:
+                throw new IllegalStateException(
+                        "Unexpected handshake status: " + handshakeStatus);
+            }
+
+            if (result.bytesProduced() == 0) {
+                break;
+            }
+        }
+    } catch (SSLException e) {
+        setHandshakeFailure(channel, e);
+        throw e;
+    } finally {
+        bufferPool.release(outNetBuf);
+    }
+
+    if (future == null) {
+        future = succeededFuture(channel);
+    }
+
+    return future;
+}
+</code></pre>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5839885" class="js-comment comment  js-task-list-container" data-body-version="b1119054b594388dfbf75d646bd1e458">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5839885" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5839885">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5839885" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-21T22:37:15-07:00" title="2012-05-21 22:37:15">May 21, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/charlesk40" class="user-mention">@charlesk40</a> Can you show me how you can reproduce via curl ?</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5840454" class="js-comment comment  js-task-list-container" data-body-version="ef81e9b75d3730e2408e02e11c65782e">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5840454" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5840454">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5840454" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-21T23:32:52-07:00" title="2012-05-21 23:32:52">May 21, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/charlesk40" class="user-mention">@charlesk40</a> also I think the code is correct as it will send the event upstream if it could not add the future and so it should be closed.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/charlesk40"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5864233" class="js-comment comment  js-task-list-container" data-body-version="44165c232c26f40d406adbbd6a163f10">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5864233" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/charlesk40" class="comment-header-author">charlesk40</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5864233">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5864233" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-22T20:05:56-07:00" title="2012-05-22 20:05:56">May 22, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>I'm just using "cacert" option in curl to send using self-signed certicate.  Example: curl -v --cacert outcert.pem https://localhost:8081/echo?sleep=1000 to send a request.</p>
+
+<p>You mean it will send a downstream event.</p>
+
+<p>Further tracing through the code, it shows that when write(ctx, future, msg);<br>
+ gets invoked, it gets to the NioWorker thread which schedules for the write and marks future to completed. But "write" never happens (Don't know why at this moment.  Still needs to investigate) and we never get notified which is causing the hang.</p>
+
+<p>So, now the question is do I need to add a downstream handler when SslHandler invokes write(ctx, future, msg); to handle the event?  (Like I have done with closing the channel myself from my first comment)</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5867510" class="js-comment comment  js-task-list-container" data-body-version="4d66ab918cb1bff2a96d555cd27e8314">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5867510" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5867510">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5867510" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-23T01:22:59-07:00" title="2012-05-23 01:22:59">May 23, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/charlesk40" class="user-mention">@charlesk40</a> to make it more easy can you upload your server code somewhere so I can just run it and use curl ?</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/charlesk40"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5908719" class="js-comment comment  js-task-list-container" data-body-version="46280a92750c718564b1ce1ec74cd90c">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5908719" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/charlesk40" class="comment-header-author">charlesk40</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5908719">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5908719" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-24T08:35:37-07:00" title="2012-05-24 08:35:37">May 24, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Below is a unit test that you can use to reproduce the issue.  Just replace the code that generates the SSLContext.  </p>
+
+<p>public class SslCloseTestCase {</p>
+
+<pre><code>@Test
+public void requireThatServerCanCloseToSslIdleRequestTestCaseForNetty() throws IOException, InterruptedException {
+    HashedWheelTimer idleTimer = new HashedWheelTimer();
+    ServerBootstrap sb = new ServerBootstrap(new NioServerSocketChannelFactory());
+    Executor channelWorkerExecutor = Executors.newCachedThreadPool(Executors.defaultThreadFactory());
+    SslKeyStore sslKeyStore = new SslKeyStore("src/test/resources/ssl_keystore_test.jks");
+    sslKeyStore.setKeyStorePassword("secret");
+    SSLContext sslContext = SslContextFactory.newInstance(sslKeyStore, sslKeyStore).getServerSSLContext();
+    SSLEngine sse = sslContext.createSSLEngine();
+    sse.setUseClientMode(false);
+    sb.getPipeline().addFirst("ssl", new SslHandler(sse));
+    sb.getPipeline().addLast("idler",new IdleStateHandler(idleTimer, 0, 0, 40));  //Setting the idle timeout to 40 seconds.
+    TestIdleStateAwareChannelUpstreamHandler testIdleStateAwareChannelUpstreamHandler = new TestIdleStateAwareChannelUpstreamHandler();
+    sb.getPipeline().addLast("handler", testIdleStateAwareChannelUpstreamHandler); 
+    channelWorkerExecutor.execute(testIdleStateAwareChannelUpstreamHandler);
+    Channel serverChannel = sb.bind(new InetSocketAddress(0));
+    //Client
+    ClientBootstrap cb = new ClientBootstrap(new NioClientSocketChannelFactory());
+    SslKeyStore sslKeyStoreClient = new SslKeyStore("src/test/resources/ssl_keystore_test.jks");
+    sslKeyStoreClient.setKeyStorePassword("secret");
+    SSLContext sslContextClient = SslContextFactory.newInstanceFromTrustStore(sslKeyStoreClient).getServerSSLContext();
+    SSLEngine sseClient = sslContextClient.createSSLEngine();
+    sseClient.setUseClientMode(true);
+    cb.getPipeline().addLast("ssl", new SslHandler(sseClient));
+    Channel cc = cb.connect(serverChannel.getLocalAddress()).awaitUninterruptibly().getChannel();
+    ChannelFuture f = cc.write(ChannelBuffers.copiedBuffer("encrypted", CharsetUtil.US_ASCII));
+    f.await();
+    cc.getCloseFuture().awaitUninterruptibly();
+    cb.releaseExternalResources();
+    sb.releaseExternalResources();
+}
+
+class TestIdleStateAwareChannelUpstreamHandler extends IdleStateAwareChannelUpstreamHandler implements Runnable {
+    private volatile Channel serverChannel;
+    private boolean readyToClose;
+    @Override
+    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        // Called by Netty thread.
+        if (serverChannel != null) {
+            throw new IllegalStateException();
+        }
+        serverChannel = ctx.getChannel();
+    }
+
+    @Override
+    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) {
+        testIt(true);
+    }
+
+    private void testIt(boolean fail){
+        SleepHandler sleepHandler = new SleepHandler();
+        if (fail){
+            //Same thread. This LOCKS f.awaitUninterruptibly!!!
+            sleepHandler.run();
+        }else{
+            //New thread. Passes.
+            Executor executor = Executors.newCachedThreadPool(Executors.defaultThreadFactory());
+            executor.execute(sleepHandler);
+        }
+    }
+
+    @Override
+    public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws Exception {
+        System.out.println("Close channel");
+        readyToClose = true;
+    }
+
+    @Override
+    public void run() {
+        while(true){
+            if (readyToClose){
+                ChannelFuture f = serverChannel.close();
+                Assert.assertTrue(f.awaitUninterruptibly(TimeUnit.MILLISECONDS.convert(5, TimeUnit.SECONDS))); 
+                serverChannel = null;
+                break;
+            }else{
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    class SleepHandler implements Runnable{
+        @Override
+        public void run() {
+            while (true){
+
+            }
+        }
+    }
+}
+</code></pre>
+
+<p>}</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5909157" class="js-comment comment  js-task-list-container" data-body-version="55d5a33be65a3db67570e2ba3108948a">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5909157" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5909157">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5909157" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-24T08:40:01-07:00" title="2012-05-24 08:40:01">May 24, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/charlesk40" class="user-mention">@charlesk40</a> Thanks! Will have a look in a few..</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5910566" class="js-comment comment  js-task-list-container" data-body-version="9fddfb90478de617fd61ce2919b0718d">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5910566" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5910566">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5910566" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-24T09:15:17-07:00" title="2012-05-24 09:15:17">May 24, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/charlesk40" class="user-mention">@charlesk40</a> the problem is that you keep the thread/cpu busy.  change while(true) to :</p>
+
+<pre><code>            while (!Thread.interrupted()) {
+
+            }
+</code></pre>
+
+<p>And you will see it works</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/charlesk40"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5910735" class="js-comment comment  js-task-list-container" data-body-version="8e04807a657f2406bfa6b2e0b0f98790">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5910735" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/charlesk40" class="comment-header-author">charlesk40</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5910735">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5910735" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-24T09:21:11-07:00" title="2012-05-24 09:21:11">May 24, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Well, SleepHandler just mimics the handler that could take long time,<br>
+and in a real handler senario, while(true) loop is a valid usage.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/charlesk40"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/bda7204dd7a1526b864b32c816e59f2f?d=https%3A%2F%2Fidenticons.github.com%2F4aeb7e6b173a4356bff13654d5c812f8.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-5911274" class="js-comment comment  js-task-list-container" data-body-version="76e5fba148284217a7596c8f0d58fc20">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-5911274" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/charlesk40" class="comment-header-author">charlesk40</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-5911274">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-5911274" class="comment-header-date"><time class="js-relative-date" datetime="2012-05-24T09:39:42-07:00" title="2012-05-24 09:39:42">May 24, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Something more like which does some job for long time.</p>
+
+<pre><code>    class SleepHandler implements Runnable{
+        @Override
+        public void run() {
+            while (true){
+                //do something here
+                try {
+</code></pre>
+
+<p>//                      System.out.println("Sleeping...");<br>
+                        Thread.sleep(1000);<br>
+                    } catch (InterruptedException e) {<br>
+                        e.printStackTrace();<br>
+                    }<br>
+                }<br>
+            }<br>
+        }</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/trustin"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/9bd0a2752ec49d888172ed1effd521d8?d=https%3A%2F%2Fidenticons.github.com%2F759a76d4d5876437b974a4ea9ed34b35.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-6530389" class="js-comment comment  js-task-list-container" data-body-version="001d119b45ce6c467db0a68e25d17ebe">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-6530389" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/trustin" class="comment-header-author">trustin</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-6530389">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-6530389" class="comment-header-date"><time class="js-relative-date" datetime="2012-06-23T21:14:24-07:00" title="2012-06-23 21:14:24">June 23, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>We see this issue when: for some reason SslHandler's close_notify message was not written completely and Netty didn't get any notification of write failure.  The workaround is to set some timer and force-close the connection:</p>
+
+<pre><code>pipeline.remove(SslHandler.class);
+channel.close();
+</code></pre>
+
+<p>In Netty 4, SslHandler uses its internal timer to schedule a force close.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/alainw"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/7699f80549643103e6e46751d1a9ed85?d=https%3A%2F%2Fidenticons.github.com%2F49c6e62bf6031daecf9f80a89de089ca.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-6885680" class="js-comment comment  js-task-list-container" data-body-version="ec7b8fbf78e20db99505235e15a4dae7">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-6885680" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/alainw" class="comment-header-author">alainw</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-6885680">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-6885680" class="comment-header-date"><time class="js-relative-date" datetime="2012-07-10T12:14:11-07:00" title="2012-07-10 12:14:11">July 10, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Are there plans to have the fix before Netty 4? Any idea of the timeline, or when Netty 4 will be released? Thanks. </p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/trustin"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/9bd0a2752ec49d888172ed1effd521d8?d=https%3A%2F%2Fidenticons.github.com%2F759a76d4d5876437b974a4ea9ed34b35.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-6954485" class="js-comment comment  js-task-list-container" data-body-version="114f05bddfc669b491023a64a7fb5131">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-6954485" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/trustin" class="comment-header-author">trustin</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-6954485">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-6954485" class="comment-header-date"><time class="js-relative-date" datetime="2012-07-12T21:31:34-07:00" title="2012-07-12 21:31:34">July 12, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>The first alpha of 4.0.0 is out.  Announcement pending.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/trustin"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/9bd0a2752ec49d888172ed1effd521d8?d=https%3A%2F%2Fidenticons.github.com%2F759a76d4d5876437b974a4ea9ed34b35.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-9827243" class="js-comment comment  js-task-list-container" data-body-version="a22ccd33d9d8e9d4839eeb80c782ed65">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-9827243" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/trustin" class="comment-header-author">trustin</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-9827243">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-9827243" class="comment-header-date"><time class="js-relative-date" datetime="2012-10-26T14:13:52-07:00" title="2012-10-26 14:13:52">October 26, 2012</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Fixed in the 4.0.0.Alpha. (probably 4 or 5)</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  
+
+
+
+
+    <div class="action-bubble action-bubble-closed">
+      <span class="action">
+        <span class="state-indicator closed">Closed</span>
+      </span>
+      <div class="bubble">
+          <p>
+            <strong><span class="avatar"><img height="24" src="https://0.gravatar.com/avatar/9bd0a2752ec49d888172ed1effd521d8?d=https%3A%2F%2Fidenticons.github.com%2F759a76d4d5876437b974a4ea9ed34b35.png&amp;r=x&amp;s=140" width="24" /></span>
+              <a href="/trustin">trustin</a></strong>
+            closed the issue
+            
+            <time class="js-relative-date" datetime="2012-10-26T14:13:52-07:00" title="2012-10-26 14:13:52">October 26, 2012</time>
+          </p>
+      </div><!-- /.bubble -->
+    </div><!-- /.action-bubble -->
+
+
+    <div class="closed-banner"></div>
+
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-13720440" class="js-comment comment  js-task-list-container" data-body-version="f5d79ae1593c3f06e6cb2c003a7a657d">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-13720440" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-13720440">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-13720440" class="comment-header-date"><time class="js-relative-date" datetime="2013-02-18T04:49:26-08:00" title="2013-02-18 04:49:26">February 18, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/cloudaloe" class="user-mention">@cloudaloe</a> do you have any easy way for me to reproduce ?</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cloudaloe"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/f8c21ab0ab4171c71b39fdcb85d39437?d=https%3A%2F%2Fidenticons.github.com%2Fbafb43dcdb9103992fb0e4b375f3c22a.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-13720939" class="js-comment comment  js-task-list-container" data-body-version="d8894cf6690c70badd29ff11b7898376">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-13720939" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cloudaloe" class="comment-header-author">cloudaloe</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-13720939">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-13720939" class="comment-header-date"><time class="js-relative-date" datetime="2013-02-18T05:04:07-08:00" title="2013-02-18 05:04:07">February 18, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Sure. But I'm first ruling out the possibility that I need to explicitly initiate a handshake or explicitly wait for the automatically initiated handshake to finish before issuing .write on the channel. I found some mentions of that aspect and would like to rule it out first (<a href="http://stackoverflow.com/questions/14067949/netty-3-https-client-hangs-forever">here and related</a>).  </p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cloudaloe"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/f8c21ab0ab4171c71b39fdcb85d39437?d=https%3A%2F%2Fidenticons.github.com%2Fbafb43dcdb9103992fb0e4b375f3c22a.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-13736050" class="js-comment comment  js-task-list-container" data-body-version="373da240a10ab7952d54f305ee894cde">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-13736050" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cloudaloe" class="comment-header-author">cloudaloe</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-13736050">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-13736050" class="comment-header-date"><time class="js-relative-date" datetime="2013-02-18T10:33:44-08:00" title="2013-02-18 10:33:44">February 18, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/normanmaurer" class="user-mention">@normanmaurer</a> My issue was something else (resolved through debugging with -Djavax.net.debug=ssl:handshake). Sorry for the irrelevance to this thread.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/normanmaurer"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/e81901854b7f5c44ddd92499fc51cacc?d=https%3A%2F%2Fidenticons.github.com%2F93433cec3c907bd30a7ce47ff44d0318.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-13736618" class="js-comment comment  js-task-list-container" data-body-version="8490fd30b28436b765694121a7aac928">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-13736618" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/normanmaurer" class="comment-header-author">normanmaurer</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-13736618">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-13736618" class="comment-header-date"><time class="js-relative-date" datetime="2013-02-18T10:45:21-08:00" title="2013-02-18 10:45:21">February 18, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/cloudaloe" class="user-mention">@cloudaloe</a> you may want to share what your issue was just in case someone else has the same issue...</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cloudaloe"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/f8c21ab0ab4171c71b39fdcb85d39437?d=https%3A%2F%2Fidenticons.github.com%2Fbafb43dcdb9103992fb0e4b375f3c22a.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-13737121" class="js-comment comment  js-task-list-container" data-body-version="2feb2d4e0fbbfb53ddcba5b8ae31a5f4">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-13737121" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cloudaloe" class="comment-header-author">cloudaloe</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-13737121">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-13737121" class="comment-header-date"><time class="js-relative-date" datetime="2013-02-18T10:57:00-08:00" title="2013-02-18 10:57:00">February 18, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Sure, somewhere along rounds of refactoring while upgrading to Netty 4 Beta 1, my client side code was inadvertently left using setUseClientMode(false). It seems this was causing the handshake against my server component to just hang (without propagating any error) which could be observed using -Djavax.net.debug=ssl:handshake. Netty was actually consistent in not firing the listener for the handshake and in not letting the write operation through. Again, not relevant to the bug this thread is actually about.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+
+
+
+<!-- Rendered timeline since 2013-02-18 10:57:00 -->
+<div id="js-timeline-marker"
+      class="js-socket-channel js-updatable-content"
+      data-channel="netty/netty:issue:4652728"
+      data-url="/netty/netty/issues/343/show_partial?partial=timeline_marker&amp;since=1361213820"
+      data-last-modified="Mon, 18 Feb 2013 18:57:00 GMT">
+</div>
+
+
+
+        </div>
+
+          <div class="signed-out-comment">
+	<a href="/join" class="minibutton btn-default green" rel="nofollow">Sign up for free</a>
+	<strong>to join this conversation on GitHub</strong>.
+	Already have an account?
+	<a href="/login?return_to=%2Fnetty%2Fnetty%2Fissues%2F343" rel="nofollow">Sign in to comment</a>
+</div>
+
+
+        
+
+      </div><!-- /.discussion-timeline -->
+
+    </div><!-- /#discussion_bucket -->
+    <div class="clear"></div>
+  </div>
+
+</div>
+
+
+        </div>
+
+      </div><!-- /.repo-container -->
+      <div class="modal-backdrop"></div>
+    </div><!-- /.container -->
+  </div><!-- /.site -->
+
+
+    </div><!-- /.wrapper -->
+
+      <div class="container">
+  <div class="site-footer">
+    <ul class="site-footer-links right">
+      <li><a href="https://status.github.com/">Status</a></li>
+      <li><a href="http://developer.github.com">API</a></li>
+      <li><a href="http://training.github.com">Training</a></li>
+      <li><a href="http://shop.github.com">Shop</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="/about">About</a></li>
+
+    </ul>
+
+    <a href="/">
+      <span class="mega-octicon octicon-mark-github"></span>
+    </a>
+
+    <ul class="site-footer-links">
+      <li>&copy; 2013 <span title="0.19124s from github-fe124-cp1-prd.iad.github.net">GitHub</span>, Inc.</li>
+        <li><a href="/site/terms">Terms</a></li>
+        <li><a href="/site/privacy">Privacy</a></li>
+        <li><a href="/security">Security</a></li>
+        <li><a href="/contact">Contact</a></li>
+    </ul>
+  </div><!-- /.site-footer -->
+</div><!-- /.container -->
+
+
+    <div class="fullscreen-overlay js-fullscreen-overlay" id="fullscreen_overlay">
+  <div class="fullscreen-container js-fullscreen-container">
+    <div class="textarea-wrap">
+      <textarea name="fullscreen-contents" id="fullscreen-contents" class="js-fullscreen-contents" placeholder="" data-suggester="fullscreen_suggester"></textarea>
+          <div class="suggester-container">
+              <div class="suggester fullscreen-suggester js-navigation-container" id="fullscreen_suggester"
+                 data-url="/netty/netty/suggestions/commit">
+              </div>
+          </div>
+    </div>
+  </div>
+  <div class="fullscreen-sidebar">
+    <a href="#" class="exit-fullscreen js-exit-fullscreen tooltipped leftwards" title="Exit Zen Mode">
+      <span class="mega-octicon octicon-screen-normal"></span>
+    </a>
+    <a href="#" class="theme-switcher js-theme-switcher tooltipped leftwards"
+      title="Switch themes">
+      <span class="octicon octicon-color-mode"></span>
+    </a>
+  </div>
+</div>
+
+
+
+    <div id="ajax-error-message" class="flash flash-error">
+      <span class="octicon octicon-alert"></span>
+      <a href="#" class="octicon octicon-remove-close close ajax-error-dismiss"></a>
+      Something went wrong with that request. Please try again.
+    </div>
+
+  </body>
+</html>
+

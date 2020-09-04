@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Re: Occasional regionserver crashes following socket errors writing to HDFS</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>hbase-user mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/hbase-user" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/hbase-user/201205.mbox/%3cCANTuiCbYkCP+40Dk5C7hFNRTbivAu0Yh41JP4yaodr4qZ-Q++A@mail.gmail.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/hbase-user/201205.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/hbase-user/201205.mbox/%3cCANH3+J1Lv_As5PTz+fgyQFaEpXkeJEgCjhYL7uNJ+6VbbuBPiQ@mail.gmail.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/hbase-user/201205.mbox/%3cCANH3+J1vMM7W+zLuUvcijm_OP597DVjzvC9j_7qRGPtrVAGp-A@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/hbase-user/201205.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/hbase-user/201205.mbox/%3cCANH3+J1Lv_As5PTz+fgyQFaEpXkeJEgCjhYL7uNJ+6VbbuBPiQ@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/hbase-user/201205.mbox/%3cCANTuiCbYkCP+40Dk5C7hFNRTbivAu0Yh41JP4yaodr4qZ-Q++A@mail.gmail.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/hbase-user/201205.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/hbase-user/201205.mbox/%3cCANH3+J1Lv_As5PTz+fgyQFaEpXkeJEgCjhYL7uNJ+6VbbuBPiQ@mail.gmail.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/hbase-user/201205.mbox/%3cCANH3+J1vMM7W+zLuUvcijm_OP597DVjzvC9j_7qRGPtrVAGp-A@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/hbase-user/201205.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/hbase-user/201205.mbox/%3cCANH3+J1Lv_As5PTz+fgyQFaEpXkeJEgCjhYL7uNJ+6VbbuBPiQ@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">Michel Segel &lt;michael_se...@hotmail.com&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Re: Occasional regionserver crashes following socket errors writing to HDFS</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Thu, 10 May 2012 11:53:39 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+Silly question...
+Why are you using a reducer when working w HBase?
+
+Second silly question... What is the max file size of your table that you are writing to?
+
+Third silly question... How many regions are on each of your region servers
+
+Fourth silly question ... There is this bandwidth setting... Default is 10MB...  Did you modify
+it?
+
+
+
+Sent from a remote device. Please excuse any typos...
+
+Mike Segel
+
+On May 10, 2012, at 6:33 AM, Eran Kutner &lt;eran@gigya.com&gt; wrote:
+
+&gt; Thanks Igal, but we already have that setting. These are the relevant
+&gt; setting from hdfs-site.xml :
+&gt;  &lt;property&gt;
+&gt;    &lt;name&gt;dfs.datanode.max.xcievers&lt;/name&gt;
+&gt;    &lt;value&gt;65536&lt;/value&gt;
+&gt;  &lt;/property&gt;
+&gt;  &lt;property&gt;
+&gt;    &lt;name&gt;dfs.datanode.handler.count&lt;/name&gt;
+&gt;    &lt;value&gt;10&lt;/value&gt;
+&gt;  &lt;/property&gt;
+&gt;  &lt;property&gt;
+&gt;    &lt;name&gt;dfs.datanode.socket.write.timeout&lt;/name&gt;
+&gt;    &lt;value&gt;0&lt;/value&gt;
+&gt;  &lt;/property&gt;
+&gt; 
+&gt; Other ideas?
+&gt; 
+&gt; -eran
+&gt; 
+&gt; 
+&gt; 
+&gt; On Thu, May 10, 2012 at 12:25 PM, Igal Shilman &lt;igals@wix.com&gt; wrote:
+&gt; 
+&gt;&gt; Hi Eran,
+&gt;&gt; Do you have: dfs.datanode.socket.write.timeout set in hdfs-site.xml ?
+&gt;&gt; (We have set this to zero in our cluster, which means waiting as long as
+&gt;&gt; necessary for the write to complete)
+&gt;&gt; 
+&gt;&gt; Igal.
+&gt;&gt; 
+&gt;&gt; On Thu, May 10, 2012 at 11:17 AM, Eran Kutner &lt;eran@gigya.com&gt; wrote:
+&gt;&gt; 
+&gt;&gt;&gt; Hi,
+&gt;&gt;&gt; We're seeing occasional regionserver crashes during heavy write
+&gt;&gt; operations
+&gt;&gt;&gt; to Hbase (at the reduce phase of large M/R jobs). I have increased the
+&gt;&gt; file
+&gt;&gt;&gt; descriptors, HDFS xceivers, HDFS threads to the recommended settings and
+&gt;&gt;&gt; actually way above.
+&gt;&gt;&gt; 
+&gt;&gt;&gt; Here is an example of the HBase log (showing only errors):
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 2012-05-10 03:34:54,291 WARN org.apache.hadoop.hdfs.DFSClient:
+&gt;&gt;&gt; DFSOutputStream ResponseProcessor exception  for block
+&gt;&gt;&gt; blk_-8928911185099340956_5189425java.io.IOException: Bad response 1 for
+&gt;&gt;&gt; block blk_-8928911185099340956_5189425 from datanode 10.1.104.6:50010
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.hdfs.DFSClient$DFSOutputStream$ResponseProcessor.run(DFSClient.java:
+&gt;&gt;&gt; 2986)
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 2012-05-10 03:34:54,494 WARN org.apache.hadoop.hdfs.DFSClient:
+&gt;&gt; DataStreamer
+&gt;&gt;&gt; Exception: java.io.InterruptedIOException: Interruped while waiting for
+&gt;&gt; IO
+&gt;&gt;&gt; on channel java.nio.channels.SocketChannel[connected
+&gt;&gt;&gt; local=/10.1.104.9:59642remote=/
+&gt;&gt;&gt; 10.1.104.9:50010]. 0 millis timeout left.
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.net.SocketIOWithTimeout$SelectorPool.select(SocketIOWithTimeout.java:349)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.net.SocketIOWithTimeout.doIO(SocketIOWithTimeout.java:157)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.net.SocketOutputStream.write(SocketOutputStream.java:146)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.net.SocketOutputStream.write(SocketOutputStream.java:107)
+&gt;&gt;&gt;       at
+&gt;&gt; java.io.BufferedOutputStream.write(BufferedOutputStream.java:105)
+&gt;&gt;&gt;       at java.io.DataOutputStream.write(DataOutputStream.java:90)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.hdfs.DFSClient$DFSOutputStream$DataStreamer.run(DFSClient.java:
+&gt;&gt;&gt; 2848)
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 2012-05-10 03:34:54,531 WARN org.apache.hadoop.hdfs.DFSClient: Error
+&gt;&gt;&gt; Recovery for block blk_-8928911185099340956_5189425 bad datanode[2]
+&gt;&gt;&gt; 10.1.104.6:50010
+&gt;&gt;&gt; 2012-05-10 03:34:54,531 WARN org.apache.hadoop.hdfs.DFSClient: Error
+&gt;&gt;&gt; Recovery for block blk_-8928911185099340956_5189425 in pipeline
+&gt;&gt;&gt; 10.1.104.9:50010, 10.1.104.8:50010, 10.1.104.6:50010: bad datanode
+&gt;&gt;&gt; 10.1.104.6:50010
+&gt;&gt;&gt; 2012-05-10 03:48:30,174 FATAL
+&gt;&gt;&gt; org.apache.hadoop.hbase.regionserver.HRegionServer: ABORTING region
+&gt;&gt; server
+&gt;&gt;&gt; serverName=hadoop1-s09.farm-ny.gigya.com,60020,1336476100422,
+&gt;&gt;&gt; load=(requests=15741, regions=789, usedHeap=6822, maxHeap=7983):
+&gt;&gt;&gt; regionserver:60020-0x2372c0e8a2f0008 regionserver:60020-0x2372c0e8a2f0008
+&gt;&gt;&gt; received expired from ZooKeeper, aborting
+&gt;&gt;&gt; org.apache.zookeeper.KeeperException$SessionExpiredException:
+&gt;&gt;&gt; KeeperErrorCode = Session expired
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.hbase.zookeeper.ZooKeeperWatcher.connectionEvent(ZooKeeperWatcher.java:352)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.hbase.zookeeper.ZooKeeperWatcher.process(ZooKeeperWatcher.java:270)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.zookeeper.ClientCnxn$EventThread.processEvent(ClientCnxn.java:531)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; org.apache.zookeeper.ClientCnxn$EventThread.run(ClientCnxn.java:507)
+&gt;&gt;&gt; java.io.InterruptedIOException: Aborting compaction of store properties
+&gt;&gt; in
+&gt;&gt;&gt; region
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; gs_users,6155551|QoCW/euBIKuMat/nRC5Xtw==,1334983658004.878522ea91f41cd76b903ea06ccd17f9.
+&gt;&gt;&gt; because user requested stop.
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; org.apache.hadoop.hbase.regionserver.Store.compact(Store.java:998)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; org.apache.hadoop.hbase.regionserver.Store.compact(Store.java:779)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.hbase.regionserver.HRegion.compactStores(HRegion.java:776)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.hbase.regionserver.HRegion.compactStores(HRegion.java:721)
+&gt;&gt;&gt;       at
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt; org.apache.hadoop.hbase.regionserver.CompactSplitThread.run(CompactSplitThread.java:81)
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt;&gt; This is from 10.1.104.9 (same machine running the region server that
+&gt;&gt;&gt; crashed):
+&gt;&gt;&gt; 2012-05-10 03:31:16,785 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: Receiving block
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 src: /10.1.104.9:59642 dest: /
+&gt;&gt;&gt; 10.1.104.9:50010
+&gt;&gt;&gt; 2012-05-10 03:35:39,000 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Connection reset
+&gt;&gt;&gt; 2012-05-10 03:35:39,052 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: Exception in
+&gt;&gt; receiveBlock
+&gt;&gt;&gt; for block blk_-8928911185099340956_5189425
+&gt;&gt;&gt; java.nio.channels.ClosedByInterruptException
+&gt;&gt;&gt; 2012-05-10 03:35:39,053 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: writeBlock
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 received exception java.io.IOException:
+&gt;&gt;&gt; Interrupted receiveBlock
+&gt;&gt;&gt; 2012-05-10 03:35:39,055 ERROR
+&gt;&gt;&gt; org.apache.hadoop.security.UserGroupInformation:
+&gt;&gt; PriviledgedActionException
+&gt;&gt;&gt; as:hdfs (auth:SIMPLE) cause:java.io.IOException: Block
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 length is 24384000 does not match block
+&gt;&gt;&gt; file length 24449024
+&gt;&gt;&gt; 2012-05-10 03:35:39,055 INFO org.apache.hadoop.ipc.Server: IPC Server
+&gt;&gt;&gt; handler 3 on 50020, call
+&gt;&gt;&gt; startBlockRecovery(blk_-8928911185099340956_5189425) from
+&gt;&gt; 10.1.104.8:50251
+&gt;&gt;&gt; :
+&gt;&gt;&gt; error: java.io.IOException: Block blk_-8928911185099340956_5189425 length
+&gt;&gt;&gt; is 24384000 does not match block file length 24449024
+&gt;&gt;&gt; java.io.IOException: Block blk_-8928911185099340956_5189425 length is
+&gt;&gt;&gt; 24384000 does not match block file length 24449024
+&gt;&gt;&gt; 2012-05-10 03:35:39,077 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Broken pipe
+&gt;&gt;&gt; 2012-05-10 03:35:39,077 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 2012-05-10 03:35:39,108 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 2012-05-10 03:35:39,136 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 2012-05-10 03:35:39,165 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 2012-05-10 03:35:39,196 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 2012-05-10 03:35:39,221 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 2012-05-10 03:35:39,246 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 2012-05-10 03:35:39,271 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 2012-05-10 03:35:39,296 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 2 Exception java.net.SocketException:
+&gt;&gt;&gt; Socket closed
+&gt;&gt;&gt; 
+&gt;&gt;&gt; This is the log from 10.1.104.6 datanode for
+&gt;&gt;&gt; "blk_-8928911185099340956_5189425":
+&gt;&gt;&gt; 2012-05-10 03:31:16,772 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: Receiving block
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 src: /10.1.104.8:43828 dest: /
+&gt;&gt;&gt; 10.1.104.6:50010
+&gt;&gt;&gt; 2012-05-10 03:35:39,041 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: Exception in
+&gt;&gt; receiveBlock
+&gt;&gt;&gt; for block blk_-8928911185099340956_5189425 java.net.SocketException:
+&gt;&gt;&gt; Connection reset
+&gt;&gt;&gt; 2012-05-10 03:35:39,043 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder 0 for
+&gt;&gt;&gt; block blk_-8928911185099340956_5189425 Interrupted.
+&gt;&gt;&gt; 2012-05-10 03:35:39,043 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: PacketResponder 0 for
+&gt;&gt;&gt; block blk_-8928911185099340956_5189425 terminating
+&gt;&gt;&gt; 2012-05-10 03:35:39,043 INFO
+&gt;&gt;&gt; org.apache.hadoop.hdfs.server.datanode.DataNode: writeBlock
+&gt;&gt;&gt; blk_-8928911185099340956_5189425 received exception
+&gt;&gt;&gt; java.net.SocketException: Connection reset
+&gt;&gt;&gt; 
+&gt;&gt;&gt; 
+&gt;&gt;&gt; Any idea why is this happening?
+&gt;&gt;&gt; 
+&gt;&gt;&gt; Thanks.
+&gt;&gt;&gt; 
+&gt;&gt;&gt; -eran
+&gt;&gt;&gt; 
+&gt;&gt; 
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/hbase-user/201205.mbox/raw/%3cBLU0-SMTP333FD40A9A615AAE40D781E8F160@phx.gbl%3e/">Unnamed text/plain</a> (inline, Quoted Printable, 9892 bytes)</li>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/hbase-user/201205.mbox/raw/%3cBLU0-SMTP333FD40A9A615AAE40D781E8F160@phx.gbl%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Bug#465656: java.lang.NumberFormatException: For input string: &quot;accton:&quot;</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="thrd2.html#455545">
+<link rel="index" href="mail2.html#455545">
+<link rel="prev" href="msg455544.html">
+<link rel="next" href="msg455535.html">
+<link rel="alternate" title="debian-bugs-dist RSS" href="#" type="application/rss+xml">
+<link rel="canonical" href="https://www.mail-archive.com/debian-bugs-dist@lists.debian.org/msg455545.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=debian-bugs-dist@lists.debian.org&amp;q=subject:%22Bug%23465656%3A+java.lang.NumberFormatException%3A+For+input+string%3A+%26quot%3Baccton%3A%26quot%3B%22" rel="nofollow"><span itemprop="name">Bug#465656: java.lang.NumberFormatException: For input string: &quot;accton:&quot;</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=debian-bugs-dist@lists.debian.org&amp;q=from:%22Wouter+Koolen-Wijkstra%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Wouter Koolen-Wijkstra</span></span></a></span>
+<span class="date"><a href="/search?l=debian-bugs-dist@lists.debian.org&amp;q=date:20080213" rel="nofollow"><span itemprop="datePublished" content="2008-02-13T11:57:30-0800">Wed, 13 Feb 2008 11:57:30 -0800</span></a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre style="margin: 0em;">
+Package: bootchart-view
+Version: 0.10~svn407-1
+Severity: normal</pre><pre>
+
+
+</pre><tt>I get the follwing exception when running bootchart from the command 
+</tt><tt>line (irrespective of the output format selected with -f)
+</tt><pre style="margin: 0em;">
+
+Parsing /var/log/bootchart.tgz
+</pre><tt>Exception in thread &quot;main&quot; java.lang.NumberFormatException: For input 
+</tt><tt>string: &quot;accton:&quot;
+</tt><tt>       at 
+</tt><tt>java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+</tt><pre style="margin: 0em;">
+       at java.lang.Integer.parseInt(Integer.java:447)
+       at java.lang.Integer.parseInt(Integer.java:497)
+       at org.bootchart.parser.linux.ProcPsParser.parseLog(Unknown Source)
+       at org.bootchart.Main.render(Unknown Source)
+       at org.bootchart.Main.main(Unknown Source)
+
+compiled from source with debugging turned on, I get
+
+Parsing /var/log/bootchart.tgz
+</pre><tt>Exception in thread &quot;main&quot; java.lang.NumberFormatException: For input 
+</tt><tt>string: &quot;accton:&quot;
+</tt><tt>       at 
+</tt><tt>java.lang.NumberFormatException.forInputString(NumberFormatException.java:48)
+</tt><pre style="margin: 0em;">
+       at java.lang.Integer.parseInt(Integer.java:447)
+       at java.lang.Integer.parseInt(Integer.java:497)
+</pre><tt>       at 
+</tt><tt>org.bootchart.parser.linux.ProcPsParser.parseLog(ProcPsParser.java:148)
+</tt><pre style="margin: 0em;">
+       at org.bootchart.Main.render(Main.java:246)
+       at org.bootchart.Main.main(Main.java:156)
+
+The bad line (and the line just before it) are
+
+</pre><tt>6524 (cat) R 1196 1 1 0 -1 4194304 214 0 0 0 0 0 0 0 20 0 1 0 6480 
+</tt><tt>3928064 140 18446744073709551615 4194304 4212948 140733326180992
+</tt><pre style="margin: 0em;">
+18446744073709551615 47818604464496 0 0 6 0 0 0 0 17 0 0 0 0 0 0
+accton: no arguments
+
+Indeed, the proc_ps.log file contains
+
+proc_ps.log:accton: no arguments
+proc_ps.log:Usage: accton [OPTION] on|off|ACCOUNTING_FILE
+proc_ps.log:Try 'accton --help' for more information.
+
+</pre><tt>Aha, this has to do with bug #441927: accton complains if no args. The 
+</tt><tt>accton man page is out of sync with the program.
+</tt><pre style="margin: 0em;">
+
+</pre><tt>Thus the solution is to change /sbin/bootchartd, replacing &quot;accton&quot; by 
+</tt><tt>&quot;accton off&quot;.
+</tt><pre style="margin: 0em;">
+
+With kind regards,
+
+Wouter Koolen-Wijkstra
+
+
+
+-- System Information:
+Debian Release: lenny/sid
+ APT prefers testing
+ APT policy: (990, 'testing'), (500, 'unstable')
+Architecture: amd64 (x86_64)
+
+Kernel: Linux 2.6.24v3 (SMP w/2 CPU cores; PREEMPT)
+Locale: LANG=en_US.UTF-8, LC_CTYPE=en_US.UTF-8 (charmap=UTF-8)
+Shell: /bin/sh linked to /bin/bash
+
+Versions of packages bootchart-view depends on:
+</pre><tt>ii  gij [java2-runtime]        4:4.3-1       The GNU Java bytecode 
+</tt><tt>interpreter
+</tt><tt>ii  gij-4.1 [java-runtime]     4.1.2-16      The GNU Java bytecode 
+</tt><tt>interpreter
+</tt><tt>ii  gij-4.2 [java-runtime]     4.2.1-5       The GNU Java bytecode 
+</tt><tt>interpreter
+</tt><tt>ii  java-gcj-compat [java2-run 1.0.77-4      Java runtime environment 
+</tt><tt>using GIJ
+</tt><tt>ii  libcommons-cli-java        1.1-1         API for working with the 
+</tt><tt>command l
+</tt><tt>ii  libcommons-compress-java   0~svn604876-1 Java API for working with 
+</tt><tt>tar, zip
+</tt><tt>ii  sun-java6-jre [java2-runti 6-00-2        Sun Java(TM) Runtime 
+</tt><tt>Environment (
+</tt><pre style="margin: 0em;">
+
+Versions of packages bootchart-view recommends:
+</pre><tt>ii  bootchart                  0.10~svn407-1 Boot process performance 
+</tt><tt>analyser
+</tt><pre style="margin: 0em;">
+
+-- no debconf information
+
+
+
+--
+To UNSUBSCRIBE, email to [EMAIL PROTECTED]
+with a subject of &quot;unsubscribe&quot;. Trouble? Contact [EMAIL PROTECTED]
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages
+</h2>
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg455544.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="thrd2.html#455545">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="mail2.html#455545">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg455535.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceLiset margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages within this thread
+</h2>
+<ul class="icons monospace">
+
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="HIDDEN" name="subject" value="Bug#465656: java.lang.NumberFormatException: For input string: &quot;accton:&quot;">
+<input type="HIDDEN" name="msgid" value="47B34AF3.3020507@science.uva.nl">
+<input type="submit" value=" Wouter Koolen-Wijkstra ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="debian-bugs-dist@lists.debian.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search debian-bugs-dist">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<h2 class="hidden">
+				Site navigation
+</h2>
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/debian-bugs-dist@lists.debian.org/">debian-bugs-dist - all messages</a></li>
+<li class="icons-about"><a href="/debian-bugs-dist@lists.debian.org/info.html">debian-bugs-dist - about the list</a></li>
+<li class="icons-prev"><a href="msg455544.html">Previous message</a></li>
+<li class="icons-next"><a href="msg455535.html">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+<h2 class="hidden">
+				Mail list logo
+</h2>
+<a href="#"><img src="/debian-bugs-dist@lists.debian.org/logo.png" alt="debian-bugs-dist"></a>
+</div>
+<div class="bannertower margintopdouble">
+<h2 class="hidden">
+				Advertising banner
+</h2>
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<h2 class="hidden">
+		Footer information
+</h2>
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+</ul>
+</div>
+</body>
+</html>

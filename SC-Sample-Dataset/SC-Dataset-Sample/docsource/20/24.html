@@ -1,0 +1,897 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>NoSuchFieldException &amp; IllegalArgumentException (Java in General forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/381964/java/java/NoSuchFieldException-IllegalArgumentException"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/381964/java/java/NoSuchFieldException-IllegalArgumentException?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-1/java">Java in General</a>
+<div class="subject">NoSuchFieldException & IllegalArgumentException</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Simionu Ursache, Greenhorn<br />
+  on <span class="lastPostTime">Jan 28, 2007 09:00:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi there ! <br />  <br /> A little problem gives me headaches. <br />  <br /> I get this error :<br /> <textarea name="code" class="java" cols="60" rows="10">Exception in thread "main" java.lang.NoSuchFieldException: idLinieBD
+at java.lang.Class.getField(Class.java:1507)
+at databeans.ObiectPersistent.getObjects(ObiectPersistent.java:361)
+at databeans.TestModelBD.afiseaza(TestModelBD.java:15)
+at databeans.TestModelBD.main(TestModelBD.java:37)
+Process exited with exit code 1.</textarea><br />  <br /> when running the following class: <br /> <textarea name="code" class="java" cols="60" rows="10">package databeans;
+ 
+import java.sql.*;
+import java.util.ArrayList;
+import databeans.Utilitati;
+ 
+import java.math.BigDecimal;
+ 
+import java.util.Iterator;
+ 
+public class TestModelBD {
+    public static void afiseaza() throws Exception{
+        Connection conn = Utilitati.getConexiune();
+        //obiectele Compartimente cu obiectele-copil Personal coresp
+        ArrayList listaCompartimente=ObiectPersistent.getObjects(Compartimente.class, conn, "where compartidpar=1001");
+        
+        for (int i=0; i&lt;listaCompartimente.size();i++){
+            Compartimente comp =(Compartimente)listaCompartimente.get(i);
+            ArrayList persoane = ObiectPersistent.getObjects(Personal.class,conn, "where compartid='"+comp.compartid+"'");
+            Iterator iter = persoane.iterator();
+            while(iter.hasNext())
+            comp.addChildPersonal((Personal)iter.next());
+        }
+        
+        //afisarea compartimentelor cu persoanele ce fac parte din fiecare
+        for(int i=0;i&lt;listaCompartimente.size();i++){
+            Compartimente comp = (Compartimente)listaCompartimente.get(i);
+            System.out.println(comp.numecompart);
+            ArrayList persoane = comp.getPersonal();
+            Iterator iter = persoane.iterator();
+            while(iter.hasNext())
+            System.out.println("    "+((Personal)iter.next()).numepren);
+        }
+    }
+    
+    public static void main(String[] args) throws Exception{
+        afiseaza();
+        
+        // un compartiment nou
+        Compartimente compNou = new Compartimente();
+        compNou.setCompartid(new BigDecimal(1111));
+        compNou.setNumecompart("TEST");
+        compNou.salveaza(null);
+        //modific obiectul si salvez din nou
+        compNou.setNumecompart("TEST 2");
+        compNou.salveaza(null);
+        //obtin un alt obiect din BD, modific si anulez
+        ArrayList lista = ObiectPersistent.getObjects(Compartimente.class,null,"where compartid = 1013");
+        Compartimente comp=(Compartimente)lista.get(0);
+        comp.setNumecompart("Lector Modificat");
+        comp.refresh(null);
+        afiseaza();
+    }
+}
+</textarea><br />  <br /> In ObiectPersistent class the idLinieBD is defined like this<br /> <textarea name="code" class="java" cols="60" rows="10">
+public class ObiectPersistent {
+ 
+    public static final transient int NOU = 1;
+ 
+    public static final transient int MODIFICAT = 2;
+ 
+    public static final transient int STERS = 3;
+ 
+    public static final transient int SINCRONIZAT = 4;
+ 
+    public transient oracle.sql.ROWID idLinieBD;
+ 
+    protected transient int stare;
+ 
+...................................................................</textarea><br />  <br /> <br /> if i change from protected to public i get this error: <br /> <textarea name="code" class="java" cols="60" rows="10">Exception in thread "main" java.lang.IllegalArgumentException
+at sun.reflect.UnsafeObjectFieldAccessorImpl.set(UnsafeObjectFieldAccessorImpl.java:63)
+at java.lang.reflect.Field.set(Field.java:656)
+at databeans.ObiectPersistent.getObjects(ObiectPersistent.java:371)
+at databeans.TestModelBD.afiseaza(TestModelBD.java:19)
+at databeans.TestModelBD.main(TestModelBD.java:37)
+Process exited with exit code 1.</textarea><br />  <br /> Can anyone help me please ?! I am new to Java and i have to do this<br />  <br /> Thank in advance !</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ernest Friedman-Hill, Marshal<br />
+  on <span class="lastPostTime">Jan 28, 2007 09:06:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi,<br />  <br /> Welcome to JavaRanch!<br />  <br /> The problem is is the ObjectPersistent class, not in the code you've shown us here; what does the getObjects() method look like?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Simionu Ursache, Greenhorn<br />
+  on <span class="lastPostTime">Jan 28, 2007 09:10:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Here it is :<br />  <br /> <textarea name="code" class="java" cols="60" rows="10"> public static ArrayList getObjects(Class objectClass, Connection conn, 
+                                       String whereFiltru) throws Exception {
+        boolean conexiuneNula = false;
+        if (conn == null) {
+            conn = Utilitati.getConexiune();
+            conexiuneNula = true;
+        }
+        Statement stmt = conn.createStatement();
+        ArrayList listaObiecteNoi = new ArrayList();
+        try {
+            String numeClasa = objectClass.getName();
+            // iau numai numele clasei fara numele package-ului
+            String numeTabela = 
+                numeClasa.substring(numeClasa.lastIndexOf('.') + 1);
+            String frazaSelect = 
+                "select rowid," + numeTabela + ".* from " + numeTabela;
+            if (whereFiltru != null)
+                frazaSelect += " " + whereFiltru;
+            ResultSet rs = stmt.executeQuery(frazaSelect);
+            String numeAtributTabela;
+            Field atributObiect;
+            ArrayList atributePersistente = 
+                getSetAtributePersistente(objectClass, false);
+            Field atributIdLinieBD = objectClass.getField("idLinieBD");
+ 
+            while (rs.next()) { // obtin un obiect nou
+                Object obiectNou = objectClass.newInstance();
+                // incarc datele de pe inregistrarea curenta in obiect
+                for (int i = 0; i &lt; atributePersistente.size(); i++) {
+                    atributObiect = (Field)atributePersistente.get(i);
+                    numeAtributTabela = atributObiect.getName();
+                    Object valoareAtribut = rs.getObject(numeAtributTabela);
+                    // setez atributul obiectului cu valoarea de mai sus
+                    atributObiect.set(obiectNou, valoareAtribut);
+                }
+                // extrag si rowid-ul
+                atributIdLinieBD.set(obiectNou, 
+                                     ((oracle.jdbc.OracleResultSet)rs).getROWID("rowid"));
+ 
+                ((ObiectPersistent)obiectNou).setStare(ObiectPersistent.SINCRONIZAT);
+                listaObiecteNoi.add(obiectNou);
+            }
+            stmt.close();
+            if (conexiuneNula) // daca nu am primit conexiunea o inchid
+                conn.close();
+        } catch (Exception e) {
+            if (stmt != null)
+                stmt.close();
+            if (conexiuneNula)
+                conn.close();
+            throw e;
+        } finally {
+        }
+        return listaObiecteNoi;
+    }
+}// inchid si clasa</textarea></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ernest Friedman-Hill, Marshal<br />
+  on <span class="lastPostTime">Jan 28, 2007 11:08:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Which is line 164 in ObjectPersistent? There are two calls to "set", one which looks obviously correct, and another which might not be, depending on the data we can't see. I bet the one that's failing is the one in the loop, not the one after the loop.<br />  <br /> Note that you can (and should) leave that field private; you just have to call setAccessible(true) on the Field object before calling "set". You might need to do this on all your Field objects.<br />  <br /> Have you considered using something like Hibernate? Why code all this stuff by hand?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Simionu Ursache, Greenhorn<br />
+  on <span class="lastPostTime">Jan 28, 2007 12:55:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Line 163 and 164 :<br /> <textarea name="code" class="java" cols="60" rows="10">            ArrayList atributePersistente = 
+                getSetAtributePersistente(clasaObiect, true);</textarea><br />  <br /> I am really new to java and i am trying hard to do a projects using JSP Struts with Oracle Database. I have taken this code from a book, and tried to adapt it for my needs. I don't really see the problem, but maybe you'll help me...<br />  <br /> So, you think i should declare all protected variables to private?<br /> idLinieBD should be setAccessible(true) in getObjects() function ?<br />  <br /> Here is the entire code for ObiectPersistent.java<br /> <textarea name="code" class="java" cols="60" rows="10">package databeans;
+ 
+import java.sql.*;
+ 
+import java.util.ArrayList;
+ 
+import java.lang.reflect.*;
+ 
+ 
+public class ObiectPersistent {
+ 
+    public static final transient int NOU = 1;
+ 
+    public static final transient int MODIFICAT = 2;
+ 
+    public static final transient int STERS = 3;
+ 
+    public static final transient int SINCRONIZAT = 4;
+ 
+    public transient oracle.sql.ROWID idLinieBD;
+ 
+    protected transient int stare;
+ 
+    public ObiectPersistent() {
+        this.stare = NOU;
+    }
+ 
+    public oracle.sql.ROWID getIdLinieBD() {
+        return this.idLinieBD;
+    }
+ 
+    public int getStare() {
+        return this.stare;
+    }
+ 
+    public void setStare(int stareNoua) {
+        if (this.stare == NOU && stareNoua == MODIFICAT)
+            return;
+        else
+            this.stare = stareNoua;
+    }
+ 
+    public static ArrayList getSetAtributePersistente(Class objectClass, 
+                                                      boolean excludeLOB) throws Exception {
+        // extrag numai atributele declarate proprii clasei (nu si cele
+        // mostenite)
+        Field[] atributeClasa = objectClass.getDeclaredFields();
+        ArrayList listaAtributeTabela = new ArrayList();
+        for (int i = 0; i &lt; atributeClasa.length; i++) { // elimin atributele
+            // transiente si
+            // atributul class si pe
+            // cele LOB in functie
+            // de flagul excludeLOB
+            int modAtribut = atributeClasa[i].getModifiers();
+            if (!Modifier.isTransient(modAtribut) && 
+                !atributeClasa[i].getName().startsWith("class"))
+                if (excludeLOB && 
+                    !atributeClasa[i].getType().equals(oracle.sql.BLOB.class) && 
+                    !atributeClasa[i].getType().equals(oracle.sql.CLOB.class)) {
+                    listaAtributeTabela.add(atributeClasa[i]);
+                } else if (!excludeLOB)
+                    listaAtributeTabela.add(atributeClasa[i]);
+        }
+        return listaAtributeTabela;
+    }
+ 
+    public void refresh(Connection conn) throws Exception {
+        if (this.idLinieBD == null) // nu am de unde sa extrag date
+            return;
+        boolean conexiuneNula = false;
+        if (conn == null) {
+            conn = Utilitati.getConexiune();
+            conexiuneNula = true;
+        }
+        PreparedStatement stmtRefresh = null;
+        try {
+            Class clasaObiect = this.getClass();
+            String numeClasa = clasaObiect.getName();
+ 
+            // din numele clasei trebuie excluse pachetele pt a obtine numele
+            // tabelei:
+            String numeTabela = 
+                numeClasa.substring(numeClasa.lastIndexOf('.') + 1);
+ 
+            ArrayList atributePersistente = 
+                getSetAtributePersistente(clasaObiect, false);
+            String numeAtributTabela;
+            Field atributObiect;
+ 
+            stmtRefresh = 
+                    conn.prepareStatement("select * from " + numeTabela + " where rowid=?");
+            stmtRefresh.setObject(1, this.idLinieBD);
+ 
+            ResultSet rs = stmtRefresh.executeQuery();
+            if (rs.next()) // daca nu are linii inseamna ca alta tranzactie a
+                // sters inregistrarea corespunzatore
+                for (int i = 0; i &lt; atributePersistente.size(); i++) {
+                    atributObiect = (Field)atributePersistente.get(i);
+                    numeAtributTabela = atributObiect.getName();
+ 
+                    // extrag valoarea
+                    Object valoareAtribut = rs.getObject(numeAtributTabela);
+                    // setez atributul obiectului curent cu valoarea de mai sus
+                    atributObiect.set(this, valoareAtribut);
+                }
+ 
+            rs.close();
+            stmtRefresh.close();
+            this.setStare(ObiectPersistent.SINCRONIZAT);
+            if (conexiuneNula) // daca nu am primit conexiunea o inchid
+                conn.close();
+        } // inchide try
+ 
+        catch (Exception e) {
+            if (stmtRefresh != null)
+                stmtRefresh.close();
+            if (conexiuneNula) // daca nu am primit conexiunea o inchid
+                conn.close();
+            throw e; // trimit eroarea mai departe blocului apelant
+        }
+    }
+ 
+    public void salveaza(Connection conn) throws Exception {
+        if (this.stare == SINCRONIZAT)
+            return;
+        boolean conexiuneNula = false;
+        if (conn == null) {
+            conn = Utilitati.getConexiune();
+            conexiuneNula = true;
+        }
+        try {
+            if (this.stare == NOU)
+                this.insert(conn);
+            else if (this.stare == MODIFICAT)
+                this.update(conn);
+            else if (this.stare == STERS)
+                this.delete(conn);
+        }
+ 
+        catch (Exception e) { // daca a fost vreo eroare inchid conexiunea si
+            // trimit mai departe
+            if (conexiuneNula)
+                conn.close();
+            throw e;
+        }
+        this.stare = ObiectPersistent.SINCRONIZAT;
+        if (conexiuneNula) // daca nu am primit conexiunea o inchid
+            conn.close();
+    }
+ 
+    public void insert(Connection conn) throws Exception {
+        boolean stareInitialaAutoCommit = conn.getAutoCommit();
+        PreparedStatement stmtInsert = null;
+        PreparedStatement stmtGetRowidNou = null;
+        try {
+            if (conn.getAutoCommit())
+                conn.setAutoCommit(false); // pentru ca intre Insert si
+            // getRowid
+            // sa nu modifice alta tranzactie valorile din PK
+            Class clasaObiect = this.getClass();
+            String numeClasa = clasaObiect.getName();
+            String numeTabela = 
+                numeClasa.substring(numeClasa.lastIndexOf('.') + 1);
+            ArrayList atributePersistente = 
+                getSetAtributePersistente(clasaObiect, true);
+ 
+            // contruiesc String-ul pt Statementul de insert
+            StringBuffer stringInsert = 
+                new StringBuffer("Insert into " + numeTabela + " ( ");
+ 
+            // adaug la Insert into numetabela ( atributele persistente din
+            // obiectul meu
+            for (int i = 0; i &lt; atributePersistente.size(); i++)
+                if (i == 0) // primul atribut nu trebuie sa aiba virgula
+                    // inaintea lui
+                    stringInsert.append(((Field)atributePersistente.get(i)).getName());
+                else
+                    // urmatoarelor le trebuie virgula in fata
+                    stringInsert.append("," + 
+                                        ((Field)atributePersistente.get(i)).getName());
+            stringInsert.append(" ) values ( ");
+            for (int i = 0; i &lt; atributePersistente.size(); i++)
+                if (i == 0)
+                    stringInsert.append("?");
+                else
+                    stringInsert.append(",?");
+            stringInsert.append(" )");
+            // construiesc statementul
+            stmtInsert = conn.prepareStatement(stringInsert.toString());
+            for (int i = 0; i &lt; atributePersistente.size(); i++) { // numarul
+                // parametrului
+                // corespunzator
+                // va fi i+1
+                if (((Field)atributePersistente.get(i)).get(this) == 
+                    null) // daca
+                    // valoarea
+                    // =
+                    // java.null
+                    stmtInsert.setNull(i + 1, java.sql.Types.VARCHAR);
+                else
+                    stmtInsert.setObject(i + 1, 
+                                         ((Field)atributePersistente.get(i)).get(this));
+            }
+            stmtInsert.execute();
+            // trebuie sa extrag noul rowid
+            // ceva de forma select rowid from tabela where atribcheie=? and
+            // atribcheie2=?....
+ 
+            stmtInsert.close();
+            Statement stmt = conn.createStatement();
+            ResultSet rsPKFields = 
+                stmt.executeQuery("select column_namefrom user_cons_columns where constraint name=" + 
+                                  "(select constraint_name from user_constraints " + 
+                                  "where constraint_type='P' and table_name=" + 
+                                  numeTabela.toUpperCase() + ")");
+            ArrayList listaAtributePK = new ArrayList();
+            while (rsPKFields.next())
+                listaAtributePK.add(rsPKFields.getString("COLUMN_NAME").toLowerCase());
+            StringBuffer stringGetRowid = 
+                new StringBuffer("select rowid from " + numeTabela + 
+                                 " where ");
+            for (int i = 0; i &lt; listaAtributePK.size(); i++)
+                if (i == 0)
+                    stringGetRowid.append(listaAtributePK.get(i) + "=?");
+                else
+                    stringGetRowid.append(" and " + listaAtributePK.get(i) + 
+                                          "=?");
+ 
+            stmtGetRowidNou = conn.prepareStatement(stringGetRowid.toString());
+            Field atributObiect;
+            // caut in lista de atribute ale obiectului atributul cu acelasi
+            // nume cu cele din cheie
+            // si atribui parametrului corespunzator al statementului valoarea
+            // atributului respectiv
+            for (int i = 0; i &lt; listaAtributePK.size(); i++)
+                for (int k = 0; k &lt; atributePersistente.size(); k++)
+                    if (((Field)atributePersistente.get(k)).getName().toLowerCase().equals(listaAtributePK.get(i))) {
+                        atributObiect = (Field)atributePersistente.get(i);
+                        // setez valoarea parametrului i+1 (numerotarea
+                        // parametrilor incepe de la 1)
+                        stmtGetRowidNou.setObject(i + 1, 
+                                                  atributObiect.get(this));
+                        break; // nu are sens sa merg mai departe daca l-am
+                        // gasit
+                    }
+            ResultSet rs = stmtGetRowidNou.executeQuery();
+            rs.next();
+            this.idLinieBD = ((oracle.jdbc.OracleResultSet)rs).getROWID(1);
+            rs.close();
+            stmtGetRowidNou.close();
+            // daca era initial pe comitere automata trebuie so comit
+            // modificarile
+            // daca nu era pe auto-commit va decide commit/rollback aplicatia
+            // apelanta mai tarziu
+            if (stareInitialaAutoCommit)
+                conn.commit();
+            // restaurez situatia initiala
+            conn.setAutoCommit(stareInitialaAutoCommit);
+        } catch (Exception e) {
+            try {
+                conn.rollback();
+            } catch (Exception err) {
+                System.out.println("Nu s-a putut da rollback");
+            }
+            if (stmtInsert != null)
+                stmtInsert.close();
+            if (stmtGetRowidNou != null)
+                stmtGetRowidNou.close();
+            conn.setAutoCommit(stareInitialaAutoCommit);
+            throw e;
+        }
+    }
+ 
+    public void update(Connection conn) throws Exception {
+        PreparedStatement stmtUpd = null;
+        try {
+            Class clasaObiect = this.getClass();
+            String numeClasa = clasaObiect.getName();
+            String numeTabela = 
+                numeClasa.substring(numeClasa.lastIndexOf('.') + 1);
+            ArrayList atributePersistente = 
+                getSetAtributePersistente(clasaObiect, true);
+            // construiesc String-ul pt Statementul de update
+            StringBuffer stringUpdate = 
+                new StringBuffer("update " + numeTabela + " set ");
+            for (int i = 0; i &lt; atributePersistente.size(); i++)
+                if (i == 
+                    0) // primului set atribut=? nu trebuie sa aiba virgula
+                    stringUpdate.append(((Field)atributePersistente.get(i)).getName() + 
+                                        "=?");
+                else
+                    // urmatoarelor le trebuie virgula in fata
+                    stringUpdate.append("," + 
+                                        ((Field)atributePersistente.get(i)).getName() + 
+                                        "=?");
+            stringUpdate.append(" where rowid=?");
+ 
+            // creez Statementul si dau valori parametrilor
+            stmtUpd = conn.prepareStatement(stringUpdate.toString());
+            for (int i = 0; i &lt; atributePersistente.size(); i++)
+                if (((Field)atributePersistente.get(i)).get(this) == null)
+                    stmtUpd.setNull(i + 1, java.sql.Types.VARCHAR);
+                else
+                    stmtUpd.setObject(i + 1, 
+                                      ((Field)atributePersistente.get(i)).get(this));
+ 
+            // parametrul din clauza where (rowid=?) va avea numarul = lungimea
+            // array-ului de fielduri+l
+            stmtUpd.setObject(atributePersistente.size() + 1, this.idLinieBD);
+            stmtUpd.execute();
+            stmtUpd.close();
+        } catch (Exception e) {
+            if (stmtUpd != null)
+                stmtUpd.close();
+            throw e;
+        }
+    }
+ 
+    public void delete(Connection conn) throws Exception {
+        PreparedStatement stmtDel = null;
+        try {
+            Class clasaObiect = this.getClass();
+            String numeClasa = clasaObiect.getName();
+            String numeTabela = 
+                numeClasa.substring(numeClasa.lastIndexOf('.') + 1);
+            stmtDel = 
+                    conn.prepareStatement("delete from " + numeTabela + " where rowid=?");
+            stmtDel.setObject(1, this.idLinieBD);
+            stmtDel.execute();
+            stmtDel.close();
+        } catch (Exception e) {
+            if (stmtDel != null)
+                stmtDel.close();
+            throw e;
+        }
+    }
+ 
+    public static ArrayList getObjects(Class objectClass, Connection conn, 
+                                       String whereFiltru) throws Exception {
+        boolean conexiuneNula = false;
+        if (conn == null) {
+            conn = Utilitati.getConexiune();
+            conexiuneNula = true;
+        }
+        Statement stmt = conn.createStatement();
+        ArrayList listaObiecteNoi = new ArrayList();
+        try {
+            String numeClasa = objectClass.getName();
+            // iau numai numele clasei fara numele package-ului
+            String numeTabela = 
+                numeClasa.substring(numeClasa.lastIndexOf('.') + 1);
+            String frazaSelect = 
+                "select rowid," + numeTabela + ".* from " + numeTabela;
+            if (whereFiltru != null)
+                frazaSelect += " " + whereFiltru;
+            ResultSet rs = stmt.executeQuery(frazaSelect);
+            String numeAtributTabela;
+            Field atributObiect;
+            ArrayList atributePersistente = 
+                getSetAtributePersistente(objectClass, false);
+            Field atributIdLinieBD = objectClass.getField("idLinieBD");
+ 
+            while (rs.next()) { // obtin un obiect nou
+                Object obiectNou = objectClass.newInstance();
+                // incarc datele de pe inregistrarea curenta in obiect
+                for (int i = 0; i &lt; atributePersistente.size(); i++) {
+                    atributObiect = (Field)atributePersistente.get(i);
+                    numeAtributTabela = atributObiect.getName();
+                    Object valoareAtribut = rs.getObject(numeAtributTabela);
+                    // setez atributul obiectului cu valoarea de mai sus
+                    atributObiect.set(obiectNou, valoareAtribut);
+                }
+                // extrag si rowid-ul
+                atributIdLinieBD.set(obiectNou, 
+                                     ((oracle.jdbc.OracleResultSet)rs).getROWID("rowid"));
+ 
+                ((ObiectPersistent)obiectNou).setStare(ObiectPersistent.SINCRONIZAT);
+                listaObiecteNoi.add(obiectNou);
+            }
+            stmt.close();
+            if (conexiuneNula) // daca nu am primit conexiunea o inchid
+                conn.close();
+        } catch (Exception e) {
+            if (stmt != null)
+                stmt.close();
+            if (conexiuneNula)
+                conn.close();
+            throw e;
+        } finally {
+        }
+        return listaObiecteNoi;
+    }
+}// inchid si clasa
+ 
+</textarea><br />  <br />  <br /> Any advice is welcome ! Thank you again for your attention !<br />  <br /> [ January 28, 2007: Message edited by: Simionu Ursache ]<br />  <br /> [ January 28, 2007: Message edited by: Simionu Ursache ]<br /> [ January 28, 2007: Message edited by: Simionu Ursache ]<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ernest Friedman-Hill, Marshal<br />
+  on <span class="lastPostTime">Jan 29, 2007 11:52:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Well, if we're trying to debug this, then your stack trace shows an error due to a call to "set" at line 371. This isn't due to "set" call that sets to the rowid attribute, but to the other one in the  loop. It would help to know what the arguments to "set" were when the exception happens, yes? So at line 371, insert some debug print statements like this:<br />  <br /> System.out.print(numeAtributTabela);<br /> System.out.print(" ");<br /> System.out.flush();<br /> System.out.print(valoareAtribut.getClass().getName());<br /> System.out.print(" ");<br /> System.out.println(valoareAtribut);<br /> atributObiect.set(obiectNou, valoareAtribut);<br />  <br /> The last line of output before the stack trace will then tell you what attribute was being set, and to what value, and that should explain the "IllegalArgumentException". If you get a new NullPointerException, then that means valoareAtribut was null, which is also useful information.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Simionu Ursache, Greenhorn<br />
+  on <span class="lastPostTime">Jan 30, 2007 14:19:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">ok i did that and this is what i got : <br /> <textarea name="code" class="java" cols="60" rows="10">
+compartid java.math.BigDecimal 1003
+ 
+numecompart java.lang.String Rector
+ 
+salorar java.math.BigDecimal 12
+ 
+salorarco java.math.BigDecimal 10
+ 
+gradliber java.math.BigDecimal 2
+ 
+compartidpar java.math.BigDecimal 1001
+ 
+marca java.math.BigDecimal 105
+ 
+numepren java.lang.String Rector
+ 
+compartid java.math.BigDecimal 1003
+ 
+datasv java.sql.Date 1980-04-06
+ 
+java.lang.IllegalArgumentException
+ 
+at sun.reflect.UnsafeObjectFieldAccessorImpl.set(UnsafeObjectFieldAccessorImpl.java:63)
+ 
+at java.lang.reflect.Field.set(Field.java:519)
+ 
+at databeans.ObiectPersistent.getObjects(ObiectPersistent.java:380)
+ 
+at databeans.TestModelBD.afiseaza(TestModelBD.java:20)
+ 
+at databeans.TestModelBD.main(TestModelBD.java:38)
+ 
+Exception in thread main
+</textarea><br />  <br /> So, in TestModelBD.java i am selecting the row from Compartimente table that have compartid = 1003 :<br />  <br /> select * from compartimente where compartid = 1003;<br />  <br /> COMPARTID NUMECOMPARTSALORARSALORARCOGRADLIBE COMPARTIDPAR<br /> 1003  Rector12.0010.00        2 1001<br />  <br /> From the output of the ObiectPersistent class all of this info is displayed. After that in TestModelBD i am query-ing all the rows from Personal table that have compartid = 1003<br />  <br /> select * from personal where compartid = 1003<br />  <br /> MARCANUMEPRENCOMPARTIDDATASV<br /> 105Rector        1003        4/6/1980<br />  <br /> As you can see in the error the output stops at the date, so this should be the problem ? In the output the variable type of datasv is java.sql.Date, and in Personal class i have declared it java.sql.Timestamp.<br />  <br /> <textarea name="code" class="java" cols="60" rows="10">public class Personal extends ObiectPersistent {
+    protected java.math.BigDecimal marca = new java.math.BigDecimal(0);
+    protected java.lang.String numepren = "Angajat Nou";
+    protected java.math.BigDecimal compartid;
+    protected java.sql.Timestamp datasv = new Timestamp(new Date().getTime());</textarea><br />  <br /> Could this be the problem ?<br /> [ January 30, 2007: Message edited by: Simionu Ursache ]<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: mita baston, Greenhorn<br />
+  on <span class="lastPostTime">Feb 01, 2007 11:17:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">[edited by fred]<br /> Pleae remember that this is an English only site.  I have removed your post for that reason.<br /> [ February 01, 2007: Message edited by: Fred Rosenberger ]<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Simionu Ursache, Greenhorn<br />
+  on <span class="lastPostTime">Feb 01, 2007 13:12:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">what post ?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jim Yingst, Sheriff<br />
+  on <span class="lastPostTime">Feb 01, 2007 14:24:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Simionu: Mita's original post was in Romanian.  Fred has removed the content that was there, and replaced it with his own message (which was directed at Mita, not you).</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: fred rosenberger, Bartender<br />
+  on <span class="lastPostTime">Feb 02, 2007 06:54:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Sorry - I should have made that clearer</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/381964'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=1'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 12, 2013 16:54:48</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/1"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/381964/java/java/NoSuchFieldException-IllegalArgumentException?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

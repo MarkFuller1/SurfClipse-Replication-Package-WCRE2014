@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [concurrency-interest] Design of Thread Safe Iterator Proxy
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:concurrency-interest%40cs.oswego.edu?Subject=Re%3A%20%5Bconcurrency-interest%5D%20Design%20of%20Thread%20Safe%20Iterator%20Proxy&In-Reply-To=%3CCAE%2Bh5-CqEFuEfExNB9Q8auTvc2nT56%3DHkiJzWsS4nJydtd%2Bv3A%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="011400.html">
+   <LINK REL="Next"  HREF="011404.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[concurrency-interest] Design of Thread Safe Iterator Proxy</H1>
+    <B>Yuval Shavit</B> 
+    <A HREF="mailto:concurrency-interest%40cs.oswego.edu?Subject=Re%3A%20%5Bconcurrency-interest%5D%20Design%20of%20Thread%20Safe%20Iterator%20Proxy&In-Reply-To=%3CCAE%2Bh5-CqEFuEfExNB9Q8auTvc2nT56%3DHkiJzWsS4nJydtd%2Bv3A%40mail.gmail.com%3E"
+       TITLE="[concurrency-interest] Design of Thread Safe Iterator Proxy">yankee.sierra at gmail.com
+       </A><BR>
+    <I>Sun Jun 16 17:51:23 EDT 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="011400.html">[concurrency-interest]  Design of Thread Safe Iterator Proxy
+</A></li>
+        <LI>Next message: <A HREF="011404.html">[concurrency-interest] Design of Thread Safe Iterator Proxy
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11403">[ date ]</a>
+              <a href="thread.html#11403">[ thread ]</a>
+              <a href="subject.html#11403">[ subject ]</a>
+              <a href="author.html#11403">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Piyush,
+
+This is a bit of a lengthy reply, apologies for that. The short of it is
+that (a) this iterator still isn't thread-safe and (b) it's not needed to
+fix a ConcurrentModificationException.
+
+Firstly, note that the ConcurrentModificationException doesn't necessarily
+have to do with concurrency. You can easily trigger it with a single
+thread, as it just means that the collection was modified between an
+iterator being created and next() being invoked on it. For instance, this
+will trigger a CME:
+
+    List&lt;Integer&gt; list = new ArrayList&lt;Integer&gt;();
+    list.add(1);
+    for (Integer i : list) {
+        list.add(2); // modify the list, and then the implicit Iterator
+will invoke next() for the next iteration
+    }
+
+    Exception in thread &quot;main&quot; java.util.ConcurrentModificationException
+at java.util.AbstractList$Itr.checkForComodification(AbstractList.java:372)
+ at java.util.AbstractList$Itr.next(AbstractList.java:343)
+at Cme.main(Cme.java:6)
+
+That said, in your SafeIterator.hasNext() method, you only unlock the
+ReentrantLock when the delegate iterator throws an exception. You probably
+meant to put the unlock within a finally block, not a catch block. This bug
+means that invoking hasNext() will never unlock the lock if there's no
+exception thrown (which there usually isn't), which is what's causing
+things to stick.
+
+This error illustrates the importance of using the simplest mechanism that
+works. In this case, I would make the lock object just a new Object() --
+not a ReentrantLock -- and use synchronized blocks with it. That takes care
+of the lock-try-finally-unlock pattern for you, eliminating the possibility
+of this error.
+
+  final Object lock = new Object();
+ public boolean hasNext() { synchronized (lock) { return
+iterator.hasNext(); } }
+  ...
+
+It's important to note that this iterator will still not be thread-safe if
+the delegate iterator isn't thread-safe, which usually means that the
+collection that originally created the iterator is itself thread-safe. One
+obvious way to break the thread safety is to (a) create an ArrayList (which
+is not thread-safe), (b) create an iterator from it (which is also not
+thread safe), call this iterator-u (c) create a SafeIterator from
+iterator-1, call it iterator-s, (d) publish iterator-s to some thread, then
+(e) modify iterator-u (by calling next, remove() or possibly even hasNext()
+on it) *or* modify the original ArrayList somehow. Those actions won't be
+synchronized on the SafeIterator's &quot;lock&quot; object, breaking thread safety.
+
+In fact, because the Iterator interface inherently uses a check-then-act
+pattern (first you check if there's a next element using hasNext(), then
+you get that element using next()), it's pretty tricky to create a
+thread-safe Iterator. For instance, if an iterator has one element left in
+it, you could have two threads invoke hasNext() on it and see that there's
+a next element; then both invoke next() on it, and the second one of those
+will trigger a NoSuchElementException because the first one had already
+&quot;taken&quot; the last element. That's just a classic race condition, nothing
+tricky as far as data races or such. It's best to just have each Iterator
+be thread-local. If you need something like a thread-safe queue that
+various threads can take from, try one of the interfaces/classes
+in java.util.concurrent, such as BlockingQueue.
+
+-Yuval
+
+
+On Mon, Jun 10, 2013 at 2:37 AM, piyush katariya &lt;<A HREF="http://cs.oswego.edu/mailman/listinfo/concurrency-interest">corporate.piyush at gmail.com</A>
+&gt;<i> wrote:
+</I>
+&gt;<i> Hi,
+</I>&gt;<i>
+</I>&gt;<i>        so i was in the need of ThreadSafe iterator, so that multiple
+</I>&gt;<i> threads can access over it concurrently without  throwing
+</I>&gt;<i> &quot;ConcurrentModificationException&quot;.
+</I>&gt;<i>
+</I>&gt;<i> i came with solution attached herewith, but for some reason..multiple
+</I>&gt;<i> threads from thread pool after iterating over, stucks...
+</I>&gt;<i>
+</I>&gt;<i> can somebody help me with it..
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Regards,
+</I>&gt;<i> Piyush Katariya
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> Concurrency-interest mailing list
+</I>&gt;<i> <A HREF="http://cs.oswego.edu/mailman/listinfo/concurrency-interest">Concurrency-interest at cs.oswego.edu</A>
+</I>&gt;<i> <A HREF="http://cs.oswego.edu/mailman/listinfo/concurrency-interest">http://cs.oswego.edu/mailman/listinfo/concurrency-interest</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="http://cs.oswego.edu/pipermail/concurrency-interest/attachments/20130616/98ae3c6c/attachment.html">http://cs.oswego.edu/pipermail/concurrency-interest/attachments/20130616/98ae3c6c/attachment.html</A>&gt;
+</PRE>
+
+
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="011400.html">[concurrency-interest]  Design of Thread Safe Iterator Proxy
+</A></li>
+	<LI>Next message: <A HREF="011404.html">[concurrency-interest] Design of Thread Safe Iterator Proxy
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11403">[ date ]</a>
+              <a href="thread.html#11403">[ thread ]</a>
+              <a href="subject.html#11403">[ subject ]</a>
+              <a href="author.html#11403">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="http://cs.oswego.edu/mailman/listinfo/concurrency-interest">More information about the Concurrency-interest
+mailing list</a><br>
+</body></html>

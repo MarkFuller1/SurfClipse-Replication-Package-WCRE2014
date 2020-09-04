@@ -1,0 +1,360 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>java.lang.reflect.UndeclaredThrowableException in JBOSS with EJB 3 as a web service (EJB and other Java EE Technologies forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/472750/EJB-JEE/java/java-lang-reflect-UndeclaredThrowableException-JBOSS"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/472750/EJB-JEE/java/java-lang-reflect-UndeclaredThrowableException-JBOSS?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-11/EJB-JEE">EJB and other Java EE Technologies</a>
+<div class="subject">java.lang.reflect.UndeclaredThrowableException in JBOSS with EJB 3 as a web service</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Sowjanya Venkiteela, Greenhorn<br />
+  on <span class="lastPostTime">Nov 27, 2009 00:12:01</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Dear All,
+<br /> 
+<br /> I am getting the above exception java.lang.reflect.UndeclaredThrowableException in my client program.
+<br /> 
+<br /> java.lang.reflect.UndeclaredThrowableException
+<br /> 	at $Proxy0.echo(Unknown Source)
+<br /> 	at com.ss.Client.main(Client.java:41)
+<br /> Caused by: java.rmi.RemoteException: Call invocation failed; nested exception is: 
+<br /> 	java.lang.UnsupportedOperationException: setProperty must be overridden by all subclasses of SOAPMessage
+<br /> 	at org.jboss.ws.core.jaxrpc.client.CallImpl.invokeInternal(CallImpl.java:536)
+<br /> 	at org.jboss.ws.core.jaxrpc.client.CallImpl.invoke(CallImpl.java:277)
+<br /> 	at org.jboss.ws.core.jaxrpc.client.PortProxy.invoke(PortProxy.java:156)
+<br /> 	... 2 more
+<br /> Caused by: java.lang.UnsupportedOperationException: setProperty must be overridden by all subclasses of SOAPMessage
+<br /> 	at javax.xml.soap.SOAPMessage.setProperty(Unknown Source)
+<br /> 	at org.jboss.ws.core.soap.SOAPMessageImpl.&lt;init&gt;(SOAPMessageImpl.java:83)
+<br /> 	at org.jboss.ws.core.soap.MessageFactoryImpl.createMessage(MessageFactoryImpl.java:171)
+<br /> 	at org.jboss.ws.core.CommonSOAP11Binding.createMessage(CommonSOAP11Binding.java:59)
+<br /> 	at org.jboss.ws.core.CommonSOAPBinding.bindRequestMessage(CommonSOAPBinding.java:158)
+<br /> 	at org.jboss.ws.core.CommonClient.invoke(CommonClient.java:291)
+<br /> 	at org.jboss.ws.core.jaxrpc.client.CallImpl.invokeInternal(CallImpl.java:517)
+<br /> 	... 4 more
+<br /> 
+<br /> 
+<br /> 
+<br /> My Coding is as follows:
+<br /> Client.java:
+<br /> -------------
+<br /> package com.ss;
+<br /> 
+<br /> import java.net.URL;
+<br /> import java.util.Properties;
+<br /> 
+<br /> import javax.naming.Context;
+<br /> import javax.naming.InitialContext;
+<br /> import javax.naming.NamingException;
+<br /> import javax.xml.namespace.QName;
+<br /> import javax.xml.rpc.Service;
+<br /> import javax.xml.rpc.ServiceFactory;
+<br /> 
+<br /> 
+<br /> public class Client {
+<br /> 
+<br /> 	/**
+<br /> 	 * @param args
+<br /> 	 */
+<br /> 	public static void main(String[] args) {
+<br /> 		// TODO Auto-generated method stub
+<br /> 
+<br /> 		try{
+<br /> 			 URL url = new URL("http://127.0.0.1:8080/TestWebServiceEAR-TestWebService/WSBean?wsdl");
+<br /> 		        QName qname = new QName("http://ss.com/","WSBeanService");
+<br /> 
+<br /> 		        System.out.println("Creating a service Using: \n\t" 
+<br /> 		                                   + url + " \n\tand " + qname);
+<br /> 		        ServiceFactory factory = ServiceFactory.newInstance();
+<br /> 		        Service remote = factory.createService(url, qname);
+<br /> 		        /*Call c=remote.createCall(new QName("http://abc.org/","WebSPort"));
+<br /> 		        c.setTargetEndpointAddress("http://127.0.0.1:8080/WSEAR-WS/WebS?wsdl");*/
+<br /> 		       
+<br /> 		        System.out.println("Obtaining reference to a proxy object");
+<br /> 		        WSBeanRemote proxy = (WSBeanRemote) remote.getPort(WSBeanRemote.class);
+<br /> 		       
+<br /> 		        System.out.println("Accessed local proxy: " +proxy);
+<br /> 		       
+<br /> 		        String string = "John";
+<br /> 		        
+<br /> 		        		System.out.println("Sending: " + string+"calling web service :");
+<br /> 		        		proxy.echo(string);
+<br /> 		       
+<br /> 			}catch (Exception e) {
+<br /> 				// TODO: handle exception
+<br /> 				e.printStackTrace();
+<br /> 			}
+<br /> 			}
+<br /> 
+<br /> }
+<br /> 
+<br /> 
+<br /> WSBean.java:
+<br /> ----------------
+<br /> package com.ss;
+<br /> 
+<br /> import javax.ejb.Remote;
+<br /> import javax.ejb.Stateless;
+<br /> import javax.jws.WebMethod;
+<br /> import javax.jws.WebService;
+<br /> import javax.jws.soap.SOAPBinding;
+<br /> 
+<br /> /**
+<br />  * Session Bean implementation class WSBean
+<br />  */
+<br /> 
+<br /> @Stateless
+<br /> @WebService
+<br /> @SOAPBinding(style = SOAPBinding.Style.RPC)   
+<br /> @Remote(WSBeanRemote.class)
+<br /> 
+<br /> public class WSBean implements WSBeanRemote {
+<br /> 
+<br />     /**
+<br />      * Default constructor. 
+<br />      */
+<br />     public WSBean() {
+<br />         // TODO Auto-generated constructor stub
+<br />     }
+<br />     @WebMethod  
+<br />     public String echo(String input)   
+<br />     {   
+<br />     	System.out.println("inside echo method"+input);
+<br />        return "sjdgfjsgdf"+input;   
+<br />     }   
+<br /> 
+<br /> }
+<br /> 
+<br /> 
+<br /> WSBeanRemote.java:
+<br /> -------------------------
+<br /> package com.ss;
+<br /> 
+<br /> import java.rmi.Remote;
+<br /> 
+<br /> import javax.jws.WebMethod;
+<br /> import javax.jws.WebService;
+<br /> import javax.jws.soap.SOAPBinding;
+<br /> import javax.jws.soap.SOAPBinding.Style;
+<br /> @WebService
+<br /> @SOAPBinding(style=Style.RPC)
+<br /> public interface WSBeanRemote extends Remote{
+<br /> 
+<br /> 	@WebMethod
+<br /> 	public String echo(String input);   
+<br /> 
+<br /> 	
+<br /> }
+<br /> 
+<br /> 
+<br /> 
+<br /> I have been strucked in this for two days.Please help.
+<br /> 
+<br /> Thanks in Advance.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jaikiran Pai, Marshal<br />
+  on <span class="lastPostTime">Nov 27, 2009 06:45:15</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">See <a class="snap_shots" href="https://community.jboss.org/message/340521" target="_new" >this</a></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Sowjanya Venkiteela, Greenhorn<br />
+  on <span class="lastPostTime">Dec 01, 2009 01:54:10</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Thank You Jaikiran,
+<br /> 
+<br /> My problem is resolved.
+<br /> 
+<br /> This is Bottom Up Approach where we are exposing EJB as a web service.
+<br /> 
+<br /> But,I want to know the Top Down Approach where I had a WSDL and I want to generate EJB classes.
+<br /> 
+<br /> Please provide necessary information.
+<br /> 
+<br /> Thanks in advance.
+<br /> 
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Oladeji Oluwasayo, Ranch Hand<br />
+  on <span class="lastPostTime">Oct 31, 2013 10:56:48</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">@Jaikiran that link is broken. Can you please provide a detailed solution. Someone is having a really tough time here.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jaikiran Pai, Marshal<br />
+  on <span class="lastPostTime">Oct 31, 2013 21:49:12</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Oladeji Oluwasayo wrote:</cite>@Jaikiran that link is broken. Can you please provide a detailed solution. Someone is having a really tough time here.</div>
+		</blockquote>
+<br /> 
+<br /> I've updated my previous post in this thread to contain the working link. Also, here's another discussion about this issue  <a class="snap_shots" href="http://www.coderanch.com/t/91307/JBoss/JBoss-EJB-Webservices" target="_blank" >http://www.coderanch.com/t/91307/JBoss/JBoss-EJB-Webservices</a></span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/472750'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=11'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 17:10:01</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/11"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/472750/EJB-JEE/java/java-lang-reflect-UndeclaredThrowableException-JBOSS?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

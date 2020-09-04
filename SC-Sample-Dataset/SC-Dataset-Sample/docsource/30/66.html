@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [MarkLogic Dev General] xmlsh question
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:general%40developer.marklogic.com?Subject=Re:%20%5BMarkLogic%20Dev%20General%5D%20xmlsh%20question&In-Reply-To=%3C193ECA2A-2CA7-41CA-BE38-C74537E4EA87%40marklogic.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="012718.html">
+   <LINK REL="Next"  HREF="012721.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[MarkLogic Dev General] xmlsh question</H1>
+    <B>David Lee</B> 
+    <A HREF="mailto:general%40developer.marklogic.com?Subject=Re:%20%5BMarkLogic%20Dev%20General%5D%20xmlsh%20question&In-Reply-To=%3C193ECA2A-2CA7-41CA-BE38-C74537E4EA87%40marklogic.com%3E"
+       TITLE="[MarkLogic Dev General] xmlsh question">David.Lee at marklogic.com
+       </A><BR>
+    <I>Thu Apr 11 10:57:02 PDT 2013</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="012718.html">[MarkLogic Dev General] xmlsh question
+</A></li>
+        <LI>Next message: <A HREF="012721.html">[MarkLogic Dev General] Deadlock detected locking
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12719">[ date ]</a>
+              <a href="thread.html#12719">[ thread ]</a>
+              <a href="subject.html#12719">[ subject ]</a>
+              <a href="author.html#12719">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I can answer in more detail later but for now take a look at xread.
+xread parses text XML and produces an in memory XML document.
+
+ml:get ... -t  | xread x
+
+Now x is an XML doc and you can do
+
+echo &lt;[ $x//elem ]&gt;
+
+
+
+
+
+Sent from my iPad (excuse the terseness)
+David A Lee
+<A HREF="http://developer.marklogic.com/mailman/listinfo/general">dlee at marklogic.com</A>&lt;mailto:<A HREF="http://developer.marklogic.com/mailman/listinfo/general">dlee at marklogic.com</A>&gt;
+812-630-7622
+
+
+On Apr 11, 2013, at 8:52 AM, &quot;Nick Raphael&quot; &lt;<A HREF="http://developer.marklogic.com/mailman/listinfo/general">nraphael1999 at gmail.com</A>&lt;mailto:<A HREF="http://developer.marklogic.com/mailman/listinfo/general">nraphael1999 at gmail.com</A>&gt;&gt; wrote:
+
+xmlsh: 1.2.2
+ml-xcc: 5.0.1
+ml server: 5.0.3
+java: 1.7.0_07
+os x: 10.7.5
+
+I have an xmlsh function that wraps an ML query. The ML query imports some (xquery) library modules, then calls an xquery function.
+
+The xmlsh function wraps ml:query -t -q &quot;....$1&quot;
+
+So far, so good.
+
+    my-func myfile.xml
+
+works like a charm
+
+I used the -t option in my query because myfile.xml includes a DOCTYPE declaration which xmlsh complains about, and is irrelevant to me at this point.
+
+But I would like the XML as XML and run an xpath on it
+
+So, I do a variety of things that don't work, but this works:
+
+a=$(my-func myfile.xml |grep -v DOCTYPE)
+b=&lt;[$a]&gt;
+echo $b |xpath //my-tag
+
+However, this does not work:
+
+    xpath //my-tag &lt;[ $(my-func myfile.xml |grep -v DOCTYPE) ]&gt;
+
+I get this error message, and then it hangs
+
+[stdin line: 23]
+Error expanding xml expression
+
+
+Then, with ^?, I get:
+
+stdin line: 24]
+Exception running: xpath
+org.xmlsh.core.CoreException: net.sf.saxon.s9api.SaxonApiException: org.xml.sax.SAXParseException; lineNumber: 2; columnNumber: 1; Content is not allowed in prolog.
+
+Nor, retreating to a less terse approach, does this work:
+
+   xpath //xref &lt;[ $a ]&gt;
+
+which hangs.
+
+Not sure if there is a time-out, but for once, I got the following error message (usually, I have to control-c out of the shell. Actually, it seems like ^? gets me out gracefully with the error message).
+
+[stdin line: 25]
+Exception running: xpath
+org.xmlsh.core.CoreException: net.sf.saxon.s9api.SaxonApiException: org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+
+So, a few questions:
+
+What am I doing wrong?
+What in the documentation have I not grasped that would have steered me away from these errors?
+Are there some remarks from a global perspective in the documentation that would have helped avoid the traps I fell into.
+
+Here's another issue:
+
+Functions that I define do not seem able to invoke defined functions, even if their declaration precedes their nested invocation.
+
+That, and the errors I am encountering, suggest to me that there is some limit on the recursive evaluation of the expressions you receive.
+
+Thank you for any assistance you could offer, and thank you for xmlsh.
+
+
+--
+Nicholas Raphael
+<A HREF="http://developer.marklogic.com/mailman/listinfo/general">nraphael1999 at gmail.com</A>&lt;mailto:<A HREF="http://developer.marklogic.com/mailman/listinfo/general">nraphael1999 at gmail.com</A>&gt;
+Software Development Manager
+Senior Software Architect
+
+
+
+_______________________________________________
+General mailing list
+<A HREF="http://developer.marklogic.com/mailman/listinfo/general">General at developer.marklogic.com</A>&lt;mailto:<A HREF="http://developer.marklogic.com/mailman/listinfo/general">General at developer.marklogic.com</A>&gt;
+<A HREF="http://developer.marklogic.com/mailman/listinfo/general">http://developer.marklogic.com/mailman/listinfo/general</A>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="http://developer.marklogic.com/pipermail/general/attachments/20130411/6312b2b2/attachment.html">http://developer.marklogic.com/pipermail/general/attachments/20130411/6312b2b2/attachment.html</A> 
+</PRE>
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="012718.html">[MarkLogic Dev General] xmlsh question
+</A></li>
+	<LI>Next message: <A HREF="012721.html">[MarkLogic Dev General] Deadlock detected locking
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12719">[ date ]</a>
+              <a href="thread.html#12719">[ thread ]</a>
+              <a href="subject.html#12719">[ subject ]</a>
+              <a href="author.html#12719">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="http://developer.marklogic.com/mailman/listinfo/general">More information about the General
+mailing list</a><br>
+</body></html>

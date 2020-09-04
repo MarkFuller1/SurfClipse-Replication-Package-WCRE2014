@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="en" class="cursor">
+<head>
+	<script>if(typeof performance !== "undefined" && 'mark' in performance){performance.mark("mark_head_start");}</script>
+	<title>CSC 3400 Section 5 flashcards | Quizlet</title>
+
+			<script type="text/javascript">var NREUMQ=NREUMQ||[];NREUMQ.push(["mark","firstbyte",new Date().getTime()]);</script>	
+			<script type='text/javascript'>
+
+				var Window,Document,Element,Event,
+
+		_gaq=[['_setAccount','UA-1203987-1'],['_setDomainName','none'],['_setCustomVar',1,'Logged In','false',2],['_setCustomVar',2,'Lang','en',1],['_setCustomVar',3,'ABTests','analytics_source:doubleclick'],['_setCustomVar',4,'LoginSource','']],Quizlet={LOGGED_IN:false,SERVER_TIME:1386978065};
+		var QWait,QLoad;
+(function(){var c=[],g={},h=0,f=function(b,a,c,d){6>h++&&((new Image).src="/logs/jserror?title="+(d||"preload_js_error")+"&data="+encodeURIComponent('"msg: '+b+"; "+a+"#"+c+'"'))};window.onerror=f;QWait=function(){for(var b=arguments,a=b.length-1,e=b[a],d=[];a--;)g.hasOwnProperty(b[a])||d.push(b[a]);d.length?c.push({labels:d,func:e}):e()};QLoad=function(b){var a,e,d,f;a=0;for(e=c.length;a<e;a++)for(d=f=c[a].labels.length;d--;)if(c[a].labels[d]===b){c[a].labels.splice(d,1);if(1===f){c.splice(a,1)[0].func();
+QLoad(b);return}break}g[b]=1};setTimeout(function(){var b=c.length,a="";for(label in g)a+=", "+label;for(;b--;)f(c[b].labels.toString()+" UNFIRED; "+a.substr(2)+" DONE","","","unfired_label")},2E4);window.onload=function(){QWait("quizlib",function(){QLoad("dom");QLoad("onload")})}})();
+		/*! LAB.js (LABjs :: Loading And Blocking JavaScript)
+    v2.0.3 (c) Kyle Simpson
+    MIT License
+*/
+
+(function(global){
+	var _$LAB = global.$LAB,
+	
+		// constants for the valid keys of the options object
+		_UseLocalXHR = "UseLocalXHR",
+		_AlwaysPreserveOrder = "AlwaysPreserveOrder",
+		_AllowDuplicates = "AllowDuplicates",
+		_CacheBust = "CacheBust",
+		/*!START_DEBUG*/_Debug = "Debug",/*!END_DEBUG*/
+		_BasePath = "BasePath",
+		
+		// stateless variables used across all $LAB instances
+		root_page = /^[^?#]*\//.exec(location.href)[0],
+		root_domain = /^\w+\:\/\/\/?[^\/]+/.exec(root_page)[0],
+		append_to = document.head || document.getElementsByTagName("head"),
+		
+		// inferences... ick, but still necessary
+		opera_or_gecko = (global.opera && Object.prototype.toString.call(global.opera) == "[object Opera]") || ("MozAppearance" in document.documentElement.style),
+
+/*!START_DEBUG*/
+		// console.log() and console.error() wrappers
+		log_msg = function(){}, 
+		log_error = log_msg,
+/*!END_DEBUG*/
+		
+		// feature sniffs (yay!)
+		test_script_elem = document.createElement("script"),
+		explicit_preloading = typeof test_script_elem.preload == "boolean", // http://wiki.whatwg.org/wiki/Script_Execution_Control#Proposal_1_.28Nicholas_Zakas.29
+		real_preloading = explicit_preloading || (test_script_elem.readyState && test_script_elem.readyState == "uninitialized"), // will a script preload with `src` set before DOM append?
+		script_ordered_async = !real_preloading && test_script_elem.async === true, // http://wiki.whatwg.org/wiki/Dynamic_Script_Execution_Order
+		
+		// XHR preloading (same-domain) and cache-preloading (remote-domain) are the fallbacks (for some browsers)
+		xhr_or_cache_preloading = !real_preloading && !script_ordered_async && !opera_or_gecko
+	;
+
+/*!START_DEBUG*/
+	// define console wrapper functions if applicable
+	if (global.console && global.console.log) {
+		if (!global.console.error) global.console.error = global.console.log;
+		log_msg = function(msg) { global.console.log(msg); };
+		log_error = function(msg,err) { global.console.error(msg,err); };
+	}
+/*!END_DEBUG*/
+
+	// test for function
+	function is_func(func) { return Object.prototype.toString.call(func) == "[object Function]"; }
+
+	// test for array
+	function is_array(arr) { return Object.prototype.toString.call(arr) == "[object Array]"; }
+
+	// make script URL absolute/canonical
+	function canonical_uri(src,base_path) {
+		var absolute_regex = /^\w+\:\/\//;
+		
+		// is `src` is protocol-relative (begins with // or ///), prepend protocol
+		if (/^\/\/\/?/.test(src)) {
+			src = location.protocol + src;
+		}
+		// is `src` page-relative? (not an absolute URL, and not a domain-relative path, beginning with /)
+		else if (!absolute_regex.test(src) && src.charAt(0) != "/") {
+			// prepend `base_path`, if any
+			src = (base_path || "") + src;
+		}
+		// make sure to return `src` as absolute
+		return absolute_regex.test(src) ? src : ((src.charAt(0) == "/" ? root_domain : root_page) + src);
+	}
+
+	// merge `source` into `target`
+	function merge_objs(source,target) {
+		for (var k in source) { if (source.hasOwnProperty(k)) {
+			target[k] = source[k]; // TODO: does this need to be recursive for our purposes?
+		}}
+		return target;
+	}
+
+	// does the chain group have any ready-to-execute scripts?
+	function check_chain_group_scripts_ready(chain_group) {
+		var any_scripts_ready = false;
+		for (var i=0; i<chain_group.scripts.length; i++) {
+			if (chain_group.scripts[i].ready && chain_group.scripts[i].exec_trigger) {
+				any_scripts_ready = true;
+				chain_group.scripts[i].exec_trigger();
+				chain_group.scripts[i].exec_trigger = null;
+			}
+		}
+		return any_scripts_ready;
+	}
+
+	// creates a script load listener
+	function create_script_load_listener(elem,registry_item,flag,onload) {
+		elem.onload = elem.onreadystatechange = function() {
+			if ((elem.readyState && elem.readyState != "complete" && elem.readyState != "loaded") || registry_item[flag]) return;
+			elem.onload = elem.onreadystatechange = null;
+			onload();
+		};
+	}
+
+	// script executed handler
+	function script_executed(registry_item) {
+		registry_item.ready = registry_item.finished = true;
+		for (var i=0; i<registry_item.finished_listeners.length; i++) {
+			registry_item.finished_listeners[i]();
+		}
+		registry_item.ready_listeners = [];
+		registry_item.finished_listeners = [];
+	}
+
+	// make the request for a scriptha
+	function request_script(chain_opts,script_obj,registry_item,onload,preload_this_script) {
+		// setTimeout() "yielding" prevents some weird race/crash conditions in older browsers
+		setTimeout(function(){
+			var script, src = script_obj.real_src, xhr;
+			
+			// don't proceed until `append_to` is ready to append to
+			if ("item" in append_to) { // check if `append_to` ref is still a live node list
+				if (!append_to[0]) { // `append_to` node not yet ready
+					// try again in a little bit -- note: will re-call the anonymous function in the outer setTimeout, not the parent `request_script()`
+					setTimeout(arguments.callee,25);
+					return;
+				}
+				// reassign from live node list ref to pure node ref -- avoids nasty IE bug where changes to DOM invalidate live node lists
+				append_to = append_to[0];
+			}
+			script = document.createElement("script");
+			if (script_obj.type) script.type = script_obj.type;
+			if (script_obj.charset) script.charset = script_obj.charset;
+			if (script_obj.crossorigin) script.crossOrigin = script_obj.crossorigin;
+			
+			// should preloading be used for this script?
+			if (preload_this_script) {
+				// real script preloading?
+				if (real_preloading) {
+					/*!START_DEBUG*/if (chain_opts[_Debug]) log_msg("start script preload: "+src);/*!END_DEBUG*/
+					registry_item.elem = script;
+					if (explicit_preloading) { // explicit preloading (aka, Zakas' proposal)
+						script.preload = true;
+						script.onpreload = onload;
+					}
+					else {
+						script.onreadystatechange = function(){
+							if (script.readyState == "loaded") onload();
+						};
+					}
+					script.src = src;
+					// NOTE: no append to DOM yet, appending will happen when ready to execute
+				}
+				// same-domain and XHR allowed? use XHR preloading
+				else if (preload_this_script && src.indexOf(root_domain) == 0 && chain_opts[_UseLocalXHR]) {
+					xhr = new XMLHttpRequest(); // note: IE never uses XHR (it supports true preloading), so no more need for ActiveXObject fallback for IE <= 7
+					/*!START_DEBUG*/if (chain_opts[_Debug]) log_msg("start script preload (xhr): "+src);/*!END_DEBUG*/
+					xhr.onreadystatechange = function() {
+						if (xhr.readyState == 4) {
+							xhr.onreadystatechange = function(){}; // fix a memory leak in IE
+							registry_item.text = xhr.responseText + "\n//@ sourceURL=" + src; // http://blog.getfirebug.com/2009/08/11/give-your-eval-a-name-with-sourceurl/
+							onload();
+						}
+					};
+					xhr.open("GET",src);
+					xhr.send();
+				}
+				// as a last resort, use cache-preloading
+				else {
+					/*!START_DEBUG*/if (chain_opts[_Debug]) log_msg("start script preload (cache): "+src);/*!END_DEBUG*/
+					script.type = "text/cache-script";
+					create_script_load_listener(script,registry_item,"ready",function() {
+						append_to.removeChild(script);
+						onload();
+					});
+					script.src = src;
+					append_to.insertBefore(script,append_to.firstChild);
+				}
+			}
+			// use async=false for ordered async? parallel-load-serial-execute http://wiki.whatwg.org/wiki/Dynamic_Script_Execution_Order
+			else if (script_ordered_async) {
+				/*!START_DEBUG*/if (chain_opts[_Debug]) log_msg("start script load (ordered async): "+src);/*!END_DEBUG*/
+				script.async = false;
+				create_script_load_listener(script,registry_item,"finished",onload);
+				script.src = src;
+				append_to.insertBefore(script,append_to.firstChild);
+			}
+			// otherwise, just a normal script element
+			else {
+				/*!START_DEBUG*/if (chain_opts[_Debug]) log_msg("start script load: "+src);/*!END_DEBUG*/
+				create_script_load_listener(script,registry_item,"finished",onload);
+				script.src = src;
+				append_to.insertBefore(script,append_to.firstChild);
+			}
+		},0);
+	}
+		
+	// create a clean instance of $LAB
+	function create_sandbox() {
+		var global_defaults = {},
+			can_use_preloading = real_preloading || xhr_or_cache_preloading,
+			queue = [],
+			registry = {},
+			instanceAPI
+		;
+		
+		// global defaults
+		global_defaults[_UseLocalXHR] = true;
+		global_defaults[_AlwaysPreserveOrder] = false;
+		global_defaults[_AllowDuplicates] = false;
+		global_defaults[_CacheBust] = false;
+		/*!START_DEBUG*/global_defaults[_Debug] = false;/*!END_DEBUG*/
+		global_defaults[_BasePath] = "";
+
+		// execute a script that has been preloaded already
+		function execute_preloaded_script(chain_opts,script_obj,registry_item) {
+			var script;
+			
+			function preload_execute_finished() {
+				if (script != null) { // make sure this only ever fires once
+					script = null;
+					script_executed(registry_item);
+				}
+			}
+			
+			if (registry[script_obj.src].finished) return;
+			if (!chain_opts[_AllowDuplicates]) registry[script_obj.src].finished = true;
+			
+			script = registry_item.elem || document.createElement("script");
+			if (script_obj.type) script.type = script_obj.type;
+			if (script_obj.charset) script.charset = script_obj.charset;
+			create_script_load_listener(script,registry_item,"finished",preload_execute_finished);
+			
+			// script elem was real-preloaded
+			if (registry_item.elem) {
+				registry_item.elem = null;
+			}
+			// script was XHR preloaded
+			else if (registry_item.text) {
+				script.onload = script.onreadystatechange = null;	// script injection doesn't fire these events
+				script.text = registry_item.text;
+			}
+			// script was cache-preloaded
+			else {
+				script.src = script_obj.real_src;
+			}
+			append_to.insertBefore(script,append_to.firstChild);
+
+			// manually fire execution callback for injected scripts, since events don't fire
+			if (registry_item.text) {
+				preload_execute_finished();
+			}
+		}
+	
+		// process the script request setup
+		function do_script(chain_opts,script_obj,chain_group,preload_this_script) {
+			var registry_item,
+				registry_items,
+				ready_cb = function(){ script_obj.ready_cb(script_obj,function(){ execute_preloaded_script(chain_opts,script_obj,registry_item); }); },
+				finished_cb = function(){ script_obj.finished_cb(script_obj,chain_group); }
+			;
+			
+			script_obj.src = canonical_uri(script_obj.src,chain_opts[_BasePath]);
+			script_obj.real_src = script_obj.src + 
+				// append cache-bust param to URL?
+				(chain_opts[_CacheBust] ? ((/\?.*$/.test(script_obj.src) ? "&_" : "?_") + ~~(Math.random()*1E9) + "=") : "")
+			;
+			
+			if (!registry[script_obj.src]) registry[script_obj.src] = {items:[],finished:false};
+			registry_items = registry[script_obj.src].items;
+
+			// allowing duplicates, or is this the first recorded load of this script?
+			if (chain_opts[_AllowDuplicates] || registry_items.length == 0) {
+				registry_item = registry_items[registry_items.length] = {
+					ready:false,
+					finished:false,
+					ready_listeners:[ready_cb],
+					finished_listeners:[finished_cb]
+				};
+
+				request_script(chain_opts,script_obj,registry_item,
+					// which callback type to pass?
+					(
+					 	(preload_this_script) ? // depends on script-preloading
+						function(){
+							registry_item.ready = true;
+							for (var i=0; i<registry_item.ready_listeners.length; i++) {
+								registry_item.ready_listeners[i]();
+							}
+							registry_item.ready_listeners = [];
+						} :
+						function(){ script_executed(registry_item); }
+					),
+					// signal if script-preloading should be used or not
+					preload_this_script
+				);
+			}
+			else {
+				registry_item = registry_items[0];
+				if (registry_item.finished) {
+					finished_cb();
+				}
+				else {
+					registry_item.finished_listeners.push(finished_cb);
+				}
+			}
+		}
+
+		// creates a closure for each separate chain spawned from this $LAB instance, to keep state cleanly separated between chains
+		function create_chain() {
+			var chainedAPI,
+				chain_opts = merge_objs(global_defaults,{}),
+				chain = [],
+				exec_cursor = 0,
+				scripts_currently_loading = false,
+				group
+			;
+			
+			// called when a script has finished preloading
+			function chain_script_ready(script_obj,exec_trigger) {
+				/*!START_DEBUG*/if (chain_opts[_Debug]) log_msg("script preload finished: "+script_obj.real_src);/*!END_DEBUG*/
+				script_obj.ready = true;
+				script_obj.exec_trigger = exec_trigger;
+				advance_exec_cursor(); // will only check for 'ready' scripts to be executed
+			}
+
+			// called when a script has finished executing
+			function chain_script_executed(script_obj,chain_group) {
+				/*!START_DEBUG*/if (chain_opts[_Debug]) log_msg("script execution finished: "+script_obj.real_src);/*!END_DEBUG*/
+				script_obj.ready = script_obj.finished = true;
+				script_obj.exec_trigger = null;
+				// check if chain group is all finished
+				for (var i=0; i<chain_group.scripts.length; i++) {
+					if (!chain_group.scripts[i].finished) return;
+				}
+				// chain_group is all finished if we get this far
+				chain_group.finished = true;
+				advance_exec_cursor();
+			}
+
+			// main driver for executing each part of the chain
+			function advance_exec_cursor() {
+				while (exec_cursor < chain.length) {
+					if (is_func(chain[exec_cursor])) {
+						/*!START_DEBUG*/if (chain_opts[_Debug]) log_msg("$LAB.wait() executing: "+chain[exec_cursor]);/*!END_DEBUG*/
+						try { chain[exec_cursor++](); } catch (err) {
+							/*!START_DEBUG*/if (chain_opts[_Debug]) log_error("$LAB.wait() error caught: ",err);/*!END_DEBUG*/
+						}
+						continue;
+					}
+					else if (!chain[exec_cursor].finished) {
+						if (check_chain_group_scripts_ready(chain[exec_cursor])) continue;
+						break;
+					}
+					exec_cursor++;
+				}
+				// we've reached the end of the chain (so far)
+				if (exec_cursor == chain.length) {
+					scripts_currently_loading = false;
+					group = false;
+				}
+			}
+			
+			// setup next chain script group
+			function init_script_chain_group() {
+				if (!group || !group.scripts) {
+					chain.push(group = {scripts:[],finished:true});
+				}
+			}
+
+			// API for $LAB chains
+			chainedAPI = {
+				// start loading one or more scripts
+				script:function(){
+					for (var i=0; i<arguments.length; i++) {
+						(function(script_obj,script_list){
+							var splice_args;
+							
+							if (!is_array(script_obj)) {
+								script_list = [script_obj];
+							}
+							for (var j=0; j<script_list.length; j++) {
+								init_script_chain_group();
+								script_obj = script_list[j];
+								
+								if (is_func(script_obj)) script_obj = script_obj();
+								if (!script_obj) continue;
+								if (is_array(script_obj)) {
+									// set up an array of arguments to pass to splice()
+									splice_args = [].slice.call(script_obj); // first include the actual array elements we want to splice in
+									splice_args.unshift(j,1); // next, put the `index` and `howMany` parameters onto the beginning of the splice-arguments array
+									[].splice.apply(script_list,splice_args); // use the splice-arguments array as arguments for splice()
+									j--; // adjust `j` to account for the loop's subsequent `j++`, so that the next loop iteration uses the same `j` index value
+									continue;
+								}
+								if (typeof script_obj == "string") script_obj = {src:script_obj};
+								script_obj = merge_objs(script_obj,{
+									ready:false,
+									ready_cb:chain_script_ready,
+									finished:false,
+									finished_cb:chain_script_executed
+								});
+								group.finished = false;
+								group.scripts.push(script_obj);
+								
+								do_script(chain_opts,script_obj,group,(can_use_preloading && scripts_currently_loading));
+								scripts_currently_loading = true;
+								
+								if (chain_opts[_AlwaysPreserveOrder]) chainedAPI.wait();
+							}
+						})(arguments[i],arguments[i]);
+					}
+					return chainedAPI;
+				},
+				// force LABjs to pause in execution at this point in the chain, until the execution thus far finishes, before proceeding
+				wait:function(){
+					if (arguments.length > 0) {
+						for (var i=0; i<arguments.length; i++) {
+							chain.push(arguments[i]);
+						}
+						group = chain[chain.length-1];
+					}
+					else group = false;
+					
+					advance_exec_cursor();
+					
+					return chainedAPI;
+				}
+			};
+
+			// the first chain link API (includes `setOptions` only this first time)
+			return {
+				script:chainedAPI.script, 
+				wait:chainedAPI.wait, 
+				setOptions:function(opts){
+					merge_objs(opts,chain_opts);
+					return chainedAPI;
+				}
+			};
+		}
+
+		// API for each initial $LAB instance (before chaining starts)
+		instanceAPI = {
+			// main API functions
+			setGlobalDefaults:function(opts){
+				merge_objs(opts,global_defaults);
+				return instanceAPI;
+			},
+			setOptions:function(){
+				return create_chain().setOptions.apply(null,arguments);
+			},
+			script:function(){
+				return create_chain().script.apply(null,arguments);
+			},
+			wait:function(){
+				return create_chain().wait.apply(null,arguments);
+			},
+
+			// built-in queuing for $LAB `script()` and `wait()` calls
+			// useful for building up a chain programmatically across various script locations, and simulating
+			// execution of the chain
+			queueScript:function(){
+				queue[queue.length] = {type:"script", args:[].slice.call(arguments)};
+				return instanceAPI;
+			},
+			queueWait:function(){
+				queue[queue.length] = {type:"wait", args:[].slice.call(arguments)};
+				return instanceAPI;
+			},
+			runQueue:function(){
+				var $L = instanceAPI, len=queue.length, i=len, val;
+				for (;--i>=0;) {
+					val = queue.shift();
+					$L = $L[val.type].apply(null,val.args);
+				}
+				return $L;
+			},
+
+			// rollback `[global].$LAB` to what it was before this file was loaded, the return this current instance of $LAB
+			noConflict:function(){
+				global.$LAB = _$LAB;
+				return instanceAPI;
+			},
+
+			// create another clean instance of $LAB
+			sandbox:function(){
+				return create_sandbox();
+			}
+		};
+
+		return instanceAPI;
+	}
+
+	// create the main instance of $LAB
+	global.$LAB = create_sandbox();
+
+
+	/* The following "hack" was suggested by Andrea Giammarchi and adapted from: http://webreflection.blogspot.com/2009/11/195-chars-to-help-lazy-loading.html
+	   NOTE: this hack only operates in FF and then only in versions where document.readyState is not present (FF < 3.6?).
+	   
+	   The hack essentially "patches" the **page** that LABjs is loaded onto so that it has a proper conforming document.readyState, so that if a script which does 
+	   proper and safe dom-ready detection is loaded onto a page, after dom-ready has passed, it will still be able to detect this state, by inspecting the now hacked 
+	   document.readyState property. The loaded script in question can then immediately trigger any queued code executions that were waiting for the DOM to be ready. 
+	   For instance, jQuery 1.4+ has been patched to take advantage of document.readyState, which is enabled by this hack. But 1.3.2 and before are **not** safe or 
+	   fixed by this hack, and should therefore **not** be lazy-loaded by script loader tools such as LABjs.
+	*/ 
+	(function(addEvent,domLoaded,handler){
+		if (document.readyState == null && document[addEvent]){
+			document.readyState = "loading";
+			document[addEvent](domLoaded,handler = function(){
+				document.removeEventListener(domLoaded,handler,false);
+				document.readyState = "complete";
+			},false);
+		}
+	})("addEventListener","DOMContentLoaded");
+
+})(this);
+		
+		$LAB.setOptions({AlwaysPreserveOrder:true})
+			.script([{"src":"http://c.quizlet.com/a/j/en/quizlib-jquery-2.JdUG3.js","crossdomain":"anonymous"},{"src":"http://c.quizlet.com/a/j/en/set.fgAMq.js","crossdomain":"anonymous"}]);
+
+					$LAB.script('http://www.googletagservices.com/tag/js/gpt.js');
+		
+</script>
+	
+		<script>DPR=typeof devicePixelRatio=='undefined'?1:devicePixelRatio</script>
+			<script type="text/javascript">
+			// load CSS
+			(function(){var link,fragment=document.createDocumentFragment(),arr=["(DPR>1.3) ? 'http:\/\/c.quizlet.com\/a\/c\/global\/all-woff.vWNbR.r.css' : 'http:\/\/c.quizlet.com\/a\/c\/global\/all-woff.vWNbR.n.css'","(DPR>1.3) ? 'http:\/\/c.quizlet.com\/a\/c\/set\/all.4Wq3q.r.css' : 'http:\/\/c.quizlet.com\/a\/c\/set\/all.4Wq3q.n.css'"];for(var i=0;i<arr.length;i++){if(document.createStyleSheet){document.createStyleSheet(eval(arr[i]));}else{link=document.createElement('link');link.type='text/css';link.rel='stylesheet';link.href=eval(arr[i]);fragment.appendChild(link)}document.getElementsByTagName('head')[0].appendChild(fragment)}})();
+		</script>
+	
+	<link rel="dns-prefetch" href="//up.quizlet.com">
+	<link rel="dns-prefetch" href="//fb.quizlet.com">
+
+	
+	<link rel="shortcut icon" href="http://c.quizlet.com/a/i/favicon.B8wW.ico" />
+
+				
+	
+
+				
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:site" content="@quizlet">
+	<meta name="twitter:title" content="CSC 3400 Section 5">
+	<meta name="twitter:description" content="35 terms · C code snippet to �?ll in an address structure for a TCP client → struct sockaddr { *** unsig..., C code snippet to fill in an address structure for a TCP server → struct sockaddr_in { *** sh..., C code sni">
+
+	<meta property="og:title" content="CSC 3400 Section 5">
+	<meta property="og:description" content="35 terms · C code snippet to �?ll in an address structure for a TCP client → struct sockaddr { *** unsig..., C code snippet to fill in an address structure for a TCP server → struct sockaddr_in { *** sh..., C code sni">
+
+	
+			<meta property="og:image" content="http://c.quizlet.com/a/i/icons/256.Cb7P.jpg">
+	
+			<meta name="twitter:app:name:iphone" content="Quizlet">
+		<meta name="twitter:app:id:iphone" content="546473125">
+
+		<meta name="twitter:app:name:ipad" content="Quizlet">
+		<meta name="twitter:app:id:ipad" content="546473125">
+	<meta name="description" content="Vocabulary words for The socket API *** indicates a new line . Includes studying games and tools such as flashcards." /><link rel="canonical" href="http://quizlet.com/438460/csc-3400-section-5-flash-cards/" />
+	
+	<script type="text/javascript">
+  var analytics=analytics||[];(function(){var e=["identify","track","trackLink","trackForm","trackClick","trackSubmit","page","pageview","ab","alias","ready","group"],t=function(e){return function(){analytics.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var n=0;n<e.length;n++)analytics[e[n]]=t(e[n])})();
+  window.analyticsProperties = {};
+</script>
+
+
+
+
+	
+	<script type='text/javascript'>window.DFPADS = false;if ((window.innerWidth || (document.documentElement && document.documentElement.clientWidth) || (document.body && document.body.clientWidth)) >= 568) {window.DFPADS={};var googletag=googletag||{};googletag.cmd=googletag.cmd||[];googletag.cmd.push(function(){if(DFPADS)DFPADS["dfp-SetSidebarV2"]=googletag.defineSlot("\/6396803\/SetSidebarV2",[160,600],"dfp-SetSidebarV2").addService(googletag.pubads());if(DFPADS)DFPADS["dfp-Footer"]=googletag.defineSlot("\/6396803\/Footer",[468,60],"dfp-Footer").addService(googletag.pubads());googletag.pubads().enableSingleRequest();googletag.enableServices();});}</script>	
+</head>
+<body class="setpage show-all order-original none-selected study-tab">
+
+<div class="site">
+
+<script>if(typeof performance !== "undefined" && 'mark' in performance){performance.mark("mark_body_start"); }</script>
+
+<header id="header" class="global header  logged-out">
+	<div class="container">
+
+		<h1 class="logo" id="logo"><a href="/" class="link">Quizlet</a></h1>
+
+		<form class="search searchForm" action="/subject/" method="GET" onsubmit="return sendSearch('header-search')">
+			<label class="input">
+				<input type="text" class="text" tabindex="1" name="q" id="header-search" placeholder="Search Quizlet" onkeyup="handleSearchInput.call(this, 'clear-search')" autocomplete="off" />
+				<span class="glyph icon search-icon ">&#xe040;</span>			</label>
+			<input type="submit" class="submit" value="Search" tabindex="2" />
+		</form>
+
+		<a class="activate-nav" id="activate-nav" href="#"><span class="glyph icon nav-icon ">&#xe057;</span></a>
+		<a class="activate-search" id="activate-search" href="#"><span class="glyph icon search-icon ">&#xe040;</span></a>
+		<a class="deactivate-search" id="deactivate-search" href="#"><span class="glyph icon x-icon ">&#xe037;</span></a>
+
+		<ul class="sections links">
+
+			<li class="create">
+				<a href="https://quizlet.com/create-set">
+					<span class="glyph icon create-set-icon ">&#xe002;</span>					<span class="label">Create a Set</span>
+				</a>
+			</li>
+
+		</ul>
+
+		<div id="feedback" class="dnone">
+	<form action="/feedback" method="post" class="feedback-form"><div>
+		<h4>Your Feedback</h4>
+		<p>
+			<a href="/help" target="_blank">Check our Help section first!</a>			We'd love to hear of any bugs, comments, suggestions, feature requests &hellip;
+		</p>
+
+					<label class="email">
+				<strong>What is your email?</strong>
+				<input type="email" name="email" size="25" class="text value" />
+			</label>
+		
+				<select name="minorCategory">
+			<option value="">--- Choose Feedback Type ---</option>
+			<option value='Question / Need Help'>Question / Need Help</option>
+			<option value='Suggestion'>Suggestion</option>
+			<option value='Bug Report'>Bug Report</option>
+			<option value='Just Saying Thanks'>Just Saying Thanks</option>
+			<option value='Other Comment / Feedback'>Other Comment / Feedback</option>
+		</select>
+		<textarea rows="5" cols="20" id="the-feedback" name="feedback" class="text"></textarea>
+		<input type="submit" class="button" value="Send Feedback to Quizlet staff" />
+	</div></form>
+</div>
+		
+	<aside class="guest">
+		<div class="login poppable clickable">
+			<a href="https://quizlet.com/login?redir=http%3A%2F%2Fquizlet.com%2F438460%2Fcsc-3400-section-5-flash-cards%2F" class="login link" id="show-login" rel="nofollow">Log In<span class="glyph icon arrow-up-icon ">&#xe017;</span></a>			<div class="login popout">
+				<section class="linear login content">
+	<div class="connect">
+		<div class="google">
+			<a class="google button" href="https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=https%3A%2F%2Fquizlet.com%2Fgoogle-login&client_id=520305074949.apps.googleusercontent.com&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&approval_prompt=auto&state=%7B%22state%22%3A%22b3785V%22%2C%22reauth%22%3Afalse%2C%22from%22%3A%22%5C%2F438460%5C%2Fcsc-3400-section-5-flash-cards%5C%2F%22%7D">
+				<span class="icon"></span>
+				<span class="label">Log In with Google</span>
+			</a>
+		</div>
+		<div class="fb">
+			<a class="fb-login fb_button fb_button_large" href="https://www.facebook.com/dialog/oauth?client_id=2232594215&redirect_uri=https%3A%2F%2Fquizlet.com%2Ffb-login%3Ffrom%3Dhttp%253A%252F%252Fquizlet.com%252F438460%252Fcsc-3400-section-5-flash-cards%252F&state=b3785V&scope=email%2Cuser_birthday%2Cuser_education_history"><span class="icon"></span><span class="label">Log In with Facebook</span></a>		</div>
+	</div>
+
+	<span class="or-divider"><span class="or">or</span></span>
+
+	<form class="login" action="https://quizlet.com/login" method="post">
+
+	<label class="username field">
+		<input class="text" type="text" value="" name="username" id="username1" spellcheck="false" autocorrect="off" placeholder="Username" />
+	</label>
+
+	<label class="password field">
+		<input class="password text" type="password" name="password" id="password1" placeholder="Password"/>
+	</label>
+
+	<div class="extras">
+		<label class="remember">
+			<input type="checkbox" name="rememberMe"  value="1" />
+			<strong>Keep me logged in</strong>
+		</label>
+		<a href="https://quizlet.com/forgotten" title="Retrieve your forgotten username or password" class="forgot wide">Forgot password?</a>	</div>
+
+	<div class="done center">
+		<input type="submit" class="submit button" value="Log In" />
+	</div>
+
+	<div class="extras">
+		<a href="https://quizlet.com/forgotten" title="Retrieve your forgotten username or password" class="forgot slim">Forgot password?</a>	</div>
+
+	<div class="hidden">
+		<input type="hidden" value="/438460/csc-3400-section-5-flash-cards/" name="redir" />
+
+			</div>
+
+</form>
+
+<script type="text/javascript">
+	(function(){
+		var localDate = new Date();
+		var localTime = localDate.getHours() + Math.round(localDate.getMinutes()/60*10)/10;
+		var afterHours = localTime < 5 || localTime > 17.5; // time is before 5am or after 5:30pm
+		if (afterHours) {
+			// there may be 2 'remember me' checkboxes on the page
+			var boxes = document.getElementsByName('rememberMe');
+			for (var i = 0; i < boxes.length; i++) {
+				boxes[i].checked = true;
+			}
+		}
+	})();
+</script></section>
+			</div>
+		</div>
+		<a href="https://quizlet.com/sign-up?redir=http%3A%2F%2Fquizlet.com%2F438460%2Fcsc-3400-section-5-flash-cards%2F" class="signup link">Sign Up</a>		<a class="help link" href="/help">Help</a>
+	</aside>
+
+
+						
+	</div>
+</header>
+
+
+	<span class="login-blackout" id="hide-login"></span>
+
+	<script type="text/javascript">
+
+		(function() {
+
+			var body = document.getElementsByTagName('body')[0];
+			var header = document.getElementById('header');
+
+			var loginOpened = false;
+
+			var closeLogin = function() {
+				header.className = header.className.replace('logging-in', '');
+				body.className = body.className.replace('logging-in', '');
+				loginOpened = false;
+			}
+
+			document.getElementById('show-login').onclick = function() {
+
+				if (body.className === 'simple login') {
+					return false;
+				}
+
+				if (!loginOpened) {
+					header.className += ' logging-in';
+					body.className += ' logging-in';
+					loginOpened = true;
+
+					document.getElementById('username1').focus();
+				} else {
+					closeLogin();
+				}
+				return false;
+			};
+
+			document.getElementById('hide-login').onclick = function() {
+				closeLogin();
+			};
+
+		})();
+
+	</script>
+
+
+
+
+
+
+<header id="set-title" class="set-title item-title has-context" >
+	<div class="container">
+
+					<aside class="context-area">
+				
+	<div class="studied-by few box">
+
+		<h3>
+			<span class="line-1">Studied&nbsp;by</span>
+			<span class="line-2">1&nbsp;person</span>
+		</h3>
+
+		<ul class="intro-animation hiding users">
+															<li class="user offline">
+					<a href="/kids1" title="Visit kids1's profile"><span class='profile-image' style='background-image:url(http://c.quizlet.com/a/i/animals/small/43.9jFt.jpg);background-image:-webkit-image-set(url(http://c.quizlet.com/a/i/animals/small/43.9jFt.jpg) 1x, url(http://c.quizlet.com/a/i/animals/43.SkrD.jpg) 2x);height:28px;width:28px;'></span></a>
+									</li>
+			
+			
+		</ul>
+
+		
+		<a class="full pjax link" href="/438460/info"></a>
+
+		
+	</div>
+			</aside>
+		
+		<div class="heading">
+			<h1 class="set-name">CSC 3400 Section 5</h1>
+							<h2 class="set-creator">
+					<a href="/TnTechGirl" title="Visit TnTechGirl's profile"><span class='profile-image' style='background-image:url(http://fb.quizlet.com/hprofile-ak-ash4/372453_52708569_474230877_q.jpg);height:21px;width:21px;'></span></a>					Created by <a href="/TnTechGirl" title="Visit TnTechGirl's profile">TnTechGirl&nbsp;</a> 				</h2>
+					</div>
+
+	</div>
+</header>
+<nav class="tabs-bar">
+	<div class="container">
+		<ul class="tabs has-2-tabs">
+								<li class="study-tab">
+				<a href="/438460/csc-3400-section-5-flash-cards/" class="pjax">
+					Study									</a>
+			</li>
+								<li class="info-tab">
+				<a href="/438460/info" class="pjax">
+					Info									</a>
+			</li>
+				</ul>
+
+		<div class="tools">
+	<div class="major">
+
+		<div class="add-to tool hoverable poppable">
+	<a href="#" class="link">Add to Folder</span></a>
+
+	<div class="popout">
+		<span class="bridge"><span class="glyph icon arrow-up-icon ">&#xe017;</span></span>		<div class="social destinations">
+					<p>Log in to add this set to a folder</p>
+			<p><a href="/login?redir=%2F438460%2Fcsc-3400-section-5-flash-cards%2F" class="button">Log in</a></p>
+				</div>
+	</div>
+
+</div>
+			<div class="share tool hoverable poppable">
+		<a href="#" class="link">Share</a>
+
+		<div class=" popout">
+			<span class="bridge"><span class="glyph icon arrow-up-icon ">&#xe017;</span></span>
+			<div class="external social">
+				<form class="email" action="/438460/email">
+	<div id="emailConfirmation" class="confirmation"></div>
+
+	<span class="icon"></span>
+
+	<input class="text" type="email" name="recipient" id="emailRecipient" placeholder="Email to..." />
+
+	<input name='qnonce' type='hidden' value='ypiirHuTYH.QB9s0hUAaduA9Bl28O42YboIO7v93wb5-XtyWoQnp0-xr03.U8F-.Z4ObzADDD8ZCAXI48TCX8A' />
+	<button class="button" type="submit">Send</button>
+</form>
+
+<div class="destinations">
+	<a class="twitter action" href="#" onclick="window.open('http://twitter.com/home?status=Studying+on+Quizlet%3A+CSC+3400+Section+5+http%3A%2F%2Fquizlet.com%2F_9ebg','','width=626,height=436');return false;">
+		<span class="icon"></span>
+		<span class="label-text">Share on</span>
+		<strong>Twitter</strong>
+	</a>
+
+	<a class="facebook action" href="#" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(location.href),'','width=626,height=436');return false;">
+		<span class="icon"></span>
+		<span class="label-text">Share on</span>
+		<strong>Facebook</strong>
+	</a>
+</div>
+
+<form class="short-url">
+	<label>
+		<span class="label">Short URL</span>
+		<input type="text" class="text" readonly value="http://quizlet.com/_9ebg" />
+	</label>
+</form>
+			</div>
+
+			
+		</div>
+	</div>
+
+					<a href="https://quizlet.com/438460/recreate-set" class="copy tool">Copy</a>
+		
+		<a href="/438460/print" class="print tool">Print</a>
+
+	</div>
+
+	<div class="minor hoverable poppable">
+
+		<div class="more tool">
+			<a href="#" class="link">
+				<span class="label">More<span class="extra"> Tools</span></span>
+				<span class="down-arrow icon">&#xe023;</span>
+			</a>
+		</div>
+
+		<div class="popout anchor-right">
+
+			<span class="bridge"><span class="glyph icon arrow-up-icon ">&#xe017;</span></span>
+			
+			<a href="/438460/export" class="export tool">
+				<span class="icon">&#xe032;</span>
+				<span class="label">Export</span>
+			</a>
+
+							<a href="/438460/embed" class="embed tool">
+					<span class="icon">&#xe033;</span>
+					<span class="label">Embed</span>
+				</a>
+			
+			<a href="/set/438460/flags/add" class="report tool">
+				<span class="icon">&#xe034;</span>
+				<span class="label">Report</span>
+			</a>
+
+			
+		</div>
+
+	</div>
+</div>
+
+	</div>
+</nav>
+
+<div class="page-container">
+<div class="container has-ad">
+	<main class="page has-ad" id="page">
+		
+	<nav class="study modes">
+
+			
+		<div class="mode flashcards">
+
+			<span class="backdrop">
+				<a class="mode-link" href="/438460/flashcards"></a>
+							</span>
+
+			<div class="circles">
+				<span class="starred mode-circle">
+					<span class="icon">&#xe041;</span>
+					<span class="term-counts">
+						<span class="selected-count">0</span>
+						<span class="star-icon">&#xe041;</span>
+					</span>
+
+					<a class="link" href="/438460/flashcards/starred"></a>
+									</span>
+
+				<span class="all mode-circle">
+					<span class="icon">&#xe010;</span>
+					<span class="term-counts">All 35</span>
+
+					<a class="link" href="/438460/flashcards"></a>
+									</span>
+
+			</div>
+
+			<span class="name">Flashcards</span>
+			<span class="description">The easiest way to get started</span>
+
+		</div>
+
+			
+		<div class="mode learn">
+
+			<span class="backdrop">
+				<a class="mode-link" href="/438460/learn"></a>
+							</span>
+
+			<div class="circles">
+				<span class="starred mode-circle">
+					<span class="icon">&#xe041;</span>
+					<span class="term-counts">
+						<span class="selected-count">0</span>
+						<span class="star-icon">&#xe041;</span>
+					</span>
+
+					<a class="link" href="/438460/learn/starred"></a>
+									</span>
+
+				<span class="all mode-circle">
+					<span class="icon">&#xe011;</span>
+					<span class="term-counts">All 35</span>
+
+					<a class="link" href="/438460/learn"></a>
+									</span>
+
+			</div>
+
+			<span class="name">Learn</span>
+			<span class="description">Quiz yourself by typing answers</span>
+
+		</div>
+
+			
+		<div class="mode speller">
+
+			<span class="backdrop">
+				<a class="mode-link" href="/438460/speller"></a>
+							</span>
+
+			<div class="circles">
+				<span class="starred mode-circle">
+					<span class="icon">&#xe041;</span>
+					<span class="term-counts">
+						<span class="selected-count">0</span>
+						<span class="star-icon">&#xe041;</span>
+					</span>
+
+					<a class="link" href="/438460/speller/starred"></a>
+									</span>
+
+				<span class="all mode-circle">
+					<span class="icon">&#xe012;</span>
+					<span class="term-counts">All 35</span>
+
+					<a class="link" href="/438460/speller"></a>
+									</span>
+
+			</div>
+
+			<span class="name">Speller</span>
+			<span class="description">Hear the words and type them in</span>
+
+		</div>
+
+			
+		<div class="mode test">
+
+			<span class="backdrop">
+				<a class="mode-link" href="/438460/test"></a>
+							</span>
+
+			<div class="circles">
+				<span class="starred mode-circle">
+					<span class="icon">&#xe041;</span>
+					<span class="term-counts">
+						<span class="selected-count">0</span>
+						<span class="star-icon">&#xe041;</span>
+					</span>
+
+					<a class="link" href="/438460/test/starred"></a>
+									</span>
+
+				<span class="all mode-circle">
+					<span class="icon">&#xe013;</span>
+					<span class="term-counts">All 35</span>
+
+					<a class="link" href="/438460/test"></a>
+									</span>
+
+			</div>
+
+			<span class="name">Test</span>
+			<span class="description">Multiple choice, true/false, matching</span>
+
+		</div>
+
+			
+		<div class="mode scatter">
+
+			<span class="backdrop">
+				<a class="mode-link" href="/438460/scatter"></a>
+									<a class="touch-only mode-link" href="/438460/microscatter"></a>
+							</span>
+
+			<div class="circles">
+				<span class="starred mode-circle">
+					<span class="icon">&#xe041;</span>
+					<span class="term-counts">
+						<span class="selected-count">0</span>
+						<span class="star-icon">&#xe041;</span>
+					</span>
+
+					<a class="link" href="/438460/scatter/starred"></a>
+											<a class="touch-only link" href="/438460/microscatter/starred"></a>
+									</span>
+
+				<span class="all mode-circle">
+					<span class="icon">&#xe014;</span>
+					<span class="term-counts">All 35</span>
+
+					<a class="link" href="/438460/scatter"></a>
+											<a class="touch-only link" href="/438460/microscatter"></a>
+									</span>
+
+			</div>
+
+			<span class="name">Scatter</span>
+			<span class="description">Match terms as fast as you can</span>
+
+		</div>
+
+			
+		<div class="mode spacerace">
+
+			<span class="backdrop">
+				<a class="mode-link" href="https://quizlet.com/438460/spacerace"></a>
+							</span>
+
+			<div class="circles">
+				<span class="starred mode-circle">
+					<span class="icon">&#xe041;</span>
+					<span class="term-counts">
+						<span class="selected-count">0</span>
+						<span class="star-icon">&#xe041;</span>
+					</span>
+
+					<a class="link" href="https://quizlet.com/438460/spacerace/starred"></a>
+									</span>
+
+				<span class="all mode-circle">
+					<span class="icon">&#xe015;</span>
+					<span class="term-counts">All 35</span>
+
+					<a class="link" href="https://quizlet.com/438460/spacerace"></a>
+									</span>
+
+			</div>
+
+			<span class="name">Space Race</span>
+			<span class="description">Defend Earth from alien invaders</span>
+
+		</div>
+
+	</nav>
+
+	<div class="skyscraper ad">
+		<div id='dfp-SetSidebarV2' style='width:160px;height:600px' class='ad noprint '><script type='text/javascript'>if(DFPADS)googletag.cmd.push(function(){googletag.display("dfp-SetSidebarV2")});</script><span class="patch one"></span><span class="patch two"></span><span class="patch three"></span><span class="patch four"></span></div>	</div>
+
+<div id="terms" class="layout-list multi-column">
+
+	<article class="subpage" id="subpage">
+		
+<header class="terms-header">
+	<nav class="controls">
+		
+					<aside class="order segmented-control">
+				<a class="first order-original inner pjax" href="http://quizlet.com/438460/csc-3400-section-5-flash-cards/original">Original</a><a class="last order-alphabetical inner pjax " href="http://quizlet.com/438460/csc-3400-section-5-flash-cards/alphabetical">Alphabetical</a>
+			</aside>
+			</nav>
+
+	<h2>
+		<span class="num-terms">35&nbsp;terms</span>
+					<span class="description">
+				&middot; The socket API
+
+*** indicates a new line			</span>
+			</h2>
+</header>
+<article class="terms">
+
+		
+		
+				<div data-id="11678973" class="term has-audio nth-child_2n-plus-1 nth-child_3n-plus-1 nth-child_4n-plus-1 nth-child_5n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>C code snippet to �?ll in an address structure for a TCP client</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>struct sockaddr { **<b> unsigned short sa_family; </b>*<b> char sa_data[14]; </b>**}</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11678974" class="term has-audio nth-child_2n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>C code snippet to fill in an address structure for a TCP server</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>struct sockaddr_in { **<b> short int sin_family; </b>*<b> unsigned short int sin_port; </b>*<b> struct in_addr sin_addr; </b>*<b> unsigned char sin_zero[8]; </b>** }</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11678975" class="term has-audio nth-child_2n-plus-1 nth-child_3n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>C code snippet to create a TCP connection from a client</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>int connect(int sockfd, struct sockaddr *serv_addr, int addrlen);</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11678976" class="term has-audio nth-child_2n nth-child_3n-plus-1 nth-child_4n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>C code snippet for a server that waits for TCP connections</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>int listen(int sockfd, int backlog); **<b> int accept(int sockfd, void </b>addr, int *addrlen);</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11684929" class="term has-audio nth-child_2n-plus-1 nth-child_4n-plus-1 nth-child_5n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>socket API</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>a mechanism that provides a low level of abstraction for IPC</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11684930" class="term has-audio nth-child_2n nth-child_3n nth-child_5n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>socket</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>a programming construct. A process wishing to communicate with another process must create an instance of such a construct. The communication between the parties may be connection-oriented or connectionless.</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693029" class="term has-audio nth-child_2n-plus-1 nth-child_3n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>UDP</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>User Datagram Protocol</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693030" class="term has-audio nth-child_2n nth-child_4n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>TCP</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>Transmission Control Protocol</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693031" class="term has-audio nth-child_2n-plus-1 nth-child_3n nth-child_4n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>UDP and TCP</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>the two key protocols at the transport layer of the Internet architecture</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693032" class="term has-audio nth-child_2n nth-child_3n-plus-1 nth-child_5n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>User Datagram Protocol (UDP)</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>allows a packet to be transported (that is, to be sent or received at the transport layer) using connectionless communication.</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693033" class="term has-audio nth-child_2n-plus-1 nth-child_5n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>datagram</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>the data packet transported using connectionless communication</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693034" class="term has-audio nth-child_2n nth-child_3n nth-child_4n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>Transmission Control Protocol (TCP)</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>is connection-oriented and transports a stream of data over a logical connection established between the sender and the receiver.</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693035" class="term has-audio nth-child_2n-plus-1 nth-child_3n-plus-1 nth-child_4n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>datagram sockets</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>sockets that use UDP for transport</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693036" class="term has-audio nth-child_2n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>stream sockets</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>sockets that use TCP</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693037" class="term has-audio nth-child_2n-plus-1 nth-child_3n nth-child_5n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>Java classes for the datagram socket API</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>the DatagramSocket class for the sockets, and the DatagramPacket class for the datagrams exchanged</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693038" class="term has-audio nth-child_2n nth-child_3n-plus-1 nth-child_4n nth-child_5n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>bound</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>Each socket is said to be _____________ to a UDP port of the machine that is local to the process.</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693039" class="term has-audio nth-child_2n-plus-1 nth-child_4n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>nonblocking</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>In basic socket APIs, whether connection-oriented or connectionless, the send operations are _________________ while the recieve operations are blocking.</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693040" class="term has-audio nth-child_2n nth-child_3n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>setSoTimeout method</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>a method to set a timeout for some interval to avoid indefinite blocking</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693041" class="term has-audio nth-child_2n-plus-1 nth-child_3n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>void connect(InetAddress address, int port)</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>Java method that creates a logical connection between this socket and a socket at the remote address and port</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693042" class="term has-audio nth-child_2n nth-child_4n nth-child_5n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>void disconnect()</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>Java method that terminates the current connection, if any, from this socket</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693043" class="term has-audio nth-child_2n-plus-1 nth-child_3n nth-child_4n-plus-1 nth-child_5n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>connection sockets and data sockets</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>the two types of sockets with the stream-mode socket API</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693044" class="term has-audio nth-child_2n nth-child_3n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>connection sockets</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>provided via the ServerSocket class, is for accepting connections</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693045" class="term has-audio nth-child_2n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>data sockets</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>provided via the Socket class, is for data exchange</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693046" class="term has-audio nth-child_2n nth-child_3n nth-child_4n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>server</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>the process that establishes a connection socket and then listens for connection requests from other processes</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693047" class="term has-audio nth-child_2n-plus-1 nth-child_3n-plus-1 nth-child_4n-plus-1 nth-child_5n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>client</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>the process that wishes to communicate with the server</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693048" class="term has-audio nth-child_2n nth-child_5n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>ServerSocket and Socket</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>the two main classes in the stream socket API</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693049" class="term has-audio nth-child_2n-plus-1 nth-child_3n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>ServerSocket(int port)</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the ServerSocket(connection socket) class that creates a server socket on a specified port</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693050" class="term has-audio nth-child_2n nth-child_3n-plus-1 nth-child_4n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>Socket accept() throws IOException</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the ServerSocket(connection socket) class that listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made.</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693051" class="term has-audio nth-child_2n-plus-1 nth-child_4n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>void close() throws IOException</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the ServerSocket(connection socket) class that closes this socket</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693052" class="term has-audio nth-child_2n nth-child_3n nth-child_5n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>void setSoTimeOut(int timeout) throws SocketException</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the ServerSocket(connection socket) class that sets a timeout period (in milliseconds) so that a call to accept() for this socket will block for only this amount of time. If the timeout expires, a java.io.InterruptedIOException is raised</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693053" class="term has-audio nth-child_2n-plus-1 nth-child_3n-plus-1 nth-child_5n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>Socket(InetAddress address, int port)</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the Socket(data socket) class that creates a stream socket and connects it to the specified port number at the specified IP address</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693054" class="term has-audio nth-child_2n nth-child_4n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>void close() throws IOException</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the Socket(data socket) class that closes this socket</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693055" class="term has-audio nth-child_2n-plus-1 nth-child_3n nth-child_4n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>InputStream getInputStream() throws IOException</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the Socket(data socket) class that returns an input stream so that data may be read from this socket</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693056" class="term has-audio nth-child_2n nth-child_3n-plus-1">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>OutputStream getOutputStream() throws IOException</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the Socket(data socket) class that returns and output stream so that data may be written to this socket</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+		
+				<div data-id="11693057" class="term has-audio nth-child_2n-plus-1 nth-child_5n">
+			
+<div class="text">
+
+	<h3 class="word has-audio"><span class='qWord lang-en'>void setSoTimeout (int timeout) throws SocketException</span></h3>
+
+			<p class="definition has-audio"><span class='qDef lang-en'>key method/constructor of the Socket(data socket) class that sets a timeout period for blocking so that a read() call on the InputStream associated with this socket will block for only this amount of time. If the timeout expires, a java.io.InterruptedIOException is raised</span></p>
+	
+	<a class="play-audio" title="Play audio for this term">
+		<span class="icon">&#xe012;</span>
+	</a>
+
+	<span class="check">
+		<span class="empty star">&#xe042;</span>
+		<span class="filled star">&#xe041;</span>
+	</span>
+
+	
+</div>
+
+			<div class="details"></div>
+		</div>
+
+			
+			</article>
+	
+<span id="image-fullscreen-cover"></span>
+
+	</article>
+</div>
+
+
+	
+
+<script type="text/javascript">
+    window.analyticsProperties = {"numTerms":35,"multilang":false,"definitionsHaveText":true,"public":true,"firstSetId":438460,"isCombination":false,"title":"CSC 3400 Section 5","setIds":[438460],"hasAnyAudio":true,"wordLang":"en","definitionLang":"en","numSets":1,"allowsDiscussion":true,"hasImages":false,"teacherCreated":false,"plusUserCreated":false,"isOriginal":true,"setDeleted":false,"ads":"visible","age":0,"loggedIn":false,"isFirstSession":true,"involvedTests":["analytics_source:doubleclick"]};
+    
+    </script>
+	<script type="text/javascript">
+		analytics.track("view_set", window.analyticsProperties);
+			</script>
+	</main>
+</div>
+</div>
+
+
+<script>
+	QWait('dom', 'SetPage', function() {
+		window.setPage = new SetPage({"setId":438460,"selectedTermsQnonce":"ag6ZtJh.Z8kPUzXSwBjxHx0q28lc1hUDMEI-xgqg0lN-XtyWoQnp0-xr03.U8F-.Z4ObzADDD8ZCAXI48TCX8A","discussionQnonce":"evrrJKz5Sj1mCJ4mr9jQfX0Eog-UQU9Nlrr-pb2BLYd-XtyWoQnp0-xr03.U8F-.Z4ObzADDD8ZCAXI48TCX8A","notificationCount":0,"lastDiscussionId":-1}, [{"id":11678973,"photo":"","word":"C code snippet to \ufb01ll in an address structure for a TCP client","definition":"struct sockaddr { *** unsigned short sa_family; *** char sa_data[14]; ***}","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=QyBjb2RlIHNuaXBwZXQgdG8g76yBbGwgaW4gYW4gYWRkcmVzcyBzdHJ1Y3R1cmUgZm9yIGEgVENQIGNsaWVudA&s=IqLPXmik","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c3RydWN0IHNvY2thZGRyIHsgKiogdW5zaWduZWQgc2hvcnQgc2FfZmFtaWx5OyAqIGNoYXIgc2FfZGF0YVsxNF07ICoqfQ&s=3ajMKDb2"},{"id":11678974,"photo":"","word":"C code snippet to fill in an address structure for a TCP server","definition":"struct sockaddr_in { *** short int sin_family; *** unsigned short int sin_port; *** struct in_addr sin_addr; *** unsigned char sin_zero[8]; *** }","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=QyBjb2RlIHNuaXBwZXQgdG8gZmlsbCBpbiBhbiBhZGRyZXNzIHN0cnVjdHVyZSBmb3IgYSBUQ1Agc2VydmVy&s=MZTiQX8b","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c3RydWN0IHNvY2thZGRyX2luIHsgKiogc2hvcnQgaW50IHNpbl9mYW1pbHk7ICogdW5zaWduZWQgc2hvcnQgaW50IHNpbl9wb3J0OyAqIHN0cnVjdCBpbl9hZGRyIHNpbl9hZGRyOyAqIHVuc2lnbmVkIGNoYXIgc2luX3plcm9bOF07ICoqIH0&s=9mSLfcQs"},{"id":11678975,"photo":"","word":"C code snippet to create a TCP connection from a client","definition":"int connect(int sockfd, struct sockaddr *serv_addr, int addrlen);","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=QyBjb2RlIHNuaXBwZXQgdG8gY3JlYXRlIGEgVENQIGNvbm5lY3Rpb24gZnJvbSBhIGNsaWVudA&s=toPxPYCE","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=aW50IGNvbm5lY3Q7&s=4e.GsKYt"},{"id":11678976,"photo":"","word":"C code snippet for a server that waits for TCP connections","definition":"int listen(int sockfd, int backlog); *** int accept(int sockfd, void *addr, int *addrlen);","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=QyBjb2RlIHNuaXBwZXQgZm9yIGEgc2VydmVyIHRoYXQgd2FpdHMgZm9yIFRDUCBjb25uZWN0aW9ucw&s=zViHcyIV","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=aW50IGxpc3RlbjsgKioqIGludCBhY2NlcHQ7&s=4Luwd5Hj"},{"id":11684929,"photo":"","word":"socket API","definition":"a mechanism that provides a low level of abstraction for IPC","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c29ja2V0IEFQSQ&s=pZkWHV-k","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=YSBtZWNoYW5pc20gdGhhdCBwcm92aWRlcyBhIGxvdyBsZXZlbCBvZiBhYnN0cmFjdGlvbiBmb3IgSVBD&s=XU8gffEI"},{"id":11684930,"photo":"","word":"socket","definition":"a programming construct. A process wishing to communicate with another process must create an instance of such a construct. The communication between the parties may be connection-oriented or connectionless.","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c29ja2V0&s=G3o7G5Px","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=YSBwcm9ncmFtbWluZyBjb25zdHJ1Y3QuIEEgcHJvY2VzcyB3aXNoaW5nIHRvIGNvbW11bmljYXRlIHdpdGggYW5vdGhlciBwcm9jZXNzIG11c3QgY3JlYXRlIGFuIGluc3RhbmNlIG9mIHN1Y2ggYSBjb25zdHJ1Y3QuIFRoZSBjb21tdW5pY2F0aW9uIGJldHdlZW4gdGhlIHBhcnRpZXMgbWF5IGJlIGNvbm5lY3Rpb24tb3JpZW50ZWQgb3IgY29ubmVjdGlvbmxlc3Mu&s=GFs7xzs4"},{"id":11693029,"photo":"","word":"UDP","definition":"User Datagram Protocol","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=VURQ&s=QAs5-Oo-","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=VXNlciBEYXRhZ3JhbSBQcm90b2NvbA&s=pI6JBXbt"},{"id":11693030,"photo":"","word":"TCP","definition":"Transmission Control Protocol","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=VENQ&s=IHvukMGP","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=VHJhbnNtaXNzaW9uIENvbnRyb2wgUHJvdG9jb2w&s=ZbaWzbky"},{"id":11693031,"photo":"","word":"UDP and TCP","definition":"the two key protocols at the transport layer of the Internet architecture","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=VURQIGFuZCBUQ1A&s=-sJVbpIG","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dGhlIHR3byBrZXkgcHJvdG9jb2xzIGF0IHRoZSB0cmFuc3BvcnQgbGF5ZXIgb2YgdGhlIEludGVybmV0IGFyY2hpdGVjdHVyZQ&s=0-OwRpFF"},{"id":11693032,"photo":"","word":"User Datagram Protocol (UDP)","definition":"allows a packet to be transported (that is, to be sent or received at the transport layer) using connectionless communication.","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=VXNlciBEYXRhZ3JhbSBQcm90b2NvbA&s=pI6JBXbt","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=YWxsb3dzIGEgcGFja2V0IHRvIGJlIHRyYW5zcG9ydGVkICB1c2luZyBjb25uZWN0aW9ubGVzcyBjb21tdW5pY2F0aW9uLg&s=DhYCRUny"},{"id":11693033,"photo":"","word":"datagram","definition":"the data packet transported using connectionless communication","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=ZGF0YWdyYW0&s=i0Zn0Mng","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dGhlIGRhdGEgcGFja2V0IHRyYW5zcG9ydGVkIHVzaW5nIGNvbm5lY3Rpb25sZXNzIGNvbW11bmljYXRpb24&s=bwBRmy51"},{"id":11693034,"photo":"","word":"Transmission Control Protocol (TCP)","definition":"is connection-oriented and transports a stream of data over a logical connection established between the sender and the receiver.","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=VHJhbnNtaXNzaW9uIENvbnRyb2wgUHJvdG9jb2w&s=ZbaWzbky","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=aXMgY29ubmVjdGlvbi1vcmllbnRlZCBhbmQgdHJhbnNwb3J0cyBhIHN0cmVhbSBvZiBkYXRhIG92ZXIgYSBsb2dpY2FsIGNvbm5lY3Rpb24gZXN0YWJsaXNoZWQgYmV0d2VlbiB0aGUgc2VuZGVyIGFuZCB0aGUgcmVjZWl2ZXIu&s=tzTOR52m"},{"id":11693035,"photo":"","word":"datagram sockets","definition":"sockets that use UDP for transport","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=ZGF0YWdyYW0gc29ja2V0cw&s=xAiiEtqA","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c29ja2V0cyB0aGF0IHVzZSBVRFAgZm9yIHRyYW5zcG9ydA&s=VzPT59EQ"},{"id":11693036,"photo":"","word":"stream sockets","definition":"sockets that use TCP","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c3RyZWFtIHNvY2tldHM&s=ylrCeiM4","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c29ja2V0cyB0aGF0IHVzZSBUQ1A&s=8QB5v7qY"},{"id":11693037,"photo":"","word":"Java classes for the datagram socket API","definition":"the DatagramSocket class for the sockets, and the DatagramPacket class for the datagrams exchanged","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=SmF2YSBjbGFzc2VzIGZvciB0aGUgZGF0YWdyYW0gc29ja2V0IEFQSQ&s=QPTjGzvy","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dGhlIERhdGFncmFtU29ja2V0IGNsYXNzIGZvciB0aGUgc29ja2V0cywgYW5kIHRoZSBEYXRhZ3JhbVBhY2tldCBjbGFzcyBmb3IgdGhlIGRhdGFncmFtcyBleGNoYW5nZWQ&s=pfXHHEEw"},{"id":11693038,"photo":"","word":"bound","definition":"Each socket is said to be _____________ to a UDP port of the machine that is local to the process.","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=Ym91bmQ&s=-qAnXZHU","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=RWFjaCBzb2NrZXQgaXMgc2FpZCB0byBiZSBibGFuayB0byBhIFVEUCBwb3J0IG9mIHRoZSBtYWNoaW5lIHRoYXQgaXMgbG9jYWwgdG8gdGhlIHByb2Nlc3Mu&s=IQmXi3lJ"},{"id":11693039,"photo":"","word":"nonblocking","definition":"In basic socket APIs, whether connection-oriented or connectionless, the send operations are _________________ while the recieve operations are blocking.","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=bm9uYmxvY2tpbmc&s=D0n81dpM","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=SW4gYmFzaWMgc29ja2V0IEFQSXMsIHdoZXRoZXIgY29ubmVjdGlvbi1vcmllbnRlZCBvciBjb25uZWN0aW9ubGVzcywgdGhlIHNlbmQgb3BlcmF0aW9ucyBhcmUgYmxhbmsgd2hpbGUgdGhlIHJlY2lldmUgb3BlcmF0aW9ucyBhcmUgYmxvY2tpbmcu&s=KlTDJX2M"},{"id":11693040,"photo":"","word":"setSoTimeout method","definition":"a method to set a timeout for some interval to avoid indefinite blocking","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c2V0U29UaW1lb3V0IG1ldGhvZA&s=J5tocBuR","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=YSBtZXRob2QgdG8gc2V0IGEgdGltZW91dCBmb3Igc29tZSBpbnRlcnZhbCB0byBhdm9pZCBpbmRlZmluaXRlIGJsb2NraW5n&s=Dp.OS9tY"},{"id":11693041,"photo":"","word":"void connect(InetAddress address, int port)","definition":"Java method that creates a logical connection between this socket and a socket at the remote address and port","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dm9pZCBjb25uZWN0&s=VTbBxKWy","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=SmF2YSBtZXRob2QgdGhhdCBjcmVhdGVzIGEgbG9naWNhbCBjb25uZWN0aW9uIGJldHdlZW4gdGhpcyBzb2NrZXQgYW5kIGEgc29ja2V0IGF0IHRoZSByZW1vdGUgYWRkcmVzcyBhbmQgcG9ydA&s=Jt42yPAV"},{"id":11693042,"photo":"","word":"void disconnect()","definition":"Java method that terminates the current connection, if any, from this socket","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dm9pZCBkaXNjb25uZWN0&s=kA23NBxu","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=SmF2YSBtZXRob2QgdGhhdCB0ZXJtaW5hdGVzIHRoZSBjdXJyZW50IGNvbm5lY3Rpb24sIGlmIGFueSwgZnJvbSB0aGlzIHNvY2tldA&s=y1IPxfiy"},{"id":11693043,"photo":"","word":"connection sockets and data sockets","definition":"the two types of sockets with the stream-mode socket API","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=Y29ubmVjdGlvbiBzb2NrZXRzIGFuZCBkYXRhIHNvY2tldHM&s=ozyl0gpi","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dGhlIHR3byB0eXBlcyBvZiBzb2NrZXRzIHdpdGggdGhlIHN0cmVhbS1tb2RlIHNvY2tldCBBUEk&s=WWwPvq1-"},{"id":11693044,"photo":"","word":"connection sockets","definition":"provided via the ServerSocket class, is for accepting connections","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=Y29ubmVjdGlvbiBzb2NrZXRz&s=8UUQAwMn","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=cHJvdmlkZWQgdmlhIHRoZSBTZXJ2ZXJTb2NrZXQgY2xhc3MsIGlzIGZvciBhY2NlcHRpbmcgY29ubmVjdGlvbnM&s=AzScE6K4"},{"id":11693045,"photo":"","word":"data sockets","definition":"provided via the Socket class, is for data exchange","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=ZGF0YSBzb2NrZXRz&s=1FPgKTmf","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=cHJvdmlkZWQgdmlhIHRoZSBTb2NrZXQgY2xhc3MsIGlzIGZvciBkYXRhIGV4Y2hhbmdl&s=Mj9v2AYt"},{"id":11693046,"photo":"","word":"server","definition":"the process that establishes a connection socket and then listens for connection requests from other processes","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=c2VydmVy&s=kRJ9Uc2s","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dGhlIHByb2Nlc3MgdGhhdCBlc3RhYmxpc2hlcyBhIGNvbm5lY3Rpb24gc29ja2V0IGFuZCB0aGVuIGxpc3RlbnMgZm9yIGNvbm5lY3Rpb24gcmVxdWVzdHMgZnJvbSBvdGhlciBwcm9jZXNzZXM&s=KmrijSSV"},{"id":11693047,"photo":"","word":"client","definition":"the process that wishes to communicate with the server","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=Y2xpZW50&s=YzWSgOMG","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dGhlIHByb2Nlc3MgdGhhdCB3aXNoZXMgdG8gY29tbXVuaWNhdGUgd2l0aCB0aGUgc2VydmVy&s=nmN-4Bkp"},{"id":11693048,"photo":"","word":"ServerSocket and Socket","definition":"the two main classes in the stream socket API","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=U2VydmVyU29ja2V0IGFuZCBTb2NrZXQ&s=c8zhS1yi","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dGhlIHR3byBtYWluIGNsYXNzZXMgaW4gdGhlIHN0cmVhbSBzb2NrZXQgQVBJ&s=X19xLvuf"},{"id":11693049,"photo":"","word":"ServerSocket(int port)","definition":"key method\/constructor of the ServerSocket(connection socket) class that creates a server socket on a specified port","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=U2VydmVyU29ja2V0&s=as5rd6Ui","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU2VydmVyU29ja2V0IGNsYXNzIHRoYXQgY3JlYXRlcyBhIHNlcnZlciBzb2NrZXQgb24gYSBzcGVjaWZpZWQgcG9ydA&s=CLUtsLRx"},{"id":11693050,"photo":"","word":"Socket accept() throws IOException","definition":"key method\/constructor of the ServerSocket(connection socket) class that listens for a connection to be made to this socket and accepts it. The method blocks until a connection is made.","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=U29ja2V0IGFjY2VwdCB0aHJvd3MgSU9FeGNlcHRpb24&s=X34m.YlU","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU2VydmVyU29ja2V0IGNsYXNzIHRoYXQgbGlzdGVucyBmb3IgYSBjb25uZWN0aW9uIHRvIGJlIG1hZGUgdG8gdGhpcyBzb2NrZXQgYW5kIGFjY2VwdHMgaXQuIFRoZSBtZXRob2QgYmxvY2tzIHVudGlsIGEgY29ubmVjdGlvbiBpcyBtYWRlLg&s=Ix-qp-Q4"},{"id":11693051,"photo":"","word":"void close() throws IOException","definition":"key method\/constructor of the ServerSocket(connection socket) class that closes this socket","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dm9pZCBjbG9zZSB0aHJvd3MgSU9FeGNlcHRpb24&s=wOZh01rJ","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU2VydmVyU29ja2V0IGNsYXNzIHRoYXQgY2xvc2VzIHRoaXMgc29ja2V0&s=1DGpfA-B"},{"id":11693052,"photo":"","word":"void setSoTimeOut(int timeout) throws SocketException","definition":"key method\/constructor of the ServerSocket(connection socket) class that sets a timeout period (in milliseconds) so that a call to accept() for this socket will block for only this amount of time. If the timeout expires, a java.io.InterruptedIOException is raised","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dm9pZCBzZXRTb1RpbWVPdXQgdGhyb3dzIFNvY2tldEV4Y2VwdGlvbg&s=3xBuoQ-f","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU2VydmVyU29ja2V0IGNsYXNzIHRoYXQgc2V0cyBhIHRpbWVvdXQgcGVyaW9kICBzbyB0aGF0IGEgY2FsbCB0byBhY2NlcHQgZm9yIHRoaXMgc29ja2V0IHdpbGwgYmxvY2sgZm9yIG9ubHkgdGhpcyBhbW91bnQgb2YgdGltZS4gSWYgdGhlIHRpbWVvdXQgZXhwaXJlcywgYSBqYXZhLmlvLkludGVycnVwdGVkSU9FeGNlcHRpb24gaXMgcmFpc2Vk&s=R.FJmtmC"},{"id":11693053,"photo":"","word":"Socket(InetAddress address, int port)","definition":"key method\/constructor of the Socket(data socket) class that creates a stream socket and connects it to the specified port number at the specified IP address","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=U29ja2V0&s=89KO3mSq","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU29ja2V0IGNsYXNzIHRoYXQgY3JlYXRlcyBhIHN0cmVhbSBzb2NrZXQgYW5kIGNvbm5lY3RzIGl0IHRvIHRoZSBzcGVjaWZpZWQgcG9ydCBudW1iZXIgYXQgdGhlIHNwZWNpZmllZCBJUCBhZGRyZXNz&s=-CEqwKCs"},{"id":11693054,"photo":"","word":"void close() throws IOException","definition":"key method\/constructor of the Socket(data socket) class that closes this socket","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dm9pZCBjbG9zZSB0aHJvd3MgSU9FeGNlcHRpb24&s=wOZh01rJ","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU29ja2V0IGNsYXNzIHRoYXQgY2xvc2VzIHRoaXMgc29ja2V0&s=Gl22NLpt"},{"id":11693055,"photo":"","word":"InputStream getInputStream() throws IOException","definition":"key method\/constructor of the Socket(data socket) class that returns an input stream so that data may be read from this socket","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=SW5wdXRTdHJlYW0gZ2V0SW5wdXRTdHJlYW0gdGhyb3dzIElPRXhjZXB0aW9u&s=eG7awtZB","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU29ja2V0IGNsYXNzIHRoYXQgcmV0dXJucyBhbiBpbnB1dCBzdHJlYW0gc28gdGhhdCBkYXRhIG1heSBiZSByZWFkIGZyb20gdGhpcyBzb2NrZXQ&s=7mGoi7XI"},{"id":11693056,"photo":"","word":"OutputStream getOutputStream() throws IOException","definition":"key method\/constructor of the Socket(data socket) class that returns and output stream so that data may be written to this socket","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=T3V0cHV0U3RyZWFtIGdldE91dHB1dFN0cmVhbSB0aHJvd3MgSU9FeGNlcHRpb24&s=IUTpDhW7","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU29ja2V0IGNsYXNzIHRoYXQgcmV0dXJucyBhbmQgb3V0cHV0IHN0cmVhbSBzbyB0aGF0IGRhdGEgbWF5IGJlIHdyaXR0ZW4gdG8gdGhpcyBzb2NrZXQ&s=HiKl9d.8"},{"id":11693057,"photo":"","word":"void setSoTimeout (int timeout) throws SocketException","definition":"key method\/constructor of the Socket(data socket) class that sets a timeout period for blocking so that a read() call on the InputStream associated with this socket will block for only this amount of time. If the timeout expires, a java.io.InterruptedIOException is raised","quiz_id":438460,"term_lang":"en","def_lang":"en","word_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=dm9pZCBzZXRTb1RpbWVvdXQgIHRocm93cyBTb2NrZXRFeGNlcHRpb24&s=I8i5fYa3","def_audio":"http:\/\/t.quizlet.com\/en.mp3?v=10&b=a2V5IG1ldGhvZC9jb25zdHJ1Y3RvciBvZiB0aGUgU29ja2V0IGNsYXNzIHRoYXQgc2V0cyBhIHRpbWVvdXQgcGVyaW9kIGZvciBibG9ja2luZyBzbyB0aGF0IGEgcmVhZCBjYWxsIG9uIHRoZSBJbnB1dFN0cmVhbSBhc3NvY2lhdGVkIHdpdGggdGhpcyBzb2NrZXQgd2lsbCBibG9jayBmb3Igb25seSB0aGlzIGFtb3VudCBvZiB0aW1lLiBJZiB0aGUgdGltZW91dCBleHBpcmVzLCBhIGphdmEuaW8uSW50ZXJydXB0ZWRJT0V4Y2VwdGlvbiBpcyByYWlzZWQ&s=OHAUVSQR"}]);
+	});
+</script>
+
+<section class="feedback popup" id="feedback-inline">
+	<form method="post" action="/feedback" id="feedback-form">
+		<h3>Questions or comments on this feature?</h3>
+		<textarea id="feedback-message" name="feedback"></textarea>
+					<label for="feedback-email">Your email address <input type="email" name="email" id="feedback-email" /></label>
+				<a class="cancel button close" id="cancel-feedback">Never mind</a>
+		<input type="submit" value="Send your message" class="save submit button" id="submit-feedback" />
+	</form>
+
+	<div class="success">
+		<h3>Thanks for your feedback!</h3>
+		<p>Your comments have been submitted and will be used to make Quizlet even better.</p>
+
+		<a class="green continue button" id="finish-feedback">Continue</a>
+	</div>
+</section>
+
+
+
+	<footer class="global footer with-ad">
+	<div class="container">
+
+					<div id='dfp-Footer' style='width:468px;height:60px' class='ad noprint '><script type='text/javascript'>if(DFPADS)googletag.cmd.push(function(){googletag.display("dfp-Footer")});</script><span class="patch one"></span><span class="patch two"></span><span class="patch three"></span><span class="patch four"></span></div>		
+		<div class="links">
+			<div class="fill">
+				<p class="copyright">&copy; 2013 Quizlet</p>
+
+				<ul class="inside learn-more">
+											<li><a href="https://quizlet.com/sign-up">Sign Up</a></li>
+					
+					<li><a href="/inside-quizlet">Inside Quizlet</a></li>
+					<li><a href="/how-it-works">How it Works</a></li>
+					<li><a href="/mobile">Mobile</a></li>
+										<li><a href="/teachers">Teachers</a></li>
+				</ul>
+
+				<ul class="inside about">
+					<li><a href="/mission">Mission</a></li>
+					<li><a href="/team">Team</a></li>
+					<li><a href="/jobs">Jobs</a></li>
+					<li><a href="/tos">Terms</a></li>
+					<li><a href="/privacy">Privacy</a></li>
+				</ul>
+
+				
+			</div>
+		</div>
+
+	</div>
+</footer>
+<script>if(typeof performance !== "undefined" && 'mark' in performance){performance.mark("mark_footer_start"); }</script>
+			
+<script>QPAGE="Sets\"show".replace(/"/g, '/');QWait('dom',function(){_qoptions={qacct:"p-5brKQLtleyIQU"};_comscore=[{c1:"2",c2:"8641686"}];_gaq.push(['_trackPageview',QPAGE]);$LAB.script(['http://stats.g.doubleclick.net/dc.js','http://edge.quantserve.com/quant.js','http://b.scorecardresearch.com/beacon.js',]);});</script><noscript><img src="http://b.scorecardresearch.com/p?c1=2&amp;c2=8641686&amp;cv=2.0&amp;cj=1" alt="" /></noscript><script type="text/javascript">if(!NREUMQ.f){NREUMQ.f=function(){NREUMQ.push(["load",new Date().getTime()]);var e=document.createElement("script");e.type="text/javascript";e.src=(("http:"===document.location.protocol)?"http:":"https:")+"//"+"js-agent.newrelic.com/nr-100.js";document.body.appendChild(e);if(NREUMQ.a)NREUMQ.a();};NREUMQ.a=window.onload;window.onload=NREUMQ.f;};NREUMQ.push(["nrfj","beacon-6.newrelic.com","a92c37725f","124534","YVcEY0EAXUJYVkUMDlgdJUJAFVxcFmZUERIZQQ5YRA==",0,130,new Date().getTime(),"","","","",""]);</script>
+	
+
+</div>
+
+<div class="mobile-nav">
+	<a class="return-to-site" id="deactivate-nav" href="#"></a>
+
+	<div class="scrollable-nav">
+		<a class="create-set" href="/create-set">
+			<span class="glyph icon create-set-icon ">&#xe002;</span>			<span class="label">Create Set</span>
+		</a>
+					<div class="guest side-nav">
+
+				<section class="linear login content">
+	<div class="connect">
+		<div class="google">
+			<a class="google button" href="https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=https%3A%2F%2Fquizlet.com%2Fgoogle-login&client_id=520305074949.apps.googleusercontent.com&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&access_type=offline&approval_prompt=auto&state=%7B%22state%22%3A%22b3785V%22%2C%22reauth%22%3Afalse%2C%22from%22%3A%22%5C%2F438460%5C%2Fcsc-3400-section-5-flash-cards%5C%2F%22%7D">
+				<span class="icon"></span>
+				<span class="label">Log In with Google</span>
+			</a>
+		</div>
+		<div class="fb">
+			<a class="fb-login fb_button fb_button_large" href="https://www.facebook.com/dialog/oauth?client_id=2232594215&redirect_uri=https%3A%2F%2Fquizlet.com%2Ffb-login%3Ffrom%3Dhttp%253A%252F%252Fquizlet.com%252F438460%252Fcsc-3400-section-5-flash-cards%252F&state=b3785V&scope=email%2Cuser_birthday%2Cuser_education_history"><span class="icon"></span><span class="label">Log In with Facebook</span></a>		</div>
+	</div>
+
+	<span class="or-divider"><span class="or">or</span></span>
+
+	<form class="login" action="https://quizlet.com/login" method="post">
+
+	<label class="username field">
+		<input class="text" type="text" value="" name="username" id="username1" spellcheck="false" autocorrect="off" placeholder="Username" />
+	</label>
+
+	<label class="password field">
+		<input class="password text" type="password" name="password" id="password1" placeholder="Password"/>
+	</label>
+
+	<div class="extras">
+		<label class="remember">
+			<input type="checkbox" name="rememberMe"  value="1" />
+			<strong>Keep me logged in</strong>
+		</label>
+		<a href="https://quizlet.com/forgotten" title="Retrieve your forgotten username or password" class="forgot wide">Forgot password?</a>	</div>
+
+	<div class="done center">
+		<input type="submit" class="submit button" value="Log In" />
+	</div>
+
+	<div class="extras">
+		<a href="https://quizlet.com/forgotten" title="Retrieve your forgotten username or password" class="forgot slim">Forgot password?</a>	</div>
+
+	<div class="hidden">
+		<input type="hidden" value="/438460/csc-3400-section-5-flash-cards/" name="redir" />
+
+			</div>
+
+</form>
+
+<script type="text/javascript">
+	(function(){
+		var localDate = new Date();
+		var localTime = localDate.getHours() + Math.round(localDate.getMinutes()/60*10)/10;
+		var afterHours = localTime < 5 || localTime > 17.5; // time is before 5am or after 5:30pm
+		if (afterHours) {
+			// there may be 2 'remember me' checkboxes on the page
+			var boxes = document.getElementsByName('rememberMe');
+			for (var i = 0; i < boxes.length; i++) {
+				boxes[i].checked = true;
+			}
+		}
+	})();
+</script></section>
+
+				<div class="new-signup">
+					<h3>Need an account?</h3>
+					<a href="https://quizlet.com/sign-up?redir=http%3A%2F%2Fquizlet.com%2F438460%2Fcsc-3400-section-5-flash-cards%2F" class="signup button">Sign up for free</a>				</div>
+
+			</div>
+			</div>
+</div>
+
+<script type="text/javascript">
+	QWait('dom', function() {
+		var body = document.body;
+
+		var activateNavButton = document.getElementById('activate-nav');
+		var activateSearchButton = document.getElementById('activate-search');
+		var deactivateSearchButton = document.getElementById('deactivate-search');
+		var deactivateNavButton = document.getElementById('deactivate-nav');
+
+		if (activateNavButton !== null) {
+			activateNavButton.onclick = function() {
+				body.className = body.className.replace(' navActivated', '') + ' navActivated';
+				return false;
+			};
+		}
+
+		if (deactivateNavButton !== null) {
+			deactivateNavButton.onclick = function() {
+				body.className = body.className.replace(' navActivated', '');
+				return false;
+			};
+		}
+
+		if (activateSearchButton !== null) {
+			activateSearchButton.onclick = function() {
+				body.className = body.className.replace(' searchActivated', '') + ' searchActivated';
+				document.getElementById('header-search').focus()
+				return false;
+			};
+		}
+
+		if (deactivateSearchButton !== null) {
+			deactivateSearchButton.onclick = function() {
+				body.className = body.className.replace(' searchActivated', '');
+				return false;
+			};
+		}
+	});
+</script>
+
+</body></html>

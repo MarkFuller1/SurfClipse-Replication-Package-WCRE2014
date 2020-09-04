@@ -1,0 +1,967 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+
+
+
+
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+<title>[CASSANDRA-1432] java.util.NoSuchElementException when returning a node to the cluster - ASF JIRA</title>
+<script type="text/javascript">
+    if (!window.performance) {
+        window.mpPerformance = {};
+        window.mpPerformance.responseStart = new Date().getTime();
+    }
+</script>
+<meta name="application-name" content="JIRA" data-name="jira" data-version="6.1.4"><meta name="ajs-hasCriteriaAutoUpdate" content="true">
+<meta name="ajs-viewissue-use-history-api" content="false">
+<meta name="ajs-viewissue-max-cache-size" content="">
+<meta name="ajs-view-issue-trace-key" content="jira.issue.refreshed">
+<meta name="ajs-view-issue-psycho-key" content="jira.psycho.issue.refreshed">
+<meta name="ajs-view-issue-refreshed-cached-key" content="jira.psycho.issue.refreshed.cached">
+<meta name="ajs-return-to-search-trace-key" content="jira.returned.to.search">
+<meta name="ajs-return-to-search-psycho-key" content="jira.psycho.returned.to.search">
+<meta name="ajs-default-avatar-url" content="/jira/secure/useravatar?size=xsmall&amp;avatarId=10453">
+<meta name="ajs-jira.issues.preferred.layout.key" content="split-view">
+<meta name="ajs-max-recent-searchers" content="10">
+<meta name="ajs-jira-base-url" content="https://issues.apache.org/jira">
+<meta name="ajs-serverRenderedViewIssue" content="true">
+<meta name="ajs-search-pos" content="0">
+<meta name="ajs-issue-key" content="CASSANDRA-1432">
+<meta name="ajs-can-edit-watchers" content="false">
+<meta name="ajs-can-search-users" content="false">
+<meta name="ajs-server-view-issue-is-editable" content="false">
+<meta name="ajs-dev-mode" content="false">
+<meta name="ajs-context-path" content="/jira">
+<meta name="ajs-version-number" content="6.1.4">
+<meta name="ajs-build-number" content="6159">
+<meta name="ajs-is-beta" content="false">
+<meta name="ajs-is-rc" content="false">
+<meta name="ajs-is-snapshot" content="false">
+<meta name="ajs-is-milestone" content="false">
+<meta name="ajs-remote-user" content="">
+<meta name="ajs-remote-user-fullname" content="">
+<meta name="ajs-user-locale" content="en_UK">
+<meta name="ajs-user-locale-group-separator" content=",">
+<meta name="ajs-app-title" content="ASF JIRA">
+<meta name="ajs-keyboard-shortcuts-enabled" content="true">
+<meta name="ajs-enabled-dark-features" content="[&quot;app-switcher.new&quot;,&quot;com.atlassian.jira.darkfeature.CommonHeader&quot;,&quot;jira.frother.reporter.field&quot;,&quot;com.atlassian.jira.config.PDL&quot;,&quot;frother.assignee.field&quot;]">
+<meta name="ajs-date-relativize" content="true">
+<meta name="ajs-date-time" content="HH:mm">
+<meta name="ajs-date-day" content="EEEE HH:mm">
+<meta name="ajs-date-dmy" content="dd/MMM/yy">
+<meta name="ajs-date-complete" content="dd/MMM/yy HH:mm">
+<meta name="ajs-in-admin-mode" content="false">
+<meta name="ajs-is-sysadmin" content="false">
+<meta name="ajs-is-admin" content="false">
+<meta name="ajs-outgoing-mail-enabled" content="true">
+<meta name="ajs-whats-new-iframe-src-override" content=""> <meta name="ajs-whatsnew-full-link" content="https://docs.atlassian.com/jira/docs-061/whatsnew/iframe">
+
+
+    
+<meta id="atlassian-token" name="atlassian-token" content="A5KQ-2QAV-T4JA-FDED|ef7c96283ba08a1ed85176b9349a68599900c81a|lout">
+
+
+
+<link rel="shortcut icon" href="/jira/s/en_UK-amfly-1988229788/6159/7/_/favicon.ico">
+<link rel="search" type="application/opensearchdescription+xml" href="/jira/osd.jsp" title="[CASSANDRA-1432] java.util.NoSuchElementException when returning a node to the cluster - ASF JIRA"/>
+
+    
+
+
+<!--[if IE]><![endif]-->
+<script type="text/javascript">var contextPath = '/jira';</script>
+<link type="text/css" rel="stylesheet" href="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/13/_/download/superbatch/css/batch.css" media="all">
+<!--[if lte IE 8]>
+<link type="text/css" rel="stylesheet" href="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/13/_/download/superbatch/css/batch.css?conditionalComment=lte+IE+8" media="all">
+<![endif]-->
+<!--[if lte IE 9]>
+<link type="text/css" rel="stylesheet" href="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/13/_/download/superbatch/css/batch.css?conditionalComment=lte+IE+9" media="all">
+<![endif]-->
+<link type="text/css" rel="stylesheet" href="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/ca30c499eec64115b00e0c28cda49a68/_/download/contextbatch/css/jira.navigator.simple,jira.navigator.advanced,jira.view.issue,jira.navigator.kickass,atl.general,jira.global/batch.css" media="all">
+<script type="text/javascript" src="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/13/_/download/superbatch/js/batch.js" ></script>
+<!--[if lte IE 8]>
+<script type="text/javascript" src="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/13/_/download/superbatch/js/batch.js?conditionalComment=lte+IE+8" ></script>
+<![endif]-->
+<script type="text/javascript" src="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/ca30c499eec64115b00e0c28cda49a68/_/download/contextbatch/js/jira.navigator.simple,jira.navigator.advanced,jira.view.issue,jira.navigator.kickass,atl.general,jira.global/batch.js" ></script>
+<script type="text/javascript" src="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/1.0/_/download/batch/jira.webresources:calendar-en/jira.webresources:calendar-en.js" ></script>
+<script type="text/javascript" src="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/6.3.6/_/download/batch/com.pyxis.greenhopper.jira:greenhopper-epics-issue-web-panel-resources/com.pyxis.greenhopper.jira:greenhopper-epics-issue-web-panel-resources.js" ></script>
+<script type="text/javascript" src="/jira/s/d41d8cd98f00b204e9800998ecf8427e/en_UK-amfly-1988229788/6159/7/1.5/_/download/batch/com.atlassian.administration.atlassian-admin-quicksearch-jira:admin-quicksearch-webresources/com.atlassian.administration.atlassian-admin-quicksearch-jira:admin-quicksearch-webresources.js" ></script>
+
+<script type="text/javascript" src="/jira/rest/api/1.0/shortcuts/6159/76cd04738ea8beda7efa7e350a0ece30/shortcuts.js?context=issuenavigation&amp;context=issueaction"></script>
+
+
+    
+    
+    
+    <meta name="decorator" content="atl.general">
+    <meta id="isNavigator" name="isNavigator" content="true">
+    <meta name="ajs-user.search.mode" content="basic">
+    <meta name="ajs-issue-search-help-title" content="Searching for Issues">
+    <meta name="ajs-issue-search-help-url" content="https://docs.atlassian.com/jira/docs-061/Searching+for+Issues">
+    <meta name="ajs-advanced-search-help-title" content="Performing Advanced Searches">
+    <meta name="ajs-advanced-search-help-url" content="https://docs.atlassian.com/jira/docs-061/Advanced+Searching">
+    
+</head>
+<body id="jira" class="aui-layout aui-theme-default ka ajax-issue-search-and-view page-type-navigator navigator-issue-only" data-version="6.1.4">
+<div id="page">
+    <header id="header" role="banner">
+        
+
+
+
+    
+        
+            
+        
+    
+
+
+
+
+
+
+
+        
+
+
+
+
+        
+
+
+
+
+
+<fieldset class="parameters hidden dont-default-focus">
+    <input type="hidden" title="tzdetect.pref.tzid" value="Europe/London" />
+    <input type="hidden" title="tzdetect.pref.tzname" value="(GMT+00:00) London" />
+    <input type="hidden" title="tzdetect.pref.tzoffset" value="(GMT+00:00)" />
+    <input type="hidden" title="tzdetect.pref.tzdst" value="true" />
+    <input type="hidden" title="tzdetect.pref.nothanks" value="" />
+</fieldset>
+<nav class="aui-header aui-dropdown2-trigger-group" role="navigation"><div class="aui-header-inner"><div class="aui-header-before"><a class="aui-dropdown2-trigger app-switcher-trigger" aria-owns="app-switcher" aria-haspopup="true" tabindex="0"><span class="aui-icon aui-icon-small aui-iconfont-appswitcher">Linked Applications</span></a><div id="app-switcher" class="aui-dropdown2 aui-style-default"><div class="app-switcher-loading">Loading&hellip;</div></div><script>
+            (function (NL) {
+                var initialise = function () {
+                    // For some milestones of AUI, the atlassian soy namespace was renamed to aui. Handle that here by ensuring that window.atlassian is defined.
+                    window.atlassian = window.atlassian || window.aui;
+                    new NL.AppSwitcher({
+                        dropdownContents: '#app-switcher'
+                    });
+                };
+                if (NL.AppSwitcher) {
+                    initialise();
+                } else {
+                    NL.onInit = initialise;
+                }
+            }(window.NL = (window.NL || {})));
+            window.NL.isUserAdmin = false</script></div><div class="aui-header-primary"><h1 id="logo" class="aui-header-logo aui-header-logo-custom"><a href="https://issues.apache.org/jira/secure/MyJiraHome.jspa"><img src="/jira/s/en_UK-amfly-1988229788/6159/7/_/jira-logo-scaled.png" alt="ASF JIRA" /></a></h1><ul class='aui-nav'>
+
+
+
+
+<li><a class="aui-nav-link aui-dropdown2-ajax jira-ajax-menu aui-dropdown2-trigger "href="/jira/secure/Dashboard.jspa" id="home_link"  accessKey="d"  title="View and manage your dashboards"  aria-haspopup="true" aria-owns="home_link-content">Dashboards</a><div id="home_link-content" class="aui-dropdown2 aui-style-default" data-aui-dropdown2-ajax-key="home_link"></div></li><li><a class="aui-nav-link aui-dropdown2-ajax jira-ajax-menu aui-dropdown2-trigger "href="/jira/browse/CASSANDRA" id="browse_link"  accessKey="p"  title="View recent projects and browse a list of projects"  aria-haspopup="true" aria-owns="browse_link-content">Projects</a><div id="browse_link-content" class="aui-dropdown2 aui-style-default" data-aui-dropdown2-ajax-key="browse_link"></div></li><li><a class="aui-nav-link aui-dropdown2-ajax jira-ajax-menu aui-dropdown2-trigger "href="/jira/secure/IssueNavigator.jspa" id="find_link"  accessKey="i"  title="Search for issues and view recent issues"  aria-haspopup="true" aria-owns="find_link-content">Issues</a><div id="find_link-content" class="aui-dropdown2 aui-style-default" data-aui-dropdown2-ajax-key="find_link"></div></li><li><a class="aui-nav-link aui-dropdown2-ajax jira-ajax-menu aui-dropdown2-trigger "href="/jira/secure/GreenHopper.jspa" id="greenhopper_menu"  title="Manage your project with JIRA Agile"  aria-haspopup="true" aria-owns="greenhopper_menu-content">Agile</a><div id="greenhopper_menu-content" class="aui-dropdown2 aui-style-default" data-aui-dropdown2-ajax-key="greenhopper_menu"></div></li>
+</ul></div><div class="aui-header-secondary"><ul class='aui-nav'><li>
+    <form action="/jira/secure/QuickSearch.jspa" method="post" id="quicksearch" class="aui-quicksearch dont-default-focus ajs-dirty-warning-exempt">
+        <input id="quickSearchInput" class="search" type="text" title="Quick Search" placeholder="Quick Search" name="searchString" accessKey="q" />
+        <input type="submit" class="hidden" value="Search">
+    </form>
+</li>
+
+
+
+    <li id="system-help-menu">
+        <a class="aui-nav-link aui-dropdown2-trigger" aria-haspopup="true" aria-owns="system-help-menu-content" href="https://docs.atlassian.com/jira/docs-061/JIRA+Documentation"  target="_blank"  title="Help"><span class="aui-icon aui-icon-small aui-iconfont-help">Help</span></a>
+        <div id="system-help-menu-content" class="aui-dropdown2 aui-style-default">
+                            <div class="aui-dropdown2-section">
+                                                                <ul id="jira-help" class="aui-list-truncate">
+                                                            <li>
+                                    <a  id="view_help"   class=""  title="Goto the online documentation for JIRA" href="https://docs.atlassian.com/jira/docs-061/JIRA+Documentation"  target="_blank" >Online Help</a>
+                                </li>
+                                                            <li>
+                                    <a  id="gh_view_help"   class=""  title="Get help online for JIRA Agile" href="http://docs.atlassian.com/agile/docs-0630/JIRA+Agile+Documentation"  target="_blank" >JIRA Agile Help</a>
+                                </li>
+                                                            <li>
+                                    <a  id="gh_view_agile_answers"   class=""  title="Get answers about Agile" href="http://answers.atlassian.com/tags/agile/"  target="_blank" >Agile Answers</a>
+                                </li>
+                                                            <li>
+                                    <a  id="keyshortscuthelp"   class=""  title="Get more information about JIRA's Keyboard Shortcuts" href="/jira/secure/ViewKeyboardShortcuts!default.jspa"  target="_blank" >Keyboard Shortcuts</a>
+                                </li>
+                                                            <li>
+                                    <a  id="view_about"   class=""  title="Get more information about JIRA" href="/jira/secure/AboutPage.jspa" >About JIRA</a>
+                                </li>
+                                                            <li>
+                                    <a  id="view_credits"   class=""  title="See who did what" href="/jira/secure/JiraCreditsPage!default.jspa"  target="_blank" >JIRA Credits</a>
+                                </li>
+                                                            <li>
+                                    <a  id="whats-new-menu-link"   class=""   href="https://docs.atlassian.com/jira/docs-061/whatsnew/iframe" >What’s New</a>
+                                </li>
+                                                    </ul>
+                                    </div>
+                    </div>
+    </li>
+
+
+
+
+
+
+
+
+
+<li id="user-options">
+            <a class="aui-nav-link login-link" href="/jira/login.jsp?os_destination=%2Fbrowse%2FCASSANDRA-1432">Log In</a>
+                <div id="user-options-content" class="aui-dropdown2 aui-style-default">
+                            <div class="aui-dropdown2-section">
+                                                        </div>
+                    </div>
+    </li>
+</ul></div></div><!-- .aui-header-inner--></nav><!-- .aui-header -->
+    </header>
+    
+
+
+
+    <section id="content" role="main">
+        
+    <div class="navigator-container hidden">
+        <div class="hidden shortcut-links">
+                            <a id="edit-issue" class="issueaction-edit-issue" href="/jira/secure/EditIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="assign-issue" class="issueaction-assign-issue" href="/jira/secure/AssignIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="assign-to-me" class="issueaction-assign-to-me hide-from-opsbar" href="/jira/secure/AssignIssue.jspa?atl_token=A5KQ-2QAV-T4JA-FDED|ef7c96283ba08a1ed85176b9349a68599900c81a|lout&amp;id={0}&amp;&returnUrl=/secure/issues"></a>
+                            <a id="comment-issue" class="issueaction-comment-issue add-issue-comment" href="/jira/secure/AddComment!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="greenhopper-rapidboard-operation" class="issueaction-greenhopper-rapidboard-operation js-rapidboard-operation-issue" href="/jira/secure/GHGoToBoard.jspa?issueId={0}&returnUrl=/secure/issues"></a>
+                            <a id="greenhopper-rank-top-operation" class="issueaction-greenhopper-rank-top-operation" href="/jira/secure/RankTop.jspa?issueId={0}&returnUrl=/secure/issues"></a>
+                            <a id="greenhopper-rank-bottom-operation" class="issueaction-greenhopper-rank-bottom-operation" href="/jira/secure/RankBottom.jspa?issueId={0}&returnUrl=/secure/issues"></a>
+                            <a id="log-work" class="issueaction-log-work" href="/jira/secure/CreateWorklog!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="attach-file" class="issueaction-attach-file" href="/jira/secure/AttachFile!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="attach-screenshot" class="issueaction-attach-screenshot" href="/jira/secure/AttachScreenshot!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="toggle-vote-issue" class="toggle-vote-issue issueaction-vote-issue" href="/jira/secure/VoteOrWatchIssue.jspa?atl_token=A5KQ-2QAV-T4JA-FDED|ef7c96283ba08a1ed85176b9349a68599900c81a|lout&amp;id={0}&amp;vote=vote&returnUrl=/secure/issues"></a>
+                            <a id="toggle-vote-issue" class="toggle-vote-issue issueaction-unvote-issue" href="/jira/secure/VoteOrWatchIssue.jspa?atl_token=A5KQ-2QAV-T4JA-FDED|ef7c96283ba08a1ed85176b9349a68599900c81a|lout&amp;id={0}&amp;vote=unvote&returnUrl=/secure/issues"></a>
+                            <a id="view-voters" class="issueaction-view-voters" href="/jira/secure/ViewVoters!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="toggle-watch-issue" class="issueaction-watch-issue" href="/jira/secure/VoteOrWatchIssue.jspa?atl_token=A5KQ-2QAV-T4JA-FDED|ef7c96283ba08a1ed85176b9349a68599900c81a|lout&amp;id={0}&amp;watch=watch&returnUrl=/secure/issues"></a>
+                            <a id="toggle-watch-issue" class="issueaction-unwatch-issue" href="/jira/secure/VoteOrWatchIssue.jspa?atl_token=A5KQ-2QAV-T4JA-FDED|ef7c96283ba08a1ed85176b9349a68599900c81a|lout&amp;id={0}&amp;watch=unwatch&returnUrl=/secure/issues"></a>
+                            <a id="manage-watchers" class="issueaction-manage-watchers" href="/jira/secure/ManageWatchers!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="create-subtask" class="issueaction-create-subtask" href="/jira/secure/CreateSubTaskIssue!default.jspa?parentIssueId={0}&returnUrl=/secure/issues"></a>
+                            <a id="subtask-to-issue" class="issueaction-subtask-to-issue" href="/jira/secure/ConvertSubTask.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="issue-to-subtask" class="issueaction-issue-to-subtask" href="/jira/secure/ConvertIssue.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="cta-create-branch" class="devstatus-cta-link" href="#devstatus.cta.createbranch&returnUrl=/secure/issues"></a>
+                            <a id="move-issue" class="issueaction-move-issue" href="/jira/secure/MoveIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="move-issue" class="issueaction-move-subtask" href="/jira/secure/MoveSubTaskChooseOperation!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="link-issue" class="issueaction-link-issue" href="/jira/secure/LinkJiraIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="clone-issue" class="issueaction-clone-issue" href="/jira/secure/CloneIssueDetails!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="edit-labels" class="issueaction-edit-labels" href="/jira/secure/EditLabels!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            <a id="delete-issue" class="issueaction-delete-issue" href="/jira/secure/DeleteIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                    </div>
+
+        <div id="user-parms" style="display:none;" data-user-parms="{&quot;createSharedObjects&quot;:false,&quot;createIssue&quot;:false}"></div>
+
+        <div class="navigator-sidebar" id="navigator-sidebar">
+                        <div style="width:180px">
+                                    </div>
+        </div>
+        <script type="text/javascript">
+            if (JIRA.Issues.FilterPanelModel) {
+                jQuery(".navigator-sidebar").toggleClass("collapsed", !JIRA.Issues.FilterPanelModel.prototype.isExpanded());
+            }
+        </script>
+        <div class="navigator-body">
+            <div class="contained-content">
+
+                <header class="saved-search-selector">
+                    <div class="saved-search-operations">
+                        <ul class="operations">
+
+                                                        <li class="aui-dd-parent"><a href="#" class="header-views header-operations aui-dropdown-trigger aui-dd-link standard icon-export lnk" title="Export this filter in another format" role="button"><span>Export</span></a></li>
+                            <li class="aui-dd-parent"><a href="#" class="header-tools header-operations aui-dropdown-trigger aui-dd-link standard icon-tools" title="Select operations that can be completed" role="button"><span>Tools</span></a></li>
+
+                        </ul>
+                        <div class="hidden operations-view-data">
+                            <fieldset class="hidden parameters">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div id="throbber-space">&nbsp;</div>
+                    <div id="search-header-view">
+                        <h1 class="search-title"></h1>
+                    </div>
+                </header>
+                <form class="navigator-search"></form>
+                <div class="navigator-group">
+                                        <div class="results-panel navigator-item">
+                        <div class="navigator-content"
+                                data-issue-table-model-state=""
+                                data-session-search-state=""
+                                data-selected-issue="{&quot;id&quot;:12472526,&quot;key&quot;:&quot;CASSANDRA-1432&quot;}"
+                                data-highlighted-issue-id="">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="issue-container ">
+                                    <div id="issue-content" class="issue-edit-form">
+                    <header id="stalker" class="issue-header js-stalker">
+                        <div class="issue-header-content"><header class="aui-page-header"><div class="aui-page-header-inner"><div class="aui-page-header-image"><span id="12310865" class="aui-avatar aui-avatar-large aui-avatar-project"><span class="aui-avatar-inner"><img id="project-avatar" alt="Cassandra" src="https://issues.apache.org/jira/secure/projectavatar?pid=12310865&amp;avatarId=12034" /></span></span></div><!-- .aui-page-header-image --><div class="aui-page-header-main"><ol class="aui-nav aui-nav-breadcrumbs"><li><a id="project-name-val" href="/jira/browse/CASSANDRA">Cassandra</a></li><li><a class="issue-link" data-issue-key="CASSANDRA-1432" href="/jira/browse/CASSANDRA-1432" id="key-val" rel="12472526">CASSANDRA-1432</a></li></ol><h1 id="summary-val">java.util.NoSuchElementException when returning a node to the cluster</h1></div><!-- .aui-page-header-main --><div class="aui-page-header-actions"><div id="issue-header-pager"></div></div><!-- .aui-page-header-actions --></div><!-- .aui-page-header-inner --></header><!-- .aui-page-header --><div class="command-bar"><div class="ops-cont"><div class="ops-menus aui-toolbar"><div class="toolbar-split toolbar-split-left"><ul id="opsbar-opsbar-operations" class="toolbar-group pluggable-ops"><li class="toolbar-item"><a id="greenhopper-rapidboard-operation"title="View this issue on an Agile board"class="toolbar-trigger issueaction-greenhopper-rapidboard-operation js-rapidboard-operation-issue" href="/jira/secure/GHGoToBoard.jspa?issueId=12472526"><span class="trigger-label">Agile Board</span></a></li></ul><ul id="opsbar-opsbar-transitions" class="toolbar-group pluggable-ops"></ul><ul id="opsbar-opsbar-admin" class="toolbar-group pluggable-ops"></ul></div><div class="toolbar-split toolbar-split-right"><ul id="opsbar-jira.issue.tools" class="toolbar-group pluggable-ops"><li class="toolbar-item toolbar-dropdown"><div><a href="#"  id="viewissue-export"title="Export this issue in another format" data-hide-on-scroll=".split-view .issue-container" data-contain-to-window="true" class="toolbar-trigger  js-default-dropdown" ><span class="icon icon-export viewissue-export"></span> <span class="dropdown-text">Export</span><span class="icon drop-menu"></span></a><div class="aui-list hidden"><ul class="aui-list-section aui-first aui-last"><li class="aui-list-item"><a  href="/jira/si/jira.issueviews:issue-xml/CASSANDRA-1432/CASSANDRA-1432.xml" class="aui-list-item-link"id="jira.issueviews:issue-xml"><span class="trigger-label">XML</span></a></li><li class="aui-list-item"><a  href="/jira/si/jira.issueviews:issue-word/CASSANDRA-1432/CASSANDRA-1432.doc" class="aui-list-item-link"id="jira.issueviews:issue-word"><span class="trigger-label">Word</span></a></li><li class="aui-list-item"><a  href="/jira/si/jira.issueviews:issue-html/CASSANDRA-1432/CASSANDRA-1432.html" class="aui-list-item-link"id="jira.issueviews:issue-html"><span class="trigger-label">Printable</span></a></li></ul></div></div></li></ul></div></div></div></div></div>
+                    </header>
+                    <div class="issue-body-content">
+                        <div class="aui-group issue-body"><div class="aui-item issue-main-column"><div id=details-module class="module toggle-wrap"><div id="details-module_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Details</h2></div><div class="mod-content">
+
+
+
+
+<ul id="issuedetails" class="property-list two-cols">
+    <li class="item">
+        <div class="wrap">
+            <strong class="name">Type:</strong>
+            <span id="type-val" class="value">
+                                <img  alt="Bug" height="16" src="/jira/images/icons/issuetypes/bug.png" title="Bug - A problem which impairs or prevents the functions of the product." width="16" /> Bug
+            </span>
+        </div>
+    </li>
+    <li class="item item-right">
+        <div class="wrap">
+            <strong class="name">Status:</strong>
+            <span id="status-val" class="value">
+                                
+
+<img src="/jira/images/icons/statuses/resolved.png" width="16" height="16" alt="Resolved" title="Resolved - A resolution has been taken, and it is awaiting verification by reporter. From here issues are either reopened, or are closed."> Resolved
+            </span>
+                    </div>
+    </li>
+            <li class="item">
+            <div class="wrap">
+                <strong class="name">Priority:</strong>
+                <span id="priority-val" class="value">
+                                        <img  alt="Minor" height="16" src="/jira/images/icons/priorities/minor.png" title="Minor - Minor loss of function, or other problem where easy workaround is present." width="16" /> Minor
+                </span>
+            </div>
+        </li>
+                                <li class="item item-right">
+            <div class="wrap">
+                <strong class="name">Resolution:</strong>
+                <span id="resolution-val" class="value resolved" >
+                                     Fixed
+                                </span>
+            </div>
+        </li>
+                    <li class="item item-right">
+            <div class="wrap">
+                <strong class="name">Fix Version/s:</strong>
+                <span id="fixfor-val" class="value">
+                                            <span class="shorten" id="fixVersions-field">
+                                                            <a href="/jira/browse/CASSANDRA/fixforversion/12315264" title="0.6.6 ">0.6.6</a>,                                                            <a href="/jira/browse/CASSANDRA/fixforversion/12315251" title="0.7 beta 2 ">0.7 beta 2</a>                                                    </span>
+                                    </span>
+            </div>
+        </li>
+                <li class="item">
+            <div class="wrap">
+                <strong class="name">Component/s:</strong>
+                <span id="components-val" class="value">
+                                            <span class="shorten" id="components-field">
+                                                            <a href="/jira/browse/CASSANDRA/component/12312978" title="Core ">Core</a>                                                    </span>
+                                    </span>
+            </div>
+        </li>
+                    <li class="item full-width">
+            <div class="wrap" id="wrap-labels">
+                <strong class="name">Labels:</strong>
+                    <div class="labels-wrap value">
+            <span class="labels" id="labels-12472526-value">None</span>
+                </div>
+            </div>
+        </li>
+        </ul>
+
+</div></div><div id=descriptionmodule class="module toggle-wrap"><div id="descriptionmodule_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Description</h2></div><div class="mod-content"><div id="description-val" class="field-ignore-highlight">
+    <div class="user-content-block">
+                    <p>I'm running the v0.7-beta1 in a 4 nodes cluster and just doing some simple testing. One of the nodes had been down (machine off, unclean shutdown) for an hour or so not sure how many writes were going on, when I bought it back up this message appears in the other 3 nodes...</p>
+
+
+<p>INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:51,199 Gossiper.java (line 584) Node /192.168.34.27 has restarted, now UP again<br/>
+ INFO <span class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-08-25 19:29:51,200 HintedHandOffManager.java (line 191) Started hinted handoff for endpoint /192.168.34.27<br/>
+ INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:51,201 StorageService.java (line 636) Node /192.168.34.27 state jump to normal<br/>
+ INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:51,201 StorageService.java (line 643) Will not change my token ownership to /192.168.34.27<br/>
+ERROR <span class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-08-25 19:29:51,640 CassandraDaemon.java (line 82) Uncaught exception in thread Thread<span class="error">&#91;HINTED-HANDOFF-POOL:1,5,main&#93;</span><br/>
+java.util.concurrent.ExecutionException: java.lang.RuntimeException: java.util.NoSuchElementException<br/>
+        at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:222)<br/>
+        at java.util.concurrent.FutureTask.get(FutureTask.java:83)<br/>
+        at org.apache.cassandra.concurrent.DebuggableThreadPoolExecutor.afterExecute(DebuggableThreadPoolExecutor.java:87)<br/>
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:888)<br/>
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)<br/>
+        at java.lang.Thread.run(Thread.java:619)<br/>
+Caused by: java.lang.RuntimeException: java.util.NoSuchElementException<br/>
+        at orgapache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:34)<br/>
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)<br/>
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br/>
+        at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br/>
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)<br/>
+        ... 2 more<br/>
+Caused by: java.util.NoSuchElementException<br/>
+        at java.util.concurrent.ConcurrentSkipListMap.lastKey(ConcurrentSkipListMap.java:1981)<br/>
+        at java.util.concurrent.ConcurrentSkipListMap$KeySet.last(ConcurrentSkipListMap.java:2331)<br/>
+        at org.apache.cassandra.db.HintedHandOffManager.sendMessage(HintedHandOffManager.java:121)<br/>
+        at org.apache.cassandra.db.HintedHandOffManager.deliverHintsToEndpoint(HintedHandOffManager.java:218)<br/>
+        at org.apache.cassandra.db.HintedHandOffManager.access$000(HintedHandOffManager.java:78)<br/>
+        at org.apache.cassandra.db.HintedHandOffManager$1.runMayThrow(HintedHandOffManager.java:296) not sure how many writes were going on<br/>
+        at org.apache.cassandra.utils.WrappedRunnable.run(WrappedRunnable.java:30)<br/>
+        ... 6 more</p>
+
+<p>On the machine that was off (34.27) there are no errors in the logs, and here are the entries for around the same time...</p>
+
+<p> INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,679 CommitLog.java (line 340) Recovery complete<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,769 CommitLog.java (line 180) Log replay complete<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,797 StorageService.java (line 342) Cassandra version: 0.7.0-beta1-SNAPSHOT<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,797 StorageService.java (line 343) Thrift API version: 10.0.0<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,813 SystemTable.java (line 240) Saved Token found: 85070591730234615865843651857942052864<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,813 SystemTable.java (line 257) Saved ClusterName found: FOO<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,813 SystemTable.java (line 272) Saved partitioner not found. Using org.apache.cassandra.dht.RandomPartitioner<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,814 ColumnFamilyStore.java (line 422) switching in a fresh Memtable for LocationInfo at CommitLogContext(file='/local1/junkbox/cassandra/commitlog/CommitLog-12827213897<br/>
+70.log', position=41336)<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,814 ColumnFamilyStore.java (line 706) Enqueuing flush of Memtable-LocationInfo@916236367(95 bytes, 2 operations)<br/>
+ INFO <span class="error">&#91;FLUSH-WRITER-POOL:1&#93;</span> 2010-08-25 19:29:50,815 Memtable.java (line 150) Writing Memtable-LocationInfo@916236367(95 bytes, 2 operations)<br/>
+ INFO <span class="error">&#91;FLUSH-WRITER-POOL:1&#93;</span> 2010-08-25 19:29:50,873 Memtable.java (line 157) Completed flushing /local1/junkbox/cassandra/data/system/LocationInfo-e-6-Data.db<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:50,917 StorageService.java (line 374) Starting up server gossip<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:51,093 ColumnFamilyStore.java (line 1239) Loaded 0 rows into the Super2 cache<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:51,170 CassandraDaemon.java (line 153) Binding thrift service to /0.0.0.0:9160<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:51,174 CassandraDaemon.java (line 167) Using TFramedTransport with a max frame size of 15728640 bytes.<br/>
+ INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:51,198 Gossiper.java (line 578) Node /192.168.34.28 is now part of the cluster<br/>
+ INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:51,199 Gossiper.java (line 578) Node /192.168.34.29 is now part of the cluster<br/>
+ INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:51,199 Gossiper.java (line 578) Node /192.168.34.26 is now part of the cluster<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:51,204 CassandraDaemon.java (line 208) Listening for thrift clients...<br/>
+ INFO <span class="error">&#91;main&#93;</span> 2010-08-25 19:29:51,210 Mx4jTool.java (line 73) Will not load MX4J, mx4j-tools.jar is not in the classpath<br/>
+ INFO <span class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-08-25 19:29:51,417 HintedHandOffManager.java (line 191) Started hinted handoff for endpoint /192.168.34.28<br/>
+ INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:51,417 Gossiper.java (line 570) InetAddress /192.168.34.28 is now UP<br/>
+ INFO <span class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-08-25 19:29:51,418 HintedHandOffManager.java (line 247) Finished hinted handoff of 0 rows to endpoint /192.168.34.28<br/>
+ INFO <span class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-08-25 19:29:51,855 HintedHandOffManager.java (line 191) Started hinted handoff for endpoint /192.168.34.29<br/>
+ INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:51,855 Gossiper.java (line 570) InetAddress /192.168.34.29 is now UP<br/>
+ INFO <span class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-08-25 19:29:51,860 HintedHandOffManager.java (line 247) Finished hinted handoff of 0 rows to endpoint /192.168.34.29<br/>
+ INFO <span class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-08-25 19:29:52,930 HintedHandOffManager.java (line 191) Started hinted handoff for endpoint /192.168.34.26<br/>
+ INFO <span class="error">&#91;GOSSIP_STAGE:1&#93;</span> 2010-08-25 19:29:52,930 Gossiper.java (line 570) InetAddress /192.168.34.26 is now UP<br/>
+ INFO <span class="error">&#91;HINTED-HANDOFF-POOL:1&#93;</span> 2010-08-25 19:29:52,930 HintedHandOffManager.java (line 247) Finished hinted handoff of 0 rows to endpoint /192.168.34.26</p>
+
+<p>I ran a repair on all the nodes and this was all that they each logged <br/>
+ INFO <span class="error">&#91;manual-repair-fe7c5abb-bb0a-4415-aa75-0d72ba4e7f1b&#93;</span> 2010-08-25 19:49:24,194 AntiEntropyService.java (line 803) Waiting for repair requests to: []</p>
+
+<p>The cluster seemed OK and kept on working.</p>
+            </div>
+</div>
+</div></div><div id=attachmentmodule class="module toggle-wrap"><div id="attachmentmodule_heading" class="mod-header"><ul class="ops"><li class="drop"><div class="aui-dd-parent"><a href="#" class="icon drop-menu js-default-dropdown" title="Options"><span>Options</span></a><div class="aui-dropdown-content aui-list"><ul id="attachment-sorting-options"class="aui-list-section aui-first"><li class="aui-list-item"><a id="attachment-sort-key-name"href="/jira/browse/CASSANDRA-1432?attachmentSortBy=fileName#attachmentmodule"class="aui-list-checked aui-checked aui-list-item-link"title="viewissue.subtasks.tab.show.all.name"><span>Sort By Name</span></a></li><li class="aui-list-item"><a id="attachment-sort-key-date"href="/jira/browse/CASSANDRA-1432?attachmentSortBy=dateTime#attachmentmodule"class="aui-list-checked aui-list-item-link"title="Sort By Date"><span>Sort By Date</span></a></li></ul><ul id="attachment-sorting-order-options"class="aui-list-section aui-last"><li class="aui-list-item"><a id="attachment-sort-direction-asc"href="/jira/browse/CASSANDRA-1432?attachmentOrder=asc#attachmentmodule"class="aui-list-checked aui-checked aui-list-item-link"title="Ascending"><span>Ascending</span></a></li><li class="aui-list-item"><a id="attachment-sort-direction-desc"href="/jira/browse/CASSANDRA-1432?attachmentOrder=desc#attachmentmodule"class="aui-list-checked aui-list-item-link"title="Descending"><span>Descending</span></a></li></ul></div></div></li></ul><h2 class="toggle-title">Attachments</h2></div><div class="mod-content">
+            <ol id="file_attachments" class="item-attachments">
+                            <li class="attachment-content">
+                                            <div class="attachment-thumb">
+                            <a href="/jira/secure/attachment/12453173/1432-06.txt" draggable="true" data-downloadurl="text/plain:1432-06.txt:https://issues.apache.org/jira/secure/attachment/12453173/1432-06.txt">
+                                    <img src="/jira/images/icons/attach/text.gif" height="16" width="16" border="0" alt="Text File">
+                            </a>
+                        </div>
+                        <dl>
+                                <dt class="attachment-title">
+        <a href="/jira/secure/attachment/12453173/1432-06.txt"
+            title="Latest  26/Aug/10 22:36 - Jonathan Ellis" draggable="true"
+            data-downloadurl="text/plain:1432-06.txt:https://issues.apache.org/jira/secure/attachment/12453173/1432-06.txt">1432-06.txt
+        </a>
+    </dt>
+    <dd class="attachment-delete">
+                    <span class="icon"></span>
+            </dd>
+    <dd class="attachment-date"><time class="livestamp" datetime="2010-08-26T22:36+0100">26/Aug/10 22:36</time></dd>
+    <dd class="attachment-size">0.8 kB</dd>
+    <dd class="attachment-author">Jonathan Ellis</dd>
+                        </dl>
+                                    </li>
+                            <li class="attachment-content">
+                                            <div class="attachment-thumb">
+                            <a href="/jira/secure/attachment/12453174/1432-trunk.txt" draggable="true" data-downloadurl="text/plain:1432-trunk.txt:https://issues.apache.org/jira/secure/attachment/12453174/1432-trunk.txt">
+                                    <img src="/jira/images/icons/attach/text.gif" height="16" width="16" border="0" alt="Text File">
+                            </a>
+                        </div>
+                        <dl>
+                                <dt class="attachment-title">
+        <a href="/jira/secure/attachment/12453174/1432-trunk.txt"
+            title="Latest  26/Aug/10 22:37 - Jonathan Ellis" draggable="true"
+            data-downloadurl="text/plain:1432-trunk.txt:https://issues.apache.org/jira/secure/attachment/12453174/1432-trunk.txt">1432-trunk.txt
+        </a>
+    </dt>
+    <dd class="attachment-delete">
+                    <span class="icon"></span>
+            </dd>
+    <dd class="attachment-date"><time class="livestamp" datetime="2010-08-26T22:37+0100">26/Aug/10 22:37</time></dd>
+    <dd class="attachment-size">0.9 kB</dd>
+    <dd class="attachment-author">Jonathan Ellis</dd>
+                        </dl>
+                                    </li>
+                    </ol>
+        </div></div><div id=activitymodule class="module toggle-wrap"><div id="activitymodule_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Activity</h2></div><div class="mod-content">
+
+
+
+
+
+
+
+
+
+
+    <div class="tabwrap tabs2">
+                    <div class="sortwrap">
+                                    <a class="icon icon-sort-down ajax-activity-content" rel="nofollow" href="/jira/browse/CASSANDRA-1432?actionOrder=desc" title="Ascending order - Click to sort in descending order"><span>Ascending order - Click to sort in descending order</span></a>
+                            </div>
+                <ul id="issue-tabs" class="tabs horizontal">
+                                
+            <li  data-id="all-tabpanel" data-key="com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel" data-label="All" data-href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel">
+                            <a class="ajax-activity-content" id="all-tabpanel" href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel"><strong>All</strong></a>
+                        </li>
+                                
+            <li  class="active" id="comment-tabpanel"  data-id="comment-tabpanel" data-key="com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel" data-label="Comments" data-href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel">
+                            <strong>Comments</strong>
+                        </li>
+                                
+            <li  data-id="worklog-tabpanel" data-key="com.atlassian.jira.plugin.system.issuetabpanels:worklog-tabpanel" data-label="Work Log" data-href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugin.system.issuetabpanels:worklog-tabpanel">
+                            <a class="ajax-activity-content" id="worklog-tabpanel" href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugin.system.issuetabpanels:worklog-tabpanel"><strong>Work Log</strong></a>
+                        </li>
+                                
+            <li  data-id="changehistory-tabpanel" data-key="com.atlassian.jira.plugin.system.issuetabpanels:changehistory-tabpanel" data-label="History" data-href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugin.system.issuetabpanels:changehistory-tabpanel">
+                            <a class="ajax-activity-content" id="changehistory-tabpanel" href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugin.system.issuetabpanels:changehistory-tabpanel"><strong>History</strong></a>
+                        </li>
+                                
+            <li  data-id="activity-stream-issue-tab" data-key="com.atlassian.streams.streams-jira-plugin:activity-stream-issue-tab" data-label="Activity" data-href="/jira/browse/CASSANDRA-1432?page=com.atlassian.streams.streams-jira-plugin:activity-stream-issue-tab">
+                            <a class="ajax-activity-content" id="activity-stream-issue-tab" href="/jira/browse/CASSANDRA-1432?page=com.atlassian.streams.streams-jira-plugin:activity-stream-issue-tab"><strong>Activity</strong></a>
+                        </li>
+                                
+            <li  data-id="dvcs-commits-tabpanel" data-key="com.atlassian.jira.plugins.jira-bitbucket-connector-plugin:dvcs-commits-tabpanel" data-label="Commits" data-href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugins.jira-bitbucket-connector-plugin:dvcs-commits-tabpanel">
+                            <a class="ajax-activity-content" id="dvcs-commits-tabpanel" href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jira.plugins.jira-bitbucket-connector-plugin:dvcs-commits-tabpanel"><strong>Commits</strong></a>
+                        </li>
+                                
+            <li  data-id="fisheye-issuepanel" data-key="com.atlassian.jirafisheyeplugin:fisheye-issuepanel" data-label="Source" data-href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jirafisheyeplugin:fisheye-issuepanel">
+                            <a class="ajax-activity-content" id="fisheye-issuepanel" href="/jira/browse/CASSANDRA-1432?page=com.atlassian.jirafisheyeplugin:fisheye-issuepanel"><strong>Source</strong></a>
+                        </li>
+                </ul>
+    </div>
+    <div class="issuePanelWrapper">
+        <div class="issuePanelProgress"></div>
+        <div class="issuePanelContainer" id="issue_actions_container">
+                                    
+
+
+<div id="comment-12902746" class="issue-data-block activity-comment twixi-block  expanded">
+    <div class="twixi-wrap verbose actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-opened"><span>Hide</span></span></a>
+            <div class="action-links">
+                <a href="/jira/browse/CASSANDRA-1432?focusedCommentId=12902746&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-12902746" title="A permanent link to this comment." class="icon icon-perma activitymodule-link"><span>Permalink</span></a>
+                                            </div>
+            <div class="action-details">        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="amorton" id="commentauthor_12902746_verbose" href="/jira/secure/ViewProfile.jspa?name=amorton"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> amorton</a>
+ added a comment  - <span class='commentdate_12902746_verbose subText'><span class='date user-tz' title='26/Aug/10 07:41'><time class='livestamp' datetime='2010-08-26T07:41+0100'>26/Aug/10 07:41</time></span></span>  </div>
+        </div>
+        <div class="action-body flooded"><p>I think this is stopping the HH and AE from running. </p>
+
+<p>I did the following:</p>
+<ul class="alternate" type="square">
+	<li>stopped a node</li>
+	<li>deleted commit log and data dir for the keyspace</li>
+	<li>turned the node on</li>
+	<li>ran repair</li>
+</ul>
+
+
+<p>Then saw similar messages in the logs, with the repairing node logging the Waiting for repair requests to: [] message. No data was sent to the node. </p>
+
+<p>So my last comment about "cluster seemed ok" is probably wrong. </p> </div>
+    </div>
+    <div class="twixi-wrap concise actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-closed"><span>Show</span></span></a>
+            <div class="action-details flooded">
+                        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="amorton" id="commentauthor_12902746_concise" href="/jira/secure/ViewProfile.jspa?name=amorton"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> amorton</a>
+ added a comment  - <span class='commentdate_12902746_concise subText'><span class='date user-tz' title='26/Aug/10 07:41'><time class='livestamp' datetime='2010-08-26T07:41+0100'>26/Aug/10 07:41</time></span></span>                    I think this is stopping the HH and AE from running.  
+
+ I did the following: 
+ 
+	 stopped a node 
+	 deleted commit log and data dir for the keyspace 
+	 turned the node on 
+	 ran repair 
+ 
+
+
+ Then saw similar messages in the logs, with the repairing node logging the Waiting for repair requests to: [] message. No data was sent to the node.  
+
+ So my last comment about "cluster seemed ok" is probably wrong.               </div>
+        </div>
+    </div>
+</div>
+                             
+
+
+<div id="comment-12902766" class="issue-data-block activity-comment twixi-block  expanded">
+    <div class="twixi-wrap verbose actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-opened"><span>Hide</span></span></a>
+            <div class="action-links">
+                <a href="/jira/browse/CASSANDRA-1432?focusedCommentId=12902766&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-12902766" title="A permanent link to this comment." class="icon icon-perma activitymodule-link"><span>Permalink</span></a>
+                                            </div>
+            <div class="action-details">        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="stuhood" id="commentauthor_12902766_verbose" href="/jira/secure/ViewProfile.jspa?name=stuhood"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> Stu Hood</a>
+ added a comment  - <span class='commentdate_12902766_verbose subText'><span class='date user-tz' title='26/Aug/10 08:52'><time class='livestamp' datetime='2010-08-26T08:52+0100'>26/Aug/10 08:52</time></span></span>  </div>
+        </div>
+        <div class="action-body flooded"><p>&gt; Waiting for repair requests to: [] message.<br/>
+This would imply that that node thinks the replication factor is 1, and that it therefore doesn't need to request trees.</p> </div>
+    </div>
+    <div class="twixi-wrap concise actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-closed"><span>Show</span></span></a>
+            <div class="action-details flooded">
+                        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="stuhood" id="commentauthor_12902766_concise" href="/jira/secure/ViewProfile.jspa?name=stuhood"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> Stu Hood</a>
+ added a comment  - <span class='commentdate_12902766_concise subText'><span class='date user-tz' title='26/Aug/10 08:52'><time class='livestamp' datetime='2010-08-26T08:52+0100'>26/Aug/10 08:52</time></span></span>                    &gt; Waiting for repair requests to: [] message. 
+This would imply that that node thinks the replication factor is 1, and that it therefore doesn't need to request trees.              </div>
+        </div>
+    </div>
+</div>
+                             
+
+
+<div id="comment-12903085" class="issue-data-block activity-comment twixi-block  expanded">
+    <div class="twixi-wrap verbose actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-opened"><span>Hide</span></span></a>
+            <div class="action-links">
+                <a href="/jira/browse/CASSANDRA-1432?focusedCommentId=12903085&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-12903085" title="A permanent link to this comment." class="icon icon-perma activitymodule-link"><span>Permalink</span></a>
+                                            </div>
+            <div class="action-details">        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="jbellis" id="commentauthor_12903085_verbose" href="/jira/secure/ViewProfile.jspa?name=jbellis"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> Jonathan Ellis</a>
+ added a comment  - <span class='commentdate_12903085_verbose subText'><span class='date user-tz' title='26/Aug/10 22:39'><time class='livestamp' datetime='2010-08-26T22:39+0100'>26/Aug/10 22:39</time></span></span>  </div>
+        </div>
+        <div class="action-body flooded"><p>the HH paging code doesn't handle zero columns found for the row, which could happen if cleanup removes the rows before they are handed off or if they are tombstoned and aged out during compaction.</p>
+
+<p>patches attached for 0.6 and trunk</p> </div>
+    </div>
+    <div class="twixi-wrap concise actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-closed"><span>Show</span></span></a>
+            <div class="action-details flooded">
+                        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="jbellis" id="commentauthor_12903085_concise" href="/jira/secure/ViewProfile.jspa?name=jbellis"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> Jonathan Ellis</a>
+ added a comment  - <span class='commentdate_12903085_concise subText'><span class='date user-tz' title='26/Aug/10 22:39'><time class='livestamp' datetime='2010-08-26T22:39+0100'>26/Aug/10 22:39</time></span></span>                    the HH paging code doesn't handle zero columns found for the row, which could happen if cleanup removes the rows before they are handed off or if they are tombstoned and aged out during compaction. 
+
+ patches attached for 0.6 and trunk              </div>
+        </div>
+    </div>
+</div>
+                             
+
+
+<div id="comment-12903101" class="issue-data-block activity-comment twixi-block  expanded">
+    <div class="twixi-wrap verbose actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-opened"><span>Hide</span></span></a>
+            <div class="action-links">
+                <a href="/jira/browse/CASSANDRA-1432?focusedCommentId=12903101&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-12903101" title="A permanent link to this comment." class="icon icon-perma activitymodule-link"><span>Permalink</span></a>
+                                            </div>
+            <div class="action-details">        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="brandon.williams" id="commentauthor_12903101_verbose" href="/jira/secure/ViewProfile.jspa?name=brandon.williams"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> Brandon Williams</a>
+ added a comment  - <span class='commentdate_12903101_verbose subText'><span class='date user-tz' title='26/Aug/10 23:05'><time class='livestamp' datetime='2010-08-26T23:05+0100'>26/Aug/10 23:05</time></span></span>  </div>
+        </div>
+        <div class="action-body flooded"><p>+1</p> </div>
+    </div>
+    <div class="twixi-wrap concise actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-closed"><span>Show</span></span></a>
+            <div class="action-details flooded">
+                        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="brandon.williams" id="commentauthor_12903101_concise" href="/jira/secure/ViewProfile.jspa?name=brandon.williams"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> Brandon Williams</a>
+ added a comment  - <span class='commentdate_12903101_concise subText'><span class='date user-tz' title='26/Aug/10 23:05'><time class='livestamp' datetime='2010-08-26T23:05+0100'>26/Aug/10 23:05</time></span></span>                    +1              </div>
+        </div>
+    </div>
+</div>
+                             
+
+
+<div id="comment-12903106" class="issue-data-block activity-comment twixi-block  expanded">
+    <div class="twixi-wrap verbose actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-opened"><span>Hide</span></span></a>
+            <div class="action-links">
+                <a href="/jira/browse/CASSANDRA-1432?focusedCommentId=12903106&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-12903106" title="A permanent link to this comment." class="icon icon-perma activitymodule-link"><span>Permalink</span></a>
+                                            </div>
+            <div class="action-details">        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="jbellis" id="commentauthor_12903106_verbose" href="/jira/secure/ViewProfile.jspa?name=jbellis"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> Jonathan Ellis</a>
+ added a comment  - <span class='commentdate_12903106_verbose subText'><span class='date user-tz' title='26/Aug/10 23:14'><time class='livestamp' datetime='2010-08-26T23:14+0100'>26/Aug/10 23:14</time></span></span>  </div>
+        </div>
+        <div class="action-body flooded"><p>committed</p> </div>
+    </div>
+    <div class="twixi-wrap concise actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-closed"><span>Show</span></span></a>
+            <div class="action-details flooded">
+                        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="jbellis" id="commentauthor_12903106_concise" href="/jira/secure/ViewProfile.jspa?name=jbellis"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=xsmall&amp;avatarId=10452" /></span></span> Jonathan Ellis</a>
+ added a comment  - <span class='commentdate_12903106_concise subText'><span class='date user-tz' title='26/Aug/10 23:14'><time class='livestamp' datetime='2010-08-26T23:14+0100'>26/Aug/10 23:14</time></span></span>                    committed              </div>
+        </div>
+    </div>
+</div>
+                             </div>
+    </div>
+</div></div></div><div id="viewissuesidebar" class="aui-item issue-side-column"><div id=peoplemodule class="module toggle-wrap"><div id="peoplemodule_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">People</h2></div><div class="mod-content"><ul class="item-details" id="peopledetails">
+    <li class="people-details">
+                <dl>
+            <dt>Assignee:</dt>
+            <dd>
+                <span id="assignee-val" class="view-issue-field">
+
+            <span class="user-hover" id="issue_summary_assignee_jbellis" rel="jbellis">
+            <span class="aui-avatar aui-avatar-small"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=small&amp;avatarId=10452" /></span></span>
+            Jonathan Ellis
+        </span>
+    </span>
+                            </dd>
+        </dl>
+                        <dl>
+            <dt>Reporter:</dt>
+            <dd>
+                <span id="reporter-val" class="view-issue-field">
+
+            <span class="user-hover" id="issue_summary_reporter_amorton" rel="amorton">
+            <span class="aui-avatar aui-avatar-small"><span class="aui-avatar-inner"><img src="/jira/secure/useravatar?size=small&amp;avatarId=10452" /></span></span>
+            amorton
+        </span>
+    </span>
+            </dd>
+        </dl>
+                        <dl>
+            <dt title="Reviewer">Reviewer:</dt>
+            <dd><span id="customfield_10022-val" data-name="Reviewer" data-fieldtype="userpicker" data-fieldtypecompletekey="com.atlassian.jira.plugin.system.customfieldtypes:userpicker">        <span class="tinylink">        <span class="user-hover" rel="brandon.williams" id="user_cf_brandon.williams">Brandon Williams</span></span>
+    </span></dd>
+        </dl>
+            </li>
+</ul>
+    <ul class="item-details">
+        <li>
+                            <dl>
+                    <dt>Votes:</dt>
+                    <dd>
+                                                                            <span id="vote-data" class="aui-badge vote-state-off">0</span>
+                        
+                                                                                                        <span id="vote-label" title="You have to be logged in to vote for an issue.">Vote for this issue</span>
+                                            </dd>
+                </dl>
+                                        <dl>
+                    <dt>Watchers:</dt>
+                    <dd>
+                                                                        
+                                                                            <span id="watcher-data" class="aui-badge watch-state-off">1</span>
+                        
+                                                                                <span id="watch-label" title="You have to be logged in to watch an issue.">Start watching this issue</span>
+                                            </dd>
+                </dl>
+                    </li>
+    </ul>
+</div></div><div id=datesmodule class="module toggle-wrap"><div id="datesmodule_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Dates</h2></div><div class="mod-content"><ul class="item-details">
+    <li>
+            <dl class="dates">
+            <dt>Created:</dt>
+            <dd class="date user-tz"  title="25/Aug/10 22:40" >
+
+                <span data-name="Created" id="create-date"  data-fieldtype="datetime"  >
+                                                                        <time class="livestamp" datetime="2010-08-25T22:40+0100">25/Aug/10 22:40</time>                                                             </span>
+            </dd>
+        </dl>
+            <dl class="dates">
+            <dt>Updated:</dt>
+            <dd class="date user-tz"  title="26/Aug/10 23:14" >
+
+                <span data-name="Updated" id="updated-date"  data-fieldtype="datetime"  >
+                                                                        <time class="livestamp" datetime="2010-08-26T23:14+0100">26/Aug/10 23:14</time>                                                             </span>
+            </dd>
+        </dl>
+            <dl class="dates">
+            <dt>Resolved:</dt>
+            <dd class="date user-tz"  title="26/Aug/10 23:14" >
+
+                <span data-name="Resolved" id="resolved-date"  data-fieldtype="datetime"  >
+                                                                        <time class="livestamp" datetime="2010-08-26T23:14+0100">26/Aug/10 23:14</time>                                                             </span>
+            </dd>
+        </dl>
+        </li>
+</ul>
+</div></div><div id=greenhopper-agile-issue-web-panel class="module toggle-wrap"><div id="greenhopper-agile-issue-web-panel_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Agile</h2></div><div class="mod-content">
+
+<ul class="item-details ghx-separated">
+    <li>
+        <a class="issueaction-greenhopper-rapidboard-operation js-rapidboard-operation-issue"
+           href="/jira/secure/GHGoToBoard.jspa?issueId=12472526&inline=true"
+           title="View this issue on an Agile board">
+            View on Board
+        </a>
+    </li>
+</ul>
+</div></div></div></div>
+                    </div>
+                </div>
+                        </div>
+
+    <fieldset class="hidden parameters">
+        <input type="hidden" title="autocompleteEnabled" value="true"/>
+    </fieldset>
+    
+    </section>
+    <footer id="footer" role="contentinfo">
+        
+        
+
+
+
+<div class="footer-body">
+    <ul>
+        <li>
+                        <a href="http://www.atlassian.com/software/jira">Atlassian JIRA</a>
+
+                                                    
+                        
+            <span id="footer-build-information">(v6.1.4#6159-<span title='44eaedef2e4a625c6c7183698b2468d4719c20dc' data-commit-id='44eaedef2e4a625c6c7183698b2468d4719c20dc}'>sha1:44eaede</span>)</span>
+        </li>
+        <li>
+            <a id="about-link" href="/jira/secure/AboutPage.jspa">About JIRA</a>
+        </li>
+        <li>
+                                    <a id="footer-report-problem-link" href="/jira/secure/CreateIssue!default.jspa">Report a problem</a>
+        </li>
+    </ul>
+            <ul>
+            <li class="licensemessage">
+                                    Powered by a free Atlassian <a href='http://www.atlassian.com/software/jira'>JIRA</a> open source license for Apache Software Foundation. Try JIRA - <a href='http://www.atlassian.com/software/jira'>bug tracking software</a> for <i>your</i> team.
+
+                            </li>
+        </ul>
+    </div>
+
+<form id="jira_request_timing_info" class="dont-default-focus" >
+	<fieldset class="parameters hidden">
+		<input type="hidden" title="jira.request.start.millis" value="1386978379502" />
+		<input type="hidden" title="jira.request.server.time" value="299" />
+		<input type="hidden" title="jira.request.id" value="1426x5699537x1" />
+		<input type="hidden" title="jira.session.expiry.time" value="-" />
+		<input type="hidden" title="jira.session.expiry.in.mins" value="-" />
+		<input id="jiraConcurrentRequests" type="hidden" name="jira.request.concurrent.requests" value="3" />
+	</fieldset>
+</form>
+<!--
+	                 REQUEST ID : 1426x5699537x1
+	          REQUEST TIMESTAMP : [13/Dec/2013:23:46:19 +0000]
+	               REQUEST TIME : 0.2990
+	                 ASESSIONID : -
+	        CONCURRENT REQUESTS : 3
+
+	                      db.reads : name=db.reads; inv=49; ms=46; cpu=0; rss=0;
+	                      db.conns : name=db.conns; inv=49; ms=60; cpu=0; rss=0;
+-->
+
+
+
+
+
+
+
+
+
+
+<fieldset class="hidden parameters">
+    <input type="hidden" title="loggedInUser" value="">
+    <input type="hidden" title="ajaxTimeout" value="The call to the JIRA server did not complete within the timeout period.  We are unsure of the result of this operation.">
+    <input type="hidden" title="JiraVersion" value="6.1.4" />
+    <input type="hidden" title="ajaxUnauthorised" value="You are not authorised to perform this operation.  Please log in.">
+    <input type="hidden" title="baseURL" value="https://issues.apache.org:443/jira">
+    <input type="hidden" title="ajaxCommsError" value="The JIRA server could not be contacted.  This may be a temporary glitch or the server may be down.">
+    <input type="hidden" title="ajaxServerError" value="The JIRA server was contacted but has returned an error response. We are unsure of the result of this operation.">
+    <input type="hidden" title="ajaxErrorCloseDialog" value="Close this dialog and press refresh in your browser">
+    <input type="hidden" title="ajaxErrorDialogHeading" value="Communications Breakdown">
+
+    <input type="hidden" title="dirtyMessage" value="You have entered new data on this page. If you navigate away from this page without first saving your data, the changes will be lost.">
+    <input type="hidden" title="dirtyDialogMessage" value="You have entered new data in this dialog. If you navigate away from this dialog without first saving your data, the changes will be lost. Click cancel to return to the dialog.">
+    <input type="hidden" title="keyType" value="Type">
+    <input type="hidden" title="keyThen" value="then">
+    <input type="hidden" title="dblClickToExpand" value="Double click to expand">
+    <input type="hidden" title="actions" value="Actions">
+    <input type="hidden" title="removeItem" value="Remove">
+    <input type="hidden" title="workflow" value="Workflow">
+    <input type="hidden" title="labelNew" value="New Label">
+    <input type="hidden" title="issueActionsHint" value="Begin typing for available operations or press down to see all">
+    <input type="hidden" title="closelink" value="Close">
+    <input type="hidden" title="dotOperations" value="Operations">
+    <input type="hidden" title="dotLoading" value="Loading...">
+    <input type="hidden" title="frotherSuggestions" value="Suggestions">
+    <input type="hidden" title="frotherNomatches" value="No Matches">
+    <input type="hidden" title="multiselectVersionsError" value="{0} is not a valid version.">
+    <input type="hidden" title="multiselectComponentsError" value="{0} is not a valid component.">
+    <input type="hidden" title="multiselectGenericError" value="The value {0} is invalid.">
+</fieldset>
+
+    </footer>
+</div>
+</body>
+</html>

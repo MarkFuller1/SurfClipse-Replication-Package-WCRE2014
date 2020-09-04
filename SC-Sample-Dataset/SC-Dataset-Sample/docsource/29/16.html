@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: Problem in resultMap:Cause: java.sql.SQLException: Invalid state, the ResultSet object is closed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="thrd2.html#11512">
+<link rel="index" href="maillist.html#11512">
+<link rel="prev" href="msg11267.html">
+<link rel="next" href="msg11162.html">
+<link rel="alternate" title="user-java RSS" href="#" type="application/rss+xml">
+<link rel="canonical" href="https://www.mail-archive.com/user-java@ibatis.apache.org/msg11512.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=user-java@ibatis.apache.org&amp;q=subject:%22Re%3A+Problem+in+resultMap%3ACause%3A+java.sql.SQLException%3A+Invalid+state%2C+the+ResultSet+object+is+closed%22" rel="nofollow"><span itemprop="name">Re: Problem in resultMap:Cause: java.sql.SQLException: Invalid state, the ResultSet object is closed</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=user-java@ibatis.apache.org&amp;q=from:%22viren1%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">viren1</span></span></a></span>
+<span class="date"><a href="/search?l=user-java@ibatis.apache.org&amp;q=date:20080530" rel="nofollow"><span itemprop="datePublished" content="2008-05-30T12:22:41-0700">Fri, 30 May 2008 12:22:41 -0700</span></a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>
+I am having the same exact problem after upgrading iBATIS from 2.2.0.638 to
+2.3.0.677 and keeping the DAO package version 2.2.0.638. I don't have this
+problem with iBATIS 2.2.0.638 version at all.
+We are using JTDS 1.2.2 and MSSQL 2005.
+Any suggestions?
+thx.</pre><pre>
+
+
+nepalon wrote:
+&gt; 
+&gt; There are two class.：
+&gt; public class CategoryModel implements Serializable
+&gt; {
+&gt;          private int id;
+&gt; 
+&gt;          private String name;
+&gt;          
+&gt;          private int parentCategoryId;
+&gt; 
+&gt;          private CategoryModel parentCategory;
+&gt; 
+&gt;          // setter/getter
+&gt;          ......
+&gt; }
+&gt; 
+&gt; public class SoftwareModel implements Serializable
+&gt; {
+&gt;          private int id;
+&gt; 
+&gt;          private String name;
+&gt; 
+&gt;          private CategoryModel category;
+&gt; 
+&gt;          // setter/getter
+&gt;          ......
+&gt; }
+&gt; 
+&gt; The xml config file of ibatis:
+&gt; &lt;sqlMapConfig&gt;
+&gt;          &lt;settings
+&gt;                    cacheModelsEnabled=&quot;true&quot;
+&gt;                    enhancementEnabled=&quot;true&quot;
+&gt;                    lazyLoadingEnabled=&quot;true&quot;
+&gt;                    useStatementNamespaces=&quot;true&quot;/&gt;
+&gt; 
+&gt;        &lt;sqlMap resource=&quot;com/demo/category/Category.xml&quot;/&gt;
+&gt;        &lt;sqlMap resource=&quot;com/demo/software/Software.xml&quot;/&gt;
+&gt; &lt;/sqlMapConfig&gt;
+&gt; 
+&gt; Category.xml
+&gt; &lt;sqlMap namespace=&quot;Category&quot;&gt;
+&gt; 
+&gt;          &lt;typeAlias alias=&quot;category&quot;
+&gt;                    type=&quot;com.demo.category.model.CategoryModel&quot; /&gt;
+&gt; 
+&gt;          &lt;cacheModel type=&quot;OSCACHE&quot; id=&quot;category-cache&quot;&gt;
+&gt;                    &lt;flushInterval minutes=&quot;10&quot; /&gt;
+&gt;                    &lt;flushOnExecute statement=&quot;Category.addCartory&quot;/&gt;
+&gt;          &lt;/cacheModel&gt;
+&gt; 
+&gt;          &lt;resultMap class=&quot;category&quot; id=&quot;categoryResult&quot;&gt;
+&gt;                    &lt;result property=&quot;id&quot; column=&quot;FID&quot; javaType=&quot;int&quot;
+&gt; jdbcType=&quot;int&quot;
+&gt;                             nullValue=&quot;0&quot; /&gt;
+&gt;                    &lt;result property=&quot;name&quot; column=&quot;FName&quot;
+&gt; javaType=&quot;String&quot;
+&gt;                             jdbcType=&quot;nvarchar&quot; /&gt;
+&gt;                    &lt;result property=&quot;parentCategoryId&quot; column=&quot;FParentID&quot;
+&gt; javaType=&quot;int&quot; jdbcType=&quot;int&quot;
+&gt;                             nullValue=&quot;0&quot; /&gt;
+&gt;                    &lt;!-- TODO:this line config will cause throwing
+&gt; exception when call softwareDao.getSoftwareById --&gt;
+&gt;                    &lt;result property=&quot;parentCategory&quot; column=&quot;FParentID&quot;
+&gt; select=&quot;Category.getCategoryById&quot; /&gt;
+&gt;          &lt;/resultMap&gt;
+&gt; 
+&gt;          &lt;select id=&quot;getCategoryById&quot; resultMap=&quot;categoryResult&quot;
+&gt;                    parameterClass=&quot;int&quot; cacheModel=&quot;category-cache&quot;&gt;
+&gt;                    SELECT * FROM t_categories 
+&gt;                    WHERE FID =#categoryId#
+&gt;          &lt;/select&gt;
+&gt; &lt;/sqlMap&gt;
+&gt; 
+&gt; Software.xml
+&gt; &lt;sqlMap namespace=&quot;Software&quot;&gt;
+&gt; 
+&gt;          &lt;typeAlias alias=&quot;software&quot;
+&gt;                    type=&quot;com.demo.software.model.SoftwareModel&quot; /&gt;
+&gt; 
+&gt;          &lt;cacheModel type=&quot;OSCACHE&quot; id=&quot;software-cache&quot;&gt;
+&gt;                    &lt;flushInterval minutes=&quot;10&quot; /&gt;
+&gt;                    &lt;flushOnExecute statement=&quot;Software.addSoftware&quot;/&gt;
+&gt;          &lt;/cacheModel&gt;
+&gt; 
+&gt;          &lt;resultMap class=&quot;software&quot; id=&quot;softwareResult&quot;&gt;
+&gt;                    &lt;result property=&quot;id&quot; column=&quot;FID&quot; javaType=&quot;int&quot;
+&gt; jdbcType=&quot;int&quot;
+&gt;                             nullValue=&quot;0&quot; /&gt;
+&gt;                    &lt;result property=&quot;name&quot; column=&quot;FName&quot;
+&gt; javaType=&quot;String&quot;
+&gt;                             jdbcType=&quot;nvarchar&quot; /&gt;
+&gt;                    &lt;result property=&quot;category&quot; column=&quot;FCategoryID&quot;
+&gt; select=&quot;Category.getCategoryById&quot; /&gt;
+&gt;          &lt;/resultMap&gt;
+&gt; 
+&gt;          &lt;select id=&quot;getSoftwareById&quot; resultMap=&quot;softwareResult&quot;
+&gt;                    parameterClass=&quot;int&quot; cacheModel=&quot;software-cache&quot;&gt;
+&gt;                    SELECT * FROM t_softwares 
+&gt;                    WHERE FID =#softwareId#
+&gt;          &lt;/select&gt;
+&gt;          
+&gt;          &lt;select id=&quot;getSoftwareByName&quot; resultMap=&quot;softwareResult&quot;
+&gt;                    parameterClass=&quot;string&quot; cacheModel=&quot;software-cache&quot;&gt;
+&gt;                    SELECT * FROM t_softwares 
+&gt;                    WHERE FName =#name#
+&gt;          &lt;/select&gt;
+&gt; &lt;/sqlMap&gt;
+&gt; 
+&gt; Use ibatis with springframwork:
+&gt; &lt;beans
+&gt;          xmlns=&quot;<a  rel="nofollow" href="http://www.springframework.org/schema/beans&quot">http://www.springframework.org/schema/beans&quot</a>;
+&gt;          xmlns:xsi=&quot;<a  rel="nofollow" href="http://www.w3.org/2001/XMLSchema-instance&quot">http://www.w3.org/2001/XMLSchema-instance&quot</a>;
+&gt;          xsi:schemaLocation=&quot;<a  rel="nofollow" href="http://www.springframework.org/schema/beans">http://www.springframework.org/schema/beans</a>
+&gt; <a  rel="nofollow" href="http://www.springframework.org/schema/beans/spring-beans-2.0.xsd&quot">http://www.springframework.org/schema/beans/spring-beans-2.0.xsd&quot</a>;&gt;
+&gt;                    
+&gt;          &lt;bean id=&quot;messageProperties&quot;
+&gt; class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;
+&gt;                    &lt;property name=&quot;locations&quot;&gt;
+&gt;                             &lt;list&gt;
+&gt;                                     
+&gt; &lt;value&gt;classpath:properties/cms.properties&lt;/value&gt;
+&gt;                             &lt;/list&gt;
+&gt;                    &lt;/property&gt;
+&gt;          &lt;/bean&gt;   
+&gt;          
+&gt;          &lt;bean id=&quot;cmsDbcpDataSource&quot;
+&gt; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;&gt;
+&gt;                    &lt;property name=&quot;driverClassName&quot;&gt;
+&gt;                            
+&gt; &lt;value&gt;${cms.datasource.driverClassName}&lt;/value&gt;
+&gt;                    &lt;/property&gt;
+&gt;                    &lt;property name=&quot;url&quot;&gt;
+&gt;                             &lt;value&gt;${cms.datasource.url}&lt;/value&gt;
+&gt;                    &lt;/property&gt;
+&gt;                    &lt;property name=&quot;username&quot;&gt;
+&gt;                             &lt;value&gt;${cms.datasource.username}&lt;/value&gt;
+&gt;                    &lt;/property&gt;
+&gt;                    &lt;property name=&quot;password&quot;&gt;
+&gt;                             &lt;value&gt;${cms.datasource.password}&lt;/value&gt;
+&gt;                    &lt;/property&gt;
+&gt;          &lt;/bean&gt;
+&gt; 
+&gt;          &lt;bean id=&quot;cmsSqlMapClient&quot;
+&gt; class=&quot;org.springframework.orm.ibatis.SqlMapClientFactoryBean&quot;&gt;
+&gt;                    &lt;property name=&quot;configLocation&quot;&gt;
+&gt;                            
+&gt; &lt;value&gt;classpath:cms-sql-map-config.xml&lt;/value&gt;
+&gt;                    &lt;/property&gt;
+&gt;                    &lt;property name=&quot;dataSource&quot;&gt;
+&gt;                             &lt;ref bean=&quot;cmsDbcpDataSource&quot;/&gt;
+&gt;                    &lt;/property&gt;
+&gt;          &lt;/bean&gt;
+&gt;          
+&gt;          &lt;bean id=&quot;cmsSqlMapClientTemplete&quot;
+&gt; class=&quot;org.springframework.orm.ibatis.SqlMapClientTemplate&quot;&gt;
+&gt;                    &lt;property name=&quot;sqlMapClient&quot;&gt;
+&gt;                             &lt;ref bean=&quot;cmsSqlMapClient&quot;/&gt;
+&gt;                    &lt;/property&gt;
+&gt;          &lt;/bean&gt;
+&gt; 
+&gt;          &lt;bean id=&quot;transactionManager&quot;
+&gt; class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;
+&gt;                    &lt;property name=&quot;dataSource&quot;&gt;
+&gt;                             &lt;ref local=&quot;cmsDbcpDataSource&quot; /&gt;
+&gt;                    &lt;/property&gt;
+&gt;          &lt;/bean&gt;
+&gt; 
+&gt;          &lt;bean id=&quot;baseTxProxy&quot; lazy-init=&quot;true&quot;
+&gt; class=&quot;org.springframework.transaction.interceptor.TransactionProxyFactoryBean&quot;
+&gt; abstract=&quot;true&quot;&gt;
+&gt;                    &lt;property name=&quot;transactionManager&quot;&gt;
+&gt;                             &lt;ref local=&quot;transactionManager&quot; /&gt;
+&gt;                    &lt;/property&gt;
+&gt;                    &lt;property name=&quot;transactionAttributes&quot;&gt;
+&gt;                             &lt;props&gt;
+&gt;                                      &lt;prop
+&gt; key=&quot;*&quot;&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+&gt;                                      &lt;prop
+&gt; key=&quot;create*&quot;&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+&gt;                                      &lt;prop
+&gt; key=&quot;add*&quot;&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+&gt;                                      &lt;prop
+&gt; key=&quot;delete*&quot;&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+&gt;                                      &lt;prop
+&gt; key=&quot;update*&quot;&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+&gt;                                      &lt;prop
+&gt; key=&quot;get*&quot;&gt;PROPAGATION_REQUIRED&lt;/prop&gt;
+&gt;                             &lt;/props&gt;
+&gt;                    &lt;/property&gt;
+&gt;          &lt;/bean&gt;
+&gt; 
+&gt;          &lt;bean id=&quot;categoryDao&quot;
+&gt;                   
+&gt; class=&quot;com.demo.category.dao.impl.ibatis.CategoryDaoImpl&quot;&gt;
+&gt;                    &lt;property name=&quot;cmsSqlMapClientTemplete&quot;&gt;
+&gt;                             &lt;ref bean=&quot;cmsSqlMapClientTemplete&quot; /&gt;
+&gt;                    &lt;/property&gt;
+&gt;          &lt;/bean&gt;
+&gt;          
+&gt;          &lt;bean id=&quot;softwareDao&quot;
+&gt;                   
+&gt; class=&quot;com.demo.software.dao.impl.ibatis.SoftwareDaoImpl&quot;&gt;
+&gt;                    &lt;property name=&quot;cmsSqlMapClientTemplete&quot;&gt;
+&gt;                             &lt;ref bean=&quot;cmsSqlMapClientTemplete&quot; /&gt;
+&gt;                    &lt;/property&gt;
+&gt;          &lt;/bean&gt;
+&gt; &lt;/beans&gt;
+&gt; 
+&gt; This is the class:
+&gt; public abstract class BaseDaoImpl
+&gt; {
+&gt;          private SqlMapClientTemplate cmsSqlMapClientTemplete;
+&gt; 
+&gt;          public SqlMapClientTemplate getCmsSqlMapClientTemplete()
+&gt;          {
+&gt;                    return cmsSqlMapClientTemplete;
+&gt;          }
+&gt; 
+&gt;          public void setCmsSqlMapClientTemplete(
+&gt;                             SqlMapClientTemplate cmsSqlMapClientTemplete)
+&gt;          {
+&gt;                    this.cmsSqlMapClientTemplete = cmsSqlMapClientTemplete;
+&gt;          }
+&gt; }
+&gt; 
+&gt; public class SoftwareDaoImpl extends BaseDaoImpl implements SoftwareDao
+&gt; {
+&gt; 
+&gt;          @Override
+&gt;          public SoftwareModel getSoftwareById(int softwareId)
+&gt;          {
+&gt;                    return (SoftwareModel)
+&gt; getCmsSqlMapClientTemplete().queryForObject(&quot;Software.getSoftwareById&quot;,
+&gt; new Integer(softwareId));
+&gt;          }
+&gt; 
+&gt;          @Override
+&gt;          public SoftwareModel getSoftwareByName(String name)
+&gt;          {
+&gt;                    return (SoftwareModel)
+&gt; getCmsSqlMapClientTemplete().queryForObject(&quot;Software.getSoftwareByName&quot;,
+&gt; name);
+&gt;          }
+&gt; }
+&gt; 
+&gt; public class CategoryDaoImpl extends BaseDaoImpl implements CategoryDao
+&gt; {
+&gt; 
+&gt;          @Override
+&gt;          public CategoryModel getCategoryById(int categoryId)
+&gt;          {
+&gt;                    return (CategoryModel)
+&gt; getCmsSqlMapClientTemplete().queryForObject(&quot;Category.getCategoryById&quot;,
+&gt; new Integer(categoryId));
+&gt;          }
+&gt;          
+&gt;          @Override
+&gt;          public CategoryModel getCategoryByName(String name)
+&gt;          {
+&gt;                    return (CategoryModel)
+&gt; getCmsSqlMapClientTemplete().queryForObject(&quot;Category.getCategoryByName&quot;,
+&gt; name);
+&gt;          }
+&gt; }
+&gt; 
+&gt; It is no problem with loading category using categoryDao,such as
+&gt; CategoryModel model = categoryDao.getCategoryById(273).
+&gt; But if load a software using &quot;SoftwareModel model =
+&gt; softwareDao.getSoftwareById(111)&quot; or &quot;SoftwareModel model =
+&gt; softwareDao.getSoftwareByName(&quot;aaa&quot;);&quot;,it will throw exception showing in
+&gt; the end of the message.And if I remove the config “&lt;result
+&gt; property=&quot;parentCategory&quot; column=&quot;FParentID&quot;
+&gt; select=&quot;Category.getCategoryById&quot; /&gt;�? in the file Category.xml,he code
+&gt; will not throw exception.
+&gt; It is the stack with exception:
+&gt; org.springframework.jdbc.UncategorizedSQLException: SqlMapClient
+&gt; operation; uncategorized SQLException for SQL []; SQL state [HY010]; error
+&gt; code [0];   
+&gt; --- The error occurred in com/demo/software/Software.xml.  
+&gt; --- The error occurred while applying a result map.  
+&gt; --- Check the Software.softwareResult.  
+&gt; --- Check the result mapping for the 'category' property.  
+&gt; --- Cause: com.ibatis.common.jdbc.exception.NestedSQLException:   
+&gt; --- The error occurred in com/demo/category/Category.xml.  
+&gt; --- The error occurred while applying a result map.  
+&gt; --- Check the Category.categoryResult.  
+&gt; --- The error happened while setting a property on the result object.  
+&gt; --- Cause: java.sql.SQLException: Invalid state, the ResultSet object is
+&gt; closed.; nested exception is
+&gt; com.ibatis.common.jdbc.exception.NestedSQLException:   
+&gt; --- The error occurred in com/demo/software/Software.xml.  
+&gt; --- The error occurred while applying a result map.  
+&gt; --- Check the Software.softwareResult.  
+&gt; --- Check the result mapping for the 'category' property.  
+&gt; --- Cause: com.ibatis.common.jdbc.exception.NestedSQLException:   
+&gt; --- The error occurred in com/demo/category/Category.xml.  
+&gt; --- The error occurred while applying a result map.  
+&gt; --- Check the Category.categoryResult.  
+&gt; --- The error happened while setting a property on the result object.  
+&gt; --- Cause: java.sql.SQLException: Invalid state, the ResultSet object is
+&gt; closed.
+&gt;          at
+&gt; org.springframework.jdbc.support.SQLStateSQLExceptionTranslator.translate(SQLStateSQLExceptionTranslator.java:124)
+&gt;          at
+&gt; org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator.translate(SQLErrorCodeSQLExceptionTranslator.java:322)
+&gt;          at
+&gt; org.springframework.orm.ibatis.SqlMapClientTemplate.execute(SqlMapClientTemplate.java:212)
+&gt;          at
+&gt; org.springframework.orm.ibatis.SqlMapClientTemplate.queryForObject(SqlMapClientTemplate.java:271)
+&gt;          at
+&gt; com.shareweb.cms.component.software.dao.impl.ibatis.SoftwareDaoImpl.getSoftwareById(SoftwareDaoImpl.java:23)
+&gt;          at
+&gt; com.shareweb.cms.importdata.AdvertExcelImportManagerImplTest.testImportData(AdvertExcelImportManagerImplTest.java:54)
+&gt;          at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&gt;          at
+&gt; sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&gt;          at
+&gt; sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&gt;          at java.lang.reflect.Method.invoke(Method.java:597)
+&gt;          at junit.framework.TestCase.runTest(TestCase.java:154)
+&gt;          at junit.framework.TestCase.runBare(TestCase.java:127)
+&gt;          at junit.framework.TestResult$1.protect(TestResult.java:106)
+&gt;          at junit.framework.TestResult.runProtected(TestResult.java:124)
+&gt;          at junit.framework.TestResult.run(TestResult.java:109)
+&gt;          at junit.framework.TestCase.run(TestCase.java:118)
+&gt;          at junit.framework.TestSuite.runTest(TestSuite.java:208)
+&gt;          at junit.framework.TestSuite.run(TestSuite.java:203)
+&gt;          at
+&gt; org.eclipse.jdt.internal.junit.runner.junit3.JUnit3TestReference.run(JUnit3TestReference.java:130)
+&gt;          at
+&gt; org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)
+&gt;          at
+&gt; org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:460)
+&gt;          at
+&gt; org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:673)
+&gt;          at
+&gt; org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:386)
+&gt;          at
+&gt; org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:196)
+&gt; Caused by: com.ibatis.common.jdbc.exception.NestedSQLException:   
+&gt; --- The error occurred in com/demo/software/Software.xml.  
+&gt; --- The error occurred while applying a result map.  
+&gt; --- Check the Software.softwareResult.  
+&gt; --- Check the result mapping for the 'category' property.  
+&gt; --- Cause: com.ibatis.common.jdbc.exception.NestedSQLException:   
+&gt; --- The error occurred in com/demo/category/Category.xml.  
+&gt; --- The error occurred while applying a result map.  
+&gt; --- Check the Category.categoryResult.  
+&gt; --- The error happened while setting a property on the result object.  
+&gt; --- Cause: java.sql.SQLException: Invalid state, the ResultSet object is
+&gt; closed.
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.MappedStatement.executeQueryWithCallback(MappedStatement.java:201)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.MappedStatement.executeQueryForObject(MappedStatement.java:120)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.CachingStatement.executeQueryForObject(CachingStatement.java:79)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate.queryForObject(SqlMapExecutorDelegate.java:518)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate.queryForObject(SqlMapExecutorDelegate.java:493)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl.queryForObject(SqlMapSessionImpl.java:106)
+&gt;          at
+&gt; org.springframework.orm.ibatis.SqlMapClientTemplate$1.doInSqlMapClient(SqlMapClientTemplate.java:273)
+&gt;          at
+&gt; org.springframework.orm.ibatis.SqlMapClientTemplate.execute(SqlMapClientTemplate.java:209)
+&gt;          ... 21 more
+&gt; Caused by: com.ibatis.common.jdbc.exception.NestedSQLException:   
+&gt; --- The error occurred in com/demo/category/Category.xml.  
+&gt; --- The error occurred while applying a result map.  
+&gt; --- Check the Category.categoryResult.  
+&gt; --- The error happened while setting a property on the result object.  
+&gt; --- Cause: java.sql.SQLException: Invalid state, the ResultSet object is
+&gt; closed.
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.MappedStatement.executeQueryWithCallback(MappedStatement.java:201)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.MappedStatement.executeQueryForObject(MappedStatement.java:120)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.CachingStatement.executeQueryForObject(CachingStatement.java:79)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate.queryForObject(SqlMapExecutorDelegate.java:518)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate.queryForObject(SqlMapExecutorDelegate.java:493)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.impl.SqlMapSessionImpl.queryForObject(SqlMapSessionImpl.java:106)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.impl.SqlMapClientImpl.queryForObject(SqlMapClientImpl.java:82)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.result.loader.ResultLoader.getResult(ResultLoader.java:75)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.result.loader.LazyResultLoader.loadResult(LazyResultLoader.java:77)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.result.loader.ResultLoader.loadResult(ResultLoader.java:54)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.result.ResultMap.getNestedSelectMappingValue(ResultMap.java:501)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.result.ResultMap.getResults(ResultMap.java:341)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.execution.SqlExecutor.handleResults(SqlExecutor.java:384)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.execution.SqlExecutor.handleMultipleResults(SqlExecutor.java:300)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.execution.SqlExecutor.executeQuery(SqlExecutor.java:189)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.MappedStatement.sqlExecuteQuery(MappedStatement.java:221)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.MappedStatement.executeQueryWithCallback(MappedStatement.java:189)
+&gt;          ... 28 more
+&gt; Caused by: java.sql.SQLException: Invalid state, the ResultSet object is
+&gt; closed.
+&gt;          at
+&gt; net.sourceforge.jtds.jdbc.JtdsResultSet.checkOpen(JtdsResultSet.java:299)
+&gt;          at
+&gt; net.sourceforge.jtds.jdbc.JtdsResultSet.next(JtdsResultSet.java:569)
+&gt;          at
+&gt; org.apache.commons.dbcp.DelegatingResultSet.next(DelegatingResultSet.java:169)
+&gt;          at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&gt;          at
+&gt; sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&gt;          at
+&gt; sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&gt;          at java.lang.reflect.Method.invoke(Method.java:597)
+&gt;          at
+&gt; com.ibatis.common.jdbc.logging.ResultSetLogProxy.invoke(ResultSetLogProxy.java:47)
+&gt;          at $Proxy10.next(Unknown Source)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.execution.SqlExecutor.handleResults(SqlExecutor.java:383)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.execution.SqlExecutor.handleMultipleResults(SqlExecutor.java:300)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.execution.SqlExecutor.executeQuery(SqlExecutor.java:189)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.MappedStatement.sqlExecuteQuery(MappedStatement.java:221)
+&gt;          at
+&gt; com.ibatis.sqlmap.engine.mapping.statement.MappedStatement.executeQueryWithCallback(MappedStatement.java:189)
+&gt;          ... 44 more
+&gt; 
+&gt; Somebody guess it cause by the DB configurate.I test the code,but I did
+&gt; not find any exception.
+&gt; Connection cn1 = null;
+&gt;               PreparedStatement pst1 = null;
+&gt;               PreparedStatement pst2 = null;
+&gt;               ResultSet rs1 = null; 
+&gt;               ResultSet rs2 = null; 
+&gt;               DataSource ds = 
+&gt; (BasicDataSource)ctx.getBean(&quot;cmsDbcpDataSource&quot;);
+&gt;               
+&gt;               try
+&gt;               {
+&gt; //                    
+&gt; Class.forName(&quot;net.sourceforge.jtds.jdbc.Driver&quot;).newInstance();
+&gt; //            cn1 =
+&gt; DriverManager.getConnection(&quot;jdbc:jtds:sqlserver://localhost:1433/test&quot;,
+&gt; &quot;sa&quot;, &quot;aa&quot;);
+&gt;                       cn1 = ds.getConnection();
+&gt;               pst1 = cn1.prepareStatement(&quot;select fid, fname, fcategoryid from
+&gt; t_softwares&quot;);
+&gt;               rs1 = pst1.executeQuery();
+&gt;               while(rs1.next())
+&gt;               {
+&gt;                       System.out.println(&quot;software:&quot; + rs1.getString(2));
+&gt;                       pst2 = cn1.prepareStatement(&quot;select fid, fname from 
+&gt; t_categories
+&gt; where fid=?&quot;);
+&gt;                       pst2.setInt(1, rs1.getInt(3));
+&gt;                       rs2 = pst2.executeQuery();
+&gt;                       if(rs2.next())
+&gt;                       {
+&gt;                               System.out.println(&quot;category:&quot; + 
+&gt; rs2.getString(2));
+&gt;                       }
+&gt;                               rs2.close();
+&gt;                               pst2.close();
+&gt;               }
+&gt;                       rs1.close();
+&gt;                       pst1.close();
+&gt;                       cn1.close();
+&gt;               
+&gt;               }
+&gt;               catch(Exception e)
+&gt;               {
+&gt;                       e.printStackTrace();
+&gt;                       assertTrue(false);
+&gt;               }
+&gt; 
+&gt; 
+
+-- 
+View this message in context: 
+<a  rel="nofollow" href="http://www.nabble.com/Problem-in-resultMap%3ACause%3A-java.sql.SQLException%3A-Invalid-state%2C-the-ResultSet-object-is-closed-tp16624071p17566308.html">http://www.nabble.com/Problem-in-resultMap%3ACause%3A-java.sql.SQLException%3A-Invalid-state%2C-the-ResultSet-object-is-closed-tp16624071p17566308.html</a>
+Sent from the iBATIS - User - Java mailing list archive at Nabble.com.
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages
+</h2>
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg11267.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="thrd2.html#11512">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#11512">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg11162.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceLiset margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages within this thread
+</h2>
+<ul class="icons monospace">
+<li><ul>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg11175.html">Re: Problem in resultMap:Cause: java.sql.S...</a></span> <span class="sender italic">nepalon</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg11176.html">Re: Problem in resultMap:Cause: java.s...</a></span> <span class="sender italic">Jeff Butler</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg11188.html">Re: Problem in resultMap:Cause: ja...</a></span> <span class="sender italic">nepalon</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg11189.html">Re: Problem in resultMap:Caus...</a></span> <span class="sender italic">Larry Meadors</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg11199.html">Re: Problem in resultMap:...</a></span> <span class="sender italic">nepalon</span></li>
+<li class="icons-email"><span class="subject"><a href="msg11200.html">Re: Problem in resultMap:...</a></span> <span class="sender italic">Jeff Butler</span></li>
+<li class="icons-email"><span class="subject"><a href="msg11210.html">Re: Problem in resultMap:...</a></span> <span class="sender italic">nepalon</span></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li class="icons-email"><span class="subject"><a href="msg11262.html">Re: Problem in resultMap:Cause: java.sql.SQLExcepti...</a></span> <span class="sender italic">nepalon</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg11263.html">Re: Problem in resultMap:Cause: java.sql.SQLEx...</a></span> <span class="sender italic">Nicholoz Koka Kiknadze</span></li>
+<li class="icons-email"><span class="subject"><a href="msg11267.html">Re: Problem in resultMap:Cause: java.sql.SQLEx...</a></span> <span class="sender italic">Clinton Begin</span></li>
+</ul></li>
+<li class="icons-email tSliceCur"><span class="subject">Re: Problem in resultMap:Cause: java.sql.SQLExcepti...</span><span class="sender italic">viren1</span></li>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="HIDDEN" name="subject" value="Re: Problem in resultMap:Cause: java.sql.SQLException: Invalid state, the ResultSet object is closed">
+<input type="HIDDEN" name="msgid" value="17566308.post@talk.nabble.com">
+<input type="submit" value=" viren1 ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="user-java@ibatis.apache.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search user-java">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<h2 class="hidden">
+				Site navigation
+</h2>
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/user-java@ibatis.apache.org/">user-java - all messages</a></li>
+<li class="icons-about"><a href="/user-java@ibatis.apache.org/info.html">user-java - about the list</a></li>
+<li class="icons-prev"><a href="msg11267.html">Previous message</a></li>
+<li class="icons-next"><a href="msg11162.html">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+<h2 class="hidden">
+				Mail list logo
+</h2>
+
+</div>
+<div class="bannertower margintopdouble">
+<h2 class="hidden">
+				Advertising banner
+</h2>
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<h2 class="hidden">
+		Footer information
+</h2>
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+</ul>
+</div>
+</body>
+</html>

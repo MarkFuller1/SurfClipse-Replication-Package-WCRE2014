@@ -1,0 +1,726 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+
+
+
+
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+<title>[HHH-7478] ConcurrentModificationException when adding a BeforeTransactionCompletionProcess from with a PostInsertEventListener for an @Audited entity - Hibernate JIRA</title>
+<script type="text/javascript">
+    if (!window.performance) {
+        window.mpPerformance = {};
+        window.mpPerformance.responseStart = new Date().getTime();
+    }
+</script>
+<meta name="application-name" content="JIRA" data-name="jira" data-version="6.2-OD-03"><meta name="ajs-hasCriteriaAutoUpdate" content="true">
+<meta name="ajs-viewissue-use-history-api" content="false">
+<meta name="ajs-viewissue-max-cache-size" content="">
+<meta name="ajs-view-issue-trace-key" content="jira.issue.refreshed">
+<meta name="ajs-view-issue-psycho-key" content="jira.psycho.issue.refreshed">
+<meta name="ajs-view-issue-refreshed-cached-key" content="jira.psycho.issue.refreshed.cached">
+<meta name="ajs-return-to-search-trace-key" content="jira.returned.to.search">
+<meta name="ajs-return-to-search-psycho-key" content="jira.psycho.returned.to.search">
+<meta name="ajs-default-avatar-url" content="https://hibernate.atlassian.net/secure/useravatar?size=xsmall&amp;avatarId=10163">
+<meta name="ajs-jira.issues.preferred.layout.key" content="split-view">
+<meta name="ajs-max-recent-searchers" content="10">
+<meta name="ajs-jira-base-url" content="https://hibernate.atlassian.net">
+<meta name="ajs-serverRenderedViewIssue" content="true">
+<meta name="ajs-issue-key" content="HHH-7478">
+<meta name="ajs-can-edit-watchers" content="false">
+<meta name="ajs-can-search-users" content="false">
+<meta name="ajs-server-view-issue-is-editable" content="false">
+<meta name="ajs-dev-mode" content="false">
+<meta name="ajs-context-path" content="">
+<meta name="ajs-version-number" content="6.2-OD-03">
+<meta name="ajs-build-number" content="6206">
+<meta name="ajs-is-beta" content="false">
+<meta name="ajs-is-rc" content="false">
+<meta name="ajs-is-snapshot" content="false">
+<meta name="ajs-is-milestone" content="false">
+<meta name="ajs-remote-user" content="">
+<meta name="ajs-remote-user-fullname" content="">
+<meta name="ajs-user-locale" content="en_US">
+<meta name="ajs-user-locale-group-separator" content=",">
+<meta name="ajs-app-title" content="Hibernate JIRA">
+<meta name="ajs-keyboard-shortcuts-enabled" content="true">
+<meta name="ajs-enabled-dark-features" content="[&quot;com.atlassian.jira.jira-feedback-plugin&quot;,&quot;casper.WORKFLOW_TAB&quot;,&quot;jira.projectconfig.issuetypes.sidebar&quot;,&quot;casper.VIEW_ISSUE&quot;,&quot;rotp.admin.shortcuts&quot;,&quot;app-switcher.new&quot;,&quot;rotp.project.create&quot;,&quot;com.atlassian.jira.darkfeature.CommonHeader&quot;,&quot;jira.frother.reporter.field&quot;,&quot;ondemand.language.beta&quot;,&quot;com.atlassian.jira.config.PDL&quot;,&quot;rotp.project.shortcuts&quot;,&quot;com.atlassian.jira.config.CoreFeatures.ON_DEMAND&quot;,&quot;frother.assignee.field&quot;]">
+<meta name="ajs-date-relativize" content="true">
+<meta name="ajs-date-time" content="h:mm a">
+<meta name="ajs-date-day" content="EEEE h:mm a">
+<meta name="ajs-date-dmy" content="dd/MMM/yy">
+<meta name="ajs-date-complete" content="dd/MMM/yy h:mm a">
+<meta name="ajs-in-admin-mode" content="false">
+<meta name="ajs-is-sysadmin" content="false">
+<meta name="ajs-is-admin" content="false">
+<meta name="ajs-outgoing-mail-enabled" content="true">
+<meta name="ajs-whats-new-iframe-src-override" content=""> <meta name="ajs-whatsnew-full-link" content="https://docs.atlassian.com/jira/docs-062/whatsnew/iframe">
+
+
+
+    
+<meta id="atlassian-token" name="atlassian-token" content="A0MP-SD7Q-UPJX-BE80|14f298b3d70dbc2557bbdc2aa42050b08bbc8002|lout">
+
+
+
+<link rel="shortcut icon" href="/s/en_US-le8vud-1988229788/6206/19/_/favicon.ico">
+<link rel="search" type="application/opensearchdescription+xml" href="/osd.jsp" title="[HHH-7478] ConcurrentModificationException when adding a BeforeTransactionCompletionProcess from with a PostInsertEventListener for an @Audited entity - Hibernate JIRA"/>
+
+    
+
+
+<!--[if IE]><![endif]-->
+<script type="text/javascript">var contextPath = '';</script>
+<link type="text/css" rel="stylesheet" href="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/20/_/download/superbatch/css/batch.css" media="all">
+<!--[if lte IE 8]>
+<link type="text/css" rel="stylesheet" href="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/20/_/download/superbatch/css/batch.css?conditionalComment=lte+IE+8" media="all">
+<![endif]-->
+<!--[if lte IE 9]>
+<link type="text/css" rel="stylesheet" href="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/20/_/download/superbatch/css/batch.css?conditionalComment=lte+IE+9" media="all">
+<![endif]-->
+<link type="text/css" rel="stylesheet" href="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/008c8b92672bbf5790fbf25f275a51a5/_/download/contextbatch/css/jira.navigator.simple,jira.navigator.advanced,jira.view.issue,atl.general,jira.navigator.kickass,jira.global,jira.general/batch.css" media="all">
+<link type="text/css" rel="stylesheet" href="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/7.7.1.2/_/download/batch/is.origo.jira.tempo-plugin:tempo-css-jira6/is.origo.jira.tempo-plugin:tempo-css-jira6.css" media="all">
+<link type="text/css" rel="stylesheet" href="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/7.7.1.2/_/download/batch/is.origo.jira.tempo-plugin:tempo-global-css-jira6/is.origo.jira.tempo-plugin:tempo-global-css-jira6.css" media="all">
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/20/_/download/superbatch/js/batch.js" ></script>
+<!--[if lte IE 8]>
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/20/_/download/superbatch/js/batch.js?conditionalComment=lte+IE+8" ></script>
+<![endif]-->
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/008c8b92672bbf5790fbf25f275a51a5/_/download/contextbatch/js/jira.navigator.simple,jira.navigator.advanced,jira.view.issue,atl.general,jira.navigator.kickass,jira.global,jira.general/batch.js" ></script>
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/1.0/_/download/batch/jira.webresources:calendar-en/jira.webresources:calendar-en.js" ></script>
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/3.2.18/_/download/batch/com.atlassian.plugins.atlassian-nav-links-plugin:administration-shortcuts-resources/com.atlassian.plugins.atlassian-nav-links-plugin:administration-shortcuts-resources.js" ></script>
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/1.5/_/download/batch/com.atlassian.administration.atlassian-admin-quicksearch-jira:admin-quicksearch-webresources/com.atlassian.administration.atlassian-admin-quicksearch-jira:admin-quicksearch-webresources.js" ></script>
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/2.1.4/_/download/batch/com.atlassian.jira.ext.calendar:browse-project-tip/com.atlassian.jira.ext.calendar:browse-project-tip.js" ></script>
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/1.1.2/_/download/batch/com.atlassian.servicedesk:sd-tracking-state-enabled/com.atlassian.servicedesk:sd-tracking-state-enabled.js" ></script>
+<script type="text/javascript" src="/s/d41d8cd98f00b204e9800998ecf8427e/en_US-le8vud-1988229788/6206/19/1.3/_/download/batch/com.atlassian.browser.metrics.browser-metrics-jira-plugin:browser-metrics-loader/com.atlassian.browser.metrics.browser-metrics-jira-plugin:browser-metrics-loader.js" ></script>
+
+<script type="text/javascript" src="/rest/api/1.0/shortcuts/6206/5930035bba79a6fa749c74a7d09c9303/shortcuts.js?context=issuenavigation&amp;context=issueaction"></script>
+<script type="text/javascript" src="/experimental/main.js"></script>
+
+    
+    
+    
+    <meta name="decorator" content="atl.general">
+    <meta id="isNavigator" name="isNavigator" content="true">
+    <meta name="ajs-user.search.mode" content="basic">
+    <meta name="ajs-issue-search-help-title" content="Searching for Issues">
+    <meta name="ajs-issue-search-help-url" content="https://confluence.atlassian.com/display/AOD/Searching+for+Issues">
+    <meta name="ajs-advanced-search-help-title" content="Performing Advanced Searches">
+    <meta name="ajs-advanced-search-help-url" content="https://confluence.atlassian.com/display/AOD/Advanced+Searching">
+    
+</head>
+<body id="jira" class="aui-layout aui-theme-default ka ajax-issue-search-and-view page-type-navigator navigator-issue-only" data-version="6.2-OD-03">
+<div id="page">
+    <header id="header" role="banner">
+        
+
+
+
+    
+        
+            
+        
+    
+
+
+
+
+
+
+
+        
+
+
+
+
+        
+
+
+    <dl id="bonfire-build-info" style="display:none;">
+        <dt data-bonfire-var="bonfire-buildVersion" data-bonfire-value="2.7.1.0"></dt>
+        <dt data-bonfire-var="bonfire-buildDate" data-bonfire-value="2013-10-09T00:00:00.000-07:00"></dt>
+        <dt data-bonfire-var="bonfire-buildNumber" data-bonfire-value="d8fcc3bd7f67"></dt>
+        <dt data-bonfire-var="bonfire-licenseStatus" data-bonfire-value="invalid"></dt>
+        <dt data-bonfire-var="bonfire-gaStatus" data-bonfire-value="false"></dt>
+        <dt data-bonfire-var="bonfire-gaTrackingCode" data-bonfire-value="UA-20272869-8"></dt>
+    </dl>
+    
+        
+    
+
+
+<fieldset class="parameters hidden dont-default-focus">
+    <input type="hidden" title="tzdetect.pref.tzid" value="America/Los_Angeles" />
+    <input type="hidden" title="tzdetect.pref.tzname" value="(GMT-08:00) Los Angeles" />
+    <input type="hidden" title="tzdetect.pref.tzoffset" value="(GMT-08:00)" />
+    <input type="hidden" title="tzdetect.pref.tzdst" value="true" />
+    <input type="hidden" title="tzdetect.pref.nothanks" value="" />
+</fieldset>
+<nav class="aui-header aui-dropdown2-trigger-group" role="navigation"><div class="aui-header-inner"><div class="aui-header-primary"><h1 id="logo" class="aui-header-logo aui-header-logo-custom"><a href="https://hibernate.atlassian.net/secure/MyJiraHome.jspa"><img src="https://www.jboss.org/dms/hibernate/images/jira/jiraheader_hibernate.png" alt="Hibernate JIRA" /></a></h1><ul class='aui-nav'>
+
+
+
+
+<li><a class="aui-nav-link aui-dropdown2-ajax jira-ajax-menu aui-dropdown2-trigger "href="/secure/Dashboard.jspa" id="home_link"  accessKey="d"  title="View and manage your dashboards"  aria-haspopup="true" aria-owns="home_link-content">Dashboards</a><div id="home_link-content" class="aui-dropdown2 aui-style-default" data-aui-dropdown2-ajax-key="home_link"></div></li><li><a class="aui-nav-link aui-dropdown2-ajax jira-ajax-menu aui-dropdown2-trigger "href="/browse/HHH" id="browse_link"  accessKey="p"  title="View recent projects and browse a list of projects"  aria-haspopup="true" aria-owns="browse_link-content">Projects</a><div id="browse_link-content" class="aui-dropdown2 aui-style-default" data-aui-dropdown2-ajax-key="browse_link"></div></li><li><a class="aui-nav-link aui-dropdown2-ajax jira-ajax-menu aui-dropdown2-trigger "href="/secure/IssueNavigator.jspa" id="find_link"  accessKey="i"  title="Search for issues and view recent issues"  aria-haspopup="true" aria-owns="find_link-content">Issues</a><div id="find_link-content" class="aui-dropdown2 aui-style-default" data-aui-dropdown2-ajax-key="find_link"></div></li>
+</ul></div><div class="aui-header-secondary"><ul class='aui-nav'><li>
+    <form action="/secure/QuickSearch.jspa" method="post" id="quicksearch" class="aui-quicksearch dont-default-focus ajs-dirty-warning-exempt">
+        <input id="quickSearchInput" class="search" type="text" title="Quick Search" placeholder="Quick Search" name="searchString" accessKey="q" />
+        <input type="submit" class="hidden" value="Search">
+    </form>
+</li>
+
+
+
+    <li id="system-help-menu">
+        <a class="aui-nav-link aui-dropdown2-trigger" aria-haspopup="true" aria-owns="system-help-menu-content" href="https://confluence.atlassian.com/display/AOD/Getting+help+and+support"  target="_blank"  title="Help"><span class="aui-icon aui-icon-small aui-iconfont-help">Help</span></a>
+        <div id="system-help-menu-content" class="aui-dropdown2 aui-style-default">
+                            <div class="aui-dropdown2-section">
+                                                                <ul id="jira-help" class="aui-list-truncate">
+                                                            <li>
+                                    <a  id="view_help"   class=""  title="Goto the online documentation for JIRA" href="https://confluence.atlassian.com/display/AOD/Getting+help+and+support"  target="_blank" >Online Help</a>
+                                </li>
+                                                            <li>
+                                    <a  id="keyshortscuthelp"   class=""  title="Get more information about JIRA's Keyboard Shortcuts" href="/secure/ViewKeyboardShortcuts!default.jspa"  target="_blank" >Keyboard Shortcuts</a>
+                                </li>
+                                                            <li>
+                                    <a  id="view_about"   class=""  title="Get more information about JIRA" href="/secure/AboutPage.jspa" >About JIRA</a>
+                                </li>
+                                                            <li>
+                                    <a  id="view_credits"   class=""  title="See who did what" href="/secure/JiraCreditsPage!default.jspa"  target="_blank" >JIRA Credits</a>
+                                </li>
+                                                            <li>
+                                    <a  id="whats-new-menu-link"   class=""   href="https://docs.atlassian.com/jira/docs-062/whatsnew/iframe" >What’s New</a>
+                                </li>
+                                                            <li>
+                                    <a  id="tempo_core_help"   class=""  title="Goto the online documentation for Tempo" href="http://tempoplugin.com/support" target="_blank" >Tempo Help</a>
+                                </li>
+                                                    </ul>
+                                    </div>
+                    </div>
+    </li>
+
+
+
+
+
+
+
+
+
+<li id="user-options">
+            <a class="aui-nav-link login-link" href="/login.jsp?os_destination=%2Fbrowse%2FHHH-7478">Log In</a>
+                <div id="user-options-content" class="aui-dropdown2 aui-style-default">
+                            <div class="aui-dropdown2-section">
+                                                        </div>
+                    </div>
+    </li>
+</ul></div></div><!-- .aui-header-inner--></nav><!-- .aui-header -->
+    </header>
+    
+
+
+
+    <section id="content" role="main">
+        
+    <div class="navigator-container hidden">
+                                                                                            <div class="hidden shortcut-links">
+                                    <a id="edit-issue" class="issueaction-edit-issue" href="/secure/EditIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="assign-issue" class="issueaction-assign-issue" href="/secure/AssignIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="assign-to-me" class="issueaction-assign-to-me hide-from-opsbar" href="/secure/AssignIssue.jspa?atl_token=A0MP-SD7Q-UPJX-BE80|14f298b3d70dbc2557bbdc2aa42050b08bbc8002|lout&amp;id={0}&amp;&returnUrl=/secure/issues"></a>
+                                    <a id="comment-issue" class="issueaction-comment-issue add-issue-comment" href="/secure/AddComment!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="add-hours-on-issue" class="conjoined issueaction-tempo-add-hours-on-issue issueaction-tempo-log-work" href="/secure/TempoAddHours!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="log-work" class="issueaction-log-work" href="/secure/CreateWorklog!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="plan-time-on-issue" class="conjoined issueaction-tempo-add-hours-on-issue issueaction-tempo-plan-time" href="/secure/TempoAllocateTime!default.jspa?type=issue&amp;id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="tempo-bar-mlink" class="tempo-bar-start" href="/secure/TempoAddHours!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="view-time-on-issue" class="" href="/secure/TempoIssueBoard!report.jspa?issue=&returnUrl=/secure/issues"></a>
+                                    <a id="attach-file" class="issueaction-attach-file" href="/secure/AttachFile!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="attach-screenshot" class="issueaction-attach-screenshot" href="/secure/AttachScreenshot!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="add-edit-mockup" class="" href="/plugins/servlet/com.balsamiq.mockups?do=add&amp;issue=&returnUrl=/secure/issues"></a>
+                                    <a id="toggle-vote-issue" class="toggle-vote-issue issueaction-vote-issue" href="/secure/VoteOrWatchIssue.jspa?atl_token=A0MP-SD7Q-UPJX-BE80|14f298b3d70dbc2557bbdc2aa42050b08bbc8002|lout&amp;id={0}&amp;vote=vote&returnUrl=/secure/issues"></a>
+                                    <a id="toggle-vote-issue" class="toggle-vote-issue issueaction-unvote-issue" href="/secure/VoteOrWatchIssue.jspa?atl_token=A0MP-SD7Q-UPJX-BE80|14f298b3d70dbc2557bbdc2aa42050b08bbc8002|lout&amp;id={0}&amp;vote=unvote&returnUrl=/secure/issues"></a>
+                                    <a id="view-voters" class="issueaction-view-voters" href="/secure/ViewVoters!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="toggle-watch-issue" class="issueaction-watch-issue" href="/secure/VoteOrWatchIssue.jspa?atl_token=A0MP-SD7Q-UPJX-BE80|14f298b3d70dbc2557bbdc2aa42050b08bbc8002|lout&amp;id={0}&amp;watch=watch&returnUrl=/secure/issues"></a>
+                                    <a id="toggle-watch-issue" class="issueaction-unwatch-issue" href="/secure/VoteOrWatchIssue.jspa?atl_token=A0MP-SD7Q-UPJX-BE80|14f298b3d70dbc2557bbdc2aa42050b08bbc8002|lout&amp;id={0}&amp;watch=unwatch&returnUrl=/secure/issues"></a>
+                                    <a id="manage-watchers" class="issueaction-manage-watchers" href="/secure/ManageWatchers!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="create-subtask" class="issueaction-create-subtask" href="/secure/CreateSubTaskIssue!default.jspa?parentIssueId={0}&returnUrl=/secure/issues"></a>
+                                    <a id="subtask-to-issue" class="issueaction-subtask-to-issue" href="/secure/ConvertSubTask.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="issue-to-subtask" class="issueaction-issue-to-subtask" href="/secure/ConvertIssue.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="cta-create-branch" class="devstatus-cta-link" href="#devstatus.cta.createbranch&returnUrl=/secure/issues"></a>
+                                    <a id="connector-issue-links" class="" href="/secure/ViewConnectorLinks.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="connector-issue-links" class="" href="/secure/VerifyFix.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="move-issue" class="issueaction-move-issue" href="/secure/MoveIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="move-issue" class="issueaction-move-subtask" href="/secure/MoveSubTaskChooseOperation!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="link-issue" class="issueaction-link-issue" href="/secure/LinkJiraIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="edit-labels" class="issueaction-edit-labels" href="/secure/EditLabels!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                                    <a id="create-test-session" class="issueaction-create-test-session" href="/secure/CreateSession.jspa?issueId={0}&returnUrl=/secure/issues"></a>
+                                    <a id="delete-issue" class="issueaction-delete-issue" href="/secure/DeleteIssue!default.jspa?id={0}&returnUrl=/secure/issues"></a>
+                            </div>
+        
+        <div id="user-parms" style="display:none;" data-user-parms="{&quot;createSharedObjects&quot;:false,&quot;createIssue&quot;:false}"></div>
+
+        <div class="navigator-sidebar" id="navigator-sidebar">
+                        <div style="width:180px">
+                                    </div>
+        </div>
+        <script type="text/javascript">
+            if (JIRA.Issues.FilterPanelModel) {
+                jQuery(".navigator-sidebar").toggleClass("collapsed", !JIRA.Issues.FilterPanelModel.prototype.isExpanded());
+            }
+        </script>
+        <div class="navigator-body">
+            <div class="contained-content">
+
+                <header class="saved-search-selector">
+                    <div class="saved-search-operations">
+                        <ul class="operations">
+
+                                                        <li class="aui-dd-parent"><a href="#" class="header-views header-operations aui-dropdown-trigger aui-dd-link standard icon-export lnk" title="Export this filter in another format" role="button"><span>Export</span></a></li>
+                            <li class="aui-dd-parent"><a href="#" class="header-tools header-operations aui-dropdown-trigger aui-dd-link standard icon-tools" title="Select operations that can be completed" role="button"><span>Tools</span></a></li>
+
+                        </ul>
+                        <div class="hidden operations-view-data">
+                            <fieldset class="hidden parameters">
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div id="throbber-space">&nbsp;</div>
+                    <div id="search-header-view">
+                        <h1 class="search-title"></h1>
+                    </div>
+                </header>
+                <form class="navigator-search"></form>
+                <div class="navigator-group">
+                                        <div class="results-panel navigator-item">
+                        <div class="navigator-content"
+                                data-issue-table-model-state=""
+                                data-session-search-state=""
+                                data-selected-issue="{&quot;id&quot;:25742,&quot;key&quot;:&quot;HHH-7478&quot;}"
+                                data-highlighted-issue-id="">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="issue-container ">
+                                    <div id="issue-content" class="issue-edit-form">
+                    <header id="stalker" class="issue-header js-stalker">
+                        <div class="issue-header-content"><header class="aui-page-header"><div class="aui-page-header-inner"><div class="aui-page-header-image"><span id="10031" class="aui-avatar aui-avatar-large aui-avatar-project project-shortcut-dialog-trigger" data-key="HHH" data-name="Hibernate ORM" data-desc="" data-entity-type="jira.project"><span class="aui-avatar-inner"><img id="project-avatar" alt="Hibernate ORM" src="https://hibernate.atlassian.net/secure/projectavatar?pid=10031&amp;avatarId=11640" /></span></span></div><!-- .aui-page-header-image --><div class="aui-page-header-main"><ol class="aui-nav aui-nav-breadcrumbs"><li><a id="project-name-val" href="/browse/HHH">Hibernate ORM</a></li><li><a class="issue-link" data-issue-key="HHH-7478" href="/browse/HHH-7478" id="key-val" rel="25742">HHH-7478</a></li></ol><h1 id="summary-val">ConcurrentModificationException when adding a BeforeTransactionCompletionProcess from with a PostInsertEventListener for an @Audited entity</h1></div><!-- .aui-page-header-main --><div class="aui-page-header-actions"><div id="issue-header-pager"></div></div><!-- .aui-page-header-actions --></div><!-- .aui-page-header-inner --></header><!-- .aui-page-header --><div class="command-bar"><div class="ops-cont"><div class="ops-menus aui-toolbar"><div class="toolbar-split toolbar-split-left"><ul id="opsbar-ops-login-lnk_container" class="toolbar-group pluggable-ops"><li class="toolbar-item"><a id="ops-login-lnk"title="Log In"class="toolbar-trigger" href="/login.jsp?os_destination=%2Fbrowse%2FHHH-7478"><span class="trigger-label">Log In</span></a></li></ul><ul id="opsbar-opsbar-operations" class="toolbar-group pluggable-ops"></ul><ul id="opsbar-opsbar-transitions" class="toolbar-group pluggable-ops"></ul><ul id="opsbar-opsbar-admin" class="toolbar-group pluggable-ops"></ul></div><div class="toolbar-split toolbar-split-right"><ul id="opsbar-jira.issue.tools" class="toolbar-group pluggable-ops"><li class="toolbar-item toolbar-dropdown"><div><a href="#"  id="viewissue-export"title="Export this issue in another format" data-hide-on-scroll=".split-view .issue-container" data-contain-to-window="true" class="toolbar-trigger  js-default-dropdown" ><span class="icon icon-export viewissue-export"></span> <span class="dropdown-text">Export</span><span class="icon drop-menu"></span></a><div class="aui-list hidden"><ul class="aui-list-section aui-first aui-last"><li class="aui-list-item"><a  href="/si/jira.issueviews:issue-xml/HHH-7478/HHH-7478.xml" class="aui-list-item-link"id="jira.issueviews:issue-xml"><span class="trigger-label">XML</span></a></li><li class="aui-list-item"><a  href="/si/jira.issueviews:issue-word/HHH-7478/HHH-7478.doc" class="aui-list-item-link"id="jira.issueviews:issue-word"><span class="trigger-label">Word</span></a></li><li class="aui-list-item"><a  href="/si/jira.issueviews:issue-html/HHH-7478/HHH-7478.html" class="aui-list-item-link"id="jira.issueviews:issue-html"><span class="trigger-label">Printable</span></a></li></ul></div></div></li></ul></div></div></div></div></div>
+                    </header>
+                    <div class="issue-body-content">
+                        <div class="aui-group issue-body"><div class="aui-item issue-main-column"><div id=details-module class="module toggle-wrap"><div id="details-module_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Details</h2></div><div class="mod-content">
+
+
+
+
+<ul id="issuedetails" class="property-list two-cols">
+    <li class="item">
+        <div class="wrap">
+            <strong class="name">Type:</strong>
+            <span id="type-val" class="value">
+                                <img  alt="Bug" height="16" src="/images/icons/issuetypes/bug.png" title="Bug - A problem which impairs or prevents the functions of the product." width="16" /> Bug
+            </span>
+        </div>
+    </li>
+    <li class="item item-right">
+        <div class="wrap">
+            <strong class="name">Status:</strong>
+            <span id="status-val" class="value">
+                                <img src="/images/icons/statuses/closed.png" width="16" height="16" alt="Closed" title="Closed - The issue is considered finished, the resolution is correct. Issues which are closed can be reopened." class="jira-issue-status-icon"> Closed            </span>
+                    </div>
+    </li>
+            <li class="item">
+            <div class="wrap">
+                <strong class="name">Priority:</strong>
+                <span id="priority-val" class="value">
+                                        <img  alt="Major" height="16" src="/images/icons/priorities/major.png" title="Major - Major loss of function." width="16" /> Major
+                </span>
+            </div>
+        </li>
+                                <li class="item item-right">
+            <div class="wrap">
+                <strong class="name">Resolution:</strong>
+                <span id="resolution-val" class="value resolved" >
+                                     Fixed
+                                </span>
+            </div>
+        </li>
+                <li class="item">
+            <div class="wrap">
+                <strong class="name">Affects Version/s:</strong>
+                <span id="versions-val" class="value">
+                                            <span class="shorten" id="versions-field">
+                                                            <span title="4.1.5.SP1 ">4.1.5.SP1</span>                                                    </span>
+                                    </span>
+            </div>
+        </li>
+                <li class="item item-right">
+            <div class="wrap">
+                <strong class="name">Fix Version/s:</strong>
+                <span id="fixfor-val" class="value">
+                                            <span class="shorten" id="fixVersions-field">
+                                                            <a href="/browse/HHH/fixforversion/12950" title="4.2.1 ">4.2.1</a>,                                                            <a href="/browse/HHH/fixforversion/13052" title="4.3.0.Beta2 JPA 2.1 support">4.3.0.Beta2</a>                                                    </span>
+                                    </span>
+            </div>
+        </li>
+                <li class="item">
+            <div class="wrap">
+                <strong class="name">Component/s:</strong>
+                <span id="components-val" class="value">
+                                            None
+                                    </span>
+            </div>
+        </li>
+                    <li class="item full-width">
+            <div class="wrap" id="wrap-labels">
+                <strong class="name">Labels:</strong>
+                    <div class="labels-wrap value">
+            <span class="labels" id="labels-25742-value">None</span>
+                </div>
+            </div>
+        </li>
+        </ul>
+
+<div id="customfieldmodule">
+    <div class="aui-tabs horizontal-tabs" id="customfield-tabs">
+                    <div id="customfield-panel-1" class="tabs-pane active-pane">
+                        <ul class="property-list">
+                                                <li id="rowForcustomfield_10061" class="item">
+                        <div class="wrap">
+                            <strong title="Bug Testcase Reminder (view)" class="name">Bug Testcase Reminder (view):</strong>
+                            <div id="customfield_10061-val" class="value type-viewmessage" data-fieldtype="viewmessage" data-fieldtypecompletekey="com.atlassian.jira.toolkit:viewmessage">
+                                    <p>Bug reports should generally be accompanied by a test case!</p>
+
+                            </div>
+                        </div>
+                    </li>
+                                                                <li id="rowForcustomfield_10051" class="item">
+                        <div class="wrap">
+                            <strong title="Last commented by a user?" class="name">Last commented by a user?:</strong>
+                            <div id="customfield_10051-val" class="value type-lastusercommented" data-fieldtype="lastusercommented" data-fieldtypecompletekey="com.atlassian.jira.toolkit:lastusercommented">
+                                      true
+  
+                            </div>
+                        </div>
+                    </li>
+                                        </ul>
+        </div>
+        </div></div>
+</div></div><div id=descriptionmodule class="module toggle-wrap"><div id="descriptionmodule_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Description</h2></div><div class="mod-content"><div id="description-val" class="field-ignore-highlight">
+    <div class="user-content-block">
+                    <p>Simple gradle project that demonstrates this issue</p>
+
+<p><a href="https://github.com/cameronbraid/hibernate-envers-cme" class="external-link" rel="nofollow">https://github.com/cameronbraid/hibernate-envers-cme</a></p>
+
+<p>Clone it, run ./gradlew and see the exception</p>
+
+<div class="code panel" style="border-width: 1px;"><div class="codeContent panelContent">
+<pre class="code-java">Exception in thread <span class="code-quote">"main"</span> java.util.ConcurrentModificationException
+    at java.util.ArrayList$Itr.checkForComodification(ArrayList.java:819)
+    at java.util.ArrayList$Itr.next(ArrayList.java:791)
+    at org.hibernate.engine.spi.ActionQueue$BeforeTransactionCompletionProcessQueue.beforeTransactionCompletion(ActionQueue.java:660)
+    at org.hibernate.engine.spi.ActionQueue.beforeTransactionCompletion(ActionQueue.java:307)
+    at org.hibernate.internal.SessionImpl.beforeTransactionCompletion(SessionImpl.java:611)
+    at org.hibernate.engine.transaction.internal.jdbc.JdbcTransaction.beforeTransactionCommit(JdbcTransaction.java:105)
+    at org.hibernate.engine.transaction.spi.AbstractTransactionImpl.commit(AbstractTransactionImpl.java:175)
+    at demo.Main.main(Main.java:74)
+</pre>
+</div></div>
+
+<p>The issue arises with an @Audited entity when you add a BeforeTransactionCompletionProcess from within an PostInsertEventListener</p>
+
+<p>main code is in <a href="https://github.com/cameronbraid/hibernate-envers-cme/blob/master/src/main/java/demo/Main.java" class="external-link" rel="nofollow">https://github.com/cameronbraid/hibernate-envers-cme/blob/master/src/main/java/demo/Main.java</a></p>
+            </div>
+</div>
+</div></div><div id=activitymodule class="module toggle-wrap"><div id="activitymodule_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Activity</h2></div><div class="mod-content">
+
+
+
+
+
+
+
+
+
+
+    <div class="tabwrap tabs2">
+                <ul id="issue-tabs" class="tabs horizontal">
+                                
+            <li  data-id="all-tabpanel" data-key="com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel" data-label="All" data-href="/browse/HHH-7478?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel">
+                            <a class="ajax-activity-content" id="all-tabpanel" href="/browse/HHH-7478?page=com.atlassian.jira.plugin.system.issuetabpanels:all-tabpanel"><strong>All</strong></a>
+                        </li>
+                                
+            <li  class="active" id="comment-tabpanel"  data-id="comment-tabpanel" data-key="com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel" data-label="Comments" data-href="/browse/HHH-7478?page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel">
+                            <strong>Comments</strong>
+                        </li>
+                                
+            <li  data-id="worklog-tabpanel" data-key="com.atlassian.jira.plugin.system.issuetabpanels:worklog-tabpanel" data-label="Work Log" data-href="/browse/HHH-7478?page=com.atlassian.jira.plugin.system.issuetabpanels:worklog-tabpanel">
+                            <a class="ajax-activity-content" id="worklog-tabpanel" href="/browse/HHH-7478?page=com.atlassian.jira.plugin.system.issuetabpanels:worklog-tabpanel"><strong>Work Log</strong></a>
+                        </li>
+                                
+            <li  data-id="changehistory-tabpanel" data-key="com.atlassian.jira.plugin.system.issuetabpanels:changehistory-tabpanel" data-label="History" data-href="/browse/HHH-7478?page=com.atlassian.jira.plugin.system.issuetabpanels:changehistory-tabpanel">
+                            <a class="ajax-activity-content" id="changehistory-tabpanel" href="/browse/HHH-7478?page=com.atlassian.jira.plugin.system.issuetabpanels:changehistory-tabpanel"><strong>History</strong></a>
+                        </li>
+                                
+            <li  data-id="activity-stream-issue-tab" data-key="com.atlassian.streams.streams-jira-plugin:activity-stream-issue-tab" data-label="Activity" data-href="/browse/HHH-7478?page=com.atlassian.streams.streams-jira-plugin:activity-stream-issue-tab">
+                            <a class="ajax-activity-content" id="activity-stream-issue-tab" href="/browse/HHH-7478?page=com.atlassian.streams.streams-jira-plugin:activity-stream-issue-tab"><strong>Activity</strong></a>
+                        </li>
+                                
+            <li  data-id="dvcs-commits-tabpanel" data-key="com.atlassian.jira.plugins.jira-bitbucket-connector-plugin:dvcs-commits-tabpanel" data-label="Commits" data-href="/browse/HHH-7478?page=com.atlassian.jira.plugins.jira-bitbucket-connector-plugin:dvcs-commits-tabpanel">
+                            <a class="ajax-activity-content" id="dvcs-commits-tabpanel" href="/browse/HHH-7478?page=com.atlassian.jira.plugins.jira-bitbucket-connector-plugin:dvcs-commits-tabpanel"><strong>Commits</strong></a>
+                        </li>
+                </ul>
+    </div>
+    <div class="issuePanelWrapper">
+        <div class="issuePanelProgress"></div>
+        <div class="issuePanelContainer" id="issue_actions_container">
+                                    
+
+
+<div id="comment-50786" class="issue-data-block activity-comment twixi-block  expanded">
+    <div class="twixi-wrap verbose actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-opened"><span>Hide</span></span></a>
+            <div class="action-links">
+                <a href="/browse/HHH-7478?focusedCommentId=50786&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-50786" title="A permanent link to this comment." class="icon icon-perma activitymodule-link"><span>Permalink</span></a>
+                                            </div>
+            <div class="action-details">        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="brmeyer" id="commentauthor_50786_verbose" href="/secure/ViewProfile.jspa?name=brmeyer"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="https://secure.gravatar.com/avatar/bfda4c8ce231d748d1123620ca048231?d=mm&amp;s=16" /></span></span> Brett Meyer</a>
+ added a comment  - <span class='commentdate_50786_verbose subText'><span class='date user-tz' title='11/Apr/13 3:21 PM'><time class='livestamp' datetime='2013-04-11T15:21-0700'>11/Apr/13 3:21 PM</time></span></span>  </div>
+        </div>
+        <div class="action-body flooded"><p>Thanks to Lukasz for the pull request:</p>
+
+<p><a href="https://github.com/hibernate/hibernate-orm/pull/461" class="external-link" rel="nofollow">https://github.com/hibernate/hibernate-orm/pull/461</a></p> </div>
+    </div>
+    <div class="twixi-wrap concise actionContainer">
+        <div class="action-head">
+            <a href="#" class="twixi"><span class="icon twixi-closed"><span>Show</span></span></a>
+            <div class="action-details flooded">
+                        
+    
+    
+    
+                
+
+    <a class="user-hover user-avatar" rel="brmeyer" id="commentauthor_50786_concise" href="/secure/ViewProfile.jspa?name=brmeyer"><span class="aui-avatar aui-avatar-xsmall"><span class="aui-avatar-inner"><img src="https://secure.gravatar.com/avatar/bfda4c8ce231d748d1123620ca048231?d=mm&amp;s=16" /></span></span> Brett Meyer</a>
+ added a comment  - <span class='commentdate_50786_concise subText'><span class='date user-tz' title='11/Apr/13 3:21 PM'><time class='livestamp' datetime='2013-04-11T15:21-0700'>11/Apr/13 3:21 PM</time></span></span>                    Thanks to Lukasz for the pull request: 
+
+  https://github.com/hibernate/hibernate-orm/pull/461               </div>
+        </div>
+    </div>
+</div>
+                             </div>
+    </div>
+</div></div></div><div id="viewissuesidebar" class="aui-item issue-side-column"><div id=peoplemodule class="module toggle-wrap"><div id="peoplemodule_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">People</h2></div><div class="mod-content"><ul class="item-details" id="peopledetails">
+    <li class="people-details">
+                <dl>
+            <dt>Assignee:</dt>
+            <dd>
+                <span id="assignee-val" class="view-issue-field">
+
+            <span class="user-hover" id="issue_summary_assignee_lukasz.antoniak" rel="lukasz.antoniak">
+            <span class="aui-avatar aui-avatar-small"><span class="aui-avatar-inner"><img src="https://secure.gravatar.com/avatar/663d05e5d0f41127bdc79d4b372b2fb6?d=mm&amp;s=24" /></span></span>
+            Lukasz Antoniak
+        </span>
+    </span>
+                            </dd>
+        </dl>
+                        <dl>
+            <dt>Reporter:</dt>
+            <dd>
+                <span id="reporter-val" class="view-issue-field">
+
+            <span class="user-hover" id="issue_summary_reporter_cameronbraid" rel="cameronbraid">
+            <span class="aui-avatar aui-avatar-small"><span class="aui-avatar-inner"><img src="https://secure.gravatar.com/avatar/671fdec524efe839fd51eb42e98c9511?d=mm&amp;s=24" /></span></span>
+            Cameron Braid
+        </span>
+    </span>
+            </dd>
+        </dl>
+                        <dl>
+            <dt title="Participants">Participants:</dt>
+            <dd><span id="customfield_10050-val" data-name="Participants" data-fieldtype="participants" data-fieldtypecompletekey="com.atlassian.jira.toolkit:participants">    <div class="shorten" id="customfield_10050-field">
+                    <a class="user-hover cf-participant" rel="brmeyer" title="Find all issues Brett Meyer participated in" href="/secure/IssueNavigator.jspa?reset=true&customfield_10050=brmeyer">Brett Meyer</a>,                     <a class="user-hover cf-participant" rel="cameronbraid" title="Find all issues Cameron Braid participated in" href="/secure/IssueNavigator.jspa?reset=true&customfield_10050=cameronbraid">Cameron Braid</a>,                     <a class="user-hover cf-participant" rel="lukasz.antoniak" title="Find all issues Lukasz Antoniak participated in" href="/secure/IssueNavigator.jspa?reset=true&customfield_10050=lukasz.antoniak">Lukasz Antoniak</a>            </div>
+</span></dd>
+        </dl>
+            </li>
+</ul>
+    <ul class="item-details">
+        <li>
+                            <dl>
+                    <dt>Votes:</dt>
+                    <dd>
+                                                                            <span id="vote-data" class="aui-badge vote-state-off">0</span>
+                        
+                                                                                                        <span id="vote-label" title="You have to be logged in to vote for an issue.">Vote for this issue</span>
+                                            </dd>
+                </dl>
+                                        <dl>
+                    <dt>Watchers:</dt>
+                    <dd>
+                                                                        
+                                                                            <span id="watcher-data" class="aui-badge watch-state-off">2</span>
+                        
+                                                                                <span id="watch-label" title="You have to be logged in to watch an issue.">Start watching this issue</span>
+                                            </dd>
+                </dl>
+                    </li>
+    </ul>
+</div></div><div id=datesmodule class="module toggle-wrap"><div id="datesmodule_heading" class="mod-header"><ul class="ops"></ul><h2 class="toggle-title">Dates</h2></div><div class="mod-content"><ul class="item-details">
+    <li>
+            <dl class="dates">
+            <dt>Created:</dt>
+            <dd class="date user-tz"  title="26/Jul/12 8:54 PM" >
+
+                <span data-name="Created" id="create-date"  data-fieldtype="datetime"  >
+                                                                        <time class="livestamp" datetime="2012-07-26T20:54-0700">26/Jul/12 8:54 PM</time>                                                             </span>
+            </dd>
+        </dl>
+            <dl class="dates">
+            <dt>Updated:</dt>
+            <dd class="date user-tz"  title="25/Apr/13 7:01 AM" >
+
+                <span data-name="Updated" id="updated-date"  data-fieldtype="datetime"  >
+                                                                        <time class="livestamp" datetime="2013-04-25T07:01-0700">25/Apr/13 7:01 AM</time>                                                             </span>
+            </dd>
+        </dl>
+            <dl class="dates">
+            <dt>Resolved:</dt>
+            <dd class="date user-tz"  title="11/Apr/13 3:21 PM" >
+
+                <span data-name="Resolved" id="resolved-date"  data-fieldtype="datetime"  >
+                                                                        <time class="livestamp" datetime="2013-04-11T15:21-0700">11/Apr/13 3:21 PM</time>                                                             </span>
+            </dd>
+        </dl>
+        </li>
+</ul>
+</div></div></div></div>
+                    </div>
+                </div>
+                        </div>
+
+    <fieldset class="hidden parameters">
+        <input type="hidden" title="autocompleteEnabled" value="true"/>
+    </fieldset>
+    
+    </section>
+    <footer id="footer" role="contentinfo">
+        
+        
+
+    <div class="footer footer-body">
+        <ul>
+            <li><a href="http://www.atlassian.com/">Powered by Atlassian</a><span id="studioVersion" class="hidden">2.0 r</span></li>
+            <li><a href="http://www.atlassian.com/hosted/terms.jsp">Terms of Use</a></li>
+            <li><a href="https://answers.atlassian.com/">Answers</a></li>
+            <li><a href="https://confluence.atlassian.com/x/aJALE">Maintenance Schedule</a></li>
+        </ul>
+    </div>
+
+
+<script type="text/javascript">
+    // This is the app specific data that the shared js expects
+    studioData = {"jiraUrl" : "https://hibernate.atlassian.net"};
+
+        
+    // Google analytics
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-6032469-30']);
+    _gaq.push(['_setDetectTitle', false]); // don't send page titles
+
+    (function () {
+        var filteredUrl = document.location.pathname + document.location.search;
+        // don't capture page titles in CONF
+        filteredUrl = filteredUrl.replace(/(.*)\/display\/.*\/.*/,
+                '$1/pages/viewpage.action?pageId=' + (AJS && AJS.Meta && AJS.Meta.get('page-id') || "*"));
+        _gaq.push(['_trackPageview', filteredUrl]);
+    })();
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+
+<form id="jira_request_timing_info" class="dont-default-focus" >
+	<fieldset class="parameters hidden">
+		<input type="hidden" title="jira.request.start.millis" value="1386976844559" />
+		<input type="hidden" title="jira.request.server.time" value="90" />
+		<input type="hidden" title="jira.request.id" value="920x680795x1" />
+		<input type="hidden" title="jira.session.expiry.time" value="-" />
+		<input type="hidden" title="jira.session.expiry.in.mins" value="-" />
+		<input id="jiraConcurrentRequests" type="hidden" name="jira.request.concurrent.requests" value="1" />
+	</fieldset>
+</form>
+<!--
+	                 REQUEST ID : 920x680795x1
+	          REQUEST TIMESTAMP : [13/Dec/2013:15:20:44 -0800]
+	               REQUEST TIME : 0.0900
+	                 ASESSIONID : -
+	        CONCURRENT REQUESTS : 1
+
+	                      db.reads : name=db.reads; inv=57; ms=12; cpu=0; rss=0;
+	                      db.conns : name=db.conns; inv=59; ms=15; cpu=0; rss=0;
+-->
+
+
+
+
+
+
+
+
+
+
+<fieldset class="hidden parameters">
+    <input type="hidden" title="loggedInUser" value="">
+    <input type="hidden" title="ajaxTimeout" value="The call to the JIRA server did not complete within the timeout period.  We are unsure of the result of this operation.">
+    <input type="hidden" title="JiraVersion" value="6.2-OD-03" />
+    <input type="hidden" title="ajaxUnauthorised" value="You are not authorized to perform this operation.  Please log in.">
+    <input type="hidden" title="baseURL" value="https://hibernate.atlassian.net:443">
+    <input type="hidden" title="ajaxCommsError" value="The JIRA server could not be contacted.  This may be a temporary glitch or the server may be down.">
+    <input type="hidden" title="ajaxServerError" value="The JIRA server was contacted but has returned an error response. We are unsure of the result of this operation.">
+    <input type="hidden" title="ajaxErrorCloseDialog" value="Close this dialog and press refresh in your browser">
+    <input type="hidden" title="ajaxErrorDialogHeading" value="Communications Breakdown">
+
+    <input type="hidden" title="dirtyMessage" value="You have entered new data on this page. If you navigate away from this page without first saving your data, the changes will be lost.">
+    <input type="hidden" title="dirtyDialogMessage" value="You have entered new data in this dialog. If you navigate away from this dialog without first saving your data, the changes will be lost. Click cancel to return to the dialog.">
+    <input type="hidden" title="keyType" value="Type">
+    <input type="hidden" title="keyThen" value="then">
+    <input type="hidden" title="dblClickToExpand" value="Double click to expand">
+    <input type="hidden" title="actions" value="Actions">
+    <input type="hidden" title="removeItem" value="Remove">
+    <input type="hidden" title="workflow" value="Workflow">
+    <input type="hidden" title="labelNew" value="New Label">
+    <input type="hidden" title="issueActionsHint" value="Begin typing for available operations or press down to see all">
+    <input type="hidden" title="closelink" value="Close">
+    <input type="hidden" title="dotOperations" value="Operations">
+    <input type="hidden" title="dotLoading" value="Loading...">
+    <input type="hidden" title="frotherSuggestions" value="Suggestions">
+    <input type="hidden" title="frotherNomatches" value="No Matches">
+    <input type="hidden" title="multiselectVersionsError" value="{0} is not a valid version.">
+    <input type="hidden" title="multiselectComponentsError" value="{0} is not a valid component.">
+    <input type="hidden" title="multiselectGenericError" value="The value {0} is invalid.">
+</fieldset>
+
+    </footer>
+</div>
+</body>
+</html>

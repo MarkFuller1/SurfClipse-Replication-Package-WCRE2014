@@ -1,0 +1,554 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>[java code coverage] JaCoCo and Aspectj</TITLE>
+<BASE href="http://permalink.gmane.org">
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
+<link rel="SHORTCUT ICON" href="http://gmane.org/favicon.ico">
+<link rel="Up" href="/gmane.comp.java.jacoco.user>">
+<LINK href="http://gmane.org/img/leftmenu.css" type="text/css" rel="stylesheet">
+<LINK href="http://gmane.org/img/blog.css" type="text/css" rel="stylesheet">
+<style type="text/css" media="screen">
+h1.name {
+  background-image:  url(http://gmane.org/paint-blog-id.php?group=gmane.comp.java.jacoco.user);
+}
+</style>
+</HEAD>
+<BODY>
+<div id=banner>
+<h1 class=name>&nbsp;</h1>
+<span class=description>JaCoCo and EclEmma Users ()</span>
+</div>
+<script src="http://gmane.org/img/jsblog.js" type="text/javascript"></script>
+
+<DIV id=content>
+<DIV class=blog>
+<div class=posting>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o1');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Marc+Hoffmann&amp;sort=date" rel=nofollow>Marc Hoffmann</a>
+ | </span>
+<SPAN class=day>22 Jul 2013 09:43</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<H2 class=title>Re: [java code coverage] JaCoCo and Aspectj</h2><div id="o1" class="hidden">Marc Hoffmann &lt;<a target="_top" href="http://gmane.org/get-address.php?address=hoffmann%2da8GzhnWS74BMKzkbnucVRwC%2fG2K4zDHf%40public.gmane.org" rel="nofollow">hoffmann@...</a>&gt;<br>
+2013-07-22 07:43:31 GMT<br>
+</div>
+<pre>
+Hi André,
+
+if AspectJ replaces classes with other differently named classes things 
+get tricky. As you already proposed you might try to dump these extra 
+classes and create a report including those classes (although the 
+original class probably still renders at not covered). I'm not a Maven 
+expert but a possible setup might look like this:
+
+   1) Backup original classes in target/classes
+   2) specify classDumpDir for the prepare-agent goal to dump classes to 
+target/classes
+   2) Create JaCoCo report
+   3) Restore target/classes from backup
+
+See documentation of JaCoCo Maven goals: 
+<a rel="nofollow" href="http://www.eclemma.org/jacoco/trunk/doc/maven.html" target="_top">http://www.eclemma.org/jacoco/trunk/doc/maven.html</a>
+
+Cheers,
+-marc
+
+On 2013-07-21 18:42, André Pinto wrote:
+&gt; Hi Marc,
+&gt;
+&gt; thanks for replying so quickly.
+&gt;
+&gt; Right now I'm only testing a specific problematic class in order to
+&gt; perform faster clean install iterations while trying different
+&gt; approaches.
+&gt;
+&gt; The class that I'm testing does not appear on the Sessions page when 
+&gt; I
+&gt; have AspectJ weaver agent enabled. In its place there are two
+&gt; AjcClosure classes from AspectJ:
+&gt;
+&gt; CLASS_NAME.AjcClosure1    8b30d747616523a0
+&gt;  CLASS_NAME.AjcClosure3    b62aad26ee5ff4eb
+&gt; CLASS_NAME.Result [nested class with link]    27ec6335c32de676
+&gt; CLASS_NAMEIntTest    c508b26e62564a2b
+&gt; CLASS_NAMETest    d101cb5455c0b79d
+&gt; CLASS_NAMETest.TestDelegate    89770d1905c6d466
+&gt;
+&gt; When not using AspectJ LTW the class appears in the session page (I
+&gt; needed to comment the tests that used AOP for this to work so the
+&gt; nested class does not appear now):
+&gt;
+&gt; CLASS_NAME [with link]    9be84e8927495ca6
+&gt;  CLASS_NAMEIntTest    6e56338794a364f2
+&gt; CLASS_NAMETest    d101cb5455c0b79d
+&gt; CLASS_NAMETest.TestDelegate    89770d1905c6d466
+&gt;
+&gt; This is my Jacoco Maven plugin configuration:
+&gt;
+&gt; &lt;plugin&gt;
+&gt;      &lt;groupId&gt;org.jacoco&lt;/groupId&gt;
+&gt;     &lt;artifactId&gt;jacoco-maven-plugin&lt;/artifactId&gt;
+&gt;     &lt;version&gt;0.6.3.201306030806&lt;/version&gt;
+&gt;     &lt;configuration&gt;
+&gt;         &lt;propertyName&gt;coverageAgent&lt;/propertyName&gt;
+&gt;          &lt;skip&gt;false&lt;/skip&gt;
+&gt;         &lt;excludes&gt;
+&gt;                 EXCLUDES LIST
+&gt;         &lt;/excludes&gt;
+&gt;
+&gt;        
+&gt; &lt;classDumpDir&gt;${basedir}/target/jacoco-classes&lt;/classDumpDir&gt;
+&gt;      &lt;/configuration&gt;
+&gt;
+&gt;     &lt;executions&gt;
+&gt;         &lt;execution&gt;
+&gt;             &lt;id&gt;prepare-agent&lt;/id&gt;
+&gt;             &lt;goals&gt;
+&gt;                 &lt;goal&gt;prepare-agent&lt;/goal&gt;
+&gt;              &lt;/goals&gt;
+&gt;         &lt;/execution&gt;
+&gt;         &lt;execution&gt;
+&gt;             &lt;id&gt;report&lt;/id&gt;
+&gt;             &lt;phase&gt;prepare-package&lt;/phase&gt;
+&gt;             &lt;goals&gt;
+&gt;                 &lt;goal&gt;report&lt;/goal&gt;
+&gt;              &lt;/goals&gt;
+&gt;         &lt;/execution&gt;
+&gt;         &lt;execution&gt;
+&gt;             &lt;id&gt;check&lt;/id&gt;
+&gt;             &lt;goals&gt;
+&gt;                 &lt;goal&gt;check&lt;/goal&gt;
+&gt;             &lt;/goals&gt;
+&gt;              &lt;configuration&gt;
+&gt;                 &lt;rules&gt;
+&gt;                     RULES LIST
+&gt;                 &lt;/rules&gt;
+&gt;             &lt;/configuration&gt;
+&gt;         &lt;/execution&gt;
+&gt;     &lt;/executions&gt;
+&gt;  &lt;/plugin&gt;
+&gt;
+&gt; and my Maven Surefire plugin configuration:
+&gt;
+&gt; &lt;plugin&gt;
+&gt;     &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+&gt;     &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
+&gt;      &lt;version&gt;2.15&lt;/version&gt;
+&gt;
+&gt;     &lt;configuration&gt;
+&gt;         &lt;groups&gt;specific_test_group&lt;/groups&gt;
+&gt;         &lt;argLine&gt;-Xmx1024m -XX:MaxPermSize=256m ${coverageAgent}
+&gt; -javaagent:"${aspectj.agent.jar}"&lt;/argLine&gt;
+&gt;          &lt;properties&gt;
+&gt;             &lt;property&gt;
+&gt;                 &lt;name&gt;listener&lt;/name&gt;
+&gt;                 &lt;value&gt;SOME_TESTNG_LISTENERS&lt;/value&gt;
+&gt;             &lt;/property&gt;
+&gt;         &lt;/properties&gt;
+&gt;      &lt;/configuration&gt;
+&gt; &lt;/plugin&gt;
+&gt;
+&gt; Thanks,
+&gt;
+&gt; André
+&gt;
+&gt; On Sun, Jul 21, 2013 at 4:58 PM, Marc R. Hoffmann
+&gt; &lt;<a target="_top" href="http://gmane.org/get-address.php?address=hoffmann%2da8GzhnWS74BMKzkbnucVRwC%2fG2K4zDHf%40public.gmane.org" rel="nofollow">hoffmann@...</a> [10]&gt; wrote:
+&gt;
+&gt;&gt; Hi André,
+&gt;&gt;
+&gt;&gt; this strange. If the JaCoCo agent really is the very first agent in
+&gt;&gt; the command line it should see the class files (or JARs) from the
+&gt;&gt; file system. So if the report is created based on the exact same
+&gt;&gt; file the report should show coverage for all executed classes.
+&gt;&gt;
+&gt;&gt; In the JaCoCo HTML report can you please check whether the classes
+&gt;&gt; in question are listed on the sessions page (link in the top right
+&gt;&gt; corner).
+&gt;&gt;
+&gt;&gt; Thanks,
+&gt;&gt; -marc
+&gt;&gt;
+&gt;&gt; On 20.07.13 19:03, <a target="_top" href="http://gmane.org/get-address.php?address=andredasilvapinto%2dRe5JQEeQqe8AvxtiuMwx3w%40public.gmane.org" rel="nofollow">andredasilvapinto@...</a> [6] wrote:
+&gt;&gt;
+&gt;&gt;&gt; Hi,
+&gt;&gt;&gt;
+&gt;&gt;&gt; I'm using Java 1.7, AspectJ 1.7.3 (for load-time weaving), Jacoco
+&gt;&gt;&gt; Maven plugin 0.6.3.201306030806 and Maven Surefire Plugin 2.15 to
+&gt;&gt;&gt; run the tests. In these conditions Jacoco doesn't work correctly.
+&gt;&gt;&gt;
+&gt;&gt;&gt; If Jacoco's Java agent is set as the second Java agent (after
+&gt;&gt;&gt; AspectJ weaver agent), the build produces these errors:
+&gt;&gt;&gt;
+&gt;&gt;&gt; java.lang.instrument.IllegalClassFormatException: Error while
+&gt;&gt;&gt; instrumenting class CLASS_NAME.
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.CoverageTransformer.transform(CoverageTransformer.java:89)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; sun.instrument.TransformerManager.transform(TransformerManager.java:188)
+&gt;&gt;&gt; ...
+&gt;&gt;&gt; Caused by: java.io.IOException: Error while instrumenting class
+&gt;&gt;&gt; CLASS_NAME.
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.core.instr.Instrumenter.instrumentError(Instrumenter.java:147)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.core.instr.Instrumenter.instrument(Instrumenter.java:98)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.CoverageTransformer.transform(CoverageTransformer.java:87)
+&gt;&gt;&gt;         ... 64 more
+&gt;&gt;&gt; Caused by: java.lang.IllegalStateException: Missing or invalid
+&gt;&gt;&gt; stackmap frames.
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.core.internal.instr.FrameTracker.assertValidFrames(FrameTracker.java:613)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.core.internal.instr.FrameTracker.pop(FrameTracker.java:602)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.core.internal.instr.FrameTracker.visitVarInsn(FrameTracker.java:386)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.asm.MethodVisitor.visitVarInsn(Unknown
+&gt;&gt;&gt; Source)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.asm.MethodVisitor.visitVarInsn(Unknown
+&gt;&gt;&gt; Source)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.asm.tree.VarInsnNode.accept(Unknown
+&gt;&gt;&gt; Source)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; org.jacoco.agent.rt.internal_9dd1198.asm.tree.InsnList.accept(Unknown
+&gt;&gt;&gt; Source)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.asm.tree.MethodNode.accept(Unknown
+&gt;&gt;&gt; Source)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.core.internal.flow.ClassProbesAdapter$1.visitEnd(ClassProbesAdapter.java:124)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt; org.jacoco.agent.rt.internal_9dd1198.asm.ClassReader.b(Unknown
+&gt;&gt;&gt; Source)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt; org.jacoco.agent.rt.internal_9dd1198.asm.ClassReader.accept(Unknown
+&gt;&gt;&gt; Source)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt; org.jacoco.agent.rt.internal_9dd1198.asm.ClassReader.accept(Unknown
+&gt;&gt;&gt; Source)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.core.instr.Instrumenter.instrument(Instrumenter.java:78)
+&gt;&gt;&gt;         at
+&gt;&gt;&gt;
+&gt;&gt;
+&gt; 
+&gt; org.jacoco.agent.rt.internal_9dd1198.core.instr.Instrumenter.instrument(Instrumenter.java:96)
+&gt;&gt;&gt;         ... 65 more
+&gt;&gt;&gt;
+&gt;&gt;&gt; if it is set as the first Java Agent (before AspectJ) it works
+&gt;&gt;&gt; for most classes, but fails to produce correct coverage reports
+&gt;&gt;&gt; for weaved classes (all the lines appear as not covered even
+&gt;&gt;&gt; though I have tests covering them).
+&gt;&gt;&gt;
+&gt;&gt;&gt; I tried to use the classdumpdir solution presented here:
+&gt;&gt;&gt; <a rel="nofollow" href="https://github.com/jacoco/eclemma/issues/33" target="_top">https://github.com/jacoco/eclemma/issues/33</a> [5] but I can't find a
+&gt;&gt;&gt; equivalent Maven configuration for the setting the check and
+&gt;&gt;&gt; report Jacoco goals to use the classdumpdir directory.
+&gt;&gt;&gt;
+&gt;&gt;&gt; Does anyone have a solution for this?
+&gt;&gt;&gt;
+&gt;&gt;&gt; Thanks,
+&gt;&gt;&gt; André.
+&gt;&gt;&gt;
+&gt;&gt;&gt; On Wednesday, March 6, 2013 8:52:36 AM UTC, Erik Vande Velde
+&gt;&gt;&gt; wrote:
+&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Hi Henrik,
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; This did indeed solve my problem, thanks !!!
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; 2013/3/6 Henrik Horneber &lt;<a target="_top" href="http://gmane.org/get-address.php?address=horn...%2dRe5JQEeQqe8AvxtiuMwx3w%40public.gmane.org" rel="nofollow">horn...@...</a> [1]&gt;
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Hi,
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; I've successfully used JaCoCo together with AspectJ.
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; You need to make sure
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; * you use AspectJ version &gt;= 1.7
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; * java source and target are also set to 1.7
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Then AspectJ will generate class files JaCoCo can use.
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Best regards,
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Henrik
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; On Wed, Mar 6, 2013 at 8:02 AM, Erik Vande Velde
+&gt;&gt;&gt;&gt; &lt;<a target="_top" href="http://gmane.org/get-address.php?address=vandeve...%2dRe5JQEeQqe8AvxtiuMwx3w%40public.gmane.org" rel="nofollow">vandeve...@...</a> [2]&gt; wrote:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Hello Marc,
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Thanks for your reaction! I'll put your question on the Aspectj
+&gt;&gt;&gt;&gt; forum today.
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Kind Regards,
+&gt;&gt;&gt;&gt;     Erik
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; 2013/3/5 Marc Hoffmann &lt;<a target="_top" href="http://gmane.org/get-address.php?address=hoff...%2da8GzhnWS74BMKzkbnucVRwC%2fG2K4zDHf%40public.gmane.org" rel="nofollow">hoff...@...</a> [3]&gt;
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Hi,
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; in any case JaCoCo requires valid classfiles as input. This
+&gt;&gt;&gt;&gt; implies that class files from version 1.6 on need to contain
+&gt;&gt;&gt;&gt; valid stackmap frames. If this is not the case JaCoCo will fail
+&gt;&gt;&gt;&gt; with exactly this message.
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Have you reported the problem to AspectJ?
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Best regards,
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; -marc
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; On 2013-03-05 16:50, <a target="_top" href="http://gmane.org/get-address.php?address=vandeve...%2dRe5JQEeQqe8AvxtiuMwx3w%40public.gmane.org" rel="nofollow">vandeve...@...</a> [4] wrote:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; I downloaded JaCoCo today, and got the ant + maven examples
+&gt;&gt;&gt;&gt; going
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; immediately.
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; But when I change the pom.xml of our project in a similar way
+&gt;&gt;&gt;&gt; as the
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; examples I'm in trouble, almost certainly because we use
+&gt;&gt;&gt;&gt; Aspectj in
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; that project:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; 1) offline modus:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Here I get the following error message:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; [ERROR] Failed to execute goal
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; org.jacoco:jacoco-maven-plugin:0.6.2.201302030002:instrument
+&gt;&gt;&gt;&gt; (default)
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;   on project com.fugro.gwf.server.core: Execution default of
+&gt;&gt;&gt;&gt; goal
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; org.jacoco:jacoco-maven-plugin:0.6.2.201302030002:instrument
+&gt;&gt;&gt;&gt; failed:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;   Missing or invalid stackmap frames. -&gt; [Help 1]
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; 2) on the fly modus:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Running
+&gt;&gt;&gt;&gt; com.fugro.gwf.server.core.synchronisation.Synchronise1Test
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Start java.lang.instrument.IllegalClassFormatException:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Error while instrumenting class
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; com/fugro/gwf/server/core/referencing/ReferencingAspect.
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Underneath this message the stack trace once more shows:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; Caused by: java.lang.IllegalStateException: Missing or invalid
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; stackmap frames.
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; My questions:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; 1) Is there a way to get coverage information for an aspectj
+&gt;&gt;&gt;&gt; project
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; in JaCoCo?
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; 2) If not, do you know an alternative tool that can deal with
+&gt;&gt;&gt;&gt; aspectj
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; projects. I tried clover, but they simply say they don't
+&gt;&gt;&gt;&gt; support
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; aspectj projects. I also tried Coburtera and emma, but assumed
+&gt;&gt;&gt;&gt; JaCoCo
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; is a more recent (and better supported) tool
+&gt;&gt;
+&gt;&gt; --
+&gt;&gt; You received this message because you are subscribed to a topic in
+&gt;&gt; the Google Groups "JaCoCo and EclEmma Users" group.
+&gt;&gt;
+&gt;&gt; To unsubscribe from this topic, visit
+&gt;&gt; <a rel="nofollow" href="https://groups.google.com/d/topic/jacoco/Zb_MOFXIUn0/unsubscribe" target="_top">https://groups.google.com/d/topic/jacoco/Zb_MOFXIUn0/unsubscribe</a>
+&gt;&gt; [7].
+&gt;&gt; To unsubscribe from this group and all its topics, send an email to
+&gt;&gt; <a target="_top" href="http://gmane.org/get-address.php?address=jacoco%2bunsubscribe%2d%2fJYPxA39Uh5TLH3MbocFFw%40public.gmane.org" rel="nofollow">jacoco+unsubscribe@...</a> [8].
+&gt;&gt; For more options, visit <a rel="nofollow" href="https://groups.google.com/groups/opt_out" target="_top">https://groups.google.com/groups/opt_out</a>
+&gt;&gt; [9].
+&gt;
+&gt;  --
+&gt;  You received this message because you are subscribed to the Google
+&gt; Groups "JaCoCo and EclEmma Users" group.
+&gt;  To unsubscribe from this group and stop receiving emails from it,
+&gt; send an email to <a target="_top" href="http://gmane.org/get-address.php?address=jacoco%2bunsubscribe%2d%2fJYPxA39Uh5TLH3MbocFF%2bG%2fEz6ZCGd0%40public.gmane.org" rel="nofollow">jacoco+unsubscribe@...</a>
+&gt;  For more options, visit <a rel="nofollow" href="https://groups.google.com/groups/opt_out" target="_top">https://groups.google.com/groups/opt_out</a>
+&gt; [11].
+&gt;
+&gt;
+&gt;
+&gt; Links:
+&gt; ------
+&gt; [1] mailto:<a target="_top" href="http://gmane.org/get-address.php?address=horn...%2dRe5JQEeQqe8AvxtiuMwx3w%40public.gmane.org" rel="nofollow">horn...@...</a>
+&gt; [2] mailto:<a target="_top" href="http://gmane.org/get-address.php?address=vandeve...%2dRe5JQEeQqe8AvxtiuMwx3w%40public.gmane.org" rel="nofollow">vandeve...@...</a>
+&gt; [3] mailto:<a target="_top" href="http://gmane.org/get-address.php?address=hoff...%2da8GzhnWS74BMKzkbnucVRwC%2fG2K4zDHf%40public.gmane.org" rel="nofollow">hoff...@...</a>
+&gt; [4] mailto:<a target="_top" href="http://gmane.org/get-address.php?address=vandeve...%2dRe5JQEeQqe8AvxtiuMwx3w%40public.gmane.org" rel="nofollow">vandeve...@...</a>
+&gt; [5] <a rel="nofollow" href="https://github.com/jacoco/eclemma/issues/33" target="_top">https://github.com/jacoco/eclemma/issues/33</a>
+&gt; [6] mailto:<a target="_top" href="http://gmane.org/get-address.php?address=andredasilvapinto%2dRe5JQEeQqe8AvxtiuMwx3w%40public.gmane.org" rel="nofollow">andredasilvapinto@...</a>
+&gt; [7] <a rel="nofollow" href="https://groups.google.com/d/topic/jacoco/Zb_MOFXIUn0/unsubscribe" target="_top">https://groups.google.com/d/topic/jacoco/Zb_MOFXIUn0/unsubscribe</a>
+&gt; [8] mailto:jacoco%<a target="_top" href="http://gmane.org/get-address.php?address=2Bunsubscribe%2d%2fJYPxA39Uh5TLH3MbocFFw%40public.gmane.org" rel="nofollow">2Bunsubscribe@...</a>
+&gt; [9] <a rel="nofollow" href="https://groups.google.com/groups/opt_out" target="_top">https://groups.google.com/groups/opt_out</a>
+&gt; [10] mailto:<a target="_top" href="http://gmane.org/get-address.php?address=hoffmann%2da8GzhnWS74BMKzkbnucVRwC%2fG2K4zDHf%40public.gmane.org" rel="nofollow">hoffmann@...</a>
+&gt; [11] <a rel="nofollow" href="https://groups.google.com/groups/opt_out" target="_top">https://groups.google.com/groups/opt_out</a>
+
+<span class="togsig"><a rel=nofollow href="#" onclick="return toggle('sig1')">--</a></span>
+<span id="sig1" class=signature>
+-- 
+You received this message because you are subscribed to the Google Groups "JaCoCo and EclEmma Users" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to <a target="_top" href="http://gmane.org/get-address.php?address=jacoco%2bunsubscribe%2d%2fJYPxA39Uh5TLH3MbocFF%2bG%2fEz6ZCGd0%40public.gmane.org" rel="nofollow">jacoco+unsubscribe@...</a>
+For more options, visit <a rel="nofollow" href="https://groups.google.com/groups/opt_out" target="_top">https://groups.google.com/groups/opt_out</a>.
+
+</span></pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.comp.java.jacoco.user:137:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.comp.java.jacoco.user/137">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.comp.java.jacoco.user&amp;followup=137" rel=nofollow>Reply</a>
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</div></div></div></div>
+</DIV>  
+
+</div>
+
+<div id="sidebox">
+
+<div class="sidetitle">Navigate</div>
+<div class="side">
+Go to <a href="http://blog.gmane.org/gmane.comp.java.jacoco.user">gmane.<wbr>comp.<wbr>java.<wbr>jacoco.<wbr>user</a>.
+</div>
+
+<div class="sidetitle">Topic</div>
+<div class="side">
+<a rel=nofollow href="http://news.gmane.org/find-root.php?group=gmane.comp.java.jacoco.user&article=137&type=blog">Go to the topic</a>.
+</div>
+
+
+<div class="sidetitle">Advertisement</div>
+<div class="side" align="center">
+<script type="text/javascript"><!--
+amazon_ad_tag = "gmane-20"; amazon_ad_width = "300"; amazon_ad_height = "250";//--></script>
+<script type="text/javascript" src="http://www.assoc-amazon.com/s/ads.js"></script>
+</div>
+
+<div class="sidetitle">Project Web Page</div>
+<div class="side">
+   <a href="http://www.eclemma.org/jacoco/">JaCoCo and EclEmma Users ()</a>
+</div>
+
+<div class="sidetitle">Search Archive</div>
+<div class="side">
+<div align="center">
+<br/>
+<form action="http://search.gmane.org" method="get">
+<input name="query" value="" title="search_text"/><input type="submit" title="SUBMIT" value="Search"/>
+<input type=hidden name="group" value="gmane.comp.java.jacoco.user">
+</form>
+</div>
+</div>
+
+
+
+
+
+<div class="sidetitle">Language</div>
+<div class="side">
+   <a rel=nofollow href="http://gmane.org/language.php">Change language</a>
+</div>
+
+
+<div class="sidetitle">Options</div>
+<div class="side">
+Current view: 
+Threads only / Showing 
+whole messages /
+ Not hiding cited text.<br/>
+    Change to 
+<a rel=nofollow href="/gmane.comp.java.jacoco.user?set_blog_all=yes">All messages, </a><a rel=nofollow href="/gmane.comp.java.jacoco.user?set_lines=20">shortened messages</a>, or 
+<a rel=nofollow href="/gmane.comp.java.jacoco.user?set_cite=hide">hide cited text</a>.<br /><br />
+
+<a href="http://post.gmane.org/post.php?group=gmane.comp.java.jacoco.user" rel=nofollow>Post a message</a><br/>
+<a href="nntp://news.gmane.org/gmane.comp.java.jacoco.user">NNTP Newsgroup</a><br/>
+<a rel=nofollow href="http://news.gmane.org/find-root.php?message_id=%3ccb7895935ddded372b5ccb0b8b9f2de5%40mountainminds.com%3e">Classic Gmane web interface</a><br/>
+
+<a href="http://rss.gmane.org/gmane.comp.java.jacoco.user"><img src="http://gmane.org/img/xml.gif" alt="XML" border=0>&nbsp;RSS Feed</a><br/>
+<a href="http://dir.gmane.org/gmane.comp.java.jacoco.user">List Information</a><br/><br/>
+<a href="http://gmane.org/faq.php">About Gmane</a><br/>
+</div>
+
+</div>
+
+    <br clear="all" />
+
+<div class="bottombox"><p class="bottomtext"><a href="http://gmane.org/">Gmane</a></p></div>
+  </body>
+</html>
+
+

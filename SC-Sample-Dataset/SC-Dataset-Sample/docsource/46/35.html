@@ -1,0 +1,828 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Netty应用�?步�?转】 - 编程</title>  <meta name="keywords" content="Netty使用�?步�?转】" />  <meta name="description" content="Netty使用�?步�?转】 1�?简介 Java1.4�??供了NIO使开�?�者�?�以使用Java编写高性能的�?务端程�?，但使用原生的NIO API就�?Linux C中网络编程一样，还是需�?�?�IO处�?��?�??议处�?�等低层次工作。所以，就�?C�?务端程�?大�?使用libevent作为" />  <link href="/r/cms/www/red/css/co_iteye_blog_131013.css" rel="stylesheet" type="text/css" />  <link rel="shortcut icon" href="/r/cms/www/red/img/favicon.ico" type="image/x-icon" /><link rel="icon" href="/r/cms/www/red/img/favicon.ico" type="image/x-icon" /><script src="/r/cms/co_131013.js" type="text/javascript"></script></head><body><div class="h_a"><script language="javascript">h_a();</script></div><div class="t"><div class="t_c"><div class="l"><a target="_blank" href="http://www.myexception.cn/"><img src="/r/cms/www/red/img/exception-logo.jpg" alt="MyException - 我的异常网"></a></div><div class="sd"><div class="st"><span class="st_s"><a target="_blank" href="http://www.myexception.cn/">首页</a></span><ul><li><a target="_blank" href="http://www.myexception.cn/web-develop/">Web开�?�</a></li><li><a target="_blank" href="http://www.myexception.cn/android/">Android</a></li><li><a target="_blank" href="http://www.myexception.cn/j2ee/">J2EE</a></li><li><a target="_blank" href="http://www.myexception.cn/c-sharp/">C#</a></li><li><a target="_blank" href="http://www.myexception.cn/linux-unix/">Linux/Unix</a></li><li><a target="_blank" href="http://www.myexception.cn/vc-mfc/">VC/MFC</a></li><li><a target="_blank" href="http://www.myexception.cn/oracle-develop/">Oracle开�?�</a></li><li><a href="#m_t" rel="nofollows">更多...</a></li></ul></div><div class="s"><form action="http://www.myexception.cn/search.jspx" name="formsearch" class="s_f"><input name="q" value="在153万个软件开�?�解决方案中�?�索" type="text" onfocus="if(this.value=='在153万个软件开�?�解决方案中�?�索')this.value=''" onblur="if(this.value=='')this.value='在153万个软件开�?�解决方案中�?�索'" maxlength="255" autocomplete="off" class="s_q" /><input name="submit" id="btnSearch" type="submit" value="我的异常网-�?�索" class="s_s" /></form></div></div></div></div><div class="m"><div class="m_a"><script language="javascript">m_a();</script></div><div class="c"><div class="le"><div class="c_l"> 当�?�?置: <a target="_blank" href="http://www.myexception.cn/">我的异常网</a> &raquo;  <a target="_blank" href="http://www.myexception.cn/program/" target="_blank">编程</a>&nbsp;&raquo;&nbsp;Netty应用�?步�?转】 </div><div class="c_t"><h1> Netty应用�?步�?转】 </h1></div><div class="c_a_1"><script language="javascript">c_a_1();</script></div><div class="c_t_b"><div class="c_au"> www.MyException.Cn&nbsp;&nbsp;&nbsp;�?�布于：2012-10-11 10:16:10&nbsp;&nbsp;&nbsp;�?览：6次 </div><div class="c_a_0"><script language="javascript">c_a_0();</script></div></div><div class="c_a_2"><script language="javascript">c_a_2();</script></div><div class="c_txt"><div class="c_a_3"><script language="javascript">c_a_3();</script></div> Netty使用�?步�?转】<br>
+    <div class="news_content">
+<h2>1�?简介</h2>
+<p>Java1.4�??供了NIO使开�?�者�?�以使用Java编写高性能的�?务端程�?，但使用原生的NIO API就�?Linux 
+C中网络编程一样，还是需�?�?�IO处�?��?�??议处�?�等低层次工作。所以，就�?C�?务端程�?大�?使用libevent作为网络应用框架一样，Java社区也�?
+断涌现出基于NIO的网络应用框架。在这其中，Jboss出�?的Netty就是个中翘楚。Netty是个异步的事件驱动网络应用框架，具有高性能�?高扩展
+性等特性。Netty�??供了统一的底层�??议接�?�，使得开�?�者从底层的网络�??议（比如TCP/IP�?UDP）中解脱出�?�。就使用�?�说，开�?�者�?��?�?�考 
+Netty�??供的若干例�?和它的指�?�文档，就�?�以放手开�?�基于Netty的�?务端程�?了。</p>
+<p>在Java社区，最知�??的开�?Java 
+NIO框架�?属Mina和Netty，而且两者渊�?颇多，对两者的比较自然�?少。实际上，Netty的作者原�?�就是Mina作者之一，所以�?�以想
+到，Netty和Mina在设计�?�念上会有很多共�?�点。我对Mina没什么研究，但其作者介�?，Netty的设计对开�?�者有更�?�好的扩展性，并且性能方�?�
+�?优于Mina，而Netty完善的文档也很�?�引人。所以，如果你在寻找Java 
+NIO框架，Netty是个很�?错的选择。本文的内容就是围绕一个demo介�?使用Netty的点点滴滴。</p>
+<h2>2�?�?务端程�?</h2>
+<h3>2.1�?ChannelHandler</h3>
+<p>�?务端程�?通常的处�?�过程是：解�?请求数�?��?业务逻辑处�?��?编�?�?应。从框架角度�?�说，�?�以�??供3个接�?��?�控制并调度该处�?�过程；从更通用的角度�?�
+说，并�?特化处�?�其中的�?一步，而把�?一步当�?�过滤器链中的一环，这也是Netty的�?�法。Netty对请求处�?�过程实现了过滤器链模�?
+（ChannelPipeline），�?个过滤器实现了ChannelHandler接�?�。Netty中有两�?请求事件�?类型也�?�了细分：</p>
+<p>1）downstream 
+event：其对应的ChannelHandler�?接�?�是ChannelDownstreamHandler。downstream 
+event是说从头到尾执行ChannelPipeline中的ChannelDownstreamHandler，这一过程相当于�?�外�?��?数�?�的过程。
+ downstream event有：�?write�?�?�?bind�?�?�?unbind�?�? “connect�?�? 
+“disconnect�?�?�?close�?。</p>
+<p>2）upstream 
+event：其对应的ChannelHandler�?接�?�是ChannelUpstreamHandler。upstream 
+event处�?�的事件方�?�和downstream event相�??，这一过程相当于接收处�?�外�?�请求的过程。upstream 
+event有：�?messageReceived�?�? 
+“exceptionCaught�?�?�?channelOpen�?�?�?channelClosed�?�? 
+“channelBound�?�?�?channelUnbound�?�? 
+“channelConnected�?�?�?writeComplete�?�?�?channelDisconnected�?�?�?channelInterestChanged�?。</p>
+<p>Netty中有个注释@interface 
+ChannelPipelineCoverage，它表示被注释的ChannelHandler是�?�能添加到多个ChannelPipeline中，其�?�
+选的值是�?all�?和�?one�?。�?all�?表示ChannelHandler是无状�?的，�?�被多个ChannelPipeline共享，而�?one�?表
+示ChannelHandler�?�作用于�?�个ChannelPipeline中。但ChannelPipelineCoverage�?�是个注释而已，并没
+有实际的检查作用。对于ChannelHandler是�?all�?还是�?one�?，还是根�?�逻辑需�?而定。比如，�?解�?请求handler，因为�?�能解�?
+的数�?��?完整，需�?等待下一次读事件�?�了之�?��?继续解�?，所以解�?请求handler就需�?是�?one�?的（�?�则多个Channel共享数�?�就乱了）。而
+�?业务逻辑处�?�hanlder通常是�?all�?的。</p>
+<p>下�?�以一个简�?�的例�?说明如何编写“解�?请求数�?��?业务逻辑处�?��?编�?�?应�?这一过程中涉�?�的ChannelHandler。该例�?实现的�??议格�?很简�?�，请求和�?应�?中头4个字节表示�?��?�跟的内容长度，根�?�该长度�?�得到内容体。</p>
+<p>首先看下解�?器的实现：</p>
+<div>
+<div>
+<pre><span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">class</span>
+ MessageDecoder <span style="color: #000000; font-weight: bold;">extends</span>
+ FrameDecoder <span style="color: #009900;">{</span>
+
+ 
+    @Override
+    <span style="color: #000000; font-weight: bold;">protected</span>
+ <span style="color: #003399;">Object</span>
+ decode<span style="color: #009900;">(</span>
+
+            ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer<span style="color: #009900;">)</span>
+ <span style="color: #000000; font-weight: bold;">throws</span>
+ <span style="color: #003399;">Exception</span>
+ <span style="color: #009900;">{</span>
+
+        <span style="color: #000000; font-weight: bold;">if</span>
+ <span style="color: #009900;">(</span>
+buffer.<span style="color: #006633;">readableBytes</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #339933;"> <span style="color: #cc66cc;">4</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+            <span style="color: #000000; font-weight: bold;">return</span>
+ <span style="color: #000066; font-weight: bold;">null</span>
+<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(1)</span>
+
+        <span style="color: #009900;">}</span>
+
+        <span style="color: #000066; font-weight: bold;">int</span>
+ dataLength <span style="color: #339933;">=</span>
+ buffer.<span style="color: #006633;">getInt</span>
+<span style="color: #009900;">(</span>
+buffer.<span style="color: #006633;">readerIndex</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #000000; font-weight: bold;">if</span>
+ <span style="color: #009900;">(</span>
+buffer.<span style="color: #006633;">readableBytes</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #339933;"> dataLength <span style="color: #339933;">+</span>
+ <span style="color: #cc66cc;">4</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+            <span style="color: #000000; font-weight: bold;">return</span>
+ <span style="color: #000066; font-weight: bold;">null</span>
+<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(2)</span>
+
+        <span style="color: #009900;">}</span>
+
+ 
+        buffer.<span style="color: #006633;">skipBytes</span>
+<span style="color: #009900;">(</span>
+<span style="color: #cc66cc;">4</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(3)</span>
+
+        <span style="color: #000066; font-weight: bold;">byte</span>
+<span style="color: #009900;">[</span>
+<span style="color: #009900;">]</span>
+ decoded <span style="color: #339933;">=</span>
+ <span style="color: #000000; font-weight: bold;">new</span>
+ <span style="color: #000066; font-weight: bold;">byte</span>
+<span style="color: #009900;">[</span>
+dataLength<span style="color: #009900;">]</span>
+<span style="color: #339933;">;</span>
+
+        buffer.<span style="color: #006633;">readBytes</span>
+<span style="color: #009900;">(</span>
+decoded<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #003399;">String</span>
+ msg <span style="color: #339933;">=</span>
+ <span style="color: #000000; font-weight: bold;">new</span>
+ <span style="color: #003399;">String</span>
+<span style="color: #009900;">(</span>
+decoded<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(4)</span>
+
+        <span style="color: #000000; font-weight: bold;">return</span>
+ msg<span style="color: #339933;">;</span>
+
+    <span style="color: #009900;">}</span>
+
+<span style="color: #009900;">}</span>
+</span>
+</span>
+</pre>
+</div>
+</div>
+<p>MessageDecoder继承自FrameDecoder，FrameDecoder是Netty codec包中的辅助类，它是个ChannelUpstreamHandler，decode方法是FrameDecoder�?类需�?实现的。在上�?�的代�?中，有：</p>
+<p>(1)检查ChannelBuffer中的字节数，如果ChannelBuffer�?�读的字节数少于4,则返回null等待下次读事件。<br>
+(2)继续检查ChannelBuffer中的字节数，如果ChannelBuffer�?�读的字节数少于dataLength + 4，则返回null等待下次读事件。<br>
+(3)越过dataLength的字节。<br>
+(4)构造解�?的字符串返回。</p>
+<div>
+<div>
+<pre>@ChannelPipelineCoverage<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"all"</span>
+<span style="color: #009900;">)</span>
+
+<span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">class</span>
+ MessageServerHandler <span style="color: #000000; font-weight: bold;">extends</span>
+ SimpleChannelUpstreamHandler <span style="color: #009900;">{</span>
+
+ 
+    <span style="color: #000000; font-weight: bold;">private</span>
+ <span style="color: #000000; font-weight: bold;">static</span>
+ <span style="color: #000000; font-weight: bold;">final</span>
+ Logger logger <span style="color: #339933;">=</span>
+ Logger.<span style="color: #006633;">getLogger</span>
+<span style="color: #009900;">(</span>
+
+            MessageServerHandler.<span style="color: #000000; font-weight: bold;">class</span>
+.<span style="color: #006633;">getName</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000066; font-weight: bold;">void</span>
+ messageReceived<span style="color: #009900;">(</span>
+
+            ChannelHandlerContext ctx, MessageEvent e<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+        <span style="color: #000000; font-weight: bold;">if</span>
+ <span style="color: #009900;">(</span>
+<span style="color: #339933;">!</span>
+<span style="color: #009900;">(</span>
+e.<span style="color: #006633;">getMessage</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #000000; font-weight: bold;">instanceof</span>
+ <span style="color: #003399;">String</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+            <span style="color: #000000; font-weight: bold;">return</span>
+<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(1)</span>
+
+        <span style="color: #009900;">}</span>
+
+        <span style="color: #003399;">String</span>
+ msg <span style="color: #339933;">=</span>
+ <span style="color: #009900;">(</span>
+<span style="color: #003399;">String</span>
+<span style="color: #009900;">)</span>
+ e.<span style="color: #006633;">getMessage</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #003399;">System</span>
+.<span style="color: #006633;">err</span>
+.<span style="color: #006633;">println</span>
+<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"got msg:"</span>
+<span style="color: #339933;">+</span>
+msg<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        e.<span style="color: #006633;">getChannel</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+.<span style="color: #006633;">write</span>
+<span style="color: #009900;">(</span>
+msg<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(2)</span>
+
+    <span style="color: #009900;">}</span>
+
+ 
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000066; font-weight: bold;">void</span>
+ exceptionCaught<span style="color: #009900;">(</span>
+
+            ChannelHandlerContext ctx, ExceptionEvent e<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+        logger.<span style="color: #006633;">log</span>
+<span style="color: #009900;">(</span>
+
+                Level.<span style="color: #006633;">WARNING</span>
+,
+                <span style="color: #0000ff;">"Unexpected exception from downstream."</span>
+,
+                e.<span style="color: #006633;">getCause</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        e.<span style="color: #006633;">getChannel</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+.<span style="color: #006633;">close</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+    <span style="color: #009900;">}</span>
+
+<span style="color: #009900;">}</span>
+</pre>
+</div>
+</div>
+<p>MessageServerHandler是�?务端业务处�?�handler，其继承自SimpleChannelUpstreamHandler，并主�?实现messageReceived事件。关于该类，有如下注解：</p>
+<p>(1)该upstream事件�?中，首先�?过MessageDecoder，其会将decode返回的解�?�?�的数�?�构造�? 
+MessageEvent.getMessage()，所以在handler上下文关系中，MessageEvent.getMessage()并�?一定
+都返回ChannelBuffer类型的数�?�。<br>
+(2)MessageServerHandler�?�是简�?�的将得到的msg�?写回给客户端。e.getChannel().write(msg);�?作将
+触�?�DownstreamMessageEvent事件，也就是调用下�?�的MessageEncoder将编�?的数�?�返回给客户端。</p>
+<div>
+<div>
+<pre>@ChannelPipelineCoverage<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"all"</span>
+<span style="color: #009900;">)</span>
+
+<span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">class</span>
+ MessageEncoder <span style="color: #000000; font-weight: bold;">extends</span>
+ OneToOneEncoder <span style="color: #009900;">{</span>
+
+ 
+    @Override
+    <span style="color: #000000; font-weight: bold;">protected</span>
+ <span style="color: #003399;">Object</span>
+ encode<span style="color: #009900;">(</span>
+
+            ChannelHandlerContext ctx, Channel channel, <span style="color: #003399;">Object</span>
+ msg<span style="color: #009900;">)</span>
+ <span style="color: #000000; font-weight: bold;">throws</span>
+ <span style="color: #003399;">Exception</span>
+ <span style="color: #009900;">{</span>
+
+        <span style="color: #000000; font-weight: bold;">if</span>
+ <span style="color: #009900;">(</span>
+<span style="color: #339933;">!</span>
+<span style="color: #009900;">(</span>
+msg <span style="color: #000000; font-weight: bold;">instanceof</span>
+ <span style="color: #003399;">String</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+            <span style="color: #000000; font-weight: bold;">return</span>
+ msg<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(1)</span>
+
+        <span style="color: #009900;">}</span>
+
+ 
+        <span style="color: #003399;">String</span>
+ res <span style="color: #339933;">=</span>
+ <span style="color: #009900;">(</span>
+<span style="color: #003399;">String</span>
+<span style="color: #009900;">)</span>
+msg<span style="color: #339933;">;</span>
+
+        <span style="color: #000066; font-weight: bold;">byte</span>
+<span style="color: #009900;">[</span>
+<span style="color: #009900;">]</span>
+ data <span style="color: #339933;">=</span>
+ res.<span style="color: #006633;">getBytes</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #000066; font-weight: bold;">int</span>
+ dataLength <span style="color: #339933;">=</span>
+ data.<span style="color: #006633;">length</span>
+<span style="color: #339933;">;</span>
+
+        ChannelBuffer buf <span style="color: #339933;">=</span>
+ ChannelBuffers.<span style="color: #006633;">dynamicBuffer</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(2)</span>
+
+        buf.<span style="color: #006633;">writeInt</span>
+<span style="color: #009900;">(</span>
+dataLength<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        buf.<span style="color: #006633;">writeBytes</span>
+<span style="color: #009900;">(</span>
+data<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #000000; font-weight: bold;">return</span>
+ buf<span style="color: #339933;">;</span>
+<span style="font-style: italic; color: #666666;">//(3)</span>
+
+    <span style="color: #009900;">}</span>
+
+<span style="color: #009900;">}</span>
+</pre>
+</div>
+</div>
+<p>MessageEncoder是个ChannelDownstreamHandler。对该类的注解如下：</p>
+<p>(1)如果编�?的msg�?是�?�法类型，就直接返回该msg，之�?�OneToOneEncoder会调用 ctx.sendDownstream(evt);�?�调用下一个ChannelDownstreamHandler。对于该例�?�?�说，这�?情况是�?应该出现的。<br>
+(2)开�?�者创建ChannelBuffer的用武之地就是这儿了，通常使用dynamicBuffer�?��?�，表示得到的ChannelBuffer�?�动�?增加大�?。<br>
+(3)返回编�?�?�的ChannelBuffer之�?�，OneToOneEncoder会调用Channels.write将数�?�写回客户端。</p>
+<h3>2.2�?MessageServerPipelineFactory</h3>
+<p>创建了3个ChannelHandler，需�?将他们注册到ChannelPipeline，而ChannelPipeline�?�是和
+Channel对应的（是全局�?�例还是�?个Channel对应一个ChannelPipeline实例�?赖于实现）。�?�以实现
+ChannelPipeline的工厂接�?� 
+ChannelPipelineFactory实现该目的。MessageServerPipelineFactory的代�?如下：</p>
+<div>
+<div>
+<pre><span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">class</span>
+ MessageServerPipelineFactory <span style="color: #000000; font-weight: bold;">implements</span>
+
+        ChannelPipelineFactory <span style="color: #009900;">{</span>
+
+ 
+    <span style="color: #000000; font-weight: bold;">public</span>
+ ChannelPipeline getPipeline<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #000000; font-weight: bold;">throws</span>
+ <span style="color: #003399;">Exception</span>
+ <span style="color: #009900;">{</span>
+
+        ChannelPipeline pipeline <span style="color: #339933;">=</span>
+ pipeline<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+        pipeline.<span style="color: #006633;">addLast</span>
+<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"decoder"</span>
+, <span style="color: #000000; font-weight: bold;">new</span>
+ MessageDecoder<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        pipeline.<span style="color: #006633;">addLast</span>
+<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"encoder"</span>
+, <span style="color: #000000; font-weight: bold;">new</span>
+ MessageEncoder<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        pipeline.<span style="color: #006633;">addLast</span>
+<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"handler"</span>
+, <span style="color: #000000; font-weight: bold;">new</span>
+ MessageServerHandler<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+        <span style="color: #000000; font-weight: bold;">return</span>
+ pipeline<span style="color: #339933;">;</span>
+
+    <span style="color: #009900;">}</span>
+
+<span style="color: #009900;">}</span>
+</pre>
+</div>
+</div>
+<h3>2.3�?MessageServer</h3>
+<p>�?务端程�?就剩下�?�动代�?了，使用Netty的ServerBootstrap三下五除二完�?之。</p>
+<div>
+<div>
+<pre><span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">class</span>
+ MessageServer <span style="color: #009900;">{</span>
+
+ 
+    <span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">static</span>
+ <span style="color: #000066; font-weight: bold;">void</span>
+ main<span style="color: #009900;">(</span>
+<span style="color: #003399;">String</span>
+<span style="color: #009900;">[</span>
+<span style="color: #009900;">]</span>
+ args<span style="color: #009900;">)</span>
+ <span style="color: #000000; font-weight: bold;">throws</span>
+ <span style="color: #003399;">Exception</span>
+ <span style="color: #009900;">{</span>
+
+        <span style="font-style: italic; color: #666666;">// Configure the server.</span>
+
+        ServerBootstrap bootstrap <span style="color: #339933;">=</span>
+ <span style="color: #000000; font-weight: bold;">new</span>
+ ServerBootstrap<span style="color: #009900;">(</span>
+
+                <span style="color: #000000; font-weight: bold;">new</span>
+ NioServerSocketChannelFactory<span style="color: #009900;">(</span>
+
+                        Executors.<span style="color: #006633;">newCachedThreadPool</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+,
+                        Executors.<span style="color: #006633;">newCachedThreadPool</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+        <span style="font-style: italic; color: #666666;">// Set up the default event pipeline.</span>
+
+        bootstrap.<span style="color: #006633;">setPipelineFactory</span>
+<span style="color: #009900;">(</span>
+<span style="color: #000000; font-weight: bold;">new</span>
+ MessageServerPipelineFactory<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+        <span style="font-style: italic; color: #666666;">// Bind and start to accept incoming connections.</span>
+
+        bootstrap.<span style="color: #006633;">bind</span>
+<span style="color: #009900;">(</span>
+<span style="color: #000000; font-weight: bold;">new</span>
+ InetSocketAddress<span style="color: #009900;">(</span>
+<span style="color: #cc66cc;">8080</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+    <span style="color: #009900;">}</span>
+
+<span style="color: #009900;">}</span>
+</pre>
+</div>
+</div>
+<p>�?加补充的是，该Server程�?并�?完整，它没有处�?�关闭时的资�?释放，尽管暴力的�?�看并�?一定需�?�?�这样的善�?�工作。</p>
+<h2>3�?客户端程�?</h2>
+<p>客户端程�?和�?务端程�?处�?�模型上是很相似的，这里还是付上代�?并作简�?说明。</p>
+<h3>3.1�? ChannelHandler</h3>
+<p>客户端是先�?��?数�?�到�?务端（downstream事件�?），然�?�是处�?�从�?务端接收的数�?�（upstream事件�?）。这里有个问题是，怎么把需
+�?�?��?的数�?��?到downstream事件�?里呢？这就用到了ChannelUpstreamHandler的channelConnected事件了。
+实现的 MessageClientHandler代�?如下：</p>
+<div>
+<div>
+<pre>@ChannelPipelineCoverage<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"all"</span>
+<span style="color: #009900;">)</span>
+
+<span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">class</span>
+ MessageClientHandler <span style="color: #000000; font-weight: bold;">extends</span>
+ SimpleChannelUpstreamHandler <span style="color: #009900;">{</span>
+
+ 
+    <span style="color: #000000; font-weight: bold;">private</span>
+ <span style="color: #000000; font-weight: bold;">static</span>
+ <span style="color: #000000; font-weight: bold;">final</span>
+ Logger logger <span style="color: #339933;">=</span>
+ Logger.<span style="color: #006633;">getLogger</span>
+<span style="color: #009900;">(</span>
+
+            MessageClientHandler.<span style="color: #000000; font-weight: bold;">class</span>
+.<span style="color: #006633;">getName</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+ 
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000066; font-weight: bold;">void</span>
+ channelConnected<span style="color: #009900;">(</span>
+
+            ChannelHandlerContext ctx, ChannelStateEvent e<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+        <span style="color: #003399;">String</span>
+ message <span style="color: #339933;">=</span>
+ <span style="color: #0000ff;">"hello kafka0102"</span>
+<span style="color: #339933;">;</span>
+
+        e.<span style="color: #006633;">getChannel</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+.<span style="color: #006633;">write</span>
+<span style="color: #009900;">(</span>
+message<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+    <span style="color: #009900;">}</span>
+
+ 
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000066; font-weight: bold;">void</span>
+ messageReceived<span style="color: #009900;">(</span>
+
+            ChannelHandlerContext ctx, MessageEvent e<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+        <span style="font-style: italic; color: #666666;">// Send back the received message to the remote peer.</span>
+
+        <span style="color: #003399;">System</span>
+.<span style="color: #006633;">err</span>
+.<span style="color: #006633;">println</span>
+<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"messageReceived send message "</span>
+<span style="color: #339933;">+</span>
+e.<span style="color: #006633;">getMessage</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #000000; font-weight: bold;">try</span>
+ <span style="color: #009900;">{</span>
+
+            <span style="color: #003399;">Thread</span>
+.<span style="color: #006633;">sleep</span>
+<span style="color: #009900;">(</span>
+<span style="color: #cc66cc;">1000</span>
+<span style="color: #339933;">*</span>
+<span style="color: #cc66cc;">3</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #009900;">}</span>
+ <span style="color: #000000; font-weight: bold;">catch</span>
+ <span style="color: #009900;">(</span>
+<span style="color: #003399;">Exception</span>
+ ex<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+            ex.<span style="color: #006633;">printStackTrace</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #009900;">}</span>
+
+        e.<span style="color: #006633;">getChannel</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+.<span style="color: #006633;">write</span>
+<span style="color: #009900;">(</span>
+e.<span style="color: #006633;">getMessage</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+    <span style="color: #009900;">}</span>
+
+ 
+    @Override
+    <span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000066; font-weight: bold;">void</span>
+ exceptionCaught<span style="color: #009900;">(</span>
+
+            ChannelHandlerContext ctx, ExceptionEvent e<span style="color: #009900;">)</span>
+ <span style="color: #009900;">{</span>
+
+        <span style="font-style: italic; color: #666666;">// Close the connection when an exception is raised.</span>
+
+        logger.<span style="color: #006633;">log</span>
+<span style="color: #009900;">(</span>
+
+                Level.<span style="color: #006633;">WARNING</span>
+,
+                <span style="color: #0000ff;">"Unexpected exception from downstream."</span>
+,
+                e.<span style="color: #006633;">getCause</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        e.<span style="color: #006633;">getChannel</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+.<span style="color: #006633;">close</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+    <span style="color: #009900;">}</span>
+
+<span style="color: #009900;">}</span>
+</pre>
+</div>
+</div>
+<p>对于编�?和解�?Handler，�?用MessageEncoder和MessageDecoder�?��?�。</p>
+<h3>3.2�? MessageClientPipelineFactory</h3>
+<div>
+<div>
+<pre>    <span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">class</span>
+ MessageClientPipelineFactory <span style="color: #000000; font-weight: bold;">implements</span>
+
+        ChannelPipelineFactory <span style="color: #009900;">{</span>
+
+ 
+    <span style="color: #000000; font-weight: bold;">public</span>
+ ChannelPipeline getPipeline<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+ <span style="color: #000000; font-weight: bold;">throws</span>
+ <span style="color: #003399;">Exception</span>
+ <span style="color: #009900;">{</span>
+
+        ChannelPipeline pipeline <span style="color: #339933;">=</span>
+ pipeline<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+        pipeline.<span style="color: #006633;">addLast</span>
+<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"decoder"</span>
+, <span style="color: #000000; font-weight: bold;">new</span>
+ MessageDecoder<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        pipeline.<span style="color: #006633;">addLast</span>
+<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"encoder"</span>
+, <span style="color: #000000; font-weight: bold;">new</span>
+ MessageEncoder<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        pipeline.<span style="color: #006633;">addLast</span>
+<span style="color: #009900;">(</span>
+<span style="color: #0000ff;">"handler"</span>
+, <span style="color: #000000; font-weight: bold;">new</span>
+ MessageClientHandler<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+ 
+        <span style="color: #000000; font-weight: bold;">return</span>
+ pipeline<span style="color: #339933;">;</span>
+
+    <span style="color: #009900;">}</span>
+
+<span style="color: #009900;">}</span>
+</pre>
+</div>
+</div>
+<h3>3.3�?MessageClient</h3>
+<div>
+<div>
+<pre><span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">class</span>
+ MessageClient <span style="color: #009900;">{</span>
+
+ 
+    <span style="color: #000000; font-weight: bold;">public</span>
+ <span style="color: #000000; font-weight: bold;">static</span>
+ <span style="color: #000066; font-weight: bold;">void</span>
+ main<span style="color: #009900;">(</span>
+<span style="color: #003399;">String</span>
+<span style="color: #009900;">[</span>
+<span style="color: #009900;">]</span>
+ args<span style="color: #009900;">)</span>
+ <span style="color: #000000; font-weight: bold;">throws</span>
+ <span style="color: #003399;">Exception</span>
+ <span style="color: #009900;">{</span>
+
+        <span style="font-style: italic; color: #666666;">// Parse options.</span>
+
+        <span style="color: #003399;">String</span>
+ host <span style="color: #339933;">=</span>
+ <span style="color: #0000ff;">"127.0.0.1"</span>
+<span style="color: #339933;">;</span>
+
+        <span style="color: #000066; font-weight: bold;">int</span>
+ port <span style="color: #339933;">=</span>
+ <span style="color: #cc66cc;">8080</span>
+<span style="color: #339933;">;</span>
+
+        <span style="font-style: italic; color: #666666;">// Configure the client.</span>
+
+        ClientBootstrap bootstrap <span style="color: #339933;">=</span>
+ <span style="color: #000000; font-weight: bold;">new</span>
+ ClientBootstrap<span style="color: #009900;">(</span>
+
+                <span style="color: #000000; font-weight: bold;">new</span>
+ NioClientSocketChannelFactory<span style="color: #009900;">(</span>
+
+                        Executors.<span style="color: #006633;">newCachedThreadPool</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+,
+                        Executors.<span style="color: #006633;">newCachedThreadPool</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="font-style: italic; color: #666666;">// Set up the event pipeline factory.</span>
+
+        bootstrap.<span style="color: #006633;">setPipelineFactory</span>
+<span style="color: #009900;">(</span>
+<span style="color: #000000; font-weight: bold;">new</span>
+ MessageClientPipelineFactory<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="font-style: italic; color: #666666;">// Start the connection attempt.</span>
+
+        ChannelFuture future <span style="color: #339933;">=</span>
+ bootstrap.<span style="color: #006633;">connect</span>
+<span style="color: #009900;">(</span>
+<span style="color: #000000; font-weight: bold;">new</span>
+ InetSocketAddress<span style="color: #009900;">(</span>
+host, port<span style="color: #009900;">)</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="font-style: italic; color: #666666;">// Wait until the connection is closed or the connection attempt fails.</span>
+
+        future.<span style="color: #006633;">getChannel</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+.<span style="color: #006633;">getCloseFuture</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+.<span style="color: #006633;">awaitUninterruptibly</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+        <span style="font-style: italic; color: #666666;">// Shut down thread pools to exit.</span>
+
+        bootstrap.<span style="color: #006633;">releaseExternalResources</span>
+<span style="color: #009900;">(</span>
+<span style="color: #009900;">)</span>
+<span style="color: #339933;">;</span>
+
+    <span style="color: #009900;">}</span>
+
+<span style="color: #009900;">}</span>
+</pre>
+</div>
+</div>
+<p>在写客户端例�?时，我想�?的代�?并�?是这样的，对客户端的代�?我也没�?�过多的研究，所以也�?�能没有找到更好的解决方案。在上�?�的例�?
+中，bootstrap.connect方法中会触�?�实际的连接�?作，接�?�触�?� 
+MessageClientHandler.channelConnected，使整个过程�?转起�?�。但是，我想�?的是一个连接池，并且如何写数�?�也�?应
+该在channelConnected中，这样对于动�?的数�?�，�?�能在构造函数中传递需�?写的数�?�了。但到现在，我还�?清楚如何将连接池和 
+ChannelPipeline有效的结�?�起�?�。或许，这样的需求�?�以跨过Netty�?�实现。</p>
+<h2>4�?总结</h2>
+<p>关于Netty的�?步使用，尚且总结到这里。关于这篇文章，写得断断续续，以至于到�?��?�我都没兴趣把内容都整�?�出�?�。当然，这多少也是因为我是先整�?� Netty原�?�方�?�的东西所致。我也�?�能�?�微的期望，该文对Netty入门者会有些许帮助。</p>
+</div>
+ </div><div class="c_a_4"><script language="javascript">c_a_4();</script></div>   <div class="c_a_5_1"><script language="javascript">c_a_5_1();</script></div><div class="c_a_6"><script language="javascript">c_a_6();</script></div>  <div class="c_r"><div class="c_r_t"><span class="c_r_t_s">相关解决方案</span></div><div class="c_r_c"><ul>   <li>  <span class="n_t n">1</span>  <span class="c_r_c_s"><a target="_blank" href="http://www.myexception.cn/software-architecture-design/882862.html"><font color='red'>Netty</font><font color='red'>应用</font><font color='red'>�?步</font></a></span></li>  <li>  <span class="n_t n">2</span>  <span class="c_r_c_s"><a target="_blank" href="http://www.myexception.cn/software-architecture-design/409460.html"><font color='red'>Netty</font>施用<font color='red'>�?步</font></a></span></li>  <li>  <span class="n_t n">3</span>  <span class="c_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/784977.html"><font color='red'>Netty</font>�?用<font color='red'>�?步</font></a></span></li>  <li>  <span class="n_n n">4</span>  <span class="c_r_c_s"><a target="_blank" href="http://www.myexception.cn/internet/927357.html"><font color='red'>netty</font>学习札记（<font color='red'>�?步</font>）</a></span></li>  <li>  <span class="n_n n">5</span>  <span class="c_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1340899.html"><font color='red'>Netty</font><font color='red'>�?步</font>之hello world </a></span></li>   </ul></div></div>  <div class="c_a_7"><script language="javascript">c_a_7();</script></div><div class="c_a_8"><script language="javascript">c_a_8();</script></div><div class="c_a_9"><script language="javascript">c_a_9();</script></div><div class="col"><div class="col_m"><a id="s1" onmouseover="col_m(1)" href="javascript:void(0)" class="on">编程-热门</a><a id="s2" onmouseover="col_m(2)" href="javascript:void(0)" class="">编程-最新</a><a id="s3" onmouseover="col_m(3)" href="javascript:void(0)" class="">编程-其它</a></div><div class="col_c" style="display: block;" id="e1"><ul>   <li>  <span class="col_n_t n">1</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/667501.html">mybatis作if判断注�?</a></span></li>  <li>  <span class="col_n_t n">2</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/656160.html">jetty起动出现A full JDK (not just JRE) is required</a></span></li>  <li>  <span class="col_n_t n">3</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1009062.html">�?米抢购软件 �?�?上载</a></span></li>  <li>  <span class="n_n n">4</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/586003.html">�?用easyUI添加查询功能在datagrid</a></span></li>  <li>  <span class="n_n n">5</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/689077.html">没法打开包括文件:“stdafx.h�?: No such file or directory</a></span></li>  <li>  <span class="n_n n">6</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/567745.html">openCv学习札记（二）—cv:Mat学习</a></span></li>  <li>  <span class="n_n n">7</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/659260.html">JDK1.6 64�?上载地�?�</a></span></li>  <li>  <span class="n_n n">8</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/771017.html">jquery easyui 将combobox 设为�?�读步骤</a></span></li>  <li>  <span class="n_n n">9</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/673928.html">Incorrect string value: '\xE6\x9B\xB9\xE5\x86\xAC.' for column 'realname' at r</a></span></li>  <li>  <span class="n_n n">10</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/913185.html">activiti学习文件(Activiti Modeler)</a></span></li>   </ul></div><div class="col_c" style="display: none;" id="e2"><ul>   <li>  <span class="col_n_t n">1</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/731553.html">log4j决对路path</a></span></li>  <li>  <span class="col_n_t n">2</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/792171.html">《编程机制探�?》第10六章 树形递归</a></span></li>  <li>  <span class="col_n_t n">3</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/792475.html">无心中找到的好东西</a></span></li>  <li>  <span class="n_n n">4</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/834989.html">�?赖注入的三�?步骤（转）</a></span></li>  <li>  <span class="n_n n">5</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/850005.html">Ext获�?�年度</a></span></li>  <li>  <span class="n_n n">6</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/850333.html">第10一章。并�?�</a></span></li>  <li>  <span class="n_n n">7</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/758210.html">�?路的售票系统回说明分库分表对架构的影�?</a></span></li>  <li>  <span class="n_n n">8</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/766490.html">java.text.ParseException: Unparseable date: 2011-11-八</a></span></li>  <li>  <span class="n_n n">9</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/869288.html">derby 汉语言乱�?解决</a></span></li>  <li>  <span class="n_n n">10</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/892197.html">build  openjdk-七-fcs-src-b147-27_jun_2011</a></span></li>   </ul></div><div class="col_c" style="display: none;" id="e3"><ul>   <li>  <span class="col_n_t n">1</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473773.html">�?JVM】HotSpot JVM内存管�?�跟GC策略总结（转）</a></span></li>  <li>  <span class="col_n_t n">2</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473759.html">maven惯用命令集</a></span></li>  <li>  <span class="col_n_t n">3</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473762.html">JA-SIG（CAS）学习笔记二</a></span></li>  <li>  <span class="n_n n">4</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473746.html">数�?��?移�?验总结</a></span></li>  <li>  <span class="n_n n">5</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473743.html">2012-三用户数�?��?移�?�SNS</a></span></li>  <li>  <span class="n_n n">6</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473763.html">UTF-八 �?列的字节 1 无效</a></span></li>  <li>  <span class="n_n n">7</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473793.html">Java并�?�编程知识</a></span></li>  <li>  <span class="n_n n">8</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473745.html">C使用makefile编译范例</a></span></li>  <li>  <span class="n_n n">9</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473760.html">java中class.forName()的�?��?和作用</a></span></li>  <li>  <span class="n_n n">10</span>  <span class="col_r_c_s"><a target="_blank" href="http://www.myexception.cn/program/1473766.html">java一次性查询几�??万，几百万数�?�解决方法</a></span></li>   </ul></div></div><div class="c_a_10"><script language="javascript">c_a_10();</script></div><div class="c_a_11"><script language="javascript">c_a_11();</script></div><div class="c_p_o"><ul><li> 上一篇： <a target="_blank" href="http://www.myexception.cn/program/784090.html">java中list寄存的元素</a> </li><li> 下一篇： <a target="_blank" href="http://www.myexception.cn/program/784084.html">简略的fork</a> </li></ul></div><div class="c_a_12"><script language="javascript">c_a_12();</script></div></div><div class="r"><div class="c_r_a c_r_1_a"><script language="javascript">c_r_1_a();</script></div><div class="c_r_a c_r_2_a"><script language="javascript">c_r_2_a();</script></div><div class="c_r_a c_r_3_a"><script language="javascript">c_r_3_a();</script></div><div class="c_r_a c_r_4_a"><script language="javascript">c_r_4_a();</script></div><div class="c_r_a c_r_5_a"><script language="javascript">c_r_5_a();</script></div><div class="c_r_a c_r_6_a"><script language="javascript">c_r_6_a();</script></div><div class="c_r_a c_r_7_a"><script language="javascript">c_r_7_a();</script></div><div class="c_r_a c_r_8_a"><script language="javascript">c_r_8_a();</script></div><div class="c_r_a c_r_9_a"><script language="javascript">c_r_9_a();</script></div><div class="c_r_a c_r_10_a"><script language="javascript">c_r_10_a();</script></div></div></div><div class="m_t" id="m_t"><div class="m_t_h"><span class="m_t_h_s">�?�类解决方案</span><a href="http://www.myexception.cn/h/" target="_blank" class="m_t_h_a">>>热门�?�索</a></div><div class="m_t_c"><div class="m_t_c_1"><div class="m_t_c_n"><span>WEB开�?�</span><ul><li><a href="http://www.myexception.cn/web-develop/" target="_blank">Web开�?�</a></li><li><a href="http://www.myexception.cn/web/" target="_blank">Web�?端</a></li><li><a href="http://www.myexception.cn/HTML-CSS/" target="_blank">HTML/CSS</a></li><li><a href="http://www.myexception.cn/php/" target="_blank">PHP</a></li><li><a href="http://www.myexception.cn/asp/" target="_blank">ASP</a></li><li><a href="http://www.myexception.cn/javascript/" target="_blank">JavaScript</a></li><li><a href="http://www.myexception.cn/vbscript/" target="_blank">vbScript</a></li><li><a href="http://www.myexception.cn/ajax/" target="_blank">Ajax</a></li><li><a href="http://www.myexception.cn/website-design/" target="_blank">网页设计</a></li><li><a href="http://www.myexception.cn/cross-browser/" target="_blank">跨�?览器开�?�</a></li><li><a href="http://www.myexception.cn/hp-web-develop/" target="_blank">高性能WEB开�?�</a></li><li><a href="http://www.myexception.cn/web-service/" target="_blank">Web Service</a></li><li><a href="http://www.myexception.cn/xml-soap/" target="_blank">XML/SOAP</a></li><li><a href="http://www.myexception.cn/cgi/" target="_blank">CGI</a></li></ul></div><div class="m_t_c_n"><span>数�?�库</span><ul><li><a href="http://www.myexception.cn/database/" target="_blank">数�?�库</a></li><li><a href="http://www.myexception.cn/sql/" target="_blank">SQL</a></li><li><a href="http://www.myexception.cn/mysql/" target="_blank">MySQL</a></li><li><a href="http://www.myexception.cn/oracle-technology/" target="_blank">Oracle技术</a></li><li><a href="http://www.myexception.cn/oracle-management/" target="_blank">Oracle管�?�</a></li><li><a href="http://www.myexception.cn/oracle-develop/" target="_blank">Oracle开�?�</a></li><li><a href="http://www.myexception.cn/oracle-interview/" target="_blank">Oracle�?�试</a></li><li><a href="http://www.myexception.cn/oracle exception/" target="_blank">Oracle Exception</a></li><li><a href="http://www.myexception.cn/sql-server/" target="_blank">Sql Server</a></li><li><a href="http://www.myexception.cn/informix/" target="_blank">Informix</a></li><li><a href="http://www.myexception.cn/sybase/" target="_blank">Sybase</a></li><li><a href="http://www.myexception.cn/DB2/" target="_blank">DB2</a></li><li><a href="http://www.myexception.cn/access/" target="_blank">Access</a></li><li><a href="http://www.myexception.cn/vfp/" target="_blank">VFP</a></li><li><a href="http://www.myexception.cn/data-warehouse/" target="_blank">数�?�仓库</a></li><li><a href="http://www.myexception.cn/hp-database/" target="_blank">高性能数�?�库开�?�</a></li><li><a href="http://www.myexception.cn/other-database/" target="_blank">其他数�?�库</a></li></ul></div><div class="m_t_tri"></div></div><div class="m_t_c_2"><div class="m_t_c_n"><span>移动开�?�</span><ul><li><a href="http://www.myexception.cn/mobile/" target="_blank">移动开�?�</a></li><li><a href="http://www.myexception.cn/android/" target="_blank">Android</a></li><li><a href="http://www.myexception.cn/iphone/" target="_blank">Iphone</a></li><li><a href="http://www.myexception.cn/windows-mobile/" target="_blank">Windows Mobile</a></li><li><a href="http://www.myexception.cn/symbian/" target="_blank">Symbian</a></li><li><a href="http://www.myexception.cn/blackberry/" target="_blank">BlackBerry</a></li><li><a href="http://www.myexception.cn/qt/" target="_blank">QT开�?�</a></li><li><a href="http://www.myexception.cn/brew/" target="_blank">Brew</a></li><li><a href="http://www.myexception.cn/meego/" target="_blank">MeeGo</a></li><li><a href="http://www.myexception.cn/mobile-platform/" target="_blank">移动平�?�</a></li><li><a href="http://www.myexception.cn/mobile-develop/" target="_blank">移动软件开�?�</a></li><li><a href="http://www.myexception.cn/telecom-it/" target="_blank">电信IT应用开�?�</a></li><li><a href="http://www.myexception.cn/mobile-application/" target="_blank">移动应用</a></li></ul></div><div class="m_t_c_n"><span>�?业软件/开�?�</span><ul><li><a href="http://www.myexception.cn/enterprise/" target="_blank">�?业开�?�</a></li><li><a href="http://www.myexception.cn/enterprise-information/" target="_blank">�?业信�?�化</a></li><li><a href="http://www.myexception.cn/industry/" target="_blank">行业应用</a></li><li><a href="http://www.myexception.cn/gis/" target="_blank">GIS</a></li><li><a href="http://www.myexception.cn/sap/" target="_blank">SAP</a></li><li><a href="http://www.myexception.cn/tivoli/" target="_blank">Tivoli</a></li><li><a href="http://www.myexception.cn/lotus/" target="_blank">Lotus</a></li><li><a href="http://www.myexception.cn/exchange/" target="_blank">Exchange</a></li><li><a href="http://www.myexception.cn/sharepoint/" target="_blank">SharePoint</a></li><li><a href="http://www.myexception.cn/report/" target="_blank">报表</a></li></ul></div><div class="m_t_c_n"><span>硬件/嵌入开�?�</span><ul><li><a href="http://www.myexception.cn/embedded/" target="_blank">嵌入开�?�</a></li><li><a href="http://www.myexception.cn/wince/" target="_blank">WinCE</a></li><li><a href="http://www.myexception.cn/hardware/" target="_blank">硬件开�?�</a></li><li><a href="http://www.myexception.cn/scm/" target="_blank">�?�片机</a></li><li><a href="http://www.myexception.cn/assembly-language/" target="_blank">汇编语言</a></li><li><a href="http://www.myexception.cn/embedded-driver/" target="_blank">驱动开�?�</a></li><li><a href="http://www.myexception.cn/wireless/" target="_blank">Wireless</a></li><li><a href="http://www.myexception.cn/vxworks/" target="_blank">VxWorks</a></li></ul></div><div class="m_t_tri"></div></div><div class="m_t_c_3"><div class="m_t_c_n"><span>JAVA</span><ul><li><a href="http://www.myexception.cn/java-web/" target="_blank">Java Web开�?�</a></li><li><a href="http://www.myexception.cn/j2ee/" target="_blank">J2EE</a></li><li><a href="http://www.myexception.cn/j2se/" target="_blank">J2SE</a></li><li><a href="http://www.myexception.cn/j2me/" target="_blank">J2ME</a></li><li><a href="http://www.myexception.cn/java-interview/" target="_blank">Java�?�试</a></li><li><a href="http://www.myexception.cn/java-other/" target="_blank">Java相关</a></li><li><a href="http://www.myexception.cn/eclipse/" target="_blank">Eclipse</a></li><li><a href="http://www.myexception.cn/java exception/" target="_blank">Java Exception</a></li></ul></div><div class="m_t_c_n"><span>应用�?务器</span><ul><li><a href="http://www.myexception.cn/web-application-server/" target="_blank">应用�?务器</a></li><li><a href="http://www.myexception.cn/apache/" target="_blank">Apache</a></li><li><a href="http://www.myexception.cn/iis/" target="_blank">IIS</a></li><li><a href="http://www.myexception.cn/jboss/" target="_blank">JBoss</a></li><li><a href="http://www.myexception.cn/websphere/" target="_blank">WebSphere</a></li><li><a href="http://www.myexception.cn/weblogic/" target="_blank">Weblogic</a></li><li><a href="http://www.myexception.cn/coldfusion/" target="_blank">ColdFusion</a></li></ul></div><div class="m_t_c_n"><span>软件工程/管�?�/测试</span><ul><li><a href="http://www.myexception.cn/software/" target="_blank">研�?�管�?�</a></li><li><a href="http://www.myexception.cn/software-manage/" target="_blank">项目管�?�</a></li><li><a href="http://www.myexception.cn/develop-process/" target="_blank">开�?�过程</a></li><li><a href="http://www.myexception.cn/develop-method/" target="_blank">开�?�方法</a></li><li><a href="http://www.myexception.cn/software-design/" target="_blank">软件设计</a></li><li><a href="http://www.myexception.cn/design-patterns/" target="_blank">设计模�?</a></li><li><a href="http://www.myexception.cn/software-architecture-design/" target="_blank">软件架构设计</a></li><li><a href="http://www.myexception.cn/agile/" target="_blank">�?�?�开�?�</a></li><li><a href="http://www.myexception.cn/weichuang/" target="_blank">微创软件开�?�</a></li><li><a href="http://www.myexception.cn/cvs-svn/" target="_blank">CVS/SVN</a></li><li><a href="http://www.myexception.cn/vsts/" target="_blank">VSTS</a></li><li><a href="http://www.myexception.cn/powerdesigner/" target="_blank">PowerDesigner</a></li><li><a href="http://www.myexception.cn/rational/" target="_blank">Rational</a></li><li><a href="http://www.myexception.cn/software-testing/" target="_blank">软件测试</a></li></ul></div><div class="m_t_tri"></div></div><div class="m_t_c_4"><div class="m_t_c_n"><span>.NET</span><ul><li><a href="http://www.myexception.cn/c-sharp/" target="_blank">C#</a></li><li><a href="http://www.myexception.cn/asp-dotnet/" target="_blank">ASP.NET</a></li><li><a href="http://www.myexception.cn/dotnet-framework/" target="_blank">.NET Framework</a></li><li><a href="http://www.myexception.cn/vb-dotnet/" target="_blank">VB Dotnet</a></li><li><a href="http://www.myexception.cn/vc-dotnet/" target="_blank">VC</a></li><li><a href="http://www.myexception.cn/dotnet-analysis-design/" target="_blank">.NET分�?设计</a></li><li><a href="http://www.myexception.cn/dotnet_controls/" target="_blank">.NET组件控件</a></li><li><a href="http://www.myexception.cn/j-sharp/" target="_blank">J#</a></li><li><a href="http://www.myexception.cn/delphi-dotnet/" target="_blank">Delphi</a></li><li><a href="http://www.myexception.cn/dotnet-report/" target="_blank">.NET报表</a></li><li><a href="http://www.myexception.cn/linq/" target="_blank">LINQ</a></li><li><a href="http://www.myexception.cn/dotnet-new-tech/" target="_blank">.NET新技术</a></li><li><a href="http://www.myexception.cn/dotnet-interview/" target="_blank">.NET�?�试</a></li><li><a href="http://www.myexception.cn/dotnet-other/" target="_blank">.NET相关</a></li><li><a href="http://www.myexception.cn/dotnet exception/" target="_blank">DotNet Exception</a></li></ul></div><div class="m_t_c_n"><span>Linux/Unix</span><ul><li><a href="http://www.myexception.cn/linux-unix/" target="_blank">Linux/Unix</a></li><li><a href="http://www.myexception.cn/solaris/" target="_blank">Solaris</a></li><li><a href="http://www.myexception.cn/aix/" target="_blank">AIX</a></li></ul></div><div class="m_t_c_n"><span>多媒体</span><ul><li><a href="http://www.myexception.cn/multimedia/" target="_blank">多媒体/�?媒体开�?�</a></li><li><a href="http://www.myexception.cn/multimedia-design/" target="_blank">多媒体设计</a></li><li><a href="http://www.myexception.cn/interactive-design/" target="_blank">交互�?开�?�</a></li><li><a href="http://www.myexception.cn/flash/" target="_blank">Flash</a></li><li><a href="http://www.myexception.cn/image/" target="_blank">图形/图�?</a></li><li><a href="http://www.myexception.cn/image-tool/" target="_blank">图�?工具使用</a></li><li><a href="http://www.myexception.cn/flex/" target="_blank">Flex</a></li><li><a href="http://www.myexception.cn/autocad/" target="_blank">AutoCAD</a></li><li><a href="http://www.myexception.cn/silverlight/" target="_blank">Silverlight</a></li></ul></div><div class="m_t_tri"></div></div><div class="m_t_c_5"><div class="m_t_c_n"><span>开�?�语言/框架</span><ul><li><a href="http://www.myexception.cn/cpp/" target="_blank">C++</a></li><li><a href="http://www.myexception.cn/c/" target="_blank">C语言</a></li><li><a href="http://www.myexception.cn/c-builder/" target="_blank">C++ Builder</a></li><li><a href="http://www.myexception.cn/vb/" target="_blank">VB</a></li><li><a href="http://www.myexception.cn/pb/" target="_blank">PB</a></li><li><a href="http://www.myexception.cn/ruby-rails/" target="_blank">Ruby/Rails</a></li><li><a href="http://www.myexception.cn/perl-python/" target="_blank">perl/python</a></li><li><a href="http://www.myexception.cn/program/" target="_blank">编程</a></li><li><a href="http://www.myexception.cn/other-language/" target="_blank">其他开�?�语言</a></li></ul></div><div class="m_t_c_n"><span>专题开�?�/技术/项目</span><ul><li><a href="http://www.myexception.cn/network/" target="_blank">网络通信</a></li><li><a href="http://www.myexception.cn/openapi/" target="_blank">Open API</a></li><li><a href="http://www.myexception.cn/security/" target="_blank">信�?�/网络安全</a></li><li><a href="http://www.myexception.cn/ibm-cloud/" target="_blank">IBM云计算</a></li><li><a href="http://www.myexception.cn/paypal/" target="_blank">Paypal</a></li><li><a href="http://www.myexception.cn/voip/" target="_blank">VOIP</a></li><li><a href="http://www.myexception.cn/google/" target="_blank">Google技术</a></li><li><a href="http://www.myexception.cn/ai/" target="_blank">人工智能</a></li><li><a href="http://www.myexception.cn/search-engine/" target="_blank">�?�索引擎</a></li><li><a href="http://www.myexception.cn/cuda/" target="_blank">CUDA</a></li></ul></div><div class="m_t_c_n"><span>综�?�</span><ul><li><a href="http://www.myexception.cn/other/" target="_blank">综�?�</a></li><li><a href="http://www.myexception.cn/internet/" target="_blank">互�?�网</a></li><li><a href="http://www.myexception.cn/operating-system/" target="_blank">�?作系统</a></li><li><a href="http://www.myexception.cn/open-source/" target="_blank">开�?软件</a></li><li><a href="http://www.myexception.cn/shareware/" target="_blank">共享软件</a></li><li><a href="http://www.myexception.cn/system/" target="_blank">系统�?维</a></li></ul></div><div class="m_t_tri"></div></div><div class="m_t_c_6"><div class="m_t_c_n"><span>高性能开�?�</span><ul><li><a href="http://www.myexception.cn/hp-web-develop/" target="_blank">高性能WEB开�?�</a></li><li><a href="http://www.myexception.cn/hp-database/" target="_blank">高性能数�?�库开�?�</a></li><li><a href="http://www.myexception.cn/high-performance-computing/" target="_blank">高性能计算</a></li><li><a href="http://www.myexception.cn/intel-multi-core/" target="_blank">多核软件开�?�</a></li><li><a href="http://www.myexception.cn/arithmetic/" target="_blank">数�?�结构与算法</a></li><li><a href="http://www.myexception.cn/game-develop/" target="_blank">游�?开�?�</a></li><li><a href="http://www.myexception.cn/cloud/" target="_blank">云计算</a></li></ul></div><div class="m_t_c_n"><span>硬件设备</span><ul><li><a href="http://www.myexception.cn/network-design/" target="_blank">网络设计维护</a></li><li><a href="http://www.myexception.cn/digital/" target="_blank">数�?设备</a></li><li><a href="http://www.myexception.cn/computer/" target="_blank">电脑整机�?��?件</a></li><li><a href="http://www.myexception.cn/diy/" target="_blank">装机与�?�级</a></li><li><a href="http://www.myexception.cn/peripheral/" target="_blank">外设�?�办公设备</a></li><li><a href="http://www.myexception.cn/hardware/" target="_blank">电脑硬件</a></li><li><a href="http://www.myexception.cn/switch-router/" target="_blank">交�?�机/路由器</a></li></ul></div><div class="m_t_c_n"><span>Windows</span><ul><li><a href="http://www.myexception.cn/windows/" target="_blank">Windows</a></li><li><a href="http://www.myexception.cn/windows2000/" target="_blank">Windows2000</a></li><li><a href="http://www.myexception.cn/windows-xp/" target="_blank">Windows xp</a></li><li><a href="http://www.myexception.cn/windows7/" target="_blank">Windows7</a></li><li><a href="http://www.myexception.cn/office/" target="_blank">Office</a></li><li><a href="http://www.myexception.cn/vba/" target="_blank">VBA</a></li><li><a href="http://www.myexception.cn/vc-mfc/" target="_blank">VC/MFC</a></li><li><a href="http://www.myexception.cn/delphi/" target="_blank">Delphi</a></li></ul></div><div class="m_t_c_n"><span>培训认�?</span><ul><li><a href="http://www.myexception.cn/software-trainning/" target="_blank">软件培训</a></li><li><a href="http://www.myexception.cn/it-certificate/" target="_blank">IT认�?</a></li><li><a href="http://www.myexception.cn/oracle-certificate/" target="_blank">Oracle认�?考试</a></li><li><a href="http://www.myexception.cn/software-proficiency-test/" target="_blank">软件水平考试</a></li><li><a href="http://www.myexception.cn/it-cast/" target="_blank">IT课程</a></li><li><a href="http://www.myexception.cn/computer-book/" target="_blank">计算机图书</a></li><li><a href="http://www.myexception.cn/computer-english/" target="_blank">计算机英语</a></li></ul></div><div class="m_t_tri"></div></div></div></div></div><div class="f"><a target="_blank" href="http://www.myexception.cn/">软件开�?�</a><a target="_blank" href="http://www.myexception.cn/">程�?错误</a><a target="_blank" href="http://www.myexception.cn/">异常</a><a target="_blank" href="http://www.myexception.cn/">Exception</a> Copyright &copy; 2009-2013 <a target="_blank" href="http://www.myexception.cn/">MyException</a>&nbsp;版�?�所有 </div><script src="/r/cms/jquery.js" type="text/javascript"></script><script src="/r/cms/co_f_131013.js" type="text/javascript"></script><script type="text/javascript"> $(function() {Cms.viewCount("", "784089");}); </script>  </body></html>

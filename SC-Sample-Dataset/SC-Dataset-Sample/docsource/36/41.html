@@ -1,0 +1,1508 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <title>Bug 207002 &ndash; Add Support for SQLite</title>
+
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+
+<link rel="Top" href="https://bugs.eclipse.org/bugs/">
+
+  
+
+
+  
+    <link rel="Show" title="Dependency Tree"
+          href="showdependencytree.cgi?id=207002&amp;hide_resolved=1">
+
+      <link rel="Show" title="Bug Activity"
+            href="show_activity.cgi?id=207002">
+      <link rel="Show" title="Printer-Friendly Version"
+            href="show_bug.cgi?format=multiple&amp;id=207002">
+
+
+
+    
+    <link href="skins/standard/global.css?1369324972"
+          rel="alternate stylesheet" 
+          title="Classic"><link href="js/yui/assets/skins/sam/autocomplete.css?1369324972" rel="stylesheet"
+        type="text/css" ><link href="js/yui/assets/skins/sam/calendar.css?1369324972" rel="stylesheet"
+        type="text/css" ><link href="skins/standard/global.css?1369324972" rel="stylesheet"
+        type="text/css" ><link href="skins/standard/show_bug.css?1369324972" rel="stylesheet"
+        type="text/css" ><link href="extensions/Voting/web/style.css?1369324972" rel="stylesheet"
+        type="text/css" ><!--[if lte IE 7]>
+      
+
+
+  <link href="skins/standard/IE-fixes.css?1369324972" rel="stylesheet"
+        type="text/css" >
+<![endif]-->
+
+    
+
+    
+
+    
+
+    
+<script type="text/javascript" src="js/yui/yahoo-dom-event/yahoo-dom-event.js?1369324972"></script><script type="text/javascript" src="js/yui/cookie/cookie-min.js?1369324972"></script><script type="text/javascript" src="js/yui/datasource/datasource-min.js?1369324972"></script><script type="text/javascript" src="js/yui/connection/connection-min.js?1369324972"></script><script type="text/javascript" src="js/yui/json/json-min.js?1369324972"></script><script type="text/javascript" src="js/yui/autocomplete/autocomplete-min.js?1369324972"></script><script type="text/javascript" src="js/yui/calendar/calendar-min.js?1369324972"></script><script type="text/javascript" src="js/global.js?1369324972"></script>
+
+    <script type="text/javascript">
+    <!--
+        YAHOO.namespace('bugzilla');
+        YAHOO.util.Event.addListener = function (el, sType, fn, obj, overrideContext) {
+               if ( ("onpagehide" in window || YAHOO.env.ua.gecko) && sType === "unload") { sType = "pagehide"; };
+               var capture = ((sType == "focusin" || sType == "focusout") && !YAHOO.env.ua.ie) ? true : false;
+               return this._addListener(el, this._getType(sType), fn, obj, overrideContext, capture);
+         };
+        if ( "onpagehide" in window || YAHOO.env.ua.gecko) {
+            YAHOO.util.Event._simpleRemove(window, "unload", 
+                                           YAHOO.util.Event._unload);
+        }
+        
+        function unhide_language_selector() { 
+            YAHOO.util.Dom.removeClass(
+                'lang_links_container', 'bz_default_hidden'
+            ); 
+        } 
+        YAHOO.util.Event.onDOMReady(unhide_language_selector);
+
+        
+        var BUGZILLA = {
+            param: {
+                cookiepath: '\/bugs',
+                maxusermatches: 10
+            },
+            constant: {
+                COMMENT_COLS: 80
+            },
+            string: {
+                
+
+                attach_desc_required:
+                    'You must enter a Description for this attachment.',
+                component_required:
+                    'You must select a Component for this bug.',
+                description_required:
+                    'You must enter a Description for this bug.',
+                short_desc_required:
+                    'You must enter a Summary for this bug.',
+                version_required:
+                    'You must select a Version for this bug.'
+            }
+        };
+
+    if (history && history.replaceState) {
+      if(!document.location.href.match(/show_bug\.cgi/)) {
+        history.replaceState( null, 
+                             "Bug 207002 – Add Support for SQLite",  
+                             "show_bug.cgi?id=207002" );
+        document.title = "Bug 207002 – Add Support for SQLite";
+      }
+      if (document.location.href.match(/show_bug\.cgi\?.*list_id=/)) {
+        var href = document.location.href;
+        href = href.replace(/[\?&]+list_id=(\d+|cookie)/, '');
+        history.replaceState(null, "Bug 207002 – Add Support for SQLite", href);
+      }
+    }
+    YAHOO.util.Event.onDOMReady(function() {
+      initDirtyFieldTracking();
+    });
+    // -->
+    </script>
+<script type="text/javascript" src="js/util.js?1369324972"></script><script type="text/javascript" src="js/field.js?1369324972"></script>
+
+    
+
+    
+    <link rel="search" type="application/opensearchdescription+xml"
+                       title="Bugzilla" href="./search_plugin.cgi">
+    <link rel="shortcut icon" href="images/favicon.ico" >
+  </head>
+
+
+
+  <body onload=""
+        class="bugs-eclipse-org-bugs bz_bug bz_status_RESOLVED bz_product_Data_Tools bz_component_Enablement bz_bug_207002 yui-skin-sam">
+
+
+
+<div id="header">
+<!-- 1.0@bugzilla.org -->
+
+
+
+
+<link media="screen" href="/bz.css" type="text/css" rel="stylesheet">
+<div id="banner">
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-image: url(/header_bg.jpg);"><tr><td><img src="/header_logo.gif" width="240" height="68" border="0" /></td>
+<td width="360" valign="top" align="right" style="background-image: url(/header_right_bg.jpg); background-repeat: no-repeat;">
+<a href="http://www.eclipse.org/org/foundation/contact.php" class="header-global-links" style="color: #3D4A68;">Contact</a> &#160; <img src="/eclipse.org-common/themes/Phoenix/images/global_links_divider.gif" height="10" width="3" /> &#160; <a href="http://www.eclipse.org/legal/" class="header-global-links" style="color: #3D4A68;">Legal</a> &#160; &#160; &#160;</td></tr></table>
+<div id="header-icons"><a href="http://www.eclipse.org/"><img src="/eclipse_home_icon.png" width="28" height="28" alt="Eclipse Home" title="Eclipse Home"/></a><a href="http://wiki.eclipse.org/"><img src="/eclipse.org-common/themes/Phoenix/images/Icon_wiki.png" width="28" height="28" alt="Eclipse Wiki"/></a><a href="http://marketplace.eclipse.org/"><img src="/plugin_icon.png" width="28" height="28" alt="Eclipse Marketplace" title="Eclipse Marketplace"/></a></div></div>
+
+<table border="0" cellspacing="0" cellpadding="0" id="titles">
+<tr>
+    <td id="title">
+      <p>Bugzilla &ndash; Bug&nbsp;207002</p>
+    </td>
+
+    <td id="subtitle">
+      <p class="subheader">Add Support for SQLite</p>
+    </td>
+
+    <td id="information">
+      <p class="header_addl_info">Last modified: 2008-12-04 14:02:44 EST</p>
+    </td>
+</tr>
+</table>
+
+<table id="lang_links_container" cellpadding="0" cellspacing="0"
+       class="bz_default_hidden"><tr><td>
+</td></tr></table>
+<ul class="links">
+  <li><a href="./">Home</a></li>
+  <li><span class="separator">| </span><a href="enter_bug.cgi">New</a></li>
+  <li><span class="separator">| </span><a href="describecomponents.cgi">Browse</a></li>
+  <li><span class="separator">| </span><a href="query.cgi">Search</a></li>
+
+  <li class="form">
+    <span class="separator">| </span>
+    <form action="buglist.cgi" method="get"
+        onsubmit="if (this.quicksearch.value == '')
+                  { alert('Please enter one or more search terms first.');
+                    return false; } return true;">
+    <input type="hidden" id="no_redirect_top" name="no_redirect" value="0">
+    <script type="text/javascript">
+      if (history && history.replaceState) {
+        var no_redirect = document.getElementById("no_redirect_top");
+        no_redirect.value = 1;
+      }
+    </script>
+    <input class="txt" type="text" id="quicksearch_top" name="quicksearch" 
+           title="Quick Search" value="">
+    <input class="btn" type="submit" value="Search" 
+           id="find_top"></form>
+  <a href="page.cgi?id=quicksearch.html" title="Quicksearch Help">[?]</a></li>
+
+  <li><span class="separator">| </span><a href="report.cgi">Reports</a></li>
+
+  <li>
+      <span class="separator">| </span>
+        <a href="request.cgi">Requests</a></li>
+
+  <li>
+        <span class="separator">| </span>
+        <a href="http://www.bugzilla.org/docs/4.4/en/html/bug_page.html" target="_blank">Help</a>
+      </li>
+    
+
+    <li id="mini_login_container_top">
+  <span class="separator">| </span>
+  <a id="login_link_top" href="show_bug.cgi?id=207002&amp;GoAheadAndLogIn=1"
+     onclick="return show_mini_login_form('_top')">Log In</a>
+
+  
+  <form action="show_bug.cgi?id=207002" method="POST" 
+        class="mini_login bz_default_hidden"
+        id="mini_login_top"
+        onsubmit="return check_mini_login_fields( '_top' );"
+  >
+    <input id="Bugzilla_login_top" 
+           class="bz_login"
+           name="Bugzilla_login"
+           title="Login"
+           onfocus="mini_login_on_focus('_top')"
+    >
+    <input class="bz_password" 
+           id="Bugzilla_password_top" 
+           name="Bugzilla_password"
+           type="password"
+           title="Password"
+    >
+    <input class="bz_password bz_default_hidden bz_mini_login_help" type="text" 
+           id="Bugzilla_password_dummy_top" value="password"
+           title="Password"
+           onfocus="mini_login_on_focus('_top')"
+    >
+    <input type="submit" name="GoAheadAndLogIn" value="Log in" 
+            id="log_in_top">
+    <script type="text/javascript">
+      mini_login_constants = {
+          "login" : "login",
+          "warning" : "You must set the login and password before logging in."
+      };
+      
+      if (YAHOO.env.ua.gecko || YAHOO.env.ua.ie || YAHOO.env.ua.opera) {
+          YAHOO.util.Event.onDOMReady(function() {
+              init_mini_login_form('_top');
+          });
+      }
+      else {
+          YAHOO.util.Event.on(window, 'load', function () {
+              window.setTimeout(function() {
+                  init_mini_login_form('_top');
+              }, 200);
+          });
+    }
+    </script>
+    <a href="#" onclick="return hide_mini_login_form('_top')">[x]</a>
+  </form>
+</li>
+<li id="forgot_container_top">
+  <span class="separator">| </span>
+  <a id="forgot_link_top" href="show_bug.cgi?id=207002&amp;GoAheadAndLogIn=1#forgot"
+     onclick="return show_forgot_form('_top')">Forgot Password</a>
+  <form action="token.cgi" method="post" id="forgot_form_top"
+        class="mini_forgot bz_default_hidden">
+    <label for="login_top">Login:</label>
+    <input type="text" name="loginname" size="20" id="login_top">
+    <input id="forgot_button_top" value="Reset Password" 
+           type="submit">
+    <input type="hidden" name="a" value="reqpw">
+    <input type="hidden" id="token_top" name="token" value="1386979519-n_eOddziWs0yFNZHBWw3GcFMvGaKD-C-LagZzZOvs_A">
+    <a href="#" onclick="return hide_forgot_form('_top')">[x]</a>
+  </form>
+</li>
+  <span class="separator">| </span>
+  <li><a href="http://www.eclipse.org/legal/termsofuse.php">Terms of Use</a></li>
+  <span class="separator">| </span>
+  <li><a href="http://www.eclipse.org/legal/copyright.php">Copyright Agent</a></li>
+</ul>
+</div> 
+
+<div id="bugzilla-body">
+
+<div class="navigation">
+  
+  <i><font color="#777777">First</font></i>
+  <i><font color="#777777">Last</font></i>
+  <i><font color="#777777">Prev</font></i>
+  <i><font color="#777777">Next</font></i>
+  &nbsp;&nbsp;
+  <i><font color="#777777">This bug is not in your last
+    search results.</font></i>
+</div>
+<script type="text/javascript">
+<!--
+
+//-->
+</script>
+
+<form name="changeform" id="changeform" method="post" action="process_bug.cgi">
+
+  <input type="hidden" name="delta_ts" value="2008-12-04 14:02:44">
+  <input type="hidden" name="longdesclength" value="14">
+  <input type="hidden" name="id" value="207002">
+  <input type="hidden" name="token" value="1386979519-v-0idCo8RksUzMZb7zT4IdNPTkZmb70E_ewf9PNuEIQ">
+<div class="bz_alias_short_desc_container edit_form">
+     <a href="show_bug.cgi?id=207002"><b>Bug&nbsp;207002</b></a> -<span id="summary_alias_container" class="bz_default_hidden"> 
+      <span id="short_desc_nonedit_display">Add Support for SQLite</span>
+     </span>
+  
+       
+    <div id="summary_alias_input">
+      <table id="summary"> 
+        <tr>
+            <td colspan="2">
+          </td>
+        </tr>
+        
+        <tr><th class="field_label "
+    id="field_label_short_desc">
+
+    <label for="short_desc" accesskey="s">
+
+  <a 
+      title="The bug summary is a short sentence which succinctly describes what the bug is about."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#short_desc"
+  >Summary:</a>
+</label>
+</th>
+          <td>Add Support for SQLite
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <script type="text/javascript">
+    hideAliasAndSummary('Add Support for SQLite', '');
+  </script>
+  <table class="edit_form">
+    <tr>
+      
+      <td id="bz_show_bug_column_1" class="bz_show_bug_column">     
+        <table>
+          <tr>
+    <th class="field_label">
+      <a href="page.cgi?id=fields.html#status">Status</a>:
+    </th>
+    <td id="bz_field_status">
+      <span id="static_bug_status">RESOLVED
+          FIXED
+      </span>
+    </td>
+  </tr>
+          <tr>
+    <td colspan="2" class="bz_section_spacer"></td>
+  </tr>
+          <tr><th class="field_label "
+    id="field_label_product">
+
+
+  <a 
+      title="Bugs are categorised into Products and Components. Select a Classification to narrow down this list."
+      class="field_help_link"
+      href="describecomponents.cgi"
+  >Product:</a>
+
+</th>
+  <td class="field_value "
+      id="field_container_product" >Data Tools</td>
+    </tr>
+
+    
+    <tr class="bz_default_hidden"><th class="field_label "
+    id="field_label_classification">
+
+
+  <a 
+      title="Bugs are categorised into Classifications, Products and Components. classifications is the top-level categorisation."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#classification"
+  >Classification:</a>
+
+</th>
+  <td class="field_value "
+      id="field_container_classification" >DataTools</td>
+    </tr>
+        
+    
+    
+    <tr><th class="field_label "
+    id="field_label_component">
+
+
+  <a 
+      title="Components are second-level categories; each belongs to a particular Product. Select a Product to narrow down this list."
+      class="field_help_link"
+      href="describecomponents.cgi?product=Data Tools"
+  >Component:</a>
+
+</th>
+  <td class="field_value "
+      id="field_container_component" >Enablement</td>
+    </tr>
+    <tr><th class="field_label "
+    id="field_label_version">
+
+    <label for="version">
+
+  <a 
+      title="The version field defines the version of the software the bug was found in."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#version"
+  >Version:</a>
+</label>
+</th>
+        <td>1.5.1
+  </td>
+    </tr>
+        
+    
+        
+    <tr><th class="field_label "
+    id="field_label_rep_platform">
+
+    <label for="rep_platform" accesskey="h">
+
+  <a 
+      title="The hardware platform the bug was observed on. Note: When searching, selecting the option &quot;All&quot; only finds bugs whose value for this field is literally the word &quot;All&quot;."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#rep_platform"
+  >Hardware:</a>
+</label>
+</th>
+      <td class="field_value">PC
+       Windows XP
+      </td>
+    </tr>
+          <tr>
+    <td colspan="2" class="bz_section_spacer"></td>
+  </tr>
+          
+          <tr>
+      <th class="field_label">
+        <label for="priority" accesskey="i">
+          <a href="page.cgi?id=fields.html#importance"><u>I</u>mportance</a></label>:
+      </th>
+      <td>P3
+       enhancement<span id="votes_container">
+    (<a href="page.cgi?id=voting/user.html&amp;bug_id=207002#vote_207002">vote</a>)
+  </span>
+      </td>
+    </tr>
+
+      <tr>
+        <th class="field_label">
+          <label for="target_milestone">
+            <a href="page.cgi?id=fields.html#target_milestone">
+            Target&nbsp;Milestone</a></label>:
+        </th><td>Galileo
+  </td>
+      </tr>            
+          
+          <tr>
+      <th class="field_label">
+        <a href="page.cgi?id=fields.html#assigned_to">Assigned To</a>:
+      </th>
+      <td><span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+      </td>
+    </tr>
+
+    <tr><th class="field_label "
+    id="field_label_qa_contact">
+
+    <label for="qa_contact" accesskey="q">
+
+  <a 
+      title="The person responsible for confirming this bug if it is unconfirmed, and for verifying the fix once the bug has been resolved."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#qa_contact"
+  >QA Contact:</a>
+</label>
+</th>
+      <td><span class="vcard">
+</span>
+      </td>
+    </tr>
+    <script type="text/javascript">
+      assignToDefaultOnChange(['product', 'component'],
+        'dtp.enablement-inbox\x40eclipse.org',
+        '');
+    </script>
+          <tr>
+    <td colspan="2" class="bz_section_spacer"></td>
+  </tr>
+          <tr><th class="field_label "
+    id="field_label_bug_file_loc">
+
+    <label for="bug_file_loc" accesskey="u">
+
+  <a 
+      title="Bugs can have a URL associated with them - for example, a pointer to a web site where the problem is seen."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#bug_file_loc"
+  >URL:</a>
+</label>
+</th>
+    <td>
+      <span id="bz_url_input_area">
+      </span>
+    </td>
+  </tr>
+  
+    <tr><th class="field_label "
+    id="field_label_status_whiteboard">
+
+    <label for="status_whiteboard" accesskey="w">
+
+  <a 
+      title="Each bug has a free-form single line text entry box for adding tags and status information."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#status_whiteboard"
+  >Whiteboard:</a>
+</label>
+</th><td colspan="2">  
+  </td>
+    </tr>
+  
+    <tr>
+      <th class="field_label">
+        <label for="keywords" accesskey="k">
+          <a href="describekeywords.cgi"><u>K</u>eywords</a></label>:
+      </th>
+      <td class="field_value" colspan="2">plan
+      </td>
+    </tr>
+          <tr>
+    <td colspan="2" class="bz_section_spacer"></td>
+  </tr>
+
+          
+<tr><th class="field_label "
+    id="field_label_dependson">
+
+
+  <a 
+      title="The bugs listed here must be resolved before this bug can be resolved."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#dependson"
+  >Depends on:</a>
+
+</th>
+
+  <td>
+    <span id="dependson_input_area">
+    </span>
+    
+  </td>
+  </tr>
+  
+  <tr><th class="field_label "
+    id="field_label_blocked">
+
+
+  <a 
+      title="This bug must be resolved before the bugs listed in this field can be resolved."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#blocked"
+  >Blocks:</a>
+
+</th>
+
+  <td>
+    <span id="blocked_input_area">
+    </span>
+    
+  </td>
+  </tr>
+  
+  <tr>
+    <th>&nbsp;</th>
+  
+    <td colspan="2" align="left" id="show_dependency_tree_or_graph">
+      Show dependency <a href="showdependencytree.cgi?id=207002&amp;hide_resolved=1">tree</a>
+  
+    </td>
+  </tr>
+          
+        </table>
+      </td>
+      <td>
+        <div class="bz_column_spacer">&nbsp;</div>
+      </td>
+      
+      <td id="bz_show_bug_column_2" class="bz_show_bug_column">
+        <table cellpadding="3" cellspacing="1">
+        <tr>
+    <th class="field_label">
+      Reported:
+    </th>
+    <td>2007-10-21 08:41 EDT by <span class="vcard"><span class="fn">Eden Klein</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/eden&#64;zend.com" alt="CLA" /></a>
+</span>
+    </td>
+  </tr>
+  
+  <tr>
+    <th class="field_label">
+      Modified:
+    </th>
+    <td>2008-12-04 14:02 EST 
+      (<a href="show_activity.cgi?id=207002">History</a>)
+    </td>
+  
+  </tr>
+         <tr>
+      <th class="field_label">
+        <label for="newcc" accesskey="a">CC List:</label>
+      </th>
+      <td>3 
+          users
+          <span id="cc_edit_area_showhide_container" class="bz_default_hidden">
+            (<a href="#" id="cc_edit_area_showhide">show</a>)
+          </span>
+        <div id="cc_edit_area">
+          <br>
+            <select id="cc" multiple="multiple" size="5">
+                <option value="ganoro">ganoro</option>
+                <option value="kenny">kenny</option>
+                <option value="lchan">lchan</option>
+            </select>
+        </div>
+          <script type="text/javascript">
+            hideEditableField( 'cc_edit_area_showhide_container', 
+                               'cc_edit_area', 
+                               'cc_edit_area_showhide', 
+                               '', 
+                               '');  
+          </script>
+      </td>
+    </tr>
+         <tr>
+    <td colspan="2" class="bz_section_spacer"></td>
+  </tr>
+<tr><th class="field_label "
+    id="field_label_see_also">
+
+
+  <a 
+      title="This allows you to refer to bugs in other installations. You can enter a URL to a bug in the 'Add Bug URLs' field to note that that bug is related to this one. You can enter multiple URLs at once by separating them with a comma. You should normally use this field to refer to bugs in other installations. For bugs in this installation, it is better to use the Depends on and Blocks fields."
+      class="field_help_link"
+      href="page.cgi?id=fields.html#see_also"
+  >See Also:</a>
+
+</th>
+  <td class="field_value "
+      id="field_container_see_also" ></td>
+    </tr> 
+         
+         <tr>
+    <td colspan="2" class="bz_section_spacer"></td>
+  </tr>
+         
+                <tr>
+      <th class="field_label flags_label">
+        <label>Flags:</label>
+      </th>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="2"><span title="Brian Fitzpatrick">bfitzpat</span>:
+      iplog+<br>
+      </td>
+    </tr>
+
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="3">
+          <hr id="bz_top_half_spacer">
+      </td>
+    </tr>
+  </table>
+
+  <table id="bz_big_form_parts" cellspacing="0" cellpadding="0"><tr>
+  <td>
+
+    
+<script type="text/javascript">
+<!--
+function toggle_display(link) {
+    var table = document.getElementById("attachment_table");
+    var view_all = document.getElementById("view_all");
+    var hide_obsolete_url_parameter = "&hide_obsolete=1";
+    // Store current height for scrolling later
+    var originalHeight = table.offsetHeight;
+    var rows = YAHOO.util.Dom.getElementsByClassName(
+        'bz_tr_obsolete', 'tr', table);
+
+    for (var i = 0; i < rows.length; i++) {
+        bz_toggleClass(rows[i], 'bz_default_hidden');
+    }
+
+    if (YAHOO.util.Dom.hasClass(rows[0], 'bz_default_hidden')) {
+        link.innerHTML = "Show Obsolete";
+        view_all.href = view_all.href + hide_obsolete_url_parameter 
+    }
+    else {
+        link.innerHTML = "Hide Obsolete";
+        view_all.href = view_all.href.replace(hide_obsolete_url_parameter,"");
+    }
+
+    var newHeight = table.offsetHeight;
+    // This scrolling makes the window appear to not move at all.
+    window.scrollBy(0, newHeight - originalHeight);
+
+    return false;
+}
+//-->
+</script>
+
+<br>
+<table id="attachment_table" cellspacing="0" cellpadding="4">
+  <tr id="a0">
+    <th colspan="3" align="left">
+      Attachments
+    </th>
+  </tr>
+
+
+      <tr id="a1" class="bz_contenttype_application_octet-stream">
+        <td valign="top">
+            <a href="attachment.cgi?id=117796"
+               title="View the content of the attachment">
+          <b>Initial contribution of sqlite profile</b></a>
+
+          <span class="bz_attach_extra_info">
+              (55.85 KB,
+                application/octet-stream)
+
+            <br>
+            <a href="#attach_117796"
+               title="Go to the comment associated with the attachment">2008-11-13 11:40 EST</a>,
+
+            <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+          </span>
+        </td>
+
+          <td class="bz_attach_flags" valign="top">
+              <i>no flags</i>
+          </td>
+
+        <td valign="top">
+          <a href="attachment.cgi?id=117796&amp;action=edit">Details</a>
+        </td>
+      </tr>
+
+  <tr class="bz_attach_footer">
+    <td colspan="3">
+        <span class="bz_attach_view_hide">
+            <a id="view_all" href="attachment.cgi?bugid=207002&amp;action=viewall">View All</a>
+        </span>
+        <a href="attachment.cgi?bugid=207002&amp;action=enter">Add an attachment</a>
+        (proposed patch, testcase, etc.)
+    </td>
+  </tr>
+</table>
+<br>
+<div id="add_comment" class="bz_section_additional_comments">
+      <table>
+        <tr>
+          <td>
+            <fieldset>
+              <legend>Note</legend>
+              You need to
+              <a href="show_bug.cgi?id=207002&amp;GoAheadAndLogIn=1">log in</a>
+              before you can comment on or make changes to this bug.
+            </fieldset>
+          </td>
+        </tr> 
+      </table>
+  </div>
+  </td>
+  <td>
+  </td>
+  </tr></table>
+
+  
+  <div id="comments"><script src="js/comments.js?1369324972" type="text/javascript">
+</script>
+
+<script type="text/javascript">
+<!--
+  /* Adds the reply text to the `comment' textarea */
+  function replyToComment(id, real_id, name) {
+      var prefix = "(In reply to " + name + " from comment #" + id + ")\n";
+      var replytext = "";
+        /* pre id="comment_name_N" */
+        var text_elem = document.getElementById('comment_text_'+id);
+        var text = getText(text_elem);
+        replytext = prefix + wrapReplyText(text);
+
+
+      /* <textarea id="comment"> */
+      var textarea = document.getElementById('comment');
+      if (textarea.value != replytext) {
+          textarea.value += replytext;
+      }
+
+      textarea.focus();
+  } 
+//-->
+</script>
+
+
+
+
+<!-- This auto-sizes the comments and positions the collapse/expand links 
+     to the right. -->
+<table class="bz_comment_table" cellpadding="0" cellspacing="0"><tr>
+<td>
+<div id="c0" class="bz_comment bz_first_comment">
+
+      <div class="bz_first_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c0">Description</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Eden Klein</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/eden&#64;zend.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2007-10-21 08:41:01 EDT
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >Today it is impossible to see the contents of SQLite databases.
+Even after overcoming the out of memory exception (see <a href="http://groups.google.com/group/sqlitejdbc/browse_thread/thread/d6dee625078d0f9b">http://groups.google.com/group/sqlitejdbc/browse_thread/thread/d6dee625078d0f9b</a>)
+it is impossible to edit/view the tables.</pre>
+    </div><div id="c1" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c1">Comment 1</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Michael Kenny</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/kenny&#64;acm.org" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-05-15 08:28:09 EDT
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >These are my experiences connect to sqlite3 db.
+
+The page <a href="http://wiki.eclipse.org/index.php/Connecting_to_SQLite">http://wiki.eclipse.org/index.php/Connecting_to_SQLite</a>
+shows how to connect. However my attempts below did not quite end in success
+
+Loading the latest drivers from <a href="http://www.ch-werner.de/javasqlite/">http://www.ch-werner.de/javasqlite/</a>
+as mentioned allows you to Connect to the sqlite db.
+And you can navigate the db Schemas, Tables etc. in the Data Source Explorer.
+But if you attempt to sample a table's contents the following errors occur:
+
+------------
+!ENTRY org.eclipse.datatools.sqltools.data.ui 4 0 2008-05-15 13:43:31.375
+!MESSAGE not supported
+!STACK 0
+java.sql.SQLException: not supported
+	at SQLite.JDBC2x.JDBCStatement.setMaxRows(JDBCStatement.java:33)
+	at org.eclipse.datatools.sqltools.data.internal.core.editor.TableDataImpl.&lt;init&gt;(TableDataImpl.java:102)
+	at org.eclipse.datatools.sqltools.data.internal.ui.editor.TableDataEditor.createPartControl(TableDataEditor.java:102)
+	at org.eclipse.ui.internal.EditorReference.createPartHelper(EditorReference.java:661)
+	at org.eclipse.ui.internal.EditorReference.createPart(EditorReference.java:426)
+------------
+
+This is followed by:
+------------
+!ENTRY org.eclipse.ui 4 0 2008-05-15 13:43:36.109
+!MESSAGE Unable to create editor ID org.eclipse.datatools.sqltools.data.internal.ui.editor.tableDataEditor: An unexpected exception was thrown.
+!STACK 0
+java.lang.NullPointerException
+	at org.eclipse.datatools.sqltools.data.internal.ui.editor.TableDataTableCursor.registerCellEditorsListener(TableDataTableCursor.java:108)
+	at org.eclipse.datatools.sqltools.data.internal.ui.editor.TableDataTableCursor.&lt;init&gt;(TableDataTableCursor.java:39)
+	at org.eclipse.datatools.sqltools.data.internal.ui.editor.TableDataTableCursorExternalEditingSupport.&lt;init&gt;(TableDataTableCursorExternalEditingSupport.java:46)
+	at org.eclipse.datatools.sqltools.data.internal.ui.editor.TableDataEditor.createPartControl(TableDataEditor.java:116)
+------------
+
+The query generated is:
+
+Starting run
+SELECT * FROM &quot;&quot;.&quot;ticket&quot;
+java.sql.SQLException: not supported
+
+This query does also fail if you enter it in the sqlite3.exe:
+sqlite&gt; SELECT * FROM &quot;&quot;.&quot;ticket&quot;
+   ...&gt; ;
+SQL error: no such table: .ticket
+sqlite&gt;
+
+I notice that the db version detected is very low 2.something rather that 3.something (in fact SQLite 2.8.17) and Version is 1
+(seen by clicking on &quot;properties/version&quot; for the db). This is maybe a fault in the sqlite driver program?.
+
+I tried the older version of the sqlite driver explicitly linked to (link 2) on the <a href="http://wiki.eclipse.org/index.php/Connecting_to_SQLite">http://wiki.eclipse.org/index.php/Connecting_to_SQLite</a> page but could not connect.
+
+So am I missing something simple or is this &quot;how to connect&quot; page outdated?
+</pre>
+    </div><div id="c2" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c2">Comment 2</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Michael Kenny</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/kenny&#64;acm.org" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-05-15 10:20:57 EDT
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >I also spent a SMALL amount of time with sqlitejdbc (<a href="http://www.zentus.com/sqlitejdbc/">http://www.zentus.com/sqlitejdbc/</a>)
+
+With Nested (Pure Java)I get no error messages, but can only navigate to Schemas and no further.
+
+With Native I get:
+(could be Java library path problem):
+----------------------------------------
+!ENTRY org.eclipse.datatools.connectivity 4 -1 2008-05-15 15:52:36.828
+!MESSAGE Could not connect to trac via native sqlitejdbc.
+!SUBENTRY 1 org.eclipse.datatools.connectivity 4 -1 2008-05-15 15:52:36.828
+!MESSAGE Error creating SQL Model Connection connection to trac via native sqlitejdbc. (Error: org/ibex/nestedvm/Runtime$CallJavaCB)
+!STACK 0
+java.lang.NoClassDefFoundError: org/ibex/nestedvm/Runtime$CallJavaCB
+	at java.lang.ClassLoader.defineClass1(Native Method)
+	at java.lang.ClassLoader.defineClass(Unknown Source)
+	at java.security.SecureClassLoader.defineClass(Unknown Source)
+	at java.net.URLClassLoader.defineClass(Unknown Source)
+	at java.net.URLClassLoader.access$000(Unknown Source)
+	at java.net.URLClassLoader$1.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(Unknown Source)
+	at java.lang.ClassLoader.loadClass(Unknown Source)
+	at java.net.FactoryURLClassLoader.loadClass(Unknown Source)
+	at java.lang.ClassLoader.loadClass(Unknown Source)
+	at java.lang.ClassLoader.loadClassInternal(Unknown Source)
+	at java.lang.Class.forName0(Native Method)
+	at java.lang.Class.forName(Unknown Source)
+	at org.sqlite.Conn.&lt;init&gt;(Conn.java:72)
+	at org.sqlite.JDBC.connect(JDBC.java:53)
+	at org.eclipse.datatools.connectivity.db.generic.JDBCConnection.createConnection(JDBCConnection.java:87)
+	at org.eclipse.datatools.connectivity.DriverConnectionBase.internalCreateConnection(DriverConnectionBase.java:104)
+	at org.eclipse.datatools.connectivity.DriverConnectionBase.open(DriverConnectionBase.java:53)
+	at org.eclipse.datatools.connectivity.db.generic.JDBCConnectionFactory.createConnection(JDBCConnectionFactory.java:52)
+	at org.eclipse.datatools.connectivity.internal.ConnectionFactoryProvider.createConnection(ConnectionFactoryProvider.java:77)
+	at org.eclipse.datatools.connectivity.internal.ConnectionProfile.createConnection(ConnectionProfile.java:354)
+	at org.eclipse.datatools.connectivity.sqm.internal.core.connection.ConnectionInfoImpl.initializeJDBCConnection(ConnectionInfoImpl.java:658)
+	at org.eclipse.datatools.connectivity.sqm.internal.core.connection.ConnectionInfoImpl.&lt;init&gt;(ConnectionInfoImpl.java:643)
+	at org.eclipse.datatools.connectivity.sqm.internal.core.connection.ConnectionFactory.createConnection(ConnectionFactory.java:38)
+	at org.eclipse.datatools.connectivity.sqm.core.SQMConnectionFactory.createConnection(SQMConnectionFactory.java:45)
+	at org.eclipse.datatools.connectivity.sqm.internal.core.connection.ConnectionFactory.createConnection(ConnectionFactory.java:59)
+	at org.eclipse.datatools.connectivity.internal.ConnectionFactoryAdapterProvider.createConnection(ConnectionFactoryAdapterProvider.java:112)
+	at org.eclipse.datatools.connectivity.internal.ManagedConnection.createConnection(ManagedConnection.java:163)
+	at org.eclipse.datatools.connectivity.internal.CreateConnectionJob.run(CreateConnectionJob.java:56)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:55)
+Caused by: java.lang.ClassNotFoundException: org.ibex.nestedvm.Runtime$CallJavaCB
+	at java.net.URLClassLoader$1.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(Native Method)
+----------------------------------------
+
+
+Followed by:
+----------------------------------------
+!SUBENTRY 1 org.eclipse.datatools.connectivity 4 -1 2008-05-15 15:52:36.828
+!MESSAGE Error creating JDBC Connection connection to trac via native sqlitejdbc. (Error: org/ibex/nestedvm/Runtime$CallJavaCB)
+!STACK 0
+java.lang.NoClassDefFoundError: org/ibex/nestedvm/Runtime$CallJavaCB
+	at java.lang.ClassLoader.defineClass1(Native Method)
+	at java.lang.ClassLoader.defineClass(Unknown Source)
+	at java.security.SecureClassLoader.defineClass(Unknown Source)
+	at java.net.URLClassLoader.defineClass(Unknown Source)
+	at java.net.URLClassLoader.access$000(Unknown Source)
+&lt;snip&gt;
+
+This problem is also mentioned at:
+<a href="http://groups.google.com/group/sqlitejdbc/browse_thread/thread/fcf581626d09c940/a75019e8f1662d62?lnk=gst&amp;q=dtp#a75019e8f1662d62">http://groups.google.com/group/sqlitejdbc/browse_thread/thread/fcf581626d09c940/a75019e8f1662d62?lnk=gst&amp;q=dtp#a75019e8f1662d62</a>
+</pre>
+    </div><div id="c3" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c3">Comment 3</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-08-11 17:44:38 EDT
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >I'm working on adding SQLite support in Galileo. Already have some of it working, but won't be ready to deliver it to CVS for a while. 
+
+However, you can check out my blog (<a href="http://fitzdtp.blogspot.com/">http://fitzdtp.blogspot.com/</a>) for my SQLite progress. So far I'm able to connect in the DSE and show a list of tables (SQLite doesn't support catalogs or schemas, so there's some funky things to get around it), but all of that code will eventually make it into the DTP Enablement project.</pre>
+    </div><div id="c4" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c4">Comment 4</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-11-13 11:40:45 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >Created <span class=""><a href="attachment.cgi?id=117796" name="attach_117796" title="Initial contribution of sqlite profile">attachment 117796</a> <a href="attachment.cgi?id=117796&amp;action=edit" title="Initial contribution of sqlite profile">[details]</a></span>
+Initial contribution of sqlite profile
+
+This is an initial contribution of a new database connection profile for SQLite.</pre>
+    </div><div id="c5" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c5">Comment 5</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-11-17 10:44:23 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >Hey Roy... I haven't yet started the IP process for this contribution and it's still not 100% right (ran into an issue with Indices the other day), but it'll at least get us going the right direction. I'm going to talk about it a little at ESE if you're going to be there.</pre>
+    </div><div id="c6" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c6">Comment 6</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Roy Ganor</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/ganoro&#64;gmail.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-11-19 07:20:59 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >These are great news. I won't be there this time but I am looking forward discussing what I can do to help (even if it is only QA)  
+
+</pre>
+    </div><div id="c7" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c7">Comment 7</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-11-19 09:19:16 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >(In reply to <a href="show_bug.cgi?id=207002#c6">comment #6</a>)
+<span class="quote">&gt; These are great news. I won't be there this time but I am looking forward
+&gt; discussing what I can do to help (even if it is only QA)  </span >
+
+QA would be very helpful! Hopefully we can get it through the IP process first thing in December and you'll have time to bang on it. I know I didn't hit everything, but as I find bugs, I've been trying to patch them.
+
+Thanks Roy!</pre>
+    </div><div id="c8" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c8">Comment 8</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-12-02 14:02:37 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >Submitted to IPZilla for review: <a href="https://dev.eclipse.org/ipzilla/show_bug.cgi?id=2869">https://dev.eclipse.org/ipzilla/show_bug.cgi?id=2869</a></pre>
+    </div><div id="c9" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c9">Comment 9</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-12-02 16:38:45 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >Code committed to CVS. Will ask our build folks to work this into the Galileo build as soon as possible.
+
+Roy, can you test this once we get it into the build?</pre>
+    </div><div id="c10" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c10">Comment 10</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-12-02 16:39:35 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >(In reply to <a href="show_bug.cgi?id=207002#c8">comment #8</a>)
+<span class="quote">&gt; Submitted to IPZilla for review:
+&gt; <a href="https://dev.eclipse.org/ipzilla/show_bug.cgi?id=2869">https://dev.eclipse.org/ipzilla/show_bug.cgi?id=2869</a></span >
+
+IP review not required because this was done by an existing committer with the approval of the PMC</pre>
+    </div><div id="c11" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c11">Comment 11</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Roy Ganor</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/ganoro&#64;gmail.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-12-03 02:13:28 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >sure, once we'll have a build...
+
+BTW - I guess you considered adding this support to 1.6.2, can you share your thoughts about it? if this addition passes test/qa then it is stable enough to get into 1.6.2 ...
+
+</pre>
+    </div><div id="c12" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c12">Comment 12</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-12-03 09:14:57 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >Unfortunately we can't add it to 1.6.2. It's new functionality, a new feature, which means it falls well outside the maintenance release guidelines from Eclipse. 
+
+Now, that said, you could take the version built for DTP 1.7 once it's available (it's only 3 plug-ins) and copy it into a 1.6.2 environment to see how things worked. It was all developed on the 1.6.2 codebase. The only thing that would be different would be that it is built on JDK 1.4 for 1.6.2 and JDK 1.5 for 1.7.</pre>
+    </div><div id="c13" class="bz_comment">
+
+      <div class="bz_comment_head">
+
+
+
+        <span class="bz_comment_number">
+          <a 
+             href="show_bug.cgi?id=207002#c13">Comment 13</a>
+        </span>
+
+        <span class="bz_comment_user">
+          <span class="vcard"><span class="fn">Brian Fitzpatrick</span> <a href="http://wiki.eclipse.org/CLA"><img class="cla_dec" src="//projects.eclipse.org/api/cla/image/bfitzpat&#64;redhat.com" alt="CLA" /></a>
+</span>
+        </span>
+
+        <span class="bz_comment_user_images">
+        </span>
+
+        <span class="bz_comment_time">
+          2008-12-04 14:02:44 EST
+        </span>
+      </div>
+
+
+
+<pre class="bz_comment_text" >Setting IPLog flag</pre>
+    </div>
+
+
+  
+
+</td>
+<td>
+</td>
+</tr></table>
+  </div>
+        
+
+</form>
+
+<hr>
+<ul class="related_actions">
+    <li><a href="show_bug.cgi?format=multiple&amp;id=207002">Format For Printing</a></li>
+    <li>&nbsp;-&nbsp;<a href="show_bug.cgi?ctype=xml&amp;id=207002">XML</a></li>
+    <li>&nbsp;-&nbsp;<a href="enter_bug.cgi?cloned_bug_id=207002">Clone This Bug</a></li>
+    
+    <li>&nbsp;-&nbsp;<a href="#">Top of page </a></li>
+    </ul>        
+
+
+<div class="navigation">
+  
+  <i><font color="#777777">First</font></i>
+  <i><font color="#777777">Last</font></i>
+  <i><font color="#777777">Prev</font></i>
+  <i><font color="#777777">Next</font></i>
+  &nbsp;&nbsp;
+  <i><font color="#777777">This bug is not in your last
+    search results.</font></i>
+</div>
+
+<br>
+</div>
+
+
+
+<div id="footer">
+  <div class="intro"></div>
+
+
+
+
+<ul id="useful-links">
+  <li id="links-actions"><ul class="links">
+  <li><a href="./">Home</a></li>
+  <li><span class="separator">| </span><a href="enter_bug.cgi">New</a></li>
+  <li><span class="separator">| </span><a href="describecomponents.cgi">Browse</a></li>
+  <li><span class="separator">| </span><a href="query.cgi">Search</a></li>
+
+  <li class="form">
+    <span class="separator">| </span>
+    <form action="buglist.cgi" method="get"
+        onsubmit="if (this.quicksearch.value == '')
+                  { alert('Please enter one or more search terms first.');
+                    return false; } return true;">
+    <input type="hidden" id="no_redirect_bottom" name="no_redirect" value="0">
+    <script type="text/javascript">
+      if (history && history.replaceState) {
+        var no_redirect = document.getElementById("no_redirect_bottom");
+        no_redirect.value = 1;
+      }
+    </script>
+    <input class="txt" type="text" id="quicksearch_bottom" name="quicksearch" 
+           title="Quick Search" value="">
+    <input class="btn" type="submit" value="Search" 
+           id="find_bottom"></form>
+  <a href="page.cgi?id=quicksearch.html" title="Quicksearch Help">[?]</a></li>
+
+  <li><span class="separator">| </span><a href="report.cgi">Reports</a></li>
+
+  <li>
+      <span class="separator">| </span>
+        <a href="request.cgi">Requests</a></li>
+
+  <li>
+        <span class="separator">| </span>
+        <a href="http://www.bugzilla.org/docs/4.4/en/html/bug_page.html" target="_blank">Help</a>
+      </li>
+    
+
+    <li id="mini_login_container_bottom">
+  <span class="separator">| </span>
+  <a id="login_link_bottom" href="show_bug.cgi?id=207002&amp;GoAheadAndLogIn=1"
+     onclick="return show_mini_login_form('_bottom')">Log In</a>
+
+  
+  <form action="show_bug.cgi?id=207002" method="POST" 
+        class="mini_login bz_default_hidden"
+        id="mini_login_bottom"
+        onsubmit="return check_mini_login_fields( '_bottom' );"
+  >
+    <input id="Bugzilla_login_bottom" 
+           class="bz_login"
+           name="Bugzilla_login"
+           title="Login"
+           onfocus="mini_login_on_focus('_bottom')"
+    >
+    <input class="bz_password" 
+           id="Bugzilla_password_bottom" 
+           name="Bugzilla_password"
+           type="password"
+           title="Password"
+    >
+    <input class="bz_password bz_default_hidden bz_mini_login_help" type="text" 
+           id="Bugzilla_password_dummy_bottom" value="password"
+           title="Password"
+           onfocus="mini_login_on_focus('_bottom')"
+    >
+    <input type="submit" name="GoAheadAndLogIn" value="Log in" 
+            id="log_in_bottom">
+    <script type="text/javascript">
+      mini_login_constants = {
+          "login" : "login",
+          "warning" : "You must set the login and password before logging in."
+      };
+      
+      if (YAHOO.env.ua.gecko || YAHOO.env.ua.ie || YAHOO.env.ua.opera) {
+          YAHOO.util.Event.onDOMReady(function() {
+              init_mini_login_form('_bottom');
+          });
+      }
+      else {
+          YAHOO.util.Event.on(window, 'load', function () {
+              window.setTimeout(function() {
+                  init_mini_login_form('_bottom');
+              }, 200);
+          });
+    }
+    </script>
+    <a href="#" onclick="return hide_mini_login_form('_bottom')">[x]</a>
+  </form>
+</li>
+<li id="forgot_container_bottom">
+  <span class="separator">| </span>
+  <a id="forgot_link_bottom" href="show_bug.cgi?id=207002&amp;GoAheadAndLogIn=1#forgot"
+     onclick="return show_forgot_form('_bottom')">Forgot Password</a>
+  <form action="token.cgi" method="post" id="forgot_form_bottom"
+        class="mini_forgot bz_default_hidden">
+    <label for="login_bottom">Login:</label>
+    <input type="text" name="loginname" size="20" id="login_bottom">
+    <input id="forgot_button_bottom" value="Reset Password" 
+           type="submit">
+    <input type="hidden" name="a" value="reqpw">
+    <input type="hidden" id="token_bottom" name="token" value="1386979519-n_eOddziWs0yFNZHBWw3GcFMvGaKD-C-LagZzZOvs_A">
+    <a href="#" onclick="return hide_forgot_form('_bottom')">[x]</a>
+  </form>
+</li>
+  <span class="separator">| </span>
+  <li><a href="http://www.eclipse.org/legal/termsofuse.php">Terms of Use</a></li>
+  <span class="separator">| </span>
+  <li><a href="http://www.eclipse.org/legal/copyright.php">Copyright Agent</a></li>
+</ul>
+  </li>
+
+  
+    
+
+
+  
+</ul>
+
+  <div class="outro"></div>
+</div>
+
+
+</body>
+</html>

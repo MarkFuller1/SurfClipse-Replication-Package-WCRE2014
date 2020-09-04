@@ -1,0 +1,688 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>Sending  Hello to Server (Sockets and Internet Protocols forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/594603/sockets/java/Sending-Server"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/594603/sockets/java/Sending-Server?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-8/sockets">Sockets and Internet Protocols</a>
+<div class="subject">Sending  Hello to Server</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Johhn Davis, Greenhorn<br />
+  on <span class="lastPostTime">Oct 08, 2012 04:20:50</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody"><textarea name="code" class="java" cols="60" rows="10">import java.net.Socket; 
+import java.io.OutputStream;
+import java.io.DataOutputStream;
+ 
+public class Demo
+{
+   public static void main(String args[]) throws Exception
+   {
+	   Socket sock = new Socket("google.com", 43);
+	   
+	       
+     String message1 = "Hello to Server";
+ 
+     OutputStream ostream = sock.getOutputStream();                 
+     DataOutputStream dos = new DataOutputStream(ostream);
+     
+     dos.writeBytes(message1);                                                         
+     dos.close();                            
+     ostream.close();   
+     sock.close();
+  }
+}</textarea>
+<br /> 
+<br /> 
+<br /> Facing many errors in Eclipse :
+<br /> 
+<br /> Exception in thread "main" java.net.ConnectException: Connection timed out: connect
+<br /> 	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+<br /> 	at java.net.DualStackPlainSocketImpl.socketConnect(Unknown Source)
+<br /> 	at java.net.AbstractPlainSocketImpl.doConnect(Unknown Source)
+<br /> 	at java.net.AbstractPlainSocketImpl.connectToAddress(Unknown Source)
+<br /> 	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+<br /> 	at java.net.PlainSocketImpl.connect(Unknown Source)
+<br /> 	at java.net.SocksSocketImpl.connect(Unknown Source)
+<br /> 	at java.net.Socket.connect(Unknown Source)
+<br /> 	at java.net.Socket.connect(Unknown Source)
+<br /> 	at java.net.Socket.&lt;init&gt;(Unknown Source)
+<br /> 	at java.net.Socket.&lt;init&gt;(Unknown Source)
+<br /> 	at Demo.main(Demo.java:9)
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Oct 08, 2012 08:37:56</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">That tells you that google.com is not listening for a TCP socket connection on port 43. Or possibly that there's no network path from your host to google.com, but that may give a different error message.
+<br /> 
+<br /> Any particular reason you assumed you'd be able to connect to google.com:43?
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Johhn Davis, Greenhorn<br />
+  on <span class="lastPostTime">Oct 08, 2012 09:26:34</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">no particular reason, it was just hit & trial method to check such code. 
+<br /> well thanks for reply.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Oct 08, 2012 09:34:21</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Johhn Davis wrote:</cite>no particular reason, it was just hit & trial method to check such code. 
+<br /> well thanks for reply.</div>
+		</blockquote>
+<br /> 
+<br /> Then try port 80. Any site you can get to with your browser using <b>http://some_site.com</b> without specifying a port is listening on port 80. Of course, probably none of them are expecting to receive "Hello to server", so you'll get an error in response. If you want to initiate a real exchange, then try sending
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+GET /
+</textarea>
+<br /> 
+<br /> inluding the newline (possibly two newlines--I forget the details), and read the response.
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ulf Dittmer, Marshal<br />
+  on <span class="lastPostTime">Oct 08, 2012 13:05:16</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I think it needs to be "GET / HTTP/1.0" for a proper HTTP request. </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Pat Farrell, Rancher<br />
+  on <span class="lastPostTime">Oct 08, 2012 14:10:17</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Ulf Dittmer wrote:</cite>I think it needs to be "GET / HTTP/1.0" for a proper HTTP request. </div>
+		</blockquote>
+<br /> 
+<br /> Actually, two lines: 
+<br /> GET /  HTTP/1.0
+<br /> 
+<br /> (second line blank with no spaces) will work
+<br /> The protocol requires the second line.
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Oct 08, 2012 14:36:45</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Pat Farrell wrote:</cite><blockquote>
+			<div>
+				<cite>Ulf Dittmer wrote:</cite>I think it needs to be "GET / HTTP/1.0" for a proper HTTP request. </div>
+		</blockquote>
+<br /> 
+<br /> Actually, two lines: 
+<br /> GET /  HTTP/1.0
+<br /> 
+<br /> (second line blank with no spaces) will work
+<br /> The protocol requires the second line.
+<br /> </div>
+		</blockquote>
+<br /> 
+<br /> It must depend on how rigidly the server enforces the HTTP protocol, or what version it is. I often test connections by telneting to port 80 and just entering GET or GET / followed by one or two newlines.
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Pat Farrell, Rancher<br />
+  on <span class="lastPostTime">Oct 08, 2012 14:52:04</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Jeff Verdegan wrote:</cite>I often test connections by telneting to port 80 and just entering GET or GET / followed by one or two newlines.</div>
+		</blockquote>
+<br /> 
+<br /> GET /
+<br /> followed by to CR is fine.
+<br /> 
+<br /> My point was that you always need the two CR, its not enough to have just the "GET" command</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Johhn Davis, Greenhorn<br />
+  on <span class="lastPostTime">Oct 08, 2012 23:10:17</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">After editing 
+<br /> <textarea name="code" class="java" cols="60" rows="10">Socket sock = new Socket("http://www.google.com",80);</textarea>
+<br /> I am receiving different error :
+<br /> 
+<br /> Exception in thread "main" <font color='blue'>java.net.UnknownHostException</font>: <a class="snap_shots" href="http://www.google.com" target="_blank" >http://www.google.com</a>
+<br /> 	at java.net.AbstractPlainSocketImpl.connect(Unknown Source)
+<br /> 	at java.net.PlainSocketImpl.connect(Unknown Source)
+<br /> 	at java.net.SocksSocketImpl.connect(Unknown Source)
+<br /> 	at java.net.Socket.connect(Unknown Source)
+<br /> 	at java.net.Socket.connect(Unknown Source)
+<br /> 	at java.net.Socket.&lt;init&gt;(Unknown Source)
+<br /> 	at java.net.Socket.&lt;init&gt;(Unknown Source)
+<br /> 	at Demo.main(Demo.java:9)
+<br /> 
+<br /> 
+<br /> Jeff & Pat, where i am supposed to write  GET / HTTP/1.0 ? When I put this at google url i got same error  UnknownHostException .</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ulf Dittmer, Marshal<br />
+  on <span class="lastPostTime">Oct 08, 2012 23:40:03</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">The first parameter of the Socket constructor is a host name, not an URL - remove the "http://".
+<br /> 
+<br /> The" GET... " is the message you send instead of the one you're currently using. </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Johhn Davis, Greenhorn<br />
+  on <span class="lastPostTime">Oct 09, 2012 00:29:49</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Now i edited it as :
+<br /> <textarea name="code" class="java" cols="60" rows="10">Socket sock = new Socket("www.google.com",80);</textarea>
+<br /> 
+<br /> I didn't get any error  <img src="http://cache-www.coderanch.com/images/smilies/jr-confused.gif" border="0"> .     Ulf does it mean success  <img src="http://cache-www.coderanch.com/images/smilies/e8a506dc4ad763aca51bec4ca7dc8560.gif" />  ?  </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ulf Dittmer, Marshal<br />
+  on <span class="lastPostTime">Oct 09, 2012 00:35:38</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Possibly. Try reading what gets sent as response and print it to the console to be sure. </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Johhn Davis, Greenhorn<br />
+  on <span class="lastPostTime">Oct 09, 2012 04:34:22</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote class="uncited">
+			<div>Try reading what gets sent as response and print it to the console to be sure.</div>
+		</blockquote>
+<br /> 
+<br /> I don't yet how to do this  <img src="http://cache-www.coderanch.com/images/smilies/c30b4198e0907b23b8246bdd52aa1c3c.gif" /> (may be i)  .  I assume it should be like , i am unicasting and it comes back (if so) , i store it in somewhere and watch the output at console. 
+<br /> But i did something. I switched off the Modem , run the code and Got the error.  <img src="http://cache-www.coderanch.com/images/smilies/0320a00cb4bb5629ab9fc2bc1fcc4e9e.gif" /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Oct 09, 2012 08:17:57</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Johhn Davis wrote:</cite>Now i edited it as :
+<br /> <textarea name="code" class="java" cols="60" rows="10">Socket sock = new Socket("www.google.com",80);</textarea>
+<br /> 
+<br /> I didn't get any error  <img src="http://cache-www.coderanch.com/images/smilies/jr-confused.gif" border="0"> .     Ulf does it mean success  <img src="http://cache-www.coderanch.com/images/smilies/e8a506dc4ad763aca51bec4ca7dc8560.gif" />  ?  </div>
+		</blockquote>
+<br /> 
+<br /> It means you're connected.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Oct 09, 2012 08:21:22</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Johhn Davis wrote:</cite><blockquote class="uncited">
+			<div>Try reading what gets sent as response and print it to the console to be sure.</div>
+		</blockquote>
+<br /> 
+<br /> I don't yet how to do this  <img src="http://cache-www.coderanch.com/images/smilies/c30b4198e0907b23b8246bdd52aa1c3c.gif" /> (may be i)  .  I assume it should be like , i am unicasting and it comes back (if so) , i store it in somewhere and watch the output at console. </div>
+		</blockquote>
+<br /> 
+<br /> You get the Socket's OutputStream, write "GET /" and two newlines, get the InputStream, read as much of the response as you're interested in, and print it out to the screen as you read it. At least, that's what I would do if I was just playing around with sockets seeing if I understood how they work and wanted to test whether I could send and receive data. If there's some other more specific goal you have, then you may have to do something different to achieve it.
+<br /> 
+<br /> 
+<br /> <blockquote class="uncited">
+			<div>But i did something. I switched off the Modem , run the code and Got the error.  <img src="http://cache-www.coderanch.com/images/smilies/0320a00cb4bb5629ab9fc2bc1fcc4e9e.gif" /> </div>
+		</blockquote>
+<br /> 
+<br /> And this surprises you? Are you also surprised when you're unable to call anybody after switching off your phone, and unable to watch any shows after switching off your TV?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Johhn Davis, Greenhorn<br />
+  on <span class="lastPostTime">Oct 09, 2012 11:16:51</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody"><textarea name="code" class="java" cols="60" rows="10">And this surprises you? Are you also surprised when you're unable to call anybody after switching off your phone, and unable to watch any shows after switching off your TV? </textarea>
+<br />  <img src="http://cache-www.coderanch.com/images/smilies/283a16da79f3aa23fe1025c96295f04f.gif" />  <img src="http://cache-www.coderanch.com/images/smilies/283a16da79f3aa23fe1025c96295f04f.gif" />  <img src="http://cache-www.coderanch.com/images/smilies/283a16da79f3aa23fe1025c96295f04f.gif" />   I got that. 
+<br /> 
+<br /> Jeff thanks for helping me here & in other threads too. Well i still couldn't get how to use that GET/  ,beside i give  my best to play with sockets <img src="http://cache-www.coderanch.com/images/smilies/3b63d1616c5dfcf29f8a7a031aaa7cad.gif" /> 
+<br /> 
+<br /> <i>Sharing a Joke</i> :
+<br /> "  When Your life is in Darkness, pray GOD and ask him to free you from Darkness, Even after you pray, if You are still in Darkness please PAY ELECTRICITY BILL "    <img src="http://cache-www.coderanch.com/images/smilies/jr-beerchug.gif" border="0"> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Oct 09, 2012 11:27:49</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Johhn Davis wrote:</cite>
+<br /> Jeff thanks for helping me here & in other threads too. </div>
+		</blockquote>
+<br /> 
+<br /> You're very welcome.
+<br /> 
+<br /> <blockquote class="uncited">
+			<div>Well i still couldn't get how to use that GET/</div>
+		</blockquote>
+<br /> 
+<br /> Note that the <b>GET /</b> part a) has a space between "GET" and "/" and b) has nothing to do with sockets per se.
+<br /> 
+<br /> The <b>GET /</b> bit is part of the HTTP protocol, which is at a higher layer (Application layer) in the <a class="snap_shots" href="http://en.wikipedia.org/wiki/TCP/IP_model" target="_new" >network stack</a> than a simple TCP socket connection (Transport layer). Once you have established a socket connection to a server, how you interact with that server over that connection depends on what Application protocol(s) the server supports. In the examples here, I was assuming a web server supporting the HTTP protocol. When we send a GET command with the name of the resource to get ("/" in my example), the server responds with the contents of that resource. So we write "GET /" followed by two newlines, and then we read whatever the server sends back.
+<br /> 
+<br /> If the server we're connected to is supporting some other protocol rather that HTTP, there will be a different set of valid requests we can send, which will in turn generate a different set of responses.
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Johhn Davis, Greenhorn<br />
+  on <span class="lastPostTime">Oct 11, 2012 03:53:19</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody"><textarea name="code" class="java" cols="60" rows="10">import java.net.Socket;   
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+       
+    public class Demo  
+    {  
+       public static void main(String args[]) throws Exception  
+       {  
+           Socket sock = new Socket("google.com",80);  
+             
+                 
+         String message1 = "GET /HTTP/1.0";  
+       
+         Writer ostream = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));                   
+         BufferedWriter dos = new BufferedWriter(ostream);  
+           
+         dos.write(message1);
+         dos.newLine();
+         dos.newLine();
+         
+         dos.close();                              
+         ostream.close();     
+         sock.close();  
+      }  
+    }  </textarea>
+<br /> 
+<br /> No error that's good, & No response  <img src="http://cache-www.coderanch.com/images/smilies/c30b4198e0907b23b8246bdd52aa1c3c.gif" /> 
+<br /> 
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ulf Dittmer, Marshal<br />
+  on <span class="lastPostTime">Oct 11, 2012 04:03:36</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Three comments:
+<br /> <li>There should be a space between "/" and "HTTP" in the message. </li><li>Why are you wrapping a BufferedWriter inside of another BufferedWriter? That's one too many.</li><li>How can you say there's no response? There's no code to read a response.</li></span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/594603'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=8'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:54:26</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/8"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/594603/sockets/java/Sending-Server?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

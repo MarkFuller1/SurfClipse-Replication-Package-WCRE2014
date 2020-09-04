@@ -1,0 +1,884 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>
+						  Print a PDF Document in Java | Juixe Techknow								</title>
+
+<link rel="stylesheet" href="http://juixe.com/techknow/wp-content/themes/elegant-grunge/style.css" type="text/css" media="screen" />
+<!--[if IE]>
+<link rel="stylesheet" type="text/css" href="http://juixe.com/techknow/wp-content/themes/elegant-grunge/ie.css" />
+<style type="text/css">
+#footer #subscribe a {
+	background:none;
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='http://juixe.com/techknow/wp-content/themes/elegant-grunge/images/rss.png');
+}
+</style>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="Juixe Techknow RSS Feed" href="http://juixe.com/techknow/index.php/feed/" />
+<link rel="pingback" href="http://juixe.com/techknow/xmlrpc.php" />
+
+
+
+<link rel="alternate" type="application/rss+xml" title="Juixe Techknow &raquo; Print a PDF Document in Java Comments Feed" href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/feed/" />
+<link rel='stylesheet' id='sharedaddy-css'  href='http://juixe.com/techknow/wp-content/plugins/jetpack/modules/sharedaddy/sharing.css?ver=0.3.1' type='text/css' media='all' />
+<script type='text/javascript' src='http://juixe.com/techknow/wp-includes/js/comment-reply.min.js?ver=3.5.1'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://juixe.com/techknow/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://juixe.com/techknow/wp-includes/wlwmanifest.xml" /> 
+<link rel='prev' title='Accessing Local Files With Mozilla XPCOM' href='http://juixe.com/techknow/index.php/2008/01/14/accessing-local-files-with-mozilla-xpcom/' />
+<link rel='next' title='VMWare Fusion &#8211; Virtualization Software' href='http://juixe.com/techknow/index.php/2008/02/05/vmware-virtualization-software/' />
+<meta name="generator" content="WordPress 3.5.1" />
+<link rel='canonical' href='http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/' />
+<link rel='shortlink' href='http://wp.me/p902K-6x' />
+<meta id="syntaxhighlighteranchor" name="syntaxhighlighter-version" content="3.1.3" />
+
+</head>
+
+
+<body >
+
+<div id="page">
+
+<div id="menu">
+	<ul>
+		<li class="page_item "><a href="http://juixe.com/techknow">Home</a></li>
+		<li class="page_item page-item-2"><a href="http://juixe.com/techknow/index.php/about/">About</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+
+<div id="header-wrap">
+<div id="header">
+	<div>
+		<h1><a href="http://juixe.com/techknow">Juixe Techknow</a></h1>
+		<span id="blog-description">Break Coders Block!</span>
+	</div>
+</div>
+</div>
+
+<!-- end header --><div id="content-container">
+
+	<div id="content">
+	<div id="body">
+	
+	
+		<div class="post" id="post-405">
+		
+		
+			<h2>Print a PDF Document in Java</h2>
+
+			
+			<div class="entry">
+				<p>For some time now I have searched for a way to print a PDF document from Java code.  Up to now, I have had to shell out and invoke Acrobat from the command line but this hack has been painful to support in the field because of the multiple version of Acrobat and its quirks.</p>
+<p>A new <a href="https://pdf-renderer.dev.java.net/">PDF Renderer</a> project has recently been released on java.net which can in addition to rendering and viewing a PDF document, it can be used to print a PDF document.  If you download the PDF Renderer you can run the jar to start a sample PDF viewer application which can print PDF documents.  All the code listed below is inspired from the PDF Renderer sample application.</p>
+<p>The following code uses classes from the PDF Renderer library and standard Java.  Like usual, I have omitted all import statements.</p>
+<pre class="brush: java; title: ; notranslate" title="">
+// Create a PDFFile from a File reference
+File f = new File(&quot;c:\\juixe\\techknow.pdf&quot;);
+FileInputStream fis = new FileInputStream(f);
+FileChannel fc = fis.getChannel();
+ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+PDFFile pdfFile = new PDFFile(bb); // Create PDF Print Page
+PDFPrintPage pages = new PDFPrintPage(pdfFile);
+
+// Create Print Job
+PrinterJob pjob = PrinterJob.getPrinterJob();
+PageFormat pf = PrinterJob.getPrinterJob().defaultPage();
+pjob.setJobName(f.getName());
+Book book = new Book();
+book.append(pages, pf, pdfFile.getNumPages());
+pjob.setPageable(book);
+
+// Send print job to default printer
+pjob.print();
+</pre>
+<p>One critical class required to print a PDF document using PDF Renderer is the PDFPrintPage.  The PDFPrintPage implements the Printable print method.  The PDFPrintPage is included in the PDFRenderer.jar, but in the source distribution it is found under the demos project.  I have included the source to PDFPrintPage print method here&#8230;</p>
+<pre class="brush: java; title: ; notranslate" title="">
+class PDFPrintPage implements Printable {
+  private PDFFile file;
+  PDFPrintPage(PDFFile file) {
+    this.file = file;
+  }
+
+  public int print(Graphics g, PageFormat format, int index) 
+    throws PrinterException {
+    int pagenum = index + 1;
+
+    // don't bother if the page number is out of range.
+    if ((pagenum &gt;= 1) &amp;&amp; (pagenum &lt; = file.getNumPages())) {
+      // fit the PDFPage into the printing area
+      Graphics2D g2 = (Graphics2D)g;
+      PDFPage page = file.getPage(pagenum);
+      double pwidth = format.getImageableWidth();
+      double pheight = format.getImageableHeight();
+
+      double aspect = page.getAspectRatio();
+      double paperaspect = pwidth / pheight;
+
+      Rectangle imgbounds;
+
+      if (aspect&gt;paperaspect) {
+        // paper is too tall / pdfpage is too wide
+        int height= (int)(pwidth / aspect);
+        imgbounds= new Rectangle(
+          (int)format.getImageableX(),
+          (int)(format.getImageableY() + ((pheight - height) / 2)),
+          (int)pwidth,
+          height
+        );
+      } else {
+        // paper is too wide / pdfpage is too tall
+        int width = (int)(pheight * aspect);
+        imgbounds = new Rectangle(
+          (int)(format.getImageableX() + ((pwidth - width) / 2)),
+          (int)format.getImageableY(),
+          width,
+          (int)pheight
+        );
+      }
+
+      // render the page
+      PDFRenderer pgs = new PDFRenderer(page, g2, imgbounds, null, null);
+      try {
+        page.waitForFinish();
+        pgs.run();
+      } catch (InterruptedException ie) {}
+
+      return PAGE_EXISTS;
+    } else {
+      return NO_SUCH_PAGE;
+    }
+  }
+}
+</pre>
+<p>A final note, PDF Renderer does require Java 1.5 or greater.</p>
+<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing"><h3 class="sd-title">Love it? Share it!</h3><div class="sd-content"><ul><li class="share-digg"><a rel="nofollow" class="share-digg sd-button share-icon" href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/?share=digg" title="Click to Digg this post"><span>Digg</span></a></li><li class="share-facebook"><a rel="nofollow" class="share-facebook sd-button share-icon" href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/?share=facebook" title="Share on Facebook" id="sharing-facebook-405"><span>Facebook</span></a></li><li class="share-reddit"><a rel="nofollow" class="share-reddit sd-button share-icon" href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/?share=reddit" title="Click to share on Reddit"><span>Reddit</span></a></li><li class="share-twitter"><a rel="nofollow" class="share-twitter sd-button share-icon" href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/?share=twitter" title="Click to share on Twitter" id="sharing-twitter-405"><span>Twitter</span></a></li><li class="share-stumbleupon"><a rel="nofollow" class="share-stumbleupon sd-button share-icon" href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/?share=stumbleupon" title="Click to share on StumbleUpon"><span>StumbleUpon</span></a></li><li class="share-end"></li></ul><div class="sharing-clear"></div></div></div></div><p><b>Related posts:</b><ol>
+<li><a href='http://juixe.com/techknow/index.php/2006/01/25/word-to-pdf/' rel='bookmark' title='Word To PDF'>Word To PDF</a></li>
+<li><a href='http://juixe.com/techknow/index.php/2011/04/27/how-to-print-the-alphabet-in-java/' rel='bookmark' title='How To Print The Alphabet in Java?'>How To Print The Alphabet in Java?</a></li>
+<li><a href='http://juixe.com/techknow/index.php/2006/07/05/rails-pdf-plugin/' rel='bookmark' title='Rails PDF Plugin'>Rails PDF Plugin</a></li>
+<li><a href='http://juixe.com/techknow/index.php/2005/11/15/print-html-using-ie/' rel='bookmark' title='Print HTML Using IE'>Print HTML Using IE</a></li>
+<li><a href='http://juixe.com/techknow/index.php/2007/09/21/windows-print-screen-key/' rel='bookmark' title='Windows Print Screen Key'>Windows Print Screen Key</a></li>
+<li><a href='http://juixe.com/techknow/index.php/2006/05/08/javaclass/' rel='bookmark' title='Java.class'>Java.class</a></li>
+</ol></p>			</div>
+
+			<div class="clear"></div>
+			
+			
+			<div class="metadata">
+				
+					This entry was posted on Thursday, January 17th, 2008 at 11:49 pmand is filed under . You can follow any responses to this entry through the <a href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/feed/">RSS 2.0</a> feed.
+											You can <a href="#respond">leave a response</a>, or <a href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/trackback/" rel="trackback">trackback</a> from your own site.
+					
+				</div>
+			</div>
+			<div class="hr"><hr /></div>
+
+	
+<!-- You can start editing here. -->
+
+
+	<h4 id="comments">62 Responses to &#8220;Print a PDF Document in Java&#8221;</h4>
+
+		<div class="navigation">
+		<div class="alignleft"><a href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/comment-page-1/#comments" >&laquo; Older Comments</a></div>
+		<div class="alignright"></div>
+	</div>
+	
+    <div class="clear"></div>
+
+	<ul class="commentlist">
+        <li id="comment-33434" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://0.gravatar.com/avatar/4b34bac8d7e9296c4315b7f21a642d13?s=32&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>james</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-33434" title="">February 11th, 2011 at 8:17 am</a> </small>
+
+    		<div class="comment-text"><p>This is what i use to keep the original pdf size :</p>
+<pre>
+	/* fit the PDFPage into the printing area */
+	Graphics2D a_o_graphic = (Graphics2D)the_o_graphics;
+	PDFPage a_o_page = my_o_file.getPage(a_i_pagenum);
+
+	double pwidth = the_o_format.getImageableWidth();
+	double pheight = the_o_format.getImageableHeight();
+ 
+	Rectangle a_o_imageArea;
+ 
+    if (pwidth &gt;= a_o_page.getWidth() || pheight &gt;= a_o_page.getHeight()) {
+	/* Define the image area */
+		a_o_imageArea = new Rectangle((int) the_o_format.getImageableX(), (int) the_o_format.getImageableY(),
+		(int) a_o_page.getWidth(), (int) a_o_page.getHeight());
+		a_o_graphic.translate(0, 0);
+    }
+    else{
+	/* Define the image area */
+		a_o_imageArea = new Rectangle((int) the_o_format.getImageableX(), (int) the_o_format.getImageableY(),
+		(int) the_o_format.getImageableWidth(), (int) the_o_format.getImageableHeight());
+		a_o_graphic.translate(0, 0);
+    }
+</pre>
+<p>I hope it can be useful for someone :)</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-36687" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://1.gravatar.com/avatar/75de9fc347d88ac29ca502f845b9274c?s=32&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>Bainer</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-36687" title="">March 3rd, 2011 at 1:30 pm</a> </small>
+
+    		<div class="comment-text"><p>Thank you Barrett for figuring this thing out!!</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-38640" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		    		<cite><a href='http://www.ladyblackice.com/2008/03/13/stampare-pdf-da-java/' rel='external nofollow' class='url'>Stampare PDF da Java | Lady Blackice</a></cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-38640" title="">March 24th, 2011 at 8:40 am</a> </small>
+
+    		<div class="comment-text"><p>[...] che facevano al caso mio!  Prima parte: per mandare in stampa il PDF ho seguito le istruzioni di questo post, che suggerisce l&#8217;utilizzo della libreria PDF Renderer. Solo una correzione al codice [...]</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-59939" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		    		<cite><a href='http://web.ist.utl.pt/~andre.brioso/wp/2011/11/print-pdf-document-in-java/' rel='external nofollow' class='url'>Print &amp; PDF Document in Java | P3r3s&#039; Notes</a></cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-59939" title="">November 3rd, 2011 at 2:29 pm</a> </small>
+
+    		<div class="comment-text"><p>[...] Print a PDF Document in Java.   This entry was posted in Code and tagged java by abrioso. Bookmark the permalink. [...]</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-62048" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://0.gravatar.com/avatar/02be0b6fb1fb8ff732522291f51f8223?s=32&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>Clement</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-62048" title="">November 21st, 2011 at 2:13 am</a> </small>
+
+    		<div class="comment-text"><p>Very nice code, very simple and useful.<br />
+Thank you.</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-62695" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://0.gravatar.com/avatar/01fdd295d98fecdd108d1adf64468339?s=32&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>Jhay</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-62695" title="">November 25th, 2011 at 11:16 pm</a> </small>
+
+    		<div class="comment-text"><p>How to use this through PHP where I can pass a variable that has the link to my PDF?  For example, an external PDF or internal&#8230;</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-64329" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://0.gravatar.com/avatar/44588f189b1ad317525cc981253c4086?s=32&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>Techie</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-64329" title="">December 8th, 2011 at 7:03 am</a> </small>
+
+    		<div class="comment-text"><p>Hi Friends,</p>
+<p>Thanks for sharing this example.</p>
+<p>I am facing issue when I print on Linux/Unix machine.<br />
+It is printing Binary (Junk Chars) not the actual PDF Doc.<br />
+Same code is working fine on Windows.<br />
+If any one of you know the solution or any inputs, highly appreciated.</p>
+<p>Thanks in Advance.</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-71533" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://0.gravatar.com/avatar/e9e1585868ab54679ceb59b85a39b420?s=32&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>Shoaib Ahmed</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-71533" title="">January 24th, 2012 at 2:55 am</a> </small>
+
+    		<div class="comment-text"><p>this library is just superb&#8230; helped me a lot. i worked with it for the printinig purpose&#8230;</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-72247" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://0.gravatar.com/avatar/4dfc8a1c1dcb303c2f7cc691d41750de?s=32&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>cisq</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-72247" title="">January 31st, 2012 at 5:18 am</a> </small>
+
+    		<div class="comment-text"><p>Great work, many thanks</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-92769" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://1.gravatar.com/avatar/90747e28efd071c8796cbc76e3ae4d59?s=32&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>windspy</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-92769" title="">June 5th, 2012 at 3:18 am</a> </small>
+
+    		<div class="comment-text"><p>thanks, it&#8217;s really helpful.</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-94086" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://1.gravatar.com/avatar/1c2a9a457b2b25e4b358b41fdbabdb9f?s=32&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite><a href='http://www.santix.de' rel='external nofollow' class='url'>HoffiMuc</a></cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-94086" title="">June 11th, 2012 at 5:55 am</a> </small>
+
+    		<div class="comment-text"><p>Here a working class for pdf print printing with javax.print in one class for DIN A4 honoring the PrintRequestAttributeSet:</p>
+<pre>
+package scrapbook;
+
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.ByteBuffer;
+
+import javax.print.DocFlavor;
+import javax.print.DocPrintJob;
+import javax.print.PrintException;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.SimpleDoc;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.Copies;
+import javax.print.attribute.standard.MediaPrintableArea;
+import javax.print.attribute.standard.MediaTray;
+import javax.print.attribute.standard.OrientationRequested;
+import javax.print.attribute.standard.Sides;
+
+import com.sun.pdfview.PDFFile;
+import com.sun.pdfview.PDFPage;
+import com.sun.pdfview.PDFRenderer;
+
+import de.santix.sat.server.util.logging.LogHelper;
+
+/**
+ * Printing of pdf with PDFRenderer.jar.
+ * honors the given PrintRequestAttributeSet
+ * 
+ * @author hoffmann
+ */
+public final class PdfRendererStandalonePrint
+{
+    /** points per inch. */
+    public static final float POINTS_PER_INCH = 72.0f;
+    /** width in inch for an ISO_A4 paper. */
+    public static final float A4_INCH_WIDTH = 8.27f;
+    /** height in inch for an ISO_A4 paper. */
+    public static final float A4_INCH_HEIGHT = 11.69f;
+
+    /** hidden constructor. */
+    private PdfRendererStandalonePrint()
+    {};
+
+    /**
+     * args[0] absolute path of pdfFile.
+     * args[1] printerName to print to
+     * 
+     * @param args
+     *            call arguments
+     */
+    public static void main(String[] args) {
+        try {
+            File file = new File(args[0]);
+            FileInputStream fis = new FileInputStream(file);
+
+            byte[] pdfBytes = new byte[(int) file.length()];
+            int bytesRead = fis.read(pdfBytes);
+            if (bytesRead = 1) &amp;&amp; (pagenum &lt;= pdfFile.getNumPages())) {
+                        Graphics2D g2 = (Graphics2D) graphics;
+                        PDFPage page = pdfFile.getPage(pagenum);
+
+                        // fit the PDFPage into the printing area
+                        // Rectangle imageArea = new Rectangle((int) format.getImageableX(), (int) format.getImageableY(), (int)
+                        // format.getImageableWidth(),
+                        // (int) format.getImageableHeight());
+                        // g2.translate(0, 0);
+
+                        // no scaling, center PDF
+                        Rectangle imageArea = new Rectangle(
+                                (int) (pageFormat.getImageableX() + pageFormat.getImageableWidth() / 2 - page.getWidth() / 2),
+                                (int) (pageFormat.getImageableY() + pageFormat.getImageableHeight() / 2 - page.getHeight() / 2),
+                                (int) page.getWidth(), (int) page.getHeight());
+
+                        PDFRenderer pgs = new PDFRenderer(page, g2, imageArea, null, null);
+                        try {
+                            page.waitForFinish();
+                            pgs.run();
+                        } catch (InterruptedException ie) {
+                            LogHelper.error(&quot;InterruptedException in PdfPrintPage.print()&quot;);
+                            // nothing to do
+                        }
+                        return PAGE_EXISTS;
+                    } else {
+                        return NO_SUCH_PAGE;
+                    }
+                }
+            };
+
+            javaxPrint(pages, args[1], file.getName()); // new javax.print
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * printing the PdfPrintPages with javax.print.
+     * honors the given PrintRequestAttributeSet
+     * 
+     * @param pages
+     *            PdfPrintPages which implements java.awt.Printable
+     * @param printerName
+     *            name of the printer
+     * @param printJobName
+     *            printjob name
+     * @throws PrintException
+     *             in case of an error
+     */
+    private static void javaxPrint(Printable pages, String printerName, String printJobName) throws PrintException {
+        PrintService printService = getPrintService(printerName);
+        DocPrintJob printJob = printService.createPrintJob();
+        printJob.print(new SimpleDoc(pages, DocFlavor.SERVICE_FORMATTED.PRINTABLE, null), getPrintRequestAttributes());
+    }
+
+    /**
+     * Lookup PrintService by printerName.
+     * 
+     * @param printerName
+     *            printers Name
+     * @return PrintService
+     * @throws PrintException
+     *             in case of an error
+     */
+    public static PrintService getPrintService(String printerName) throws PrintException {
+        // args[1] = printerName (e.g. "\\CASH\Kopierer Farbe PS")
+        PrintService[] allPrintServices = PrintServiceLookup.lookupPrintServices(null, null);
+        for (PrintService printService : allPrintServices) {
+            if (printService.getName().equalsIgnoreCase(printerName)) {
+                return printService;
+            }
+        }
+        throw new PrintException("printer \"" + printerName + "\" not found!");
+    }
+
+    /**
+     * construct the Attributes for an javax.print.PrintJob.
+     * 
+     * @return PrintRequestAttributeSet
+     */
+    public static PrintRequestAttributeSet getPrintRequestAttributes() {
+        PrintRequestAttributeSet aSet = new HashPrintRequestAttributeSet();
+        aSet.add(new Copies(1));
+        aSet.add(OrientationRequested.PORTRAIT);
+        // aSet.add(MediaSizeName.ISO_A4);
+        aSet.add(new MediaPrintableArea(0.0f, 0.0f, A4_INCH_WIDTH, A4_INCH_HEIGHT, MediaPrintableArea.INCH));
+        aSet.add(Sides.DUPLEX);
+        aSet.add(MediaTray.MAIN);
+
+        return aSet;
+    }
+}
+</pre>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+    <li id="comment-98783" >
+        <div class="comment-content">
+    		<div class="before-comment"></div>
+    		<div class="comment">
+    		<img alt='' src='http://0.gravatar.com/avatar/c951ab18cb1d348583134d0cb70768f2?s=32&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D32&amp;r=G' class='avatar avatar-32 photo' height='32' width='32' />    		<cite>Rodrigo</cite> Says:    		    		<br />
+
+    		<small class="commentmetadata"><a href="#comment-98783" title="">June 30th, 2012 at 2:05 pm</a> </small>
+
+    		<div class="comment-text"><p>Very usefull program. I need to delete the pdf file after print it but it seems to be  caught by some stream. I tried closing FileInputStream  and FileChannel  objetcs after delete the File object  but it does not work. Any idea?</p>
+<p>Thaks in advance</p>
+</div>
+    		
+    		
+    		    		<div class="reply">
+                            </div>
+                		
+    		</div>
+    		<div class="after-comment"><div></div></div>
+		</div>
+	</li>
+
+    </li>
+	</ul>
+
+    	<div class="navigation">
+		<div class="alignleft"><a href="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/comment-page-1/#comments" >&laquo; Older Comments</a></div>
+		<div class="alignright"></div>
+	</div>
+		
+    <div class="clear"></div>
+
+ 
+
+
+<h4 id="respond">Leave a Reply</h4>
+
+<div class="cancel-comment-reply">
+	<small><a rel="nofollow" id="cancel-comment-reply-link" href="/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/#respond" style="display:none;">Click here to cancel reply.</a></small>
+</div>
+
+
+<form action="http://juixe.com/techknow/wp-comments-post.php" method="post" id="commentform">
+
+
+<p><input type="text" class="text" name="author" id="author" value="" size="22" tabindex="1" aria-required='true' />
+<label for="author"><small>Name (required)</small></label></p>
+
+<p><input type="text" class="text" name="email" id="email" value="" size="22" tabindex="2" aria-required='true' />
+<label for="email"><small>Mail (will not be published) (required)</small></label></p>
+
+<p><input type="text" class="text" name="url" id="url" value="" size="22" tabindex="3" />
+<label for="url"><small>Website</small></label></p>
+
+
+<!--<p><small><strong>XHTML:</strong> You can use these tags: <code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;strike&gt; &lt;strong&gt; </code></small></p>-->
+
+<p><textarea name="comment" id="comment" cols="100%" rows="10" tabindex="4"></textarea></p>
+
+<p><input name="submit" type="submit" id="submit" tabindex="5" value="Submit Comment" />
+<input type="hidden" name="comment_post_ID" value="405" />
+<input type='hidden' name='comment_post_ID' value='405' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+</p>
+<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="41bbb81c14" /></p><p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;" /> <label class="subscribe-label" id="subscribe-label" for="subscribe_comments">Notify me of follow-up comments by email.</label></p><p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;" /> <label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">Notify me of new posts by email.</label></p>
+</form>
+
+
+
+	
+	</div> <!-- End body /-->
+
+	<div id="sidebar" class="sidebar">
+	<ul>
+		<li id="blog_subscription-3" class="widget jetpack_subscription_widget"><h2 class="widgettitle"><label for="subscribe-field">Subscribe via Email</label></h2>
+		<a name="subscribe-blog"></a>
+		<form action="" method="post" accept-charset="utf-8" id="subscribe-blog">
+			<p>Enter your email address to subscribe to this blog and receive notifications of new posts by email.</p>
+			<p><input type="text" name="email" style="width: 95%; padding: 1px 2px" value="Email Address" id="subscribe-field" onclick="if ( this.value == 'Email Address' ) { this.value = ''; }" onblur="if ( this.value == '' ) { this.value = 'Email Address'; }" /></p>
+
+			<p>
+				<input type="hidden" name="action" value="subscribe" />
+				<input type="hidden" name="source" value="http://juixe.com/techknow/index.php/2008/01/17/print-a-pdf-document-in-java/" />
+				<input type="hidden" name="sub-type" value="widget" />
+				<input type="hidden" name="redirect_fragment" value="blog_subscription-3" />
+				<input type="hidden" id="_wpnonce" name="_wpnonce" value="dc45b1ee81" />				<input type="submit" value="Subscribe" name="jetpack_subscriptions_widget" />
+			</p>
+		</form>
+
+		
+</li><li id="categories-3" class="widget widget_categories"><h2 class="widgettitle">Categories</h2>		<ul>
+	<li class="cat-item cat-item-3"><a href="http://juixe.com/techknow/index.php/category/techknow/" title="TechKnow Zenze is a collection of code snippets that I find useful from time to time.">TechKnow</a>
+<ul class='children'>
+	<li class="cat-item cat-item-6"><a href="http://juixe.com/techknow/index.php/category/techknow/books/" title="Reviews and rants on technical books.">Books</a>
+</li>
+	<li class="cat-item cat-item-7"><a href="http://juixe.com/techknow/index.php/category/techknow/cms/" title="Useful code, tips, and hints regarding with Content Management Systems such as Joomla!, Radiant, and/or Drupal.">CMS</a>
+</li>
+	<li class="cat-item cat-item-8"><a href="http://juixe.com/techknow/index.php/category/techknow/conference/" title="Useful notes taken at technology conferences">Conference</a>
+</li>
+	<li class="cat-item cat-item-9"><a href="http://juixe.com/techknow/index.php/category/techknow/css/" title="Useful tips regarding Cascading Style Sheets.">CSS</a>
+</li>
+	<li class="cat-item cat-item-10"><a href="http://juixe.com/techknow/index.php/category/techknow/design/" title="Useful tips, hints, and notes on design and usability">Design</a>
+</li>
+	<li class="cat-item cat-item-11"><a href="http://juixe.com/techknow/index.php/category/techknow/dotnet/" title="Useful code snippets in the .NET Framework.">DotNET</a>
+</li>
+	<li class="cat-item cat-item-12"><a href="http://juixe.com/techknow/index.php/category/techknow/gadgets/" title="Useful reviews and tips on technological gadgets.">Gadgets</a>
+</li>
+	<li class="cat-item cat-item-13"><a href="http://juixe.com/techknow/index.php/category/techknow/htmlxml/" title="Useful tips regarding XML, HTML,  and XHTML.">HTML/XML</a>
+</li>
+	<li class="cat-item cat-item-14"><a href="http://juixe.com/techknow/index.php/category/techknow/ide/" title="Useful tips regarding Integraded Development Environments.">IDE</a>
+</li>
+	<li class="cat-item cat-item-15"><a href="http://juixe.com/techknow/index.php/category/techknow/java/" title="Useful code snippets in the Java Programming language.">Java</a>
+</li>
+	<li class="cat-item cat-item-16"><a href="http://juixe.com/techknow/index.php/category/techknow/javascript/" title="Useful code snippets in JavaScript/CSS/XHTML, aka AJAX.">JavaScript</a>
+</li>
+	<li class="cat-item cat-item-17"><a href="http://juixe.com/techknow/index.php/category/techknow/mac/" title="Useful code snippets in Cocoa, Object-C, AppleScript, and Xcode.">Mac</a>
+</li>
+	<li class="cat-item cat-item-18"><a href="http://juixe.com/techknow/index.php/category/techknow/php/" title="Useful code snippets in PHP.">PHP</a>
+</li>
+	<li class="cat-item cat-item-19"><a href="http://juixe.com/techknow/index.php/category/techknow/programming/" title="Useful tips on programming ideas, paradigms, and idioms.">Programming</a>
+</li>
+	<li class="cat-item cat-item-20"><a href="http://juixe.com/techknow/index.php/category/techknow/python/" title="Useful code snippets in Python.">Python</a>
+</li>
+	<li class="cat-item cat-item-21"><a href="http://juixe.com/techknow/index.php/category/techknow/rant/" title="Rants, comparison, opinions, and discussions dealing with Software and Software Design.">Rant</a>
+</li>
+	<li class="cat-item cat-item-22"><a href="http://juixe.com/techknow/index.php/category/techknow/ruby/" title="Useful code snippets in Ruby and Ruby on Rails.">Ruby</a>
+</li>
+	<li class="cat-item cat-item-342"><a href="http://juixe.com/techknow/index.php/category/techknow/social-techknow/" title="View all posts filed under Social">Social</a>
+</li>
+	<li class="cat-item cat-item-23"><a href="http://juixe.com/techknow/index.php/category/techknow/sql/" title="Useful code snippets in Sql.">SQL</a>
+</li>
+	<li class="cat-item cat-item-312"><a href="http://juixe.com/techknow/index.php/category/techknow/startup-blogroll/" title="View all posts filed under Startup">Startup</a>
+</li>
+	<li class="cat-item cat-item-471"><a href="http://juixe.com/techknow/index.php/category/techknow/team-techknow/" title="View all posts filed under Team">Team</a>
+</li>
+	<li class="cat-item cat-item-4"><a href="http://juixe.com/techknow/index.php/category/techknow/tools/" title="Useful tips and recommendations for development tools.">Tools</a>
+</li>
+	<li class="cat-item cat-item-5"><a href="http://juixe.com/techknow/index.php/category/techknow/visual-basic/" title="Useful code snippets in Visual Basic.">Visual Basic</a>
+</li>
+</ul>
+</li>
+		</ul>
+</li>	</ul>
+</div>
+
+	</div>
+	
+	<div class="clear"></div>
+</div>
+</div> <!-- End page /-->
+
+<div id="footer-wrap-outer">
+<div id="footer-wrap">
+	<div id="footer">
+	
+		<div id="subscribe">
+	<a href="http://juixe.com/techknow/index.php/feed/">Subscribe RSS</a>
+	</div>
+		
+   
+	<div class="clear"></div>
+	<div class="legal">Copyright &copy; 2009 Juixe Techknow</div>
+	<div class="credit"><a href="http://wordpress.org" target="_blank">WordPress</a> Theme by <a href="http://michael.tyson.id.au/wordpress" target="_blank">Michael Tyson</a>.</div>
+	<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-145487-3");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+<!-- AdSense Manager v4.0.3 (2.303 seconds.) --><script type='text/javascript' src='http://juixe.com/techknow/wp-includes/js/jquery/jquery.js?ver=1.8.3'></script>
+<script type='text/javascript' src='http://s.gravatar.com/js/gprofiles.js?aa&#038;ver=3.5.1'></script>
+<script type='text/javascript'>
+/* <![CDATA[ */
+var WPGroHo = {"my_hash":""};
+/* ]]> */
+</script>
+<script type='text/javascript' src='http://juixe.com/techknow/wp-content/plugins/jetpack/modules/wpgroho.js?ver=3.5.1'></script>
+	<div style="display:none">
+	<div class="grofile-hash-map-4b34bac8d7e9296c4315b7f21a642d13">
+	</div>
+	<div class="grofile-hash-map-75de9fc347d88ac29ca502f845b9274c">
+	</div>
+	<div class="grofile-hash-map-02be0b6fb1fb8ff732522291f51f8223">
+	</div>
+	<div class="grofile-hash-map-01fdd295d98fecdd108d1adf64468339">
+	</div>
+	<div class="grofile-hash-map-44588f189b1ad317525cc981253c4086">
+	</div>
+	<div class="grofile-hash-map-e9e1585868ab54679ceb59b85a39b420">
+	</div>
+	<div class="grofile-hash-map-4dfc8a1c1dcb303c2f7cc691d41750de">
+	</div>
+	<div class="grofile-hash-map-90747e28efd071c8796cbc76e3ae4d59">
+	</div>
+	<div class="grofile-hash-map-1c2a9a457b2b25e4b358b41fdbabdb9f">
+	</div>
+	<div class="grofile-hash-map-c951ab18cb1d348583134d0cb70768f2">
+	</div>
+	</div>
+<script type='text/javascript' src='http://juixe.com/techknow/wp-content/plugins/jetpack/modules/sharedaddy/sharing.js?ver=20120131'></script>
+		<script type="text/javascript" charset="utf-8">
+		jQuery(document).ready(function(){
+			jQuery( '.share-facebook' ).click(function(){
+				window.open( jQuery(this).attr( 'href' ), 'wpcomfacebook', 'menubar=1,resizable=1,width=600,height=400' );
+				return false;
+			});
+		});
+		</script>
+				<script type="text/javascript" charset="utf-8">
+		jQuery(document).ready(function(){
+			jQuery( '.share-twitter' ).click(function(){
+				window.open( jQuery(this).attr( 'href' ), 'wpcomtwitter', 'menubar=1,resizable=1,width=600,height=350' );
+				return false;
+			});
+		});
+		</script>
+		<script type='text/javascript' src='http://juixe.com/techknow/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shCore.js?ver=3.0.83c'></script>
+<script type='text/javascript' src='http://juixe.com/techknow/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushJava.js?ver=3.0.83c'></script>
+<script type='text/javascript'>
+	(function(){
+		var corecss = document.createElement('link');
+		var themecss = document.createElement('link');
+		var corecssurl = "http://juixe.com/techknow/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shCore.css?ver=3.0.83c";
+		if ( corecss.setAttribute ) {
+				corecss.setAttribute( "rel", "stylesheet" );
+				corecss.setAttribute( "type", "text/css" );
+				corecss.setAttribute( "href", corecssurl );
+		} else {
+				corecss.rel = "stylesheet";
+				corecss.href = corecssurl;
+		}
+		document.getElementsByTagName("head")[0].insertBefore( corecss, document.getElementById("syntaxhighlighteranchor") );
+		var themecssurl = "http://juixe.com/techknow/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shThemeMidnight.css?ver=3.0.83c";
+		if ( themecss.setAttribute ) {
+				themecss.setAttribute( "rel", "stylesheet" );
+				themecss.setAttribute( "type", "text/css" );
+				themecss.setAttribute( "href", themecssurl );
+		} else {
+				themecss.rel = "stylesheet";
+				themecss.href = themecssurl;
+		}
+		//document.getElementById("syntaxhighlighteranchor").appendChild(themecss);
+		document.getElementsByTagName("head")[0].insertBefore( themecss, document.getElementById("syntaxhighlighteranchor") );
+	})();
+	SyntaxHighlighter.config.strings.expandSource = '+ expand source';
+	SyntaxHighlighter.config.strings.help = '?';
+	SyntaxHighlighter.config.strings.alert = 'SyntaxHighlighter\n\n';
+	SyntaxHighlighter.config.strings.noBrush = 'Can\'t find brush for: ';
+	SyntaxHighlighter.config.strings.brushNotHtmlScript = 'Brush wasn\'t configured for html-script option: ';
+	SyntaxHighlighter.defaults['gutter'] = false;
+	SyntaxHighlighter.defaults['pad-line-numbers'] = false;
+	SyntaxHighlighter.defaults['wrap-lines'] = false;
+	SyntaxHighlighter.all();
+</script>
+<script type='text/javascript' src='http://s0.wp.com/wp-content/js/devicepx-jetpack.js?ver=201350'></script>
+
+	<script src="http://stats.wordpress.com/e-201350.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	st_go({v:'ext',j:'1:1.6.1',blog:'2145122',post:'405'});
+	var load_cmc = function(){linktracker_init(2145122,405,2);};
+	if ( typeof addLoadEvent != 'undefined' ) addLoadEvent(load_cmc);
+	else load_cmc();
+	</script>	</div>
+</div>
+</div>
+
+</body>
+</html>

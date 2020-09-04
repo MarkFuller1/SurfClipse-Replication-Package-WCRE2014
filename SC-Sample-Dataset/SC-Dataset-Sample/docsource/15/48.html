@@ -1,0 +1,1703 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- code.jsp -->
+
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>java.net: Socket.java</title>
+</head>
+<body style="padding:0 0 0 0;margin:0 0 0 0">
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; java &#187;  <a href='/docs/api/java/net/package-index.html'>net</a> &#187; 
+ [<a href="/docs/api/java/net/Socket.html">javadoc</a> | source]
+</div>
+<pre>
+<a name='1'>    1 &nbsp; /*
+    2 &nbsp;  * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
+    3 &nbsp;  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+    4 &nbsp;  *
+    5 &nbsp;  * This code is free software; you can redistribute it and/or modify it
+    6 &nbsp;  * under the terms of the GNU General Public License version 2 only, as
+    7 &nbsp;  * published by the Free Software Foundation.  Oracle designates this
+    8 &nbsp;  * particular file as subject to the "Classpath" exception as provided
+    9 &nbsp;  * by Oracle in the LICENSE file that accompanied this code.
+   10 &nbsp;  *
+<a name='11'>   11 &nbsp;  * This code is distributed in the hope that it will be useful, but WITHOUT
+   12 &nbsp;  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   13 &nbsp;  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+   14 &nbsp;  * version 2 for more details (a copy is included in the LICENSE file that
+   15 &nbsp;  * accompanied this code).
+   16 &nbsp;  *
+   17 &nbsp;  * You should have received a copy of the GNU General Public License version
+   18 &nbsp;  * 2 along with this work; if not, write to the Free Software Foundation,
+   19 &nbsp;  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+   20 &nbsp;  *
+<a name='21'>   21 &nbsp;  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+   22 &nbsp;  * or visit www.oracle.com if you need additional information or have any
+   23 &nbsp;  * questions.
+   24 &nbsp;  */
+   25 &nbsp; 
+   26 &nbsp; <span class='kw'>package</span> <a href=/docs/api/java/net/package-index.html>java.net</a>;
+   27 &nbsp; 
+   28 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/InputStream.html>java.io.InputStream</a>;
+   29 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/OutputStream.html>java.io.OutputStream</a>;
+   30 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/IOException.html>java.io.IOException</a>;
+<a name='31'>   31 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/InterruptedIOException.html>java.io.InterruptedIOException</a>;
+   32 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/nio/channels/SocketChannel.html>java.nio.channels.SocketChannel</a>;
+   33 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/security/AccessController.html>java.security.AccessController</a>;
+   34 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/security/PrivilegedExceptionAction.html>java.security.PrivilegedExceptionAction</a>;
+   35 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/security/PrivilegedAction.html>java.security.PrivilegedAction</a>;
+   36 &nbsp; 
+   37 &nbsp; /**
+   38 &nbsp;  * This class implements client sockets (also called just
+   39 &nbsp;  * "sockets"). A socket is an endpoint for communication
+   40 &nbsp;  * between two machines.
+<a name='41'>   41 &nbsp;  * &lt;p&gt;
+   42 &nbsp;  * The actual work of the socket is performed by an instance of the
+   43 &nbsp;  * &lt;code&gt;SocketImpl&lt;/code&gt; class. An application, by changing
+   44 &nbsp;  * the socket factory that creates the socket implementation,
+   45 &nbsp;  * can configure itself to create sockets appropriate to the local
+   46 &nbsp;  * firewall.
+   47 &nbsp;  *
+   48 &nbsp;  * @author  unascribed
+   49 &nbsp;  * @see     java.net.Socket#setSocketImplFactory(java.net.SocketImplFactory)
+   50 &nbsp;  * @see     java.net.SocketImpl
+<a name='51'>   51 &nbsp;  * @see     java.nio.channels.SocketChannel
+   52 &nbsp;  * @since   JDK1.0
+   53 &nbsp;  */
+   54 &nbsp; public
+   55 &nbsp; class Socket implements java.io.Closeable {
+   56 &nbsp;     /**
+   57 &nbsp;      * Various states of this socket.
+   58 &nbsp;      */
+   59 &nbsp;     private boolean created = false;
+   60 &nbsp;     private boolean bound = false;
+<a name='61'>   61 &nbsp;     private boolean connected = false;
+   62 &nbsp;     private boolean closed = false;
+   63 &nbsp;     private Object closeLock = new Object();
+   64 &nbsp;     private boolean shutIn = false;
+   65 &nbsp;     private boolean shutOut = false;
+   66 &nbsp; 
+   67 &nbsp;     /**
+   68 &nbsp;      * The implementation of this Socket.
+   69 &nbsp;      */
+   70 &nbsp;     SocketImpl impl;
+<a name='71'>   71 &nbsp; 
+   72 &nbsp;     /**
+   73 &nbsp;      * Are we using an older SocketImpl?
+   74 &nbsp;      */
+   75 &nbsp;     private boolean oldImpl = false;
+   76 &nbsp; 
+   77 &nbsp;     /**
+   78 &nbsp;      * Creates an unconnected socket, with the
+   79 &nbsp;      * system-default type of SocketImpl.
+   80 &nbsp;      *
+<a name='81'>   81 &nbsp;      * @since   JDK1.1
+   82 &nbsp;      * @revised 1.4
+   83 &nbsp;      */
+   84 &nbsp;     public Socket() {
+   85 &nbsp;         setImpl();
+   86 &nbsp;     }
+   87 &nbsp; 
+   88 &nbsp;     /**
+   89 &nbsp;      * Creates an unconnected socket, specifying the type of proxy, if any,
+   90 &nbsp;      * that should be used regardless of any other settings.
+<a name='91'>   91 &nbsp;      * &lt;P&gt;
+   92 &nbsp;      * If there is a security manager, its &lt;code&gt;checkConnect&lt;/code&gt; method
+   93 &nbsp;      * is called with the proxy host address and port number
+   94 &nbsp;      * as its arguments. This could result in a SecurityException.
+   95 &nbsp;      * &lt;P&gt;
+   96 &nbsp;      * Examples:
+   97 &nbsp;      * &lt;UL&gt; &lt;LI&gt;&lt;code&gt;Socket s = new Socket(Proxy.NO_PROXY);&lt;/code&gt; will create
+   98 &nbsp;      * a plain socket ignoring any other proxy configuration.&lt;/LI&gt;
+   99 &nbsp;      * &lt;LI&gt;&lt;code&gt;Socket s = new Socket(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("socks.mydom.com", 1080)));&lt;/code&gt;
+  100 &nbsp;      * will create a socket connecting through the specified SOCKS proxy
+<a name='101'>  101 &nbsp;      * server.&lt;/LI&gt;
+  102 &nbsp;      * &lt;/UL&gt;
+  103 &nbsp;      *
+  104 &nbsp;      * @param proxy a {@link java.net.Proxy Proxy} object specifying what kind
+  105 &nbsp;      *              of proxying should be used.
+  106 &nbsp;      * @throws IllegalArgumentException if the proxy is of an invalid type
+  107 &nbsp;      *          or &lt;code&gt;null&lt;/code&gt;.
+  108 &nbsp;      * @throws SecurityException if a security manager is present and
+  109 &nbsp;      *                           permission to connect to the proxy is
+  110 &nbsp;      *                           denied.
+<a name='111'>  111 &nbsp;      * @see java.net.ProxySelector
+  112 &nbsp;      * @see java.net.Proxy
+  113 &nbsp;      *
+  114 &nbsp;      * @since   1.5
+  115 &nbsp;      */
+  116 &nbsp;     public Socket(Proxy proxy) {
+  117 &nbsp;         // Create a copy of Proxy as a security measure
+  118 &nbsp;         if (proxy == null) {
+  119 &nbsp;             throw new IllegalArgumentException("Invalid Proxy");
+  120 &nbsp;         }
+<a name='121'>  121 &nbsp;         Proxy p = proxy == Proxy.NO_PROXY ? Proxy.NO_PROXY : sun.net.ApplicationProxy.create(proxy);
+  122 &nbsp;         if (p.type() == Proxy.Type.SOCKS) {
+  123 &nbsp;             SecurityManager security = System.getSecurityManager();
+  124 &nbsp;             InetSocketAddress epoint = (InetSocketAddress) p.address();
+  125 &nbsp;             if (epoint.getAddress() != null) {
+  126 &nbsp;                 checkAddress (epoint.getAddress(), "Socket");
+  127 &nbsp;             }
+  128 &nbsp;             if (security != null) {
+  129 &nbsp;                 if (epoint.isUnresolved())
+  130 &nbsp;                     epoint = new InetSocketAddress(epoint.getHostName(), epoint.getPort());
+<a name='131'>  131 &nbsp;                 if (epoint.isUnresolved())
+  132 &nbsp;                     security.checkConnect(epoint.getHostName(), epoint.getPort());
+  133 &nbsp;                 else
+  134 &nbsp;                     security.checkConnect(epoint.getAddress().getHostAddress(),
+  135 &nbsp;                                   epoint.getPort());
+  136 &nbsp;             }
+  137 &nbsp;             impl = new SocksSocketImpl(p);
+  138 &nbsp;             impl.setSocket(this);
+  139 &nbsp;         } else {
+  140 &nbsp;             if (p == Proxy.NO_PROXY) {
+<a name='141'>  141 &nbsp;                 if (factory == null) {
+  142 &nbsp;                     impl = new PlainSocketImpl();
+  143 &nbsp;                     impl.setSocket(this);
+  144 &nbsp;                 } else
+  145 &nbsp;                     setImpl();
+  146 &nbsp;             } else
+  147 &nbsp;                 throw new IllegalArgumentException("Invalid Proxy");
+  148 &nbsp;         }
+  149 &nbsp;     }
+  150 &nbsp; 
+<a name='151'>  151 &nbsp;     /**
+  152 &nbsp;      * Creates an unconnected Socket with a user-specified
+  153 &nbsp;      * SocketImpl.
+  154 &nbsp;      * &lt;P&gt;
+  155 &nbsp;      * @param impl an instance of a &lt;B&gt;SocketImpl&lt;/B&gt;
+  156 &nbsp;      * the subclass wishes to use on the Socket.
+  157 &nbsp;      *
+  158 &nbsp;      * @exception SocketException if there is an error in the underlying protocol,
+  159 &nbsp;      * such as a TCP error.
+  160 &nbsp;      * @since   JDK1.1
+<a name='161'>  161 &nbsp;      */
+  162 &nbsp;     protected Socket(SocketImpl impl) throws SocketException {
+  163 &nbsp;         this.impl = impl;
+  164 &nbsp;         if (impl != null) {
+  165 &nbsp;             checkOldImpl();
+  166 &nbsp;             this.impl.setSocket(this);
+  167 &nbsp;         }
+  168 &nbsp;     }
+  169 &nbsp; 
+  170 &nbsp;     /**
+<a name='171'>  171 &nbsp;      * Creates a stream socket and connects it to the specified port
+  172 &nbsp;      * number on the named host.
+  173 &nbsp;      * &lt;p&gt;
+  174 &nbsp;      * If the specified host is &lt;tt&gt;null&lt;/tt&gt; it is the equivalent of
+  175 &nbsp;      * specifying the address as &lt;tt&gt;{@link java.net.InetAddress#getByName InetAddress.getByName}(null)&lt;/tt&gt;.
+  176 &nbsp;      * In other words, it is equivalent to specifying an address of the
+  177 &nbsp;      * loopback interface. &lt;/p&gt;
+  178 &nbsp;      * &lt;p&gt;
+  179 &nbsp;      * If the application has specified a server socket factory, that
+  180 &nbsp;      * factory's &lt;code&gt;createSocketImpl&lt;/code&gt; method is called to create
+<a name='181'>  181 &nbsp;      * the actual socket implementation. Otherwise a "plain" socket is created.
+  182 &nbsp;      * &lt;p&gt;
+  183 &nbsp;      * If there is a security manager, its
+  184 &nbsp;      * &lt;code&gt;checkConnect&lt;/code&gt; method is called
+  185 &nbsp;      * with the host address and &lt;code&gt;port&lt;/code&gt;
+  186 &nbsp;      * as its arguments. This could result in a SecurityException.
+  187 &nbsp;      *
+  188 &nbsp;      * @param      host   the host name, or &lt;code&gt;null&lt;/code&gt; for the loopback address.
+  189 &nbsp;      * @param      port   the port number.
+  190 &nbsp;      *
+<a name='191'>  191 &nbsp;      * @exception  UnknownHostException if the IP address of
+  192 &nbsp;      * the host could not be determined.
+  193 &nbsp;      *
+  194 &nbsp;      * @exception  IOException  if an I/O error occurs when creating the socket.
+  195 &nbsp;      * @exception  SecurityException  if a security manager exists and its
+  196 &nbsp;      *             &lt;code&gt;checkConnect&lt;/code&gt; method doesn't allow the operation.
+  197 &nbsp;      * @exception  IllegalArgumentException if the port parameter is outside
+  198 &nbsp;      *             the specified range of valid port values, which is between
+  199 &nbsp;      *             0 and 65535, inclusive.
+  200 &nbsp;      * @see        java.net.Socket#setSocketImplFactory(java.net.SocketImplFactory)
+<a name='201'>  201 &nbsp;      * @see        java.net.SocketImpl
+  202 &nbsp;      * @see        java.net.SocketImplFactory#createSocketImpl()
+  203 &nbsp;      * @see        SecurityManager#checkConnect
+  204 &nbsp;      */
+  205 &nbsp;     public Socket(String host, int port)
+  206 &nbsp;         throws UnknownHostException, IOException
+  207 &nbsp;     {
+  208 &nbsp;         this(host != null ? new InetSocketAddress(host, port) :
+  209 &nbsp;              new InetSocketAddress(InetAddress.getByName(null), port),
+  210 &nbsp;              (SocketAddress) null, true);
+<a name='211'>  211 &nbsp;     }
+  212 &nbsp; 
+  213 &nbsp;     /**
+  214 &nbsp;      * Creates a stream socket and connects it to the specified port
+  215 &nbsp;      * number at the specified IP address.
+  216 &nbsp;      * &lt;p&gt;
+  217 &nbsp;      * If the application has specified a socket factory, that factory's
+  218 &nbsp;      * &lt;code&gt;createSocketImpl&lt;/code&gt; method is called to create the
+  219 &nbsp;      * actual socket implementation. Otherwise a "plain" socket is created.
+  220 &nbsp;      * &lt;p&gt;
+<a name='221'>  221 &nbsp;      * If there is a security manager, its
+  222 &nbsp;      * &lt;code&gt;checkConnect&lt;/code&gt; method is called
+  223 &nbsp;      * with the host address and &lt;code&gt;port&lt;/code&gt;
+  224 &nbsp;      * as its arguments. This could result in a SecurityException.
+  225 &nbsp;      *
+  226 &nbsp;      * @param      address   the IP address.
+  227 &nbsp;      * @param      port      the port number.
+  228 &nbsp;      * @exception  IOException  if an I/O error occurs when creating the socket.
+  229 &nbsp;      * @exception  SecurityException  if a security manager exists and its
+  230 &nbsp;      *             &lt;code&gt;checkConnect&lt;/code&gt; method doesn't allow the operation.
+<a name='231'>  231 &nbsp;      * @exception  IllegalArgumentException if the port parameter is outside
+  232 &nbsp;      *             the specified range of valid port values, which is between
+  233 &nbsp;      *             0 and 65535, inclusive.
+  234 &nbsp;      * @exception  NullPointerException if &lt;code&gt;address&lt;/code&gt; is null.
+  235 &nbsp;      * @see        java.net.Socket#setSocketImplFactory(java.net.SocketImplFactory)
+  236 &nbsp;      * @see        java.net.SocketImpl
+  237 &nbsp;      * @see        java.net.SocketImplFactory#createSocketImpl()
+  238 &nbsp;      * @see        SecurityManager#checkConnect
+  239 &nbsp;      */
+  240 &nbsp;     public Socket(InetAddress address, int port) throws IOException {
+<a name='241'>  241 &nbsp;         this(address != null ? new InetSocketAddress(address, port) : null,
+  242 &nbsp;              (SocketAddress) null, true);
+  243 &nbsp;     }
+  244 &nbsp; 
+  245 &nbsp;     /**
+  246 &nbsp;      * Creates a socket and connects it to the specified remote host on
+  247 &nbsp;      * the specified remote port. The Socket will also bind() to the local
+  248 &nbsp;      * address and port supplied.
+  249 &nbsp;      * &lt;p&gt;
+  250 &nbsp;      * If the specified host is &lt;tt&gt;null&lt;/tt&gt; it is the equivalent of
+<a name='251'>  251 &nbsp;      * specifying the address as &lt;tt&gt;{@link java.net.InetAddress#getByName InetAddress.getByName}(null)&lt;/tt&gt;.
+  252 &nbsp;      * In other words, it is equivalent to specifying an address of the
+  253 &nbsp;      * loopback interface. &lt;/p&gt;
+  254 &nbsp;      * &lt;p&gt;
+  255 &nbsp;      * A local port number of &lt;code&gt;zero&lt;/code&gt; will let the system pick up a
+  256 &nbsp;      * free port in the &lt;code&gt;bind&lt;/code&gt; operation.&lt;/p&gt;
+  257 &nbsp;      * &lt;p&gt;
+  258 &nbsp;      * If there is a security manager, its
+  259 &nbsp;      * &lt;code&gt;checkConnect&lt;/code&gt; method is called
+  260 &nbsp;      * with the host address and &lt;code&gt;port&lt;/code&gt;
+<a name='261'>  261 &nbsp;      * as its arguments. This could result in a SecurityException.
+  262 &nbsp;      *
+  263 &nbsp;      * @param host the name of the remote host, or &lt;code&gt;null&lt;/code&gt; for the loopback address.
+  264 &nbsp;      * @param port the remote port
+  265 &nbsp;      * @param localAddr the local address the socket is bound to, or
+  266 &nbsp;      *        &lt;code&gt;null&lt;/code&gt; for the &lt;code&gt;anyLocal&lt;/code&gt; address.
+  267 &nbsp;      * @param localPort the local port the socket is bound to, or
+  268 &nbsp;      *        &lt;code&gt;zero&lt;/code&gt; for a system selected free port.
+  269 &nbsp;      * @exception  IOException  if an I/O error occurs when creating the socket.
+  270 &nbsp;      * @exception  SecurityException  if a security manager exists and its
+<a name='271'>  271 &nbsp;      *             &lt;code&gt;checkConnect&lt;/code&gt; method doesn't allow the operation.
+  272 &nbsp;      * @exception  IllegalArgumentException if the port parameter or localPort
+  273 &nbsp;      *             parameter is outside the specified range of valid port values,
+  274 &nbsp;      *             which is between 0 and 65535, inclusive.
+  275 &nbsp;      * @see        SecurityManager#checkConnect
+  276 &nbsp;      * @since   JDK1.1
+  277 &nbsp;      */
+  278 &nbsp;     public Socket(String host, int port, InetAddress localAddr,
+  279 &nbsp;                   int localPort) throws IOException {
+  280 &nbsp;         this(host != null ? new InetSocketAddress(host, port) :
+<a name='281'>  281 &nbsp;                new InetSocketAddress(InetAddress.getByName(null), port),
+  282 &nbsp;              new InetSocketAddress(localAddr, localPort), true);
+  283 &nbsp;     }
+  284 &nbsp; 
+  285 &nbsp;     /**
+  286 &nbsp;      * Creates a socket and connects it to the specified remote address on
+  287 &nbsp;      * the specified remote port. The Socket will also bind() to the local
+  288 &nbsp;      * address and port supplied.
+  289 &nbsp;      * &lt;p&gt;
+  290 &nbsp;      * If the specified local address is &lt;tt&gt;null&lt;/tt&gt; it is the equivalent of
+<a name='291'>  291 &nbsp;      * specifying the address as the AnyLocal address (see &lt;tt&gt;{@link java.net.InetAddress#isAnyLocalAddress InetAddress.isAnyLocalAddress}()&lt;/tt&gt;).
+  292 &nbsp;      * &lt;p&gt;
+  293 &nbsp;      * A local port number of &lt;code&gt;zero&lt;/code&gt; will let the system pick up a
+  294 &nbsp;      * free port in the &lt;code&gt;bind&lt;/code&gt; operation.&lt;/p&gt;
+  295 &nbsp;      * &lt;p&gt;
+  296 &nbsp;      * If there is a security manager, its
+  297 &nbsp;      * &lt;code&gt;checkConnect&lt;/code&gt; method is called
+  298 &nbsp;      * with the host address and &lt;code&gt;port&lt;/code&gt;
+  299 &nbsp;      * as its arguments. This could result in a SecurityException.
+  300 &nbsp;      *
+<a name='301'>  301 &nbsp;      * @param address the remote address
+  302 &nbsp;      * @param port the remote port
+  303 &nbsp;      * @param localAddr the local address the socket is bound to, or
+  304 &nbsp;      *        &lt;code&gt;null&lt;/code&gt; for the &lt;code&gt;anyLocal&lt;/code&gt; address.
+  305 &nbsp;      * @param localPort the local port the socket is bound to or
+  306 &nbsp;      *        &lt;code&gt;zero&lt;/code&gt; for a system selected free port.
+  307 &nbsp;      * @exception  IOException  if an I/O error occurs when creating the socket.
+  308 &nbsp;      * @exception  SecurityException  if a security manager exists and its
+  309 &nbsp;      *             &lt;code&gt;checkConnect&lt;/code&gt; method doesn't allow the operation.
+  310 &nbsp;      * @exception  IllegalArgumentException if the port parameter or localPort
+<a name='311'>  311 &nbsp;      *             parameter is outside the specified range of valid port values,
+  312 &nbsp;      *             which is between 0 and 65535, inclusive.
+  313 &nbsp;      * @exception  NullPointerException if &lt;code&gt;address&lt;/code&gt; is null.
+  314 &nbsp;      * @see        SecurityManager#checkConnect
+  315 &nbsp;      * @since   JDK1.1
+  316 &nbsp;      */
+  317 &nbsp;     public Socket(InetAddress address, int port, InetAddress localAddr,
+  318 &nbsp;                   int localPort) throws IOException {
+  319 &nbsp;         this(address != null ? new InetSocketAddress(address, port) : null,
+  320 &nbsp;              new InetSocketAddress(localAddr, localPort), true);
+<a name='321'>  321 &nbsp;     }
+  322 &nbsp; 
+  323 &nbsp;     /**
+  324 &nbsp;      * Creates a stream socket and connects it to the specified port
+  325 &nbsp;      * number on the named host.
+  326 &nbsp;      * &lt;p&gt;
+  327 &nbsp;      * If the specified host is &lt;tt&gt;null&lt;/tt&gt; it is the equivalent of
+  328 &nbsp;      * specifying the address as &lt;tt&gt;{@link java.net.InetAddress#getByName InetAddress.getByName}(null)&lt;/tt&gt;.
+  329 &nbsp;      * In other words, it is equivalent to specifying an address of the
+  330 &nbsp;      * loopback interface. &lt;/p&gt;
+<a name='331'>  331 &nbsp;      * &lt;p&gt;
+  332 &nbsp;      * If the stream argument is &lt;code&gt;true&lt;/code&gt;, this creates a
+  333 &nbsp;      * stream socket. If the stream argument is &lt;code&gt;false&lt;/code&gt;, it
+  334 &nbsp;      * creates a datagram socket.
+  335 &nbsp;      * &lt;p&gt;
+  336 &nbsp;      * If the application has specified a server socket factory, that
+  337 &nbsp;      * factory's &lt;code&gt;createSocketImpl&lt;/code&gt; method is called to create
+  338 &nbsp;      * the actual socket implementation. Otherwise a "plain" socket is created.
+  339 &nbsp;      * &lt;p&gt;
+  340 &nbsp;      * If there is a security manager, its
+<a name='341'>  341 &nbsp;      * &lt;code&gt;checkConnect&lt;/code&gt; method is called
+  342 &nbsp;      * with the host address and &lt;code&gt;port&lt;/code&gt;
+  343 &nbsp;      * as its arguments. This could result in a SecurityException.
+  344 &nbsp;      * &lt;p&gt;
+  345 &nbsp;      * If a UDP socket is used, TCP/IP related socket options will not apply.
+  346 &nbsp;      *
+  347 &nbsp;      * @param      host     the host name, or &lt;code&gt;null&lt;/code&gt; for the loopback address.
+  348 &nbsp;      * @param      port     the port number.
+  349 &nbsp;      * @param      stream   a &lt;code&gt;boolean&lt;/code&gt; indicating whether this is
+  350 &nbsp;      *                      a stream socket or a datagram socket.
+<a name='351'>  351 &nbsp;      * @exception  IOException  if an I/O error occurs when creating the socket.
+  352 &nbsp;      * @exception  SecurityException  if a security manager exists and its
+  353 &nbsp;      *             &lt;code&gt;checkConnect&lt;/code&gt; method doesn't allow the operation.
+  354 &nbsp;      * @exception  IllegalArgumentException if the port parameter is outside
+  355 &nbsp;      *             the specified range of valid port values, which is between
+  356 &nbsp;      *             0 and 65535, inclusive.
+  357 &nbsp;      * @see        java.net.Socket#setSocketImplFactory(java.net.SocketImplFactory)
+  358 &nbsp;      * @see        java.net.SocketImpl
+  359 &nbsp;      * @see        java.net.SocketImplFactory#createSocketImpl()
+  360 &nbsp;      * @see        SecurityManager#checkConnect
+<a name='361'>  361 &nbsp;      * @deprecated Use DatagramSocket instead for UDP transport.
+  362 &nbsp;      */
+  363 &nbsp;     @Deprecated
+  364 &nbsp;     public Socket(String host, int port, boolean stream) throws IOException {
+  365 &nbsp;         this(host != null ? new InetSocketAddress(host, port) :
+  366 &nbsp;                new InetSocketAddress(InetAddress.getByName(null), port),
+  367 &nbsp;              (SocketAddress) null, stream);
+  368 &nbsp;     }
+  369 &nbsp; 
+  370 &nbsp;     /**
+<a name='371'>  371 &nbsp;      * Creates a socket and connects it to the specified port number at
+  372 &nbsp;      * the specified IP address.
+  373 &nbsp;      * &lt;p&gt;
+  374 &nbsp;      * If the stream argument is &lt;code&gt;true&lt;/code&gt;, this creates a
+  375 &nbsp;      * stream socket. If the stream argument is &lt;code&gt;false&lt;/code&gt;, it
+  376 &nbsp;      * creates a datagram socket.
+  377 &nbsp;      * &lt;p&gt;
+  378 &nbsp;      * If the application has specified a server socket factory, that
+  379 &nbsp;      * factory's &lt;code&gt;createSocketImpl&lt;/code&gt; method is called to create
+  380 &nbsp;      * the actual socket implementation. Otherwise a "plain" socket is created.
+<a name='381'>  381 &nbsp;      *
+  382 &nbsp;      * &lt;p&gt;If there is a security manager, its
+  383 &nbsp;      * &lt;code&gt;checkConnect&lt;/code&gt; method is called
+  384 &nbsp;      * with &lt;code&gt;host.getHostAddress()&lt;/code&gt; and &lt;code&gt;port&lt;/code&gt;
+  385 &nbsp;      * as its arguments. This could result in a SecurityException.
+  386 &nbsp;      * &lt;p&gt;
+  387 &nbsp;      * If UDP socket is used, TCP/IP related socket options will not apply.
+  388 &nbsp;      *
+  389 &nbsp;      * @param      host     the IP address.
+  390 &nbsp;      * @param      port      the port number.
+<a name='391'>  391 &nbsp;      * @param      stream    if &lt;code&gt;true&lt;/code&gt;, create a stream socket;
+  392 &nbsp;      *                       otherwise, create a datagram socket.
+  393 &nbsp;      * @exception  IOException  if an I/O error occurs when creating the socket.
+  394 &nbsp;      * @exception  SecurityException  if a security manager exists and its
+  395 &nbsp;      *             &lt;code&gt;checkConnect&lt;/code&gt; method doesn't allow the operation.
+  396 &nbsp;      * @exception  IllegalArgumentException if the port parameter is outside
+  397 &nbsp;      *             the specified range of valid port values, which is between
+  398 &nbsp;      *             0 and 65535, inclusive.
+  399 &nbsp;      * @exception  NullPointerException if &lt;code&gt;host&lt;/code&gt; is null.
+  400 &nbsp;      * @see        java.net.Socket#setSocketImplFactory(java.net.SocketImplFactory)
+<a name='401'>  401 &nbsp;      * @see        java.net.SocketImpl
+  402 &nbsp;      * @see        java.net.SocketImplFactory#createSocketImpl()
+  403 &nbsp;      * @see        SecurityManager#checkConnect
+  404 &nbsp;      * @deprecated Use DatagramSocket instead for UDP transport.
+  405 &nbsp;      */
+  406 &nbsp;     @Deprecated
+  407 &nbsp;     public Socket(InetAddress host, int port, boolean stream) throws IOException {
+  408 &nbsp;         this(host != null ? new InetSocketAddress(host, port) : null,
+  409 &nbsp;              new InetSocketAddress(0), stream);
+  410 &nbsp;     }
+<a name='411'>  411 &nbsp; 
+  412 &nbsp;     private Socket(SocketAddress address, SocketAddress localAddr,
+  413 &nbsp;                    boolean stream) throws IOException {
+  414 &nbsp;         setImpl();
+  415 &nbsp; 
+  416 &nbsp;         // backward compatibility
+  417 &nbsp;         if (address == null)
+  418 &nbsp;             throw new NullPointerException();
+  419 &nbsp; 
+  420 &nbsp;         try {
+<a name='421'>  421 &nbsp;             createImpl(stream);
+  422 &nbsp;             if (localAddr != null)
+  423 &nbsp;                 bind(localAddr);
+  424 &nbsp;             if (address != null)
+  425 &nbsp;                 connect(address);
+  426 &nbsp;         } catch (IOException e) {
+  427 &nbsp;             close();
+  428 &nbsp;             throw e;
+  429 &nbsp;         }
+  430 &nbsp;     }
+<a name='431'>  431 &nbsp; 
+  432 &nbsp;     /**
+  433 &nbsp;      * Creates the socket implementation.
+  434 &nbsp;      *
+  435 &nbsp;      * @param stream a &lt;code&gt;boolean&lt;/code&gt; value : &lt;code&gt;true&lt;/code&gt; for a TCP socket,
+  436 &nbsp;      *               &lt;code&gt;false&lt;/code&gt; for UDP.
+  437 &nbsp;      * @throws IOException if creation fails
+  438 &nbsp;      * @since 1.4
+  439 &nbsp;      */
+  440 &nbsp;      void createImpl(boolean stream) throws SocketException {
+<a name='441'>  441 &nbsp;         if (impl == null)
+  442 &nbsp;             setImpl();
+  443 &nbsp;         try {
+  444 &nbsp;             impl.create(stream);
+  445 &nbsp;             created = true;
+  446 &nbsp;         } catch (IOException e) {
+  447 &nbsp;             throw new SocketException(e.getMessage());
+  448 &nbsp;         }
+  449 &nbsp;     }
+  450 &nbsp; 
+<a name='451'>  451 &nbsp;     private void checkOldImpl() {
+  452 &nbsp;         if (impl == null)
+  453 &nbsp;             return;
+  454 &nbsp;         // SocketImpl.connect() is a protected method, therefore we need to use
+  455 &nbsp;         // getDeclaredMethod, therefore we need permission to access the member
+  456 &nbsp; 
+  457 &nbsp;         oldImpl = AccessController.doPrivileged
+  458 &nbsp;                                 (new PrivilegedAction&lt;Boolean&gt;() {
+  459 &nbsp;             public Boolean run() {
+  460 &nbsp;                 Class[] cl = new Class[2];
+<a name='461'>  461 &nbsp;                 cl[0] = SocketAddress.class;
+  462 &nbsp;                 cl[1] = Integer.TYPE;
+  463 &nbsp;                 Class clazz = impl.getClass();
+  464 &nbsp;                 while (true) {
+  465 &nbsp;                     try {
+  466 &nbsp;                         clazz.getDeclaredMethod("connect", cl);
+  467 &nbsp;                         return Boolean.FALSE;
+  468 &nbsp;                     } catch (NoSuchMethodException e) {
+  469 &nbsp;                         clazz = clazz.getSuperclass();
+  470 &nbsp;                         // java.net.SocketImpl class will always have this abstract method.
+<a name='471'>  471 &nbsp;                         // If we have not found it by now in the hierarchy then it does not
+  472 &nbsp;                         // exist, we are an old style impl.
+  473 &nbsp;                         if (clazz.equals(java.net.SocketImpl.class)) {
+  474 &nbsp;                             return Boolean.TRUE;
+  475 &nbsp;                         }
+  476 &nbsp;                     }
+  477 &nbsp;                 }
+  478 &nbsp;             }
+  479 &nbsp;         });
+  480 &nbsp;     }
+<a name='481'>  481 &nbsp; 
+  482 &nbsp;     /**
+  483 &nbsp;      * Sets impl to the system-default type of SocketImpl.
+  484 &nbsp;      * @since 1.4
+  485 &nbsp;      */
+  486 &nbsp;     void setImpl() {
+  487 &nbsp;         if (factory != null) {
+  488 &nbsp;             impl = factory.createSocketImpl();
+  489 &nbsp;             checkOldImpl();
+  490 &nbsp;         } else {
+<a name='491'>  491 &nbsp;             // No need to do a checkOldImpl() here, we know it's an up to date
+  492 &nbsp;             // SocketImpl!
+  493 &nbsp;             impl = new SocksSocketImpl();
+  494 &nbsp;         }
+  495 &nbsp;         if (impl != null)
+  496 &nbsp;             impl.setSocket(this);
+  497 &nbsp;     }
+  498 &nbsp; 
+  499 &nbsp; 
+  500 &nbsp;     /**
+<a name='501'>  501 &nbsp;      * Get the &lt;code&gt;SocketImpl&lt;/code&gt; attached to this socket, creating
+  502 &nbsp;      * it if necessary.
+  503 &nbsp;      *
+  504 &nbsp;      * @return  the &lt;code&gt;SocketImpl&lt;/code&gt; attached to that ServerSocket.
+  505 &nbsp;      * @throws SocketException if creation fails
+  506 &nbsp;      * @since 1.4
+  507 &nbsp;      */
+  508 &nbsp;     SocketImpl getImpl() throws SocketException {
+  509 &nbsp;         if (!created)
+  510 &nbsp;             createImpl(true);
+<a name='511'>  511 &nbsp;         return impl;
+  512 &nbsp;     }
+  513 &nbsp; 
+  514 &nbsp;     /**
+  515 &nbsp;      * Connects this socket to the server.
+  516 &nbsp;      *
+  517 &nbsp;      * @param   endpoint the &lt;code&gt;SocketAddress&lt;/code&gt;
+  518 &nbsp;      * @throws  IOException if an error occurs during the connection
+  519 &nbsp;      * @throws  java.nio.channels.IllegalBlockingModeException
+  520 &nbsp;      *          if this socket has an associated channel,
+<a name='521'>  521 &nbsp;      *          and the channel is in non-blocking mode
+  522 &nbsp;      * @throws  IllegalArgumentException if endpoint is null or is a
+  523 &nbsp;      *          SocketAddress subclass not supported by this socket
+  524 &nbsp;      * @since 1.4
+  525 &nbsp;      * @spec JSR-51
+  526 &nbsp;      */
+  527 &nbsp;     public void connect(SocketAddress endpoint) throws IOException {
+  528 &nbsp;         connect(endpoint, 0);
+  529 &nbsp;     }
+  530 &nbsp; 
+<a name='531'>  531 &nbsp;     /**
+  532 &nbsp;      * Connects this socket to the server with a specified timeout value.
+  533 &nbsp;      * A timeout of zero is interpreted as an infinite timeout. The connection
+  534 &nbsp;      * will then block until established or an error occurs.
+  535 &nbsp;      *
+  536 &nbsp;      * @param   endpoint the &lt;code&gt;SocketAddress&lt;/code&gt;
+  537 &nbsp;      * @param   timeout  the timeout value to be used in milliseconds.
+  538 &nbsp;      * @throws  IOException if an error occurs during the connection
+  539 &nbsp;      * @throws  SocketTimeoutException if timeout expires before connecting
+  540 &nbsp;      * @throws  java.nio.channels.IllegalBlockingModeException
+<a name='541'>  541 &nbsp;      *          if this socket has an associated channel,
+  542 &nbsp;      *          and the channel is in non-blocking mode
+  543 &nbsp;      * @throws  IllegalArgumentException if endpoint is null or is a
+  544 &nbsp;      *          SocketAddress subclass not supported by this socket
+  545 &nbsp;      * @since 1.4
+  546 &nbsp;      * @spec JSR-51
+  547 &nbsp;      */
+  548 &nbsp;     public void connect(SocketAddress endpoint, int timeout) throws IOException {
+  549 &nbsp;         if (endpoint == null)
+  550 &nbsp;             throw new IllegalArgumentException("connect: The address can't be null");
+<a name='551'>  551 &nbsp; 
+  552 &nbsp;         if (timeout &lt; 0)
+  553 &nbsp;           throw new IllegalArgumentException("connect: timeout can't be negative");
+  554 &nbsp; 
+  555 &nbsp;         if (isClosed())
+  556 &nbsp;             throw new SocketException("Socket is closed");
+  557 &nbsp; 
+  558 &nbsp;         if (!oldImpl &amp;&amp; isConnected())
+  559 &nbsp;             throw new SocketException("already connected");
+  560 &nbsp; 
+<a name='561'>  561 &nbsp;         if (!(endpoint instanceof InetSocketAddress))
+  562 &nbsp;             throw new IllegalArgumentException("Unsupported address type");
+  563 &nbsp; 
+  564 &nbsp;         InetSocketAddress epoint = (InetSocketAddress) endpoint;
+  565 &nbsp;         InetAddress addr = epoint.getAddress ();
+  566 &nbsp;         int port = epoint.getPort();
+  567 &nbsp;         checkAddress(addr, "connect");
+  568 &nbsp; 
+  569 &nbsp;         SecurityManager security = System.getSecurityManager();
+  570 &nbsp;         if (security != null) {
+<a name='571'>  571 &nbsp;             if (epoint.isUnresolved())
+  572 &nbsp;                 security.checkConnect(epoint.getHostName(), port);
+  573 &nbsp;             else
+  574 &nbsp;                 security.checkConnect(addr.getHostAddress(), port);
+  575 &nbsp;         }
+  576 &nbsp;         if (!created)
+  577 &nbsp;             createImpl(true);
+  578 &nbsp;         if (!oldImpl)
+  579 &nbsp;             impl.connect(epoint, timeout);
+  580 &nbsp;         else if (timeout == 0) {
+<a name='581'>  581 &nbsp;             if (epoint.isUnresolved())
+  582 &nbsp;                 impl.connect(addr.getHostName(), port);
+  583 &nbsp;             else
+  584 &nbsp;                 impl.connect(addr, port);
+  585 &nbsp;         } else
+  586 &nbsp;             throw new UnsupportedOperationException("SocketImpl.connect(addr, timeout)");
+  587 &nbsp;         connected = true;
+  588 &nbsp;         /*
+  589 &nbsp;          * If the socket was not bound before the connect, it is now because
+  590 &nbsp;          * the kernel will have picked an ephemeral port &amp; a local address
+<a name='591'>  591 &nbsp;          */
+  592 &nbsp;         bound = true;
+  593 &nbsp;     }
+  594 &nbsp; 
+  595 &nbsp;     /**
+  596 &nbsp;      * Binds the socket to a local address.
+  597 &nbsp;      * &lt;P&gt;
+  598 &nbsp;      * If the address is &lt;code&gt;null&lt;/code&gt;, then the system will pick up
+  599 &nbsp;      * an ephemeral port and a valid local address to bind the socket.
+  600 &nbsp;      *
+<a name='601'>  601 &nbsp;      * @param   bindpoint the &lt;code&gt;SocketAddress&lt;/code&gt; to bind to
+  602 &nbsp;      * @throws  IOException if the bind operation fails, or if the socket
+  603 &nbsp;      *                     is already bound.
+  604 &nbsp;      * @throws  IllegalArgumentException if bindpoint is a
+  605 &nbsp;      *          SocketAddress subclass not supported by this socket
+  606 &nbsp;      *
+  607 &nbsp;      * @since   1.4
+  608 &nbsp;      * @see #isBound
+  609 &nbsp;      */
+  610 &nbsp;     public void bind(SocketAddress bindpoint) throws IOException {
+<a name='611'>  611 &nbsp;         if (isClosed())
+  612 &nbsp;             throw new SocketException("Socket is closed");
+  613 &nbsp;         if (!oldImpl &amp;&amp; isBound())
+  614 &nbsp;             throw new SocketException("Already bound");
+  615 &nbsp; 
+  616 &nbsp;         if (bindpoint != null &amp;&amp; (!(bindpoint instanceof InetSocketAddress)))
+  617 &nbsp;             throw new IllegalArgumentException("Unsupported address type");
+  618 &nbsp;         InetSocketAddress epoint = (InetSocketAddress) bindpoint;
+  619 &nbsp;         if (epoint != null &amp;&amp; epoint.isUnresolved())
+  620 &nbsp;             throw new SocketException("Unresolved address");
+<a name='621'>  621 &nbsp;         if (epoint == null) {
+  622 &nbsp;             epoint = new InetSocketAddress(0);
+  623 &nbsp;         }
+  624 &nbsp;         InetAddress addr = epoint.getAddress();
+  625 &nbsp;         int port = epoint.getPort();
+  626 &nbsp;         checkAddress (addr, "bind");
+  627 &nbsp;         getImpl().bind (addr, port);
+  628 &nbsp;         bound = true;
+  629 &nbsp;     }
+  630 &nbsp; 
+<a name='631'>  631 &nbsp;     private void checkAddress (InetAddress addr, String op) {
+  632 &nbsp;         if (addr == null) {
+  633 &nbsp;             return;
+  634 &nbsp;         }
+  635 &nbsp;         if (!(addr instanceof Inet4Address || addr instanceof Inet6Address)) {
+  636 &nbsp;             throw new IllegalArgumentException(op + ": invalid address type");
+  637 &nbsp;         }
+  638 &nbsp;     }
+  639 &nbsp; 
+  640 &nbsp;     /**
+<a name='641'>  641 &nbsp;      * set the flags after an accept() call.
+  642 &nbsp;      */
+  643 &nbsp;     final void postAccept() {
+  644 &nbsp;         connected = true;
+  645 &nbsp;         created = true;
+  646 &nbsp;         bound = true;
+  647 &nbsp;     }
+  648 &nbsp; 
+  649 &nbsp;     void setCreated() {
+  650 &nbsp;         created = true;
+<a name='651'>  651 &nbsp;     }
+  652 &nbsp; 
+  653 &nbsp;     void setBound() {
+  654 &nbsp;         bound = true;
+  655 &nbsp;     }
+  656 &nbsp; 
+  657 &nbsp;     void setConnected() {
+  658 &nbsp;         connected = true;
+  659 &nbsp;     }
+  660 &nbsp; 
+<a name='661'>  661 &nbsp;     /**
+  662 &nbsp;      * Returns the address to which the socket is connected.
+  663 &nbsp;      * &lt;p&gt;
+  664 &nbsp;      * If the socket was connected prior to being {@link #close closed},
+  665 &nbsp;      * then this method will continue to return the connected address
+  666 &nbsp;      * after the socket is closed.
+  667 &nbsp;      *
+  668 &nbsp;      * @return  the remote IP address to which this socket is connected,
+  669 &nbsp;      *          or &lt;code&gt;null&lt;/code&gt; if the socket is not connected.
+  670 &nbsp;      */
+<a name='671'>  671 &nbsp;     public InetAddress getInetAddress() {
+  672 &nbsp;         if (!isConnected())
+  673 &nbsp;             return null;
+  674 &nbsp;         try {
+  675 &nbsp;             return getImpl().getInetAddress();
+  676 &nbsp;         } catch (SocketException e) {
+  677 &nbsp;         }
+  678 &nbsp;         return null;
+  679 &nbsp;     }
+  680 &nbsp; 
+<a name='681'>  681 &nbsp;     /**
+  682 &nbsp;      * Gets the local address to which the socket is bound.
+  683 &nbsp;      *
+  684 &nbsp;      * @return the local address to which the socket is bound, or
+  685 &nbsp;      *         the {@link InetAddress#isAnyLocalAddress wildcard} address
+  686 &nbsp;      *         if the socket is closed or not bound yet.
+  687 &nbsp;      * @since   JDK1.1
+  688 &nbsp;      */
+  689 &nbsp;     public InetAddress getLocalAddress() {
+  690 &nbsp;         // This is for backward compatibility
+<a name='691'>  691 &nbsp;         if (!isBound())
+  692 &nbsp;             return InetAddress.anyLocalAddress();
+  693 &nbsp;         InetAddress in = null;
+  694 &nbsp;         try {
+  695 &nbsp;             in = (InetAddress) getImpl().getOption(SocketOptions.SO_BINDADDR);
+  696 &nbsp;             if (in.isAnyLocalAddress()) {
+  697 &nbsp;                 in = InetAddress.anyLocalAddress();
+  698 &nbsp;             }
+  699 &nbsp;         } catch (Exception e) {
+  700 &nbsp;             in = InetAddress.anyLocalAddress(); // "0.0.0.0"
+<a name='701'>  701 &nbsp;         }
+  702 &nbsp;         return in;
+  703 &nbsp;     }
+  704 &nbsp; 
+  705 &nbsp;     /**
+  706 &nbsp;      * Returns the remote port number to which this socket is connected.
+  707 &nbsp;      * &lt;p&gt;
+  708 &nbsp;      * If the socket was connected prior to being {@link #close closed},
+  709 &nbsp;      * then this method will continue to return the connected port number
+  710 &nbsp;      * after the socket is closed.
+<a name='711'>  711 &nbsp;      *
+  712 &nbsp;      * @return  the remote port number to which this socket is connected, or
+  713 &nbsp;      *          0 if the socket is not connected yet.
+  714 &nbsp;      */
+  715 &nbsp;     public int getPort() {
+  716 &nbsp;         if (!isConnected())
+  717 &nbsp;             return 0;
+  718 &nbsp;         try {
+  719 &nbsp;             return getImpl().getPort();
+  720 &nbsp;         } catch (SocketException e) {
+<a name='721'>  721 &nbsp;             // Shouldn't happen as we're connected
+  722 &nbsp;         }
+  723 &nbsp;         return -1;
+  724 &nbsp;     }
+  725 &nbsp; 
+  726 &nbsp;     /**
+  727 &nbsp;      * Returns the local port number to which this socket is bound.
+  728 &nbsp;      * &lt;p&gt;
+  729 &nbsp;      * If the socket was bound prior to being {@link #close closed},
+  730 &nbsp;      * then this method will continue to return the local port number
+<a name='731'>  731 &nbsp;      * after the socket is closed.
+  732 &nbsp;      *
+  733 &nbsp;      * @return  the local port number to which this socket is bound or -1
+  734 &nbsp;      *          if the socket is not bound yet.
+  735 &nbsp;      */
+  736 &nbsp;     public int getLocalPort() {
+  737 &nbsp;         if (!isBound())
+  738 &nbsp;             return -1;
+  739 &nbsp;         try {
+  740 &nbsp;             return getImpl().getLocalPort();
+<a name='741'>  741 &nbsp;         } catch(SocketException e) {
+  742 &nbsp;             // shouldn't happen as we're bound
+  743 &nbsp;         }
+  744 &nbsp;         return -1;
+  745 &nbsp;     }
+  746 &nbsp; 
+  747 &nbsp;     /**
+  748 &nbsp;      * Returns the address of the endpoint this socket is connected to, or
+  749 &nbsp;      * &lt;code&gt;null&lt;/code&gt; if it is unconnected.
+  750 &nbsp;      * &lt;p&gt;
+<a name='751'>  751 &nbsp;      * If the socket was connected prior to being {@link #close closed},
+  752 &nbsp;      * then this method will continue to return the connected address
+  753 &nbsp;      * after the socket is closed.
+  754 &nbsp;      *
+  755 &nbsp; 
+  756 &nbsp;      * @return a &lt;code&gt;SocketAddress&lt;/code&gt; representing the remote endpoint of this
+  757 &nbsp;      *         socket, or &lt;code&gt;null&lt;/code&gt; if it is not connected yet.
+  758 &nbsp;      * @see #getInetAddress()
+  759 &nbsp;      * @see #getPort()
+  760 &nbsp;      * @see #connect(SocketAddress, int)
+<a name='761'>  761 &nbsp;      * @see #connect(SocketAddress)
+  762 &nbsp;      * @since 1.4
+  763 &nbsp;      */
+  764 &nbsp;     public SocketAddress getRemoteSocketAddress() {
+  765 &nbsp;         if (!isConnected())
+  766 &nbsp;             return null;
+  767 &nbsp;         return new InetSocketAddress(getInetAddress(), getPort());
+  768 &nbsp;     }
+  769 &nbsp; 
+  770 &nbsp;     /**
+<a name='771'>  771 &nbsp;      * Returns the address of the endpoint this socket is bound to, or
+  772 &nbsp;      * &lt;code&gt;null&lt;/code&gt; if it is not bound yet.
+  773 &nbsp;      * &lt;p&gt;
+  774 &nbsp;      * If a socket bound to an endpoint represented by an
+  775 &nbsp;      * &lt;code&gt;InetSocketAddress &lt;/code&gt; is {@link #close closed},
+  776 &nbsp;      * then this method will continue to return an &lt;code&gt;InetSocketAddress&lt;/code&gt;
+  777 &nbsp;      * after the socket is closed. In that case the returned
+  778 &nbsp;      * &lt;code&gt;InetSocketAddress&lt;/code&gt;'s address is the
+  779 &nbsp;      * {@link InetAddress#isAnyLocalAddress wildcard} address
+  780 &nbsp;      * and its port is the local port that it was bound to.
+<a name='781'>  781 &nbsp;      *
+  782 &nbsp;      * @return a &lt;code&gt;SocketAddress&lt;/code&gt; representing the local endpoint of this
+  783 &nbsp;      *         socket, or &lt;code&gt;null&lt;/code&gt; if it is not bound yet.
+  784 &nbsp;      * @see #getLocalAddress()
+  785 &nbsp;      * @see #getLocalPort()
+  786 &nbsp;      * @see #bind(SocketAddress)
+  787 &nbsp;      * @since 1.4
+  788 &nbsp;      */
+  789 &nbsp; 
+  790 &nbsp;     public SocketAddress getLocalSocketAddress() {
+<a name='791'>  791 &nbsp;         if (!isBound())
+  792 &nbsp;             return null;
+  793 &nbsp;         return new InetSocketAddress(getLocalAddress(), getLocalPort());
+  794 &nbsp;     }
+  795 &nbsp; 
+  796 &nbsp;     /**
+  797 &nbsp;      * Returns the unique {@link java.nio.channels.SocketChannel SocketChannel}
+  798 &nbsp;      * object associated with this socket, if any.
+  799 &nbsp;      *
+  800 &nbsp;      * &lt;p&gt; A socket will have a channel if, and only if, the channel itself was
+<a name='801'>  801 &nbsp;      * created via the {@link java.nio.channels.SocketChannel#open
+  802 &nbsp;      * SocketChannel.open} or {@link
+  803 &nbsp;      * java.nio.channels.ServerSocketChannel#accept ServerSocketChannel.accept}
+  804 &nbsp;      * methods.
+  805 &nbsp;      *
+  806 &nbsp;      * @return  the socket channel associated with this socket,
+  807 &nbsp;      *          or &lt;tt&gt;null&lt;/tt&gt; if this socket was not created
+  808 &nbsp;      *          for a channel
+  809 &nbsp;      *
+  810 &nbsp;      * @since 1.4
+<a name='811'>  811 &nbsp;      * @spec JSR-51
+  812 &nbsp;      */
+  813 &nbsp;     public SocketChannel getChannel() {
+  814 &nbsp;         return null;
+  815 &nbsp;     }
+  816 &nbsp; 
+  817 &nbsp;     /**
+  818 &nbsp;      * Returns an input stream for this socket.
+  819 &nbsp;      *
+  820 &nbsp;      * &lt;p&gt; If this socket has an associated channel then the resulting input
+<a name='821'>  821 &nbsp;      * stream delegates all of its operations to the channel.  If the channel
+  822 &nbsp;      * is in non-blocking mode then the input stream's &lt;tt&gt;read&lt;/tt&gt; operations
+  823 &nbsp;      * will throw an {@link java.nio.channels.IllegalBlockingModeException}.
+  824 &nbsp;      *
+  825 &nbsp;      * &lt;p&gt;Under abnormal conditions the underlying connection may be
+  826 &nbsp;      * broken by the remote host or the network software (for example
+  827 &nbsp;      * a connection reset in the case of TCP connections). When a
+  828 &nbsp;      * broken connection is detected by the network software the
+  829 &nbsp;      * following applies to the returned input stream :-
+  830 &nbsp;      *
+<a name='831'>  831 &nbsp;      * &lt;ul&gt;
+  832 &nbsp;      *
+  833 &nbsp;      *   &lt;li&gt;&lt;p&gt;The network software may discard bytes that are buffered
+  834 &nbsp;      *   by the socket. Bytes that aren't discarded by the network
+  835 &nbsp;      *   software can be read using {@link java.io.InputStream#read read}.
+  836 &nbsp;      *
+  837 &nbsp;      *   &lt;li&gt;&lt;p&gt;If there are no bytes buffered on the socket, or all
+  838 &nbsp;      *   buffered bytes have been consumed by
+  839 &nbsp;      *   {@link java.io.InputStream#read read}, then all subsequent
+  840 &nbsp;      *   calls to {@link java.io.InputStream#read read} will throw an
+<a name='841'>  841 &nbsp;      *   {@link java.io.IOException IOException}.
+  842 &nbsp;      *
+  843 &nbsp;      *   &lt;li&gt;&lt;p&gt;If there are no bytes buffered on the socket, and the
+  844 &nbsp;      *   socket has not been closed using {@link #close close}, then
+  845 &nbsp;      *   {@link java.io.InputStream#available available} will
+  846 &nbsp;      *   return &lt;code&gt;0&lt;/code&gt;.
+  847 &nbsp;      *
+  848 &nbsp;      * &lt;/ul&gt;
+  849 &nbsp;      *
+  850 &nbsp;      * &lt;p&gt; Closing the returned {@link java.io.InputStream InputStream}
+<a name='851'>  851 &nbsp;      * will close the associated socket.
+  852 &nbsp;      *
+  853 &nbsp;      * @return     an input stream for reading bytes from this socket.
+  854 &nbsp;      * @exception  IOException  if an I/O error occurs when creating the
+  855 &nbsp;      *             input stream, the socket is closed, the socket is
+  856 &nbsp;      *             not connected, or the socket input has been shutdown
+  857 &nbsp;      *             using {@link #shutdownInput()}
+  858 &nbsp;      *
+  859 &nbsp;      * @revised 1.4
+  860 &nbsp;      * @spec JSR-51
+<a name='861'>  861 &nbsp;      */
+  862 &nbsp;     public InputStream getInputStream() throws IOException {
+  863 &nbsp;         if (isClosed())
+  864 &nbsp;             throw new SocketException("Socket is closed");
+  865 &nbsp;         if (!isConnected())
+  866 &nbsp;             throw new SocketException("Socket is not connected");
+  867 &nbsp;         if (isInputShutdown())
+  868 &nbsp;             throw new SocketException("Socket input is shutdown");
+  869 &nbsp;         final Socket s = this;
+  870 &nbsp;         InputStream is = null;
+<a name='871'>  871 &nbsp;         try {
+  872 &nbsp;             is = AccessController.doPrivileged(
+  873 &nbsp;                 new PrivilegedExceptionAction&lt;InputStream&gt;() {
+  874 &nbsp;                     public InputStream run() throws IOException {
+  875 &nbsp;                         return impl.getInputStream();
+  876 &nbsp;                     }
+  877 &nbsp;                 });
+  878 &nbsp;         } catch (java.security.PrivilegedActionException e) {
+  879 &nbsp;             throw (IOException) e.getException();
+  880 &nbsp;         }
+<a name='881'>  881 &nbsp;         return is;
+  882 &nbsp;     }
+  883 &nbsp; 
+  884 &nbsp;     /**
+  885 &nbsp;      * Returns an output stream for this socket.
+  886 &nbsp;      *
+  887 &nbsp;      * &lt;p&gt; If this socket has an associated channel then the resulting output
+  888 &nbsp;      * stream delegates all of its operations to the channel.  If the channel
+  889 &nbsp;      * is in non-blocking mode then the output stream's &lt;tt&gt;write&lt;/tt&gt;
+  890 &nbsp;      * operations will throw an {@link
+<a name='891'>  891 &nbsp;      * java.nio.channels.IllegalBlockingModeException}.
+  892 &nbsp;      *
+  893 &nbsp;      * &lt;p&gt; Closing the returned {@link java.io.OutputStream OutputStream}
+  894 &nbsp;      * will close the associated socket.
+  895 &nbsp;      *
+  896 &nbsp;      * @return     an output stream for writing bytes to this socket.
+  897 &nbsp;      * @exception  IOException  if an I/O error occurs when creating the
+  898 &nbsp;      *               output stream or if the socket is not connected.
+  899 &nbsp;      * @revised 1.4
+  900 &nbsp;      * @spec JSR-51
+<a name='901'>  901 &nbsp;      */
+  902 &nbsp;     public OutputStream getOutputStream() throws IOException {
+  903 &nbsp;         if (isClosed())
+  904 &nbsp;             throw new SocketException("Socket is closed");
+  905 &nbsp;         if (!isConnected())
+  906 &nbsp;             throw new SocketException("Socket is not connected");
+  907 &nbsp;         if (isOutputShutdown())
+  908 &nbsp;             throw new SocketException("Socket output is shutdown");
+  909 &nbsp;         final Socket s = this;
+  910 &nbsp;         OutputStream os = null;
+<a name='911'>  911 &nbsp;         try {
+  912 &nbsp;             os = AccessController.doPrivileged(
+  913 &nbsp;                 new PrivilegedExceptionAction&lt;OutputStream&gt;() {
+  914 &nbsp;                     public OutputStream run() throws IOException {
+  915 &nbsp;                         return impl.getOutputStream();
+  916 &nbsp;                     }
+  917 &nbsp;                 });
+  918 &nbsp;         } catch (java.security.PrivilegedActionException e) {
+  919 &nbsp;             throw (IOException) e.getException();
+  920 &nbsp;         }
+<a name='921'>  921 &nbsp;         return os;
+  922 &nbsp;     }
+  923 &nbsp; 
+  924 &nbsp;     /**
+  925 &nbsp;      * Enable/disable TCP_NODELAY (disable/enable Nagle's algorithm).
+  926 &nbsp;      *
+  927 &nbsp;      * @param on &lt;code&gt;true&lt;/code&gt; to enable TCP_NODELAY,
+  928 &nbsp;      * &lt;code&gt;false&lt;/code&gt; to disable.
+  929 &nbsp;      *
+  930 &nbsp;      * @exception SocketException if there is an error
+<a name='931'>  931 &nbsp;      * in the underlying protocol, such as a TCP error.
+  932 &nbsp;      *
+  933 &nbsp;      * @since   JDK1.1
+  934 &nbsp;      *
+  935 &nbsp;      * @see #getTcpNoDelay()
+  936 &nbsp;      */
+  937 &nbsp;     public void setTcpNoDelay(boolean on) throws SocketException {
+  938 &nbsp;         if (isClosed())
+  939 &nbsp;             throw new SocketException("Socket is closed");
+  940 &nbsp;         getImpl().setOption(SocketOptions.TCP_NODELAY, Boolean.valueOf(on));
+<a name='941'>  941 &nbsp;     }
+  942 &nbsp; 
+  943 &nbsp;     /**
+  944 &nbsp;      * Tests if TCP_NODELAY is enabled.
+  945 &nbsp;      *
+  946 &nbsp;      * @return a &lt;code&gt;boolean&lt;/code&gt; indicating whether or not TCP_NODELAY is enabled.
+  947 &nbsp;      * @exception SocketException if there is an error
+  948 &nbsp;      * in the underlying protocol, such as a TCP error.
+  949 &nbsp;      * @since   JDK1.1
+  950 &nbsp;      * @see #setTcpNoDelay(boolean)
+<a name='951'>  951 &nbsp;      */
+  952 &nbsp;     public boolean getTcpNoDelay() throws SocketException {
+  953 &nbsp;         if (isClosed())
+  954 &nbsp;             throw new SocketException("Socket is closed");
+  955 &nbsp;         return ((Boolean) getImpl().getOption(SocketOptions.TCP_NODELAY)).booleanValue();
+  956 &nbsp;     }
+  957 &nbsp; 
+  958 &nbsp;     /**
+  959 &nbsp;      * Enable/disable SO_LINGER with the specified linger time in seconds.
+  960 &nbsp;      * The maximum timeout value is platform specific.
+<a name='961'>  961 &nbsp;      *
+  962 &nbsp;      * The setting only affects socket close.
+  963 &nbsp;      *
+  964 &nbsp;      * @param on     whether or not to linger on.
+  965 &nbsp;      * @param linger how long to linger for, if on is true.
+  966 &nbsp;      * @exception SocketException if there is an error
+  967 &nbsp;      * in the underlying protocol, such as a TCP error.
+  968 &nbsp;      * @exception IllegalArgumentException if the linger value is negative.
+  969 &nbsp;      * @since JDK1.1
+  970 &nbsp;      * @see #getSoLinger()
+<a name='971'>  971 &nbsp;      */
+  972 &nbsp;     public void setSoLinger(boolean on, int linger) throws SocketException {
+  973 &nbsp;         if (isClosed())
+  974 &nbsp;             throw new SocketException("Socket is closed");
+  975 &nbsp;         if (!on) {
+  976 &nbsp;             getImpl().setOption(SocketOptions.SO_LINGER, new Boolean(on));
+  977 &nbsp;         } else {
+  978 &nbsp;             if (linger &lt; 0) {
+  979 &nbsp;                 throw new IllegalArgumentException("invalid value for SO_LINGER");
+  980 &nbsp;             }
+<a name='981'>  981 &nbsp;             if (linger &gt; 65535)
+  982 &nbsp;                 linger = 65535;
+  983 &nbsp;             getImpl().setOption(SocketOptions.SO_LINGER, new Integer(linger));
+  984 &nbsp;         }
+  985 &nbsp;     }
+  986 &nbsp; 
+  987 &nbsp;     /**
+  988 &nbsp;      * Returns setting for SO_LINGER. -1 returns implies that the
+  989 &nbsp;      * option is disabled.
+  990 &nbsp;      *
+<a name='991'>  991 &nbsp;      * The setting only affects socket close.
+  992 &nbsp;      *
+  993 &nbsp;      * @return the setting for SO_LINGER.
+  994 &nbsp;      * @exception SocketException if there is an error
+  995 &nbsp;      * in the underlying protocol, such as a TCP error.
+  996 &nbsp;      * @since   JDK1.1
+  997 &nbsp;      * @see #setSoLinger(boolean, int)
+  998 &nbsp;      */
+  999 &nbsp;     public int getSoLinger() throws SocketException {
+ 1000 &nbsp;         if (isClosed())
+<a name='1001'> 1001 &nbsp;             throw new SocketException("Socket is closed");
+ 1002 &nbsp;         Object o = getImpl().getOption(SocketOptions.SO_LINGER);
+ 1003 &nbsp;         if (o instanceof Integer) {
+ 1004 &nbsp;             return ((Integer) o).intValue();
+ 1005 &nbsp;         } else {
+ 1006 &nbsp;             return -1;
+ 1007 &nbsp;         }
+ 1008 &nbsp;     }
+ 1009 &nbsp; 
+ 1010 &nbsp;     /**
+<a name='1011'> 1011 &nbsp;      * Send one byte of urgent data on the socket. The byte to be sent is the lowest eight
+ 1012 &nbsp;      * bits of the data parameter. The urgent byte is
+ 1013 &nbsp;      * sent after any preceding writes to the socket OutputStream
+ 1014 &nbsp;      * and before any future writes to the OutputStream.
+ 1015 &nbsp;      * @param data The byte of data to send
+ 1016 &nbsp;      * @exception IOException if there is an error
+ 1017 &nbsp;      *  sending the data.
+ 1018 &nbsp;      * @since 1.4
+ 1019 &nbsp;      */
+ 1020 &nbsp;     public void sendUrgentData (int data) throws IOException  {
+<a name='1021'> 1021 &nbsp;         if (!getImpl().supportsUrgentData ()) {
+ 1022 &nbsp;             throw new SocketException ("Urgent data not supported");
+ 1023 &nbsp;         }
+ 1024 &nbsp;         getImpl().sendUrgentData (data);
+ 1025 &nbsp;     }
+ 1026 &nbsp; 
+ 1027 &nbsp;     /**
+ 1028 &nbsp;      * Enable/disable OOBINLINE (receipt of TCP urgent data)
+ 1029 &nbsp;      *
+ 1030 &nbsp;      * By default, this option is disabled and TCP urgent data received on a
+<a name='1031'> 1031 &nbsp;      * socket is silently discarded. If the user wishes to receive urgent data, then
+ 1032 &nbsp;      * this option must be enabled. When enabled, urgent data is received
+ 1033 &nbsp;      * inline with normal data.
+ 1034 &nbsp;      * &lt;p&gt;
+ 1035 &nbsp;      * Note, only limited support is provided for handling incoming urgent
+ 1036 &nbsp;      * data. In particular, no notification of incoming urgent data is provided
+ 1037 &nbsp;      * and there is no capability to distinguish between normal data and urgent
+ 1038 &nbsp;      * data unless provided by a higher level protocol.
+ 1039 &nbsp;      *
+ 1040 &nbsp;      * @param on &lt;code&gt;true&lt;/code&gt; to enable OOBINLINE,
+<a name='1041'> 1041 &nbsp;      * &lt;code&gt;false&lt;/code&gt; to disable.
+ 1042 &nbsp;      *
+ 1043 &nbsp;      * @exception SocketException if there is an error
+ 1044 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1045 &nbsp;      *
+ 1046 &nbsp;      * @since   1.4
+ 1047 &nbsp;      *
+ 1048 &nbsp;      * @see #getOOBInline()
+ 1049 &nbsp;      */
+ 1050 &nbsp;     public void setOOBInline(boolean on) throws SocketException {
+<a name='1051'> 1051 &nbsp;         if (isClosed())
+ 1052 &nbsp;             throw new SocketException("Socket is closed");
+ 1053 &nbsp;         getImpl().setOption(SocketOptions.SO_OOBINLINE, Boolean.valueOf(on));
+ 1054 &nbsp;     }
+ 1055 &nbsp; 
+ 1056 &nbsp;     /**
+ 1057 &nbsp;      * Tests if OOBINLINE is enabled.
+ 1058 &nbsp;      *
+ 1059 &nbsp;      * @return a &lt;code&gt;boolean&lt;/code&gt; indicating whether or not OOBINLINE is enabled.
+ 1060 &nbsp;      * @exception SocketException if there is an error
+<a name='1061'> 1061 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1062 &nbsp;      * @since   1.4
+ 1063 &nbsp;      * @see #setOOBInline(boolean)
+ 1064 &nbsp;      */
+ 1065 &nbsp;     public boolean getOOBInline() throws SocketException {
+ 1066 &nbsp;         if (isClosed())
+ 1067 &nbsp;             throw new SocketException("Socket is closed");
+ 1068 &nbsp;         return ((Boolean) getImpl().getOption(SocketOptions.SO_OOBINLINE)).booleanValue();
+ 1069 &nbsp;     }
+ 1070 &nbsp; 
+<a name='1071'> 1071 &nbsp;     /**
+ 1072 &nbsp;      *  Enable/disable SO_TIMEOUT with the specified timeout, in
+ 1073 &nbsp;      *  milliseconds.  With this option set to a non-zero timeout,
+ 1074 &nbsp;      *  a read() call on the InputStream associated with this Socket
+ 1075 &nbsp;      *  will block for only this amount of time.  If the timeout expires,
+ 1076 &nbsp;      *  a &lt;B&gt;java.net.SocketTimeoutException&lt;/B&gt; is raised, though the
+ 1077 &nbsp;      *  Socket is still valid. The option &lt;B&gt;must&lt;/B&gt; be enabled
+ 1078 &nbsp;      *  prior to entering the blocking operation to have effect. The
+ 1079 &nbsp;      *  timeout must be &gt; 0.
+ 1080 &nbsp;      *  A timeout of zero is interpreted as an infinite timeout.
+<a name='1081'> 1081 &nbsp;      * @param timeout the specified timeout, in milliseconds.
+ 1082 &nbsp;      * @exception SocketException if there is an error
+ 1083 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1084 &nbsp;      * @since   JDK 1.1
+ 1085 &nbsp;      * @see #getSoTimeout()
+ 1086 &nbsp;      */
+ 1087 &nbsp;     public synchronized void setSoTimeout(int timeout) throws SocketException {
+ 1088 &nbsp;         if (isClosed())
+ 1089 &nbsp;             throw new SocketException("Socket is closed");
+ 1090 &nbsp;         if (timeout &lt; 0)
+<a name='1091'> 1091 &nbsp;           throw new IllegalArgumentException("timeout can't be negative");
+ 1092 &nbsp; 
+ 1093 &nbsp;         getImpl().setOption(SocketOptions.SO_TIMEOUT, new Integer(timeout));
+ 1094 &nbsp;     }
+ 1095 &nbsp; 
+ 1096 &nbsp;     /**
+ 1097 &nbsp;      * Returns setting for SO_TIMEOUT.  0 returns implies that the
+ 1098 &nbsp;      * option is disabled (i.e., timeout of infinity).
+ 1099 &nbsp;      * @return the setting for SO_TIMEOUT
+ 1100 &nbsp;      * @exception SocketException if there is an error
+<a name='1101'> 1101 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1102 &nbsp;      * @since   JDK1.1
+ 1103 &nbsp;      * @see #setSoTimeout(int)
+ 1104 &nbsp;      */
+ 1105 &nbsp;     public synchronized int getSoTimeout() throws SocketException {
+ 1106 &nbsp;         if (isClosed())
+ 1107 &nbsp;             throw new SocketException("Socket is closed");
+ 1108 &nbsp;         Object o = getImpl().getOption(SocketOptions.SO_TIMEOUT);
+ 1109 &nbsp;         /* extra type safety */
+ 1110 &nbsp;         if (o instanceof Integer) {
+<a name='1111'> 1111 &nbsp;             return ((Integer) o).intValue();
+ 1112 &nbsp;         } else {
+ 1113 &nbsp;             return 0;
+ 1114 &nbsp;         }
+ 1115 &nbsp;     }
+ 1116 &nbsp; 
+ 1117 &nbsp;     /**
+ 1118 &nbsp;      * Sets the SO_SNDBUF option to the specified value for this
+ 1119 &nbsp;      * &lt;tt&gt;Socket&lt;/tt&gt;. The SO_SNDBUF option is used by the platform's
+ 1120 &nbsp;      * networking code as a hint for the size to set
+<a name='1121'> 1121 &nbsp;      * the underlying network I/O buffers.
+ 1122 &nbsp;      *
+ 1123 &nbsp;      * &lt;p&gt;Because SO_SNDBUF is a hint, applications that want to
+ 1124 &nbsp;      * verify what size the buffers were set to should call
+ 1125 &nbsp;      * {@link #getSendBufferSize()}.
+ 1126 &nbsp;      *
+ 1127 &nbsp;      * @exception SocketException if there is an error
+ 1128 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1129 &nbsp;      *
+ 1130 &nbsp;      * @param size the size to which to set the send buffer
+<a name='1131'> 1131 &nbsp;      * size. This value must be greater than 0.
+ 1132 &nbsp;      *
+ 1133 &nbsp;      * @exception IllegalArgumentException if the
+ 1134 &nbsp;      * value is 0 or is negative.
+ 1135 &nbsp;      *
+ 1136 &nbsp;      * @see #getSendBufferSize()
+ 1137 &nbsp;      * @since 1.2
+ 1138 &nbsp;      */
+ 1139 &nbsp;     public synchronized void setSendBufferSize(int size)
+ 1140 &nbsp;     throws SocketException{
+<a name='1141'> 1141 &nbsp;         if (!(size &gt; 0)) {
+ 1142 &nbsp;             throw new IllegalArgumentException("negative send size");
+ 1143 &nbsp;         }
+ 1144 &nbsp;         if (isClosed())
+ 1145 &nbsp;             throw new SocketException("Socket is closed");
+ 1146 &nbsp;         getImpl().setOption(SocketOptions.SO_SNDBUF, new Integer(size));
+ 1147 &nbsp;     }
+ 1148 &nbsp; 
+ 1149 &nbsp;     /**
+ 1150 &nbsp;      * Get value of the SO_SNDBUF option for this &lt;tt&gt;Socket&lt;/tt&gt;,
+<a name='1151'> 1151 &nbsp;      * that is the buffer size used by the platform
+ 1152 &nbsp;      * for output on this &lt;tt&gt;Socket&lt;/tt&gt;.
+ 1153 &nbsp;      * @return the value of the SO_SNDBUF option for this &lt;tt&gt;Socket&lt;/tt&gt;.
+ 1154 &nbsp;      *
+ 1155 &nbsp;      * @exception SocketException if there is an error
+ 1156 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1157 &nbsp;      *
+ 1158 &nbsp;      * @see #setSendBufferSize(int)
+ 1159 &nbsp;      * @since 1.2
+ 1160 &nbsp;      */
+<a name='1161'> 1161 &nbsp;     public synchronized int getSendBufferSize() throws SocketException {
+ 1162 &nbsp;         if (isClosed())
+ 1163 &nbsp;             throw new SocketException("Socket is closed");
+ 1164 &nbsp;         int result = 0;
+ 1165 &nbsp;         Object o = getImpl().getOption(SocketOptions.SO_SNDBUF);
+ 1166 &nbsp;         if (o instanceof Integer) {
+ 1167 &nbsp;             result = ((Integer)o).intValue();
+ 1168 &nbsp;         }
+ 1169 &nbsp;         return result;
+ 1170 &nbsp;     }
+<a name='1171'> 1171 &nbsp; 
+ 1172 &nbsp;     /**
+ 1173 &nbsp;      * Sets the SO_RCVBUF option to the specified value for this
+ 1174 &nbsp;      * &lt;tt&gt;Socket&lt;/tt&gt;. The SO_RCVBUF option is used by the platform's
+ 1175 &nbsp;      * networking code as a hint for the size to set
+ 1176 &nbsp;      * the underlying network I/O buffers.
+ 1177 &nbsp;      *
+ 1178 &nbsp;      * &lt;p&gt;Increasing the receive buffer size can increase the performance of
+ 1179 &nbsp;      * network I/O for high-volume connection, while decreasing it can
+ 1180 &nbsp;      * help reduce the backlog of incoming data.
+<a name='1181'> 1181 &nbsp;      *
+ 1182 &nbsp;      * &lt;p&gt;Because SO_RCVBUF is a hint, applications that want to
+ 1183 &nbsp;      * verify what size the buffers were set to should call
+ 1184 &nbsp;      * {@link #getReceiveBufferSize()}.
+ 1185 &nbsp;      *
+ 1186 &nbsp;      * &lt;p&gt;The value of SO_RCVBUF is also used to set the TCP receive window
+ 1187 &nbsp;      * that is advertized to the remote peer. Generally, the window size
+ 1188 &nbsp;      * can be modified at any time when a socket is connected. However, if
+ 1189 &nbsp;      * a receive window larger than 64K is required then this must be requested
+ 1190 &nbsp;      * &lt;B&gt;before&lt;/B&gt; the socket is connected to the remote peer. There are two
+<a name='1191'> 1191 &nbsp;      * cases to be aware of:&lt;p&gt;
+ 1192 &nbsp;      * &lt;ol&gt;
+ 1193 &nbsp;      * &lt;li&gt;For sockets accepted from a ServerSocket, this must be done by calling
+ 1194 &nbsp;      * {@link ServerSocket#setReceiveBufferSize(int)} before the ServerSocket
+ 1195 &nbsp;      * is bound to a local address.&lt;p&gt;&lt;/li&gt;
+ 1196 &nbsp;      * &lt;li&gt;For client sockets, setReceiveBufferSize() must be called before
+ 1197 &nbsp;      * connecting the socket to its remote peer.&lt;p&gt;&lt;/li&gt;&lt;/ol&gt;
+ 1198 &nbsp;      * @param size the size to which to set the receive buffer
+ 1199 &nbsp;      * size. This value must be greater than 0.
+ 1200 &nbsp;      *
+<a name='1201'> 1201 &nbsp;      * @exception IllegalArgumentException if the value is 0 or is
+ 1202 &nbsp;      * negative.
+ 1203 &nbsp;      *
+ 1204 &nbsp;      * @exception SocketException if there is an error
+ 1205 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1206 &nbsp;      *
+ 1207 &nbsp;      * @see #getReceiveBufferSize()
+ 1208 &nbsp;      * @see ServerSocket#setReceiveBufferSize(int)
+ 1209 &nbsp;      * @since 1.2
+ 1210 &nbsp;      */
+<a name='1211'> 1211 &nbsp;     public synchronized void setReceiveBufferSize(int size)
+ 1212 &nbsp;     throws SocketException{
+ 1213 &nbsp;         if (size &lt;= 0) {
+ 1214 &nbsp;             throw new IllegalArgumentException("invalid receive size");
+ 1215 &nbsp;         }
+ 1216 &nbsp;         if (isClosed())
+ 1217 &nbsp;             throw new SocketException("Socket is closed");
+ 1218 &nbsp;         getImpl().setOption(SocketOptions.SO_RCVBUF, new Integer(size));
+ 1219 &nbsp;     }
+ 1220 &nbsp; 
+<a name='1221'> 1221 &nbsp;     /**
+ 1222 &nbsp;      * Gets the value of the SO_RCVBUF option for this &lt;tt&gt;Socket&lt;/tt&gt;,
+ 1223 &nbsp;      * that is the buffer size used by the platform for
+ 1224 &nbsp;      * input on this &lt;tt&gt;Socket&lt;/tt&gt;.
+ 1225 &nbsp;      *
+ 1226 &nbsp;      * @return the value of the SO_RCVBUF option for this &lt;tt&gt;Socket&lt;/tt&gt;.
+ 1227 &nbsp;      * @exception SocketException if there is an error
+ 1228 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1229 &nbsp;      * @see #setReceiveBufferSize(int)
+ 1230 &nbsp;      * @since 1.2
+<a name='1231'> 1231 &nbsp;      */
+ 1232 &nbsp;     public synchronized int getReceiveBufferSize()
+ 1233 &nbsp;     throws SocketException{
+ 1234 &nbsp;         if (isClosed())
+ 1235 &nbsp;             throw new SocketException("Socket is closed");
+ 1236 &nbsp;         int result = 0;
+ 1237 &nbsp;         Object o = getImpl().getOption(SocketOptions.SO_RCVBUF);
+ 1238 &nbsp;         if (o instanceof Integer) {
+ 1239 &nbsp;             result = ((Integer)o).intValue();
+ 1240 &nbsp;         }
+<a name='1241'> 1241 &nbsp;         return result;
+ 1242 &nbsp;     }
+ 1243 &nbsp; 
+ 1244 &nbsp;     /**
+ 1245 &nbsp;      * Enable/disable SO_KEEPALIVE.
+ 1246 &nbsp;      *
+ 1247 &nbsp;      * @param on     whether or not to have socket keep alive turned on.
+ 1248 &nbsp;      * @exception SocketException if there is an error
+ 1249 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1250 &nbsp;      * @since 1.3
+<a name='1251'> 1251 &nbsp;      * @see #getKeepAlive()
+ 1252 &nbsp;      */
+ 1253 &nbsp;     public void setKeepAlive(boolean on) throws SocketException {
+ 1254 &nbsp;         if (isClosed())
+ 1255 &nbsp;             throw new SocketException("Socket is closed");
+ 1256 &nbsp;         getImpl().setOption(SocketOptions.SO_KEEPALIVE, Boolean.valueOf(on));
+ 1257 &nbsp;     }
+ 1258 &nbsp; 
+ 1259 &nbsp;     /**
+ 1260 &nbsp;      * Tests if SO_KEEPALIVE is enabled.
+<a name='1261'> 1261 &nbsp;      *
+ 1262 &nbsp;      * @return a &lt;code&gt;boolean&lt;/code&gt; indicating whether or not SO_KEEPALIVE is enabled.
+ 1263 &nbsp;      * @exception SocketException if there is an error
+ 1264 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1265 &nbsp;      * @since   1.3
+ 1266 &nbsp;      * @see #setKeepAlive(boolean)
+ 1267 &nbsp;      */
+ 1268 &nbsp;     public boolean getKeepAlive() throws SocketException {
+ 1269 &nbsp;         if (isClosed())
+ 1270 &nbsp;             throw new SocketException("Socket is closed");
+<a name='1271'> 1271 &nbsp;         return ((Boolean) getImpl().getOption(SocketOptions.SO_KEEPALIVE)).booleanValue();
+ 1272 &nbsp;     }
+ 1273 &nbsp; 
+ 1274 &nbsp;     /**
+ 1275 &nbsp;      * Sets traffic class or type-of-service octet in the IP
+ 1276 &nbsp;      * header for packets sent from this Socket.
+ 1277 &nbsp;      * As the underlying network implementation may ignore this
+ 1278 &nbsp;      * value applications should consider it a hint.
+ 1279 &nbsp;      *
+ 1280 &nbsp;      * &lt;P&gt; The tc &lt;B&gt;must&lt;/B&gt; be in the range &lt;code&gt; 0 &lt;= tc &lt;=
+<a name='1281'> 1281 &nbsp;      * 255&lt;/code&gt; or an IllegalArgumentException will be thrown.
+ 1282 &nbsp;      * &lt;p&gt;Notes:
+ 1283 &nbsp;      * &lt;p&gt;For Internet Protocol v4 the value consists of an
+ 1284 &nbsp;      * &lt;code&gt;integer&lt;/code&gt;, the least significant 8 bits of which
+ 1285 &nbsp;      * represent the value of the TOS octet in IP packets sent by
+ 1286 &nbsp;      * the socket.
+ 1287 &nbsp;      * RFC 1349 defines the TOS values as follows:
+ 1288 &nbsp;      * &lt;p&gt;
+ 1289 &nbsp;      * &lt;UL&gt;
+ 1290 &nbsp;      * &lt;LI&gt;&lt;CODE&gt;IPTOS_LOWCOST (0x02)&lt;/CODE&gt;&lt;/LI&gt;
+<a name='1291'> 1291 &nbsp;      * &lt;LI&gt;&lt;CODE&gt;IPTOS_RELIABILITY (0x04)&lt;/CODE&gt;&lt;/LI&gt;
+ 1292 &nbsp;      * &lt;LI&gt;&lt;CODE&gt;IPTOS_THROUGHPUT (0x08)&lt;/CODE&gt;&lt;/LI&gt;
+ 1293 &nbsp;      * &lt;LI&gt;&lt;CODE&gt;IPTOS_LOWDELAY (0x10)&lt;/CODE&gt;&lt;/LI&gt;
+ 1294 &nbsp;      * &lt;/UL&gt;
+ 1295 &nbsp;      * The last low order bit is always ignored as this
+ 1296 &nbsp;      * corresponds to the MBZ (must be zero) bit.
+ 1297 &nbsp;      * &lt;p&gt;
+ 1298 &nbsp;      * Setting bits in the precedence field may result in a
+ 1299 &nbsp;      * SocketException indicating that the operation is not
+ 1300 &nbsp;      * permitted.
+<a name='1301'> 1301 &nbsp;      * &lt;p&gt;
+ 1302 &nbsp;      * As RFC 1122 section 4.2.4.2 indicates, a compliant TCP
+ 1303 &nbsp;      * implementation should, but is not required to, let application
+ 1304 &nbsp;      * change the TOS field during the lifetime of a connection.
+ 1305 &nbsp;      * So whether the type-of-service field can be changed after the
+ 1306 &nbsp;      * TCP connection has been established depends on the implementation
+ 1307 &nbsp;      * in the underlying platform. Applications should not assume that
+ 1308 &nbsp;      * they can change the TOS field after the connection.
+ 1309 &nbsp;      * &lt;p&gt;
+ 1310 &nbsp;      * For Internet Protocol v6 &lt;code&gt;tc&lt;/code&gt; is the value that
+<a name='1311'> 1311 &nbsp;      * would be placed into the sin6_flowinfo field of the IP header.
+ 1312 &nbsp;      *
+ 1313 &nbsp;      * @param tc        an &lt;code&gt;int&lt;/code&gt; value for the bitset.
+ 1314 &nbsp;      * @throws SocketException if there is an error setting the
+ 1315 &nbsp;      * traffic class or type-of-service
+ 1316 &nbsp;      * @since 1.4
+ 1317 &nbsp;      * @see #getTrafficClass
+ 1318 &nbsp;      */
+ 1319 &nbsp;     public void setTrafficClass(int tc) throws SocketException {
+ 1320 &nbsp;         if (tc &lt; 0 || tc &gt; 255)
+<a name='1321'> 1321 &nbsp;             throw new IllegalArgumentException("tc is not in range 0 -- 255");
+ 1322 &nbsp; 
+ 1323 &nbsp;         if (isClosed())
+ 1324 &nbsp;             throw new SocketException("Socket is closed");
+ 1325 &nbsp;         getImpl().setOption(SocketOptions.IP_TOS, new Integer(tc));
+ 1326 &nbsp;     }
+ 1327 &nbsp; 
+ 1328 &nbsp;     /**
+ 1329 &nbsp;      * Gets traffic class or type-of-service in the IP header
+ 1330 &nbsp;      * for packets sent from this Socket
+<a name='1331'> 1331 &nbsp;      * &lt;p&gt;
+ 1332 &nbsp;      * As the underlying network implementation may ignore the
+ 1333 &nbsp;      * traffic class or type-of-service set using {@link #setTrafficClass(int)}
+ 1334 &nbsp;      * this method may return a different value than was previously
+ 1335 &nbsp;      * set using the {@link #setTrafficClass(int)} method on this Socket.
+ 1336 &nbsp;      *
+ 1337 &nbsp;      * @return the traffic class or type-of-service already set
+ 1338 &nbsp;      * @throws SocketException if there is an error obtaining the
+ 1339 &nbsp;      * traffic class or type-of-service value.
+ 1340 &nbsp;      * @since 1.4
+<a name='1341'> 1341 &nbsp;      * @see #setTrafficClass(int)
+ 1342 &nbsp;      */
+ 1343 &nbsp;     public int getTrafficClass() throws SocketException {
+ 1344 &nbsp;         return ((Integer) (getImpl().getOption(SocketOptions.IP_TOS))).intValue();
+ 1345 &nbsp;     }
+ 1346 &nbsp; 
+ 1347 &nbsp;     /**
+ 1348 &nbsp;      * Enable/disable the SO_REUSEADDR socket option.
+ 1349 &nbsp;      * &lt;p&gt;
+ 1350 &nbsp;      * When a TCP connection is closed the connection may remain
+<a name='1351'> 1351 &nbsp;      * in a timeout state for a period of time after the connection
+ 1352 &nbsp;      * is closed (typically known as the &lt;tt&gt;TIME_WAIT&lt;/tt&gt; state
+ 1353 &nbsp;      * or &lt;tt&gt;2MSL&lt;/tt&gt; wait state).
+ 1354 &nbsp;      * For applications using a well known socket address or port
+ 1355 &nbsp;      * it may not be possible to bind a socket to the required
+ 1356 &nbsp;      * &lt;tt&gt;SocketAddress&lt;/tt&gt; if there is a connection in the
+ 1357 &nbsp;      * timeout state involving the socket address or port.
+ 1358 &nbsp;      * &lt;p&gt;
+ 1359 &nbsp;      * Enabling &lt;tt&gt;SO_REUSEADDR&lt;/tt&gt; prior to binding the socket
+ 1360 &nbsp;      * using {@link #bind(SocketAddress)} allows the socket to be
+<a name='1361'> 1361 &nbsp;      * bound even though a previous connection is in a timeout
+ 1362 &nbsp;      * state.
+ 1363 &nbsp;      * &lt;p&gt;
+ 1364 &nbsp;      * When a &lt;tt&gt;Socket&lt;/tt&gt; is created the initial setting
+ 1365 &nbsp;      * of &lt;tt&gt;SO_REUSEADDR&lt;/tt&gt; is disabled.
+ 1366 &nbsp;      * &lt;p&gt;
+ 1367 &nbsp;      * The behaviour when &lt;tt&gt;SO_REUSEADDR&lt;/tt&gt; is enabled or
+ 1368 &nbsp;      * disabled after a socket is bound (See {@link #isBound()})
+ 1369 &nbsp;      * is not defined.
+ 1370 &nbsp;      *
+<a name='1371'> 1371 &nbsp;      * @param on  whether to enable or disable the socket option
+ 1372 &nbsp;      * @exception SocketException if an error occurs enabling or
+ 1373 &nbsp;      *            disabling the &lt;tt&gt;SO_RESUEADDR&lt;/tt&gt; socket option,
+ 1374 &nbsp;      *            or the socket is closed.
+ 1375 &nbsp;      * @since 1.4
+ 1376 &nbsp;      * @see #getReuseAddress()
+ 1377 &nbsp;      * @see #bind(SocketAddress)
+ 1378 &nbsp;      * @see #isClosed()
+ 1379 &nbsp;      * @see #isBound()
+ 1380 &nbsp;      */
+<a name='1381'> 1381 &nbsp;     public void setReuseAddress(boolean on) throws SocketException {
+ 1382 &nbsp;         if (isClosed())
+ 1383 &nbsp;             throw new SocketException("Socket is closed");
+ 1384 &nbsp;         getImpl().setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(on));
+ 1385 &nbsp;     }
+ 1386 &nbsp; 
+ 1387 &nbsp;     /**
+ 1388 &nbsp;      * Tests if SO_REUSEADDR is enabled.
+ 1389 &nbsp;      *
+ 1390 &nbsp;      * @return a &lt;code&gt;boolean&lt;/code&gt; indicating whether or not SO_REUSEADDR is enabled.
+<a name='1391'> 1391 &nbsp;      * @exception SocketException if there is an error
+ 1392 &nbsp;      * in the underlying protocol, such as a TCP error.
+ 1393 &nbsp;      * @since   1.4
+ 1394 &nbsp;      * @see #setReuseAddress(boolean)
+ 1395 &nbsp;      */
+ 1396 &nbsp;     public boolean getReuseAddress() throws SocketException {
+ 1397 &nbsp;         if (isClosed())
+ 1398 &nbsp;             throw new SocketException("Socket is closed");
+ 1399 &nbsp;         return ((Boolean) (getImpl().getOption(SocketOptions.SO_REUSEADDR))).booleanValue();
+ 1400 &nbsp;     }
+<a name='1401'> 1401 &nbsp; 
+ 1402 &nbsp;     /**
+ 1403 &nbsp;      * Closes this socket.
+ 1404 &nbsp;      * &lt;p&gt;
+ 1405 &nbsp;      * Any thread currently blocked in an I/O operation upon this socket
+ 1406 &nbsp;      * will throw a {@link SocketException}.
+ 1407 &nbsp;      * &lt;p&gt;
+ 1408 &nbsp;      * Once a socket has been closed, it is not available for further networking
+ 1409 &nbsp;      * use (i.e. can't be reconnected or rebound). A new socket needs to be
+ 1410 &nbsp;      * created.
+<a name='1411'> 1411 &nbsp;      *
+ 1412 &nbsp;      * &lt;p&gt; Closing this socket will also close the socket's
+ 1413 &nbsp;      * {@link java.io.InputStream InputStream} and
+ 1414 &nbsp;      * {@link java.io.OutputStream OutputStream}.
+ 1415 &nbsp;      *
+ 1416 &nbsp;      * &lt;p&gt; If this socket has an associated channel then the channel is closed
+ 1417 &nbsp;      * as well.
+ 1418 &nbsp;      *
+ 1419 &nbsp;      * @exception  IOException  if an I/O error occurs when closing this socket.
+ 1420 &nbsp;      * @revised 1.4
+<a name='1421'> 1421 &nbsp;      * @spec JSR-51
+ 1422 &nbsp;      * @see #isClosed
+ 1423 &nbsp;      */
+ 1424 &nbsp;     public synchronized void close() throws IOException {
+ 1425 &nbsp;         synchronized(closeLock) {
+ 1426 &nbsp;             if (isClosed())
+ 1427 &nbsp;                 return;
+ 1428 &nbsp;             if (created)
+ 1429 &nbsp;                 impl.close();
+ 1430 &nbsp;             closed = true;
+<a name='1431'> 1431 &nbsp;         }
+ 1432 &nbsp;     }
+ 1433 &nbsp; 
+ 1434 &nbsp;     /**
+ 1435 &nbsp;      * Places the input stream for this socket at "end of stream".
+ 1436 &nbsp;      * Any data sent to the input stream side of the socket is acknowledged
+ 1437 &nbsp;      * and then silently discarded.
+ 1438 &nbsp;      * &lt;p&gt;
+ 1439 &nbsp;      * If you read from a socket input stream after invoking
+ 1440 &nbsp;      * shutdownInput() on the socket, the stream will return EOF.
+<a name='1441'> 1441 &nbsp;      *
+ 1442 &nbsp;      * @exception IOException if an I/O error occurs when shutting down this
+ 1443 &nbsp;      * socket.
+ 1444 &nbsp;      *
+ 1445 &nbsp;      * @since 1.3
+ 1446 &nbsp;      * @see java.net.Socket#shutdownOutput()
+ 1447 &nbsp;      * @see java.net.Socket#close()
+ 1448 &nbsp;      * @see java.net.Socket#setSoLinger(boolean, int)
+ 1449 &nbsp;      * @see #isInputShutdown
+ 1450 &nbsp;      */
+<a name='1451'> 1451 &nbsp;     public void shutdownInput() throws IOException
+ 1452 &nbsp;     {
+ 1453 &nbsp;         if (isClosed())
+ 1454 &nbsp;             throw new SocketException("Socket is closed");
+ 1455 &nbsp;         if (!isConnected())
+ 1456 &nbsp;             throw new SocketException("Socket is not connected");
+ 1457 &nbsp;         if (isInputShutdown())
+ 1458 &nbsp;             throw new SocketException("Socket input is already shutdown");
+ 1459 &nbsp;         getImpl().shutdownInput();
+ 1460 &nbsp;         shutIn = true;
+<a name='1461'> 1461 &nbsp;     }
+ 1462 &nbsp; 
+ 1463 &nbsp;     /**
+ 1464 &nbsp;      * Disables the output stream for this socket.
+ 1465 &nbsp;      * For a TCP socket, any previously written data will be sent
+ 1466 &nbsp;      * followed by TCP's normal connection termination sequence.
+ 1467 &nbsp;      *
+ 1468 &nbsp;      * If you write to a socket output stream after invoking
+ 1469 &nbsp;      * shutdownOutput() on the socket, the stream will throw
+ 1470 &nbsp;      * an IOException.
+<a name='1471'> 1471 &nbsp;      *
+ 1472 &nbsp;      * @exception IOException if an I/O error occurs when shutting down this
+ 1473 &nbsp;      * socket.
+ 1474 &nbsp;      *
+ 1475 &nbsp;      * @since 1.3
+ 1476 &nbsp;      * @see java.net.Socket#shutdownInput()
+ 1477 &nbsp;      * @see java.net.Socket#close()
+ 1478 &nbsp;      * @see java.net.Socket#setSoLinger(boolean, int)
+ 1479 &nbsp;      * @see #isOutputShutdown
+ 1480 &nbsp;      */
+<a name='1481'> 1481 &nbsp;     public void shutdownOutput() throws IOException
+ 1482 &nbsp;     {
+ 1483 &nbsp;         if (isClosed())
+ 1484 &nbsp;             throw new SocketException("Socket is closed");
+ 1485 &nbsp;         if (!isConnected())
+ 1486 &nbsp;             throw new SocketException("Socket is not connected");
+ 1487 &nbsp;         if (isOutputShutdown())
+ 1488 &nbsp;             throw new SocketException("Socket output is already shutdown");
+ 1489 &nbsp;         getImpl().shutdownOutput();
+ 1490 &nbsp;         shutOut = true;
+<a name='1491'> 1491 &nbsp;     }
+ 1492 &nbsp; 
+ 1493 &nbsp;     /**
+ 1494 &nbsp;      * Converts this socket to a &lt;code&gt;String&lt;/code&gt;.
+ 1495 &nbsp;      *
+ 1496 &nbsp;      * @return  a string representation of this socket.
+ 1497 &nbsp;      */
+ 1498 &nbsp;     public String toString() {
+ 1499 &nbsp;         try {
+ 1500 &nbsp;             if (isConnected())
+<a name='1501'> 1501 &nbsp;                 return "Socket[addr=" + getImpl().getInetAddress() +
+ 1502 &nbsp;                     ",port=" + getImpl().getPort() +
+ 1503 &nbsp;                     ",localport=" + getImpl().getLocalPort() + "]";
+ 1504 &nbsp;         } catch (SocketException e) {
+ 1505 &nbsp;         }
+ 1506 &nbsp;         return "Socket[unconnected]";
+ 1507 &nbsp;     }
+ 1508 &nbsp; 
+ 1509 &nbsp;     /**
+ 1510 &nbsp;      * Returns the connection state of the socket.
+<a name='1511'> 1511 &nbsp;      * &lt;p&gt;
+ 1512 &nbsp;      * Note: Closing a socket doesn't clear its connection state, which means
+ 1513 &nbsp;      * this method will return &lt;code&gt;true&lt;/code&gt; for a closed socket
+ 1514 &nbsp;      * (see {@link #isClosed()}) if it was successfuly connected prior
+ 1515 &nbsp;      * to being closed.
+ 1516 &nbsp;      *
+ 1517 &nbsp;      * @return true if the socket was successfuly connected to a server
+ 1518 &nbsp;      * @since 1.4
+ 1519 &nbsp;      */
+ 1520 &nbsp;     public boolean isConnected() {
+<a name='1521'> 1521 &nbsp;         // Before 1.3 Sockets were always connected during creation
+ 1522 &nbsp;         return connected || oldImpl;
+ 1523 &nbsp;     }
+ 1524 &nbsp; 
+ 1525 &nbsp;     /**
+ 1526 &nbsp;      * Returns the binding state of the socket.
+ 1527 &nbsp;      * &lt;p&gt;
+ 1528 &nbsp;      * Note: Closing a socket doesn't clear its binding state, which means
+ 1529 &nbsp;      * this method will return &lt;code&gt;true&lt;/code&gt; for a closed socket
+ 1530 &nbsp;      * (see {@link #isClosed()}) if it was successfuly bound prior
+<a name='1531'> 1531 &nbsp;      * to being closed.
+ 1532 &nbsp;      *
+ 1533 &nbsp;      * @return true if the socket was successfuly bound to an address
+ 1534 &nbsp;      * @since 1.4
+ 1535 &nbsp;      * @see #bind
+ 1536 &nbsp;      */
+ 1537 &nbsp;     public boolean isBound() {
+ 1538 &nbsp;         // Before 1.3 Sockets were always bound during creation
+ 1539 &nbsp;         return bound || oldImpl;
+ 1540 &nbsp;     }
+<a name='1541'> 1541 &nbsp; 
+ 1542 &nbsp;     /**
+ 1543 &nbsp;      * Returns the closed state of the socket.
+ 1544 &nbsp;      *
+ 1545 &nbsp;      * @return true if the socket has been closed
+ 1546 &nbsp;      * @since 1.4
+ 1547 &nbsp;      * @see #close
+ 1548 &nbsp;      */
+ 1549 &nbsp;     public boolean isClosed() {
+ 1550 &nbsp;         synchronized(closeLock) {
+<a name='1551'> 1551 &nbsp;             return closed;
+ 1552 &nbsp;         }
+ 1553 &nbsp;     }
+ 1554 &nbsp; 
+ 1555 &nbsp;     /**
+ 1556 &nbsp;      * Returns whether the read-half of the socket connection is closed.
+ 1557 &nbsp;      *
+ 1558 &nbsp;      * @return true if the input of the socket has been shutdown
+ 1559 &nbsp;      * @since 1.4
+ 1560 &nbsp;      * @see #shutdownInput
+<a name='1561'> 1561 &nbsp;      */
+ 1562 &nbsp;     public boolean isInputShutdown() {
+ 1563 &nbsp;         return shutIn;
+ 1564 &nbsp;     }
+ 1565 &nbsp; 
+ 1566 &nbsp;     /**
+ 1567 &nbsp;      * Returns whether the write-half of the socket connection is closed.
+ 1568 &nbsp;      *
+ 1569 &nbsp;      * @return true if the output of the socket has been shutdown
+ 1570 &nbsp;      * @since 1.4
+<a name='1571'> 1571 &nbsp;      * @see #shutdownOutput
+ 1572 &nbsp;      */
+ 1573 &nbsp;     public boolean isOutputShutdown() {
+ 1574 &nbsp;         return shutOut;
+ 1575 &nbsp;     }
+ 1576 &nbsp; 
+ 1577 &nbsp;     /**
+ 1578 &nbsp;      * The factory for all client sockets.
+ 1579 &nbsp;      */
+ 1580 &nbsp;     private static SocketImplFactory factory = null;
+<a name='1581'> 1581 &nbsp; 
+ 1582 &nbsp;     /**
+ 1583 &nbsp;      * Sets the client socket implementation factory for the
+ 1584 &nbsp;      * application. The factory can be specified only once.
+ 1585 &nbsp;      * &lt;p&gt;
+ 1586 &nbsp;      * When an application creates a new client socket, the socket
+ 1587 &nbsp;      * implementation factory's &lt;code&gt;createSocketImpl&lt;/code&gt; method is
+ 1588 &nbsp;      * called to create the actual socket implementation.
+ 1589 &nbsp;      * &lt;p&gt;
+ 1590 &nbsp;      * Passing &lt;code&gt;null&lt;/code&gt; to the method is a no-op unless the factory
+<a name='1591'> 1591 &nbsp;      * was already set.
+ 1592 &nbsp;      * &lt;p&gt;If there is a security manager, this method first calls
+ 1593 &nbsp;      * the security manager's &lt;code&gt;checkSetFactory&lt;/code&gt; method
+ 1594 &nbsp;      * to ensure the operation is allowed.
+ 1595 &nbsp;      * This could result in a SecurityException.
+ 1596 &nbsp;      *
+ 1597 &nbsp;      * @param      fac   the desired factory.
+ 1598 &nbsp;      * @exception  IOException  if an I/O error occurs when setting the
+ 1599 &nbsp;      *               socket factory.
+ 1600 &nbsp;      * @exception  SocketException  if the factory is already defined.
+<a name='1601'> 1601 &nbsp;      * @exception  SecurityException  if a security manager exists and its
+ 1602 &nbsp;      *             &lt;code&gt;checkSetFactory&lt;/code&gt; method doesn't allow the operation.
+ 1603 &nbsp;      * @see        java.net.SocketImplFactory#createSocketImpl()
+ 1604 &nbsp;      * @see        SecurityManager#checkSetFactory
+ 1605 &nbsp;      */
+ 1606 &nbsp;     public static synchronized void setSocketImplFactory(SocketImplFactory fac)
+ 1607 &nbsp;         throws IOException
+ 1608 &nbsp;     {
+ 1609 &nbsp;         if (factory != null) {
+ 1610 &nbsp;             throw new SocketException("factory already defined");
+<a name='1611'> 1611 &nbsp;         }
+ 1612 &nbsp;         SecurityManager security = System.getSecurityManager();
+ 1613 &nbsp;         if (security != null) {
+ 1614 &nbsp;             security.checkSetFactory();
+ 1615 &nbsp;         }
+ 1616 &nbsp;         factory = fac;
+ 1617 &nbsp;     }
+ 1618 &nbsp; 
+ 1619 &nbsp;     /**
+ 1620 &nbsp;      * Sets performance preferences for this socket.
+<a name='1621'> 1621 &nbsp;      *
+ 1622 &nbsp;      * &lt;p&gt; Sockets use the TCP/IP protocol by default.  Some implementations
+ 1623 &nbsp;      * may offer alternative protocols which have different performance
+ 1624 &nbsp;      * characteristics than TCP/IP.  This method allows the application to
+ 1625 &nbsp;      * express its own preferences as to how these tradeoffs should be made
+ 1626 &nbsp;      * when the implementation chooses from the available protocols.
+ 1627 &nbsp;      *
+ 1628 &nbsp;      * &lt;p&gt; Performance preferences are described by three integers
+ 1629 &nbsp;      * whose values indicate the relative importance of short connection time,
+ 1630 &nbsp;      * low latency, and high bandwidth.  The absolute values of the integers
+<a name='1631'> 1631 &nbsp;      * are irrelevant; in order to choose a protocol the values are simply
+ 1632 &nbsp;      * compared, with larger values indicating stronger preferences. Negative
+ 1633 &nbsp;      * values represent a lower priority than positive values. If the
+ 1634 &nbsp;      * application prefers short connection time over both low latency and high
+ 1635 &nbsp;      * bandwidth, for example, then it could invoke this method with the values
+ 1636 &nbsp;      * &lt;tt&gt;(1, 0, 0)&lt;/tt&gt;.  If the application prefers high bandwidth above low
+ 1637 &nbsp;      * latency, and low latency above short connection time, then it could
+ 1638 &nbsp;      * invoke this method with the values &lt;tt&gt;(0, 1, 2)&lt;/tt&gt;.
+ 1639 &nbsp;      *
+ 1640 &nbsp;      * &lt;p&gt; Invoking this method after this socket has been connected
+<a name='1641'> 1641 &nbsp;      * will have no effect.
+ 1642 &nbsp;      *
+ 1643 &nbsp;      * @param  connectionTime
+ 1644 &nbsp;      *         An &lt;tt&gt;int&lt;/tt&gt; expressing the relative importance of a short
+ 1645 &nbsp;      *         connection time
+ 1646 &nbsp;      *
+ 1647 &nbsp;      * @param  latency
+ 1648 &nbsp;      *         An &lt;tt&gt;int&lt;/tt&gt; expressing the relative importance of low
+ 1649 &nbsp;      *         latency
+ 1650 &nbsp;      *
+<a name='1651'> 1651 &nbsp;      * @param  bandwidth
+ 1652 &nbsp;      *         An &lt;tt&gt;int&lt;/tt&gt; expressing the relative importance of high
+ 1653 &nbsp;      *         bandwidth
+ 1654 &nbsp;      *
+ 1655 &nbsp;      * @since 1.5
+ 1656 &nbsp;      */
+ 1657 &nbsp;     public void setPerformancePreferences(int connectionTime,
+ 1658 &nbsp;                                           int latency,
+ 1659 &nbsp;                                           int bandwidth)
+ 1660 &nbsp;     {
+<a name='1661'> 1661 &nbsp;         /* Not implemented yet */
+ 1662 &nbsp;     }
+ 1663 &nbsp; }
+
+</pre>
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; java &#187;  <a href='/docs/api/java/net/package-index.html'>net</a> &#187; 
+ [<a href="/docs/api/java/net/Socket.html">javadoc</a> | source]
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-138120-1");
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- end -->

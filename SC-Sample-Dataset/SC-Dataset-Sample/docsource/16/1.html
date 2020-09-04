@@ -1,0 +1,679 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-gb" xml:lang="en-gb">
+  <head>
+    <title>Problems using HTTPS protocol in Java (JSSE) - Ars Technica OpenForum</title>
+
+    <!-- Begin CSS -->
+    <link rel="stylesheet" href="//cdn.arstechnica.net/civis/ars/theme/forum.css?v=47" type="text/css" />
+    <!--[if IE]>
+    <link rel="stylesheet" href="//cdn.arstechnica.net/civis/ars/theme/forum.ie.css?v=2" type="text/css" />
+    <![endif] -->
+    <!-- End CSS --><!-- Begin Metadata -->
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+    <meta name="viewport" content="width=728" />
+    
+    <link rel="SHORTCUT ICON" href="//cdn.arstechnica.net/civis/ars/theme/favicon.ico"/>
+    <link rel="icon" type="image/vnd.microsoft.icon" href="//cdn.arstechnica.net/civis/ars/theme/favicon.ico" />
+    
+    <!-- End Metadata -->
+
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-31997-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+      })();
+
+    </script>
+
+    
+    <script type="text/javascript" src="//cdn.arstechnica.net/public/shared/scripts/da-1.5.js"></script>
+    <script type="text/javascript">
+    try {  
+      cnp.ad.dart.setSite("ars.dart");
+      cnp.ad.dart.setZone('forums_programmer');
+      //cnp.ad.dart.addParameterString('');
+      cnp.ad.dart.addParameterString('mtfIFPath=/mt-static/plugins/ArsTheme/ad-campaigns/doubleclick/');
+      cnp.ad.emptyFrameSrc="/wp-content/themes/arstechnica/assets/html/empty.html";
+      cnp.ad.loaderFrameSrc="/wp-content/themes/arstechnica/assets/html/ad-loader-frame.html";
+    } catch(e) {}
+    </script>
+   
+    
+    <!--[if IE 8]>
+      <style type="text/css">
+        #message-box textarea {
+          min-width: 98%;
+          max-width: 98%;
+          width: 100px;
+        }
+      </style>
+    <![endif]-->
+    <script type="text/javascript" src="//cdn.arstechnica.net/wp-content/themes/arstechnica/assets/js/omniture/mbox.js"></script>
+  </head>
+  <body id="ars-forum">
+    <div id="page">
+      
+        <div id="daehtsam-da">
+            <script type="text/javascript">
+              var pbanner_start = new Date();
+              try {
+                var pbanner = cnp.ad.create(cnp.ad.refreshable, false);
+                pbanner.addParameter({'dcopt':'ist'});
+                pbanner.addParameterString('kw=forums;');
+                pbanner.addParameter({'sz': '728x90' });
+              } catch(e) {}
+            </script>
+        </div>
+      
+      <div id="page-header">
+        <div id="masthead">
+          <div id="logo"><a href="./index.php?sid=da6f0a23d0383b8f1f8aa1e51df328b4"><img src="//cdn.arstechnica.net/civis/ars/theme/images/logo.png" alt="" /></a></div>
+          
+            <div id="anonymous-panel">
+              <div id="anonymous-message">
+                <p>Welcome to the Ars OpenForum.</p>
+              </div>
+              <div id="anonymous-links">
+                <ul>
+                  <li class="register"><a href="./ucp.php?mode=register&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">Register</a></li>
+                  <li class="login"><a href="./ucp.php?mode=login&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4&amp;autoredirect=1&amp;return_to=%2Fcivis%2Fviewtopic.php%3Ff%3D20%26t%3D919008">Login</a></li>
+                </ul>
+              </div>
+            </div>
+          
+        </div>
+        
+        <div id="forum-links"><a href="http://arstechnica.com/old/content/2000/01/postguide.ars">Posting Guidelines</a> | <a href="/mods/">Contact Moderators</a>
+        </div>
+
+        
+          <div class="breadcrumb-jumpbox">
+            <div class="breadcrumb"><a href="http://arstechnica.com/">Ars Technica</a> &gt; <a href="./index.php?sid=da6f0a23d0383b8f1f8aa1e51df328b4">Forums</a> &gt; <a href="./viewforum.php?f=13&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">Operating Systems &amp; Software</a> &gt; <a href="./viewforum.php?f=20&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">Programmer's Symposium</a>
+</div>
+  <div class="jumpbox">
+    <form method="get" name="jumpbox" action="./viewforum.php?sid=da6f0a23d0383b8f1f8aa1e51df328b4" onsubmit="if($('.autosubmit', this).value == -1){return false;}">
+      <div>
+        <span class="jumptext">Jump to:</span>
+        <select class="autosubmit" name="f">
+          
+            <option value="-1">Select a forum</option>
+          <option value="-1">------------------</option>
+            <option value="5">Hardware  &amp; Tweaking</option>
+          
+            <option value="6">&nbsp; &nbsp;Audio/Visual Club</option>
+          
+            <option value="7">&nbsp; &nbsp;Case and Cooling Fetish</option>
+          
+            <option value="8">&nbsp; &nbsp;CPU &amp; Motherboard Technologia</option>
+          
+            <option value="9">&nbsp; &nbsp;Mobile Computing Outpost</option>
+          
+            <option value="10">&nbsp; &nbsp;Networking Matrix</option>
+          
+            <option value="11">&nbsp; &nbsp;Other Hardware</option>
+          
+            <option value="12">&nbsp; &nbsp;Agora Classifieds</option>
+          
+            <option value="13">Operating Systems &amp; Software</option>
+          
+            <option value="14">&nbsp; &nbsp;Battlefront</option>
+          
+            <option value="15">&nbsp; &nbsp;Microsoft OS &amp; Software Colloquium</option>
+          
+            <option value="16">&nbsp; &nbsp;Linux Kung Fu</option>
+          
+            <option value="17">&nbsp; &nbsp;Windows Technical Mojo</option>
+          
+            <option value="18">&nbsp; &nbsp;Distributed Computing Arcana</option>
+          
+            <option value="19">&nbsp; &nbsp;Macintoshian Achaia</option>
+          
+            <option value="20" selected="selected">&nbsp; &nbsp;Programmer's Symposium</option>
+          
+            <option value="21">&nbsp; &nbsp;The Server Room</option>
+          
+            <option value="1">Ars Lykaion</option>
+          
+            <option value="22">&nbsp; &nbsp;Gaming, Extra Strength Caplets</option>
+          
+            <option value="23">&nbsp; &nbsp;The Lounge</option>
+          
+            <option value="24">&nbsp; &nbsp;The Soap Box</option>
+          
+            <option value="25">&nbsp; &nbsp;The Boardroom</option>
+          
+            <option value="26">&nbsp; &nbsp;The Observatory</option>
+          
+            <option value="3">&nbsp; &nbsp;Ars Help &amp; Feedback</option>
+          
+            <option value="30">Ars Subscription Member Areas</option>
+          
+            <option value="38">&nbsp; &nbsp;Image Galleries</option>
+          
+        </select>
+        <input type="submit" value="Go" class="downlevel" />
+      </div>
+    </form>
+  </div>
+
+          </div>
+        
+      </div>
+      <div id="page-body">
+
+<h2 class="title">
+  Problems using HTTPS protocol in Java (JSSE)
+  
+</h2>
+
+<div id="top-actionbar" class="actionbar">
+  
+      <div class="topic-actions">
+        <div class="reply-button"><a rel="nofollow" href="./posting.php?mode=reply&amp;f=20&amp;t=919008&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4"><img src="//cdn.arstechnica.net/civis/ars/imageset/en/button_topic_locked.png" alt="This topic is locked, you cannot edit posts or make further replies." title="This topic is locked, you cannot edit posts or make further replies." /></a></div>
+        
+      </div>
+    
+    <div class="pager">
+      7 posts
+    </div>
+  
+</div>
+
+<div id="content">
+
+  <table id="p17402318" class="post odd read topic-poster" width="100%" cellpadding="0" cellspacing="0">
+      
+        <tr>
+          <td rowspan="2" class="post-author">
+            <div class="post-author-inner">
+              
+
+              <div class="post-author-name"><a href="./memberlist.php?mode=viewprofile&amp;u=6236&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">sorghumking</a></div>
+                <div class="post-author-title">
+                  
+                  Ars Scholae Palatinae
+                  
+	 
+                </div>
+              
+              <div class="post-author-tribus"></div>
+              <div class="post-author-registered">Registered: Jul 8, 2000</div><div class="post-author-postcount">Posts: 906</div>
+            </div>
+          </td>
+          <td class="post-date-actions">
+            <div class="post-date-actions-inner">
+              <div class="post-actions">
+                
+              </div>
+              <div class="post-date">
+                <a href="./viewtopic.php?p=17402318&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4#p17402318">Posted: Thu Oct 18, 2001 11:21 pm</a>
+              </div>
+              <div class="post-actions">
+                
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="post-content">
+            <div class="post-content-inner">
+              
+              I believe I've performed the JSSE installation process correctly, but I'm still unable to run even the simplest of programs, e.g. one of the API's sample applications:<P><BLOCKQUOTE><font size="-1">code:</font><HR><pre><BR>import java.net.*;<BR>import java.io.*;<P>public class URLReader {<BR>    public static void main(String[] args) throws Exception {<BR>	System.setProperty("java.protocol.handler.pkgs", "com.sun.net.ssl.internal.www.protocol");<BR>	URL verisign = new URL("https://www.verisign.com/");<BR>	BufferedReader in = new BufferedReader(<BR>				new InputStreamReader(<BR>				verisign.openStream()));<P>		String inputLine;<P>		while ((inputLine = in.readLine()) != null)<BR>			System.out.println(inputLine);<P>		in.close();<BR>    }<BR>}<BR></pre><HR></BLOCKQUOTE><P>The code above compiles, but I get a MalformedURLException - "unknown protocol: https" - at runtime.  Any ideas as to what I'm doing wrong?<P>By the way, I'm registering the SunJSSE provider statically, i.e. in my java.security file, so the lack of a call to Security.addProvider(...) shouldn't be the problem.
+
+              
+
+              
+              
+            </div>
+          </td>
+        </tr>
+        
+    </table>
+    
+  <table id="p17405670" class="post even read topic-poster" width="100%" cellpadding="0" cellspacing="0">
+      
+        <tr>
+          <td rowspan="2" class="post-author">
+            <div class="post-author-inner">
+              
+
+              <div class="post-author-name"><a href="./memberlist.php?mode=viewprofile&amp;u=6236&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">sorghumking</a></div>
+                <div class="post-author-title">
+                  
+                  Ars Scholae Palatinae
+                  
+	 
+                </div>
+              
+              <div class="post-author-tribus"></div>
+              <div class="post-author-registered">Registered: Jul 8, 2000</div><div class="post-author-postcount">Posts: 906</div>
+            </div>
+          </td>
+          <td class="post-date-actions">
+            <div class="post-date-actions-inner">
+              <div class="post-actions">
+                
+              </div>
+              <div class="post-date">
+                <a href="./viewtopic.php?p=17405670&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4#p17405670">Posted: Sun Oct 21, 2001 2:53 am</a>
+              </div>
+              <div class="post-actions">
+                
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="post-content">
+            <div class="post-content-inner">
+              
+              anyone? <IMG WIDTH="15" HEIGHT="15" SRC="/infopop/emoticons/icon_biggrin.gif" alt="big grin">
+
+              
+
+              
+              
+            </div>
+          </td>
+        </tr>
+        
+    </table>
+    
+  <table id="p17405669" class="post odd read" width="100%" cellpadding="0" cellspacing="0">
+      
+        <tr>
+          <td rowspan="2" class="post-author">
+            <div class="post-author-inner">
+              
+
+              <div class="post-author-name"><a href="./memberlist.php?mode=viewprofile&amp;u=10794&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">skylark</a></div>
+                <div class="post-author-title">
+                  
+                  Ars Tribunus Militum
+                  
+	 
+                </div>
+              
+              <div class="post-author-tribus"></div>
+              <div class="post-author-registered">Registered: Jul 30, 2000</div><div class="post-author-postcount">Posts: 2388</div>
+            </div>
+          </td>
+          <td class="post-date-actions">
+            <div class="post-date-actions-inner">
+              <div class="post-actions">
+                
+              </div>
+              <div class="post-date">
+                <a href="./viewtopic.php?p=17405669&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4#p17405669">Posted: Sun Oct 21, 2001 6:02 am</a>
+              </div>
+              <div class="post-actions">
+                
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="post-content">
+            <div class="post-content-inner">
+              
+              The spelling of the URL is perhaps incorrect or not recognized ? <BR>you wrote "http<B>s</B>://..." with an "s". Ordinarily it's "http://...". <BR>Sorry if you wrote it like that on purpose.
+
+              
+
+              
+              
+            </div>
+          </td>
+        </tr>
+        
+    </table>
+    
+  <table id="p17405666" class="post even read topic-poster" width="100%" cellpadding="0" cellspacing="0">
+      
+        <tr>
+          <td rowspan="2" class="post-author">
+            <div class="post-author-inner">
+              
+
+              <div class="post-author-name"><a href="./memberlist.php?mode=viewprofile&amp;u=6236&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">sorghumking</a></div>
+                <div class="post-author-title">
+                  
+                  Ars Scholae Palatinae
+                  
+	 
+                </div>
+              
+              <div class="post-author-tribus"></div>
+              <div class="post-author-registered">Registered: Jul 8, 2000</div><div class="post-author-postcount">Posts: 906</div>
+            </div>
+          </td>
+          <td class="post-date-actions">
+            <div class="post-date-actions-inner">
+              <div class="post-actions">
+                
+              </div>
+              <div class="post-date">
+                <a href="./viewtopic.php?p=17405666&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4#p17405666">Posted: Sun Oct 21, 2001 11:32 pm</a>
+              </div>
+              <div class="post-actions">
+                
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="post-content">
+            <div class="post-content-inner">
+              
+              Hehe.  That isn't an error, skylark, but don't apologize.  At least someone responded.  <IMG WIDTH="15" HEIGHT="15" SRC="/infopop/emoticons/icon_biggrin.gif" alt="big grin">
+
+              
+
+              
+              
+            </div>
+          </td>
+        </tr>
+        
+    </table>
+    
+  <table id="p17405668" class="post odd read" width="100%" cellpadding="0" cellspacing="0">
+      
+        <tr>
+          <td rowspan="2" class="post-author">
+            <div class="post-author-inner">
+              
+
+              <div class="post-author-name"><a href="./memberlist.php?mode=viewprofile&amp;u=7868&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">Sauron the Mad</a></div>
+                <div class="post-author-title">
+                  
+                  Ars Scholae Palatinae
+                  
+	 
+                </div>
+              
+              <div class="post-author-tribus"></div>
+              <div class="post-author-registered">Registered: Nov 29, 1999</div><div class="post-author-postcount">Posts: 1360</div>
+            </div>
+          </td>
+          <td class="post-date-actions">
+            <div class="post-date-actions-inner">
+              <div class="post-actions">
+                
+              </div>
+              <div class="post-date">
+                <a href="./viewtopic.php?p=17405668&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4#p17405668">Posted: Mon Oct 22, 2001 12:32 am</a>
+              </div>
+              <div class="post-actions">
+                
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="post-content">
+            <div class="post-content-inner">
+              
+              <BLOCKQUOTE><font size="-1">quote:</font><HR>so the lack of a call to Security.addProvider(...) shouldn't be the problem<HR></BLOCKQUOTE><P>Looks like it is though <IMG WIDTH="15" HEIGHT="15" SRC="/infopop/emoticons/icon_smile.gif" alt="smile"> Err, what's the policy file look like, and where did you store it?
+
+              
+
+              
+              
+            </div>
+          </td>
+        </tr>
+        
+    </table>
+    
+  <table id="p17405667" class="post even read topic-poster" width="100%" cellpadding="0" cellspacing="0">
+      
+        <tr>
+          <td rowspan="2" class="post-author">
+            <div class="post-author-inner">
+              
+
+              <div class="post-author-name"><a href="./memberlist.php?mode=viewprofile&amp;u=6236&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">sorghumking</a></div>
+                <div class="post-author-title">
+                  
+                  Ars Scholae Palatinae
+                  
+	 
+                </div>
+              
+              <div class="post-author-tribus"></div>
+              <div class="post-author-registered">Registered: Jul 8, 2000</div><div class="post-author-postcount">Posts: 906</div>
+            </div>
+          </td>
+          <td class="post-date-actions">
+            <div class="post-date-actions-inner">
+              <div class="post-actions">
+                
+              </div>
+              <div class="post-date">
+                <a href="./viewtopic.php?p=17405667&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4#p17405667">Posted: Mon Oct 22, 2001 1:35 pm</a>
+              </div>
+              <div class="post-actions">
+                
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="post-content">
+            <div class="post-content-inner">
+              
+              My java.policy file is below.  I haven't made any changes to it since installing the JDK (v1.3), though.<P><BLOCKQUOTE><font size="-1">code:</font><HR><pre><BR>// Standard extensions get all permissions by default<P>grant codeBase "file:${java.home}/lib/ext/*" {<BR>	permission java.security.AllPermission;<BR>};<P>// default permissions granted to all domains<P>grant { <BR>	// Allows any thread to stop itself using the java.lang.Thread.stop()<BR>	// method that takes no argument.<BR>	// Note that this permission is granted by default only to remain<BR>	// backwards compatible.<BR>	// It is strongly recommended that you either remove this permission<BR>	// from this policy file or further restrict it to code sources<BR>	// that you specify, because Thread.stop() is potentially unsafe.<BR>	// See "http://java.sun.com/notes" for more information.<BR>	permission java.lang.RuntimePermission "stopThread";<P>	// allows anyone to listen on un-privileged ports<BR>	permission java.net.SocketPermission "localhost:1024-", "listen";<P>	// "standard" properies that can be read by anyone<P>	permission java.util.PropertyPermission "java.version", "read";<BR>	permission java.util.PropertyPermission "java.vendor", "read";<BR>	permission java.util.PropertyPermission "java.vendor.url", "read";<BR>	permission java.util.PropertyPermission "java.class.version", "read";<BR>	permission java.util.PropertyPermission "os.name", "read";<BR>	permission java.util.PropertyPermission "os.version", "read";<BR>	permission java.util.PropertyPermission "os.arch", "read";<BR>	permission java.util.PropertyPermission "file.separator", "read";<BR>	permission java.util.PropertyPermission "path.separator", "read";<BR>	permission java.util.PropertyPermission "line.separator", "read";<P>	permission java.util.PropertyPermission "java.specification.version", "read";<BR>	permission java.util.PropertyPermission "java.specification.vendor", "read";<BR>	permission java.util.PropertyPermission "java.specification.name", "read";<P>	permission java.util.PropertyPermission "java.vm.specification.version", "read";<BR>	permission java.util.PropertyPermission "java.vm.specification.vendor", "read";<BR>	permission java.util.PropertyPermission "java.vm.specification.name", "read";<BR>	permission java.util.PropertyPermission "java.vm.version", "read";<BR>	permission java.util.PropertyPermission "java.vm.vendor", "read";<BR>	permission java.util.PropertyPermission "java.vm.name", "read";<BR>};<BR></pre><HR></BLOCKQUOTE><P>I did make changes to the java.security file, though, as described in the installation instructions for JSSE.  It looks like this (I removed a few of the longer comments for the sake of pseudo-brevity - hehe):<P><BLOCKQUOTE><font size="-1">code:</font><HR><pre><BR>#<BR># List of providers and their preference orders (see above):<BR>#<BR>security.provider.1=sun.security.provider.Sun<BR>security.provider.2=com.sun.net.ssl.internal.ssl.Provider<BR>security.provider.3=com.sun.rsajca.Provider<P><BR>#<BR># Class to instantiate as the system Policy. This is the name of the class<BR># that will be used as the Policy object.<BR>#<BR>policy.provider=sun.security.provider.PolicyFile<P># The default is to have a single system-wide policy file, <BR># and a policy file in the user's home directory.<BR>policy.url.1=file:${java.home}/lib/security/java.policy<BR>policy.url.2=file:${user.home}/.java.policy<P># whether or not we expand properties in the policy file<BR># if this is set to false, properties (${...}) will not be expanded in policy<BR># files.<BR>policy.expandProperties=true<P># whether or not we allow an extra policy to be passed on the command line<BR># with -Djava.security.policy=somefile. Comment out this line to disable<BR># this feature.<BR>policy.allowSystemProperty=true<P># whether or not we look into the IdentityScope for trusted Identities<BR># when encountering a 1.1 signed JAR file. If the identity is found<BR># and is trusted, we grant it AllPermission.<BR>policy.ignoreIdentityScope=false<P>#<BR># Default keystore type.<BR>#<BR>keystore.type=jks<P>#<BR># Class to instantiate as the system scope:<BR>#<BR>system.scope=sun.security.provider.IdentityDatabase<P>#<BR># List of comma-separated packages that start with or equal this string<BR># will cause a security exception to be thrown when<BR># passed to checkPackageAccess unless the<BR># corresponding RuntimePermission ("accessClassInPackage."+package) has<BR># been granted.<BR>package.access=sun.<P>#<BR># List of comma-separated packages that start with or equal this string<BR># will cause a security exception to be thrown when<BR># passed to checkPackageDefinition unless the<BR># corresponding RuntimePermission ("defineClassInPackage."+package) has<BR># been granted.<BR># <BR># by default, no packages are restricted for definition, and none of<BR># the class loaders supplied with the JDK call checkPackageDefinition.<BR>#<BR>#package.definition=<BR></pre><HR></BLOCKQUOTE><P>The exception being thrown ("MalformedURLException: unknown protocol: https") suggests to me that the problem has something to do with the protocol handler (theoretically being added in System.setProperty(...)).  At this point I might just break down and install JDK1.4 (currently in beta), which includes all of the JSSE crap.<P>Whaddya think, Sauron?
+
+              
+
+              
+              
+            </div>
+          </td>
+        </tr>
+        
+    </table>
+    
+  <table id="p17405671" class="post odd read topic-poster" width="100%" cellpadding="0" cellspacing="0">
+      
+        <tr>
+          <td rowspan="2" class="post-author">
+            <div class="post-author-inner">
+              
+
+              <div class="post-author-name"><a href="./memberlist.php?mode=viewprofile&amp;u=6236&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">sorghumking</a></div>
+                <div class="post-author-title">
+                  
+                  Ars Scholae Palatinae
+                  
+	 
+                </div>
+              
+              <div class="post-author-tribus"></div>
+              <div class="post-author-registered">Registered: Jul 8, 2000</div><div class="post-author-postcount">Posts: 906</div>
+            </div>
+          </td>
+          <td class="post-date-actions">
+            <div class="post-date-actions-inner">
+              <div class="post-actions">
+                
+              </div>
+              <div class="post-date">
+                <a href="./viewtopic.php?p=17405671&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4#p17405671">Posted: Mon Oct 22, 2001 2:44 pm</a>
+              </div>
+              <div class="post-actions">
+                
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="post-content">
+            <div class="post-content-inner">
+              
+              True to my word, I broke down and installed the JDK v1.4.  Works like a charm.
+
+              
+
+              
+              
+            </div>
+          </td>
+        </tr>
+        
+    </table>
+     
+</div>
+
+<div id="bottom-actionbar" class="actionbar">
+  <div class="subscribe-actions">
+    
+  </div>
+  
+    <div class="pager">
+      7 posts
+    </div>
+  
+</div>
+
+<div class="breadcrumb-jumpbox">
+  <div id="bottom-reply">
+    
+        <div class="reply-button"><a href="./posting.php?mode=reply&amp;f=20&amp;t=919008&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4"><img src="//cdn.arstechnica.net/civis/ars/imageset/en/button_topic_locked.png" alt="This topic is locked, you cannot edit posts or make further replies." title="This topic is locked, you cannot edit posts or make further replies." /></a></div>
+        
+    
+  </div>
+  <div class="breadcrumb"><a href="http://arstechnica.com/">Ars Technica</a> &gt; <a href="./index.php?sid=da6f0a23d0383b8f1f8aa1e51df328b4">Forums</a> &gt; <a href="./viewforum.php?f=13&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">Operating Systems &amp; Software</a> &gt; <a href="./viewforum.php?f=20&amp;sid=da6f0a23d0383b8f1f8aa1e51df328b4">Programmer's Symposium</a>
+</div>
+  <div class="jumpbox">
+    <form method="get" name="jumpbox" action="./viewforum.php?sid=da6f0a23d0383b8f1f8aa1e51df328b4" onsubmit="if($('.autosubmit', this).value == -1){return false;}">
+      <div>
+        <span class="jumptext">Jump to:</span>
+        <select class="autosubmit" name="f">
+          
+            <option value="-1">Select a forum</option>
+          <option value="-1">------------------</option>
+            <option value="5">Hardware  &amp; Tweaking</option>
+          
+            <option value="6">&nbsp; &nbsp;Audio/Visual Club</option>
+          
+            <option value="7">&nbsp; &nbsp;Case and Cooling Fetish</option>
+          
+            <option value="8">&nbsp; &nbsp;CPU &amp; Motherboard Technologia</option>
+          
+            <option value="9">&nbsp; &nbsp;Mobile Computing Outpost</option>
+          
+            <option value="10">&nbsp; &nbsp;Networking Matrix</option>
+          
+            <option value="11">&nbsp; &nbsp;Other Hardware</option>
+          
+            <option value="12">&nbsp; &nbsp;Agora Classifieds</option>
+          
+            <option value="13">Operating Systems &amp; Software</option>
+          
+            <option value="14">&nbsp; &nbsp;Battlefront</option>
+          
+            <option value="15">&nbsp; &nbsp;Microsoft OS &amp; Software Colloquium</option>
+          
+            <option value="16">&nbsp; &nbsp;Linux Kung Fu</option>
+          
+            <option value="17">&nbsp; &nbsp;Windows Technical Mojo</option>
+          
+            <option value="18">&nbsp; &nbsp;Distributed Computing Arcana</option>
+          
+            <option value="19">&nbsp; &nbsp;Macintoshian Achaia</option>
+          
+            <option value="20" selected="selected">&nbsp; &nbsp;Programmer's Symposium</option>
+          
+            <option value="21">&nbsp; &nbsp;The Server Room</option>
+          
+            <option value="1">Ars Lykaion</option>
+          
+            <option value="22">&nbsp; &nbsp;Gaming, Extra Strength Caplets</option>
+          
+            <option value="23">&nbsp; &nbsp;The Lounge</option>
+          
+            <option value="24">&nbsp; &nbsp;The Soap Box</option>
+          
+            <option value="25">&nbsp; &nbsp;The Boardroom</option>
+          
+            <option value="26">&nbsp; &nbsp;The Observatory</option>
+          
+            <option value="3">&nbsp; &nbsp;Ars Help &amp; Feedback</option>
+          
+            <option value="30">Ars Subscription Member Areas</option>
+          
+            <option value="38">&nbsp; &nbsp;Image Galleries</option>
+          
+        </select>
+        <input type="submit" value="Go" class="downlevel" />
+      </div>
+    </form>
+  </div>
+
+</div>
+
+</div>
+      <div id="page-footer">
+        
+        <div id="footer">
+          <p><a href="/contact-us/">Contact Us</a> | <a href="http://arstechnica.com/">Ars Technica</a></p>
+<p><strong>&copy; Ars Technica 1998-2013</strong></p>
+<p>Powered by <a href="http://www.phpbb.com/">phpBB</a> and...</p>
+<p><a href="http://www.servercentral.com/" title="SC is awesome!"><img src="//cdn.arstechnica.net/forums/forum-powered.png" alt="Ars OpenForum powered by Server Central" /></a></p>
+<p class="notice">&copy; 2013 Cond&eacute; Nast. All rights reserved<br/>
+  Use of this Site constitutes acceptance of our <a href="http://www.condenast.com/privacy-policy" target="_blank">User Agreement</a> (effective 3/21/12) and <a href="http://www.condenast.com/privacy-policy#privacypolicy" target="_blank">Privacy Policy</a> (effective 3/21/12), and <a href="/amendment-to-conde-nast-user-agreement-privacy-policy/">Ars Technica Addendum (effective 5/17/2012)</a><br>
+  <a href="http://www.condenast.com/privacy-policy#privacypolicy-california" target="_blank">Your California Privacy Rights</a><br/>
+  The material on this site may not be reproduced, distributed, transmitted, cached or otherwise used, except with the prior written permission of Cond&eacute; Nast.<br/>
+  <a href="http://www.condenast.com/privacy-policy#privacypolicy-optout" target="_blank">Ad Choices</a><img width="10" height="10" border="0" src="//cdn.arstechnica.net/public/v6/styles/light/images/footer/ad_choices_arrow.png">
+</p>
+        </div>
+      </div>
+    </div>
+  <script src="//cdn.arstechnica.net/civis/ars/theme/scripts/forums.js?v=35"></script>
+  <script src="https://www.google.com/jsapi"></script>
+  <script>
+    google.load("jquery", "1");
+    google.setOnLoadCallback(function() {
+      if(ars !== undefined){
+        ars.init();//Tadow!
+      }
+      if(phpbb !== undefined) {
+        p = new phpbb();
+        p.init();
+      }
+    });
+  </script>
+
+  
+
+  <noscript>
+    <style type="text/css">.downlevel{ display: auto; }</style>
+  </noscript><!-- Begin comScore Tag --> 
+  <script type="text/javascript"> 
+  // do it on window.load because this shit is so unreliable it holds up page load regularly
+  $(window).on("load", function(){
+    var cs_url = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js?c1=2&c2=6035094&c3=&c4=&c5=&c6=&c15=";
+    $.getScript(cs_url, function(){ return });
+  });
+  </script> 
+  <noscript> 
+  <img src="http://b.scorecardresearch.com/b?c1=2&c2=6035094&c3=&c4=&c5=&c6=&c15=&cv=1.3&cj=1" style="display:none"
+  width="1" height="1" alt="" /> 
+  </noscript> 
+  <!-- End comScore Tag --><!-- Omniture start -->
+  <script type="text/javascript" src="http://cdn.arstechnica.net/wp-content/themes/arstechnica/assets/js/omniture/loader.js"></script>
+  <script type="text/javascript" src="http://cdn.arstechnica.net/wp-content/themes/arstechnica/assets/js/omniture/initialize.js"></script>
+  <script type="text/javascript"> if(navigator.appVersion.indexOf('MSIE')>=0)document.write(unescape('%3C')+'\!-'+'-')</script>
+  <noscript><a href="http://www.omniture.com" title="Web Analytics"><img src="http://condenast.112.2o7.net/b/ss/condenet-dev/1/H.15.1--NS/0" height="1" width="1" border="0" alt="" /></a></noscript>
+  <!-- Omniture end -->
+  </body>
+</html>

@@ -1,0 +1,42 @@
+public interface InterfaceA {
+    void display() throws SQLException;
+}
+ 
+public class ClassA implements InterfaceA {
+ 
+    @Override
+    public void display() throws SQLException {
+        throw new SQLException();
+    }
+}
+ 
+public class ProxyHandler implements InvocationHandler {
+ 
+    private InterfaceA delegate;
+ 
+    public ProxyHandler(InterfaceA delegate) {
+        this.delegate = delegate;
+    }
+ 
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        System.out.println("Inside the invocation handler");
+        return method.invoke(delegate, args);
+    }
+}
+ 
+public class ProxyApp {
+    public static void main(String[] args) {
+        createAndTestProxy();
+    }
+ 
+    private static void createAndTestProxy() {
+        InterfaceA interfaceA = (InterfaceA) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                                                    new Class[]{InterfaceA.class}, new ProxyHandler(new ClassA()));
+        try {
+            interfaceA.display();
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Something bad happened", e);
+        }
+    }
+}

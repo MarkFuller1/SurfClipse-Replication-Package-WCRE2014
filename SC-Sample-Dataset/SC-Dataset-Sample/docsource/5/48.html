@@ -1,0 +1,1748 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+			<html>
+				<head>
+					<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+					<link rel="stylesheet" href="/nabble.pack.css?v=27" type="text/css" />
+	<link rel="stylesheet" href="/template/NamlServlet.jtp?macro=site_style" type="text/css" />
+					<script src="/util/jquery-1.7.2.pack.js" type="text/javascript"></script>
+	<script src="/util/nabbledropdown-2.4.1.pack.js" type="text/javascript"></script>
+	<script src="/template/NamlServlet.jtp?macro=javascript_library&amp;v=60" type="text/javascript"></script>
+					<script type="text/javascript">
+		var terms = Nabble.getSearchTerms();
+		var hasTurnOff = false;
+		Nabble.searchHighlight = function($elem) {
+			if (terms != null && terms.length > 0) {
+				$elem.each(function() {
+					Nabble.highlightSearchTerms(terms, this);
+				});
+				if (Nabble.hasHighlightedTerms && !hasTurnOff) {
+					var turnOffLink = '<span id="turn-off-highlight-control"><span class="highlight">&nbsp;X&nbsp;</span> ';
+					turnOffLink += '<a href="javascript:void(0)" onclick="Nabble.turnOffHighlight()">Turn off highlighting</a></span>';
+					$('#topics-controls-right').prepend(turnOffLink);
+					hasTurnOff = true;
+				}
+			}
+		};
+		Nabble.turnOffHighlight = function() {
+			Nabble.deleteCookie("query");
+			Nabble.deleteCookie("searchuser");
+			Nabble.deleteCookie("searchterms");
+			$('span.search-highlight').removeClass('bold highlight');
+			$('#turn-off-highlight-control').hide();
+		};
+	</script>
+	<script type="text/javascript">
+		Nabble.messageTextWidth();
+	</script>
+			<script type="text/javascript"> $(document).ready(function() { Nabble.searchHighlight($('h2.post-subject,div.message-text')); }); </script> <script type="text/javascript"> var _hash = Nabble.hash(); if (_hash) { (function(){ var post = _hash.substr(2); var allPosts = [4898141, 4898164, 4898370, 4901097, 4901153, 4901491, 4901437, 4901732]; var allURLs = ["/java-lang-OutOfMemoryError-Java-heap-space-td4898141.html"]; var iPost = allPosts.indexOf(parseInt(post)); var lower = 0; var upper = lower + 20; if (iPost != -1 && (iPost < lower || iPost >= upper)) location.replace(allURLs[Math.floor(iPost/20)]+_hash); })(); } $(document).ready(function() { var rootId = '4898141'; var currentPostId = rootId; var isChangingViews = _hash == '#none'; if (_hash && !isChangingViews) currentPostId = _hash.substr(2); Nabble.hideQuotes(); function scrollToSelectedPost() { var $arrow = $('#red-arrow'+currentPostId).show(); if ($arrow.size() > 0) { var isRootPost = currentPostId == rootId; if (Nabble.isEmbedded) { if (Nabble.canScroll()) scrollTo(0, 0); var y = isChangingViews? null : isRootPost? 1 : $arrow.parents('div.classic-row').offset().top; Nabble.resizeFrames('', y); } else if (Nabble.canScroll() && !isRootPost) { var yPos = $arrow.offset().top; scrollTo(0,yPos-20); } } else { if (Nabble.isEmbedded && Nabble.canScroll()) { Nabble.resizeFrames('', 1); } else { var tb = $('div.top-bar').get(0); if (tb) tb.scrollIntoView(); } } }; $(window).load(scrollToSelectedPost); if (Nabble.isEmbedded) { $('div.message-text img').load(Nabble.resizeFrames); } }); </script> <style type="text/css"> div.classic-header { height:2.2em; clear:both; overflow:hidden; } div.classic-author-name { float:left; width: 140px; overflow: hidden; text-align:center; font-weight:bold; } div.classic-subject-line { left:.5em; overflow:hidden; height:1.3em; position:relative; } div.classic-right-menu { float:right; padding-left:1em; } div.classic-bar { padding:.5em .3em; clear:both; height:1.8em; } table.classic-body { border-collapse:collapse; margin-bottom:1em; table-layout: fixed; width:100%; } td.classic-author { vertical-align: top; text-align:center; width:140px; padding-bottom:1em; } td.classic-message { vertical-align:top; padding:1em; } div.message-text { cursor:text; overflow-x:auto; } div.avatar-inner { margin-left:20px; } div.avatar-outer { width:140px; text-align:left; } div.avatar-label { white-space:nowrap; font-size:80%; } </style>
+
+	<title>SonarQube Users - java.lang.OutOfMemoryError: Java heap space</title>
+			<META NAME="description" CONTENT="java.lang.OutOfMemoryError: Java heap space. Hi All, i tried to analyse a java project(bigger one) which has three src directories on sonar 2.13 using sonar-runner. i am getting the following..."/>
+			<META NAME="keywords" CONTENT="java, lang, outofmemoryerror, heap, space, all, tried, analyse, project, bigger, one, which, has, three, src, directories, sonar, 2, 13, using, sonar-runner, getting, following, error, sonarqube, users"/>
+			<style type="text/css">
+			#search-box-dropdown {
+				text-align:left;
+				position:absolute;
+				display:none;
+				z-index:1000;
+				overflow:hidden;
+			}
+		</style>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var $sdd = $('#search-box-dropdown');
+				var $sb = $('#search-input');
+				var $form = $sb.parent();
+				var timeout;
+				$(document).click(function(o){
+					var $target = $(o.target);
+					if ($target.parents().hasClass('search-box-dropdown')) {
+						clearTimeout(timeout);
+						$sb.focus();
+					}
+				});
+				$sb.focusin(function(e) {
+					$sdd.css('left', $sb.position().left - 5);
+					$sdd.width($sb.outerWidth() + 10);
+					$sdd.show();
+				});
+				$sb.focusout(function() {
+					timeout = setTimeout(function() {
+						$sdd.hide();
+					},250);
+				});
+				$('input[type=radio]', $sdd).change(function() {
+					var nodeId = $(this).val();
+					$('input[name="node"]', $form).val(nodeId);
+				});
+				$('input[name="node"]', $form).val(4523400);
+			});
+		</script><script type="text/javascript">
+			Nabble.setView = function(view,url,post) {
+				Nabble.setVar("tview",view);
+				url += Nabble.getClientID(';');
+				if (url.indexOf('#') == -1)
+					url += '#none';
+				location.replace(url);
+			};
+		</script><style type="text/css"> div.nabble-tooltip, div.nabble-tooltip * { color: #EEE; font-weight:bold; } div.nabble-tooltip { background: #000; font-size:90%; line-height:normal; display: none; position: absolute; z-index: 88888; padding: .5em; border: 1px solid #FFF; white-space:normal; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; } div.nabble-tooltip-small-row, div.nabble-tooltip-small-row * { color:#D0EAF2; } div.nabble-tooltip-small-row { font-size:80%; font-weight:normal; padding-top: .4em; } div.nabble-tooltip-arrow { font: 40px Arial, Sans-serif; line-height:1em; left:15px; position:absolute; bottom:-15px; height:15px; width:30px; overflow:hidden; } div.nabble-tooltip-arrow div { position:absolute; } div.nabble-tooltip-arrow div.d1 { top:-22px; color: #FFF; } div.nabble-tooltip-arrow div.d2 { top:-25px; color: #000; } </style> <script type="text/javascript"> Nabble.startTooltip = function(e, position, delay) { if (e.nabbletooltip) return; e.nabbletooltip = true; var $this = $(e); var $arrow = $this.children().last(); var $elem = $this.prev(); $elem.hover( function() { setTip(); setTimer(); }, function() { stopTimer(); $this.hide(); } ); function setTimer() { $this.showTipTimer = setTimeout(function() { $('div.nabble-tooltip').hide(); stopTimer(); $this.fadeTo('fast', .8); }, delay); }; function stopTimer() { clearInterval($this.showTipTimer); }; function setTip(){ if ($this.parent().get() != document.body) $(document.body).append($this); var useTitle = $this.attr('use_title') == 'true'; if (useTitle) { var title = $elem.attr('title'); if (title != '') { $arrow.remove(); $this.html(title); $elem.attr('title',''); $this.append($arrow); } } var win = $(window).width(); if (position == 'up') { var w = $this.outerWidth(); if (w > 250) { w = 250; $this.width(w); } var xMid = $elem.offset().left + $elem.outerWidth()/2; var xTip = xMid - w/2; if (xTip+w > win-5) xTip = win-w-5; if (xTip < 0) xTip = 0; var xArrow = xMid-xTip-11; var yTip = $elem.offset().top-$this.outerHeight()-12; $arrow.css('left', xArrow); $this.css({'top' : yTip, 'left' : xTip}); } else if (position == 'right') { var h = $this.outerHeight(); var yMid = $elem.offset().top + $elem.outerHeight()/2; var yTip = yMid - h/2; var xTip = $elem.offset().left + $elem.outerWidth() + 10; $arrow.width(8).height(24).css({bottom:0,left:-8}); var yArrow = (h - 24)/2; $arrow.css({top:yArrow}); var $d1 = $arrow.children().first(); var $d2 = $arrow.children().last(); $d1.css({top:-11}); $d2.css({top:-11,left:1}); $this.css({'top' : yTip, 'left' : xTip}); } }; }; </script><script type="text/javascript">
+			Nabble.pinTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=pin_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#pin-icon').show();
+					NabbleDropdown.show('unpinTopic');
+					NabbleDropdown.hide('pinTopic');
+					alert('This topic has been pinned.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.unpinTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=unpin_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#pin-icon').hide();
+					NabbleDropdown.hide('unpinTopic');
+					NabbleDropdown.show('pinTopic');
+					alert('This topic has been unpinned.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.lockTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=lock_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#lock-icon').show();
+					NabbleDropdown.show('unlockTopic');
+					NabbleDropdown.hide('lockTopic');
+					alert('This topic has been locked.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.unlockTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=unlock_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#lock-icon').hide();
+					NabbleDropdown.hide('unlockTopic');
+					NabbleDropdown.show('lockTopic');
+					alert('This topic has been unlocked.');
+				});
+			};
+		</script><script type="text/javascript">
+		var starredImg = new Image();
+		starredImg.src = "/images/icon_starred.png";
+		var unstarredImg = new Image();
+		unstarredImg.src = "/images/icon_unstarred.png";
+		var star = '<img src="/images/icon_starred.png" class="star" alt="star"/>';
+
+		function starInit(isStarred, c, id) {
+			$('#star'+c+id)
+				.css('cursor','pointer')
+				.click(function(){
+					starToggle(c,id);
+				});
+
+			starShow(isStarred,c,id);
+		};
+
+		function starShow(isStarred,c,id) {
+			var $img = $('#img-star'+c+id);
+			if (isStarred)
+				$img.attr('src', starredImg.src).attr('title', "Favorite (click to remove this item from your favorites list)");
+			else
+				$img.attr('src', unstarredImg.src).attr('title', "Add this item to your favorites list");
+			updateReadonlyStars(isStarred, id);
+		};
+
+		function updateReadonlyStars(isStarred, id) {
+			var $stars = $('#starC'+id+',#starD'+id);
+			$stars.html(isStarred? star : '');
+		};
+
+		function starToggle(c,id) {
+			if (!Nabble.userId) {
+				if( confirm("You must log in to star this item.\nWould you like to login now?") ) {
+					parent.location = "/template/NamlServlet.jtp?macro=login_page&nextUrl="+encodeURIComponent(parent.location) + Nabble.getClientID();
+				}
+				return;
+			}
+			var $img = $('#img-star'+c+id);
+			var isStarred = $img.attr('src') == starredImg.src;
+			isStarred = !isStarred;
+			var descendants = c == 'A';
+			var path = "/template/NamlServlet.jtp?node=" + id;
+			if( descendants && !isStarred )
+				path += "&macro=clear_descendant_stars";
+			else
+				path += "&macro=set_star&star=" + isStarred;
+			$.getScript(path + Nabble.getClientID(), function() {
+				starShow(isStarred,c,id);
+			});
+		};
+	</script><script type="text/javascript" src="http://www.adbayes.com/LoadUnit.jtp?c=1"></script>
+			<script type="text/javascript">
+				Nabble.adbayes();
+			</script><script type="text/javascript">
+			Nabble.nViews = function(id, views) {
+				var $v = $('#v'+id);
+				var pos = views=='1'?0:1;
+				var t = $v.html()? $v.html().split('|')[pos]:'';
+				$v.html(t == ''? views : t.replace(/%1/g,views)).show();
+			};
+		</script><style type="text/css">
+			img.report-flag {
+				vertical-align:middle;
+				cursor: pointer;
+			}
+			#report-inappropriate-content {
+				position: fixed;
+				z-index:9999;
+				display:none;
+				padding:1.5em;
+				left:8%;
+				right:8%;
+				top:8%;
+				background-color:#555;
+			}
+			#report-inappropriate-content-inner { padding:.5em; }
+			#report-inappropriate-content-inner div.big {
+				height:5em;
+				padding-top:2em;
+				text-align:center;
+				font-size:250%;
+			}
+			#report-inappropriate-content-inner div.big2 { font-size:70%; }
+			div.inappropriate-option { margin:.5em 0; }
+		</style>
+		<script type="text/javascript">
+			var reportNodeId = null;
+			Nabble.reportContent = function(nodeId) {
+				reportNodeId = nodeId;
+				$('#report-inappropriate-content').show();
+				var url = '/template/NamlServlet.jtp?macro=report_inappropriate_content_form';
+				$.get(url, function(data) {
+					$('#report-inappropriate-content-inner').html(data);
+				});
+			}
+			Nabble.closeReport = function() {
+				$('#report-inappropriate-content').hide();
+			}
+			Nabble.sendReport = function() {
+				$('#send-report-button').attr('disabled','true').addClass('toolbar-disabled');
+				var type = $('input[name=report_type]:checked').val();
+				var url = '/template/NamlServlet.jtp?macro=report_inappropriate_content_submit&node='+reportNodeId+'&type='+type+Nabble.getClientID();
+				$.get(url, function(data) {
+					var h = 'Thank You';
+					h += '<div class="weak-color big2">We will review your report soon.</div>';
+					h += '<a href="javascript: void Nabble.closeReport()">Close</a>';
+					$('#report-inappropriate-content-inner').html('<div class="big">'+h+'</div>');
+				});
+			}
+		</script>
+					<script type="text/javascript">
+		Nabble.setFontSize();
+		
+	</script>
+	<script type="text/javascript">
+		if (Nabble.analytics) Nabble.analytics();
+	</script>
+	<!-- Start Quantcast tag -->
+	<script type="text/javascript">
+		_qoptions={ qacct:"p-34EL1DZyJypTI" };
+	</script>
+	<script type="text/javascript" src="http://edge.quantserve.com/quant.js"></script>
+	<noscript>
+		<a href="http://www.quantcast.com/p-34EL1DZyJypTI" target="_blank" rel="nofollow">
+			<img src="http://pixel.quantserve.com/pixel/p-34EL1DZyJypTI.gif" style="display: none;" border="0" height="1" width="1" alt="Quantcast"/>
+		</a>
+	</noscript>
+	<!-- End Quantcast tag -->
+	<!-- Start Google Analytics -->
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['nabble._setAccount', 'UA-91855-9']);
+		_gaq.push(['nabble._trackPageview']);
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+	<!-- End Google Analytics -->
+	<script type="text/javascript">
+		var site_admins = [165996, 167681, 243273];
+	</script>
+	<script type="text/javascript">
+		var isSafe = true;
+		var Ads = Ads || {};
+		Ads.text = {
+			daysLeft: 'Trial period ends in $1 day(s)',
+			removeAds: 'Remove Ads',
+			buyCredits: 'Buy credits'
+		};
+		$(document).ready(function() {
+			if (Nabble.wasCreatedRecently && Nabble.currentCredits == 0) {
+				var s = '<div class="weak-color" style="text-align:center;margin:1em;font-size:80%">';
+				s += Ads.text.daysLeft.replace(/\$1/,daysLeft)+' &ndash; ';
+				s += '<a href="'+Nabble.buyCreditsPath+'">'+(Nabble.isSafe?Ads.text.removeAds:Ads.text.buyCredits)+'</a>';
+				s += '</div>';
+				var isAdmin = Nabble.userId && site_admins.indexOf(Number(Nabble.userId)) >= 0;
+				if (!isSafe || isAdmin)
+					$('div.nabble').append(s);
+			}
+		});
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			if (Nabble.userId && site_admins.indexOf(Number(Nabble.userId)) >= 0)
+				$('div.no-ads-message').show();
+		});
+	</script>
+				</head>
+				<body>
+					<div id="notice" class="notice rounded-bottom"></div>
+					<div class="nabble macro_classic_forum_topic" id="nabble">
+						
+			
+			<div class="top-bar">
+		<div class="breadcrumbs" style="float:left">
+			<span id="breadcrumbs" class="weak-color">
+		<a href="http://sonarqube.15.x6.nabble.com/">SonarQube</a>
+						<span> &rsaquo; </span>
+				<a href="http://sonarqube.15.x6.nabble.com/SonarQube-Users-f3159782.html">SonarQube Users</a>
+	</span>
+		</div>
+		<div style="text-align:right;">
+			<span style="white-space:nowrap;" id="nabble-user-header"></span>
+	<script type="text/javascript">Nabble.userHeader();</script>
+		</div>
+	</div>
+			
+			<div id="nabble-newsflash" class="info-message" style="display:none;padding:.5em;margin-bottom:.5em"></div>
+	
+			<div id="topic-search-box" class="search-box float-right" style="padding:.5em 0">
+		<form action="/template/NamlServlet.jtp">
+		<input type="hidden" name="macro" value="search_page" />
+		<input type="hidden" name="node" value="4898141" />
+		
+		
+		
+		
+		<input id="search-input" name="query" size="18" class="medium-border-color"/>
+		<div id="search-box-dropdown" class="search-box-dropdown light-bg-color drop-shadow border1 medium-border-color rounded-bottom">
+		<div style="margin:.5em .5em 0 .5em">
+					<b>Search</b><br/>
+					<input id="search-root-node" type="radio" name="n" value="4523400" checked="true"/>
+					<label for="search-root-node">everywhere</label><br/>
+
+					<input id="search-this-node" type="radio" name="n" value="4898141"/>
+					<label for="search-this-node">
+						only in this topic
+					</label>
+				</div>
+		<div style="margin:.5em;line-height:2em">
+			<input class="toolbar action-button float-right" type="submit" value="Search"/>
+			<a href="/template/NamlServlet.jtp?macro=adv_search_page&amp;node=4898141" rel="nofollow" style="font-size:80%">Advanced Search</a>
+		</div>
+	</div>
+	</form>
+	</div>
+
+	<h1 id="post-title" class="adbayes-content" style="margin:0.25em 0 .8em">
+		java.lang.OutOfMemoryError: Java heap space
+	</h1>
+			<div style="margin:1.2em 0 5em">
+		<div id="topics-controls-left" class="float-left nowrap">
+			<table>
+		<tr>
+			<td style="padding-right:.1em">
+		<img src="/images/view-classic.gif" width="18" height="18" style="border:none" alt="classic"/>
+	</td>
+
+	<td style="padding-right:1.1em">
+		Classic
+	</td>
+
+			<td style="padding-right:.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('list', '/java-lang-OutOfMemoryError-Java-heap-space-tc4898141.html',null)"><img src="/images/view-list.gif" width="18" height="18" style="border:none" alt="list"/></a>
+	</td>
+
+	<td style="padding-right:1.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('list', '/java-lang-OutOfMemoryError-Java-heap-space-tc4898141.html',null)">List</a>
+	</td>
+
+			<td style="padding-right:.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html',null)"><img src="/images/view-threaded.gif" width="18" height="18" style="border:none" alt="threaded"/></a>
+	</td>
+
+	<td style="padding-right:1.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html',null)">Threaded</a>
+	</td>
+		</tr>
+	</table>
+		</div>
+		<div id="topics-controls-right" class="float-right nowrap" style="padding-top:.3em">
+			<span style="padding-right:1em;height:21px">
+		<img id="pin-icon" src="/images/pin.png" width="20" height="21" title="This topic has been pinned in SonarQube Users." style="vertical-align:middle;display:none;"/>
+		<div id="tooltip44228" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip44228'), 'up', 400);
+	</script>
+	</span>
+	<span id="lock-icon" class="weak-color" style="padding:0 .5em;margin-right:.5em;display:none;">
+		<img src="/images/lock_sm.png" width="10" height="15" style="vertical-align:middle"/> Locked
+	</span>
+	<span style="padding-right:1em">
+		8 messages
+	</span>
+	<img src="/images/gear.png" class="image16" alt="Options"/>
+	<span id="dd_topicdropdown"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("topicdropdown", "Options","Click for more options");
+		
+		dropdown.add('topicSubscriptionLink', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dsubscribe&amp;node\x3D4898141\" rel\x3D\"nofollow\"\x3ESubscribe via email\x3C/a\x3E');
+		dropdown.addSeparator();
+		dropdown.add('moveTopic', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4898141\" rel\x3D\"nofollow\"\x3EMove topic\x3C/a\x3E', 'display:none');
+		dropdown.add('pinTopic', '\x3Ca href\x3D\"javascript: void Nabble.pinTopic(4898141)\" rel\x3D\"nofollow\"\x3EPin topic\x3C/a\x3E', 'display:none');
+		dropdown.add('unpinTopic', '\x3Ca href\x3D\"javascript: void Nabble.unpinTopic(4898141)\" rel\x3D\"nofollow\"\x3EUnpin topic\x3C/a\x3E', 'display:none');
+		dropdown.add('lockTopic', '\x3Ca href\x3D\"javascript: void Nabble.lockTopic(4898141)\" rel\x3D\"nofollow\"\x3ELock topic\x3C/a\x3E', 'display:none');
+		dropdown.add('unlockTopic', '\x3Ca href\x3D\"javascript: void Nabble.unlockTopic(4898141)\" rel\x3D\"nofollow\"\x3EUnlock topic\x3C/a\x3E', 'display:none');
+		dropdown.add('deleteRecursively', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4898141)\" rel\x3D\"nofollow\"\x3EDelete this topic\x3C/a\x3E', 'display:none');
+			dropdown.add('deletePost', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4898141)\" rel\x3D\"nofollow\"\x3EDelete this topic\x3C/a\x3E', 'display:none');
+		dropdown.add('changeMetaTags', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_title_and_meta_tags&amp;node\x3D4898141\" rel\x3D\"nofollow\"\x3EChange title and meta tags\x3C/a\x3E', 'display:none');
+		dropdown.add('embedPost4898141', '\x3Ca href\x3D\"/embed/EmbedOptions.jtp?node\x3D4898141\" rel\x3D\"nofollow\"\x3EEmbed post\x3C/a\x3E');
+		dropdown.add('permalink4898141', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.build('dd_topicdropdown');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=topic_dropdown_later&node=4898141' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+		</div>
+	</div>
+			<div id="topic-contents" style="margin-top:1em;clear:both">
+		<div id="classic-contents">
+		
+		<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=243856">fayaz ahamed</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4898141" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html',4898141)">Threaded</a>
+	<div id="tooltip44085" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip44085'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4898141"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4898141", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4898141', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4898141\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4898141', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4898141\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4898141', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4898141\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4898141', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4898141)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4898141', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4898141)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4898141', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4898141\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4898141', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4898141\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4898141', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4898141', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4898141\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown4898141');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4898141' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4898141)"/>
+	<div id="tooltip45441" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip45441'), 'up', 400);
+	</script>
+					<span id="starB4898141">
+		<img id="img-starB4898141" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip59117" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip59117'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4898141" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1334841704874-180"></span><script type="text/javascript">
+		Nabble.get('d1334841704874-180').innerHTML= Nabble.formatDateLong(new Date(1334841704874));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		java.lang.OutOfMemoryError: Java heap space
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=243856" rel="nofollow" title="View profile of fayaz ahamed" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/e5bf3f47a48cdb6b7c57951c34a1e76b?s=100&amp;r=pg&amp;d=http%3A%2F%2Fx6.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="fayaz ahamed" title="fayaz ahamed"/><img src="/images/online.png" class="online243856 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count243856 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message4898141" class="message-text adbayes-content">
+		Hi All,
+<br/><br/>i tried to analyse a java project(bigger one) which has three src directories on sonar 2.13 using sonar-runner.
+<br/>i am getting the following error:
+<br/><br/><b>java.lang.OutOfMemoryError: Java heap space</b><br/><br/><br/>I increased the memory, <b>SONAR_RUNNER_OPTS=&quot;-Xmx512m -XX:MaxPermSize=512m&quot;</b><br/>Again the same error.
+<br/>How to get rid of this error?..Help me..
+<br/><br/><br/>Thanks and Regards,
+<br/>Fayaz ahamed.
+<br/>
+
+	
+	
+	
+	</div>
+	<script type="text/javascript">
+				Nabble.ads('first_classic_message');
+			</script>
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=355453">00se</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4898164" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html#a4898164',4898164)">Threaded</a>
+	<div id="tooltip55768" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip55768'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4898164"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4898164", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4898164', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4898164\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4898164', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4898164\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4898164', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4898164\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4898164', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4898164)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4898164', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4898164)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4898164', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4898164\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4898164', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4898164\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4898164', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4898164.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4898164', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4898164\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown4898164');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4898164' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4898164)"/>
+	<div id="tooltip72940" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip72940'), 'up', 400);
+	</script>
+					<span id="starB4898164">
+		<img id="img-starB4898164" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip15500" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip15500'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4898164" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1334842237747-406"></span><script type="text/javascript">
+		Nabble.get('d1334842237747-406').innerHTML= Nabble.formatDateLong(new Date(1334842237747));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: java.lang.OutOfMemoryError: Java heap space
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=355453" rel="nofollow" title="View profile of 00se" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/fd205788e72b4fa0794bb100ee1e49bd?s=100&amp;r=pg&amp;d=http%3A%2F%2Fx6.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="00se" title="00se"/><img src="/images/online.png" class="online355453 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count355453 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message4898164" class="message-text adbayes-content">
+		Hello Fayaz,
+<br/><br/>Very recently I had the same problems, what worked for me was this:
+<br/><br/>Assuming you are running a Tomcat 6 instance;
+<br/><a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/" target="_top" rel="nofollow" link="external">http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/</a><br/><br/>I set the PermSpace to 512m..
+<br/>tomcat6 //US//Tomcat6 --JvmMx 1024 ++JvmOptions=&quot;-XX:MaxPermSize=512m
+<br/><br/>Let me know if this worked for you.
+<br/><br/><br/>Best regards,
+<br/><br/><br/>Ed
+<br/><br/>
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=165990">Freddy Mallet</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4898370" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html#a4898370',4898370)">Threaded</a>
+	<div id="tooltip28649" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip28649'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4898370"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4898370", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4898370', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4898370\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4898370', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4898370\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4898370', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4898370\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4898370', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4898370)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4898370', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4898370)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4898370', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4898370\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4898370', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4898370\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4898370', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4898370.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4898370', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4898370\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown4898370');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4898370' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4898370)"/>
+	<div id="tooltip42712" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip42712'), 'up', 400);
+	</script>
+					<span id="starB4898370">
+		<img id="img-starB4898370" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip67164" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip67164'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4898370" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1334845632000-392"></span><script type="text/javascript">
+		Nabble.get('d1334845632000-392').innerHTML= Nabble.formatDateLong(new Date(1334845632000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: java.lang.OutOfMemoryError: Java heap space
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=165990" rel="nofollow" title="View profile of Freddy Mallet" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/ccdf369fbc261bf6bdd57230b4bd9066?s=100&amp;r=pg&amp;d=http%3A%2F%2Fx6.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="Freddy Mallet" title="Freddy Mallet"/><img src="/images/online.png" class="online165990 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count165990 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	<div class="weak-color" style="font-size:80%;padding-bottom:1em">
+				In reply to <a href="http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141.html" rel="nofollow">this post</a> by fayaz ahamed
+			</div>
+	<div id="message4898370" class="message-text adbayes-content">
+		Hi Fayaz,<div><br></div><div>Could you send the Sonar error log to check that the property SONAR_RUNNER_OPTS is correctly taken into account ?</div><div><br></div><div>Thanks</div><div>Freddy<br clear="all"><div><span style="font-family:arial,sans-serif;font-size:13px;background-color:rgb(255,255,255)">-----</span></div>
+<div><a href="https://twitter.com/FreddyMallet" style="font-family:arial,sans-serif;background-color:rgb(255,255,255)" target="_blank" rel="nofollow" link="external">twitter.com/FreddyMallet</a></div><div><span style="background-color:rgb(255,255,255)">Sonar for Continuous Inspection</span></div>
+<br>
+<br><br><div class="gmail_quote">On Thu, Apr 19, 2012 at 3:21 PM, fayaz ahamed <span dir="ltr">&lt;<a href="/user/SendEmail.jtp?type=node&node=4898370&i=0" target="_top" rel="nofollow" link="external">[hidden email]</a>&gt;</span> wrote:<br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+Hi All,<br>
+<br>
+i tried to analyse a java project(bigger one) which has three src<br>
+directories on sonar 2.13 using sonar-runner.<br>
+i am getting the following error:<br>
+<br>
+*java.lang.OutOfMemoryError: Java heap space*<br>
+<br>
+<br>
+I increased the memory, *SONAR_RUNNER_OPTS=&quot;-Xmx512m -XX:MaxPermSize=512m&quot;*<br>
+Again the same error.<br>
+How to get rid of this error?..Help me..<br>
+<br>
+<br>
+Thanks and Regards,<br>
+Fayaz ahamed.<br>
+<br>
+<br>
+--<br>
+View this message in context: <a href="http://sonar.15.n6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4898141.html" target="_blank" rel="nofollow" link="external">http://sonar.15.n6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4898141.html</a><br>
+
+Sent from the Sonar user mailing list archive at Nabble.com.<br>
+<br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br>
+<br>
+    <a href="http://xircles.codehaus.org/manage_email" target="_blank" rel="nofollow" link="external">http://xircles.codehaus.org/manage_email</a><br>
+<br>
+<br>
+</blockquote></div><br></div>
+
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=243856">fayaz ahamed</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4901097" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html#a4901097',4901097)">Threaded</a>
+	<div id="tooltip59639" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip59639'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4901097"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4901097", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4901097', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4901097\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4901097', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4901097\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4901097', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4901097\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4901097', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4901097)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4901097', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4901097)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4901097', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4901097\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4901097', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4901097\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4901097', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901097.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4901097', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4901097\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown4901097');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4901097' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4901097)"/>
+	<div id="tooltip26034" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip26034'), 'up', 400);
+	</script>
+					<span id="starB4901097">
+		<img id="img-starB4901097" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip27962" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip27962'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4901097" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1334905580545-225"></span><script type="text/javascript">
+		Nabble.get('d1334905580545-225').innerHTML= Nabble.formatDateLong(new Date(1334905580545));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: java.lang.OutOfMemoryError: Java heap space
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=243856" rel="nofollow" title="View profile of fayaz ahamed" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/e5bf3f47a48cdb6b7c57951c34a1e76b?s=100&amp;r=pg&amp;d=http%3A%2F%2Fx6.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="fayaz ahamed" title="fayaz ahamed"/><img src="/images/online.png" class="online243856 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count243856 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message4901097" class="message-text adbayes-content">
+		Hi Freddy,
+<br/><br/>Here is the log file:
+<br/><br/><br/>:
+<br/>:
+<br/>:
+<br/>:
+<br/>11:07:40.375 WARN &nbsp;Class 'ota/rqrs/air/extensions/types/flightsegment/TPAExtensi
+<br/>on$FlightLeg$CabinInfo' <b>is not accessible through the ClassLoader.</b><br/>11:07:40.375 WARN &nbsp;Class 'rqrs/common/TravelerCheckingIn$CheckInPoint$CheckedIte
+<br/>m' <b>is not accessible through the ClassLoader.</b><br/>11:07:40.375 WARN &nbsp;Class 'ota_aircommontypes/SpecialServiceRequestType'<b>&nbsp;is not a
+<br/>ccessible through the ClassLoader.</b><br/>11:07:40.390 WARN &nbsp;Class 'ota/rqrs/air/extensions/types/flightsegment/MealServic
+<br/>eType' <b>is not accessible through the ClassLoader.</b><br/>11:07:40.390 WARN &nbsp;Class 'aero/sita/Link/emulator/gabriel/RestrictedGabrielEmula
+<br/>torBean$SendThread'<b>&nbsp;is not accessible through the ClassLoader</b>.
+<br/>11:07:40.390 WARN &nbsp;Class 'ota_aircommontypes/FormattedTextTextType' <b>is not acces
+<br/>sible through the ClassLoader.
+<br/>11:07:40.390 INFO &nbsp;Java byte</b>code scan done: 160672 ms
+<br/>11:07:41.515 INFO &nbsp;Java Squid scan...
+<br/>11:07:41.625 INFO &nbsp;Java Squid scan done: 110 ms
+<br/>11:07:41.625 INFO &nbsp;Squid extraction...
+<br/>11:07:42.718 INFO &nbsp;Package design analysis...
+<br/>11:08:08.796 INFO &nbsp;Package design analysis done: 26078 ms
+<br/>11:08:41.171 INFO &nbsp;Squid extraction done: 59546 ms
+<br/>11:08:41.187 INFO &nbsp;Sensor SquidSensor done: 372469 ms
+<br/>11:08:41.187 INFO &nbsp;Sensor FindbugsSensor...
+<br/>11:08:41.187 INFO &nbsp;Execute Findbugs 1.3.9...
+<br/>11:08:41.218 INFO &nbsp;Found findbugs plugin: file:/D:/DOCUME~1/m1011484/LOCALS~1/Te
+<br/>mp/sonar-batch47859923688917540129088081921550/plugins/findbugs/META-INF/lib/fin
+<br/>dbugs-1.3.9.jar
+<br/>11:08:45.687 INFO &nbsp;Loaded plugin edu.umd.cs.findbugs.plugins.core
+<br/><b>11:08:45.781 INFO &nbsp;Findbugs output report: D:\SRDT-Workbench\13-09-2010\TCS_2\Ja
+<br/>va\.sonar\findbugs-result.xml
+<br/>Out of memory
+<br/>Total memory: 518M
+<br/>&nbsp;free memory: 0M</b><br/>Analyzed: D:\SRDT-Workbench\13-09-2010\TCS_2\bin
+<br/>&nbsp; &nbsp; &nbsp;Aux: D:\DOCUME~1\m1011484\LOCALS~1\Temp\findbugs3460168555516252649.jar
+<br/>&nbsp; &nbsp; &nbsp;Aux: D:\DOCUME~1\m1011484\LOCALS~1\Temp\findbugs4162468257457223479.jar
+<br/><b>Total time: 17:07.282s
+<br/>Final Memory: 150M/494M</b><br/>Exception in thread &quot;main&quot; org.sonar.batch.bootstrapper.BootstrapException: org.
+<br/>sonar.api.utils.SonarException: Can not execute Findbugs
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.runner.Runner.delegateExecution(Runner.java:189)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.runner.Runner.execute(Runner.java:78)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.runner.Main.main(Main.java:61)
+<br/>Caused by: org.sonar.api.utils.SonarException: Can not execute Findbugs
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.plugins.findbugs.FindbugsExecutor.execute(FindbugsExecutor.
+<br/>java:120)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.plugins.findbugs.FindbugsSensor.analyse(FindbugsSensor.java
+<br/>:58)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.phases.SensorsExecutor.execute(SensorsExecutor.java:6
+<br/>4)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.phases.Phases.execute(Phases.java:93)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.bootstrap.ProjectModule.doStart(ProjectModule.java:14
+<br/>3)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.bootstrap.Module.start(Module.java:83)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.bootstrap.BatchModule.analyze(BatchModule.java:111)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.bootstrap.BatchModule.doStart(BatchModule.java:101)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.bootstrap.Module.start(Module.java:83)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.bootstrap.BootstrapModule.doStart(BootstrapModule.jav
+<br/>a:102)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.bootstrap.Module.start(Module.java:83)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.batch.Batch.execute(Batch.java:100)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.runner.Launcher.executeBatch(Launcher.java:65)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.runner.Launcher.execute(Launcher.java:58)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.
+<br/>java:39)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAcces
+<br/>sorImpl.java:25)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.lang.reflect.Method.invoke(Method.java:597)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.runner.Runner.delegateExecution(Runner.java:186)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; ... 2 more
+<br/>Caused by: java.util.concurrent.ExecutionException: java.lang.OutOfMemoryError:
+<br/>Java heap space
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:232)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.FutureTask.get(FutureTask.java:91)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.plugins.findbugs.FindbugsExecutor.execute(FindbugsExecutor.
+<br/>java:112)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; ... 20 more
+<br/><b>Caused by: java.lang.OutOfMemoryError: Java heap space</b><br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.io.ByteArrayOutputStream.&lt;init&gt;(ByteArrayOutputStream.java:60)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine.analyze(
+<br/>ClassDataAnalysisEngine.java:69)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine.analyze(
+<br/>ClassDataAnalysisEngine.java:42)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.impl.AnalysisCache.getClassAnalysis(Ana
+<br/>lysisCache.java:214)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine.ana
+<br/>lyze(JavaClassAnalysisEngine.java:54)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine.ana
+<br/>lyze(JavaClassAnalysisEngine.java:43)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.impl.AnalysisCache.getClassAnalysis(Ana
+<br/>lysisCache.java:214)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.engine.bcel.ClassContextClassAnalysisEn
+<br/>gine.analyze(ClassContextClassAnalysisEngine.java:46)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.engine.bcel.ClassContextClassAnalysisEn
+<br/>gine.analyze(ClassContextClassAnalysisEngine.java:38)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.classfile.impl.AnalysisCache.getClassAnalysis(Ana
+<br/>lysisCache.java:214)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.ba.AnalysisContext.isTooBig(AnalysisContext.java:
+<br/>387)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.FindBugs2.analyzeApplication(FindBugs2.java:957)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at edu.umd.cs.findbugs.FindBugs2.execute(FindBugs2.java:230)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.sonar.plugins.findbugs.FindbugsExecutor$FindbugsTask.call(Findbug
+<br/>sExecutor.java:138)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExec
+<br/>utor.java:886)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor
+<br/>.java:908)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.lang.Thread.run(Thread.java:619)
+<br/><br/><br/>Thanks and Regards,
+<br/>Fayaz Ahamed.
+<br/><br/><br/><br/>
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=165987">Evgeny Mandrikov</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4901153" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html#a4901153',4901153)">Threaded</a>
+	<div id="tooltip8034" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip8034'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4901153"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4901153", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4901153', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4901153\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4901153', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4901153\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4901153', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4901153\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4901153', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4901153)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4901153', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4901153)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4901153', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4901153\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4901153', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4901153\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4901153', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901153.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4901153', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4901153\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown4901153');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4901153' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4901153)"/>
+	<div id="tooltip51537" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip51537'), 'up', 400);
+	</script>
+					<span id="starB4901153">
+		<img id="img-starB4901153" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip17416" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip17416'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4901153" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1334906402000-510"></span><script type="text/javascript">
+		Nabble.get('d1334906402000-510').innerHTML= Nabble.formatDateLong(new Date(1334906402000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: java.lang.OutOfMemoryError: Java heap space
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=165987" rel="nofollow" title="View profile of Evgeny Mandrikov" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/cf0ce44e342943d56f115165b7d78bdd?s=100&amp;r=pg&amp;d=http%3A%2F%2Fx6.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="Evgeny Mandrikov" title="Evgeny Mandrikov"/><img src="/images/online.png" class="online165987 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count165987 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message4901153" class="message-text adbayes-content">
+		Hi,<div><br></div><div>This is a well-known fact that Findbugs is memory hungry and may require a lot of memory depending of size of a project, so it might make sence to use even more than 512M. How big is your project? And also it might make sence to disable findbugs rules and give a try without it.<br>
+
+<br><div class="gmail_quote">On Fri, Apr 20, 2012 at 13:06, fayaz ahamed <span dir="ltr">&lt;<a href="/user/SendEmail.jtp?type=node&node=4901153&i=0" target="_top" rel="nofollow" link="external">[hidden email]</a>&gt;</span> wrote:<br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+
+Hi Freddy,<br>
+<br>
+Here is the log file:<br>
+<br>
+<br>
+:<br>
+:<br>
+:<br>
+:<br>
+11:07:40.375 WARN  Class<br>
+&#39;ota/rqrs/air/extensions/types/flightsegment/TPAExtensi<br>
+on$FlightLeg$CabinInfo&#39; *is not accessible through the ClassLoader.*<br>
+11:07:40.375 WARN  Class<br>
+&#39;rqrs/common/TravelerCheckingIn$CheckInPoint$CheckedIte<br>
+m&#39; *is not accessible through the ClassLoader.*<br>
+11:07:40.375 WARN  Class &#39;ota_aircommontypes/SpecialServiceRequestType&#39;* is<br>
+not a<br>
+ccessible through the ClassLoader.*<br>
+11:07:40.390 WARN  Class<br>
+&#39;ota/rqrs/air/extensions/types/flightsegment/MealServic<br>
+eType&#39; *is not accessible through the ClassLoader.*<br>
+11:07:40.390 WARN  Class<br>
+&#39;aero/sita/Link/emulator/gabriel/RestrictedGabrielEmula<br>
+torBean$SendThread&#39;* is not accessible through the ClassLoader*.<br>
+11:07:40.390 WARN  Class &#39;ota_aircommontypes/FormattedTextTextType&#39; *is not<br>
+acces<br>
+sible through the ClassLoader.<br>
+11:07:40.390 INFO  Java byte*code scan done: 160672 ms<br>
+11:07:41.515 INFO  Java Squid scan...<br>
+11:07:41.625 INFO  Java Squid scan done: 110 ms<br>
+11:07:41.625 INFO  Squid extraction...<br>
+11:07:42.718 INFO  Package design analysis...<br>
+11:08:08.796 INFO  Package design analysis done: 26078 ms<br>
+11:08:41.171 INFO  Squid extraction done: 59546 ms<br>
+11:08:41.187 INFO  Sensor SquidSensor done: 372469 ms<br>
+11:08:41.187 INFO  Sensor FindbugsSensor...<br>
+11:08:41.187 INFO  Execute Findbugs 1.3.9...<br>
+11:08:41.218 INFO  Found findbugs plugin:<br>
+file:/D:/DOCUME~1/m1011484/LOCALS~1/Te<br>
+mp/sonar-batch47859923688917540129088081921550/plugins/findbugs/META-INF/lib/fin<br>
+dbugs-1.3.9.jar<br>
+11:08:45.687 INFO  Loaded plugin edu.umd.cs.findbugs.plugins.core<br>
+*11:08:45.781 INFO  Findbugs output report:<br>
+D:\SRDT-Workbench\13-09-2010\TCS_2\Ja<br>
+va\.sonar\findbugs-result.xml<br>
+Out of memory<br>
+Total memory: 518M<br>
+ free memory: 0M*<br>
+Analyzed: D:\SRDT-Workbench\13-09-2010\TCS_2\bin<br>
+     Aux: D:\DOCUME~1\m1011484\LOCALS~1\Temp\findbugs3460168555516252649.jar<br>
+     Aux: D:\DOCUME~1\m1011484\LOCALS~1\Temp\findbugs4162468257457223479.jar<br>
+*Total time: 17:07.282s<br>
+Final Memory: 150M/494M*<br>
+Exception in thread &quot;main&quot; org.sonar.batch.bootstrapper.BootstrapException:<br>
+org.<br>
+sonar.api.utils.SonarException: Can not execute Findbugs<br>
+        at org.sonar.runner.Runner.delegateExecution(Runner.java:189)<br>
+        at org.sonar.runner.Runner.execute(Runner.java:78)<br>
+        at org.sonar.runner.Main.main(Main.java:61)<br>
+Caused by: org.sonar.api.utils.SonarException: Can not execute Findbugs<br>
+        at<br>
+org.sonar.plugins.findbugs.FindbugsExecutor.execute(FindbugsExecutor.<br>
+java:120)<br>
+        at<br>
+org.sonar.plugins.findbugs.FindbugsSensor.analyse(FindbugsSensor.java<br>
+:58)<br>
+        at<br>
+org.sonar.batch.phases.SensorsExecutor.execute(SensorsExecutor.java:6<br>
+4)<br>
+        at org.sonar.batch.phases.Phases.execute(Phases.java:93)<br>
+        at<br>
+org.sonar.batch.bootstrap.ProjectModule.doStart(ProjectModule.java:14<br>
+3)<br>
+        at org.sonar.batch.bootstrap.Module.start(Module.java:83)<br>
+        at<br>
+org.sonar.batch.bootstrap.BatchModule.analyze(BatchModule.java:111)<br>
+        at<br>
+org.sonar.batch.bootstrap.BatchModule.doStart(BatchModule.java:101)<br>
+        at org.sonar.batch.bootstrap.Module.start(Module.java:83)<br>
+        at<br>
+org.sonar.batch.bootstrap.BootstrapModule.doStart(BootstrapModule.jav<br>
+a:102)<br>
+        at org.sonar.batch.bootstrap.Module.start(Module.java:83)<br>
+        at org.sonar.batch.Batch.execute(Batch.java:100)<br>
+        at org.sonar.runner.Launcher.executeBatch(Launcher.java:65)<br>
+        at org.sonar.runner.Launcher.execute(Launcher.java:58)<br>
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br>
+        at<br>
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.<br>
+java:39)<br>
+        at<br>
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAcces<br>
+sorImpl.java:25)<br>
+        at java.lang.reflect.Method.invoke(Method.java:597)<br>
+        at org.sonar.runner.Runner.delegateExecution(Runner.java:186)<br>
+        ... 2 more<br>
+Caused by: java.util.concurrent.ExecutionException:<br>
+java.lang.OutOfMemoryError:<br>
+Java heap space<br>
+        at<br>
+java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:232)<br>
+        at java.util.concurrent.FutureTask.get(FutureTask.java:91)<br>
+        at<br>
+org.sonar.plugins.findbugs.FindbugsExecutor.execute(FindbugsExecutor.<br>
+java:112)<br>
+        ... 20 more<br>
+*Caused by: java.lang.OutOfMemoryError: Java heap space*<br>
+        at<br>
+java.io.ByteArrayOutputStream.&lt;init&gt;(ByteArrayOutputStream.java:60)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine.analyze(<br>
+ClassDataAnalysisEngine.java:69)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine.analyze(<br>
+ClassDataAnalysisEngine.java:42)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.impl.AnalysisCache.getClassAnalysis(Ana<br>
+lysisCache.java:214)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine.ana<br>
+lyze(JavaClassAnalysisEngine.java:54)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine.ana<br>
+lyze(JavaClassAnalysisEngine.java:43)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.impl.AnalysisCache.getClassAnalysis(Ana<br>
+lysisCache.java:214)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.engine.bcel.ClassContextClassAnalysisEn<br>
+gine.analyze(ClassContextClassAnalysisEngine.java:46)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.engine.bcel.ClassContextClassAnalysisEn<br>
+gine.analyze(ClassContextClassAnalysisEngine.java:38)<br>
+        at<br>
+edu.umd.cs.findbugs.classfile.impl.AnalysisCache.getClassAnalysis(Ana<br>
+lysisCache.java:214)<br>
+        at<br>
+edu.umd.cs.findbugs.ba.AnalysisContext.isTooBig(AnalysisContext.java:<br>
+387)<br>
+        at<br>
+edu.umd.cs.findbugs.FindBugs2.analyzeApplication(FindBugs2.java:957)<br>
+        at edu.umd.cs.findbugs.FindBugs2.execute(FindBugs2.java:230)<br>
+        at<br>
+org.sonar.plugins.findbugs.FindbugsExecutor$FindbugsTask.call(Findbug<br>
+sExecutor.java:138)<br>
+        at<br>
+java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)<br>
+        at java.util.concurrent.FutureTask.run(FutureTask.java:138)<br>
+        at<br>
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExec<br>
+utor.java:886)<br>
+        at<br>
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor<br>
+.java:908)<br>
+        at java.lang.Thread.run(Thread.java:619)<br>
+<div class="im"><br>
+<br>
+Thanks and Regards,<br>
+Fayaz Ahamed.<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+--<br>
+</div>View this message in context: <a href="http://sonar.15.n6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901097.html" target="_blank" rel="nofollow" link="external">http://sonar.15.n6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901097.html</a><br>
+
+
+<div class="HOEnZb"><div class="h5">Sent from the Sonar user mailing list archive at Nabble.com.<br>
+<br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br>
+<br>
+    <a href="http://xircles.codehaus.org/manage_email" target="_blank" rel="nofollow" link="external">http://xircles.codehaus.org/manage_email</a><br>
+<br>
+<br>
+</div></div></blockquote></div><br><br clear="all"><div><br></div>-- <br>Best regards,<br>Evgeny Mandrikov aka Godin &lt;<a href="http://godin.net.ru" target="_blank" rel="nofollow" link="external">http://godin.net.ru</a>&gt;<br><a href="http://twitter.com/_godin_" target="_blank" rel="nofollow" link="external">http://twitter.com/_godin_</a><br>
+
+
+</div>
+
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=243856">fayaz ahamed</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4901491" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html#a4901491',4901491)">Threaded</a>
+	<div id="tooltip13823" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip13823'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4901491"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4901491", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4901491', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4901491\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4901491', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4901491\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4901491', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4901491\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4901491', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4901491)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4901491', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4901491)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4901491', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4901491\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4901491', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4901491\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4901491', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901491.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4901491', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4901491\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown4901491');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4901491' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4901491)"/>
+	<div id="tooltip69743" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip69743'), 'up', 400);
+	</script>
+					<span id="starB4901491">
+		<img id="img-starB4901491" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip56668" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip56668'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4901491" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1334914724000-117"></span><script type="text/javascript">
+		Nabble.get('d1334914724000-117').innerHTML= Nabble.formatDateLong(new Date(1334914724000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: java.lang.OutOfMemoryError: Java heap space
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=243856" rel="nofollow" title="View profile of fayaz ahamed" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/e5bf3f47a48cdb6b7c57951c34a1e76b?s=100&amp;r=pg&amp;d=http%3A%2F%2Fx6.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="fayaz ahamed" title="fayaz ahamed"/><img src="/images/online.png" class="online243856 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count243856 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message4901491" class="message-text adbayes-content">
+		Hi Fabrice,
+<br/><br/>The project's folder is about 500MB.So how much memory it may need approx
+<br/>?..any idea?..
+<br/><br/><br/>Thanks and Regards,
+<br/>Fayaz ahamed.
+<br/><br/>--
+<br/>View this message in context: <a href="http://sonar.15.n6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901417.html" target="_top" rel="nofollow" link="external">http://sonar.15.n6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901417.html</a><br/>Sent from the Sonar user mailing list archive at Nabble.com.
+<br/><br/>---------------------------------------------------------------------
+<br/>To unsubscribe from this list, please visit:
+<br/><br/>&nbsp; &nbsp; <a href="http://xircles.codehaus.org/manage_email" target="_top" rel="nofollow" link="external">http://xircles.codehaus.org/manage_email</a><br/><br/><br/>
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=243856">fayaz ahamed</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4901437" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html#a4901437',4901437)">Threaded</a>
+	<div id="tooltip3594" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip3594'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4901437"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4901437", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4901437', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4901437\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4901437', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4901437\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4901437', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4901437\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4901437', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4901437)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4901437', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4901437)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4901437', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4901437\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4901437', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4901437\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4901437', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901437.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4901437', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4901437\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown4901437');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4901437' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4901437)"/>
+	<div id="tooltip14131" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip14131'), 'up', 400);
+	</script>
+					<span id="starB4901437">
+		<img id="img-starB4901437" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip79879" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip79879'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4901437" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1334915155241-180"></span><script type="text/javascript">
+		Nabble.get('d1334915155241-180').innerHTML= Nabble.formatDateLong(new Date(1334915155241));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: java.lang.OutOfMemoryError: Java heap space
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=243856" rel="nofollow" title="View profile of fayaz ahamed" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/e5bf3f47a48cdb6b7c57951c34a1e76b?s=100&amp;r=pg&amp;d=http%3A%2F%2Fx6.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="fayaz ahamed" title="fayaz ahamed"/><img src="/images/online.png" class="online243856 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count243856 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	<div class="weak-color" style="font-size:80%;padding-bottom:1em">
+				In reply to <a href="http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901153.html" rel="nofollow">this post</a> by Evgeny Mandrikov
+			</div>
+	<div id="message4901437" class="message-text adbayes-content">
+		Hi Evgeny,
+<br/>The project's folder is of about 500MB ?..How much memory it may require?..any idea?..
+<br/><br/><br/>Thanks and Regards,
+<br/>Fayaz ahamed.
+<br/>
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=165987">Evgeny Mandrikov</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4901732" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/java-lang-OutOfMemoryError-Java-heap-space-tt4898141.html#a4901732',4901732)">Threaded</a>
+	<div id="tooltip76324" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip76324'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4901732"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4901732", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4901732', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4901732\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4901732', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4901732\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4901732', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4901732\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4901732', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4901732)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4901732', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4901732)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4901732', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4901732\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4901732', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4901732\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4901732', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://sonarqube.15.x6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901732.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4901732', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4901732\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown4901732');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4901732' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4901732)"/>
+	<div id="tooltip2" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip2'), 'up', 400);
+	</script>
+					<span id="starB4901732">
+		<img id="img-starB4901732" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip56442" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip56442'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4901732" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1334923105000-920"></span><script type="text/javascript">
+		Nabble.get('d1334923105000-920').innerHTML= Nabble.formatDateLong(new Date(1334923105000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: java.lang.OutOfMemoryError: Java heap space
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://sonarqube.15.x6.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=165987" rel="nofollow" title="View profile of Evgeny Mandrikov" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/cf0ce44e342943d56f115165b7d78bdd?s=100&amp;r=pg&amp;d=http%3A%2F%2Fx6.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="Evgeny Mandrikov" title="Evgeny Mandrikov"/><img src="/images/online.png" class="online165987 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count165987 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message4901732" class="message-text adbayes-content">
+		No idea. As I suggested : you can try to disable findbugs just to be sure that without it everything will work with low memory, and then try-fail-try approach to determine memory for findbugs.<br><br><div class="gmail_quote">
+
+On Fri, Apr 20, 2012 at 15:45, fayaz ahamed <span dir="ltr">&lt;<a href="/user/SendEmail.jtp?type=node&node=4901732&i=0" target="_top" rel="nofollow" link="external">[hidden email]</a>&gt;</span> wrote:<br><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+
+Hi Evgeny,<br>
+The project&#39;s folder is of about 500MB ?..How much memory it may<br>
+require?..any idea?..<br>
+<div class="im"><br>
+<br>
+Thanks and Regards,<br>
+Fayaz ahamed.<br>
+<br>
+<br>
+</div>--<br>
+View this message in context: <a href="http://sonar.15.n6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901437.html" target="_blank" rel="nofollow" link="external">http://sonar.15.n6.nabble.com/java-lang-OutOfMemoryError-Java-heap-space-tp4898141p4901437.html</a><br>
+
+
+<div class="HOEnZb"><div class="h5">Sent from the Sonar user mailing list archive at Nabble.com.<br>
+<br>
+---------------------------------------------------------------------<br>
+To unsubscribe from this list, please visit:<br>
+<br>
+    <a href="http://xircles.codehaus.org/manage_email" target="_blank" rel="nofollow" link="external">http://xircles.codehaus.org/manage_email</a><br>
+<br>
+<br>
+</div></div></blockquote></div><br><br clear="all"><div><br></div>-- <br>Best regards,<br>Evgeny Mandrikov aka Godin &lt;<a href="http://godin.net.ru" target="_blank" rel="nofollow" link="external">http://godin.net.ru</a>&gt;<br><a href="http://twitter.com/_godin_" target="_blank" rel="nofollow" link="external">http://twitter.com/_godin_</a><br>
+
+
+
+
+	
+	
+	
+	</div>
+	
+			<script type="text/javascript">
+				Nabble.ads('last_classic_message');
+			</script>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+		
+	</div>
+	</div>
+			<div id="topic-footer" class="weak-color" style="padding-top:1em">
+		&laquo;
+		<a href="http://sonarqube.15.x6.nabble.com/SonarQube-Users-f3159782.html">Return to SonarQube Users</a>
+		&nbsp;|&nbsp;
+		<span id="v4898141" style="display:none">1 view|%1 views</span>
+	
+	
+	</div>
+			<div id="report-inappropriate-content" class="report-inappropriate-content rounded">
+		<div id="report-inappropriate-content-inner" class="no-bg-color medium-border-color border2">
+			<div class="big">Loading...</div>
+		</div>
+	</div>
+				<script type="text/javascript">
+				Nabble.ads('topic_bottom');
+			</script>
+	<script type="text/javascript">
+	var infolinks_pid = 1480243;
+	var infolinks_wsid = 0;
+	</script>
+	<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
+			<table class="footer-table shaded-bg-color">
+		<tr>
+			<td class="footer-left weak-color">
+				Powered by
+				<a href="http://www.nabble.com/" target="_top">Nabble</a>
+			</td>
+			<td class="footer-right">
+				<a href="/template/NamlServlet.jtp?macro=macro_viewer&amp;id=classic_forum_topic%21nabble%3Atopic.naml&amp;base=nabble.view.web.template.ServletNamespace" rel="nofollow">Edit this page</a>
+			</td>
+		</tr>
+	</table>
+	<!-- Ad.true -->
+			<script type='text/javascript'>
+var scriptUrl = '/template/NamlServlet.jtp?macro=js_page&searchSpecial=4898141&incViewCount=4898141&newsflash=&starB=4898141|4898164|4898370|4901097|4901153|4901491|4901437|4901732&visitorOnline=&avatarOnline=243856|355453|165990|165987&postCount=243856|355453|165990|165987&markVisited=4901732&views=4898141';
+scriptUrl += '&_=' + Math.floor(Math.random()*9999) + Nabble.getClientID();
+$.getScript(scriptUrl, function() { Nabble.resizeFrames(); });
+</script>
+
+					</div>
+					<script type="text/javascript">
+		$(document).ready(function() { Nabble.fixCookieClientID(); });
+		(function(){ var sNew = document.createElement("script"); sNew.defer = true; sNew.src = "http://tag.crsspxl.com/s1.js?d=1294"; var s0 = document.getElementsByTagName('script')[0]; s0.parentNode.insertBefore(sNew, s0); })();
+	</script>
+					<!-- x6.nabble.com | Site ID = 15 -->
+				</body>
+			</html>

@@ -1,0 +1,93 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Client-Server Programming with Java RMI</TITLE>
+<META NAME="Template" CONTENT="D:\MSOFFICE\OFFICE\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<FONT SIZE=6><P>Client-Server Programming with Java RMI </P>
+<P>For Register Course Use Case</P>
+
+<UL>
+<LI>Server side programming</LI></UL>
+
+<OL>
+
+<LI>Remote interface definition</LI>
+</FONT><PRE>public interface RegisterCourseControl 
+          extends java.rmi.Remote {
+
+    public void registerCourse(String courseID, 
+&#9;String courseSectionID. String studentID)
+       &#9;&#9; throws java.rmi.RemoteException;
+}</PRE>
+<FONT SIZE=6><LI>Remote interface implementation</LI>
+</FONT><PRE>public class RegisterCourseControlImplementation
+    extends java.rmi.server.UnicastRemoteObject
+    implements RegisterCourseControl{
+
+    public RegisterControlControlImplementation()
+        throws java.rmi.RemoteException {
+        super();
+    }
+    public void registerCourse(String courseID, 
+&#9;String courseSectionID. String studentID)
+        &#9;&#9;throws java.rmi.RemoteException {
+          //implementation code
+    }
+
+Server implementation
+
+import java.rmi.Naming;
+
+public class URSServer {
+
+   public URSServer() {
+     try 
+    {
+       RegisterCourseControl rcc = 
+          new RegisterCourseControlImplementation();
+
+       String serverURL = "rmi://URSserver.unb.ca/";
+       Naming.rebind (serverURL + "RegisterCourseService", rcc);
+
+     } catch (Exception e) { }
+   }
+
+   public static void main(String args[]) {
+     new URSServer();
+   }
+}
+&#9;</PRE>
+<FONT SIZE=6><LI>Client side programming</LI></OL>
+
+</FONT><PRE>import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
+
+public class RegisterCourseUI extends JApplet {
+
+    private RegisterCourseControl rcc;
+
+    void init() {
+        try 
+       {
+          String serverURL = "rmi://URSserver.unb.ca/";
+          rcc = (RegisterCourseControl) Naming.lookup
+               (serverURL + "RegisterCourseService");
+       }
+        catch (MalformedURLException murle) {}
+        catch (RemoteException re) {}
+        catch (NotBoundException nbe) {}
+        }
+    }
+    public void submitForm(String courseID,
+         String courseSectionID, String studentID) {
+&#9;rcc.registerCourse(courseID, courseSectionID, studentID);
+         ….
+   }
+}</PRE></BODY>
+</HTML>

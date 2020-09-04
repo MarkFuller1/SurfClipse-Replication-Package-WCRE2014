@@ -1,0 +1,203 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>How to use jave to do remote ftp, download, upload stuff ? (Java in General forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/326360/java/java/jave-remote-ftp-download-upload"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/326360/java/java/jave-remote-ftp-download-upload?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-1/java">Java in General</a>
+<div class="subject">How to use jave to do remote ftp, download, upload stuff ?</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Steve Yu, Ranch Hand<br />
+  on <span class="lastPostTime">Oct 02, 2004 11:39:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">How to use jave to do remote ftp, download, upload stuff ?  Korn shell script is very good at doing that ?  How to do it in java ?<br />  <br /> steve</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jean-Francois Briere, Ranch Hand<br />
+  on <span class="lastPostTime">Oct 02, 2004 22:20:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Take a look at <a href="http://jakarta.apache.org/commons/net/" target="_blank" rel="nofollow">Apache's Jakarta Commons Net</a></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Srinivasa Raghavan, Ranch Hand<br />
+  on <span class="lastPostTime">Oct 03, 2004 00:04:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Try this out ....<br /> This is working for me ..<br />  <br /> Srinivasa Raghavan <br />  <br /> import java.net.*;<br /> import java.io.*;<br /> class ftpClient<br /> {<br />  <br /> URLConnection connection;<br /> InputStream is;<br /> OutputStream os;<br /> String url;String user;<br /> String password;<br />  <br /> public ftpClient(String url,String user,String password)<br /> {<br /> this.url =url;<br /> this.user= user;<br /> this.password=password;<br /> }<br />  <br /> private void getConnection(String file)<br /> {<br /> try<br /> {<br /> StringBuffer location = new StringBuffer();<br /> location.append("ftp://");<br /> location.append(user + ":");<br /> location.append(password + "@");<br /> location.append(url + "/");<br /> location.append(file +";type=i");<br /> connection = (new URL(location.toString())).openConnection();<br /> is = connection.getInputStream(); <br /> }<br /> catch(Exception e)<br /> {<br /> System.out.println(e.toString() + "Here" );<br /> }<br /> }<br /> <br /> public void download( String inputFile,String outputFile ) throws Exception<br /> {<br /> try<br /> {<br /> getConnection( inputFile );<br /> int data;<br /> InputStreamReader fileReader = new InputStreamReader(is);<br /> FileOutputStream writer = new  FileOutputStream( new File(outputFile) );<br /> <br /> while ( (data = fileReader.read()) !=  -1 )<br /> {<br /> writer.write((char)data);<br /> }<br /> }<br /> catch(Exception e)<br /> {<br /> System.out.println(e );<br /> }<br /> }<br />  <br /> public static void main(String[] args) <br /> {<br /> String inputFile = "home/srinivas/test/reverse.java";<br /> String outputFile = "C:\\reverse.java";<br /> try<br /> {<br /> ftpClient client = new ftpClient("20.10.3.225","test","password");<br /> client.download(inputFile,outputFile);<br /> System.out.println( inputFile + " downloaded successfully to " + outputFile);<br /> }<br /> catch(Exception e)<br /> {<br /> System.out.println(e);<br /> }<br /> }<br /> }</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Annie Zhang, Ranch Hand<br />
+  on <span class="lastPostTime">Oct 25, 2004 12:20:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi Srini,<br />  <br /> Do you have the upload() code? If you do, could you please post it?<br /> I tried the upload with JDK1.3.1, it complains:<br /> "java.net.UnknownServiceException: protocol doesn't support output<br />  at java.net.URLConnection.getOutputStream(URLConnection.java:655)"<br />  <br /> Seems like JDK1.3.1 doesn't support upload(put) file to ftp server. Is this true? Otherwise, did I get it wrong?<br /> Please clarify. The download(get) works fine.<br />  <br /> Thanks,<br /> Annie</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Z Zia, Greenhorn<br />
+  on <span class="lastPostTime">Oct 27, 2004 08:19:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Try this api, its free:<br />  <br /> <a href="http://www.enterprisedt.com/products/edtftpj/overview.html" target="_blank" rel="nofollow">http://www.enterprisedt.com/products/edtftpj/overview.html</a><br />  <br /> I am using this for my enterprise apps.</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/326360'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=1'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:55:41</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/1"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/326360/java/java/jave-remote-ftp-download-upload?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

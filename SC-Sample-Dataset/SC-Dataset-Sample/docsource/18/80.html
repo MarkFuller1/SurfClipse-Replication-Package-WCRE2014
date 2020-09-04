@@ -1,0 +1,1145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Page Info -->
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="description" content="Blogs.Oracle.Com - MaheshKannan">
+  <meta name="keywords" content="blogs, oracle, blogs.oracle, blogging, bloggers">
+		            <title>Portable Global JNDI names (MaheshKannan)</title>
+                           <meta http-equiv="Content-Language" content="en_US" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta http-equiv="imagetoolbar" content="no" />
+
+           <link rel="EditURI"   type="application/rsd+xml" title="RSD" href="https://blogs.oracle.com/MaheshKannan/rsd"/>
+        
+            <link rel="alternate" type="application/atom+xml" title="Recent Entries (Atom)"  href="https://blogs.oracle.com/MaheshKannan/feed/entries/atom" />
+    <link rel="alternate" type="application/rss+xml"  title="Recent Entries (RSS)"   href="https://blogs.oracle.com/MaheshKannan/feed/entries/rss" />
+    <link rel="alternate" type="application/atom+xml" title="Recent Comments (Atom)" href="https://blogs.oracle.com/MaheshKannan/feed/comments/atom" />
+    <link rel="alternate" type="application/rss+xml"  title="Recent Comments (RSS)"  href="https://blogs.oracle.com/MaheshKannan/feed/comments/rss" />
+
+    
+    
+<!-- Stylesheets -->
+<link rel="stylesheet" href="https://blogs.oracle.com/MaheshKannan/resource/oracle2col/theme.css" type="text/css" media="screen" />
+
+<!-- Favicon -->
+<link rel="shortcut icon" href="https://blogs.oracle.com/MaheshKannan/resource/oracle2col/favicon.gif" />    	</head>
+	<body>
+		<div id="container" class="two-columns"> <!-- Note: Change the class from "two-columns" to "three-columns" if needed -->
+			
+			<!-- Header -->
+			<div id="header">
+				<ul id="nav">
+					<li id="logo"><h6><a href="http://www.oracle.com">Oracle</a></h6></li>
+					<li class="current"><a href="/">Blogs Home</a></li>
+					<li><a href="http://www.oracle.com/us/products/index.html">Products &amp; Services</a></li>
+					<li><a href="http://www.oracle.com/technetwork/indexes/downloads/index.html">Downloads</a></li>
+					<li><a href="http://www.oracle.com/us/support/index.html">Support</a></li>
+					<li><a href="http://www.oracle.com/us/partnerships/index.html">Partners</a></li>
+					<li><a href="http://www.oracle.com/us/community/index.html">Communities</a></li>
+					<li><a href="http://www.oracle.com/us/corporate/index.html">About</a></li>
+                                            <li id="signIn"><a href="/roller-ui/login-redirect.rol">Login</a></li>
+                    				</ul>
+				<div id="jumbotron">
+					<h4>Oracle Blog</h4>
+          <h5><a href="https://blogs.oracle.com/MaheshKannan/">MaheshKannan</a></h5>
+          <h5 class="subhead">Mahesh's Weblog about EJB 3.1</h5>
+				</div>
+                																										</div>
+			
+			<!-- Content -->
+			<div id="content">
+                <div id="mainColumn">
+                    
+                    <!-- Previous and Next Entries -->
+                    <div id="pager">
+                                                &laquo; <a href="https://blogs.oracle.com/MaheshKannan/entry/singleton_ejb_support_in_glassfish">Singleton EJB suppor...</a> |  
+                <a href="/MaheshKannan/">Main</a>
+                            </div>
+
+                    <!-- Entries -->
+				    
+                <div class="day">
+
+
+	<div class="entry" id="portable_global_jndi_names">
+
+	<h3 class="entry-title">
+			Portable Global JNDI names
+	    </h3>
+
+    <h4 class="entry-meta">By Mahesh Kannan on <a href="#">Dec 11, 2009</a></h4>
+
+    <div class="entry-body">
+                                        	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="Content-Type">
+  <title></title>
+</head>
+<body>
+<p><font face="Courier New, monospace">The
+introduction of dependency injection in JavaEE5 did reduce the need
+for doing a JNDI lookup. However, there are times when the users /
+clients had to rely on the good old JNDI lookup to acquire EJB
+references. Typical examples of such clients performing lookup of
+EJBs include (a) a JavaEE component from a different application and
+(b) a Java SE client. </font></p>
+<p style="margin-bottom: 0in;"></p>
+<p><font face="Courier New, monospace"> The
+problem was such clients had to use &#8220;global&#8221; jndi name to lookup
+the target bean. All along the ejb specifications had been silent
+about portability of such global jndi names. This allowed each vendor
+to assign a global jndi names to EJBs in a vendor specific way. This
+meant that the client code that performed a lookup using global JNDI
+names were inherently non portable across appserver vendor
+implementations. </font></p>
+<p style="margin-bottom: 0in;"></p>
+<p style="margin-bottom: 0in;"> <font face="Courier New, monospace">For
+example,
+the following code (part of a non JavaEE client) assumes
+that FooBean has been mapped to the global jndi name:
+"_app1_mod1_FooBean"</font></p>
+<div style="text-align: left;"><br>
+</div>
+<br>
+<table
+ style="text-align: left; width: 100%; background-color: rgb(204, 204, 204);"
+ border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">
+      <p style="margin-bottom: 0in; text-align: left;"> <font
+ face="Courier New, monospace">public static void main(String[] args)<br>
+&nbsp;&nbsp;&nbsp; throws Exception {<br>
+      </font></p>
+      <p style="margin-bottom: 0in; text-align: left;"><font
+ face="Courier New, monospace">&nbsp;&nbsp;&nbsp; InitialContext ic =
+new InitialContext();<br>
+&nbsp;&nbsp;&nbsp; FooBean fooBean = (FooBean)<br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+ic.lookup("_app1_mod1_FooBean");<br>
+      </font></p>
+      <div style="text-align: left;"> </div>
+      <p style="text-align: left;"><font face="Courier New, monospace">&nbsp;&nbsp;&nbsp;
+//Use fooBean<br>
+}</font></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div style="text-align: center;"><br>
+</div>
+<p style="margin-bottom: 0in;"><font face="Courier New, monospace">This
+code might break if the target bean was deployed to a different
+JavaEE server.</font></p>
+<p style="margin-bottom: 0in;"></p>
+<h2 class="western" style="font-style: normal;">Portable Global JNDI
+name in EJB 3.1</h2>
+<font face="Courier New, monospace">EJB
+3.1 solves the above problem by mandating that every container must
+assign (at least one) well defined global JNDI names to EJBs. </font>
+<br>
+<font face="Courier New, monospace"> The
+general syntax of a (portable) global JNDI name of an EJB is of the
+form:<br>
+</font><br>
+<font style="font-weight: bold;" face="Courier New, monospace">java:global/[&lt;application-name&gt;]/&lt;module-name&gt;/&lt;bean-name&gt;!&lt;fully-qualified-bean-interface-name&gt;</font>
+<br>
+<font face="Courier New, monospace"><br>
+In
+addition to the above name, if the EJB exposes just a single client
+view (that is it implements just one interface or the no
+interface view), the container is also mandated to map the bean to </font>
+<br>
+<font style="font-weight: bold;" face="Courier New, monospace"><br>
+java:global/[&lt;application-name&gt;]/&lt;module-name&gt;/&lt;bean-name&gt;</font>
+<p style="margin-bottom: 0in;"><font face="Courier New, monospace">Where</font></p>
+<ol>
+  <li><font face="Courier New, monospace"><span
+ style="font-weight: bold;">&lt;aplication-name&gt;</span> defaults to
+the bundle name (.ear file name)
+without the bundle extension. This can be overridden in
+application.xml. Also, &lt;application-name&gt; is applicable only if
+the bean is packaged inside a .ear file.</font></li>
+  <li><font face="Courier New, monospace"><span
+ style="font-weight: bold;">&lt;module-name&gt;</span> defaults to
+bundle name (.war or .jar) without
+the bundle extension. Again, this can be overridden in ejb-jar.xml.</font></li>
+  <li><font face="Courier New, monospace"><span
+ style="font-weight: bold;">&lt;bean-name&gt;</span> defaults to the
+unqualified class name of the bean.
+However, if @Stateful or @Stateless or @Singleton uses the name
+attribute, then the value specified there will be used as the bean
+name.</font></li>
+</ol>
+<p style="margin-bottom: 0in;"></p>
+<h3 style="margin-bottom: 0in;"><font face="Courier New, monospace">Example
+1:</font></h3>
+<br>
+<br>
+<br>
+<p style="margin-bottom: 0in;"><font face="Courier New, monospace">Assuming
+that the following classes and interfaces are packaged inside hello.jar
+and
+deployed as a stand alone module<br>
+<br>
+</font></p>
+<br>
+<table
+ style="text-align: left; width: 100%; background-color: rgb(204, 204, 204);"
+ border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><font
+ face="Courier New, monospace">package
+com.acme;</font>
+      <br>
+      <font face="Courier New, monospace">@Local</font>
+      <br>
+      <font face="Courier New, monospace">public
+interface Hello {</font>
+      <br>
+      <font face="Courier New, monospace">&nbsp;&nbsp;&nbsp; public
+String sayHello();</font>
+      <br>
+      <font face="Courier New, monospace">}</font>
+      <br>
+      <br>
+      <font face="Courier New, monospace">package
+com.acme;</font>
+      <br>
+      <font face="Courier New, monospace">@Local</font>
+      <br>
+      <font face="Courier New, monospace">public
+interface GoodBye {</font>
+      <br>
+      <font face="Courier New, monospace">&nbsp;&nbsp;&nbsp; public
+String sayBye();</font>
+      <br>
+      <font face="Courier New, monospace">}</font>
+      <br>
+      <br>
+      <font face="Courier New, monospace">package
+com.acme;</font>
+      <br>
+      <font face="Courier New, monospace">@Stateless</font>
+      <br>
+      <font face="Courier New, monospace">public
+class MyEJB</font>
+      <br>
+&nbsp;&nbsp;&nbsp; <font face="Courier New, monospace">implements
+Hello, GoodBye {</font>
+      <br>
+&nbsp;&nbsp;&nbsp; ...<br>
+      <font face="Courier New, monospace">}</font>
+      <br>
+      <br>
+      <font face="Courier New, monospace">package
+com.acme;</font>
+      <br>
+      <font face="Courier New, monospace">@Singleton(name="HelloSingleton")</font>
+      <br>
+      <font face="Courier New, monospace">public
+class HelloBean {</font>
+      <br>
+&nbsp;&nbsp;&nbsp; ...<br>
+      <font face="Courier New, monospace">}</font>
+      <br>
+      <br>
+      <font face="Courier New, monospace">package
+com.acme;</font>
+      <br>
+      <font face="Courier New, monospace">@Stateful</font>
+      <br>
+      <font face="Courier New, monospace">public
+class ShoppingCart</font>
+      <br>
+&nbsp;&nbsp;&nbsp; ...<br>
+      <font face="Courier New, monospace">}<br>
+      </font><br>
+      <font face="Courier New, monospace">package
+com.acme;</font>
+      <br>
+      <font face="Courier New, monospace">public
+class Util { //Not a EJB or Servlet</font><br>
+&nbsp;&nbsp;&nbsp; ...<br>
+      <font face="Courier New, monospace">}<br>
+      </font><font face="Courier New, monospace"><br>
+      </font></td>
+    </tr>
+  </tbody>
+</table>
+<p style="margin-bottom: 0in;"><font face="Courier New, monospace">The
+following portable jndi names are then made available by the
+container to the clients:<br>
+<br>
+</font></p>
+<br>
+<table
+ style="text-align: left; width: 100%; background-color: rgb(204, 204, 204);"
+ border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:global/hello/MyEJB!com.acme.Hello<br>
+java:global/hello/MyEJB!com.acme.GoodBye<br>
+      </font></p>
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:global/hello/HelloSingleton<br>
+java:global/hello/HelloSingleton!com.acme.HelloBean<br>
+      </font></p>
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:global/hello/ShoppingCart<br>
+java:global/hello/ShoppingCart!com.acme.ShoppingCart</font></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p style="margin-bottom: 0in;"><br>
+<font face="Courier New, monospace">Note:</font>
+<font face="Courier New, monospace"><br>
+</font>
+</p>
+<ol>
+  <li><font face="Courier New, monospace">Since MyEJB implements more
+than one interface, the global jndi names
+must include the implemented interface</font></li>
+  <li><font face="Courier New, monospace">For HelloBean, the value
+specified in the name() attribute is used as
+&lt;bean-name&gt;</font></li>
+  <li><font face="Courier New, monospace">Since HelloBean bean exposes
+a no interface view, the qualified bean
+class name is used as &lt;fully-qualified-bean-intf-name&gt;</font></li>
+  <li><font face="Courier New, monospace">Since ShoppingCart bean
+exposes a no interface view, the qualified
+bean class name is used as &lt;fully-qualified-bean-intf-name&gt;</font></li>
+  <li><font face="Courier New, monospace">Since, the application is
+deployed as a standalone module, &lt;app-name&gt;
+is not used in the global jndi name.</font><br>
+  </li>
+</ol>
+<h3><font face="Courier New, monospace">Client
+code:</font></h3>
+<p style="margin-bottom: 0in;"></p>
+<br>
+<table
+ style="text-align: left; width: 100%; background-color: rgb(204, 204, 204);"
+ border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><font
+ face="Courier New, monospace">InitialContext
+ic = new InitialContext();</font>
+      <br>
+      <font face="Courier New, monospace">Hello
+= (Hello) ic.lookup("java:global/hello/MyEJB!com.acme.Hello");</font>
+      <br>
+      <font face="Courier New, monospace">GoodBye
+= (GoodBye) ic.lookup("java:global/hello/MyEJB!com.acme.GoodBye");</font>
+      <br>
+      <br>
+      <font face="Courier New, monospace">ShoppingCart
+= (ShoppingCart) ic.lookup("java:global/hello/ShoppingCart");</font></td>
+    </tr>
+  </tbody>
+</table>
+<p style="margin-bottom: 0in;"><font face="Courier New, monospace"><br>
+You
+can also use the portable jndi names in injection too<br>
+<br>
+</font></p>
+<table
+ style="text-align: left; width: 100%; background-color: rgb(204, 204, 204);"
+ border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">@EJB(lookupName="java:global/hello/ShoppingCart")<br>
+      </font></p>
+      <font face="Courier New, monospace">private
+ShoppingCart cart;</font><font face="Courier New, monospace"><br>
+      </font></td>
+    </tr>
+  </tbody>
+</table>
+<p style="margin-bottom: 0in;"></p>
+<h2 class="western" style="font-style: normal;">More name spaces</h2>
+<p style="margin-bottom: 0in;"><br>
+</p>
+<font face="Courier New, monospace">In
+addition to the java:global namespace, the container is also required
+to make the bean(s) available under two other name spaces: <br>
+java:app
+and java:module</font>
+<br>
+<br>
+<font face="Courier New, monospace">Why
+do we need these two? In the case
+of java:global, the name contains a hard coded &lt;app-name&gt; and
+(or) &lt;module-name&gt;. Assuming, that &lt;app-name&gt; and
+&lt;module-name&gt; are not specified in .xml, re-packaging the bean
+and client into a different module breaks the client. For example, if
+FooBean
+was originally packaged inside foo.jar, the client that looked up
+using ic.lookup("java:global/foo/FooBean") will break if
+FooBean is re-packaged inside module2.jar</font>
+<br>
+<br>
+<font face="Courier New, monospace">Since,
+most of the time the beans and the clients are colocated in the same
+application or even within the same module, EJB 3.1 allows accessing
+these colocated beans in a easier way. The spec defines two
+more name spaces called java:app and java:module. </font>
+<br>
+<br>
+java:module allows a component executing within a Java EE application
+to access a namespace <br>
+rooted below the &lt;module-name&gt; portion of the namespace
+corresponding to its module. <br>
+<br>
+<font face="Courier New, monospace">You
+can think of java:module as the jndi sub-context that is rooted under
+the "current module" in which
+the client is located. java:module differs from java:global in the
+sense that the client can access only those beans that are packaged
+inside the same module as the client. If a component in module1 has to
+lookup a component in module2, then it has to use java:global (or
+java:app).<br>
+<br>
+Similarly, </font><font face="Courier New, monospace">can think of
+java:app as the jndi sub-context that is rooted under the "current app"
+in which
+the client is located.</font><br>
+<br>
+<font face="Courier New, monospace">The
+java:app and java:module names are of the form:</font>
+<p style="margin-bottom: 0in; font-weight: bold;"><font
+ face="Courier New, monospace">java:app/&lt;module-name&gt;/&lt;bean-name&gt;!&lt;fully-qualified-intf-name&gt;</font></p>
+<p style="margin-bottom: 0in;"><font face="Courier New, monospace">and</font></p>
+<p style="margin-bottom: 0in; font-weight: bold;"><font
+ face="Courier New, monospace">java:module/&lt;bean-name&gt;!&lt;fully-qualified-intf-name&gt;</font></p>
+<p style="margin-bottom: 0in;"><font face="Courier New, monospace"><br>
+</font>In our example, the Util class can access other components as
+follows:<br>
+<br>
+</p>
+<table
+ style="text-align: left; background-color: rgb(204, 204, 204);"
+ border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>   
+      <td style="vertical-align: top;">
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:app/hello/MyEJB!com.acme.Hello<br>
+java:app/hello/MyEJB!com.acme.GoodBye<br>
+      </font></p>
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:app/hello/HelloSingleton<br>
+java:app/hello/HelloSingleton!com.acme.HelloBean<br>
+      </font></p>
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:app/hello/ShoppingCart<br>
+java:app/hello/ShoppingCart!com.acme.ShoppingCart</font></p>
+      </td>
+      <td style="vertical-align: top;">
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:module/MyEJB!com.acme.Hello<br>
+java:module/MyEJB!com.acme.GoodBye<br>
+      </font></p>
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:module/HelloSingleton<br>
+java:module/HelloSingleton!com.acme.HelloBean<br>
+      </font></p>
+      <p style="margin-bottom: 0in;"><font face="Courier New, monospace">java:module/ShoppingCart<br>
+java:module/ShoppingCart!com.acme.ShoppingCart</font></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<span style="font-family: Courier New,monospace;"><br>
+<br>
+</span>
+<h3><span style="font-family: Courier New,monospace;">Running the
+sample application</span></h3>
+<ol>
+  <li>Save and unzip&nbsp; <a href="http://blogs.sun.com/MaheshKannan/resource/portable-jndi-name/portable-ejb-jndi-name.zip">portable-jndi-app.zip</a></li>
+  <li>cd portable-jndi-name</li>
+  <li>mvn install will build the application. The .war file will be
+under target directory</li>
+  <li>&lt;v3-install-dir&gt;/bin/asadmin deploy --force=true
+target/portable-jndi-app.war</li>
+  <li>Open a browser and access localhost:8080/webejb/Example1Servlet<br>
+  </li>
+</ol>
+
+I will be updating this blog with one more sample app where the EJBs and Servlets are packaged inside a .ear file.
+
+<p>Also, I have used mvn as the build / packing tool. </p>
+
+<h3>References</h3>
+<br>[1] <a href="http://jcp.org/en/jsr/detail?id=318">EJB 3.1 Specification</a></br>
+
+<br>[2] <a href="http://blogs.sun.com/kensaks/entry/portable_global_jndi_names">Ken Saks' note on portable jndi name</a></br>
+
+<h3><span style="font-family: Courier New,monospace;"></span></h3>
+</body>
+</html>
+
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: Sun</p>
+        <p class="entry-tags">Tags:    
+    	    <a href="https://blogs.oracle.com/MaheshKannan/tags/3.1" rel="tag">3.1</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/ejb" rel="tag">ejb</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/ejb3.1" rel="tag">ejb3.1</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/global" rel="tag">global</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/java%3Aglobal" rel="tag">java:global</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/java%3Amodule" rel="tag">java:module</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/jndi" rel="tag">jndi</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/lookup" rel="tag">lookup</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/names" rel="tag">names</a> 
+  	    <a href="https://blogs.oracle.com/MaheshKannan/tags/portable" rel="tag">portable</a> 
+    
+ </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/MaheshKannan/entry/portable_global_jndi_names">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+
+</div>    
+    
+          
+                    <!-- Previous and Next Entries -->
+                    <div id="pagerBottom">
+                                                &laquo; <a href="https://blogs.oracle.com/MaheshKannan/entry/singleton_ejb_support_in_glassfish">Singleton EJB suppor...</a> |  
+                <a href="/MaheshKannan/">Main</a>
+                            </div> 
+                    
+                    <!-- Comments -->
+                                                <a name="comments"></a>
+    <div class="comments" id="comments">
+
+            <div class="comments-head">Comments:</div>
+            
+    <br/>
+                        <a name="comment-1263632092000" id="comment-1263632092000"></a>
+            <div class="comment odd" id="comment1">
+
+                
+<p>Hello everyone,<br/>
+I'm trying a simple example of a stateless session bean with @remote interface and a client that connects to EJB application.<br/>
+I deploy EJB application on GlassFish and everything is ok.<br/>
+If I run the client in the client container 'appclient-client myapp'<br/>
+everything works fine (both with the annotation EJB that with JNDI), but if I run the client from Eclipse IDE with JNDI, then I have always this error:</p>
+
+
+<p>java.lang.NullPointerException<br/>
+	at com.sun.enterprise.naming.impl.SerialContext.getRemoteProvider(SerialContext.java:297)<br/>
+	at com.sun.enterprise.naming.impl.SerialContext.getProvider(SerialContext.java:271)<br/>
+	at com.sun.enterprise.naming.impl.SerialContext.lookup(SerialContext.java:430)<br/>
+	at javax.naming.InitialContext.lookup(InitialContext.java:392)<br/>
+	at com.webage.ejbs.TestClient.runTest(TestClient.java:19)<br/>
+	at com.webage.ejbs.TestClient.main(TestClient.java:27)<br/>
+javax.naming.NamingException: Lookup failed for 'java:global/EX_SVR/antonio.ejb.SimpleBean' in SerialContext  [Root exception is javax.naming.NamingException: Unable to acquire SerialContextProvider for SerialContext  [Root exception is java.lang.NullPointerException]]<br/>
+	at com.sun.enterprise.naming.impl.SerialContext.lookup(SerialContext.java:442)<br/>
+	at javax.naming.InitialContext.lookup(InitialContext.java:392)<br/>
+	at com.webage.ejbs.TestClient.runTest(TestClient.java:19)<br/>
+	at com.webage.ejbs.TestClient.main(TestClient.java:27)<br/>
+Caused by: javax.naming.NamingException: Unable to acquire SerialContextProvider for SerialContext  [Root exception is java.lang.NullPointerException]<br/>
+	at com.sun.enterprise.naming.impl.SerialContext.getProvider(SerialContext.java:276)<br/>
+	at com.sun.enterprise.naming.impl.SerialContext.lookup(SerialContext.java:430)<br/>
+	... 3 more<br/>
+Caused by: java.lang.NullPointerException<br/>
+	at com.sun.enterprise.naming.impl.SerialContext.getRemoteProvider(SerialContext.java:297)<br/>
+	at com.sun.enterprise.naming.impl.SerialContext.getProvider(SerialContext.java:271)<br/>
+	... 4 more</p>
+
+
+<p>I tried different examples but always this error.<br/>
+Someone can help me?</p>
+
+
+<p>Thanks<br/>
+Antonio</p>
+
+
+
+                <p class="comment-details">
+                Posted by
+                                    <b>manto69</b>
+                
+                on January 16, 2010 at 12:54 AM PST
+
+                <a href="https://blogs.oracle.com/MaheshKannan/entry/portable_global_jndi_names#comment-1263632092000"
+                   class="entrypermalink" title="comment permalink">#</a>
+                </p>
+
+            </div>
+
+                                <a name="comment-1264688095000" id="comment-1264688095000"></a>
+            <div class="comment even" id="comment2">
+
+                
+<p>Hi, I have a similar issue that Antonio's : <br/>
+I am using:<br/>
+  NetBeans 6.8<br/>
+  GlassFish V3<br/>
+When I try to deploy the EAR I get the following error:<br/>
+ Server Log:</p>
+
+
+<p>   SEVERE: Class [ Lorg/apache/fop/apps/FopFactory; ] not found. Error while loading [ class gov.siup.fopwrapper.app.FopFactoryWrapper ]<br/>
+WARNING: Error in annotation processing: java.lang.NoClassDefFoundError: Lorg/apache/fop/apps/FopFactory;<br/>
+SEVERE: Exception while deploying the app<br/>
+java.lang.IllegalArgumentException: Invalid ejb jar [WebFOPWrapper-ejb.jar]: it contains zero ejb. <br/>
+Note: <br/>
+1. A valid ejb jar requires at least one session, entity (1.x/2.x style), or message-driven bean. <br/>
+2. EJB3+ entity beans (@Entity) are POJOs and please package them as library jar. <br/>
+3. If the jar file contains valid EJBs which are annotated with EJB component level annotations (@Stateless, @Stateful, @MessageDriven, @Singleton), please check server.log to see whether the annotations were processed properly.<br/>
+        at com.sun.enterprise.deployment.util.EjbBundleValidator.accept(EjbBundleValidator.java:72)<br/>
+        at com.sun.enterprise.deployment.util.ApplicationValidator.accept(ApplicationValidator.java:124)</p>
+
+
+<p>I can deploy the Ejb-tier as a stand alone project. <br/>
+Here is the server output:<br/>
+INFO: Portable JNDI names for EJB FopFactoryWrapper : [java:global/WebFOPWrapper-ejb/FopFactoryWrapper, java:global/WebFOPWrapper-ejb/FopFactoryWrapper!gov.siup.fopwrapper.app.FopFactoryWrapper]<br/>
+INFO: Portable JNDI names for EJB DecretoRenderer : [java:global/WebFOPWrapper-ejb/DecretoRenderer!gov.siup.fopwrapper.app.DecretoRendererLocal, java:global/WebFOPWrapper-ejb/DecretoRenderer]<br/>
+INFO: WebFOPWrapper-ejb was successfully deployed in 1,111 milliseconds.</p>
+
+
+<p>When I try to Run the AppClient:<br/>
+  Server log:</p>
+
+
+<p>INFO: ACDEPL104: Java Web Start services stopped for the app client webFOPWrapperPesado<br/>
+INFO: ACDEPL103: Java Web Start services started for the app client webFOPWrapperPesado (contextRoot: /webFOPWrapperPesado)<br/>
+INFO: webFOPWrapperPesado was successfully deployed in 200 milliseconds.</p>
+
+
+<p>Client Side Log:</p>
+
+
+<p>Jan 28, 2010 8:10:39 PM com.sun.enterprise.transaction.JavaEETransactionManagerSimplified initDelegates<br/>
+INFO: Using com.sun.enterprise.transaction.jts.JavaEETransactionManagerJTSDelegate as the delegate<br/>
+Jan 28, 2010 8:10:45 PM webfopwrapperpesado.test doCalls<br/>
+SEVERE: null<br/>
+javax.naming.NamingException: Lookup failed for 'java:global/WebFOPWrapper-ejb/DecretoRenderer' in SerialContext targetHost=localhost,targetPort=3700,orb'sInitialHost=localhost,orb'sInitialPort=3700 [Root exception is javax.naming.NameNotFoundException: DecretoRenderer not found]<br/>
+        at com.sun.enterprise.naming.impl.SerialContext.lookup(SerialContext.java:442)</p>
+
+
+<p>Need Help. Thanks</p>
+
+
+
+                <p class="comment-details">
+                Posted by
+                                    <b>juan Manuel Fernandez</b>
+                
+                on January 28, 2010 at 06:14 AM PST
+
+                <a href="https://blogs.oracle.com/MaheshKannan/entry/portable_global_jndi_names#comment-1264688095000"
+                   class="entrypermalink" title="comment permalink">#</a>
+                </p>
+
+            </div>
+
+                                <a name="comment-1265285577000" id="comment-1265285577000"></a>
+            <div class="comment odd" id="comment3">
+
+                
+<p>An excellent exposition and a really usefull information. Thank You. <br/>
+I have a couple of questions and I hope you can help me on this. </p>
+
+
+<p>I have a distributed architecture where servers are hosting the ejb services and clients are running on different computers. How can I modify the @EJB injection lookup in this case. How this can be done with regulare JNDI InitialContext ? Can you give me some examples ? <br/>
+By the way I have tried the @EJB(lookupName=&quot;java:global/hello/ShoppingCart&quot;)<br/>
+private ShoppingCart cart; but it seems that lookupName is not supported I have an error in compilation (or using Netbeans is just giving you an error right away in the ide as soon as you write lookupName), should beanName work the same because in this case there is no error.<br/>
+Thank You,</p>
+
+
+<p>Walter</p>
+
+
+
+                <p class="comment-details">
+                Posted by
+                                    <b>Walter</b>
+                
+                on February 04, 2010 at 04:12 AM PST
+
+                <a href="https://blogs.oracle.com/MaheshKannan/entry/portable_global_jndi_names#comment-1265285577000"
+                   class="entrypermalink" title="comment permalink">#</a>
+                </p>
+
+            </div>
+
+                                <a name="comment-1299824440000" id="comment-1299824440000"></a>
+            <div class="comment even" id="comment4">
+
+                
+<p>hello everyone<br/>
+For several day I'm trying to solve this problem</p>
+
+
+<p>I have an application with ejb and web modules deployed on glassfish v2, and desk application using ejb<br/>
+all work without problem</p>
+
+
+<p>now I want to migrate to glassfish v3.1 </p>
+
+
+<p>// ebj<br/>
+first steep deploy the ejb's on glassfish v3, no have problem</p>
+
+
+<p>//web application<br/>
+after when deploy web modules if ejb package checked to include on library the server say this error</p>
+
+
+<p>GRAVE: Exception while loading the app : EJB Container initialization error<br/>
+java.lang.RuntimeException: Error while binding JNDI name TestSessionBean for EJB : TestSessionBean<br/>
+if ejb package not checked the web module is deployed but when run de application lookup not find the ejb </p>
+
+
+<p>Caused by: javax.naming.NameAlreadyBoundException: Use rebind to override<br/>
+        at com.sun.enterprise.naming.impl.TransientContext.doBindOrRebind(TransientContext.java:333)</p>
+
+
+<p>when deploy web application without ejb package the deploy works ok, but when run the application say this error</p>
+
+
+<p>org.apache.jasper.JasperException: java.lang.RuntimeException: javax.naming.NamingException: Lookup failed for 'TestSessionBean' in SerialContext[myEnv={org.omg.CORBA.ORBInitialPort=3700, java.naming.factory.initial=com.sun.enterprise.naming.impl.SerialInitContextFactory, org.omg.CORBA.ORBInitialHost=localhost, java.naming.factory.state=com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl, java.naming.factory.url.pkgs=com.sun.enterprise.naming} [Root exception is javax.naming.NamingException: ejb ref resolution error for remote business interfacetest.TestSessionBeanRemote [Root exception is java.lang.ClassNotFoundException: test.TestSessionBeanRemote]]<br/>
+root cause </p>
+
+
+<p>java.lang.RuntimeException: javax.naming.NamingException: Lookup failed for 'TestSessionBean' in SerialContext[myEnv={org.omg.CORBA.ORBInitialPort=3700, java.naming.factory.initial=com.sun.enterprise.naming.impl.SerialInitContextFactory, org.omg.CORBA.ORBInitialHost=localhost, java.naming.factory.state=com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl, java.naming.factory.url.pkgs=com.sun.enterprise.naming} [Root exception is javax.naming.NamingException: ejb ref resolution error for remote business interfacetest.TestSessionBeanRemote [Root exception is java.lang.ClassNotFoundException: test.TestSessionBeanRemote]]</p>
+
+
+<p>//desk application<br/>
+when run this the lookup say</p>
+
+
+<p>javax.naming.CommunicationException: Can't find SerialContextProvider [Root exception is java.lang.ClassCastException]</p>
+
+
+<p>ejb source<br/>
+//<br/>
+@Remote<br/>
+public interface TestSessionBeanRemote {</p>
+
+
+<p>    int add(int a, int b);</p>
+
+
+<p>}</p>
+
+
+<p>@Stateless(mappedName=&quot;TestSessionBean&quot;)<br/>
+public class TestSessionBean implements TestSessionBeanRemote<br/>
+{</p>
+
+
+<p>    @Override<br/>
+    public int add(int a, int b) {<br/>
+        return a + b;<br/>
+    }<br/>
+}<br/>
+//</p>
+
+
+<p>web source on lookup<br/>
+//<br/>
+ private TestSessionBeanRemote lookupTestSessionBeanRemote() {<br/>
+        try {<br/>
+            Context c = new InitialContext();<br/>
+            return (TestSessionBeanRemote) c.lookup(&quot;TestSessionBean&quot;);<br/>
+        } catch (NamingException ne) {<br/>
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, &quot;exception caught&quot;, ne);<br/>
+            throw new RuntimeException(ne);<br/>
+        }<br/>
+    }<br/>
+//</p>
+
+
+<p>desk application lookup<br/>
+//<br/>
+           Properties props = new Properties();</p>
+
+
+<p>            props.setProperty(&quot;java.naming.factory.initial&quot;, &quot;com.sun.enterprise.naming.SerialInitContextFactory&quot;);</p>
+
+
+<p>            props.setProperty(&quot;java.naming.factory.url.pkgs&quot;, &quot;com.sun.enterprise.naming&quot;);</p>
+
+
+<p>            props.setProperty(&quot;java.naming.factory.state&quot;, &quot;com.sun.corba.ee.impl.presentation.rmi.JNDIStateFactoryImpl&quot;);</p>
+
+
+<p>            props.setProperty(&quot;org.omg.CORBA.ORBInitialHost&quot;, &quot;localhost&quot;);</p>
+
+
+<p>            props.setProperty(&quot;org.omg.CORBA.ORBInitialPort&quot;, &quot;3700&quot;);</p>
+
+
+<p>            InitialContext ic = new InitialContext(props);</p>
+
+
+<p>            TestSessionBeanRemote bean = (TestSessionBeanRemote) ic.lookup(&quot;TestSessionBean&quot;);<br/>
+//</p>
+
+
+<p>you have any suggestion on the subject, or which may be my error</p>
+
+
+<p>from already very grateful</p>
+
+
+<p>juan alzugaray</p>
+
+
+
+                <p class="comment-details">
+                Posted by
+                                    <b>juan alzugaray</b>
+                
+                on March 10, 2011 at 10:20 PM PST
+
+                <a href="https://blogs.oracle.com/MaheshKannan/entry/portable_global_jndi_names#comment-1299824440000"
+                   class="entrypermalink" title="comment permalink">#</a>
+                </p>
+
+            </div>
+
+                </div>
+                        
+    <div class="comments-form">
+    <div class="comments-head">Post a Comment:</div>
+    <a name="comment-form"></a>
+
+
+    
+    <form method="post" action="https://blogs.oracle.com/MaheshKannan/entry/portable_global_jndi_names" focus="name" 
+        name="commentForm" onsubmit="fixURL(this); return validateComments(this)">    
+        <input type="hidden" name="method" value="post" />
+
+        <ul>
+            <li>
+                <label class="desc">Name:</label>
+                <input type="text" name="name" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+            <li><label class="desc">E-Mail:</label>
+                <input type="text" name="email" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+            <li><label class="desc">URL:</label>
+                <input type="text" name="url" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+                    <li><input type="checkbox" class="checkbox" id="notify" name="notify" />
+                <label for="notify" class="choice">Notify me by email of new comments</label>
+            </li>
+                    <li>
+                <input type="checkbox" class="checkbox" id="rememberInfo" name="rememberInfo" />
+                <label for="rememberInfo" class="choice">Remember Information?</label>
+            </li>
+            <li>
+                <label class="desc">Your Comment:</label>
+             
+            <textarea name="content" class="textarea large" cols="40" rows="10"></textarea>
+
+            </li>
+            <li class="info">
+                <span class="comments-syntax-indicator">
+                HTML Syntax:
+                                    <span class="disabled">NOT allowed</span>
+                                </span>
+            </li>
+            <li class="info">
+               <script type="text/javascript" src="/theme/scripts/clientSideInclude.js"></script>
+               <div id="commentAuthenticator"></div>
+            </li>
+            <li>
+               <input type="button" class="button" name="post" value="&nbsp;Preview&nbsp;"
+                  onclick="this.form.method.value='preview';this.form.submit()" />
+               <input type="submit" class="button" name="post" value="&nbsp;Post&nbsp;" />
+            </li>
+        </ul>
+
+    </form>
+
+    <script type="text/javascript" src="/theme/scripts/roller.js"></script>
+    <script type="text/javascript">
+    clientSideInclude('commentAuthenticator', '/CommentAuthenticatorServlet');
+
+    var author = getCookie("commentAuthor");
+    var email = getCookie("commentEmail");
+    var url = getCookie("commentUrl");
+    // check each field - IE will render "null"
+   
+    if (author) {
+        document.forms['commentForm'].name.value = author;
+    }else{
+        document.forms['commentForm'].name.value = "guest";
+    }
+
+    if (email) {
+        document.forms['commentForm'].email.value = email;
+    }
+    if (url) {
+        document.forms['commentForm'].url.value = url;
+    }
+
+    if (author || email || url) {
+        document.forms['commentForm'].rememberInfo.checked = true;
+    }
+
+    function fixURL(theForm) {
+        if (theForm.url.value != "" &&
+            theForm.url.value.indexOf("http://") == -1) { //prepend http://
+            theForm.url.value = "http://"+theForm.url.value;
+        }
+        saveUserInformation(theForm);
+    }
+
+    function saveUserInformation(theForm) {
+        if (theForm.rememberInfo.checked) {
+            rememberUser(theForm);
+        } else {
+            forgetUser(theForm);
+        }
+    }
+
+    function validateComments(theForm) {
+        if (theForm.content.value == "") {
+            alert("Please enter a comment.");
+            theForm.content.focus();
+            return false;
+        }
+ 
+        if (document.forms['commentForm'].name.value=="" ) {
+        document.forms['commentForm'].name.value = "guest";
+        }
+
+    }
+    </script>
+
+
+    </div>
+                    				</div>
+
+                <!-- Sidebar -->
+                           <!-- Right Sidebar -->
+<div id="rightColumn">
+
+<!-- About -->
+  <div id="aboutSection">    
+    <h5 class="section-title">About</h5>
+    <div class="section-body">
+                  <p>Mahesh Kannan</p>
+            </div>
+  </div>  
+<!-- End About -->
+
+<!-- Search -->
+  <div id="searchSection">  
+    <h5 class="section-title">Search</h5>
+    <div class="section-body">
+        <script type="text/javascript">
+    function prepareSearchForm() {
+        document.getElementById("searchForm").searchQuery.name = "oq";
+        document.getElementById("searchFilter").innerHTML = "<input type='hidden' id='searchFilteredQuery' name='q' value=''>" +
+                "<br /><input type='checkbox' id='searchScope' checked='true' /><label for='searchScope'>Search only this blog</label>";
+    }
+    function submitSearchForm() {
+        var form = document.getElementById("searchForm");
+        var query = form.searchQuery.value;
+        var urlSearchOp = form.searchOp.value; //searchOp
+        var urlGroup = form.searchGroup.value; //group
+         
+        if (query == null || query == "") {
+            return false;
+        }
+        var filter = " weblog:MaheshKannan";
+        var curUrl = window.location.href;
+        if (form.searchScope.checked && form.searchQuery.value.indexOf(filter) == -1) {
+            form.searchFilteredQuery.value = form.searchQuery.value + filter;
+        }
+        else {
+            form.searchFilteredQuery.value = form.searchQuery.value;
+        }
+
+        						 form.action="https://search.oracle.com/search/search";
+				
+        window.location = form.action + "?search_p_main_operator=" + urlSearchOp + "&group=" + urlGroup +"&q=" + form.searchFilteredQuery.value;
+        return false;
+    }
+</script>
+<form id="searchForm" action="http://search.oracle.com/search/search"
+      onsubmit="return submitSearchForm();" method="get">
+    <input type="hidden" id="searchOp" name="search_p_main_operator" value="all" />
+    <input type="hidden" id="searchGroup" name="group" value="Blogs" />
+    <label for="searchQuery" title="Enter search term">Enter search term:</label>
+    <br />
+    <input type="text" id="searchQuery" name="q" class="text" alt="Enter Search Term" />
+    <input type="image" class="input-image" id="searchSubmit" alt="Submit Search" title="Submit Search" src="https://blogs.oracle.com/MaheshKannan/resource/search-button.gif" />
+    <span id="searchFilter">
+    <noscript>Search filtering requires JavaScript</noscript>
+    </span>
+</form>
+<script type="text/javascript">prepareSearchForm();</script>
+    </div>
+  </div>    
+<!-- End Search -->
+
+<!-- Recent Posts -->
+  <div id="recentSection">  
+                <h5 class="section-title">Recent Posts</h5>
+        <div class="section-body">
+            <ul>
+                                    <li><a href="https://blogs.oracle.com/MaheshKannan/entry/portable_global_jndi_names">Portable Global JNDI names</a></li>
+                                    <li><a href="https://blogs.oracle.com/MaheshKannan/entry/singleton_ejb_support_in_glassfish">Singleton EJB support in GlassFish V3 Prelude</a></li>
+                                    <li><a href="https://blogs.oracle.com/MaheshKannan/entry/singleton_in_ejb_3_1">EJB 3.1 Container in GlassFish V3 Prelude</a></li>
+                                    <li><a href="https://blogs.oracle.com/MaheshKannan/entry/installing_ejb_container_in_glassfish">Installing EJB Container in GlassFish V3</a></li>
+                                    <li><a href="https://blogs.oracle.com/MaheshKannan/entry/ejb_3_1_in_glassfish">EJB 3.1 in GlassFish V3 TP2</a></li>
+                            </ul>
+        </div>
+      </div>    
+<!-- End Recent Posts -->
+
+
+<!-- Top Tags -->
+  <div id="tagsSection">  
+            <h5 class="section-title">Top Tags</h5>
+    <div class="tags section-body">
+        <ul class="tag-cloud">
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/3.1" title="2" class="weight-3">3.1</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/ejb" title="3" class="weight-5">ejb</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/ejb3.1" title="1" class="weight-1">ejb3.1</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/glassfish" title="2" class="weight-3">glassfish</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/global" title="1" class="weight-1">global</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/java%3Aglobal" title="1" class="weight-1">java:global</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/java%3Amodule" title="1" class="weight-1">java:module</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/jndi" title="1" class="weight-1">jndi</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/lookup" title="1" class="weight-1">lookup</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/names" title="1" class="weight-1">names</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/portable" title="1" class="weight-1">portable</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/singleton" title="1" class="weight-1">singleton</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/tags/v3" title="2" class="weight-3">v3</a></li>
+                </ul>
+    </div>
+    </div>    
+<!-- End Top Tags -->
+    
+
+<!-- Categories -->
+  <div id="categoriesSection">
+    <h5 class="section-title">Categories</h5>
+    <div class="section-body">
+                        <ul class="rCategory">
+                                                                            <li><a href="https://blogs.oracle.com/MaheshKannan/category/Personal">Personal</a></li>
+                                                                                                            <li><a href="https://blogs.oracle.com/MaheshKannan/category/Sun">Sun</a></li>
+                                                                            </ul>
+        </div>
+  </div>
+<!-- End Categories -->
+
+
+<!-- Archives -->
+   <div id="archiveSection">
+    <h5 class="section-title">Archives</h5>
+    <div class="section-body">
+        <table cellspacing="0" border="0"  summary="Blog Archive Calendar" class="hCalendarTable"><tr><td colspan="7" align="center" class="hCalendarMonthYearRow"><a href="/MaheshKannan/date/200912" title="Prev" class="hCalendarNavBar">&laquo;</a> December 2013</td></tr><tr><th class="hCalendarDayNameRow" align="center">Sun</th><th class="hCalendarDayNameRow" align="center">Mon</th><th class="hCalendarDayNameRow" align="center">Tue</th><th class="hCalendarDayNameRow" align="center">Wed</th><th class="hCalendarDayNameRow" align="center">Thu</th><th class="hCalendarDayNameRow" align="center">Fri</th><th class="hCalendarDayNameRow" align="center">Sat</th></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">1</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">2</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">3</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">4</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">5</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">6</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">7</div></td></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">8</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">9</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">10</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">11</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">12</div></td><td class="hCalendarDayCurrent"><div class="hCalendarDayTitle">13</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">14</div></td></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">15</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">16</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">17</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">18</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">19</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">20</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">21</div></td></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">22</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">23</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">24</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">25</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">26</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">27</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">28</div></td></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">29</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">30</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">31</div></td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td></tr><tr><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td></tr><tr class="hCalendarNextPrev"><td colspan="7" align="center"><a href="/MaheshKannan/" class="hCalendarNavBar">Today</a></td></tr></table>
+    </div>
+  </div>
+<!-- End Archives -->
+
+<!-- Bookmarks -->
+   <div id="bookmarkSection">
+                <h5 class="section-title">Bookmarks</h5>
+        <div class="section-body">
+            <ul class="rFolder">
+                    <li class="rFolderItem">
+                                <a href="http://blogs.sun.com"
+               title="$bookmark.description"
+               class="rBookmark0">blogs.sun.com</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://java.com"
+               title="$bookmark.description"
+               class="rBookmark0">java.com</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://java.net"
+               title="$bookmark.description"
+               class="rBookmark0">java.net</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://www.opensolaris.org"
+               title="$bookmark.description"
+               class="rBookmark0">opensolaris.org</a>
+                </li>
+                    </ul>
+        </div>
+          </div>    
+<!-- End Bookmarks -->
+
+<!-- Blog and Author Menu -->
+   <div id="menuSection">
+    <h5 class="section-title">Menu</h5>
+    <div class="section-body">
+            <ul class="rNavigationBar">
+        <li class="rNavItem">
+            <a href="/"><span>Blogs Home</span></a>
+        </li>
+        <li class="rNavItem">
+            <a href="https://blogs.oracle.com/MaheshKannan/"><span>Weblog</span></a>
+        </li>
+                                                                                                                            <li class="rNavItem">
+                    <a href="/roller-ui/login-redirect.rol"><span>Login</span></a>
+                </li>
+                        </ul>
+            </div>
+  </div>    
+<!-- End Blog and Author Menu -->
+
+    
+<!-- Feeds -->
+   <div id="feedsSection">   
+    <h5 class="section-title">Feeds</h5>
+    <div class="section-body">
+        <b>RSS</b>
+            <ul class="rFeeds">
+    <li><a href="https://blogs.oracle.com/MaheshKannan/feed/entries/rss">All</a></li>
+                        <li><a href="https://blogs.oracle.com/MaheshKannan/feed/entries/rss?cat=%2FPersonal">/Personal</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/feed/entries/rss?cat=%2FSun">/Sun</a></li>
+        <li><a href="https://blogs.oracle.com/MaheshKannan/feed/comments/rss">Comments</a></li>
+    </ul>
+        <b>Atom</b>    
+            <ul class="rFeeds">
+    <li><a href="https://blogs.oracle.com/MaheshKannan/feed/entries/atom">All</a></li>
+                        <li><a href="https://blogs.oracle.com/MaheshKannan/feed/entries/atom?cat=%2FPersonal">/Personal</a></li>
+                    <li><a href="https://blogs.oracle.com/MaheshKannan/feed/entries/atom?cat=%2FSun">/Sun</a></li>
+        <li><a href="https://blogs.oracle.com/MaheshKannan/feed/comments/atom">Comments</a></li>
+    </ul>
+    </div>
+  </div>          
+<!-- End Feeds -->    
+    
+</div>    			</div>
+
+			<!-- Footer -->
+			<div id="footer">
+				<p>The views expressed on this blog are those of the author and do not necessarily reflect the views of Oracle. <a href="http://www.oracle.com/html/terms.html">Terms of Use</a> | <a href="http://www.oracle.com/html/privacy.html">Your Privacy Rights</a> | <span id='teconsent'><script type='text/javascript' src='https://consent.truste.com/notice?domain=oracle.com&c=teconsent&language=en&text=true'></script>   </span>  </p>
+			</div>
+			<!-- Omniture Script --> 
+<!-- Start SiteCatalyst code -->
+
+<script language="JavaScript" src="/main/resource/resources/ora_blogs.js"></script>
+
+<!-- End SiteCatalyst code -->
+		</div>
+	</body>
+</html>

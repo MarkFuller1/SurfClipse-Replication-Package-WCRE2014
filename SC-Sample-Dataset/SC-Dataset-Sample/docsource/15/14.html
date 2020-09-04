@@ -1,0 +1,1564 @@
+<HTML>
+<HEAD>
+<title>Java Network Programming, 2nd Edition: Chapter 11: Sockets for Servers</title>
+</head>
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" link="#990000" vlink="#0000CC">
+<table BORDER="0" CELLPADDING="0" CELLSPACING="0" width="90%">
+<tr>
+<td colspan=2>
+<IMG WIDTH="515" height="37" ALIGN="BOTTOM"
+ ALT="Search the Catalog" BORDER="0" 
+ USEMAP="#catalog_header_buttons" ISMAP
+ SRC="/graphics_new/catalog_header_buttons.gif">
+<MAP Name="catalog_header_buttons">
+<aREA Shape="Rect" coords = "407,17,512,32"  href="/catalog/search.html">
+<aREA Shape="Rect" coords = "431,3,512,18"  href="/catalog/prdindex.html">
+</MAP>
+</td>
+</tr>
+<tr>
+<td width="25%" valign="TOP">
+<A HREF="/catalog/javanp2/">
+<img hspace=10 vspace=10 src="/catalog/covers/javanp2.s.gif" 
+alt="Java Network Programming, 2nd Edition" align=left valign=top border=0>
+</a>
+</td>
+<td height="105" valign="TOP">
+<br>
+<H2>Java Network Programming, 2nd Edition</H2>
+<font size="-1">
+By Elliotte Rusty Harold<BR>
+2nd Edition August 2000<BR>
+1-56592-870-9, Order Number: 8709<br>
+760 pages, $39.95
+</font>
+</td>
+</tr>
+</table>
+<hr size=1 noshade>
+<!--sample chapter begins -->
+
+<blockquote>
+
+<h2 class="ChapterTitleLeft">Chapter 11
+<br>
+<A NAME="84468"></a>Sockets for Servers</h2>
+
+<B class="|ChapterContentsStart">In this chapter:</b>
+<BR>
+<A HREF="ch11.html#26022" CLASS="XRef">The ServerSocket Class</a>
+<br>
+
+<A HREF="ch11.html#42015" CLASS="XRef">Some Useful Servers</a>
+
+<P CLASS="Body">The last chapter discussed sockets from the standpoint of clients: programs that open a socket to a server that's listening for connections. However, client sockets themselves aren't enough; clients aren't much use unless they can talk to a server, and if you think about it, the sockets we discussed in the last chapter aren't sufficient for writing servers. To create a <CODE CLASS="Literal">Socket</code>, you need to know the Internet host to which you want to connect. When you're writing a server, you don't know in advance who will contact you, and even if you did, you wouldn't know when that host wanted to contact you. In other words, servers are like receptionists who sit by the phone and wait for incoming calls. They don't know who will call or when, only that when the phone rings, they have to pick it up and talk to whoever is there. We can't program that behavior with the <CODE CLASS="Literal">Socket</code> class alone. Granted, there's no reason that clients written in Java have to talk to Java servers--in fact, a client doesn't care what language the server was written in or what platform it runs on. However, if Java didn't let us write servers, there would be a glaring hole in its capabilities. </p>
+
+
+<P CLASS="Body">Fortunately, there's no such hole. Java provides a <CODE CLASS="Literal">ServerSocket</code> class to allow programmers to write servers. Basically, a server socket's job is to sit by the phone and wait for incoming calls. More technically, a <CODE CLASS="Literal">ServerSocket</code> runs on the server and listens for incoming TCP connections. Each <CODE CLASS="Literal">ServerSocket</code> listens on a particular port on the server machine. When a client <CODE CLASS="Literal">Socket</code> on a remote host attempts to connect to that port, the server wakes up, negotiates the connection between the client and the server, and opens a regular <CODE CLASS="Literal">Socket</code> between the two hosts. In other words, server sockets wait for connections while client sockets initiate connections. Once the server socket has set up the connection, the server uses a regular <CODE CLASS="Literal">Socket</code> object to send data to the client. Data always travels over the regular socket. </p>
+
+
+<H2 CLASS="HeadA"><A NAME="26022"></a>The ServerSocket Class</h2>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">ServerSocket</code> class contains everything you need to write servers in Java. It has constructors that create new <CODE CLASS="Literal">ServerSocket</code> objects, methods that listen for connections on a specified port, and methods that return a <CODE CLASS="Literal">Socket</code> object when a connection is made so that you can send and receive data. In addition, it has   methods to set various options and the usual miscellaneous methods such as <CODE CLASS="Literal">toString(  )</code>.</p>
+
+
+<P CLASS="Body">The basic life cycle of a server is:</p>
+
+<OL>
+<LI CLASS="ListNumber">A new <CODE CLASS="Literal">ServerSocket</code> is created on a particular port using a <CODE CLASS="Literal">ServerSocket(  )</code> constructor.</li>
+<p>
+<LI CLASS="ListNumber">The <CODE CLASS="Literal">ServerSocket</code> listens for incoming connection attempts on that port using its <CODE CLASS="Literal">accept(  )</code> method. <CODE CLASS="Literal">accept(  )</code> blocks until a client attempts to make a connection, at which point <CODE CLASS="Literal">accept(  )</code> returns a <CODE CLASS="Literal">Socket</code> object connecting the client and the server.</li>
+<p>
+<LI CLASS="ListNumber">Depending on the type of server, either the <CODE CLASS="Literal">Socket</code>'s <CODE CLASS="Literal">getInputStream(  )</code> method, <CODE CLASS="Literal">getOutputStream(  )</code> method, or both are called to get input and output streams that communicate with the client.</li>
+<p>
+<LI CLASS="ListNumber">The server and the client interact according to an agreed-upon protocol until it is time to close the connection.</li>
+<p>
+<LI CLASS="ListNumber">The server, the client, or both close the connection.</li>
+<p>
+<LI CLASS="ListNumber">The server returns to step 2 and waits for the next connection.</li>
+<p>
+</ol>
+
+<P CLASS="Body">If step 4 is likely to take a long or indefinite amount of time, traditional Unix servers such as wu-ftpd create a new process to handle each connection so that multiple clients can be serviced at the same time. Java programs should spawn a thread to interact with the client so that the server can be ready to process the next connection sooner. A thread places a far smaller load on the server than a complete child process. In fact, the overhead of forking too many processes is why the typical Unix FTP server can't handle more than roughly 400 connections without slowing to a crawl. On the other hand, if the protocol is simple and quick and allows the server to close the connection when it's through, then it will be more efficient for the server to process the client request immediately without spawning a thread.</p>
+
+
+<P CLASS="Body">The operating system stores incoming connection requests addressed to a particular port in a first-in, first-out queue. The default length of the queue is normally 50, though this can vary from operating system to operating system. Some operating systems (though not Solaris) have a maximum queue length, typically five. On these systems, the queue length will be the largest possible value less than or equal to 50. After the queue fills to capacity with unprocessed connections, the host refuses additional connections on that port until slots in the queue open up. Many (though not all) clients will try to make a connection multiple times if their initial attempt is refused. Managing incoming connections and the queue is a service provided by the operating system; your program does not need to worry about it. Several <CODE CLASS="Literal">ServerSocket</code> constructors allow you to change the length of the queue if its default length isn't large enough; however, you won't be able to increase the queue beyond the maximum size that the operating system supports:</p>
+
+
+<H3 CLASS="HeadB">The Constructors</h3>
+
+
+<P CLASS="Body">There are three public <CODE CLASS="Literal">ServerSocket</code> constructors: </p>
+
+<PRE><CODE CLASS="Code">public ServerSocket(int port) throws IOException, BindException</code>
+<CODE CLASS="Code">public ServerSocket(int port, int queueLength) </code>
+<CODE CLASS="Code"> throws IOException, BindException</code>
+<CODE CLASS="Code">public ServerSocket(int port, int queueLength, InetAddress bindAddress) </code>
+<CODE CLASS="Code"> throws IOException</code>
+</pre>
+
+<P CLASS="Body">These constructors let you specify the port, the length of the queue used to hold incoming connection requests, and the local network interface to bind to. They pretty much all do the same thing, though some use default values for the queue length and the address to bind to. Let's explore these in order. </p>
+
+
+<H4 CLASS="HeadC">public ServerSocket(int port) throws IOException, BindException</h4>
+
+
+<P CLASS="Body">This constructor creates a server socket on the port specified by the argument. If you pass 0 for the port number, the system selects an available port for you. A port chosen for you by the system is sometimes called an <EM CLASS="Emphasis">anonymous port</em> since you don't know its number. For servers, anonymous ports aren't very useful because clients need to know in advance which port to connect to; however, there are a few situations (which we will discuss later) in which an anonymous port might be useful. </p>
+
+
+<P CLASS="Body">For example, to create a server socket that would be used by an HTTP server on port 80, you would write:</p>
+
+<PRE><CODE CLASS="Code">try {</code>
+<CODE CLASS="Code">  ServerSocket httpd = new ServerSocket(80);</code>
+<CODE CLASS="Code">}</code>
+<CODE CLASS="Code">catch (IOException e) {</code>
+<CODE CLASS="Code">  System.err.println(e);</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">The constructor throws an <CODE CLASS="Literal">IOException</code> (specifically, a <CODE CLASS="Literal">BindException</code>) if the socket cannot be created and bound to the requested port. An <CODE CLASS="Literal">IOException</code> when creating a <CODE CLASS="Literal">ServerSocket</code> almost always means one of two things. Either another server socket, possibly from a completely different program, is already using the requested port, or you're trying to connect to a port from 1 to 1023 on Unix without root (superuser) privileges.</p>
+
+
+<P CLASS="Body">You can use this constructor to write a variation on the <CODE CLASS="Literal">PortScanner</code> programs of the previous chapter. <A HREF="ch11.html#63042" CLASS="XRef">Example 11-1</a> checks for ports on the local machine by attempting to create <CODE CLASS="Literal">ServerSocket</code> objects on them and seeing on which ports that fails. If you're using Unix and are not running as root, this program works only for ports 1,024 and above.</p>
+
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="63042">Example 11-1:</a></b> 
+<B class="ExampleTitle">Look for Local Ports </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">public class LocalPortScanner {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public static void main(String[] args) {</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    for (int port = 1; port &lt;= 65535; port++) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">      try {</code>
+<CODE CLASS="Code">        // the next line will fail and drop into the catch block if</code>
+<CODE CLASS="Code">        // there is already a server running on the port</code>
+<CODE CLASS="Code">        ServerSocket server = new ServerSocket(port);</code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">      catch (IOException e) {</code>
+<CODE CLASS="Code">        System.out.println(&quot;There is a server on port &quot; + port + &quot;.&quot;);</code>
+<CODE CLASS="Code">      } // end try</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">    } // end for</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">Here's the output I got when running <CODE CLASS="Literal">LocalPortScanner</code> on my NT workstation:</p>
+
+<PRE><CODE CLASS="Code">D:&#92;JAVA&#92;JNP2&#92;examples&#92;11&gt;<KBD CLASS="UserInput">java LocalPortScanner</kbd></code>
+<CODE CLASS="Code">There is a server on port 135.</code>
+<CODE CLASS="Code">There is a server on port 1025.</code>
+<CODE CLASS="Code">There is a server on port 1026.</code>
+<CODE CLASS="Code">There is a server on port 1027.</code>
+<CODE CLASS="Code">There is a server on port 1028.</code>
+</pre>
+
+<H4 CLASS="HeadC">public ServerSocket(int port, int queueLength)                           throws IOException, BindException</h4>
+
+
+<P CLASS="Body">This constructor creates a <CODE CLASS="Literal">ServerSocket</code> on the specified port with a queue length of your choosing. If the machine has multiple network interfaces or IP addresses, then it listens on this port on all those interfaces and IP addresses. The <CODE CLASS="Literal">queueLength</code> argument sets the length of the queue for incoming connection requests--that is, how many incoming connections can be stored at one time before the host starts refusing connections. Some operating systems have a maximum queue length, typically five. If you try to expand the queue past that maximum number, the maximum queue length is used instead. If you pass 0 for the port number, the system selects an available port.</p>
+
+
+<P CLASS="Body">For example, to create a server socket on port 5,776 that would hold up to 100 incoming connection requests in the queue, you would write:</p>
+
+<PRE><CODE CLASS="Code">try {</code>
+<CODE CLASS="Code">  ServerSocket httpd = new ServerSocket(5776, 100);</code>
+<CODE CLASS="Code">}</code>
+<CODE CLASS="Code">catch (IOException e) {</code>
+<CODE CLASS="Code">  System.err.println(e);</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">The constructor throws an <CODE CLASS="Literal">IOException</code> (specifically, a <CODE CLASS="Literal">BindException</code>) if the socket cannot be created and bound to the requested port. An <CODE CLASS="Literal">IOException</code> when creating a <CODE CLASS="Literal">ServerSocket</code> almost always means one of two things. Either the specified port is already in use, or you do not have root privileges on Unix and you're trying to connect to a port from 1 to 1,023.</p>
+
+
+<H4 CLASS="HeadC">public ServerSocket(int port, int queueLength, 
+<BR>
+
+InetAddress bindAddress) throws BindException, IOException</h4>
+
+
+<P CLASS="Body">This constructor, which is available only in Java 1.1 and later, creates a <CODE CLASS="Literal">ServerSocket</code> on the specified port with the specified queue length. This <CODE CLASS="Literal">ServerSocket</code> binds only to the specified local IP address. This constructor is useful for servers that run on systems with several IP addresses (a common practice at web server farms) because it allows you to choose the address to which you'll listen. That is, this <CODE CLASS="Literal">ServerSocket</code> listens only for incoming connections on the specified address; it won't listen for connections that come in through the host's other addresses. The other constructors bind to all local IP addresses by default. </p>
+
+
+<P CLASS="Body">For example, <i>metalab.unc.edu</i> is a particular SPARCstation in North Carolina. It's connected to the Internet with the IP address 152.2.254.81. The same SPARCstation is also called <EM CLASS="Emphasis">www.gigabit-ethernet.org</em>, but with a different IP address (152.2.254.82). To create a server socket that listens on port 5,776 of <i>metalab.unc.edu</i> but not on port 5,776 of <EM CLASS="Emphasis">www.gigabit-ethernet.org</em>, you would write:</p>
+
+<PRE><CODE CLASS="Code">try {</code>
+<CODE CLASS="Code">  ServerSocket httpd = new ServerSocket(5776, 10, </code>
+<CODE CLASS="Code">   InetAddress.getHostByName(&quot;metalab.unc.edu&quot;));</code>
+<CODE CLASS="Code">}</code>
+<CODE CLASS="Code">catch (IOException e) {</code>
+<CODE CLASS="Code">  System.err.println(e);</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">The constructor throws an <CODE CLASS="Literal">IOException</code> (again, really a <CODE CLASS="Literal">BindException</code>) if the socket cannot be created and bound to the requested port. A <CODE CLASS="Literal">BindException</code> when creating a <CODE CLASS="Literal">ServerSocket</code> almost always means one of two things. Either the specified port is already in use, or you do not have root privileges on Unix and you're trying to connect to a port from 1 to 1,023.</p>
+
+
+<H3 CLASS="HeadB">Accepting and Closing Connections</h3>
+
+
+<P CLASS="Body">A <CODE CLASS="Literal">ServerSocket</code> generally operates in a loop that repeatedly accepts connections. Each pass through the loop invokes the <CODE CLASS="Literal">accept(  )</code> method. This returns a <CODE CLASS="Literal">Socket</code> object representing the connection between the remote client and the local server. Interaction with the client takes place through this <CODE CLASS="Literal">Socket</code> object. When the transaction is finished, the server should invoke the <CODE CLASS="Literal">Socket</code> object's <CODE CLASS="Literal">close(  )</code> method and get ready to process the next incoming connection. However, when the server needs to shut down and not process any further incoming connections, you should invoke the <CODE CLASS="Literal">ServerSocket</code> object's <CODE CLASS="Literal">close(  )</code> method.</p>
+
+
+<H4 CLASS="HeadC">public Socket accept(  ) throws IOException</h4>
+
+
+<P CLASS="Body">When server setup is done and you're ready to accept a connection, call the <CODE CLASS="Literal">ServerSocket</code>'s <CODE CLASS="Literal">accept(  )</code> method. This method &quot;blocks&quot;: it stops the flow of execution and waits until a client connects. When a client does connect, the <CODE CLASS="Literal">accept(  )</code> method returns a <CODE CLASS="Literal">Socket</code> object. You use the streams returned by this <CODE CLASS="Literal">Socket</code>'s <CODE CLASS="Literal">getInputStream(  )</code> and <CODE CLASS="Literal">getOutputStream(  )</code> methods to communicate with the client. For example:</p>
+
+<PRE><CODE CLASS="Code">ServerSocket server = new ServerSocket(5776);</code>
+<CODE CLASS="Code">while (true) {</code>
+<CODE CLASS="Code">  Socket connection = server.accept(  );</code>
+<CODE CLASS="Code">  OutputStreamWriter out </code>
+<CODE CLASS="Code">   = new OutputStreamWriter(connection.getOutputStream(  ));</code>
+<CODE CLASS="Code">  out.write(&quot;You've connected to this server. Bye-bye now.&#92;r&#92;n&quot;);        </code>
+<CODE CLASS="Code">  connection.close(  );</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">If you don't want your program to halt while it waits for a connection, put the call to <CODE CLASS="Literal">accept(  )</code> in a separate thread.</p>
+
+
+<P CLASS="Body">When you add exception handling, the code becomes somewhat more convoluted. It's important to distinguish between exceptions thrown by the <CODE CLASS="Literal">ServerSocket</code>,<CODE CLASS="Literal"> </code>which should probably shut down the server and log an error message, and exceptions thrown by a <CODE CLASS="Literal">Socket</code>,<CODE CLASS="Literal"> </code>which should just close that active connection. Exceptions thrown by the <CODE CLASS="Literal">accept(  )</code> method are an intermediate case that can go either way. To do this, you'll need to nest your <CODE CLASS="Literal">try</code> blocks. Finally, most servers will want to make sure that all sockets they accept are closed when they're finished. Even if the protocol specifies that clients are responsible for closing connections, clients do not always strictly adhere to the protocol. The call to <CODE CLASS="Literal">close(  )</code> also has to be wrapped in a <CODE CLASS="Literal">try</code> block that catches an <CODE CLASS="Literal">IOException</code>. However, if you do catch an <CODE CLASS="Literal">IOException</code> when closing the socket, ignore it. It just means that the client closed the socket before the server could. Here's a slightly more realistic example:</p>
+
+<PRE><CODE CLASS="Code">try {</code>
+<CODE CLASS="Code">  ServerSocket server = new ServerSocket(5776);</code>
+<CODE CLASS="Code">  while (true) {</code>
+<CODE CLASS="Code">    Socket connection = server.accept(  );</code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      OutputStreamWriter out </code>
+<CODE CLASS="Code">       = new OutputStreamWriter(connection.getOutputStream(  ));</code>
+<CODE CLASS="Code">      out.write(&quot;You've connected to this server. Bye-bye now.&#92;r&#92;n&quot;);        </code>
+<CODE CLASS="Code">      connection.close(  );</code>
+<CODE CLASS="Code">   }</code>
+<CODE CLASS="Code">   catch (IOException e) {</code>
+<CODE CLASS="Code">     // This tends to be a transitory error for this one connection;</code>
+<CODE CLASS="Code">     // e.g. the client broke the connection early. Consequently,</code>
+<CODE CLASS="Code">     // we don't want to break the loop or print an error message.</code>
+<CODE CLASS="Code">     // However, you might choose to log this exception in an error log.</code>
+<CODE CLASS="Code">   }</code>
+<CODE CLASS="Code">   finally {</code>
+<CODE CLASS="Code">     // Most servers will want to guarantee that sockets are closed</code>
+<CODE CLASS="Code">     // when complete. </code>
+<CODE CLASS="Code">     try {</code>
+<CODE CLASS="Code">       if (connection != null) connection.close(  );</code>
+<CODE CLASS="Code">     }</code>
+<CODE CLASS="Code">     catch (IOException e) {}</code>
+<CODE CLASS="Code">   }</code>
+<CODE CLASS="Code">}</code>
+<CODE CLASS="Code">catch (IOException e) {</code>
+<CODE CLASS="Code">  System.err.println(e);</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body"><A HREF="ch11.html#47441" CLASS="XRef">Example 11-2</a> implements a simple daytime server, as per RFC 867. Since this server just sends a single line of text in response to each connection, it processes each connection immediately. More complex servers should spawn a thread to handle each request. In this case, the overhead of spawning a thread would be greater than the time needed to process the request.</p>
+
+<BLOCKQUOTE>
+
+<P CLASS="Note"><B>NOTE:</b> 
+If you run this program on a Unix box, you need to run it as root in order to connect to port 13. If you don't want to or can't run it as root, change the port number to something above 1024, say 1313.</blockquote>
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="47441">Example 11-2:</a></b> 
+<B class="ExampleTitle">A Daytime Server </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">import java.util.Date;</code>
+<CODE CLASS="Code"> &nbsp;</code>
+<CODE CLASS="Code">public class DaytimeServer {</code>
+<CODE CLASS="Code"> &nbsp;</code>
+<CODE CLASS="Code">  public final static int DEFAULT_PORT = 13;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public static void main(String[] args) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">   int port = DEFAULT_PORT;     </code>
+<CODE CLASS="Code">   if (args.length &gt; 0) {</code>
+<CODE CLASS="Code">     try {</code>
+<CODE CLASS="Code">        port = Integer.parseInt(args[0]);</code>
+<CODE CLASS="Code">        if (port &lt; 0 || port &gt;= 65536) {</code>
+<CODE CLASS="Code">          System.out.println(&quot;Port must between 0 and 65535&quot;);</code>
+<CODE CLASS="Code">          return;      </code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">     }   </code>
+<CODE CLASS="Code">     catch (NumberFormatException e) {</code>
+<CODE CLASS="Code">       // use default port</code>
+<CODE CLASS="Code">     }  </code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">   }     </code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">   try {</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">     ServerSocket server = new ServerSocket(port);</code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">     Socket connection = null;</code>
+<CODE CLASS="Code">     while (true) {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">       try {</code>
+<CODE CLASS="Code">         connection = server.accept(  );</code>
+<CODE CLASS="Code">         OutputStreamWriter out </code>
+<CODE CLASS="Code">          = new OutputStreamWriter(connection.getOutputStream(  ));</code>
+<CODE CLASS="Code">         Date now = new Date(  );</code>
+<CODE CLASS="Code">         out.write(now.toString(  ) +&quot;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">         out.flush(  );      </code>
+<CODE CLASS="Code">         connection.close(  );</code>
+<CODE CLASS="Code">       }</code>
+<CODE CLASS="Code">       catch (IOException e) {}</code>
+<CODE CLASS="Code">       finally {</code>
+<CODE CLASS="Code">         try {</code>
+<CODE CLASS="Code">           if (connection != null) connection.close(  );</code>
+<CODE CLASS="Code">         }</code>
+<CODE CLASS="Code">         catch (IOException e) {}          </code>
+<CODE CLASS="Code">       }</code>
+<CODE CLASS="Code">         </code>
+<CODE CLASS="Code">     }  // end while</code>
+<CODE CLASS="Code">       </code>
+<CODE CLASS="Code">   }  // end try</code>
+<CODE CLASS="Code">   catch (IOException e) {</code>
+<CODE CLASS="Code">     System.err.println(e);</code>
+<CODE CLASS="Code">   } // end catch</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  } // end main</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">} // end DaytimeServer</code>
+</pre>
+
+<P CLASS="Body"><A HREF="ch11.html#47441" CLASS="XRef">Example 11-2</a> is straightforward. The first three lines import the usual packages, <CODE CLASS="Literal">java.io</code> and <CODE CLASS="Literal">java.net</code>, as well as <CODE CLASS="Literal">java.util.Date</code> so we can get the time. There is a single <CODE CLASS="Literal">public final static int</code> field (i.e., a constant) in the class <CODE CLASS="Literal">DEFAULT_PORT</code>, which is set to the well-known port for a daytime server (port 13). The class has a single method, <CODE CLASS="Literal">main(  )</code>, which does all the work. If the port is specified on the command-line, then it's read from <CODE CLASS="Literal">args[0]</code>. Otherwise, the default port is used. </p>
+
+
+<P CLASS="Body">The outer <CODE CLASS="Literal">try</code> block traps any <CODE CLASS="Literal">IOException</code>s that may arise while the <CODE CLASS="Literal">ServerSocket</code> server is constructed on the daytime port or when it accepts connections. The inner <CODE CLASS="Literal">try</code> block watches for exceptions thrown while the connections are accepted and processed. The <CODE CLASS="Literal">accept(  )</code> method is called within an infinite loop to watch for new connections; like many servers, this program never terminates but continues listening until an exception is thrown or you stop it manually.<A HREF="#footnote-1" TITLE="Footnote" CLASS="footnote">[1]</a></p>
+
+
+<P CLASS="Body">When a client makes a connection, <CODE CLASS="Literal">accept(  )</code> returns a <CODE CLASS="Literal">Socket</code>, which is stored in the local variable <CODE CLASS="Literal">connection</code>, and the program continues. We call <CODE CLASS="Literal">getOutputStream(  )</code> to get the output stream associated with that <CODE CLASS="Literal">Socket</code> and then chain that output stream to a new <CODE CLASS="Literal">OutputStreamWriter</code>, <CODE CLASS="Literal">out</code>. To get the current date, we construct a new <CODE CLASS="Literal">Date</code> object and send it to the client by writing its string representation on <CODE CLASS="Literal">out</code> with <CODE CLASS="Literal">write(  )</code>.</p>
+
+
+<P CLASS="Body">Finally, after the data is sent or an exception has been thrown, we close <CODE CLASS="Literal">connection</code> inside the <CODE CLASS="Literal">finally</code> block. Always close a socket when you're finished with it. In the previous chapter, we said that a client shouldn't rely on the other side of a connection to close the socket. That goes triple for servers. Clients can time out or crash; users can cancel transactions; networks can go down in high-traffic periods. For any of these or a dozen more reasons, you cannot rely on clients to close sockets, even when the protocol requires them to (which it doesn't in this case).</p>
+
+
+<P CLASS="Body">Sending binary, nontext data is not significantly harder. <A HREF="ch11.html#30748" CLASS="XRef">Example 11-3</a> demonstrates with a time server. This follows the time protocol outlined in RFC 868. When a client connects, the server sends a 4-byte, big-endian, unsigned integer specifying the number of seconds that have passed since 12:00 A.M., January 1, 1900 GMT (the epoch). The current time can be retrieved simply by creating a new <CODE CLASS="Literal">Date</code> object. However, since the <CODE CLASS="Literal">Date</code> class counts milliseconds since 12:00   A.M., January 1, 1970 GMT rather than seconds since 12:00 A.M., January 1, 1900 GMT, some conversion is necessary. </p>
+
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="30748">Example 11-3:</a></b> 
+<B class="ExampleTitle">A Time Server </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">import java.util.Date;</code>
+<CODE CLASS="Code"> &nbsp;</code>
+<CODE CLASS="Code">public class TimeServer {</code>
+<CODE CLASS="Code"> &nbsp;</code>
+<CODE CLASS="Code">  public final static int DEFAULT_PORT = 37;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public static void main(String[] args) {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">   int port = DEFAULT_PORT;     </code>
+<CODE CLASS="Code">   if (args.length &gt; 0) {</code>
+<CODE CLASS="Code">     try {</code>
+<CODE CLASS="Code">        port = Integer.parseInt(args[0]);</code>
+<CODE CLASS="Code">        if (port &lt; 0 || port &gt;= 65536) {</code>
+<CODE CLASS="Code">          System.out.println(&quot;Port must between 0 and 65535&quot;);</code>
+<CODE CLASS="Code">          return;      </code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">     }   </code>
+<CODE CLASS="Code">     catch (NumberFormatException e) {}  </code>
+<CODE CLASS="Code">   }     </code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">   // The time protocol sets the epoch at 1900,</code>
+<CODE CLASS="Code">   // the java Date class at 1970. This number </code>
+<CODE CLASS="Code">   // converts between them.</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">   long differenceBetweenEpochs = 2208988800L;</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">   try {</code>
+<CODE CLASS="Code">     ServerSocket server = new ServerSocket(port);</code>
+<CODE CLASS="Code">       while (true) {</code>
+<CODE CLASS="Code">         Socket connection = null;</code>
+<CODE CLASS="Code">         try {</code>
+<CODE CLASS="Code">           connection = server.accept(  );</code>
+<CODE CLASS="Code">           OutputStream out = connection.getOutputStream(  );</code>
+<CODE CLASS="Code">           Date now = new Date(  );</code>
+<CODE CLASS="Code">           long msSince1970 = now.getTime(  );</code>
+<CODE CLASS="Code">           long secondsSince1970 = msSince1970/1000;</code>
+<CODE CLASS="Code">           long secondsSince1900 = secondsSince1970 </code>
+<CODE CLASS="Code">            + differenceBetweenEpochs;</code>
+<CODE CLASS="Code">           byte[] time = new byte[4];</code>
+<CODE CLASS="Code">           time[0] </code>
+<CODE CLASS="Code">            = (byte) ((secondsSince1900 &amp; 0x00000000FF000000L) &gt;&gt; 24);</code>
+<CODE CLASS="Code">           time[1] </code>
+<CODE CLASS="Code">            = (byte) ((secondsSince1900 &amp; 0x0000000000FF0000L) &gt;&gt; 16);</code>
+<CODE CLASS="Code">           time[2] </code>
+<CODE CLASS="Code">            = (byte) ((secondsSince1900 &amp; 0x000000000000FF00L) &gt;&gt; 8);</code>
+<CODE CLASS="Code">           time[3] = (byte) (secondsSince1900 &amp; 0x00000000000000FFL);</code>
+<CODE CLASS="Code">           out.write(time);</code>
+<CODE CLASS="Code">           out.flush(  );      </code>
+<CODE CLASS="Code">         } // end try</code>
+<CODE CLASS="Code">         catch (IOException e) {</code>
+<CODE CLASS="Code">         } // end catch</code>
+<CODE CLASS="Code">         finally {</code>
+<CODE CLASS="Code">           if (connection != null) connection.close(  ); </code>
+<CODE CLASS="Code">         }</code>
+<CODE CLASS="Code">       }  // end while</code>
+<CODE CLASS="Code">   }  // end try</code>
+<CODE CLASS="Code">   catch (IOException e) {</code>
+<CODE CLASS="Code">     System.err.println(e);</code>
+<CODE CLASS="Code">   } // end catch</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  } // end main</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">} // end TimeServer</code>
+</pre>
+
+<P CLASS="Body">As with the <CODE CLASS="Literal">TimeClient</code> of the previous chapter, most of the effort here goes into working with a data format (32-bit unsigned integers) that Java doesn't natively support. </p>
+
+
+<H4 CLASS="HeadC">public void close(  ) throws IOException</h4>
+
+
+<P CLASS="Body">If you're finished with a server socket, you should close it, especially if your program is going to continue to run for some time. This frees up the port for other programs that may wish to use it. Closing a <CODE CLASS="Literal">ServerSocket</code> should not be confused with closing a <CODE CLASS="Literal">Socket</code>. Closing a <CODE CLASS="Literal">ServerSocket</code> frees a port on the local host, allowing another server to bind to the port; closing a <CODE CLASS="Literal">Socket</code> breaks the connection between the local and the remote hosts.</p>
+
+
+<P CLASS="Body">Server sockets are closed automatically when a program dies, so it's not absolutely necessary to close them in programs that terminate shortly after the <CODE CLASS="Literal">ServerSocket</code> is no longer needed. Nonetheless, it doesn't hurt. For example, the main loop of the <CODE CLASS="Literal">LocalPortScanner</code> program might be better written like this so that it doesn't temporarily occupy most of the ports on the system:</p>
+
+<PRE><CODE CLASS="Code">for (int port = 1; port &lt;= 65535; port++) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  try {</code>
+<CODE CLASS="Code">    // the next line will fail and drop into the catch block if</code>
+<CODE CLASS="Code">    // there is already a server running on the port</code>
+<CODE CLASS="Code">    ServerSocket server = new ServerSocket(port);</code>
+<CODE CLASS="Code">    server.close(  );</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">  catch (IOException e) {</code>
+<CODE CLASS="Code">    System.out.println(&quot;There is a server on port &quot; + port + &quot;.&quot;);</code>
+<CODE CLASS="Code">  } // end try</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">} // end for</code>
+</pre>
+
+<H3 CLASS="HeadB">The get Methods</h3>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">ServerSocket</code> class provides two getter methods to tell you the local address and port occupied by the server socket. These are useful if you've opened a server socket on an anonymous port and/or an unspecified network interface. This would be the case, for one example, in the data connection of an FTP session. </p>
+
+
+<H4 CLASS="HeadC">public InetAddress getInetAddress(  )</h4>
+
+
+<P CLASS="Body">This method returns the address being used by the server (the local host). If the local host has a single IP address (as most do), then this is the address returned by <CODE CLASS="Literal">InetAddress.getLocalHost(  )</code>. If the local host has more than one IP address, then the specific address returned is one of the host's IP addresses. You can't predict which address you will get. For example:</p>
+
+<PRE><CODE CLASS="Code">try {</code>
+<CODE CLASS="Code">  ServerSocket httpd = new ServerSocket(80);</code>
+<CODE CLASS="Code">  InetAddress ia = httpd.getInetAddress(  );</code>
+<CODE CLASS="Code">}</code>
+<CODE CLASS="Code">catch (IOException e) {</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<H4 CLASS="HeadC">public int getLocalPort(  )</h4>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">ServerSocket</code> constructors allow you to listen on an unspecified port by passing 0 for the port number. This method lets you find out what port you're listening on. You might use this in a peer-to-peer multisocket program where you already have a means to inform other peers of your location. Or a server might spawn several smaller servers to perform particular operations. The well-known server could inform clients what ports they can find the smaller servers on. Of course, you can also use <CODE CLASS="Literal">getLocalPort(  )</code> to find a non-anonymous port, but why would you need to? <A HREF="ch11.html#64353" CLASS="XRef">Example 11-4</a> demonstrates.</p>
+
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="64353">Example 11-4:</a></b> 
+<B class="ExampleTitle">A Random Port </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">public class RandomPort {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public static void main(String[] args) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      ServerSocket server = new ServerSocket(0);</code>
+<CODE CLASS="Code">      System.out.println(&quot;This server runs on port &quot; </code>
+<CODE CLASS="Code">       + server.getLocalPort(  ));</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (IOException e) {</code>
+<CODE CLASS="Code">      System.err.println(e);</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">Here's the output of several runs:</p>
+
+<PRE><CODE CLASS="Code">D:&#92;JAVA&#92;JNP2&#92;examples&#92;11&gt;<KBD CLASS="UserInput">java RandomPort</kbd></code>
+<CODE CLASS="Code">This server runs on port 1154</code>
+<CODE CLASS="Code">D:&#92;JAVA&#92;JNP2&#92;examples&#92;11&gt;<KBD CLASS="UserInput">java RandomPort</kbd></code>
+<CODE CLASS="Code">This server runs on port 1155</code>
+<CODE CLASS="Code">D:&#92;JAVA&#92;JNP2&#92;examples&#92;11&gt;<KBD CLASS="UserInput">java RandomPort</kbd></code>
+<CODE CLASS="Code">This server runs on port 1156</code>
+</pre>
+
+<P CLASS="Body">At least on this VM, the ports aren't really random; but they are at least indeterminate until runtime. </p>
+
+
+<H3 CLASS="HeadB">Socket Options</h3>
+
+
+<P CLASS="Body">The only socket option supported for server sockets is SO_TIMEOUT. SO_TIMEOUT is the amount of time, in milliseconds, that <CODE CLASS="Literal">accept(  )</code> waits for an incoming connection before throwing a <CODE CLASS="Literal">java.io.InterruptedIOException</code>. If SO_TIMEOUT is 0, then <CODE CLASS="Literal">accept(  )</code> will never time out. The default is to never time out.</p>
+
+
+<P CLASS="Body">Using SO_TIMEOUT is rather rare. You might need it if you were implementing a complicated and secure protocol that required multiple connections between the client and the server where some responses needed to occur within a fixed amount of time. Most servers are designed to run for indefinite periods of time and therefore use the default timeout value, which is 0 (never time out).</p>
+
+
+<H4 CLASS="HeadC">public void setSoTimeout(int timeout) throws SocketException</h4>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">setSoTimeout(  )</code> method sets the SO_TIMEOUT field for this server socket object. The countdown starts when <CODE CLASS="Literal">accept(  )</code> is invoked. When the timeout expires, <CODE CLASS="Literal">accept(  )</code> throws an <CODE CLASS="Literal">InterruptedIOException</code>. You should set this option before calling <CODE CLASS="Literal">accept(  )</code>; you cannot change the timeout value while <CODE CLASS="Literal">accept(  )</code> is waiting for a connection. The <CODE CLASS="Literal">timeout</code> argument must be        greater than or equal to zero; if it isn't, the method throws an <CODE CLASS="Literal">IllegalArgumentException</code>. For example:</p>
+
+<PRE><CODE CLASS="Code">try {</code>
+<CODE CLASS="Code">  ServerSocket server = new ServerSocket(2048);</code>
+<CODE CLASS="Code">  server.setSoTimeout(30000); // block for no more than 30 seconds</code>
+<CODE CLASS="Code">  try {</code>
+<CODE CLASS="Code">    Socket s = server.accept(  );</code>
+<CODE CLASS="Code">    // handle the connection</code>
+<CODE CLASS="Code">    // ...</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">  catch (InterruptedIOException e) {</code>
+<CODE CLASS="Code">    System.err.println(&quot;No connection within 30 seconds&quot;);</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">  finally {</code>
+<CODE CLASS="Code">    server.close(  );</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">catch (IOException e) {</code>
+<CODE CLASS="Code">  System.err.println(&quot;Unexpected IOException: &quot; + e);</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<H4 CLASS="HeadC">public int getSoTimeout(  ) throws IOException</h4>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">getSoTimeout(  )</code> method returns this server socket's current SO_TIMEOUT value. For example:</p>
+
+<PRE><CODE CLASS="Code">public void printSoTimeout(ServerSocket server) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  int timeout = server.getSoTimeOut(  );</code>
+<CODE CLASS="Code">  if (timeout &gt; 0) {</code>
+<CODE CLASS="Code">    System.out.println(server + &quot; will time out after &quot; </code>
+<CODE CLASS="Code">     + timeout + &quot;milliseconds.&quot;);</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">  else if (timeout == 0) {</code>
+<CODE CLASS="Code">    System.out.println(server + &quot; will never time out.&quot;);</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">  else {</code>
+<CODE CLASS="Code">    System.out.println(&quot;Impossible condition occurred in &quot; + server);</code>
+<CODE CLASS="Code">    System.out.println(&quot;Timeout cannot be less than zero.&quot; );</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<H3 CLASS="HeadB">The Object Methods</h3>
+
+
+<P CLASS="Body"><CODE CLASS="Literal">jServerSocket</code> overrides only one of the standard methods from <CODE CLASS="Literal">java.lang.Object</code>, <CODE CLASS="Literal">toString(  )</code>. Thus, equality comparisons test for strict identity, and server sockets are problematic in hash tables. Normally, this isn't a large problem. </p>
+
+
+<H4 CLASS="HeadC">public String toString(  )</h4>
+
+
+<P CLASS="Body">A <CODE CLASS="Literal">String</code> returned by <CODE CLASS="Literal">ServerSocket</code>'s <CODE CLASS="Literal">toString(  )</code> method looks like this:</p>
+
+<PRE><CODE CLASS="Code">ServerSocket[addr=0.0.0.0,port=0,localport=5776]</code>
+</pre>
+
+<P CLASS="Body">In current implementations, <CODE CLASS="Literal">addr</code> is always 0.0.0.0 and <CODE CLASS="Literal">port</code> is always 0. Presumably, these may become something more interesting in the future. The <CODE CLASS="Literal">localport</code> is the local port on which the server is listening for connections.</p>
+
+
+<H3 CLASS="HeadB">Implementation</h3>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">ServerSocket</code> class provides two methods for changing the default implementation of server sockets. I'll describe them only briefly here, since they're primarily intended for implementers of Java virtual machines rather than application programmers.</p>
+
+
+<H4 CLASS="HeadC">public static synchronized void setSocketFactory                 (SocketImpl Factory fac) throws IOException</h4>
+
+
+<P CLASS="Body">This method sets the <EM CLASS="Emphasis">system's</em> server <CODE CLASS="Literal">SocketImplFactory</code>, which is the factory used to create <CODE CLASS="Literal">ServerSocket</code> objects. This is not the same factory that is used to create client <CODE CLASS="Literal">Socket</code> objects, though the syntax is similar; you can have one factory for <CODE CLASS="Literal">Socket</code> objects and a different factory for <CODE CLASS="Literal">ServerSocket</code> objects. You can set this factory only once in a program, however. A second attempt to set the <CODE CLASS="Literal">SocketImplFactory</code> throws a <CODE CLASS="Literal">SocketException</code>. </p>
+
+
+<H4 CLASS="HeadC">Protected final void implAccept(Socket s) throws IOException</h4>
+
+
+<P CLASS="Body">Subclasses of <CODE CLASS="Literal">ServerSocket</code> use this method to implement <CODE CLASS="Literal">accept(  )</code>. You pass an unconnected <CODE CLASS="Literal">Socket</code> object to <CODE CLASS="Literal">implAccept(  )</code>. (Doing this requires you to subclass <CODE CLASS="Literal">Socket</code> as well since the standard <CODE CLASS="Literal">java.net.Socket</code> class doesn't provide a means to create unconnected sockets.) When the method returns, the <CODE CLASS="Literal">Socket</code> argument <CODE CLASS="Literal">s</code> is connected to a client.</p>
+
+
+<H2 CLASS="HeadA"><A NAME="42015"></a>Some Useful Servers</h2>
+
+
+<P CLASS="Body">This section shows several servers you can build with server sockets. It starts with a server you can use to test client responses and requests, much as you use Telnet to test server behavior. Then we present three different HTTP servers, each with a different special purpose and each slightly more complex than the previous one. </p>
+
+
+<H3 CLASS="HeadB">Client Tester</h3>
+
+
+<P CLASS="Body">In the previous chapter, you learned how to use Telnet to experiment with servers. There's no equivalent program to test clients, so let's create one. <A HREF="ch11.html#46292" CLASS="XRef">Example 11-5</a> is a program called <CODE CLASS="Literal">ClientTester</code> that runs on a port specified on thecommand-line, shows all data sent by the client, and allows you to send a response to the client by typing it on the command line. For example, you can use this program to see the commands that Netscape Navigator sends to a server.</p>
+
+<BLOCKQUOTE>
+
+<P CLASS="Note"><B>NOTE:</b> 
+Clients are rarely as forgiving about unexpected server responses as servers are about unexpected client responses. If at all possible, try to run the clients that connect to this program on a Unix system or some other platform that is moderately crash-proof. Don't run them on a Mac or Windows 98, which are less stable.</blockquote>
+
+<P CLASS="Body">This program uses two threads: one to handle input from the client and the other to send output from the server. Using two threads allows the program to handle input and output simultaneously: it can be sending a response to the client while receiving a request--or, more to the point, it can send data to the client while waiting for the client to respond. This is convenient because different clients and servers talk in unpredictable ways. With some protocols, the server talks first; with others, the client talks first. Sometimes the server sends a one-line response; often, the response is much larger. Sometimes the client and the server talk at each other simultaneously. Other times, one side of the connection waits for the other to finish before it responds. The program must be flexible enough to handle all these cases. <A HREF="ch11.html#46292" CLASS="XRef">Example 11-5</a> shows the code.</p>
+
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="46292">Example 11-5:</a></b> 
+<B class="ExampleTitle">A Client Tester </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">import com.macfaq.io.SafeBufferedReader; // from Chapter 4</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">public class ClientTester {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public static void main(String[] args) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">    int port;</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      port = Integer.parseInt(args[0]);</code>
+<CODE CLASS="Code">    }  </code>
+<CODE CLASS="Code">    catch (Exception e) {</code>
+<CODE CLASS="Code">      port = 0;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      ServerSocket server = new ServerSocket(port, 1);</code>
+<CODE CLASS="Code">      System.out.println(&quot;Listening for connections on port &quot; </code>
+<CODE CLASS="Code">       + server.getLocalPort(  ));</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">      while (true) {</code>
+<CODE CLASS="Code">        Socket connection = server.accept(  );</code>
+<CODE CLASS="Code">        try {</code>
+<CODE CLASS="Code">          System.out.println(&quot;Connection established with &quot; </code>
+<CODE CLASS="Code">           + connection);</code>
+<CODE CLASS="Code">          Thread input = new InputThread(connection.getInputStream(  ));</code>
+<CODE CLASS="Code">          input.start(  );</code>
+<CODE CLASS="Code">          Thread output </code>
+<CODE CLASS="Code">           = new OutputThread(connection.getOutputStream(  ));</code>
+<CODE CLASS="Code">          output.start(  );</code>
+<CODE CLASS="Code">          // wait for output and input to finish </code>
+<CODE CLASS="Code">          try {</code>
+<CODE CLASS="Code">            input.join(  );</code>
+<CODE CLASS="Code">            output.join(  );</code>
+<CODE CLASS="Code">          }</code>
+<CODE CLASS="Code">          catch (InterruptedException e) {</code>
+<CODE CLASS="Code">          }</code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        catch (IOException e) {</code>
+<CODE CLASS="Code">          System.err.println(e); </code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        finally {</code>
+<CODE CLASS="Code">          try {</code>
+<CODE CLASS="Code">            if (connection != null) connection.close(  );</code>
+<CODE CLASS="Code">          }</code>
+<CODE CLASS="Code">          catch (IOException e) {}</code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (IOException e) {</code>
+<CODE CLASS="Code">      e.printStackTrace(  );</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">}</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">class InputThread extends Thread {</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  InputStream in;</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">   public InputThread(InputStream in) {</code>
+<CODE CLASS="Code">     this.in = in;</code>
+<CODE CLASS="Code">   }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">   public void run(  )  {</code>
+<CODE CLASS="Code">   </code>
+<CODE CLASS="Code">     try {     </code>
+<CODE CLASS="Code">       while (true) {</code>
+<CODE CLASS="Code">         int i = in.read(  );</code>
+<CODE CLASS="Code">         if (i == -1) break;</code>
+<CODE CLASS="Code">         System.out.write(i);</code>
+<CODE CLASS="Code">       }</code>
+<CODE CLASS="Code">     }</code>
+<CODE CLASS="Code">     catch (SocketException e) {</code>
+<CODE CLASS="Code">       // output thread closed the socket</code>
+<CODE CLASS="Code">     }</code>
+<CODE CLASS="Code">     catch (IOException e) {</code>
+<CODE CLASS="Code">       System.err.println(e);</code>
+<CODE CLASS="Code">     }</code>
+<CODE CLASS="Code">     try {</code>
+<CODE CLASS="Code">       in.close(  );</code>
+<CODE CLASS="Code">     }</code>
+<CODE CLASS="Code">     catch (IOException e) { </code>
+<CODE CLASS="Code">     } </code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">}</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">class OutputThread extends Thread {</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  Writer out;</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">  public OutputThread(OutputStream out) {</code>
+<CODE CLASS="Code">    this.out = new OutputStreamWriter(out);</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public void run(  ) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">    String line;</code>
+<CODE CLASS="Code">    BufferedReader in </code>
+<CODE CLASS="Code">     = new SafeBufferedReader(new InputStreamReader(System.in));</code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      while (true) {</code>
+<CODE CLASS="Code">        line = in.readLine(  );</code>
+<CODE CLASS="Code">        if (line.equals(&quot;.&quot;)) break;</code>
+<CODE CLASS="Code">        out.write(line +&quot;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">        out.flush(  );</code>
+<CODE CLASS="Code">      }   </code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (IOException e) { </code>
+<CODE CLASS="Code">    } </code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      out.close(  );</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (IOException e) { </code>
+<CODE CLASS="Code">    } </code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">   }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">The client tester application is split into three classes: <CODE CLASS="Literal">ClientTester</code>, <CODE CLASS="Literal">InputThread</code>, and <CODE CLASS="Literal">OutputThread</code>. The <CODE CLASS="Literal">ClientTester</code> class reads the port from the command-line, opens a <CODE CLASS="Literal">ServerSocket</code> on that port, and listens for incoming connections. Only one connection is allowed at a time, because this program is designed for experimentation, and a slow human being has to provide all responses. Consequently, we set an unusually short queue length of 1. Further connections will be refused until the first one has been closed. </p>
+
+
+<P CLASS="Body">An infinite <CODE CLASS="Literal">while</code> loop waits for connections with the <CODE CLASS="Literal">accept(  )</code> method. When a connection is detected, its <CODE CLASS="Literal">InputStream</code> is used to construct a new <CODE CLASS="Literal">InputThread</code>, and its <CODE CLASS="Literal">OutputStream</code> is used to construct a new <CODE CLASS="Literal">OutputThread</code>. After starting these threads, we wait for them to finish by calling their <CODE CLASS="Literal">join(  )</code> methods.</p>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">InputThread</code> is contained almost entirely in the <CODE CLASS="Literal">run(  )</code> method. It has a single field, <CODE CLASS="Literal">in</code>, which is the <CODE CLASS="Literal">InputStream</code> from which data will be read. Data is read from <CODE CLASS="Literal">in</code> one byte at a time. Each <CODE CLASS="Literal">byte</code> read is written on <CODE CLASS="Literal">System.out</code>. The <CODE CLASS="Literal">run(  )</code> method ends when the end of stream is encountered or an <CODE CLASS="Literal">IOException</code> is thrown. The most likely exception here is a <CODE CLASS="Literal">SocketException</code> thrown because the corresponding <CODE CLASS="Literal">OutputThread</code> closed the connection.</p>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">OutputThread</code> reads input from the local user sitting at the terminal and sends that data to the client. Its constructor has a single argument, an output stream for sending data to the client. <CODE CLASS="Literal">OutputThread</code> reads input from the user on <CODE CLASS="Literal">System.in</code>, which is chained to an instance of the <CODE CLASS="Literal">SafeBufferedReader</code> class developed in Chapter 4, <CITE CLASS="Citation">Java I/O</cite>. The <CODE CLASS="Literal">OutputStream</code> that was passed to the constructor is chained to an <CODE CLASS="Literal">OutputStreamWriter</code> for convenience. The <CODE CLASS="Literal">run(  )</code> method for <CODE CLASS="Literal">OutputThread</code> reads lines from the <CODE CLASS="Literal">SafeBufferedReader</code>, and copies them onto the <CODE CLASS="Literal">OutputStreamWriter</code>, which sends them to the client. A period typed on a line by itself signals the end of user input. When this occurs, <CODE CLASS="Literal">run(  )</code> exits the loop and <CODE CLASS="Literal">out</code> is closed. This has the effect of also closing the socket, so that a <CODE CLASS="Literal">SocketException</code> is thrown in the input thread, which also exits. </p>
+
+
+<P CLASS="Body">For example, here's the output when Netscape Communicator 4.6 for Windows connected to this server:</p>
+
+<PRE><CODE CLASS="Code">D:&#92;JAVA&#92;JNP2&#92;examples&#92;11&gt;<KBD CLASS="UserInput">java ClientTester 80</kbd></code>
+<CODE CLASS="Code">Listening for connections on port 80</code>
+<CODE CLASS="Code">Connection established with </code>
+<CODE CLASS="Code">Socket[addr=localhost/127.0.0.1,port=1033,localport=80]</code>
+<CODE CLASS="Code">GET / HTTP 1.0</code>
+<CODE CLASS="Code">Connection: Keep-Alive</code>
+<CODE CLASS="Code">User-Agent: Mozilla/4.6 [en] (WinNT; I)</code>
+<CODE CLASS="Code">Host: localhost</code>
+<CODE CLASS="Code">Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */*</code>
+<CODE CLASS="Code">Accept-Encoding: gzip</code>
+<CODE CLASS="Code">Accept-Language: en</code>
+<CODE CLASS="Code">Accept-Charset: iso-8859-1,*,utf-8</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code"><KBD CLASS="UserInput">&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello Client!&lt;/h2&gt;&lt;/body&gt;&lt;/html&gt;</kbd></code>
+<CODE CLASS="Code"><KBD CLASS="UserInput">.</kbd></code>
+</pre>
+
+<P CLASS="Body">Even minimal exploration of clients can reveal some surprising things. For instance, I didn't know until I wrote this example that Netscape Navigator 4.6 can read <EM CLASS="Emphasis">.gz</em> files just as easily as it can read HTML files. That may be useful for serving large text files full of redundant data.</p>
+
+
+<H3 CLASS="HeadB">HTTP Servers</h3>
+
+
+<P CLASS="Body">HTTP is a large protocol. As you saw in Chapter 3, <CITE CLASS="Citation">Basic Web Concepts</cite>, a full-featured HTTP server must respond to requests for files, convert URLs into filenames on the local system, respond to POST and GET requests, handle requests for files that don't exist, interpret MIME types, launch CGI programs, and much, much more. However, many HTTP servers don't need all of these features. For example, many sites simply display an &quot;under construction&quot; message. Clearly, Apache is overkill for a site like this. Such a site is a candidate for a custom server that does only one thing. Java's network class library makes writing simple servers like this almost trivial.</p>
+
+
+<P CLASS="Body">Custom servers aren't useful only for small sites. High-traffic sites like Yahoo! are also candidates for custom servers because a server that does only one thing can often be much faster than a general purpose server such as Apache or Netscape. It is easy to optimize a special purpose server for a particular task; the result is often much more efficient than a general purpose server that needs to respond to many different kinds of requests. For instance, icons and images that are used repeatedly across many pages or on high-traffic pages might be better handled by a server that read all the image files into memory on startup, and then served them straight out of RAM rather than having to read them off disk for each request. Furthermore, this server could avoid wasting time on logging if you didn't want to track the image request separately from the requests for the pages they were included in. </p>
+
+
+<P CLASS="Body">Finally, Java isn't a bad language for feature-full web servers meant to compete with the likes of Apache or AOLServer. Although CPU-intensive Java programs are demonstrably slower than CPU-intensive C and C++ programs, even when run under a JIT, most HTTP servers are limited by bandwidth, not by CPU speed. Consequently, Java's other advantages, such as its half-compiled/half-interpreted nature, dynamic class loading, garbage collection, and memory protection, really get a chance to shine. In particular, sites that make heavy use of dynamic content through CGI scripts, PHP pages, or other mechanisms can often run much faster when reimplemented on top of a pure or mostly pure Java web server. Indeed, there are several production web servers written in Java such as the W3C's testbed server Jigsaw (<A href="http://www.w3.org/Jigsaw/" target="new">http://www.w3.org/Jigsaw/</a>). Many other web servers written in C now include substantial Java components to support the Java Servlet API and Java Server Pages. On many sites, these are replacing the traditional CGIs, ASPs, and server-side includes, mostly because the Java equivalents are faster and less resource-intensive. I'm not going to explore these technologies here since they easily deserve a book of their own. I refer interested readers to Jason Hunter's <EM CLASS="Emphasis">Java Servlet Programming</em> (O'Reilly &amp; Associates, Inc., 1998). However, it is important to note that servers in general and web servers in particular are one area where Java really is competitive with C. </p>
+
+
+<H4 CLASS="HeadC">A single-file server</h4>
+
+
+<P CLASS="Body">Our investigation of HTTP servers begins with a server that always sends out the same file, no matter who or what the request. This is shown in <A HREF="ch11.html#53648" CLASS="XRef">Example 11-6</a>, <CODE CLASS="Literal">SingleFileHTTPServer</code>. The filename, local port, and content encoding are read from the command line. If the port is omitted, port 80 is assumed. If the encoding is omitted, ASCII is assumed.</p>
+
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="53648">Example 11-6:</a></b> 
+<B class="ExampleTitle">An HTTP Server That Chunks Out the Same File </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">import java.util.*;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">public class SingleFileHTTPServer extends Thread {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  private byte[] content;</code>
+<CODE CLASS="Code">  private byte[] header;</code>
+<CODE CLASS="Code">  private int port = 80;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public SingleFileHTTPServer(String data, String encoding, </code>
+<CODE CLASS="Code">   String MIMEType, int port) throws UnsupportedEncodingException {    </code>
+<CODE CLASS="Code">    this(data.getBytes(encoding), encoding, MIMEType, port);</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public SingleFileHTTPServer(byte[] data, String encoding, </code>
+<CODE CLASS="Code">   String MIMEType, int port) throws UnsupportedEncodingException {</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    this.content = data;</code>
+<CODE CLASS="Code">    this.port = port;</code>
+<CODE CLASS="Code">    String header = &quot;HTTP 1.0 200 OK&#92;r&#92;n&quot;</code>
+<CODE CLASS="Code">     + &quot;Server: OneFile 1.0&#92;r&#92;n&quot;</code>
+<CODE CLASS="Code">     + &quot;Content-length: &quot; + this.content.length + &quot;&#92;r&#92;n&quot;</code>
+<CODE CLASS="Code">     + &quot;Content-type: &quot; + MIMEType + &quot;&#92;r&#92;n&#92;r&#92;n&quot;;</code>
+<CODE CLASS="Code">    this.header = header.getBytes(&quot;ASCII&quot;);</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  public void run(  ) {</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      ServerSocket server = new ServerSocket(this.port); </code>
+<CODE CLASS="Code">      System.out.println(&quot;Accepting connections on port &quot; </code>
+<CODE CLASS="Code">        + server.getLocalPort(  ));</code>
+<CODE CLASS="Code">      System.out.println(&quot;Data to be sent:&quot;);</code>
+<CODE CLASS="Code">      System.out.write(this.content);</code>
+<CODE CLASS="Code">      while (true) {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">        Socket connection = null;</code>
+<CODE CLASS="Code">        try {</code>
+<CODE CLASS="Code">          connection = server.accept(  );</code>
+<CODE CLASS="Code">          OutputStream out = new BufferedOutputStream(</code>
+<CODE CLASS="Code">                                  connection.getOutputStream(  )</code>
+<CODE CLASS="Code">                                 );</code>
+<CODE CLASS="Code">          InputStream in   = new BufferedInputStream(</code>
+<CODE CLASS="Code">                                  connection.getInputStream(  )</code>
+<CODE CLASS="Code">                                 );</code>
+<CODE CLASS="Code">          // read the first line only; that's all we need</code>
+<CODE CLASS="Code">          StringBuffer request = new StringBuffer(80);</code>
+<CODE CLASS="Code">          while (true) {</code>
+<CODE CLASS="Code">            int c = in.read(  );</code>
+<CODE CLASS="Code">            if (c == '&#92;r' || c == '&#92;n' || c == -1) break;</code>
+<CODE CLASS="Code">            request.append((char) c);</code>
+<CODE CLASS="Code">            // If this is HTTP 1.0 or later send a MIME header</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">          }</code>
+<CODE CLASS="Code">          if (request.toString(  ).indexOf(&quot;HTTP/&quot;) != -1) {</code>
+<CODE CLASS="Code">            out.write(this.header);</code>
+<CODE CLASS="Code">          }         </code>
+<CODE CLASS="Code">          out.write(this.content);</code>
+<CODE CLASS="Code">          out.flush(  );</code>
+<CODE CLASS="Code">        }  // end try</code>
+<CODE CLASS="Code">        catch (IOException e) {   </code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        finally {</code>
+<CODE CLASS="Code">          if (connection != null) connection.close(  ); </code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">      } // end while</code>
+<CODE CLASS="Code">    } // end try</code>
+<CODE CLASS="Code">    catch (IOException e) {</code>
+<CODE CLASS="Code">      System.err.println(&quot;Could not start server. Port Occupied&quot;);</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  } // end run</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public static void main(String[] args) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">      String contentType = &quot;text/plain&quot;;</code>
+<CODE CLASS="Code">      if (args[0].endsWith(&quot;.html&quot;) || args[0].endsWith(&quot;.htm&quot;)) {</code>
+<CODE CLASS="Code">        contentType = &quot;text/html&quot;;</code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">      InputStream in = new FileInputStream(args[0]);</code>
+<CODE CLASS="Code">      ByteArrayOutputStream out = new ByteArrayOutputStream(  );</code>
+<CODE CLASS="Code">      int b;</code>
+<CODE CLASS="Code">      while ((b = in.read(  )) != -1) out.write(b);</code>
+<CODE CLASS="Code">      byte[] data = out.toByteArray(  );</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">      // set the port to listen on</code>
+<CODE CLASS="Code">      int port;</code>
+<CODE CLASS="Code">      try {</code>
+<CODE CLASS="Code">        port = Integer.parseInt(args[1]);</code>
+<CODE CLASS="Code">        if (port &lt; 1 || port &gt; 65535) port = 80;</code>
+<CODE CLASS="Code">      }  </code>
+<CODE CLASS="Code">      catch (Exception e) {</code>
+<CODE CLASS="Code">        port = 80;</code>
+<CODE CLASS="Code">      }  </code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">      String encoding = &quot;ASCII&quot;;</code>
+<CODE CLASS="Code">      if (args.length &gt;= 2) encoding = args[2]; </code>
+<CODE CLASS="Code">       </code>
+<CODE CLASS="Code">      Thread t = new SingleFileHTTPServer(data, encoding,</code>
+<CODE CLASS="Code">       contentType, port);</code>
+<CODE CLASS="Code">      t.start(  );         </code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (ArrayIndexOutOfBoundsException e) {</code>
+<CODE CLASS="Code">      System.out.println(</code>
+<CODE CLASS="Code">       &quot;Usage: java SingleFileHTTPServer filename port encoding&quot;);</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (Exception e) {</code>
+<CODE CLASS="Code">      System.err.println(e);</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">The constructors set up the data to be sent along with an HTTP header that includes information about content length and content encoding. The header and the body of the response are stored in byte arrays in the desired encoding so that they can be blasted to clients very quickly. </p>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">SingleFileHTTPServer</code> class itself is a subclass of <CODE CLASS="Literal">Thread</code>. Its <CODE CLASS="Literal">run(  )</code> method processes incoming connections. Chances are this server will serve only small files and will support only low-volume web sites. Since all the server needs to do for each connection is check whether the client supports HTTP 1.0 and spew one or two relatively small byte arrays over the connection, chances are this will be sufficient. On the other hand, if you find clients are getting refused, you could use multiple threads instead. A lot depends on the size of the file being served, the peak number of connections expected per minute, and the thread model of Java on the host machine. Using multiple threads would be a clear win for a server that was even slightly more sophisticated than this one. </p>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">run(  )</code> method creates a <CODE CLASS="Literal">ServerSocket</code> on the specified port. Then it enters an infinite loop that continually accepts connections and processes them. When a socket is accepted, an <CODE CLASS="Literal">InputStream</code> reads the request from the client. It looks at the first line to see whether it contains the string <CODE CLASS="Literal">HTTP</code>. If it sees this, the server assumes that the client understands HTTP 1.0 or later and therefore sends a MIME header for the file; then it sends the data. If the client request doesn't contain the string <CODE CLASS="Literal">HTTP</code>, the server omits the header, sending the data by itself. Finally, the server closes the connection and tries to accept the next connection.</p>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">main(  )</code> method just reads parameters from the command line. The name of the file to be served is read from the first command-line argument. If no file is specified or the file cannot be opened, an error message is printed and the program exits. Assuming the file can be read, its contents are read into the <CODE CLASS="Literal">byte</code> array <CODE CLASS="Literal">data</code>. A reasonable guess is made about the content type of the file, and that guess is stored in the <CODE CLASS="Literal">contentType</code> variable. Next, the port number is read from the second command-line argument. If no port is specified, or if the second argument is not an integer from 0 to 65,535, then port 80 is used. The encoding is read from the third command-line argument if present. Otherwise, ASCII is assumed. (Surprisingly, some VMs don't support ASCII, so you might want to pick 8859-1 instead.) Then these values are used to construct a <CODE CLASS="Literal">SingleFileHTTPServer</code> object and start it running. This is only one possible interface. You could easily use this class as part of some other program. If you added a setter method to change the content, you could easily use it to provide simple status information about a running server or system. However, that would raise some additional issues of thread safety that <A HREF="ch11.html#46292" CLASS="XRef">Example 11-5</a> doesn't have to address because it's immutable. </p>
+
+
+<P CLASS="Body">Here's what you see when you connect to this server via Telnet; the specifics depend on the exact server and file:</p>
+
+<PRE><CODE CLASS="Code">% <KBD CLASS="UserInput">telnet macfaq.dialup.cloud9.net 80</kbd></code>
+<CODE CLASS="Code">Trying 168.100.203.234...</code>
+<CODE CLASS="Code">Connected to macfaq.dialup.cloud9.net.</code>
+<CODE CLASS="Code">Escape character is '^]'.</code>
+<CODE CLASS="Code"><KBD CLASS="UserInput">GET / HTTP 1.0</kbd></code>
+<CODE CLASS="Code">HTTP 1.0 200 OK</code>
+<CODE CLASS="Code">Server: OneFile 1.0</code>
+<CODE CLASS="Code">Content-length: 959</code>
+<CODE CLASS="Code">Content-type: text/html</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 3.2//EN&quot;&gt;</code>
+<CODE CLASS="Code">&lt;HTML&gt;</code>
+<CODE CLASS="Code">&lt;HEAD&gt;</code>
+<CODE CLASS="Code">&lt;TITLE&gt;Under Construction&lt;/TITLE&gt;</code>
+<CODE CLASS="Code">&lt;/HEAD&gt;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">&lt;BODY&gt;</code>
+<CODE CLASS="Code">...</code>
+</pre>
+
+<H4 CLASS="HeadC">A redirector</h4>
+
+
+<P CLASS="Body">Another simple but useful application for a special-purpose HTTP server is redirection. In this section, we develop a server that redirects users from one web site to another--for example, from <i>cnet.com</i> to <i>home.cnet.com</i>. <A HREF="ch11.html#18892" CLASS="XRef">Example 11-7</a> reads a URL and a port number from the command-line, opens a server socket on the port, then redirects all requests that it receives to the site indicated by the new URL, using a 302 FOUND code. Chances are this server is fast enough not to require multiple threads. Nonetheless, threads might be mildly advantageous, especially on a high-volume site on a slow network connection. And this server does a lot of string processing, one of Java's most notorious performance bottlenecks. But really for purposes of example more than anything, I've made the server multithreaded. In this example, I chose to use a new thread rather than a thread pool for each connection. This is perhaps a little simpler to code and understand but somewhat less efficient. In <A HREF="ch11.html#71137" CLASS="XRef">Example 11-8</a>, we'll look at an HTTP server that uses a thread pool. </p>
+
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="18892">Example 11-7:</a></b> 
+<B class="ExampleTitle">An HTTP Redirector </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">import java.util.*;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">public class Redirector implements Runnable {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  private int port;</code>
+<CODE CLASS="Code">  private String newSite;</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  public Redirector(String site, int port) {</code>
+<CODE CLASS="Code">    this.port = port;</code>
+<CODE CLASS="Code">    this.newSite = site;</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public void run(  ) {</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">      ServerSocket server = new ServerSocket(this.port); </code>
+<CODE CLASS="Code">      System.out.println(&quot;Redirecting connections on port &quot; </code>
+<CODE CLASS="Code">        + server.getLocalPort(  ) + &quot; to &quot; + newSite);</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">      while (true) {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">        try {</code>
+<CODE CLASS="Code">          Socket s = server.accept(  );</code>
+<CODE CLASS="Code">          Thread t = new RedirectThread(s);</code>
+<CODE CLASS="Code">          t.start(  );</code>
+<CODE CLASS="Code">        }  // end try</code>
+<CODE CLASS="Code">        catch (IOException e) {   </code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">      } // end while</code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">    } // end try</code>
+<CODE CLASS="Code">    catch (BindException e) {</code>
+<CODE CLASS="Code">      System.err.println(&quot;Could not start server. Port Occupied&quot;);</code>
+<CODE CLASS="Code">    }         </code>
+<CODE CLASS="Code">    catch (IOException e) {</code>
+<CODE CLASS="Code">      System.err.println(e);</code>
+<CODE CLASS="Code">    }         </code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  }  // end run</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  class RedirectThread extends Thread {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">    private Socket connection;</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">    RedirectThread(Socket s) {</code>
+<CODE CLASS="Code">      this.connection = s;    </code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">    public void run(  ) {</code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">      try {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">        Writer out = new BufferedWriter(</code>
+<CODE CLASS="Code">                      new OutputStreamWriter(</code>
+<CODE CLASS="Code">                       connection.getOutputStream(  ), &quot;ASCII&quot;</code>
+<CODE CLASS="Code">                      )</code>
+<CODE CLASS="Code">                     );</code>
+<CODE CLASS="Code">        Reader in = new InputStreamReader(</code>
+<CODE CLASS="Code">                     new BufferedInputStream( </code>
+<CODE CLASS="Code">                      connection.getInputStream(  )</code>
+<CODE CLASS="Code">                     )</code>
+<CODE CLASS="Code">                    );</code>
+<CODE CLASS="Code">                    </code>
+<CODE CLASS="Code">        // read the first line only; that's all we need</code>
+<CODE CLASS="Code">        StringBuffer request = new StringBuffer(80);</code>
+<CODE CLASS="Code">        while (true) {</code>
+<CODE CLASS="Code">          int c = in.read(  );</code>
+<CODE CLASS="Code">          if (c == '&#92;r' || c == '&#92;n' || c == -1) break;</code>
+<CODE CLASS="Code">          request.append((char) c);</code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        // If this is HTTP 1.0 or later send a MIME header</code>
+<CODE CLASS="Code">        String get = request.toString(  );</code>
+<CODE CLASS="Code">        int firstSpace = get.indexOf(' ');</code>
+<CODE CLASS="Code">        int secondSpace = get.indexOf(' ', firstSpace+1);</code>
+<CODE CLASS="Code">        String theFile = get.substring(firstSpace+1, secondSpace);</code>
+<CODE CLASS="Code">        if (get.indexOf(&quot;HTTP&quot;) != -1) {</code>
+<CODE CLASS="Code">          out.write(&quot;HTTP1.0 302 FOUND&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">          Date now = new Date(  );</code>
+<CODE CLASS="Code">          out.write(&quot;Date: &quot; + now + &quot;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">          out.write(&quot;Server: Redirector 1.0&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">          out.write(&quot;Location: &quot; + newSite + theFile + &quot;&#92;r&#92;n&quot;);        </code>
+<CODE CLASS="Code">          out.write(&quot;Content-type: text/html&#92;r&#92;n&#92;r&#92;n&quot;);                 </code>
+<CODE CLASS="Code">          out.flush(  );                </code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        // Not all browsers support redirection so we need to </code>
+<CODE CLASS="Code">        // produce HTML that says where the document has moved to.</code>
+<CODE CLASS="Code">        out.write(&quot;&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;Document moved&lt;/TITLE&gt;&lt;/HEAD&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">        out.write(&quot;&lt;BODY&gt;&lt;H1&gt;Document moved&lt;/h2&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">        out.write(&quot;The document &quot; + theFile  </code>
+<CODE CLASS="Code">         + &quot; has moved to&#92;r&#92;n&lt;A HREF=&#92;&quot;&quot; + newSite + theFile + &quot;&#92;&quot;&gt;&quot; </code>
+<CODE CLASS="Code">         + newSite  + theFile </code>
+<CODE CLASS="Code">         + &quot;&lt;/A&gt;.&#92;r&#92;n Please update your bookmarks&lt;P&gt;&quot;);</code>
+<CODE CLASS="Code">        out.write(&quot;&lt;/BODY&gt;&lt;/HTML&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">        out.flush(  );</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">      } // end try</code>
+<CODE CLASS="Code">      catch (IOException e) {</code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">      finally {</code>
+<CODE CLASS="Code">        try {</code>
+<CODE CLASS="Code">          if (connection != null) connection.close(  );</code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        catch (IOException e) {}  </code>
+<CODE CLASS="Code">      }     </code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">    }  // end run</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public static void main(String[] args) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">    int thePort;</code>
+<CODE CLASS="Code">    String theSite;</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      theSite = args[0];</code>
+<CODE CLASS="Code">      // trim trailing slash</code>
+<CODE CLASS="Code">      if (theSite.endsWith(&quot;/&quot;)) {</code>
+<CODE CLASS="Code">        theSite = theSite.substring(0, theSite.length(  )-1);</code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (Exception e) {</code>
+<CODE CLASS="Code">      System.out.println(</code>
+<CODE CLASS="Code">       &quot;Usage: java Redirector http://www.newsite.com/ port&quot;);</code>
+<CODE CLASS="Code">      return;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      thePort = Integer.parseInt(args[1]);</code>
+<CODE CLASS="Code">    }  </code>
+<CODE CLASS="Code">    catch (Exception e) {</code>
+<CODE CLASS="Code">      thePort = 80;</code>
+<CODE CLASS="Code">    }  </code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">    Thread t = new Thread(new Redirector(theSite, thePort));</code>
+<CODE CLASS="Code">    t.start(  );</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  }  // end main</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">To start the redirector on port 80 and redirect incoming requests to <i>http://metalab.unc.edu/xml</i>, you would type:</p>
+
+<PRE><CODE CLASS="Code">D:&#92;JAVA&#92;JNP2&#92;examples&#92;11&gt;<KBD CLASS="UserInput">java Redirector http://metalab.unc.edu/xml</kbd></code>
+<CODE CLASS="Code">Redirecting connections on port 80 to http://metalab.unc.edu/xml</code>
+</pre>
+
+<P CLASS="Body">If you connect to this server via Telnet, this is what you'll see:</p>
+
+<PRE><CODE CLASS="Code">%<KBD CLASS="UserInput"> telnet macfaq.dialup.cloud9.net 80</kbd></code>
+<CODE CLASS="Code">Trying 168.100.203.234...</code>
+<CODE CLASS="Code">Connected to macfaq.dialup.cloud9.net.</code>
+<CODE CLASS="Code">Escape character is '^]'.</code>
+<CODE CLASS="Code"><KBD CLASS="UserInput">GET / HTTP 1.0</kbd></code>
+<CODE CLASS="Code">HTTP 1.0 302 FOUND</code>
+<CODE CLASS="Code">Date: Wed Sep 08 11:59:42 PDT 1999</code>
+<CODE CLASS="Code">Server: Redirector 1.0</code>
+<CODE CLASS="Code">Location: http://metalab.unc.edu/xml/</code>
+<CODE CLASS="Code">Content-type: text/html</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;Document moved&lt;/TITLE&gt;&lt;/HEAD&gt;</code>
+<CODE CLASS="Code">&lt;BODY&gt;&lt;H1&gt;Document moved&lt;/h2&gt;</code>
+<CODE CLASS="Code">The document / has moved to</code>
+<CODE CLASS="Code">&lt;A HREF=&quot;http://metalab.unc.edu/xml/&quot;&gt;http://metalab.unc.edu/xml/&lt;/A&gt;.</code>
+<CODE CLASS="Code"> Please update your bookmarks&lt;P&gt;&lt;/BODY&gt;&lt;/HTML&gt;</code>
+<CODE CLASS="Code">Connection closed by foreign host.</code>
+</pre>
+
+<P CLASS="Body">If, however, you connect with a reasonably modern web browser, you should be sent to <A href="http://metalab.unc.edu/xml" target="new">http://metalab.unc.edu/xml</a> with only a slight delay. You should never see the HTML added after the response code; this is provided to support older browsers that don't do redirection automatically.</p>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">main(  )</code> method provides a very simple interface that reads the URL of the new site to redirect connections to and the local port to listen on. It uses this information to construct a <CODE CLASS="Literal">Redirector</code> object. Then it uses the resulting <CODE CLASS="Literal">Runnable</code> object (<CODE CLASS="Literal">Redirector</code> implements <CODE CLASS="Literal">Runnable</code>) to spawn a new thread and start it. If the port is not specified, <CODE CLASS="Literal">Redirector</code> listens on port 80. If the site is omitted, <CODE CLASS="Literal">Redirector</code> prints an error message and exits.</p>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">run(  )</code> method of <CODE CLASS="Literal">Redirector</code> binds the server socket to the port, prints a brief status message, and then enters an infinite loop in which it listens for connections. Every time a connection is accepted, the resulting <CODE CLASS="Literal">Socket</code> object is used to construct a <CODE CLASS="Literal">RedirectThread</code>. This <CODE CLASS="Literal">RedirectThread</code> is then started. All further interaction with the client takes place in this new thread. The <CODE CLASS="Literal">run(  )</code> method of <CODE CLASS="Literal">Redirector</code> then simply waits for the next incoming connection.</p>
+
+
+<P CLASS="Body">The <CODE CLASS="Literal">run(  )</code> method of <CODE CLASS="Literal">RedirectThread</code> does most of the work. It begins by chaining a <CODE CLASS="Literal">Writer</code> to the <CODE CLASS="Literal">Socket</code>'s output stream, and a <CODE CLASS="Literal">Reader</code> to the <CODE CLASS="Literal">Socket</code>'s input stream. Both input and output are buffered. Then the <CODE CLASS="Literal">run(  )</code> method reads the first line the client sends. Although the client will probably send a whole MIME header, we can ignore that. The first line contains all the information we need. This line looks something like this:</p>
+
+<PRE><CODE CLASS="Code">GET /directory/filename.html HTTP 1.0</code>
+</pre>
+
+<P CLASS="Body">It is possible that the first word will be POST or PUT instead or that there will be no HTTP version. The second &quot;word&quot; is the file the client wants to retrieve. This <EM CLASS="Emphasis">must</em> begin with a slash (/). Browsers are responsible for converting relative URLs to absolute URLs that begin with a slash; the server does not do this. The third word is the version of the HTTP protocol the browser understands. Possible values are nothing at all (pre-HTTP 1.0 browsers), HTTP 1.0 (most current browsers), or HTTP 1.1.</p>
+
+
+<P CLASS="Body">To handle a request like this, <CODE CLASS="Literal">Redirector</code> ignores the first word. The second word is attached to the URL of the target server (stored in the field <CODE CLASS="Literal">newSite</code>) to give a full redirected URL. The third word is used to determine whether to send a MIME header; MIME headers are not used for old browsers that do not understand HTTP 1.0. If there is a version, a MIME header is sent; otherwise, it is omitted.</p>
+
+
+<P CLASS="Body">Sending the data is almost trivial. The <CODE CLASS="Literal">Writer</code> <CODE CLASS="Literal">out</code> is used. Since all the data we send is pure ASCII, the exact encoding isn't too important. The only trick here is that the end-of-line character for HTTP requests is <CODE CLASS="Literal">&#92;r&#92;n--</code>a carriage return followed by a linefeed. </p>
+
+
+<P CLASS="Body">The next lines each send one line of text to the client. The first line printed is:</p>
+
+<PRE><CODE CLASS="Code">HTTP 1.0 302 FOUND</code>
+</pre>
+
+<P CLASS="Body">This is an HTTP 1.0 response code that tells the client to expect to be redirected. The second line is a <CODE CLASS="Literal">Date:</code> header that gives the current time at the server. This line is optional. The third line is the name and version of the server; this is also optional but is used by spiders that try to keep statistics about the most popular web servers. (It would be very surprising to ever see Redirector break into single digits in lists of the most popular servers.) The next line is the <CODE CLASS="Literal">Location:</code> header, which is required for this server. It tells the client where it is being redirected to. Last is the standard <CODE CLASS="Literal">Content-type:</code> header. We send the content type <CODE CLASS="Literal">text/html</code> to indicate that the client should expect to see HTML. Finally, a blank line is sent to signify the end of the header data. </p>
+
+
+<P CLASS="Body">Everything after this will be HTML, which is processed by the browser and displayed to the user. The next several lines print a message for browsers that do not support redirection, so those users can manually jump to the new site. That message looks like:</p>
+
+<PRE><CODE CLASS="Code">&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;Document moved&lt;/TITLE&gt;&lt;/HEAD&gt;</code>
+<CODE CLASS="Code">&lt;BODY&gt;&lt;H1&gt;Document moved&lt;/h2&gt;</code>
+<CODE CLASS="Code">The document / has moved to</code>
+<CODE CLASS="Code">&lt;A HREF=&quot;http://metalab.unc.edu/xml/&quot;&gt;http://metalab.unc.edu/xml/&lt;/A&gt;.</code>
+<CODE CLASS="Code"> Please update your bookmarks&lt;P&gt;&lt;/BODY&gt;&lt;/HTML&gt;</code>
+</pre>
+
+<P CLASS="Body">Finally, the connection is closed and the thread dies.</p>
+
+
+<H4 CLASS="HeadC">A full-fledged HTTP server</h4>
+
+
+<P CLASS="Body">Enough with special-purpose HTTP servers. This section develops a full-blown HTTP server, called <CODE CLASS="Literal">JHTTP</code>, that can serve an entire document tree, including images, applets, HTML files, text files, and more. It will be very similar to the <CODE CLASS="Literal">SingleFileHTTPServer</code>, except that it pays attention to the GET requests. This server is still fairly lightweight; after looking at the code, we'll discuss other features you might want to add.</p>
+
+
+<P CLASS="Body">Since this server may have to read and serve large files from the filesystem over potentially slow network connections, we'll change its approach. Rather than processing each request as it arrives in the main thread of execution, we'll place incoming connections in a pool. Separate instances of a <CODE CLASS="Literal">RequestProcessor</code> class will remove the connections from the pool and process them. <A HREF="ch11.html#71137" CLASS="XRef">Example 11-8</a> shows the main <CODE CLASS="Literal">JHTTP</code> class. As in the previous two examples, the <CODE CLASS="Literal">main(  )</code> method of <CODE CLASS="Literal">JHTTP</code> handles initialization, but other programs could use this class themselves to run basic web servers. </p>
+
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="71137">Example 11-8:</a></b> 
+<B class="ExampleTitle">The JHTTP Web Server </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">import java.util.*;</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">public class JHTTP extends Thread {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  private File documentRootDirectory;</code>
+<CODE CLASS="Code">  private String indexFileName = &quot;index.html&quot;;</code>
+<CODE CLASS="Code">  private ServerSocket server;</code>
+<CODE CLASS="Code">  private int numThreads = 50;</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">  public JHTTP(File documentRootDirectory, int port, </code>
+<CODE CLASS="Code">   String indexFileName) throws IOException {</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    if (!documentRootDirectory.isDirectory(  )) {</code>
+<CODE CLASS="Code">      throw new IOException(documentRootDirectory </code>
+<CODE CLASS="Code">       + &quot; does not exist as a directory&quot;); </code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    this.documentRootDirectory = documentRootDirectory;</code>
+<CODE CLASS="Code">    this.indexFileName = indexFileName;</code>
+<CODE CLASS="Code">    this.server = new ServerSocket(port);</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public JHTTP(File documentRootDirectory, int port) </code>
+<CODE CLASS="Code">   throws IOException {</code>
+<CODE CLASS="Code">    this(documentRootDirectory, port, &quot;index.html&quot;);</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public JHTTP(File documentRootDirectory) throws IOException {</code>
+<CODE CLASS="Code">    this(documentRootDirectory, 80, &quot;index.html&quot;);</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public void run(  ) {</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">    for (int i = 0; i &lt; numThreads; i++) {</code>
+<CODE CLASS="Code">      Thread t = new Thread(</code>
+<CODE CLASS="Code">       new RequestProcessor(documentRootDirectory, indexFileName));</code>
+<CODE CLASS="Code">      t.start(  );   </code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    System.out.println(&quot;Accepting connections on port &quot; </code>
+<CODE CLASS="Code">     + server.getLocalPort(  ));</code>
+<CODE CLASS="Code">    System.out.println(&quot;Document Root: &quot; + documentRootDirectory);</code>
+<CODE CLASS="Code">    while (true) {</code>
+<CODE CLASS="Code">      try {</code>
+<CODE CLASS="Code">        Socket request = server.accept(  );</code>
+<CODE CLASS="Code">        RequestProcessor.processRequest(request);</code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">      catch (IOException e) { </code>
+<CODE CLASS="Code">      }   </code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  public static void main(String[] args) {</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">    // get the Document root</code>
+<CODE CLASS="Code">    File docroot;</code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      docroot = new File(args[0]);</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (ArrayIndexOutOfBoundsException e) {</code>
+<CODE CLASS="Code">      System.out.println(&quot;Usage: java JHTTP docroot port indexfile&quot;);</code>
+<CODE CLASS="Code">      return;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    // set the port to listen on</code>
+<CODE CLASS="Code">    int port;</code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      port = Integer.parseInt(args[1]);</code>
+<CODE CLASS="Code">      if (port &lt; 0 || port &gt; 65535) port = 80;</code>
+<CODE CLASS="Code">    }  </code>
+<CODE CLASS="Code">    catch (Exception e) {</code>
+<CODE CLASS="Code">      port = 80;</code>
+<CODE CLASS="Code">    }  </code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    try {            </code>
+<CODE CLASS="Code">      JHTTP webserver = new JHTTP(docroot, port);</code>
+<CODE CLASS="Code">      webserver.start(  );</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (IOException e) {</code>
+<CODE CLASS="Code">      System.out.println(&quot;Server could not start because of an &quot; </code>
+<CODE CLASS="Code">       + e.getClass(  ));</code>
+<CODE CLASS="Code">      System.out.println(e);</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">}</code>
+</pre>
+
+<P CLASS="Body">The <CODE CLASS="Literal">main(  )</code> method of the <CODE CLASS="Literal">JHTTP</code> class sets the document root directory from <CODE CLASS="Literal">args[0]</code>. The port is read from <CODE CLASS="Literal">args[1],</code> or 80 is used for a default. Then a new <CODE CLASS="Literal">JHTTP</code> thread is constructed and started. The <CODE CLASS="Literal">JHTTP</code> thread spawns 50 <CODE CLASS="Literal">RequestProcessor</code> threads to handle requests, each of which will retrieve incoming connection requests from the <CODE CLASS="Literal">RequestProcessor</code> pool as they become available. The JHTTP thread repeatedly accepts incoming connections and puts them in the <CODE CLASS="Literal">RequestProcessor</code> pool. </p>
+
+
+<P CLASS="Body">Each connection is handled by the <CODE CLASS="Literal">run(  )</code> method of the <CODE CLASS="Literal">RequestProcessor</code> class shown in <A HREF="ch11.html#83436" CLASS="XRef">Example 11-9</a>. This method waits until it can get a <CODE CLASS="Literal">Socket</code> out of the pool. Once it does that, it gets input and output streams from the socket and chains them to a reader and a writer. The reader reads the first line of the client request to determine the version of HTTP that the client supports--we want to send a MIME header only if this is HTTP 1.0 or later--and what file is requested. Assuming the method is <CODE CLASS="Literal">GET</code>, the file that is requested is converted to a filename on the local filesystem. If the file requested was a directory (i.e., its name ended with a slash), we add the name of an index file. We use the canonical path to make sure that the requested file doesn't come from outside the document root directory. Otherwise, a sneaky client could walk all over the local filesystem by including <CODE CLASS="Literal">..</code> in URLs to walk up the directory hierarchy. This is all we'll need from the client, though a more advanced web server, especially one that logged hits, would read the rest of the MIME header the client sends. </p>
+
+
+<P CLASS="Body">Next the requested file is opened and its contents are read into a byte array. If the HTTP version is 1.0 or later, we write the appropriate MIME headers on the      output stream. To figure out the content type, we call the <CODE CLASS="Literal">guessContentTypeFromName(  )</code> method to map file extensions such as <EM CLASS="Filename">.html</em> onto MIME types such as text/html. The <CODE CLASS="Literal">byte</code> array containing the file's contents is written onto the output stream, and the connection is closed. Exceptions may be thrown at various places if, for example, the file cannot be found or opened. If an exception occurs, we send an appropriate HTTP error message to the client instead of the file's contents.</p>
+
+
+<p>
+<CAPTION>
+<B class="ExampleLabel"><a name="83436">Example 11-9:</a></b> 
+<B class="ExampleTitle">The Thread Pool That Handles HTTP Requests </b> 
+</caption>
+<PRE><CODE CLASS="Code">import java.net.*;</code>
+<CODE CLASS="Code">import java.io.*;</code>
+<CODE CLASS="Code">import java.util.*;</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">public class RequestProcessor implements Runnable {</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">  private static List pool = new LinkedList(  );</code>
+<CODE CLASS="Code">  private File documentRootDirectory;</code>
+<CODE CLASS="Code">  private String indexFileName = &quot;index.html&quot;;</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  public RequestProcessor(File documentRootDirectory, </code>
+<CODE CLASS="Code">   String indexFileName) {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">    if (documentRootDirectory.isFile(  )) {</code>
+<CODE CLASS="Code">      throw new IllegalArgumentException(</code>
+<CODE CLASS="Code">       &quot;documentRootDirectory must be a directory, not a file&quot;);   </code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    this.documentRootDirectory = documentRootDirectory;</code>
+<CODE CLASS="Code">    try {</code>
+<CODE CLASS="Code">      this.documentRootDirectory </code>
+<CODE CLASS="Code">       = documentRootDirectory.getCanonicalFile(  );</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    catch (IOException e) {</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    if (indexFileName != null) this.indexFileName = indexFileName;</code>
+<CODE CLASS="Code">  }</code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  public static void processRequest(Socket request) {</code>
+<CODE CLASS="Code">    </code>
+<CODE CLASS="Code">    synchronized (pool) {</code>
+<CODE CLASS="Code">      pool.add(pool.size(  ), request);</code>
+<CODE CLASS="Code">      pool.notifyAll(  );</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  }  </code>
+<CODE CLASS="Code">  </code>
+<CODE CLASS="Code">  public void run(  ) {</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">    // for security checks</code>
+<CODE CLASS="Code">    String root = documentRootDirectory.getPath(  );</code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">    while (true) {       </code>
+<CODE CLASS="Code">      Socket connection;</code>
+<CODE CLASS="Code">      synchronized (pool) {         </code>
+<CODE CLASS="Code">        while (pool.isEmpty(  )) {</code>
+<CODE CLASS="Code">          try {</code>
+<CODE CLASS="Code">            pool.wait(  );</code>
+<CODE CLASS="Code">          }</code>
+<CODE CLASS="Code">          catch (InterruptedException e) {</code>
+<CODE CLASS="Code">          }</code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        connection = (Socket) pool.remove(0); </code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">      try {            </code>
+<CODE CLASS="Code">        String filename;</code>
+<CODE CLASS="Code">        String contentType;   </code>
+<CODE CLASS="Code">        OutputStream raw = new BufferedOutputStream(</code>
+<CODE CLASS="Code">                            connection.getOutputStream(  )</code>
+<CODE CLASS="Code">                           );         </code>
+<CODE CLASS="Code">        Writer out = new OutputStreamWriter(raw);</code>
+<CODE CLASS="Code">        Reader in = new InputStreamReader(</code>
+<CODE CLASS="Code">                     new BufferedInputStream(</code>
+<CODE CLASS="Code">                      connection.getInputStream(  )</code>
+<CODE CLASS="Code">                     ),&quot;ASCII&quot;</code>
+<CODE CLASS="Code">                    );</code>
+<CODE CLASS="Code">        StringBuffer requestLine = new StringBuffer(  );</code>
+<CODE CLASS="Code">        int c;</code>
+<CODE CLASS="Code">        while (true) {</code>
+<CODE CLASS="Code">          c = in.read(  );</code>
+<CODE CLASS="Code">          if (c == '&#92;r' || c == '&#92;n') break;</code>
+<CODE CLASS="Code">          requestLine.append((char) c);</code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">        String get = requestLine.toString(  );</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">        // log the request </code>
+<CODE CLASS="Code">        System.out.println(get);</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">        StringTokenizer st = new StringTokenizer(get);</code>
+<CODE CLASS="Code">        String method = st.nextToken(  );</code>
+<CODE CLASS="Code">        String version = &quot;&quot;;</code>
+<CODE CLASS="Code">        if (method.equals(&quot;GET&quot;)) {</code>
+<CODE CLASS="Code">          filename = st.nextToken(  );</code>
+<CODE CLASS="Code">          if (filename.endsWith(&quot;/&quot;)) filename += indexFileName;</code>
+<CODE CLASS="Code">          contentType = guessContentTypeFromName(filename);</code>
+<CODE CLASS="Code">          if (st.hasMoreTokens(  )) {</code>
+<CODE CLASS="Code">            version = st.nextToken(  );</code>
+<CODE CLASS="Code">          }</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">          File theFile = new File(documentRootDirectory, </code>
+<CODE CLASS="Code">           filename.substring(1,filename.length(  )));</code>
+<CODE CLASS="Code">          if (theFile.canRead(  ) </code>
+<CODE CLASS="Code">              // Don't let clients outside the document root</code>
+<CODE CLASS="Code">           &amp;&amp; theFile.getCanonicalPath(  ).startsWith(root)) {</code>
+<CODE CLASS="Code">            DataInputStream fis = new DataInputStream(</code>
+<CODE CLASS="Code">                                   new BufferedInputStream(</code>
+<CODE CLASS="Code">                                    new FileInputStream(theFile)</code>
+<CODE CLASS="Code">                                   )</code>
+<CODE CLASS="Code">                                  );</code>
+<CODE CLASS="Code">            byte[] theData = new byte[(int) theFile.length(  )];</code>
+<CODE CLASS="Code">            fis.readFully(theData);</code>
+<CODE CLASS="Code">            fis.close(  );</code>
+<CODE CLASS="Code">            if (version.startsWith(&quot;HTTP &quot;)) {  // send a MIME header</code>
+<CODE CLASS="Code">              out.write(&quot;HTTP 1.0 200 OK&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">              Date now = new Date(  );</code>
+<CODE CLASS="Code">              out.write(&quot;Date: &quot; + now + &quot;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">              out.write(&quot;Server: JHTTP 1.0&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">              out.write(&quot;Content-length: &quot; + theData.length + &quot;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">              out.write(&quot;Content-type: &quot; + contentType + &quot;&#92;r&#92;n&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">              out.flush(  );</code>
+<CODE CLASS="Code">            }  // end try</code>
+<CODE CLASS="Code">        </code>
+<CODE CLASS="Code">            // send the file; it may be an image or other binary data </code>
+<CODE CLASS="Code">            // so use the underlying output stream </code>
+<CODE CLASS="Code">            // instead of the writer</code>
+<CODE CLASS="Code">            raw.write(theData);</code>
+<CODE CLASS="Code">            raw.flush(  );</code>
+<CODE CLASS="Code">          }  // end if</code>
+<CODE CLASS="Code">          else {  // can't find the file</code>
+<CODE CLASS="Code">            if (version.startsWith(&quot;HTTP &quot;)) {  // send a MIME header</code>
+<CODE CLASS="Code">              out.write(&quot;HTTP 1.0 404 File Not Found&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">              Date now = new Date(  );</code>
+<CODE CLASS="Code">              out.write(&quot;Date: &quot; + now + &quot;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">              out.write(&quot;Server: JHTTP 1.0&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">              out.write(&quot;Content-type: text/html&#92;r&#92;n&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            } </code>
+<CODE CLASS="Code">            out.write(&quot;&lt;HTML&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            out.write(&quot;&lt;HEAD&gt;&lt;TITLE&gt;File Not Found&lt;/TITLE&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            out.write(&quot;&lt;/HEAD&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            out.write(&quot;&lt;BODY&gt;&quot;);</code>
+<CODE CLASS="Code">            out.write(&quot;&lt;H1&gt;HTTP Error 404: File Not Found&lt;/h2&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            out.write(&quot;&lt;/BODY&gt;&lt;/HTML&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            out.flush(  );</code>
+<CODE CLASS="Code">          }</code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        else {  // method does not equal &quot;GET&quot;</code>
+<CODE CLASS="Code">          if (version.startsWith(&quot;HTTP &quot;)) {  // send a MIME header</code>
+<CODE CLASS="Code">            out.write(&quot;HTTP 1.0 501 Not Implemented&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            Date now = new Date(  );</code>
+<CODE CLASS="Code">            out.write(&quot;Date: &quot; + now + &quot;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            out.write(&quot;Server: JHTTP 1.0&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">            out.write(&quot;Content-type: text/html&#92;r&#92;n&#92;r&#92;n&quot;); </code>
+<CODE CLASS="Code">          }       </code>
+<CODE CLASS="Code">          out.write(&quot;&lt;HTML&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">          out.write(&quot;&lt;HEAD&gt;&lt;TITLE&gt;Not Implemented&lt;/TITLE&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">          out.write(&quot;&lt;/HEAD&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">          out.write(&quot;&lt;BODY&gt;&quot;);</code>
+<CODE CLASS="Code">          out.write(&quot;&lt;H1&gt;HTTP Error 501: Not Implemented&lt;/h2&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">          out.write(&quot;&lt;/BODY&gt;&lt;/HTML&gt;&#92;r&#92;n&quot;);</code>
+<CODE CLASS="Code">          out.flush(  );</code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">      catch (IOException e) {</code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">      finally {</code>
+<CODE CLASS="Code">        try {</code>
+<CODE CLASS="Code">          connection.close(  );        </code>
+<CODE CLASS="Code">        }</code>
+<CODE CLASS="Code">        catch (IOException e) {} </code>
+<CODE CLASS="Code">      }</code>
+<CODE CLASS="Code">      </code>
+<CODE CLASS="Code">    } // end while</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  } // end run</code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">  public static String guessContentTypeFromName(String name) {</code>
+<CODE CLASS="Code">    if (name.endsWith(&quot;.html&quot;) || name.endsWith(&quot;.htm&quot;)) {</code>
+<CODE CLASS="Code">      return &quot;text/html&quot;;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    else if (name.endsWith(&quot;.txt&quot;) || name.endsWith(&quot;.java&quot;)) {</code>
+<CODE CLASS="Code">      return &quot;text/plain&quot;;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    else if (name.endsWith(&quot;.gif&quot;)) {</code>
+<CODE CLASS="Code">      return &quot;image/gif&quot;;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    else if (name.endsWith(&quot;.class&quot;)) {</code>
+<CODE CLASS="Code">      return &quot;application/octet-stream&quot;;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    else if (name.endsWith(&quot;.jpg&quot;) || name.endsWith(&quot;.jpeg&quot;)) {</code>
+<CODE CLASS="Code">      return &quot;image/jpeg&quot;;</code>
+<CODE CLASS="Code">    }</code>
+<CODE CLASS="Code">    else return &quot;text/plain&quot;;</code>
+<CODE CLASS="Code">  }  </code>
+<CODE CLASS="Code">&nbsp;</code>
+<CODE CLASS="Code">} // end RequestProcessor</code>
+</pre>
+
+<P CLASS="Body">This server is functional but still rather austere. Here are a few features you might want to think about adding:</p>
+
+<UL>
+<LI CLASS="ListBullet">A server administration interface</li>
+<p>
+<LI CLASS="ListBullet">Support for CGI programs and/or the Java Servlet API</li>
+<p>
+<LI CLASS="ListBullet">Support for other request methods, such as POST, HEAD, and PUT</li>
+<p>
+<LI CLASS="ListBullet">A log file in the common web log file format</li>
+<p>
+<LI CLASS="ListBullet">Server-side includes and/or Java Server Pages</li>
+<p>
+<LI CLASS="ListBullet">Support for multiple document roots, so that individual users can have their own sites</li>
+<p>
+</ul>
+
+<P CLASS="Body">Finally, you should spend a little time thinking about ways to optimize this server. If you really want to use <CODE CLASS="Literal">JHTTP</code> to run a high-traffic site, there are a couple of things you can do to speed this server up. The first and most important is to use a Just-in-Time (JIT) compiler such as HotSpot. JITs can improve program performance by as much as an order of magnitude or more. The second thing you should do is implement smart caching. Keep track of the requests you've received, and store the data from the most frequently requested files in a <CODE CLASS="Literal">Hashtable</code> so that they're kept in memory. Use a low-priority thread to update this cache.</p>
+
+<HR>
+
+<P CLASS="Footnote"><A NAME="footnote-1"></a>1.
+The command for stopping a program manually depends on your system; under Unix, NT, and many other systems, CTRL-C will do the job. If you are running the server in the background on a Unix system, stop it by finding the server's process ID and killing it with the kill command (<KBD CLASS="UserInput">kill </kbd><EM CLASS="UserInputReplaceable">pid</em><CODE CLASS="Literal">).</code></p>
+
+
+
+</blockquote>
+
+
+<!-- End of sample chapter -->
+<p><b>Back to: <a href="../noframes.html">Java Network Programming, 2nd Edition</a></b>
+
+<!-- O'Reilly Footer Begins Here -->
+
+<CENTER>
+<HR SIZE="1" NOSHADE>
+<FONT SIZE="1" FACE="Verdana, Arial, Helvetica">
+<A HREF="http://www.oreilly.com/">
+<B>O'Reilly&nbsp;Home</B></A> <B> | </B>
+<A HREF="http://www.oreilly.com/sales/bookstores">
+<B>O'Reilly&nbsp;Bookstores</B></A> <B> | </B>
+<A HREF="http://www.oreilly.com/order_new/">
+<B>How&nbsp;to&nbsp;Order</B></A> <B> | </B>
+<A HREF="http://www.oreilly.com/oreilly/contact.html">
+<B>O'Reilly&nbsp;Contacts<BR></B></A>
+<A HREF="http://www.oreilly.com/international/">
+<B>International</B></A> <B> | </B>
+<A HREF="http://www.oreilly.com/oreilly/about.html">
+<B>About&nbsp;O'Reilly</B></A> <B> | </B>
+<A HREF="http://www.oreilly.com/affiliates.html">
+<B>Affiliated&nbsp;Companies</B></A><p>
+<EM>&copy; 2001, O'Reilly &amp; Associates, Inc.</EM><BR>
+<A HREF="mailto:webmaster@oreilly.com"><I>webmaster@oreilly.com</I></A>
+</FONT>
+</CENTER>
+
+<!-- O'Reilly Footer Ends Here -->
+
+</BODY>
+</html>

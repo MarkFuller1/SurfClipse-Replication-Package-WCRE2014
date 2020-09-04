@@ -1,0 +1,571 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+
+  <head>
+    <title>
+      #3035 (upload problem: OsmTransferException SocketException: Socket closed)
+     – JOSM
+    </title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/search" />
+        <link rel="prev" href="/ticket/3034" title="Ticket #3034" />
+        <link rel="last" href="/ticket/9427" title="Ticket #9427" />
+        <link rel="help" href="/wiki/TracGuide" />
+        <link rel="alternate" href="/ticket/3035?format=csv" type="text/csv" class="csv" title="Comma-delimited Text" /><link rel="alternate" href="/ticket/3035?format=tab" type="text/tab-separated-values" class="tab" title="Tab-delimited Text" /><link rel="alternate" href="/ticket/3035?format=rss" type="application/rss+xml" class="rss" title="RSS Feed" />
+        <link rel="next" href="/ticket/3036" title="Ticket #3036" />
+        <link rel="start" href="/wiki" />
+        <link rel="stylesheet" href="/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/chrome/common/css/ticket.css" type="text/css" /><link rel="stylesheet" href="/chrome/vote/css/tracvote.css" type="text/css" />
+        <link rel="first" href="/ticket/1" title="Ticket #1" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/search/opensearch" title="Search JOSM" />
+    <script type="text/javascript">
+      var auto_preview_timeout=2.0;
+      var form_token="47f2c52c1e5a2e6c4698d5d2";
+      var comments_prefs={"comments_only":"false","comments_order":"oldest"};
+    </script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/jquery.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/babel.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/messages/en_US.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/trac.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/search.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/folding.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/wikitoolbar.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/resizer.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/auto_preview.js"></script>
+    <script type="text/javascript" src="/chrome/common/js/threaded_comments.js"></script>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("div.description").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $(".foldable").enableFolding(false, true);
+      /*<![CDATA[*/
+        $("#attachments").toggleClass("collapsed");
+        $("#trac-up-attachments").click(function () {
+          $("#attachments").removeClass("collapsed");
+          return true;
+        });
+        $("#modify").parent().toggleClass("collapsed");
+        $(".trac-topnav a").click(function() { $("#modify").parent().removeClass("collapsed"); });
+        /* only enable control elements for the currently selected action */
+        var actions = $("#action input[name='action']");
+        function updateActionFields() {
+          actions.each(function () {
+            $(this).siblings().find("*[id]").enable($(this).checked());
+            $(this).siblings().filter("*[id]").enable($(this).checked());
+          });
+        }
+        actions.click(updateActionFields);
+        updateActionFields();
+        function setRevertHandler() {
+          $("button.trac-revert").click(function() {
+            var div = $("div", this);
+            var field_name = div[0].id.substr(7);
+            var field_value = div.text();
+            var input = $("#propertyform *[name=field_" + field_name + "]");
+            if (input.length > 0) {
+              if (input.filter("input[type=radio]").length > 0) {
+                input.val([field_value]);
+              } else if (input.filter("input[type=checkbox]").length > 0) {
+                input.val(field_value == "1" ? [field_value] : []);
+              } else {
+                input.val(field_value);
+              }
+            } else { // Special case for CC checkbox
+              input = $("#propertyform input[name=cc_update]").val([]);
+            }
+            input.change();
+            $(this).closest("li").remove();
+            return false;
+          });
+        }
+        setRevertHandler();
+        var comment_focused = false;
+        $("#comment").focus(function() { comment_focused = true; })
+                     .blur(function() { comment_focused = false; });
+        $("#propertyform").autoSubmit({preview: '1'}, function(data, reply) {
+          var items = $(reply);
+          // Update ticket box
+          $("#ticket").replaceWith(items.filter('#ticket'));
+          // Unthread, unrevert and update changelog
+          if (!$('#trac-comments-oldest').checked())
+            $('#trac-comments-oldest').click().change();
+          $("#changelog").replaceWith(items.filter("#changelog"));
+          if ($('#trac-comments-only-toggle').attr('checked'))
+            $('#trac-comments-only-toggle').click().attr('checked', true);
+          // Show warning
+          var new_changes = $("#changelog .trac-new");
+          $("#trac-edit-warning").toggle(new_changes.length != 0);
+          if (new_changes.length != 0)
+            $("#changelog").parent().show().removeClass("collapsed");
+          // Update view time
+          $("#propertyform input[name='view_time']").replaceWith(items.filter("input[name='view_time']"));
+          // Update preview
+          var preview = $("#ticketchange").html(items.filter('#preview').children());
+          var show_preview = preview.children().length != 0;
+          $("#ticketchange").toggle(show_preview);
+          setRevertHandler();
+          // Collapse property form if comment editor has focus
+          if (show_preview && comment_focused)
+            $("#modify").parent().addClass("collapsed");
+        }, "#ticketchange .trac-loading");
+        $("#trac-comment-editor").autoSubmit({preview_comment: '1'}, function(data, reply) {
+          var comment = $("#trac-comment-editor").next("div.comment").html(reply);
+          comment.toggle(comment.children().length != 0);
+        }, "#changelog .trac-loading");
+        /*]]>*/
+      });
+    </script>
+  </head>
+  <body>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://josm.openstreetmap.de"><img src="/svn/trunk/images/logo.png" alt="JOSM" height="80" width="80" /></a>
+      </div>
+      <form id="search" action="/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/login">Login</a></li><li><a href="/prefs">Preferences</a></li><li><a href="/wiki/TracGuide">Help/Guide</a></li><li><a href="/about">About Trac</a></li><li class="last"><a href="/register">Register</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a></li><li><a href="/timeline">Timeline</a></li><li><a href="/log/josm/?verbose=on">Changelog</a></li><li><a href="/browser">Browse Source</a></li><li class="active"><a href="/report">View Tickets</a></li><li><a href="/newticket">New Ticket</a></li><li class="last"><a href="/search">Search</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+        <ul>
+          <li class="first"><span id="vote" title="Vote count"><img src="/chrome/vote/aupgray.png" alt="Up-vote" /><span id="votes">+0</span><img src="/chrome/vote/adowngray.png" alt="Down-vote" /></span></li><li><span>&larr; <a class="prev" href="/ticket/3034" title="Ticket #3034">Previous Ticket</a></span></li><li class="last"><span><a class="next" href="/ticket/3036" title="Ticket #3036">Next Ticket</a> &rarr;</span></li>
+        </ul>
+        <hr />
+      </div>
+    <div id="content" class="ticket">
+      <div class="trac-topnav">
+        <a href="#modify" title="Go to the ticket editor">Modify</a> ↓
+      </div>
+        <div id="ticket" class="trac-content ">
+  <div class="date">
+    <p>Opened <a class="timeline" href="/timeline?from=2009-07-23T02%3A15%3A06%2B02%3A00&amp;precision=second" title="See timeline at Jul 23, 2009 2:15:06 AM">4 years ago</a></p>
+    <p>Closed <a class="timeline" href="/timeline?from=2010-05-12T13%3A54%3A58%2B02%3A00&amp;precision=second" title="See timeline at May 12, 2010 1:54:58 PM">4 years ago</a></p>
+  </div>
+  <h2>
+    <a href="/ticket/3035" class="trac-id">#3035</a>
+    <span class="trac-status">
+      <a href="/query?status=closed">closed</a>
+    </span>
+    <span class="trac-type">
+      <a href="/query?status=!closed&amp;type=defect">defect</a>
+    </span>
+    <span class="trac-resolution">
+      (<a href="/query?status=closed&amp;resolution=wontfix">wontfix</a>)
+    </span>
+  </h2>
+  <h1 id="trac-ticket-title" class="searchable">
+    <span class="summary">upload problem: OsmTransferException SocketException: Socket closed</span>
+  </h1>
+  <table class="properties">
+    <tr>
+      <th id="h_reporter">Reported by:</th>
+      <td headers="h_reporter" class="searchable"><a href="/query?status=!closed&amp;reporter=phobie">phobie</a></td>
+      <th id="h_owner">Owned by:</th>
+      <td headers="h_owner"><a href="/query?status=!closed&amp;owner=team">team</a></td>
+    </tr>
+    <tr>
+        <th id="h_priority">
+          Priority:
+        </th>
+        <td headers="h_priority">
+              <a href="/query?status=!closed&amp;priority=major">major</a>
+        </td>
+        <th id="h_component">
+          Component:
+        </th>
+        <td headers="h_component">
+              <a href="/query?status=!closed&amp;component=Core">Core</a>
+        </td>
+    </tr><tr>
+        <th id="h_version" class="missing">
+          Version:
+        </th>
+        <td headers="h_version">
+              <a href="/query?status=!closed&amp;version="></a>
+        </td>
+        <th id="h_keywords">
+          Keywords:
+        </th>
+        <td headers="h_keywords" class="searchable">
+              <a href="/query?status=!closed&amp;keywords=~api">api</a>
+        </td>
+    </tr><tr>
+        <th id="h_cc" class="missing">
+          Cc:
+        </th>
+        <td headers="h_cc" class="searchable">
+        </td>
+        <th class="missing">
+        </th>
+        <td>
+        </td>
+    </tr>
+  </table>
+  <div class="description">
+    <h3 id="comment:description">
+      Description
+    </h3>
+    <form id="addreply" method="get" action="#comment">
+      <div class="inlinebuttons">
+        <input type="hidden" name="replyto" value="description" />
+        <input type="submit" name="reply" value="↳ Reply" title="Reply, quoting this description" />
+      </div>
+    </form>
+    <div class="searchable">
+      <p>
+JOSM 1822<br />
+</p>
+<p>
+I tried to upload a big changeset.<br />
+The upload window never closed.<br />
+After several hours I closed JOSM.<br />
+The changeset has been closed successfully but I received this exception:<br />
+</p>
+<pre class="wiki">node:296441392                                                                                                                                                                          
+PUT http://api.openstreetmap.org/api/0.6/changeset/1907881/close... RemoteControl received: GET /load_and_zoom?left=10.xxxxx&amp;bottom=52.xxxxx&amp;right=10.xxxxx&amp;top=52.xxxxx HTTP/1.1            
+org.openstreetmap.josm.io.OsmTransferException: java.net.SocketException: Socket closed                                                                                                      
+        at org.openstreetmap.josm.io.OsmApi.sendRequest(OsmApi.java:475)                                                                                                                     
+        at org.openstreetmap.josm.io.OsmApi.stopChangeset(OsmApi.java:304)                                                                                                                   
+        at org.openstreetmap.josm.io.OsmServerWriter.uploadOsm(OsmServerWriter.java:115)                                                                                                     
+        at org.openstreetmap.josm.actions.UploadAction$1UploadDiffTask.realRun(UploadAction.java:227)                                                                                        
+        at org.openstreetmap.josm.gui.PleaseWaitRunnable.doRealRun(PleaseWaitRunnable.java:62)                                                                                               
+        at org.openstreetmap.josm.gui.PleaseWaitRunnable.run(PleaseWaitRunnable.java:116)                                                                                                    
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)                                                                                               
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)                                                                                                   
+        at java.lang.Thread.run(Thread.java:619)                                                                                                                                             
+Caused by: java.net.SocketException: Socket closed                                                                                                                                           
+        at java.net.SocketInputStream.socketRead0(Native Method)                                                                                                                             
+        at java.net.SocketInputStream.read(SocketInputStream.java:129)                                                                                                                       
+        at java.io.BufferedInputStream.fill(BufferedInputStream.java:218)                                                                                                                    
+        at java.io.BufferedInputStream.read1(BufferedInputStream.java:258)                                                                                                                   
+        at java.io.BufferedInputStream.read(BufferedInputStream.java:317)                                                                                                                    
+        at sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:687)                                                                                                                  
+        at sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:632)                                                                                                                        
+        at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1064)                                                                                           
+        at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:373)                                                                                                            
+        at java.net.HttpURLConnection.getResponseMessage(HttpURLConnection.java:439)                                                                                                         
+        at org.openstreetmap.josm.io.OsmApi.sendRequest(OsmApi.java:419)                                                                                                                     
+        ... 8 more                                                                                                                                                                           
+GET http://api.openstreetmap.org/api/0.6/map?bbox=10.56627,52.9575,10.5735,52.96152                                                                                                          
+org.openstreetmap.josm.io.OsmTransferException: java.net.SocketException: Socket closed                                                                                                      
+        at org.openstreetmap.josm.io.OsmServerReader.getInputStreamRaw(OsmServerReader.java:109)                                                                                             
+        at org.openstreetmap.josm.io.OsmServerReader.getInputStream(OsmServerReader.java:43)                                                                                                 
+        at org.openstreetmap.josm.io.BoundingBoxDownloader.parseOsm(BoundingBoxDownloader.java:101)                                                                                          
+        at org.openstreetmap.josm.actions.downloadtasks.DownloadOsmTask$Task.realRun(DownloadOsmTask.java:50)                                                                                
+        at org.openstreetmap.josm.gui.PleaseWaitRunnable.doRealRun(PleaseWaitRunnable.java:62)                                                                                               
+        at org.openstreetmap.josm.gui.PleaseWaitRunnable.run(PleaseWaitRunnable.java:116)                                                                                                    
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)                                                                                                           
+        at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)                                                                                                                
+        at java.util.concurrent.FutureTask.run(FutureTask.java:138)                                                                                                                          
+        at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)                                                                                               
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)                                                                                                   
+        at java.lang.Thread.run(Thread.java:619)                                                                                                                                             
+Caused by: java.net.SocketException: Socket closed                                                                                                                                           
+        at java.net.SocketInputStream.socketRead0(Native Method)                                                                                                                             
+        at java.net.SocketInputStream.read(SocketInputStream.java:129)                                                                                                                       
+        at java.io.BufferedInputStream.fill(BufferedInputStream.java:218)                                                                                                                    
+        at java.io.BufferedInputStream.read1(BufferedInputStream.java:258)                                                                                                                   
+        at java.io.BufferedInputStream.read(BufferedInputStream.java:317)                                                                                                                    
+        at sun.net.www.http.HttpClient.parseHTTPHeader(HttpClient.java:687)                                                                                                                  
+        at sun.net.www.http.HttpClient.parseHTTP(HttpClient.java:632)                                                                                                                        
+        at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1064)                                                                                           
+        at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:373)                                                                                                            
+        at org.openstreetmap.josm.io.OsmServerReader.getInputStreamRaw(OsmServerReader.java:79)                                                                                              
+        ... 11 more 
+</pre>
+    </div>
+  </div>
+</div>
+          
+    <div id="attachments">
+        <h3 class="foldable">Attachments <span class="trac-count">(0)</span></h3>
+        <div class="attachments">
+          <form method="get" action="/attachment/ticket/3035/" id="attachfile">
+  <div>
+    <input type="hidden" name="action" value="new" />
+    <input type="submit" name="attachfilebutton" value="Attach file" />
+  </div>
+</form>
+        </div>
+    </div>
+
+        <div>
+          <div style="position: relative">
+            <form id="prefs" method="get" action="/prefs" style="position: absolute; right: 0">
+              <div id="trac-comments-order">
+                <input type="radio" id="trac-comments-oldest" name="trac-comments-order" value="oldest" checked="checked" />
+                <label for="trac-comments-oldest">Oldest first</label>
+                <input type="radio" id="trac-comments-newest" name="trac-comments-order" value="newest" />
+                <label for="trac-comments-newest">Newest first</label>
+                <span id="trac-threaded-toggle" style="display: none">
+                  <input type="radio" id="trac-comments-threaded" name="trac-comments-order" value="threaded" />
+                  <label for="trac-comments-threaded">Threaded</label>
+                </span>
+              </div>
+              <div>
+                <input id="trac-comments-only-toggle" type="checkbox" />
+                <label for="trac-comments-only-toggle">Comments only</label>
+              </div>
+            </form>
+          </div>
+          <h3 class="foldable">Change History <span class="trac-count">(2)</span></h3>
+          <div id="changelog">
+              <div class="change" id="trac-change-1-1250897773000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:1" class="cnum">
+    <a href="#comment:1">comment:1</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2009-08-22T01%3A36%3A13%2B02%3A00&amp;precision=second" title="See timeline at Aug 22, 2009 1:36:13 AM">4 years ago</a> by plaicy
+  </h3>
+  <div class="trac-ticket-buttons">
+    <form id="reply-to-comment-1" method="get" action="#comment">
+      <div class="inlinebuttons">
+        <input type="hidden" name="replyto" value="1" />
+        <input type="submit" value="↳ Reply" title="Reply to comment 1" />
+      </div>
+    </form>
+  </div>
+  <ul class="changes">
+    <li class="trac-field-keywords">
+      <strong class="trac-field-keywords">Keywords</strong>
+        <em>api</em> added
+    </li>
+  </ul>
+
+              </div>
+              <div class="change" id="trac-change-2-1273665298000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:2" class="cnum">
+    <a href="#comment:2">comment:2</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2010-05-12T13%3A54%3A58%2B02%3A00&amp;precision=second" title="See timeline at May 12, 2010 1:54:58 PM">4 years ago</a> by anonymous
+  </h3>
+  <div class="trac-ticket-buttons">
+    <form id="reply-to-comment-2" method="get" action="#comment">
+      <div class="inlinebuttons">
+        <input type="hidden" name="replyto" value="2" />
+        <input type="submit" value="↳ Reply" title="Reply to comment 2" />
+      </div>
+    </form>
+  </div>
+  <ul class="changes">
+    <li class="trac-field-resolution">
+      <strong class="trac-field-resolution">Resolution</strong>
+        set to <em>wontfix</em>
+    </li><li class="trac-field-status">
+      <strong class="trac-field-status">Status</strong>
+        changed from <em>new</em> to <em>closed</em>
+    </li>
+  </ul>
+    <div class="comment searchable">
+      <p>
+I/O error.<br />
+</p>
+
+    </div>
+
+              </div>
+          </div>
+        </div>
+      <form method="post" id="propertyform" action="/ticket/3035#trac-add-comment"><div><input type="hidden" name="__FORM_TOKEN" value="47f2c52c1e5a2e6c4698d5d2" /></div>
+        <div id="trac-add-comment" class="field">
+          <h3 class="foldable" id="edit">Add Comment</h3>
+          <div>
+            <div id="trac-edit-warning" class="warning system-message" style="display: none">This ticket has been modified since you started editing. You should review the
+              <em class="trac-new">other modifications</em> which have been appended above,
+              and any <em class="trac-conflict">conflicts</em> shown in the preview below.
+              You can nevertheless proceed and submit your changes if you wish so.</div>
+            <fieldset>
+              <label for="comment">You may use
+                <a tabindex="42" href="/wiki/WikiFormatting">WikiFormatting</a>
+                here.</label>
+              <textarea id="comment" name="comment" class="wikitext trac-resizable" rows="10" cols="78">
+</textarea>
+            </fieldset>
+          </div>
+        </div>
+        <div>
+          <h3 class="foldable">Modify Ticket</h3>
+          <div id="modify">
+            <fieldset id="properties">
+              <legend>
+                  Change Properties
+              </legend>
+              <table>
+                <tr>
+                  <th><label for="field-summary">Summary:</label></th>
+                  <td class="fullrow" colspan="3">
+                    <input type="text" id="field-summary" name="field_summary" value="upload problem: OsmTransferException SocketException: Socket closed" size="70" />
+                  </td>
+                </tr>
+                <tr>
+                    <th class="col1">
+                      <label for="field-type">Type:</label>
+                    </th>
+                    <td class="col1">
+                        <select id="field-type" name="field_type">
+                          <option selected="selected" value="defect">defect</option><option value="enhancement">enhancement</option>
+                        </select>
+                    </td>
+                    <th class="col2">
+                      <label for="field-priority">Priority:</label>
+                    </th>
+                    <td class="col2">
+                        <select id="field-priority" name="field_priority">
+                          <option value="blocker">blocker</option><option value="critical">critical</option><option selected="selected" value="major">major</option><option value="normal">normal</option><option value="minor">minor</option><option value="trivial">trivial</option>
+                        </select>
+                    </td>
+                </tr><tr>
+                    <th class="col1">
+                      <label for="field-component">Component:</label>
+                    </th>
+                    <td class="col1">
+                        <select id="field-component" name="field_component">
+                          <option value="Applet">Applet</option><option selected="selected" value="Core">Core</option><option value="Core audio">Core audio</option><option value="Core bugreport">Core bugreport</option><option value="Core image mapping">Core image mapping</option><option value="Core imagery">Core imagery</option><option value="Core mappaint">Core mappaint</option><option value="Core multipoly">Core multipoly</option><option value="Core remotecontrol">Core remotecontrol</option><option value="Core restart">Core restart</option><option value="Core shortcuts">Core shortcuts</option><option value="Core validator">Core validator</option><option value="Core Webstart">Core Webstart</option><option value="External imagery shape">External imagery shape</option><option value="External mappaint style">External mappaint style</option><option value="External preset">External preset</option><option value="Installer MacOS">Installer MacOS</option><option value="Installer Windows">Installer Windows</option><option value="Internal mappaint style">Internal mappaint style</option><option value="Internal preset">Internal preset</option><option value="JMapViewer">JMapViewer</option><option value="Plugin">Plugin</option><option value="Plugin addrinterpolation">Plugin addrinterpolation</option><option value="Plugin alignways">Plugin alignways</option><option value="Plugin building_tools">Plugin building_tools</option><option value="Plugin cadastre-fr">Plugin cadastre-fr</option><option value="Plugin columbuscsv">Plugin columbuscsv</option><option value="Plugin commandline">Plugin commandline</option><option value="Plugin conflation">Plugin conflation</option><option value="Plugin continuosDownload">Plugin continuosDownload</option><option value="Plugin contourmerge">Plugin contourmerge</option><option value="Plugin curves">Plugin curves</option><option value="Plugin czechaddress">Plugin czechaddress</option><option value="Plugin dataimport">Plugin dataimport</option><option value="Plugin directupload">Plugin directupload</option><option value="Plugin download_along">Plugin download_along</option><option value="Plugin editgpx">Plugin editgpx</option><option value="Plugin elevationprofile">Plugin elevationprofile</option><option value="Plugin ext_tools">Plugin ext_tools</option><option value="Plugin fieldpapers">Plugin fieldpapers</option><option value="Plugin fixaddresses">Plugin fixaddresses</option><option value="Plugin fuzzer">Plugin fuzzer</option><option value="Plugin geochat">Plugin geochat</option><option value="Plugin geotools">Plugin geotools</option><option value="Plugin globalsat">Plugin globalsat</option><option value="Plugin graphview">Plugin graphview</option><option value="Plugin HouseNumberTaggingTool">Plugin HouseNumberTaggingTool</option><option value="Plugin imagerycache">Plugin imagerycache</option><option value="Plugin imagery-xml-bounds">Plugin imagery-xml-bounds</option><option value="Plugin importimage">Plugin importimage</option><option value="Plugin importvec">Plugin importvec</option><option value="Plugin improvewayaccuracy">Plugin improvewayaccuracy</option><option value="Plugin junctionchecking">Plugin junctionchecking</option><option value="Plugin kendzi3d">Plugin kendzi3d</option><option value="Plugin lakewalker">Plugin lakewalker</option><option value="Plugin licensechange">Plugin licensechange</option><option value="Plugin livegps">Plugin livegps</option><option value="Plugin mapdust">Plugin mapdust</option><option value="Plugin measurement">Plugin measurement</option><option value="Plugin michigan_left">Plugin michigan_left</option><option value="Plugin mirrored_download">Plugin mirrored_download</option><option value="Plugin namemanager">Plugin namemanager</option><option value="Plugin native_password_manager">Plugin native_password_manager</option><option value="Plugin nearclick">Plugin nearclick</option><option value="Plugin notes">Plugin notes</option><option value="Plugin o5m">Plugin o5m</option><option value="Plugin opendata">Plugin opendata</option><option value="Plugin openinghourseditor">Plugin openinghourseditor</option><option value="Plugin openstreetbugs">Plugin openstreetbugs</option><option value="Plugin osmarender">Plugin osmarender</option><option value="Plugin pdfimport">Plugin pdfimport</option><option value="Plugin photo_geotagging">Plugin photo_geotagging</option><option value="Plugin piclayer">Plugin piclayer</option><option value="Plugin print">Plugin print</option><option value="Plugin proj4j">Plugin proj4j</option><option value="Plugin public_transport">Plugin public_transport</option><option value="Plugin reltoolbox">Plugin reltoolbox</option><option value="Plugin reverter">Plugin reverter</option><option value="Plugin roadsigns">Plugin roadsigns</option><option value="Plugin routes">Plugin routes</option><option value="Plugin routing">Plugin routing</option><option value="Plugin scripting">Plugin scripting</option><option value="Plugin seamapeditor">Plugin seamapeditor</option><option value="Plugin simplifyArea">Plugin simplifyArea</option><option value="Plugin surveyor">Plugin surveyor</option><option value="Plugin tag2link">Plugin tag2link</option><option value="Plugin tageditor">Plugin tageditor</option><option value="Plugin tagging-preset-tester">Plugin tagging-preset-tester</option><option value="Plugin terracer">Plugin terracer</option><option value="Plugin todo">Plugin todo</option><option value="Plugin toms">Plugin toms</option><option value="Plugin tracer">Plugin tracer</option><option value="Plugin turnlanes">Plugin turnlanes</option><option value="Plugin turnrestrictions">Plugin turnrestrictions</option><option value="Plugin undelete">Plugin undelete</option><option value="Plugin utilsplugin2">Plugin utilsplugin2</option><option value="Plugin videomapping">Plugin videomapping</option><option value="Plugin waydownloader">Plugin waydownloader</option><option value="Plugin waypoint_search">Plugin waypoint_search</option><option value="Plugin wayselector">Plugin wayselector</option><option value="Plugin wikipedia">Plugin wikipedia</option><option value="Trac">Trac</option><option value="Ubuntu package">Ubuntu package</option><option value="unspecified">unspecified</option>
+                        </select>
+                    </td>
+                    <th class="col2">
+                      <label for="field-version">Version:</label>
+                    </th>
+                    <td class="col2">
+                        <select id="field-version" name="field_version">
+                          <option></option>
+                          <option value="tested">tested</option><option value="latest">latest</option>
+                        </select>
+                    </td>
+                </tr><tr>
+                    <th class="col1">
+                      <label for="field-keywords">Keywords:</label>
+                    </th>
+                    <td class="col1">
+                            <input type="text" id="field-keywords" name="field_keywords" value="api" />
+                    </td>
+                    <th class="col2">
+                      <label for="field-cc">Add/Remove from Cc:</label>
+                    </th>
+                    <td class="col2">
+                            <span>
+                              <em>&lt;Author field&gt;</em>
+                              <input type="checkbox" id="field-cc" name="cc_update" title="This checkbox allows you to add or remove yourself from the CC list." />
+                            </span>
+                    </td>
+                </tr>
+              </table>
+            </fieldset>
+                <fieldset id="action">
+                  <legend>Action</legend>
+                  <div>
+                      <input type="radio" id="action_leave" name="action" value="leave" checked="checked" />
+                      <label for="action_leave">leave</label>
+                      as closed
+                      <span class="hint">.</span>
+                  </div><div>
+                      <input type="radio" id="action_resolution" name="action" value="resolution" />
+                      <label for="action_resolution">change resolution</label>
+                      as <select name="action_resolution_resolve_resolution" id="action_resolution_resolve_resolution"><option selected="selected" value="fixed">fixed</option><option value="invalid">invalid</option><option value="wontfix">wontfix</option><option value="duplicate">duplicate</option><option value="worksforme">worksforme</option><option value="spam">spam</option><option value="irreproducible">irreproducible</option><option value="othersoftware">othersoftware</option><option value="needinfo">needinfo</option></select>
+                      <span class="hint">The resolution will be set. Next status will be 'closed'.</span>
+                  </div><div>
+                      <input type="radio" id="action_reopen" name="action" value="reopen" />
+                      <label for="action_reopen">reopen</label>
+                      <span class="hint">The resolution will be deleted. Next status will be 'reopened'.</span>
+                  </div>
+                </fieldset>
+          </div>
+        </div>
+        <div id="ticketchange" class="ticketdraft" style="display: none">
+          
+  <h3 class="change">
+    <span class="threading">
+    </span>
+        Changed by anonymous
+    <span class="trac-loading"></span>
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+
+        </div>
+        <div class="field">
+          <fieldset>
+            <legend>Author</legend>
+            <table>
+              <tr>
+                <th>
+                  <label for="author">Your email or username:</label><br />
+                </th>
+                <td>
+                  <input type="text" id="author" name="author" size="40" value="anonymous" />
+                  <br />
+                </td>
+              </tr>
+            </table>
+            <p class="hint">
+              E-mail address and user name can be saved in the <a href="/prefs">Preferences</a>.
+            </p>
+          </fieldset>
+        </div>
+        <div class="trac-nav">
+          <a href="#attachments" id="trac-up-attachments" title="Go to the list of attachments">Attachments</a> ↑
+          <a href="#content" id="trac-up-view" title="View the ticket description">Description</a> ↑
+        </div>
+        <div style="display:none;"><input type="text" name="sfp_email" value="" /><input type="hidden" name="sfph_mail" value="" /></div><div class="buttons">
+            <input type="hidden" name="start_time" value="1273665298000000" />
+            <input type="hidden" name="view_time" value="1273665298000000" />
+            <input type="hidden" name="replyto" />
+          <input type="submit" name="preview" value="Preview" /> 
+          <input type="submit" name="submit" value="Submit changes" />
+        </div>
+      </form>
+      <div id="help"><strong>Note:</strong> See
+        <a href="/wiki/TracTickets">TracTickets</a> for help on using
+        tickets.</div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="first">
+          <a rel="nofollow" href="/ticket/3035?format=csv" class="csv">Comma-delimited Text</a>
+        </li><li>
+          <a rel="nofollow" href="/ticket/3035?format=tab" class="tab">Tab-delimited Text</a>
+        </li><li class="last">
+          <a rel="nofollow" href="/ticket/3035?format=rss" class="rss">RSS Feed</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/about"><strong>Trac 1.0.1</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Server sponsored by <a href="http://www.hetzner.de/">Hetzner</a>. Visit the Openstreetmap project at <a href="http://www.openstreetmap.org/">http://www.openstreetmap.org/</a><br />Content is available under <a href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike (CC-BY-SA)</a> license.</p>
+    </div>
+  </body>
+</html>

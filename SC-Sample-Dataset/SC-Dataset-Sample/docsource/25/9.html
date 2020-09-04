@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//gnu.org///DTD XHTML 1.1 plus Target 1.0//EN" "../../../resources/xhtml11-target10.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head><title>Source for java.awt.print.PrinterJob (GNU Classpath 0.95 Documentation)</title><script src="../../../resources/gjdoc.js" type="text/javascript"><!-- this comment required for konqueror 3.2.2 --></script><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/><meta name="generator" content="GNU Gjdoc Standard Doclet"/><link rel="stylesheet" type="text/css" href="../../../resources/gjdochtml-clean-layout.css" title="GNU Clean"/><link rel="stylesheet" type="text/css" href="../../../resources/gjdochtml-clean-color1.css" title="GNU Clean"/></head><body class="content source" onload="if(parent.contentPageLoaded)parent.contentPageLoaded(document.title)"><table class="navbar div top"><tr><td class="navbar div top"><div class="navbar div top"><span class="navbar item enabled"><a href="../../../overview-summary.html">Overview</a></span> <span class="navbar item enabled"><a href="package-summary.html">Package</a></span> <span class="navbar item enabled"><a href="PrinterJob.html">Class</a></span> <span class="navbar item enabled"><a href="PrinterJob-uses.html">Use</a></span> <span class="navbar item active">Source</span> <span class="navbar item enabled"><a href="tree.html">Tree</a></span> <span class="navbar item enabled"><a href="../../../alphaindex-1.html">Index</a></span> <span class="navbar item enabled"><a href="../../../deprecated.html">Deprecated</a></span> <span class="navbar item enabled"><a href="../../../about.html">About</a></span></div></td><td class="header" rowspan="2"><span class='logo'><a href='http://www.gnu.org/software/classpath' target='_top'>GNU Classpath</a> (0.95)</td></tr><tr><td class="navi"></td><td class="navi"><a href="../../../index.html" title="Show in a frameset" target="_top">Frames</a> | <a href="PrinterJob-source.html" title="Show without frames" target="_top">No Frames</a> </td></tr></table><h1 class="source title">Source for java.awt.print.PrinterJob</h1><div class="source body">  <div class="source">
+<pre>
+   <a name="line.1"><span class="line-number even">1:</span> </a><span class="c comment">/* PrinterJob.java -- This job is the printer control class
+   <a name="line.2"><span class="line-number even">2:</span> </a>   Copyright (C) 1999, 2004, 2005, 2006  Free Software Foundation, Inc.
+   <a name="line.3"><span class="line-number even">3:</span> </a>
+   <a name="line.4"><span class="line-number even">4:</span> </a>This file is part of GNU Classpath.
+   <a name="line.5"><span class="line-number odd">5: </span></a>
+   <a name="line.6"><span class="line-number even">6:</span> </a>GNU Classpath is free software; you can redistribute it and/or modify
+   <a name="line.7"><span class="line-number even">7:</span> </a>it under the terms of the GNU General Public License as published by
+   <a name="line.8"><span class="line-number even">8:</span> </a>the Free Software Foundation; either version 2, or (at your option)
+   <a name="line.9"><span class="line-number even">9:</span> </a>any later version.
+  <a name="line.10"><span class="line-number odd">10: </span></a>
+  <a name="line.11"><span class="line-number even">11:</span> </a>GNU Classpath is distributed in the hope that it will be useful, but
+  <a name="line.12"><span class="line-number even">12:</span> </a>WITHOUT ANY WARRANTY; without even the implied warranty of
+  <a name="line.13"><span class="line-number even">13:</span> </a>MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  <a name="line.14"><span class="line-number even">14:</span> </a>General Public License for more details.
+  <a name="line.15"><span class="line-number odd">15: </span></a>
+  <a name="line.16"><span class="line-number even">16:</span> </a>You should have received a copy of the GNU General Public License
+  <a name="line.17"><span class="line-number even">17:</span> </a>along with GNU Classpath; see the file COPYING.  If not, write to the
+  <a name="line.18"><span class="line-number even">18:</span> </a>Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+  <a name="line.19"><span class="line-number even">19:</span> </a>02110-1301 USA.
+  <a name="line.20"><span class="line-number odd">20: </span></a>
+  <a name="line.21"><span class="line-number even">21:</span> </a>Linking this library statically or dynamically with other modules is
+  <a name="line.22"><span class="line-number even">22:</span> </a>making a combined work based on this library.  Thus, the terms and
+  <a name="line.23"><span class="line-number even">23:</span> </a>conditions of the GNU General Public License cover the whole
+  <a name="line.24"><span class="line-number even">24:</span> </a>combination.
+  <a name="line.25"><span class="line-number odd">25: </span></a>
+  <a name="line.26"><span class="line-number even">26:</span> </a>As a special exception, the copyright holders of this library give you
+  <a name="line.27"><span class="line-number even">27:</span> </a>permission to link this library with independent modules to produce an
+  <a name="line.28"><span class="line-number even">28:</span> </a>executable, regardless of the license terms of these independent
+  <a name="line.29"><span class="line-number even">29:</span> </a>modules, and to copy and distribute the resulting executable under
+  <a name="line.30"><span class="line-number odd">30: </span></a>terms of your choice, provided that you also meet, for each linked
+  <a name="line.31"><span class="line-number even">31:</span> </a>independent module, the terms and conditions of the license of that
+  <a name="line.32"><span class="line-number even">32:</span> </a>module.  An independent module is a module which is not derived from
+  <a name="line.33"><span class="line-number even">33:</span> </a>or based on this library.  If you modify this library, you may extend
+  <a name="line.34"><span class="line-number even">34:</span> </a>this exception to your version of the library, but you are not
+  <a name="line.35"><span class="line-number odd">35: </span></a>obligated to do so.  If you do not wish to do so, delete this
+  <a name="line.36"><span class="line-number even">36:</span> </a>exception statement from your version. */</span>
+  <a name="line.37"><span class="line-number even">37:</span> </a>
+  <a name="line.38"><span class="line-number even">38:</span> </a>
+  <a name="line.39"><span class="line-number even">39:</span> </a><span class="keyword">package</span> <span class="package header type">java.awt.print</span>;
+  <a name="line.40"><span class="line-number odd">40: </span></a>
+  <a name="line.41"><span class="line-number even">41:</span> </a><span class="keyword">import</span> <span class="import header type">gnu.java.awt.print.JavaPrinterJob</span>;
+  <a name="line.42"><span class="line-number even">42:</span> </a>
+  <a name="line.43"><span class="line-number even">43:</span> </a><span class="keyword">import</span> <span class="import header type">java.awt.HeadlessException</span>;
+  <a name="line.44"><span class="line-number even">44:</span> </a><span class="keyword">import</span> <span class="import header type">javax.print.PrintService</span>;
+  <a name="line.45"><span class="line-number odd">45: </span></a><span class="keyword">import</span> <span class="import header type">javax.print.PrintServiceLookup</span>;
+  <a name="line.46"><span class="line-number even">46:</span> </a><span class="keyword">import</span> <span class="import header type">javax.print.DocFlavor</span>;
+  <a name="line.47"><span class="line-number even">47:</span> </a><span class="keyword">import</span> <span class="import header type">javax.print.StreamPrintServiceFactory</span>;
+  <a name="line.48"><span class="line-number even">48:</span> </a><span class="keyword">import</span> <span class="import header type">javax.print.attribute.PrintRequestAttributeSet</span>;
+  <a name="line.49"><span class="line-number even">49:</span> </a>
+  <a name="line.50"><span class="line-number odd">50: </span></a><span class="javadoc comment">/**
+  <a name="line.51"><span class="line-number even">51:</span> </a> * This class controls printing.
+  <a name="line.52"><span class="line-number even">52:</span> </a> *
+  <a name="line.53"><span class="line-number even">53:</span> </a> * @<span class="javadoc tag">author</span> Aaron M. Renn (arenn@urbanophile.com)
+  <a name="line.54"><span class="line-number even">54:</span> </a> */</span>
+  <a name="line.55"><span class="line-number odd">55: </span></a><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="non-primitive type">PrinterJob</span>
+  <a name="line.56"><span class="line-number even">56:</span> </a>{
+  <a name="line.57"><span class="line-number even">57:</span> </a>  <span class="line comment">// The print service associated with this job</span>
+  <a name="line.58"><span class="line-number even">58:</span> </a>  <span class="keyword">private</span> <span class="non-primitive type">PrintService</span> <span class="variable member">printer</span> = <span class="primitive literal">null</span>;
+  <a name="line.59"><span class="line-number even">59:</span> </a>
+  <a name="line.60"><span class="line-number odd">60: </span></a>  <span class="javadoc comment">/**
+  <a name="line.61"><span class="line-number even">61:</span> </a>   * Creates a new print job.
+  <a name="line.62"><span class="line-number even">62:</span> </a>   *
+  <a name="line.63"><span class="line-number even">63:</span> </a>   * @<span class="javadoc tag">return</span> A &lt;code&gt;PrinterJob&lt;/code&gt; object for the newly created print job.
+  <a name="line.64"><span class="line-number even">64:</span> </a>   */</span>
+  <a name="line.65"><span class="line-number odd">65: </span></a>  <span class="keyword">public</span> <span class="keyword">static</span> <span class="non-primitive type">PrinterJob</span> <span class="method member">getPrinterJob</span>()
+  <a name="line.66"><span class="line-number even">66:</span> </a>  {
+  <a name="line.67"><span class="line-number even">67:</span> </a>    <span class="keyword">return</span> <span class="keyword">new</span> <span class="constructor member">JavaPrinterJob</span>();
+  <a name="line.68"><span class="line-number even">68:</span> </a>  }
+  <a name="line.69"><span class="line-number even">69:</span> </a>
+  <a name="line.70"><span class="line-number odd">70: </span></a>  <span class="javadoc comment">/**
+  <a name="line.71"><span class="line-number even">71:</span> </a>   * Initializes a new instance of &lt;code&gt;PrinterJob&lt;/code&gt;. 
+  <a name="line.72"><span class="line-number even">72:</span> </a>   */</span>
+  <a name="line.73"><span class="line-number even">73:</span> </a>  <span class="keyword">public</span> <span class="constructor member">PrinterJob</span>()
+  <a name="line.74"><span class="line-number even">74:</span> </a>  {
+  <a name="line.75"><span class="line-number odd">75: </span></a>  }
+  <a name="line.76"><span class="line-number even">76:</span> </a>
+  <a name="line.77"><span class="line-number even">77:</span> </a>  <span class="javadoc comment">/**
+  <a name="line.78"><span class="line-number even">78:</span> </a>   * Returns the number of copies to be printed.
+  <a name="line.79"><span class="line-number even">79:</span> </a>   *
+  <a name="line.80"><span class="line-number odd">80: </span></a>   * @<span class="javadoc tag">return</span> The number of copies to be printed.
+  <a name="line.81"><span class="line-number even">81:</span> </a>   */</span>
+  <a name="line.82"><span class="line-number even">82:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">int</span> <span class="method member">getCopies</span>();
+  <a name="line.83"><span class="line-number even">83:</span> </a>
+  <a name="line.84"><span class="line-number even">84:</span> </a>  <span class="javadoc comment">/**
+  <a name="line.85"><span class="line-number odd">85: </span></a>   * Sets the number of copies to be printed.
+  <a name="line.86"><span class="line-number even">86:</span> </a>   *
+  <a name="line.87"><span class="line-number even">87:</span> </a>   * @<span class="javadoc tag">param</span> <span class="variable member">copies</span> The number of copies to be printed.
+  <a name="line.88"><span class="line-number even">88:</span> </a>   */</span>
+  <a name="line.89"><span class="line-number even">89:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">void</span> <span class="method member">setCopies</span>(<span class="primitive type">int</span> <span class="variable member">copies</span>);
+  <a name="line.90"><span class="line-number odd">90: </span></a>
+  <a name="line.91"><span class="line-number even">91:</span> </a>  <span class="javadoc comment">/**
+  <a name="line.92"><span class="line-number even">92:</span> </a>   * Returns the name of the print job.
+  <a name="line.93"><span class="line-number even">93:</span> </a>   *
+  <a name="line.94"><span class="line-number even">94:</span> </a>   * @<span class="javadoc tag">return</span> The name of the print job.
+  <a name="line.95"><span class="line-number odd">95: </span></a>   */</span>
+  <a name="line.96"><span class="line-number even">96:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="non-primitive type">String</span> <span class="method member">getJobName</span>();
+  <a name="line.97"><span class="line-number even">97:</span> </a>
+  <a name="line.98"><span class="line-number even">98:</span> </a>  <span class="javadoc comment">/**
+  <a name="line.99"><span class="line-number even">99:</span> </a>   * Sets the name of the print job.
+ <a name="line.100"><span class="line-number odd">100: </span></a>   *
+ <a name="line.101"><span class="line-number even">101:</span> </a>   * @<span class="javadoc tag">param</span> <span class="variable member">job_name</span> The name of the print job.
+ <a name="line.102"><span class="line-number even">102:</span> </a>   */</span>
+ <a name="line.103"><span class="line-number even">103:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">void</span> <span class="method member">setJobName</span>(<span class="non-primitive type">String</span> <span class="variable member">job_name</span>);
+ <a name="line.104"><span class="line-number even">104:</span> </a>
+ <a name="line.105"><span class="line-number odd">105: </span></a>  <span class="javadoc comment">/**
+ <a name="line.106"><span class="line-number even">106:</span> </a>   * Returns the printing user name.
+ <a name="line.107"><span class="line-number even">107:</span> </a>   *
+ <a name="line.108"><span class="line-number even">108:</span> </a>   * @<span class="javadoc tag">return</span> The printing username.
+ <a name="line.109"><span class="line-number even">109:</span> </a>   */</span>
+ <a name="line.110"><span class="line-number odd">110: </span></a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="non-primitive type">String</span> <span class="method member">getUserName</span>();
+ <a name="line.111"><span class="line-number even">111:</span> </a>
+ <a name="line.112"><span class="line-number even">112:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.113"><span class="line-number even">113:</span> </a>   * Cancels an in progress print job.
+ <a name="line.114"><span class="line-number even">114:</span> </a>   */</span>
+ <a name="line.115"><span class="line-number odd">115: </span></a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">void</span> <span class="method member">cancel</span>();
+ <a name="line.116"><span class="line-number even">116:</span> </a>
+ <a name="line.117"><span class="line-number even">117:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.118"><span class="line-number even">118:</span> </a>   * Tests whether or not this job has been cancelled.
+ <a name="line.119"><span class="line-number even">119:</span> </a>   *
+ <a name="line.120"><span class="line-number odd">120: </span></a>   * @<span class="javadoc tag">return</span> &lt;code&gt;true&lt;/code&gt; if this job has been cancelled, &lt;code&gt;false&lt;/code&gt;
+ <a name="line.121"><span class="line-number even">121:</span> </a>   * otherwise.
+ <a name="line.122"><span class="line-number even">122:</span> </a>   */</span>
+ <a name="line.123"><span class="line-number even">123:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">boolean</span> <span class="method member">isCancelled</span>();
+ <a name="line.124"><span class="line-number even">124:</span> </a>
+ <a name="line.125"><span class="line-number odd">125: </span></a>  <span class="javadoc comment">/**
+ <a name="line.126"><span class="line-number even">126:</span> </a>   * Returns an instance of the default page which will have the default
+ <a name="line.127"><span class="line-number even">127:</span> </a>   * paper and orientation.
+ <a name="line.128"><span class="line-number even">128:</span> </a>   *
+ <a name="line.129"><span class="line-number even">129:</span> </a>   * @<span class="javadoc tag">return</span> A default instance of &lt;code&gt;PageFormat&lt;/code&gt;.
+ <a name="line.130"><span class="line-number odd">130: </span></a>   */</span>
+ <a name="line.131"><span class="line-number even">131:</span> </a>  <span class="keyword">public</span> <span class="non-primitive type">PageFormat</span> <span class="method member">defaultPage</span>()
+ <a name="line.132"><span class="line-number even">132:</span> </a>  {
+ <a name="line.133"><span class="line-number even">133:</span> </a>    <span class="keyword">return</span> <span class="keyword">new</span> <span class="constructor member">PageFormat</span>();
+ <a name="line.134"><span class="line-number even">134:</span> </a>  }
+ <a name="line.135"><span class="line-number odd">135: </span></a>
+ <a name="line.136"><span class="line-number even">136:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.137"><span class="line-number even">137:</span> </a>   * Clones the specified &lt;code&gt;PageFormat&lt;/code&gt; object then alters the
+ <a name="line.138"><span class="line-number even">138:</span> </a>   * clone so that it represents the default page format.
+ <a name="line.139"><span class="line-number even">139:</span> </a>   *
+ <a name="line.140"><span class="line-number odd">140: </span></a>   * @<span class="javadoc tag">param</span> <span class="variable member">page_format</span> The &lt;code&gt;PageFormat&lt;/code&gt; to clone.
+ <a name="line.141"><span class="line-number even">141:</span> </a>   *
+ <a name="line.142"><span class="line-number even">142:</span> </a>   * @<span class="javadoc tag">return</span> A new default page format.
+ <a name="line.143"><span class="line-number even">143:</span> </a>   */</span>
+ <a name="line.144"><span class="line-number even">144:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="non-primitive type">PageFormat</span> <span class="method member">defaultPage</span>(<span class="non-primitive type">PageFormat</span> <span class="variable member">page_format</span>);
+ <a name="line.145"><span class="line-number odd">145: </span></a>
+ <a name="line.146"><span class="line-number even">146:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.147"><span class="line-number even">147:</span> </a>   * Displays a dialog box to the user which allows the page format
+ <a name="line.148"><span class="line-number even">148:</span> </a>   * attributes to be modified.
+ <a name="line.149"><span class="line-number even">149:</span> </a>   *
+ <a name="line.150"><span class="line-number odd">150: </span></a>   * @<span class="javadoc tag">param</span> <span class="variable member">page_format</span> The &lt;code&gt;PageFormat&lt;/code&gt; object to modify.
+ <a name="line.151"><span class="line-number even">151:</span> </a>   *
+ <a name="line.152"><span class="line-number even">152:</span> </a>   * @<span class="javadoc tag">return</span> The modified &lt;code&gt;PageFormat&lt;/code&gt;.
+ <a name="line.153"><span class="line-number even">153:</span> </a>   */</span>
+ <a name="line.154"><span class="line-number even">154:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="non-primitive type">PageFormat</span> <span class="method member">pageDialog</span>(<span class="non-primitive type">PageFormat</span> <span class="variable member">page_format</span>)
+ <a name="line.155"><span class="line-number odd">155: </span></a>    <span class="keyword">throws</span> <span class="non-primitive type">HeadlessException</span>;
+ <a name="line.156"><span class="line-number even">156:</span> </a>
+ <a name="line.157"><span class="line-number even">157:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.158"><span class="line-number even">158:</span> </a>   * @<span class="javadoc tag">since</span> 1.4
+ <a name="line.159"><span class="line-number even">159:</span> </a>   */</span>
+ <a name="line.160"><span class="line-number odd">160: </span></a>  <span class="keyword">public</span> <span class="non-primitive type">PageFormat</span> <span class="method member">pageDialog</span>(<span class="non-primitive type">PrintRequestAttributeSet</span> <span class="variable member">attributes</span>)
+ <a name="line.161"><span class="line-number even">161:</span> </a>    <span class="keyword">throws</span> <span class="non-primitive type">HeadlessException</span>
+ <a name="line.162"><span class="line-number even">162:</span> </a>  {
+ <a name="line.163"><span class="line-number even">163:</span> </a>    <span class="line comment">// FIXME: Implement this for real.</span>
+ <a name="line.164"><span class="line-number even">164:</span> </a>    <span class="keyword">return</span> <span class="method member">pageDialog</span>((<span class="non-primitive type">PageFormat</span>) <span class="primitive literal">null</span>);
+ <a name="line.165"><span class="line-number odd">165: </span></a>  }
+ <a name="line.166"><span class="line-number even">166:</span> </a>  
+ <a name="line.167"><span class="line-number even">167:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.168"><span class="line-number even">168:</span> </a>   * Prints the pages.
+ <a name="line.169"><span class="line-number even">169:</span> </a>   */</span>
+ <a name="line.170"><span class="line-number odd">170: </span></a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">void</span> <span class="method member">print</span> () <span class="keyword">throws</span> <span class="non-primitive type">PrinterException</span>;
+ <a name="line.171"><span class="line-number even">171:</span> </a>
+ <a name="line.172"><span class="line-number even">172:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.173"><span class="line-number even">173:</span> </a>   * Prints the page with given attributes.
+ <a name="line.174"><span class="line-number even">174:</span> </a>   */</span>
+ <a name="line.175"><span class="line-number odd">175: </span></a>  <span class="keyword">public</span> <span class="primitive type">void</span> <span class="method member">print</span> (<span class="non-primitive type">PrintRequestAttributeSet</span> <span class="variable member">attributes</span>)
+ <a name="line.176"><span class="line-number even">176:</span> </a>    <span class="keyword">throws</span> <span class="non-primitive type">PrinterException</span>
+ <a name="line.177"><span class="line-number even">177:</span> </a>  {
+ <a name="line.178"><span class="line-number even">178:</span> </a>    <span class="method member">print</span> ();
+ <a name="line.179"><span class="line-number even">179:</span> </a>  }
+ <a name="line.180"><span class="line-number odd">180: </span></a>
+ <a name="line.181"><span class="line-number even">181:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.182"><span class="line-number even">182:</span> </a>   * Displays a dialog box to the user which allows the print job
+ <a name="line.183"><span class="line-number even">183:</span> </a>   * attributes to be modified.
+ <a name="line.184"><span class="line-number even">184:</span> </a>   *
+ <a name="line.185"><span class="line-number odd">185: </span></a>   * @<span class="javadoc tag">return</span> &lt;code&gt;false&lt;/code&gt; if the user cancels the dialog box,
+ <a name="line.186"><span class="line-number even">186:</span> </a>   * &lt;code&gt;true&lt;/code&gt; otherwise.
+ <a name="line.187"><span class="line-number even">187:</span> </a>   */</span>
+ <a name="line.188"><span class="line-number even">188:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">boolean</span> <span class="method member">printDialog</span>()
+ <a name="line.189"><span class="line-number even">189:</span> </a>    <span class="keyword">throws</span> <span class="non-primitive type">HeadlessException</span>;
+ <a name="line.190"><span class="line-number odd">190: </span></a>
+ <a name="line.191"><span class="line-number even">191:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.192"><span class="line-number even">192:</span> </a>   * Displays a dialog box to the user which allows the print job
+ <a name="line.193"><span class="line-number even">193:</span> </a>   * attributes to be modified.
+ <a name="line.194"><span class="line-number even">194:</span> </a>   *
+ <a name="line.195"><span class="line-number odd">195: </span></a>   * @<span class="javadoc tag">return</span> &lt;code&gt;false&lt;/code&gt; if the user cancels the dialog box,
+ <a name="line.196"><span class="line-number even">196:</span> </a>   * &lt;code&gt;true&lt;/code&gt; otherwise.
+ <a name="line.197"><span class="line-number even">197:</span> </a>   */</span>
+ <a name="line.198"><span class="line-number even">198:</span> </a>  <span class="keyword">public</span> <span class="primitive type">boolean</span> <span class="method member">printDialog</span>(<span class="non-primitive type">PrintRequestAttributeSet</span> <span class="variable member">attributes</span>)
+ <a name="line.199"><span class="line-number even">199:</span> </a>    <span class="keyword">throws</span> <span class="non-primitive type">HeadlessException</span>
+ <a name="line.200"><span class="line-number odd">200: </span></a>  {
+ <a name="line.201"><span class="line-number even">201:</span> </a>    <span class="line comment">// FIXME: Implement this for real.</span>
+ <a name="line.202"><span class="line-number even">202:</span> </a>    <span class="keyword">return</span> <span class="method member">printDialog</span>();
+ <a name="line.203"><span class="line-number even">203:</span> </a>  }
+ <a name="line.204"><span class="line-number even">204:</span> </a>
+ <a name="line.205"><span class="line-number odd">205: </span></a>  <span class="javadoc comment">/**
+ <a name="line.206"><span class="line-number even">206:</span> </a>   * This sets the pages that are to be printed.
+ <a name="line.207"><span class="line-number even">207:</span> </a>   *
+ <a name="line.208"><span class="line-number even">208:</span> </a>   * @<span class="javadoc tag">param</span> <span class="variable member">pageable</span> The pages to be printed, which may not be &lt;code&gt;null&lt;/code&gt;.
+ <a name="line.209"><span class="line-number even">209:</span> </a>   */</span>
+ <a name="line.210"><span class="line-number odd">210: </span></a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">void</span> <span class="method member">setPageable</span>(<span class="non-primitive type">Pageable</span> <span class="variable member">pageable</span>);
+ <a name="line.211"><span class="line-number even">211:</span> </a>
+ <a name="line.212"><span class="line-number even">212:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.213"><span class="line-number even">213:</span> </a>   * Sets this specified &lt;code&gt;Printable&lt;/code&gt; as the one to use for
+ <a name="line.214"><span class="line-number even">214:</span> </a>   * rendering the pages on the print device.
+ <a name="line.215"><span class="line-number odd">215: </span></a>   *
+ <a name="line.216"><span class="line-number even">216:</span> </a>   * @<span class="javadoc tag">param</span> <span class="variable member">printable</span> The &lt;code&gt;Printable&lt;/code&gt; for the print job.
+ <a name="line.217"><span class="line-number even">217:</span> </a>   */</span>
+ <a name="line.218"><span class="line-number even">218:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">void</span> <span class="method member">setPrintable</span>(<span class="non-primitive type">Printable</span> <span class="variable member">printable</span>);
+ <a name="line.219"><span class="line-number even">219:</span> </a>
+ <a name="line.220"><span class="line-number odd">220: </span></a>  <span class="javadoc comment">/**
+ <a name="line.221"><span class="line-number even">221:</span> </a>   * Sets the &lt;code&gt;Printable&lt;/code&gt; and the page format for the pages
+ <a name="line.222"><span class="line-number even">222:</span> </a>   * to be printed.
+ <a name="line.223"><span class="line-number even">223:</span> </a>   *
+ <a name="line.224"><span class="line-number even">224:</span> </a>   * @<span class="javadoc tag">param</span> <span class="variable member">printable</span> The &lt;code&gt;Printable&lt;/code&gt; for the print job.
+ <a name="line.225"><span class="line-number odd">225: </span></a>   * @<span class="javadoc tag">param</span> <span class="variable member">page_format</span> The &lt;code&gt;PageFormat&lt;/code&gt; for the print job.
+ <a name="line.226"><span class="line-number even">226:</span> </a>   */</span>
+ <a name="line.227"><span class="line-number even">227:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="primitive type">void</span> <span class="method member">setPrintable</span>(<span class="non-primitive type">Printable</span> <span class="variable member">printable</span>, <span class="non-primitive type">PageFormat</span> <span class="variable member">page_format</span>);
+ <a name="line.228"><span class="line-number even">228:</span> </a>
+ <a name="line.229"><span class="line-number even">229:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.230"><span class="line-number odd">230: </span></a>   * Makes any alterations to the specified &lt;code&gt;PageFormat&lt;/code&gt;
+ <a name="line.231"><span class="line-number even">231:</span> </a>   * necessary to make it work with the current printer.  The alterations
+ <a name="line.232"><span class="line-number even">232:</span> </a>   * are made to a clone of the input object, which is then returned.
+ <a name="line.233"><span class="line-number even">233:</span> </a>   *
+ <a name="line.234"><span class="line-number even">234:</span> </a>   * @<span class="javadoc tag">param</span> <span class="variable member">page_format</span> The &lt;code&gt;PageFormat&lt;/code&gt; to validate.
+ <a name="line.235"><span class="line-number odd">235: </span></a>   *
+ <a name="line.236"><span class="line-number even">236:</span> </a>   * @<span class="javadoc tag">return</span> The validated &lt;code&gt;PageFormat&lt;/code&gt;.
+ <a name="line.237"><span class="line-number even">237:</span> </a>   */</span>
+ <a name="line.238"><span class="line-number even">238:</span> </a>  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="non-primitive type">PageFormat</span> <span class="method member">validatePage</span>(<span class="non-primitive type">PageFormat</span> <span class="variable member">page_format</span>);
+ <a name="line.239"><span class="line-number even">239:</span> </a>
+ <a name="line.240"><span class="line-number odd">240: </span></a>  <span class="javadoc comment">/**
+ <a name="line.241"><span class="line-number even">241:</span> </a>   * Find and return 2D image print services.
+ <a name="line.242"><span class="line-number even">242:</span> </a>   * 
+ <a name="line.243"><span class="line-number even">243:</span> </a>   * This is the same as calling PrintServiceLookup.lookupPrintServices()
+ <a name="line.244"><span class="line-number even">244:</span> </a>   * with Pageable service-specified DocFlavor.
+ <a name="line.245"><span class="line-number odd">245: </span></a>   * @<span class="javadoc tag">return</span> Array of PrintService objects, could be empty.
+ <a name="line.246"><span class="line-number even">246:</span> </a>   * @<span class="javadoc tag">since</span> 1.4
+ <a name="line.247"><span class="line-number even">247:</span> </a>   */</span>
+ <a name="line.248"><span class="line-number even">248:</span> </a>  <span class="keyword">public</span> <span class="keyword">static</span> <span class="non-primitive type">PrintService</span>[] <span class="method member">lookupPrintServices</span>()
+ <a name="line.249"><span class="line-number even">249:</span> </a>  {
+ <a name="line.250"><span class="line-number odd">250: </span></a>    <span class="keyword">return</span> <span class="method member">PrintServiceLookup.lookupPrintServices</span>
+ <a name="line.251"><span class="line-number even">251:</span> </a>      (
+ <a name="line.252"><span class="line-number even">252:</span> </a>       <span class="keyword">new</span> <span class="constructor member">DocFlavor</span>(<span class="double quote">&quot;application/x-java-jvm-local-objectref&quot;</span>,
+ <a name="line.253"><span class="line-number even">253:</span> </a>             <span class="double quote">&quot;java.awt.print.Pageable&quot;</span>),
+ <a name="line.254"><span class="line-number even">254:</span> </a>       <span class="primitive literal">null</span>);
+ <a name="line.255"><span class="line-number odd">255: </span></a>  }
+ <a name="line.256"><span class="line-number even">256:</span> </a>
+ <a name="line.257"><span class="line-number even">257:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.258"><span class="line-number even">258:</span> </a>   * Find and return 2D image stream print services.
+ <a name="line.259"><span class="line-number even">259:</span> </a>   * 
+ <a name="line.260"><span class="line-number odd">260: </span></a>   * This is the same as calling
+ <a name="line.261"><span class="line-number even">261:</span> </a>   * StreamPrintServiceFactory.lookupStreamPrintServices()
+ <a name="line.262"><span class="line-number even">262:</span> </a>   * with Pageable service-specified DocFlavor.
+ <a name="line.263"><span class="line-number even">263:</span> </a>   * @<span class="javadoc tag">param</span> <span class="variable member">mimeType</span> The output format mime type, or null for any type.
+ <a name="line.264"><span class="line-number even">264:</span> </a>   * @<span class="javadoc tag">return</span> Array of stream print services, could be empty.
+ <a name="line.265"><span class="line-number odd">265: </span></a>   * @<span class="javadoc tag">since</span> 1.4
+ <a name="line.266"><span class="line-number even">266:</span> </a>   */</span>
+ <a name="line.267"><span class="line-number even">267:</span> </a>  <span class="keyword">public</span> <span class="keyword">static</span> <span class="non-primitive type">StreamPrintServiceFactory</span>[]
+ <a name="line.268"><span class="line-number even">268:</span> </a>    <span class="method member">lookupStreamPrintServices</span>(<span class="non-primitive type">String</span> <span class="variable member">mimeType</span>)
+ <a name="line.269"><span class="line-number even">269:</span> </a>  {
+ <a name="line.270"><span class="line-number odd">270: </span></a>    <span class="keyword">return</span> <span class="method member">StreamPrintServiceFactory.lookupStreamPrintServiceFactories</span>(
+ <a name="line.271"><span class="line-number even">271:</span> </a>      <span class="constant member">DocFlavor.SERVICE_FORMATTED.PAGEABLE</span>, <span class="variable member">mimeType</span>);
+ <a name="line.272"><span class="line-number even">272:</span> </a>  }
+ <a name="line.273"><span class="line-number even">273:</span> </a>
+ <a name="line.274"><span class="line-number even">274:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.275"><span class="line-number odd">275: </span></a>   * Return the printer for this job.  If print services aren't supported by
+ <a name="line.276"><span class="line-number even">276:</span> </a>   * the subclass, returns null.
+ <a name="line.277"><span class="line-number even">277:</span> </a>   * 
+ <a name="line.278"><span class="line-number even">278:</span> </a>   * @<span class="javadoc tag">return</span> The associated PrintService.
+ <a name="line.279"><span class="line-number even">279:</span> </a>   * @<span class="javadoc tag">since</span> 1.4
+ <a name="line.280"><span class="line-number odd">280: </span></a>   */</span>
+ <a name="line.281"><span class="line-number even">281:</span> </a>  <span class="keyword">public</span> <span class="non-primitive type">PrintService</span> <span class="method member">getPrintService</span>()
+ <a name="line.282"><span class="line-number even">282:</span> </a>  {
+ <a name="line.283"><span class="line-number even">283:</span> </a>    <span class="keyword">return</span> <span class="variable member">printer</span>;
+ <a name="line.284"><span class="line-number even">284:</span> </a>  }
+ <a name="line.285"><span class="line-number odd">285: </span></a>
+ <a name="line.286"><span class="line-number even">286:</span> </a>  <span class="javadoc comment">/**
+ <a name="line.287"><span class="line-number even">287:</span> </a>   * Change the printer for this print job to service.  Subclasses that
+ <a name="line.288"><span class="line-number even">288:</span> </a>   * support setting the print service override this method.  Throws
+ <a name="line.289"><span class="line-number even">289:</span> </a>   * PrinterException when the class doesn't support setting the printer,
+ <a name="line.290"><span class="line-number odd">290: </span></a>   * the service doesn't support Pageable or Printable interfaces for 2D
+ <a name="line.291"><span class="line-number even">291:</span> </a>   * print output.
+ <a name="line.292"><span class="line-number even">292:</span> </a>   * @<span class="javadoc tag">param</span> <span class="variable member">service</span> The new printer to use.
+ <a name="line.293"><span class="line-number even">293:</span> </a>   * @<span class="javadoc tag">throws</span> PrinterException if service is not valid.
+ <a name="line.294"><span class="line-number even">294:</span> </a>   */</span>
+ <a name="line.295"><span class="line-number odd">295: </span></a>  <span class="keyword">public</span> <span class="primitive type">void</span> <span class="method member">setPrintService</span>(<span class="non-primitive type">PrintService</span> <span class="variable member">service</span>)
+ <a name="line.296"><span class="line-number even">296:</span> </a>    <span class="keyword">throws</span> <span class="non-primitive type">PrinterException</span>
+ <a name="line.297"><span class="line-number even">297:</span> </a>  {
+ <a name="line.298"><span class="line-number even">298:</span> </a>    <span class="variable member">printer</span> = <span class="variable member">service</span>;
+ <a name="line.299"><span class="line-number even">299:</span> </a>  }
+ <a name="line.300"><span class="line-number odd">300: </span></a>}</pre>
+  </div>
+</div><p class="navbar bottom spacer"> </p><table class="navbar div bottom"><tr><td><div class="navbar div top"><span class="navbar item enabled"><a href="../../../overview-summary.html">Overview</a></span> <span class="navbar item enabled"><a href="package-summary.html">Package</a></span> <span class="navbar item enabled"><a href="PrinterJob.html">Class</a></span> <span class="navbar item enabled"><a href="PrinterJob-uses.html">Use</a></span> <span class="navbar item active">Source</span> <span class="navbar item enabled"><a href="tree.html">Tree</a></span> <span class="navbar item enabled"><a href="../../../alphaindex-1.html">Index</a></span> <span class="navbar item enabled"><a href="../../../deprecated.html">Deprecated</a></span> <span class="navbar item enabled"><a href="../../../about.html">About</a></span></div></td><td><span class='logo'><a href='http://www.gnu.org/software/classpath' target='_top'>GNU Classpath</a> (0.95)</td></tr></table></body></html>

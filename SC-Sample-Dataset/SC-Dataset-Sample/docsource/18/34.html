@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>java - ejb lookup failing with NamingException - Stack Overflow</title>
+    <link rel="shortcut icon" href="//cdn.sstatic.net/stackoverflow/img/favicon.ico">
+    <link rel="apple-touch-icon image_src" href="//cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+    <link rel="search" type="application/opensearchdescription+xml" title="Stack Overflow" href="/opensearch.xml">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:domain" content="stackoverflow.com"/>
+    <meta name="og:type" content="website" />
+    <meta name="og:image" content="http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon@2.png?v=fde65a5a78c6"/>
+    <meta name="og:title" content="ejb lookup failing with NamingException" />
+    <meta name="og:description" content="I&#39;ve added the following in my web.xml:
+
+&amp;lt;ejb-ref&amp;gt;
+        &amp;lt;ejb-ref-name&amp;gt;ejb/userManagerBean&amp;lt;/ejb-ref-name&amp;gt;
+        &amp;lt;ejb-ref-type&amp;gt;Session&amp;lt;/ejb-ref-type&amp;gt;
+        " />
+    <meta name="og:url" content="http://stackoverflow.com/questions/1473939/ejb-lookup-failing-with-namingexception"/>
+    <link rel="canonical" href="http://stackoverflow.com/questions/1473939/ejb-lookup-failing-with-namingexception" />
+
+    
+    
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="//cdn.sstatic.net/Js/stub.en.js?v=184c221cbfa3" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.sstatic.net/stackoverflow/all.css?v=1b6de4192b97">
+    
+    <link rel="alternate" type="application/atom+xml" title="Feed for question &#39;ejb lookup failing with NamingException&#39;" href="/feeds/question/1473939">
+    <script type="text/javascript">
+        
+        StackExchange.ready(function () {
+            StackExchange.using("postValidation", function () {
+                StackExchange.postValidation.initOnBlurAndSubmit($('#post-form'), 2, 'answer');
+            });
+
+            
+            StackExchange.question.init({showAnswerHelp:true,totalCommentCount:13,shownCommentCount:5,highlightColor:'#F4A83D',backgroundColor:'#FFF',questionId:1473939});
+
+            styleCode();
+
+                StackExchange.realtime.subscribeToQuestion('1', '1473939');
+            
+                    });
+    </script>
+
+
+    <script type="text/javascript">
+        StackExchange.init({"locale":"en","stackAuthUrl":"https://stackauth.com","serverTime":1386978308,"styleCode":true,"enableUserHovercards":true,"site":{"name":"Stack Overflow","description":"Q&A for professional and enthusiast programmers","isNoticesTabEnabled":true,"recaptchaPublicKey":"6LdchgIAAAAAAJwGpIzRQSOFaO0pU6s44Xt8aTwc","nonAsciiTags":true,"enableSocialMediaInSharePopup":true},"user":{"fkey":"924444e9d656bd8bb28009690bceb305","isAnonymous":true}});
+        StackExchange.using.setCacheBreakers({"js/prettify-full.en.js":"e0bbd4760e83","js/moderator.en.js":"1a411fd265fe","js/full-anon.en.js":"f11ad0c721c5","js/full.en.js":"4281101ad6b6","js/wmd.en.js":"849f408083f3","js/third-party/jquery.autocomplete.min.js":"e5f01e97f7c3","js/third-party/jquery.autocomplete.min.en.js":"","js/mobile.en.js":"d1d834ef85d2","js/help.en.js":"d3cc74d8a93a","js/tageditor.en.js":"6d51a5f8d7f3","js/tageditornew.en.js":"111b781cf314","js/inline-tag-editing.en.js":"f951bd09dc69","js/revisions.en.js":"33fd38144303","js/review.en.js":"b44cee8b2b0b","js/tagsuggestions.en.js":"e4e7b952fcc7","js/post-validation.en.js":"c275fe37d674","js/explore-qlist.en.js":"73825bd006fc","js/events.en.js":"23bb11cfe220"});
+        StackExchange.using("gps", function() {
+             StackExchange.gps.init(true);
+        });
+        
+    </script>
+    
+        <script type="text/javascript">
+            StackExchange.ready(function () {
+                $('#nav-tour').click(function () {
+                    StackExchange.using("gps", function() {
+                        StackExchange.gps.track("aboutpage.click", { aboutclick_location: "headermain" }, true);
+                    });
+                });
+            });
+        </script>
+</head>
+<body class="question-page new-topbar">
+    <noscript><div id="noscript-padding"></div></noscript>
+    <div id="notify-container"></div>
+    <div id="overlay-header"></div>
+    <div id="custom-header"></div>
+<div class="topbar">
+    <div class="topbar-wrapper">
+        
+        <div class="js-topbar-dialog-corral">
+
+<div class="topbar-dialog siteSwitcher-dialog dno">
+    <div class="header">
+        <h3><a href="//stackexchange.com/sites">Explore our sites</a></h3>
+    </div>
+    <div class="modal-content">
+        <ul class="current-site">
+                <li>
+                        <a href="//stackoverflow.com" 
+       class="current-site-link site-link js-site-link js-gps-track"
+            data-gps-track="site_switcher.click({ item_type:3 })"
+>
+        <div class="site-icon favicon favicon-stackoverflow" title="Stack Overflow"></div>
+        Stack Overflow
+    </a>
+    <div class="related-links js-related-links">
+            <a href="http://chat.stackoverflow.com"     data-gps-track="site_switcher.click({ item_type:6 })"
+>chat</a>
+                    <a href="http://blog.stackexchange.com"     data-gps-track="site_switcher.click({ item_type:7 })"
+>blog</a>
+            </div>
+
+                </li>
+                <li class="related-site">
+                        <a href="//meta.stackoverflow.com" 
+       class="site-link js-site-link js-gps-track"
+            data-gps-track="site.switch({ target_site:4, item_type:3 });site_switcher.click({ item_type:4 })"
+>
+        <div class="site-icon favicon favicon-stackoverflowmeta" title="Meta Stack Overflow"></div>
+        Meta Stack Overflow
+    </a>
+
+                    
+                </li>
+                            <li class="related-site">
+                    <a class="site-link js-site-link" 
+                       href="//careers.stackoverflow.com" 
+                           data-gps-track="site_switcher.click({ item_type:9 })"
+>
+                        <div class="site-icon favicon favicon-careers" title="Stack Overflow Careers"></div>
+                        Careers 2.0
+                    </a>
+                </li>
+        </ul>
+        
+
+
+        
+            <div class="child-content"></div>
+
+    </div>
+</div>        </div>
+
+        <div class="network-items">
+            
+            <a href="//stackexchange.com" 
+               class="topbar-icon icon-site-switcher js-site-switcher-button js-gps-track"
+               data-gps-track="site_switcher.show"
+               data-child-content-url="/topbar/site-switcher/site-list"
+               data-on-class="icon-site-switcher-on"
+               title="A list of all 112 Stack Exchange sites">
+                <span class="hidden-text">Stack Exchange</span>
+            </a>
+            
+        </div>
+
+        <div class="topbar-links">
+            
+                <div class="links-container">
+                    <span class="topbar-menu-links">
+                        <a href="/users/login?returnurl=%2fquestions%2f1473939%2fejb-lookup-failing-with-namingexception" class="login-link">sign up</a>    
+                        <a href="/users/login?returnurl=%2fquestions%2f1473939%2fejb-lookup-failing-with-namingexception" class="login-link">log in</a>
+                        <a href="/tour">tour</a>
+                        <a href="/help">help</a>
+                            <a href="//careers.stackoverflow.com">careers 2.0</a>
+                    </span>
+                </div>
+
+			<div class="search-container">
+                <form id="search" action="/search" method="get" autocomplete="off">
+                    <input name="q" type="text" placeholder="search" value="" tabindex="1" autocomplete="off" maxlength="240" />
+                </form>
+			</div>
+            	
+        </div>      
+    </div> 
+</div>
+<script>
+    StackExchange.ready(function () {
+        //topbar.init();
+        StackExchange.topbar.init();
+    });
+</script>    <div class="container">
+        <div id="header" class=headeranon>
+            <br class="cbt">
+            <div id="hlogo">
+                <a href="/">
+                    Stack Overflow
+                </a>
+            </div>
+            <div id="hmenus">
+                <div class="nav mainnavs mainnavsanon">
+                    <ul>
+                            <li class="youarehere"><a id="nav-questions" href="/questions">Questions</a></li>
+                            <li><a id="nav-tags" href="/tags">Tags</a></li>
+                            <li><a id="nav-tour" href="/about">Tour</a></li>
+                            <li><a id="nav-users" href="/users">Users</a></li>
+                    </ul>
+                </div>
+                <div class="nav askquestion">
+                    <ul>
+                        <li>
+                            <a id="nav-askquestion"  href="/questions/ask">Ask Question</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+
+
+
+        <div id="content">
+            
+
+<div itemscope itemtype="http://schema.org/Article">
+	<link itemprop="image" href="//cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+			<!--googleoff: all-->
+<div id="herobox-mini">
+    <div id="hero-content">
+        <span id="controls">
+            <a href="/about" id="tell-me-more" class="button">Take the tour</a>
+            <span id="close"><a title="click to dismiss">&times;</a></span>
+        </span>
+        <div id="blurb">
+            Stack Overflow is a question and answer site for professional and enthusiast programmers. It&#39;s 100% free, no registration required.
+        </div>        
+    </div>
+    <script>
+        $('#tell-me-more').click(function () {
+            var clickSource = $("body").attr("class") + '-mini';
+            if ($("body").hasClass("questions-page")) {
+                clickSource = 'questionpagemini';
+            }
+            if ($("body").hasClass("home-page")) {
+                clickSource = 'homepagemini';
+            }
+
+            StackExchange.using("gps", function () {
+                StackExchange.gps.track("aboutpage.click", { aboutclick_location: clickSource } , true);
+            });
+        });
+        $('#herobox-mini #close').click(function () {
+            StackExchange.using("gps", function () {
+                StackExchange.gps.track("hero.action", { hero_action_type: "close" }, true);
+            });
+            $.cookie("hero", "none", { path: "/" });
+            var $hero = $("#herobox-mini");
+            $hero.slideUp('fast', function () { $hero.remove(); });
+            return false;
+        });
+    </script>
+</div>
+			<!--googleon: all-->
+			<div id="question-header">
+			<h1 itemprop="name"><a href="/questions/1473939/ejb-lookup-failing-with-namingexception" class="question-hyperlink">ejb lookup failing with NamingException</a></h1>
+		</div>
+			<div id="mainbar">
+
+			
+
+<div class="question" data-questionid="1473939"  id="question">
+    
+    <div class="everyonelovesstackoverflow" id="careers1">
+        </div>    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="1473939">
+    <a class="vote-up-off" title="This question shows research effort; it is useful and clear">up vote</a>
+    <span class="vote-count-post ">7</span>
+    <a class="vote-down-off" title="This question does not show any research effort; it is unclear or not useful">down vote</a>
+    
+    <a class="star-off" href="#" title="This is a favorite question (click again to undo)">favorite</a>
+    <div class="favoritecount"><b>6</b></div>   
+
+</div>
+
+            </td>
+            
+<td class="postcell">
+<div>
+    <div class="post-text" itemprop="description">
+
+        <p>I've added the following in my web.xml:</p>
+
+<pre><code>&lt;ejb-ref&gt;
+        &lt;ejb-ref-name&gt;ejb/userManagerBean&lt;/ejb-ref-name&gt;
+        &lt;ejb-ref-type&gt;Session&lt;/ejb-ref-type&gt;
+        &lt;home&gt;gha.ywk.name.entry.ejb.usermanager.UserManagerHome&lt;/home&gt;
+        &lt;remote&gt;what should go here??&lt;/remote&gt;
+&lt;/ejb-ref&gt;
+</code></pre>
+
+<p>The following java code is giving me NamingException:</p>
+
+<pre><code>public UserManager getUserManager () throws HUDException {
+    String ROLE_JNDI_NAME = "ejb/userManagerBean";
+    try {
+        Properties props = System.getProperties();
+        Context ctx = new InitialContext(props);
+        UserManagerHome userHome = (UserManagerHome) ctx.lookup(ROLE_JNDI_NAME);
+        UserManager userManager = userHome.create();
+        WASSSecurity user = userManager.getUserProfile("user101", null);
+        return userManager;
+    } catch (NamingException e) {
+        log.error("Error Occured while getting EJB UserManager" + e);
+        return null;
+    } catch (RemoteException ex) {
+        log.error("Error Occured while getting EJB UserManager" + ex);
+        return null;
+    } catch (CreateException ex) {
+        log.error("Error Occured while getting EJB UserManager" + ex);
+        return null;
+    }
+}
+</code></pre>
+
+<p>The code is used inside the container.  By that I mean that the .WAR is deployed on the server (Sun Application Server).  </p>
+
+<p>StackTrace (after jsight's suggestion):</p>
+
+<pre><code>&gt;Exception occurred in target VM: com.sun.enterprise.naming.java.javaURLContext.&lt;init&gt;(Ljava/util/Hashtable;Lcom/sun/enterprise/naming/NamingManagerImpl;)V 
+java.lang.NoSuchMethodError: com.sun.enterprise.naming.java.javaURLContext.&lt;init&gt;(Ljava/util/Hashtable;Lcom/sun/enterprise/naming/NamingManagerImpl;)V
+ at com.sun.enterprise.naming.java.javaURLContextFactory.getObjectInstance(javaURLContextFactory.java:32)
+ at javax.naming.spi.NamingManager.getURLObject(NamingManager.java:584)
+ at javax.naming.spi.NamingManager.getURLContext(NamingManager.java:533)
+ at javax.naming.InitialContext.getURLOrDefaultInitCtx(InitialContext.java:279)
+ at javax.naming.InitialContext.lookup(InitialContext.java:351)
+ at gov.hud.pih.eiv.web.EjbClient.EjbClient.getUserManager(EjbClient.java:34)
+</code></pre>
+
+    </div>
+    <div class="post-taglist">
+        <a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a> <a href="/questions/tagged/ejb" class="post-tag" title="show questions tagged &#39;ejb&#39;" rel="tag">ejb</a> <a href="/questions/tagged/jndi" class="post-tag" title="show questions tagged &#39;jndi&#39;" rel="tag">jndi</a> 
+    </div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/q/1473939" title="short permalink to this question" class="short-link" id="link-post-1473939">share</a><span class="lsep">|</span><a href="/posts/1473939/edit" class="suggest-edit-post" title="">improve this question</a></div>        
+    </td>
+    <td align="right" class="post-signature">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="/posts/1473939/revisions" title="show all edits to this post">edited <span title="2009-09-24 20:45:41Z" class="relativetime">Sep 24 '09 at 20:45</span></a>
+    </div>
+    <div class="user-gravatar32">
+        
+    </div>
+    <div class="user-details">
+        <br>
+        
+    </div>
+</div>    </td>
+    <td class="post-signature owner">
+        <div class="user-info ">
+    <div class="user-action-time">
+        asked <span title="2009-09-24 20:23:35Z" class="relativetime">Sep 24 '09 at 20:23</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/168773/drake"><div><img src="https://www.gravatar.com/avatar/98c63536d29b4b8caf6159e7a7051c0c?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/168773/drake">Drake</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">156</span><span title="2 gold badges"><span class="badge1"></span><span class="badgecount">2</span></span><span title="3 silver badges"><span class="badge2"></span><span class="badgecount">3</span></span><span title="11 bronze badges"><span class="badge3"></span><span class="badgecount">11</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</div>
+</td>
+        </tr>
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-1473939" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="8" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-1323724" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Can you provide a stack trace? Is the code executed outside or inside the container?</span>
+	&ndash;&nbsp;
+		<a href="/users/162792/andrey-adamovich" 
+		   title="8543 reputation" 
+		   class="comment-user">Andrey Adamovich</a>
+	<span class="comment-date" dir="ltr"><span title="2009-09-24 20:29:53Z" class="relativetime-clean">Sep 24 '09 at 20:29</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-1323837" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">please see my edit</span>
+	&ndash;&nbsp;
+		<a href="/users/168773/drake" 
+		   title="156 reputation" 
+		   class="comment-user owner">Drake</a>
+	<span class="comment-date" dir="ltr"><span title="2009-09-24 20:46:45Z" class="relativetime-clean">Sep 24 '09 at 20:46</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-1323886" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Please add your deployment descriptor too.</span>
+	&ndash;&nbsp;
+		<a href="/users/70604/pascal-thivent" 
+		   title="262096 reputation" 
+		   class="comment-user">Pascal Thivent</a>
+	<span class="comment-date" dir="ltr"><span title="2009-09-24 20:54:14Z" class="relativetime-clean">Sep 24 '09 at 20:54</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-1323900" class="comment">
+        <td class="comment-actions">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                                <span title="number of &#39;useful comment&#39; votes received" 
+                                        class="cool">1</span>   
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">deployment descriptor? I am using netbeans to deploy the application</span>
+	&ndash;&nbsp;
+		<a href="/users/168773/drake" 
+		   title="156 reputation" 
+		   class="comment-user owner">Drake</a>
+	<span class="comment-date" dir="ltr"><span title="2009-09-24 20:57:05Z" class="relativetime-clean">Sep 24 '09 at 20:57</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-1324087" class="comment">
+        <td class="comment-actions">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                                <span title="number of &#39;useful comment&#39; votes received" 
+                                        class="cool">2</span>   
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">No, not in the web module (.war), in the EJB-JAR module (.jar). You need to learn the basics of enterprise application packaging (ear, ejb-jar, war). <a href="http://72.5.124.55/j2ee/1.4/docs/tutorial-update6/doc/Overview5.html#wp84705" rel="nofollow">72.5.124.55/j2ee/1.4/docs/tutorial-update6/doc/&hellip;</a></span>
+	&ndash;&nbsp;
+		<a href="/users/70604/pascal-thivent" 
+		   title="262096 reputation" 
+		   class="comment-user">Pascal Thivent</a>
+	<span class="comment-date" dir="ltr"><span title="2009-09-24 21:37:26Z" class="relativetime-clean">Sep 24 '09 at 21:37</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-1473939" data-rep=50 data-anon=true
+			   class="comments-link " 
+			   title="Use comments to ask for more information or suggest improvements. Avoid answering questions in comments." 
+				>show <b>8</b> more comments</a>
+    </td>
+</tr>            </table>    
+</div>
+
+
+			<div id="answers">
+
+				<a name="tab-top"></a>
+				<div id="answers-header">
+					<div class="subheader answers-subheader">
+						<h2>
+								4 Answers
+						</h2>
+						<div>
+							<div id="tabs">
+        <a href="/questions/1473939/ejb-lookup-failing-with-namingexception?answertab=active#tab-top" title="Answers with the latest activity first">active</a>
+        <a href="/questions/1473939/ejb-lookup-failing-with-namingexception?answertab=oldest#tab-top" title="Answers in the order they were provided">oldest</a>
+        <a class="youarehere" href="/questions/1473939/ejb-lookup-failing-with-namingexception?answertab=votes#tab-top" title="Answers with the highest score first">votes</a>
+</div>
+						</div>
+					</div>    
+				</div>    
+
+
+
+
+  
+<a name="1496306"></a>
+<div id="answer-1496306" class="answer" data-answerid="1496306" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="1496306">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">19</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>I think you want to access an EJB application (known as EJB module) from a web application in Sun Application Server, right ? </p>
+
+<p>ok, let's go.</p>
+
+<p>When you deploy an EJB into an application server, the application server gives it an address - known as global JNDI address - as a way you can access it (something like your address). It changes from an application server to another. </p>
+
+<p>In JBoss Application Server, you can see global JNDI address (after starting it up) in the following address</p>
+
+<pre><code>http://127.0.0.1:8080/jmx-console/HtmlAdaptor
+</code></pre>
+
+<p>In Sun Application Server, if you want to see global JNDI address (after starting it up), do the following</p>
+
+<p>Access the admin console in the following address</p>
+
+<pre><code>http://127.0.0.1:4848/asadmin
+</code></pre>
+
+<p>And click <em>JNDI browsing</em></p>
+
+<p><strong>If your EJB IS NOT registered right there, there is something wrong</strong></p>
+
+<p>EJB comes in two flavors: EJB 2.1 and EJB 3.0. So what is the difference ?</p>
+
+<p>Well, well, well...</p>
+
+<p>Let's start with EJB 2.1</p>
+
+<ol>
+<li>Create a Home interface</li>
+</ol>
+
+<p>It defines methods for CREATING, destroying, and finding local or remote EJB objects. It acts as life cycle interfaces for the EJB objects. All home interfaces have to extend standard interface javax.ejb.EJBHome - if you a using a remote ejb object - or javax.ejb.EJBLocalHome - if you are using a local EJB object.</p>
+
+<pre><code>// a remote EJB object - extends javax.ejb.EJBHome
+// a local EJB object - extends javax.ejb.EJBLocalHome
+public interface MyBeanRemoteHome extends javax.ejb.EJBHome {
+
+    MyBeanRemote create() throws javax.ejb.CreateException, java.rmi.RemoteException;
+
+}
+</code></pre>
+
+<p>Application Server will create Home objects as a way you can obtain an EJB object, nothing else.</p>
+
+<p>Take care of the following</p>
+
+<blockquote>
+  <p>A session beanâ€™s remote home interface MUST DEFINE ONE OR MORE create&lt;METHOD&gt; methods.
+  A stateless session bean MUST DEFINE exactly one &lt;METHOD&gt; method with no arguments.</p>
+</blockquote>
+
+<p>...</p>
+
+<blockquote>
+  <p>throws clause MUST INCLUDE javax.ejb.CreateException</p>
+</blockquote>
+
+<p>...</p>
+
+<blockquote>
+  <p>If your Home interface extends javax.ejb.EJBHome, throws clauses MUST INCLUDE the java.rmi.RemoteException. If it extends javax.ejb.EJBLocalHome, MUST NOT INCLUDE the java.rmi.RemoteException.</p>
+</blockquote>
+
+<p>...</p>
+
+<blockquote>
+  <p>Each create method of a stateful session bean MUST BE NAMED create&lt;METHOD&gt;, and it
+  must match one of the Init methods or ejbCreate&lt;METHOD&gt; methods defined in the session
+  bean class. The matching ejbCreate&lt;METHOD&gt; method MUST HAVE THE SAME NUMBER AND TYPES OF ARGUMENTS. The create method for a stateless session bean MUST BE NAMED <em>create</em> but need not have a matching â€œejbCreateâ€? method.</p>
+</blockquote>
+
+<hr>
+
+<p>Now create an business interface in order to define business logic in our EJB object</p>
+
+<pre><code>// a remote EJB object - extends javax.ejb.EJBObject
+// a local EJB object - extends javax.ejb.EJBLocalObject
+public interface MyBeanRemote extends javax.ejb.EJBObject {
+
+    void doSomething() throws java.rmi.RemoteException;
+
+}
+</code></pre>
+
+<p>Now take care of the following</p>
+
+<blockquote>
+  <p>If you are using a remote EJB object, remote interface methods MUST NOT EXPOSE local interface types or local home interface types.</p>
+</blockquote>
+
+<p>...</p>
+
+<blockquote>
+  <p>If your Home interface extends javax.ejb.EJBObject, throws clauses MUST INCLUDE the java.rmi.RemoteException. If it extends javax.ejb.EJBLocalObject, MUST NOT INCLUDE the java.rmi.RemoteException.</p>
+</blockquote>
+
+<hr>
+
+<p>Now our EJB</p>
+
+<pre><code>public class MyBean implements javax.ejb.SessionBean {
+
+    // why create method ? Take a special look at EJB Home details (above)
+    public void create() {
+        System.out.println("create");
+    }
+
+    public void doSomething() throws java.rmi.RemoteException {
+        // some code
+    };
+
+}
+</code></pre>
+
+<p>Now take care of the following</p>
+
+<blockquote>
+  <p>It MUST IMPLEMENTS javax.ejb.SessionBean. It defines four methods - not shown above: setSessionContext, ejbRemove, ejbPassivate, and ejbActivate. </p>
+</blockquote>
+
+<p>Notice our bean <strong>DOES NOT IMPLEMENT</strong> our business interface because of EJB specification says:</p>
+
+<p>For each method defined in the interface, there <strong>must be a matching method</strong> in the session beanâ€™s class. The matching method must have:</p>
+
+<ul>
+<li>The same name</li>
+<li>The same number and types of arguments, and the same return type.</li>
+<li>All the exceptions defined in the throws clause of the matching method of the session
+bean class must be defined in the throws clause of the method of the local interface.</li>
+</ul>
+
+<p>And YOU HAVE TO DECLARE a ejb-jar.xml file according to</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd" version="2.1"&gt;
+    &lt;enterprise-beans&gt;
+        &lt;session&gt;
+            &lt;ejb-name&gt;HelloWorldEJB&lt;/ejb-name&gt;
+            &lt;home&gt;br.com.MyBeanRemoteHome&lt;/home&gt;
+            &lt;remote&gt;br.com.MyBeanRemote&lt;/remote&gt;
+            &lt;local-home&gt;br.com.MyBeanLocalHome&lt;/local-home&gt;
+            &lt;local&gt;br.com.MyBeanLocal&lt;/local&gt;
+            &lt;ejb-class&gt;br.com.MyBean&lt;/ejb-class&gt;
+            &lt;session-type&gt;Stateless&lt;/session-type&gt;
+            &lt;transaction-type&gt;Container&lt;/transaction-type&gt;
+        &lt;/session&gt;
+    &lt;/enterprise-beans&gt;
+&lt;/ejb-jar&gt;
+</code></pre>
+
+<p>If you do not have a local EJB object remove from the deployment descriptor above</p>
+
+<pre><code>&lt;local-home&gt;br.com.MyBeanLocalHome&lt;/local-home&gt;
+&lt;local&gt;br.com.MyBeanLocal&lt;/local&gt;
+</code></pre>
+
+<p>If you do not have a remote EJB object remove from the deployment descriptor above</p>
+
+<pre><code>&lt;home&gt;br.com.MyBeanRemoteHome&lt;/home&gt;
+&lt;remote&gt;br.com.MyBeanRemote&lt;/remote&gt;
+</code></pre>
+
+<p>And put in META-INF directory</p>
+
+<p>Our jar file will contain the following</p>
+
+<pre><code>/META-INF/ejb-jar.xml
+br.com.MyBean.class
+br.com.MyBeanRemote.class
+br.com.MyBeanRemoteHome.class
+</code></pre>
+
+<hr>
+
+<p>Now our EJB 3.0</p>
+
+<pre><code>// or @Local
+// You can not put @Remote and @Local at the same time
+@Remote
+public interface MyBean {
+
+    void doSomething();
+
+}
+
+@Stateless
+public class MyBeanStateless implements MyBean {
+
+    public void doSomething() {
+
+    }
+
+}
+</code></pre>
+
+<p>Nothing else,</p>
+
+<p>In JBoss put jar file in</p>
+
+<pre><code>&lt;JBOSS_HOME&gt;/server/default/deploy
+</code></pre>
+
+<hr>
+
+<p>In Sun Application Server access (after starting it up) admin console</p>
+
+<pre><code>http://127.0.0.1:4848/asadmin
+</code></pre>
+
+<p>And access EJB Modules in order to deploy your ejb-jar file</p>
+
+<p>As you have some problems when deploying your application in NetBeans, i suggest the following</p>
+
+<ol>
+<li>Create a simple Java library PROJECT (a simple jar without a main method)</li>
+<li>Add /server/default/lib (contains jar files in order you retrieve your EJB's) jar files to your Java application whether you are using JBoss (I do not know which directory in Sun Application Server)</li>
+<li>Implement code above</li>
+</ol>
+
+<p>Now create another war PROJECT</p>
+
+<ol>
+<li>Add our project created just above and add &lt;JBOSS_HOME&gt;/client (contains jar files in order to access our EJB's). Again i do not know which directory in Sun Application Server. Ckeck out its documentation.</li>
+<li>See its global mapping address as shown in the top of the answer</li>
+</ol>
+
+<p>And implement the following code in your Servlet or something else whether you are using JBoss</p>
+
+<pre><code>public static Context getInitialContext() throws javax.naming.NamingException {
+
+    Properties p = new Properties();
+    p.put(Context.INITIAL_CONTEXT_FACTORY,        "org.jnp.interfaces.NamingContextFactory");
+    p.put(Context.URL_PKG_PREFIXES, " org.jboss.naming:org.jnp.interfaces");
+    p.put(Context.PROVIDER_URL, "jnp://127.0.0.1:1099");
+
+    return new javax.naming.InitialContext(p);
+}
+</code></pre>
+
+<p>Or the following whether you are using Sun Application Server - put the file appserv-rt.jar (I do not know which past contain appserv-rt.jar in Sun Application Server) in your classpath</p>
+
+<pre><code>public static Context getInitialContext() throws javax.naming.NamingException {
+
+    return new javax.naming.InitialContext();
+
+}
+</code></pre>
+
+<p>In order to access your EJB in our Servlet or something else</p>
+
+<pre><code>MyBeanRemote myBean = (MyBeanRemote) getInitialContext().lookup(&lt;PUT_EJB_GLOBAL_ADDRESS_RIGHT_HERE&gt;);
+
+myBean.doSomething();
+</code></pre>
+
+<p>regards,</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/1496306" title="short permalink to this answer" class="short-link" id="link-post-1496306">share</a><span class="lsep">|</span><a href="/posts/1496306/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+    <td align="right" class="post-signature">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="/posts/1496306/revisions" title="show all edits to this post">edited <span title="2010-06-07 03:06:16Z" class="relativetime">Jun 7 '10 at 3:06</span></a>
+    </div>
+    <div class="user-gravatar32">
+        
+    </div>
+    <div class="user-details">
+        <br>
+        
+    </div>
+</div>    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info user-hover">
+    <div class="user-action-time">
+        answered <span title="2009-09-30 05:54:49Z" class="relativetime">Sep 30 '09 at 5:54</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/127359/arthur-ronald-f-d-garcia"><div><img src="https://www.gravatar.com/avatar/7796d462afdccb2101bfad386c731088?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/127359/arthur-ronald-f-d-garcia">Arthur Ronald F D Garcia</a><br>
+        <span class="reputation-score" title="reputation score 17572" dir="ltr">17.6k</span><span title="6 gold badges"><span class="badge1"></span><span class="badgecount">6</span></span><span title="47 silver badges"><span class="badge2"></span><span class="badgecount">47</span></span><span title="89 bronze badges"><span class="badge3"></span><span class="badgecount">89</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-1496306" class="comments dno" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+					    <tr><td></td><td></td></tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-1496306" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+<div class="everyonelovesstackoverflow" id="careers3">
+        </div>
+  
+<a name="1473988"></a>
+<div id="answer-1473988" class="answer" data-answerid="1473988" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="1473988">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">1</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>Perhaps the lookup string should actually be: "java:comp/env/ejb/userManagerBean"?</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/1473988" title="short permalink to this answer" class="short-link" id="link-post-1473988">share</a><span class="lsep">|</span><a href="/posts/1473988/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info user-hover">
+    <div class="user-action-time">
+        answered <span title="2009-09-24 20:32:15Z" class="relativetime">Sep 24 '09 at 20:32</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/1432/jsight"><div><img src="https://www.gravatar.com/avatar/eac4001b8c054ee994480f0a6e2cdcf8?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/1432/jsight">jsight</a><br>
+        <span class="reputation-score" title="reputation score 15104" dir="ltr">15.1k</span><span title="9 gold badges"><span class="badge1"></span><span class="badgecount">9</span></span><span title="68 silver badges"><span class="badge2"></span><span class="badgecount">68</span></span><span title="113 bronze badges"><span class="badge3"></span><span class="badgecount">113</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-1473988" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-1323833" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">that didnt work :(</span>
+	&ndash;&nbsp;
+		<a href="/users/168773/drake" 
+		   title="156 reputation" 
+		   class="comment-user owner">Drake</a>
+	<span class="comment-date" dir="ltr"><span title="2009-09-24 20:46:19Z" class="relativetime-clean">Sep 24 '09 at 20:46</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-1328546" class="comment">
+        <td class="comment-actions">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                                <span title="number of &#39;useful comment&#39; votes received" 
+                                        class="cool">2</span>   
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">It sounds like you aren&#39;t getting a naming exception now.  I would suggest not passing the Properties to initial context.  Running inside of the app server, you shouldn&#39;t need to do that at all.</span>
+	&ndash;&nbsp;
+		<a href="/users/1432/jsight" 
+		   title="15104 reputation" 
+		   class="comment-user">jsight</a>
+	<span class="comment-date" dir="ltr"><span title="2009-09-25 16:44:48Z" class="relativetime-clean">Sep 25 '09 at 16:44</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-1473988" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="1475301"></a>
+<div id="answer-1475301" class="answer" data-answerid="1475301" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="1475301">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">1</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>Last two answers are both correct in that they are things you need to change/fix. But the NoSuchMethodError you see is not from your code, nor from things trying to find your code (would produce some kind of NoClassDefFoundException, I think, were this the case). This looks more like incompatible versions of the JNDI provider provided by the container, and what the JNDI implementation in the Java library wants. That's a pretty vague answer, but, would imagine it is solvable by perhaps upgrading your application server, and, ensuring you aren't deploying possibly-stale copies of infrastructure classes related to JNDI with your app, that might interfere.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/1475301" title="short permalink to this answer" class="short-link" id="link-post-1475301">share</a><span class="lsep">|</span><a href="/posts/1475301/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info user-hover">
+    <div class="user-action-time">
+        answered <span title="2009-09-25 03:37:33Z" class="relativetime">Sep 25 '09 at 3:37</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/64174/sean-owen"><div class="gravatar-wrapper-32"><img src="http://i.stack.imgur.com/2waEj.jpg?s=32&g=1" alt=""></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/64174/sean-owen">Sean Owen</a><br>
+        <span class="reputation-score" title="reputation score 31834" dir="ltr">31.8k</span><span title="6 gold badges"><span class="badge1"></span><span class="badgecount">6</span></span><span title="49 silver badges"><span class="badge2"></span><span class="badgecount">49</span></span><span title="92 bronze badges"><span class="badge3"></span><span class="badgecount">92</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-1475301" class="comments dno" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+					    <tr><td></td><td></td></tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-1475301" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="1474145"></a>
+<div id="answer-1474145" class="answer" data-answerid="1474145" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="1474145">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">1</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>First, fix your web.xml and add the Remote Interface in it:</p>
+
+<pre><code>&lt;ejb-ref&gt;
+  &lt;description&gt;Sample EJB&lt;/description&gt;
+  &lt;ejb-ref-name&gt;SampleBean&lt;/ejb-ref-name&gt;
+  &lt;ejb-ref-type&gt;Session&lt;/ejb-ref-type&gt;
+  &lt;home&gt;com.SampleHome&lt;/home&gt;
+  &lt;remote&gt;com.Sample&lt;/remote&gt; &lt;!-- the remote interface goes here --&gt;
+&lt;/ejb-ref&gt;
+</code></pre>
+
+<p>Then, regarding the <code>java.lang.NoSuchMethodError</code>, Sean is right, you have a mismatch between the version of the app server "client library" you are using inside NetBeans and the app server version (server-side). I can't tell you exactly which JARs you need to align though, refer to the  Sun Application Server documentation.</p>
+
+<p>PS: This is not a direct answer to the problem but I don't think you're currently passing any useful properties when creating your initial context with the results of the call to <code>System.getProperties()</code>, there is nothing helpful in these properties to define the environment of a context (e.g. the initial context factory). Refer to the <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/naming/InitialContext.html" rel="nofollow">InitialContext</a> javadocs for more details.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/1474145" title="short permalink to this answer" class="short-link" id="link-post-1474145">share</a><span class="lsep">|</span><a href="/posts/1474145/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+    <td align="right" class="post-signature">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="/posts/1474145/revisions" title="show all edits to this post">edited <span title="2010-03-15 16:15:51Z" class="relativetime">Mar 15 '10 at 16:15</span></a>
+    </div>
+    <div class="user-gravatar32">
+        
+    </div>
+    <div class="user-details">
+        <br>
+        
+    </div>
+</div>    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info user-hover">
+    <div class="user-action-time">
+        answered <span title="2009-09-24 21:03:27Z" class="relativetime">Sep 24 '09 at 21:03</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/70604/pascal-thivent"><div><img src="https://www.gravatar.com/avatar/dc1a5b5fdba36ae9cdcf6e267f1a86ca?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/70604/pascal-thivent">Pascal Thivent</a><br>
+        <span class="reputation-score" title="reputation score 262096" dir="ltr">262k</span><span title="33 gold badges"><span class="badge1"></span><span class="badgecount">33</span></span><span title="465 silver badges"><span class="badge2"></span><span class="badgecount">465</span></span><span title="701 bronze badges"><span class="badge3"></span><span class="badgecount">701</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-1474145" class="comments dno" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+					    <tr><td></td><td></td></tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-1474145" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+									<a name='new-answer'></a>
+						<form id="post-form" action="/questions/1473939/answer/submit" method="post"  class="post-form">
+							<input type="hidden" id="post-id" value="1473939" />
+							<h2 class="space">Your Answer</h2>
+
+
+
+    
+
+<script type="text/javascript">
+    StackExchange.ready(function() {
+        initTagRenderer("".split(" "), "".split(" "));
+         
+        prepareEditor({
+            heartbeatType: 'answer',
+            bindNavPrevention: true,
+            postfix: "",
+            onDemand: true,
+            discardSelector: ".discard-answer"
+            ,immediatelyShowMarkdownHelp:true
+        });
+        
+
+    });  
+</script>
+
+
+<div id="post-editor" class="post-editor">
+
+    <div style="position: relative;">     
+        <div class="wmd-container">
+            <div id="wmd-button-bar" class="wmd-button-bar"></div>
+            <textarea id="wmd-input" class="wmd-input" name="post-text" cols="92" rows="15" tabindex="101" data-min-length=""></textarea>
+        </div>
+    </div>
+
+    <div class="fl" style="margin-top: 8px; height:24px;">&nbsp;</div>
+    <div id="draft-saved" class="draft-saved community-option fl" style="margin-top: 8px; height:24px; display:none;">draft saved</div>
+
+    <div id="draft-discarded" class="draft-discarded community-option fl" style="margin-top: 8px; height:24px; display:none;">draft discarded</div>
+
+
+
+    <div id="wmd-preview" class="wmd-preview"></div>
+    <div></div>
+    <div class="edit-block">
+        <input id="fkey" name="fkey" type="hidden" value="924444e9d656bd8bb28009690bceb305">
+        <input id="author" name="author" type="text">
+    </div>
+</div>
+							<div style="position: relative;">
+								
+            <div class="form-item dno new-post-login">
+        
+                <div class="new-login-form">
+                    <div class="new-login-left">
+                        <h3>Sign up or <a id="login-link" href="/users/login?returnurl=%2fquestions%2f1473939%2fejb-lookup-failing-with-namingexception%23new-answer">login</a></h3>
+                        <script type="text/javascript">
+                            StackExchange.ready(function () {
+                                StackExchange.helpers.onClickDraftSave('#login-link');
+                            });
+                        </script>
+                        <div class="preferred-login google-login">
+                            <p><span class="icon"></span><span>Sign up using Google</span></p>
+                        </div>
+                        <div class="preferred-login facebook-login">
+                            <p><span class="icon"></span><span>Sign up using Facebook</span></p>
+                        </div>
+                        <div class="preferred-login stackexchange-login">
+                            <p><span class="icon"></span><span>Sign up using Stack Exchange</span></p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="manual-openid" class="manual-openid" />
+                    <input type="hidden" name="use-facebook" class="use-facebook" value="false" />
+                    <input type="button" class="submit-openid" value="Submit" style="display:none" />
+                    <div class="new-login-right">
+                                <h3>Post as a guest</h3>
+    <div class="form-item">
+        <table>
+        <tr>
+                    <script type="text/javascript">
+                StackExchange.ready(function () {
+                    StackExchange.helpers.bindHelpOverlayEvents($('.vm input'));
+                });
+            </script>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="30" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but not shown</span>
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                StackExchange.ready(
+                    function () {
+                        StackExchange.openid.initPostLogin('.new-post-login', '%2fquestions%2f1473939%2fejb-lookup-failing-with-namingexception%23new-answer');
+                    }
+                );
+            </script>
+            <noscript>
+                        <h3>Post as a guest</h3>
+    <div class="form-item">
+        <table>
+        <tr>
+                    <script type="text/javascript">
+                StackExchange.ready(function () {
+                    StackExchange.helpers.bindHelpOverlayEvents($('.vm input'));
+                });
+            </script>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="30" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but not shown</span>
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+
+            </noscript>
+							</div>
+           
+															<div class="form-submit cbt">
+									<input id="submit-button" type="submit" value="Post Your Answer" tabindex="110">
+									<a href="#" class="discard-answer dno">discard</a>
+
+<p class="privacy-policy-agreement">
+By posting your answer, you agree to the <a href='http://stackexchange.com/legal/privacy-policy' target='_blank'>privacy policy</a> and <a href='http://stackexchange.com/legal/terms-of-service' target='_blank'>terms of service</a>.</p>
+<input type="hidden" name="legalLinksShown" value="1" />								</div>
+						</form>
+
+
+
+						<h2 class="bottom-notice">
+Not the answer you&#39;re looking for?							Browse other questions tagged <a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a> <a href="/questions/tagged/ejb" class="post-tag" title="show questions tagged &#39;ejb&#39;" rel="tag">ejb</a> <a href="/questions/tagged/jndi" class="post-tag" title="show questions tagged &#39;jndi&#39;" rel="tag">jndi</a>  or <a href="/questions/ask">ask your own question</a>.						</h2>
+			</div>
+		</div>
+				<div id="sidebar" class="show-votes">
+							<div class="module question-stats">
+					<p class="label-key">tagged</p>
+					<div class="tagged"><a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">535853</span></span><br>
+<a href="/questions/tagged/ejb" class="post-tag" title="show questions tagged &#39;ejb&#39;" rel="tag">ejb</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">3206</span></span><br>
+<a href="/questions/tagged/jndi" class="post-tag" title="show questions tagged &#39;jndi&#39;" rel="tag">jndi</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">1393</span></span><br>
+</div>
+					<table id="qinfo">
+						<tr>
+							<td>
+								<p class="label-key">asked</p>
+							</td>
+							<td style="padding-left: 10px">
+								<p class="label-key" title="2009-09-24 20:23:35Z"><b>4 years ago</b></p>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<p class="label-key">viewed</p>
+							</td>
+
+							<td style="padding-left: 10px">
+								<p class="label-key">
+									<b>15897 times</b>
+								</p>
+							</td>
+						</tr>
+							<tr>
+								<td>
+									<p class="label-key">active</p>
+								</td>
+								<td style="padding-left: 10px">
+									<p class="label-key"><b><a href="?lastactivity" class="lastactivity-link" title="2010-06-07 03:06:16Z">3 years ago</a></b></p>
+								</td>
+							</tr>
+					</table>
+				</div>
+						
+			<div class="everyonelovesstackoverflow" id="careers2">
+        </div>
+    <div id="hireme">
+        <script type="text/javascript">
+window.careers_adurl="http://careers.stackoverflow.com/ad/companyjs",window.careers_cssurl="//cdn-careers.sstatic.net/careers/gethired/company.min.css?v=8c10916e072a",window.careers_cssurl2="//cdn-careers.sstatic.net/careers/gethired/sidebar.min.css?v=3c55a7a05afd",window.careers_adselector="#hireme",StackExchange.ready(function(){$.ajax({url:"//cdn-careers.sstatic.net/careers/gethired/company-loader.min.js?v=d38fcbba30f7",dataType:"script",cache:!1})});        </script>
+    </div>
+			  
+    
+            <div class="module sidebar-linked">
+	<h4 id="h-linked">Linked</h4>
+	<div class="linked" data-tracker="lq=1">
+<div class="spacer">
+	<a href="/q/1737686" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes answered-accepted default">3</div>
+	</a>
+	<a href="/questions/1737686/help-me-out-in-learning-ejb" class="question-hyperlink">Help me out in learning EJB</a>
+</div><div class="spacer">
+	<a href="/q/1506688" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes answered-accepted default">2</div>
+	</a>
+	<a href="/questions/1506688/ejb-lookup-throws-error-org-omg-corba-marshal-vmcid-sun-minor-code-257-compl" class="question-hyperlink">EJB lookup throws error: org.omg.CORBA.MARSHAL: vmcid: SUN minor code: 257 completed: Maybe</a>
+</div><div class="spacer">
+	<a href="/q/2453746" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes answered-accepted default">4</div>
+	</a>
+	<a href="/questions/2453746/jboss-seam-enabling-debug-page-on-weblogic-10-3-2-11g" class="question-hyperlink">Jboss Seam: Enabling Debug page on WebLogic 10.3.2 (11g)</a>
+</div><div class="spacer">
+	<a href="/q/1503936" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes answered-accepted default">1</div>
+	</a>
+	<a href="/questions/1503936/can-i-call-a-stateful-session-bean-through-a-stateless-session-bean" class="question-hyperlink">Can I call a Stateful Session Bean through a Stateless Session Bean?</a>
+</div><div class="spacer">
+	<a href="/q/2983855" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">1</div>
+	</a>
+	<a href="/questions/2983855/calling-a-slsb-with-seam-security-from-a-servlet" class="question-hyperlink">Calling a SLSB with Seam security from a servlet</a>
+</div><div class="spacer">
+	<a href="/q/2260981" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">2</div>
+	</a>
+	<a href="/questions/2260981/help-in-ejb-creating-stateless-session-bean" class="question-hyperlink">Help in EJB Creating Stateless Session Bean</a>
+</div><div class="spacer">
+	<a href="/q/8787176" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">2</div>
+	</a>
+	<a href="/questions/8787176/java-net-sockettimeoutexception-while-lookup-in-ejb" class="question-hyperlink">java.net.SocketTimeoutException while lookup in EJB</a>
+</div>			</div>
+</div>
+
+				<div class="module sidebar-related">
+					<h4 id="h-related">Related</h4>
+					<div class="related" data-tracker="rq=1">
+						<div class="spacer">
+<a href="/q/7961182" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">2
+    </div>
+</a><a href="/questions/7961182/ejb-why-do-i-get-this-error-in-jndi-lookup" class="question-hyperlink">EJB: Why do I get this error in JNDI lookup?</a>
+</div>
+<div class="spacer">
+<a href="/q/8578199" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">2
+    </div>
+</a><a href="/questions/8578199/jboss-as-6-how-to-find-an-ejb-via-jndi" class="question-hyperlink">Jboss AS 6 - How to find an EJB via JNDI</a>
+</div>
+<div class="spacer">
+<a href="/q/10164909" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">1
+    </div>
+</a><a href="/questions/10164909/javax-naming-namingexception-lookup-failed" class="question-hyperlink">javax.naming.NamingException: Lookup failed</a>
+</div>
+<div class="spacer">
+<a href="/q/11625954" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">0
+    </div>
+</a><a href="/questions/11625954/local-ejb-bean-not-found-using-indirect-jndi-which-was-working-earlier" class="question-hyperlink">Local EJB Bean Not Found using Indirect JNDI which was working earlier</a>
+</div>
+<div class="spacer">
+<a href="/q/13643127" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">6
+    </div>
+</a><a href="/questions/13643127/how-does-the-ejb-client-locate-the-ejb-server-without-url" class="question-hyperlink">How does the EJB client locate the EJB server without url?</a>
+</div>
+<div class="spacer">
+<a href="/q/16578620" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">1
+    </div>
+</a><a href="/questions/16578620/ejb-injection-in-application-client" class="question-hyperlink">EJB Injection in Application Client</a>
+</div>
+<div class="spacer">
+<a href="/q/18055733" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">0
+    </div>
+</a><a href="/questions/18055733/ejb-lookup-nothing-happens" class="question-hyperlink">EJB Lookup: Nothing Happens</a>
+</div>
+<div class="spacer">
+<a href="/q/18500214" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">0
+    </div>
+</a><a href="/questions/18500214/jndi-what-does-it-imply-to-have-an-empty-hashtable-in-initialcontext" class="question-hyperlink">JNDI: what does it imply to have an empty hashtable in InitialContext</a>
+</div>
+<div class="spacer">
+<a href="/q/18520069" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/18520069/jndi-lookup-fails-when-connecting-from-tomcat-to-an-ejb-in-jboss-7-1-1" class="question-hyperlink">JNDI lookup fails when connecting from Tomcat to an EJB in JBoss 7.1.1</a>
+</div>
+<div class="spacer">
+<a href="/q/18912181" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/18912181/remote-jndi-lookup-returning-my-own-ejb" class="question-hyperlink">Remote JNDI lookup returning my own EJB</a>
+</div>
+
+					</div>
+				</div>
+		</div>
+	
+<div id="feed-link">
+    <div id="feed-link-text"><a href="/feeds/question/1473939" title="feed of this question and its answers"><span class="feed-icon"></span>question feed</a></div>
+</div>
+	<script type="text/javascript">
+StackExchange.ready(function(){$.get('/posts/1473939/ivc/c43d');});
+</script>
+<noscript>
+    <div><img src="/posts/1473939/ivc/c43d" class="dno" alt="" width="0" height="0"></div>
+</noscript><div style="display:none" id="prettify-lang">lang-java</div></div>
+
+
+        </div>
+    </div>
+    <div id="footer" class="categories">
+        <div class="footerwrap">
+            <div id="footer-menu">
+                <div class="top-footer-links">
+                        <a href="/about">about</a>
+                    <a href="/help">help</a>
+                        <a href="/help/badges">badges</a>
+                    <a href="http://blog.stackexchange.com?blb=1">blog</a>
+                        <a href="http://chat.stackoverflow.com">chat</a>
+                    <a href="http://data.stackexchange.com">data</a>
+                    <a href="http://stackexchange.com/legal">legal</a>
+                    <a href="http://stackexchange.com/legal/privacy-policy">privacy policy</a>
+                    <a href="http://stackexchange.com/about/hiring">jobs</a>
+                    <a href="http://engine.adzerk.net/r?e=eyJhdiI6NDE0LCJhdCI6MjAsImNtIjo5NTQsImNoIjoxMTc4LCJjciI6Mjc3NiwiZG0iOjQsImZjIjoyODYyLCJmbCI6Mjc1MSwibnciOjIyLCJydiI6MCwicHIiOjExNSwic3QiOjAsInVyIjoiaHR0cDovL3N0YWNrb3ZlcmZsb3cuY29tL2Fib3V0L2NvbnRhY3QiLCJyZSI6MX0&s=hRods5B22XvRBwWIwtIMekcyNF8">advertising info</a>
+
+                    <a onclick='StackExchange.switchMobile("on")'>mobile</a>
+                    <b><a href="/contact">contact us</a></b>
+                        <b><a href="http://meta.stackoverflow.com">feedback</a></b>
+                    
+                </div>
+                <div id="footer-sites">
+                    <table>
+    <tr>
+            <th colspan=3>
+                Technology
+            </th>
+            <th >
+                Life / Arts
+            </th>
+            <th >
+                Culture / Recreation
+            </th>
+            <th >
+                Science
+            </th>
+            <th >
+                Other
+            </th>
+    </tr>
+    <tr>
+            <td>
+                <ol>
+                        <li><a href="http://stackoverflow.com" title="professional and enthusiast programmers">Stack Overflow</a></li>
+                        <li><a href="http://serverfault.com" title="professional system and network administrators">Server Fault</a></li>
+                        <li><a href="http://superuser.com" title="computer enthusiasts and power users">Super User</a></li>
+                        <li><a href="http://webapps.stackexchange.com" title="power users of web applications">Web Applications</a></li>
+                        <li><a href="http://askubuntu.com" title="Ubuntu users and developers">Ask Ubuntu</a></li>
+                        <li><a href="http://webmasters.stackexchange.com" title="pro webmasters">Webmasters</a></li>
+                        <li><a href="http://gamedev.stackexchange.com" title="professional and independent game developers">Game Development</a></li>
+                        <li><a href="http://tex.stackexchange.com" title="users of TeX, LaTeX, ConTeXt, and related typesetting systems">TeX - LaTeX</a></li>
+                            </ol></td><td><ol>
+                        <li><a href="http://programmers.stackexchange.com" title="professional programmers interested in conceptual questions about software development">Programmers</a></li>
+                        <li><a href="http://unix.stackexchange.com" title="users of Linux, FreeBSD and other Un*x-like operating systems.">Unix &amp; Linux</a></li>
+                        <li><a href="http://apple.stackexchange.com" title="power users of Apple hardware and software">Ask Different (Apple)</a></li>
+                        <li><a href="http://wordpress.stackexchange.com" title="WordPress developers and administrators">WordPress Answers</a></li>
+                        <li><a href="http://gis.stackexchange.com" title="cartographers, geographers and GIS professionals">Geographic Information Systems</a></li>
+                        <li><a href="http://electronics.stackexchange.com" title="electronics and electrical engineering professionals, students, and enthusiasts">Electrical Engineering</a></li>
+                        <li><a href="http://android.stackexchange.com" title="enthusiasts and power users of the Android operating system">Android Enthusiasts</a></li>
+                        <li><a href="http://security.stackexchange.com" title="Information security professionals">Information Security</a></li>
+                            </ol></td><td><ol>
+                        <li><a href="http://dba.stackexchange.com" title="database professionals who wish to improve their database skills and learn from others in the community">Database Administrators</a></li>
+                        <li><a href="http://drupal.stackexchange.com" title="Drupal developers and administrators">Drupal Answers</a></li>
+                        <li><a href="http://sharepoint.stackexchange.com" title="SharePoint enthusiasts">SharePoint</a></li>
+                        <li><a href="http://ux.stackexchange.com" title="user experience researchers and experts">User Experience</a></li>
+                        <li><a href="http://mathematica.stackexchange.com" title="users of Mathematica">Mathematica</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#technology" class="more">
+                                more (14)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://photo.stackexchange.com" title="professional, enthusiast and amateur photographers">Photography</a></li>
+                        <li><a href="http://scifi.stackexchange.com" title="science fiction and fantasy enthusiasts">Science Fiction &amp; Fantasy</a></li>
+                        <li><a href="http://cooking.stackexchange.com" title="professional and amateur chefs">Seasoned Advice (cooking)</a></li>
+                        <li><a href="http://diy.stackexchange.com" title="contractors and serious DIYers">Home Improvement</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#lifearts" class="more">
+                                more (13)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://english.stackexchange.com" title="linguists, etymologists, and serious English language enthusiasts">English Language &amp; Usage</a></li>
+                        <li><a href="http://skeptics.stackexchange.com" title="scientific skepticism">Skeptics</a></li>
+                        <li><a href="http://judaism.stackexchange.com" title="those who base their lives on Jewish law and tradition and anyone interested in learning more">Mi Yodeya (Judaism)</a></li>
+                        <li><a href="http://travel.stackexchange.com" title="road warriors and seasoned travelers">Travel</a></li>
+                        <li><a href="http://christianity.stackexchange.com" title="committed Christians, experts in Christianity and those interested in learning more">Christianity</a></li>
+                        <li><a href="http://gaming.stackexchange.com" title="passionate videogamers on all platforms">Arqade (gaming)</a></li>
+                        <li><a href="http://bicycles.stackexchange.com" title="people who build and repair bicycles, people who train cycling, or commute on bicycles">Bicycles</a></li>
+                        <li><a href="http://rpg.stackexchange.com" title="gamemasters and players of tabletop, paper-and-pencil role-playing games">Role-playing Games</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#culturerecreation" class="more">
+                                more (21)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://math.stackexchange.com" title="people studying math at any level and professionals in related fields">Mathematics</a></li>
+                        <li><a href="http://stats.stackexchange.com" title="statisticians, data analysts, data miners and data visualization experts">Cross Validated (stats)</a></li>
+                        <li><a href="http://cstheory.stackexchange.com" title="theoretical computer scientists and researchers in related fields">Theoretical Computer Science</a></li>
+                        <li><a href="http://physics.stackexchange.com" title="active researchers, academics and students of physics">Physics</a></li>
+                        <li><a href="http://mathoverflow.net" title="professional mathematicians">MathOverflow</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#science" class="more">
+                                more (7)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://stackapps.com" title="apps, scripts, and development with the Stack Exchange API">Stack Apps</a></li>
+                        <li><a href="http://meta.stackoverflow.com" title="meta-discussion of the Stack Exchange family of Q&amp;A websites">Meta Stack Overflow</a></li>
+                        <li><a href="http://area51.stackexchange.com" title="proposing new sites in the Stack Exchange network">Area 51</a></li>
+                        <li><a href="http://careers.stackoverflow.com">Stack Overflow Careers</a></li>
+                    
+                </ol>
+            </td>
+    </tr>
+</table>
+                </div>
+            </div>
+
+            <div id="copyright">
+                site design / logo &#169; 2013 stack exchange inc; user contributions licensed under <a href="http://creativecommons.org/licenses/by-sa/3.0/" rel="license">cc-wiki</a> 
+ with <a href="http://blog.stackoverflow.com/2009/06/attribution-required/" rel="license">attribution required</a>
+            </div>
+            <div id="footer-flair">
+                <a href="http://creativecommons.org/licenses/by-sa/3.0/" class="cc-wiki-link"></a>
+            </div>
+            <div id="svnrev">
+                rev 2013.12.13.1229
+            </div>
+            
+        </div>
+    </div>
+    <noscript>
+        <div id="noscript-warning">Stack Overflow works best with JavaScript enabled<img src="http://pixel.quantserve.com/pixel/p-c1rF4kxgLUzNc.gif" alt="" class="dno"></div>
+    </noscript>
+
+    <script type="text/javascript">var _gaq=_gaq||[];_gaq.push(['_setAccount','UA-5620270-1']);
+        _gaq.push(['_setCustomVar', 1, 'tags', '|java|ejb|jndi|']); 
+_gaq.push(['_trackPageview']);
+    var _qevents = _qevents || [];
+    var _comscore = _comscore || [];
+    (function () {
+        var ssl='https:'==document.location.protocol,
+            s=document.getElementsByTagName('script')[0],
+            ga=document.createElement('script');
+        ga.type='text/javascript';
+        ga.async=true;
+        ga.src=(ssl?'https://ssl':'http://www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(ga,s);
+        var sc=document.createElement('script');
+        sc.type='text/javascript';
+        sc.async=true;
+        sc.src=(ssl?'https://secure':'http://edge')+'.quantserve.com/quant.js';
+        s.parentNode.insertBefore(sc, s);
+        
+        var s = document.createElement("script"), el = document.getElementsByTagName("script")[0]; s.async = true;
+        s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+        el.parentNode.insertBefore(s, el);
+        
+    })();
+    _comscore.push({ c1: "2", c2: "17440561" });
+    _qevents.push({ qacct: "p-c1rF4kxgLUzNc" });
+    </script>
+            
+</body>
+</html>

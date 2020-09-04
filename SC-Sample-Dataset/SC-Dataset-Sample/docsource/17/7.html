@@ -1,0 +1,689 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<!-- Page Info -->
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="description" content="Blogs.Oracle.Com - A Sunny Commune - Cheng's Blog">
+  <meta name="keywords" content="blogs, oracle, blogs.oracle, blogging, bloggers">
+		            <title>Comments on Better Error Messages in Glassfish (A Sunny Commune - Cheng's Blog)</title>
+                           <meta http-equiv="Content-Language" content="en_US" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta http-equiv="imagetoolbar" content="no" />
+
+           <link rel="EditURI"   type="application/rsd+xml" title="RSD" href="https://blogs.oracle.com/chengfang/rsd"/>
+        
+            <link rel="alternate" type="application/atom+xml" title="Recent Entries (Atom)"  href="https://blogs.oracle.com/chengfang/feed/entries/atom" />
+    <link rel="alternate" type="application/rss+xml"  title="Recent Entries (RSS)"   href="https://blogs.oracle.com/chengfang/feed/entries/rss" />
+    <link rel="alternate" type="application/atom+xml" title="Recent Comments (Atom)" href="https://blogs.oracle.com/chengfang/feed/comments/atom" />
+    <link rel="alternate" type="application/rss+xml"  title="Recent Comments (RSS)"  href="https://blogs.oracle.com/chengfang/feed/comments/rss" />
+
+    
+    
+<!-- Stylesheets -->
+<link rel="stylesheet" href="https://blogs.oracle.com/chengfang/resource/1glassfish-2col/theme.css" type="text/css" media="screen" />
+
+<!-- Favicon -->
+<link rel="shortcut icon" href="https://blogs.oracle.com/chengfang/resource/1glassfish-2col/favicon.gif" />    	</head>
+	<body>
+		<div id="container" class="two-columns"> <!-- Note: Change the class from "two-columns" to "three-columns" if needed -->
+			
+			<!-- Header -->
+			<div id="header">
+				<ul id="nav">
+					<li id="logo"><h6><a href="http://www.oracle.com">Oracle</a></h6></li>
+					<li class="current"><a href="/">Blogs Home</a></li>
+					<li><a href="http://www.oracle.com/us/products/index.html">Products &amp; Services</a></li>
+					<li><a href="http://www.oracle.com/technetwork/indexes/downloads/index.html">Downloads</a></li>
+					<li><a href="http://www.oracle.com/us/support/index.html">Support</a></li>
+					<li><a href="http://www.oracle.com/us/partnerships/index.html">Partners</a></li>
+					<li><a href="http://www.oracle.com/us/community/index.html">Communities</a></li>
+					<li><a href="http://www.oracle.com/us/corporate/index.html">About</a></li>
+                                            <li id="signIn"><a href="/roller-ui/login-redirect.rol">Login</a></li>
+                    				</ul>
+				<div id="jumbotron">
+					<h4>Oracle Blog</h4>
+          <h5><a href="https://blogs.oracle.com/chengfang/">A Sunny Commune - Cheng's Blog</a></h5>
+          <h5 class="subhead">Cheng Fang's blog</h5>
+				</div>
+                																										</div>
+			
+			<!-- Content -->
+			<div id="content">
+                <div id="mainColumn">
+                    
+                    <!-- Previous and Next Entries -->
+                    <div id="pager">
+                                                    &laquo; <a href="https://blogs.oracle.com/chengfang/entry/glassfish_%E4%B8%AD_ejb_%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94">Glassfish 中 EJB...</a> |  
+                <a href="/chengfang/">Main</a>
+                | <a href="https://blogs.oracle.com/chengfang/entry/%E5%BF%98%E8%AE%B0%E4%BA%86%E7%AE%A1%E7%90%86%E5%91%98%E5%AF%86%E7%A0%81%E6%80%8E%E4%B9%88%E5%8A%9E">忘记了管�?�员密�?怎么办？</a> &raquo;
+                        </div>
+
+                    <!-- Entries -->
+				    
+                <div class="day">
+
+
+	<div class="entry" id="comments_on_better_error_messages">
+
+	<h3 class="entry-title">
+			Comments on Better Error Messages in Glassfish
+	    </h3>
+
+    <h4 class="entry-meta">By Cheng Fang on <a href="#">Jul 08, 2006</a></h4>
+
+    <div class="entry-body">
+                                        	<br><br>
+This is my comments (expaned and better formatted) on this discussion: <a href="http://blogs.sun.com/roller/page/theaquarium?anchor=glassfish_v2_post_your_ideas#comments">Improved Usability and Error Messages.</a>  Cay Horstmann first posted <a href="http://www.horstmann.com/elvis/hated-error-messages.html">this article</a> on this topic.
+<br><br>
+Cay, great summary.  A few comments on "Nested exception is..." section.
+<br><br>
+When a system exceptin (e.g. NPE in your case) occurred in EJB, the container is required to log it and rethrow a EJBException.  This is the nature of any distributed computing.  Users really need to look at both client side errors and server side logs.  From the client side error (e.g., RemoteException, ServerException, etc), users can know the root cause is at the server side.  I'd suggest appclient container print out something like:  
+<pre><code>
+"please refer to server.log for server-side errors..."
+</code></pre>
+<br>
+I feel the same pain every time I see the long stacktrace from appclient container for any errors.  They are not well ordered.  Normally people would expect the outer-most exceptions first, and the inner-most exceptions last.  But from the appclent exceptions I've got, it's hard to tell which one wraps which.
+<br><br>
+Just as an experiment, I wrote a simple EJB 3 stateless session bean whose business method throws an IllegalStateException.  
+<pre><code>
+package hello.ejb;
+import javax.ejb.Remote;
+
+@Remote public interface HelloEJBRemote {
+    void hello();
+}
+
+package hello.ejb;
+import javax.ejb.Stateless;
+
+@Stateless public class HelloEJBBean implements HelloEJBRemote {
+    public void hello() {
+        throw new IllegalStateException("IllegalStateException from hello.");
+    }
+}
+
+package hello;
+import hello.ejb.HelloEJBRemote;
+import javax.ejb.EJB;
+
+public class Main {
+    @EJB(beanName="HelloEJBBean")
+    private static HelloEJBRemote helloEJB;
+    
+    public static void main(String[] args) {
+        helloEJB.hello();
+    }    
+}
+</code></pre>
+When invoked from application client, I got the following on the client side:
+<pre><code>
+C:\\Sun\\AppServer\\domains\\domain1\\generated\\xml\\j2ee-apps\\hello>C:\\sun\\appserver\\bin\\appclient -client helloClient.jar
+Jul 8, 2006 5:01:22 PM com.sun.enterprise.appclient.MainWithModuleSupport <init>
+WARNING: ACC003: Application threw an exception.
+javax.ejb.EJBException: nested exception is: java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:
+        java.rmi.RemoteException
+java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:
+        java.rmi.RemoteException
+        at com.sun.corba.ee.impl.javax.rmi.CORBA.Util.mapSystemException(Util.java:188)
+        at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.privateInvoke(StubInvocationHandlerImpl.java:172)
+        at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.invoke(StubInvocationHandlerImpl.java:119)
+        at com.sun.corba.ee.impl.presentation.rmi.bcel.BCELStubBase.invoke(BCELStubBase.java:197)
+        at hello.ejb.__HelloEJBRemote_Remote_DynamicStub.hello(__HelloEJBRemote_Remote_DynamicStub.java)
+        at hello.ejb._HelloEJBRemote_Wrapper.hello(hello.ejb._HelloEJBRemote_Wrapper.java)
+        at hello.Main.main(Main.java:19)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at com.sun.enterprise.util.Utility.invokeApplicationMain(Utility.java:232)
+        at com.sun.enterprise.appclient.MainWithModuleSupport.<init>(MainWithModuleSupport.java:329)
+        at com.sun.enterprise.appclient.Main.main(Main.java:180)
+Caused by: java.rmi.RemoteException
+        at com.sun.enterprise.iiop.POAProtocolMgr.mapException(POAProtocolMgr.java:234)
+        at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1280)
+        at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+        at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:110)
+        at $Proxy30.hello(Unknown Source)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(ReflectiveTie.java:121)
+        at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(CorbaServerRequestDispatcherImpl.java:650)
+        at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(CorbaServerRequestDispatcherImpl.java:193)
+        at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(CorbaMessageMediatorImpl.java:1705)
+        at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(CorbaMessageMediatorImpl.java:1565)
+        at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(CorbaMessageMediatorImpl.java:947)
+        at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(RequestMessage_1_2.java:178)
+        at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(CorbaMessageMediatorImpl.java:717)
+        at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(SocketOrChannelConnectionImpl.java:473)
+        at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(SocketOrChannelConnectionImpl.java:1270)
+        at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(ThreadPoolImpl.java:479)
+javax.ejb.EJBException: nested exception is: java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:
+        java.rmi.RemoteException
+        at hello.ejb._HelloEJBRemote_Wrapper.hello(hello.ejb._HelloEJBRemote_Wrapper.java)
+        at hello.Main.main(Main.java:19)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at com.sun.enterprise.util.Utility.invokeApplicationMain(Utility.java:232)
+        at com.sun.enterprise.appclient.MainWithModuleSupport.<init>(MainWithModuleSupport.java:329)
+        at com.sun.enterprise.appclient.Main.main(Main.java:180)
+Exception in thread "main" java.lang.RuntimeException: java.lang.reflect.InvocationTargetException
+        at com.sun.enterprise.appclient.MainWithModuleSupport.<init>(MainWithModuleSupport.java:340)
+        at com.sun.enterprise.appclient.Main.main(Main.java:180)
+Caused by: java.lang.reflect.InvocationTargetException
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:585)
+        at com.sun.enterprise.util.Utility.invokeApplicationMain(Utility.java:232)
+        at com.sun.enterprise.appclient.MainWithModuleSupport.<init>(MainWithModuleSupport.java:329)
+        ... 1 more
+Caused by: javax.ejb.EJBException: nested exception is: java.rmi.ServerException: RemoteException occurred in
+server thread; nested exception is:
+        java.rmi.RemoteException
+        at hello.ejb._HelloEJBRemote_Wrapper.hello(hello.ejb._HelloEJBRemote_Wrapper.java)
+        at hello.Main.main(Main.java:19)
+        ... 7 more
+
+</code></pre>
+Application is simple: a total of 3 simple classes, no deployment descriptors, no deployment plans.  Client-side error message is much longer than all the source code combined.
+<br><br>
+It seems all these appclient exceptions are chained like this, from outer-most to inner-most:
+<code><ol>
+<li>java.lang.RuntimeException</li>
+<li>java.lang.reflect.InvocationTargetException</li>
+<li>javax.ejb.EJBException</li>
+<li>java.rmi.ServerException</li>
+<li>java.rmi.RemoteException</li></ol></code>
+<br>
+A general suggestion on logging wrapper exceptions like InvocationTargetException and PrivilegedActionException.  IMHO, It adds no value to log them.  Just logging their getCause() should be sufficient.  Why would a user care if you are using reflection, or doPriv block?  These exceptions only expose implementation details, and clutter logs.
+<br><br>
+For the same reason, I wouldn't rethrow a InvocationTargetException and PrivilegedActionException to the client (caller) code.  But I'm less sure about this since appserver  is very complex software.
+<br><br>
+Just my 2 cents.
+<br><br>
+<div style="font-size:12px;text-align:right;">Tags: <a href="http://technorati.com/tag/Glassfish" rel="tag">Glassfish</a>, <a href="http://technorati.com/tag/java+exception" rel="tag">java exception</a>, <a href="http://technorati.com/tag/InvocationTargetException" rel="tag">InvocationTargetException</a>, <a href="http://technorati.com/tag/PrivilegedActionException" rel="tag">PrivilegedActionException</a></div>
+        
+    </div>
+
+    <div class="entry-footer">
+        <p class="entry-category">Category: GlassFish</p>
+        <p class="entry-tags">Tags:  none </p>
+        <p class="entry-links">
+        <a href="https://blogs.oracle.com/chengfang/entry/comments_on_better_error_messages">Permanent link to this entry</a>
+                        </p>
+    </div>
+
+	    
+	</div>
+
+</div>    
+    
+                    
+                    <!-- Previous and Next Entries -->
+                    <div id="pagerBottom">
+                                                    &laquo; <a href="https://blogs.oracle.com/chengfang/entry/glassfish_%E4%B8%AD_ejb_%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94">Glassfish 中 EJB...</a> |  
+                <a href="/chengfang/">Main</a>
+                | <a href="https://blogs.oracle.com/chengfang/entry/%E5%BF%98%E8%AE%B0%E4%BA%86%E7%AE%A1%E7%90%86%E5%91%98%E5%AF%86%E7%A0%81%E6%80%8E%E4%B9%88%E5%8A%9E">忘记了管�?�员密�?怎么办？</a> &raquo;
+                        </div> 
+
+                    <!-- Comments -->
+                                                <a name="comments"></a>
+    <div class="comments" id="comments">
+
+            <div class="comments-head">Comments:</div>
+            
+    <br/>
+                        <a name="comment-1234649450000" id="comment-1234649450000"></a>
+            <div class="comment odd" id="comment1">
+
+                
+<p>www.replicaseller.com As a professional replica watch dealer we are 100% committed to your satisfaction. www.brandpet.com<br/>
+<a href="http://www.replicaseller.com/" rel="nofollow">http://www.replicaseller.com/</a><br/>
+<a href="http://www.brandpet.com/" rel="nofollow">http://www.brandpet.com/</a><br/>
+<a href="http://www.brandlike.com/" rel="nofollow">http://www.brandlike.com/</a><br/>
+<a href="http://www.ireplicawatch.com/" rel="nofollow">http://www.ireplicawatch.com/</a><br/>
+<a href="http://www.replicaseller.com/rolex/" rel="nofollow">http://www.replicaseller.com/rolex/</a><br/>
+<a href="http://www.replicaseller.com/tagheuer/" rel="nofollow">http://www.replicaseller.com/tagheuer/</a><br/>
+<a href="http://www.replicaseller.com/breitling/" rel="nofollow">http://www.replicaseller.com/breitling/</a><br/>
+<a href="http://www.replicaseller.com/replica-pens/" rel="nofollow">http://www.replicaseller.com/replica-pens/</a><br/>
+<a href="http://www.brandpet.com/" rel="nofollow">http://www.brandpet.com/</a><br/>
+<a href="http://www.brandlike.com/" rel="nofollow">http://www.brandlike.com/</a><br/>
+<a href="http://www.ireplicawatch.com/" rel="nofollow">http://www.ireplicawatch.com/</a><br/>
+<a href="http://www.brandpet.com/" rel="nofollow">http://www.brandpet.com/</a><br/>
+<a href="http://www.brandlike.com/" rel="nofollow">http://www.brandlike.com/</a><br/>
+<a href="http://www.ireplicawatch.com/" rel="nofollow">http://www.ireplicawatch.com/</a></p>
+
+
+
+                <p class="comment-details">
+                Posted by
+                                    <a rel="nofollow" href="http://www.replicaseller.com"><b>replica watches</b></a>
+                
+                on February 14, 2009 at 05:10 PM EST
+
+                <a href="https://blogs.oracle.com/chengfang/entry/comments_on_better_error_messages#comment-1234649450000"
+                   class="entrypermalink" title="comment permalink">#</a>
+                </p>
+
+            </div>
+
+                </div>
+                        
+    <div class="comments-form">
+    <div class="comments-head">Post a Comment:</div>
+    <a name="comment-form"></a>
+
+
+    
+    <form method="post" action="https://blogs.oracle.com/chengfang/entry/comments_on_better_error_messages" focus="name" 
+        name="commentForm" onsubmit="fixURL(this); return validateComments(this)">    
+        <input type="hidden" name="method" value="post" />
+
+        <ul>
+            <li>
+                <label class="desc">Name:</label>
+                <input type="text" name="name" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+            <li><label class="desc">E-Mail:</label>
+                <input type="text" name="email" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+            <li><label class="desc">URL:</label>
+                <input type="text" name="url" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+                    <li><input type="checkbox" class="checkbox" id="notify" name="notify" />
+                <label for="notify" class="choice">Notify me by email of new comments</label>
+            </li>
+                    <li>
+                <input type="checkbox" class="checkbox" id="rememberInfo" name="rememberInfo" />
+                <label for="rememberInfo" class="choice">Remember Information?</label>
+            </li>
+            <li>
+                <label class="desc">Your Comment:</label>
+             
+            <textarea name="content" class="textarea large" cols="40" rows="10"></textarea>
+
+            </li>
+            <li class="info">
+                <span class="comments-syntax-indicator">
+                HTML Syntax:
+                                    <span class="disabled">NOT allowed</span>
+                                </span>
+            </li>
+            <li class="info">
+               <script type="text/javascript" src="/theme/scripts/clientSideInclude.js"></script>
+               <div id="commentAuthenticator"></div>
+            </li>
+            <li>
+               <input type="button" class="button" name="post" value="&nbsp;Preview&nbsp;"
+                  onclick="this.form.method.value='preview';this.form.submit()" />
+               <input type="submit" class="button" name="post" value="&nbsp;Post&nbsp;" />
+            </li>
+        </ul>
+
+    </form>
+
+    <script type="text/javascript" src="/theme/scripts/roller.js"></script>
+    <script type="text/javascript">
+    clientSideInclude('commentAuthenticator', '/CommentAuthenticatorServlet');
+
+    var author = getCookie("commentAuthor");
+    var email = getCookie("commentEmail");
+    var url = getCookie("commentUrl");
+    // check each field - IE will render "null"
+   
+    if (author) {
+        document.forms['commentForm'].name.value = author;
+    }else{
+        document.forms['commentForm'].name.value = "guest";
+    }
+
+    if (email) {
+        document.forms['commentForm'].email.value = email;
+    }
+    if (url) {
+        document.forms['commentForm'].url.value = url;
+    }
+
+    if (author || email || url) {
+        document.forms['commentForm'].rememberInfo.checked = true;
+    }
+
+    function fixURL(theForm) {
+        if (theForm.url.value != "" &&
+            theForm.url.value.indexOf("http://") == -1) { //prepend http://
+            theForm.url.value = "http://"+theForm.url.value;
+        }
+        saveUserInformation(theForm);
+    }
+
+    function saveUserInformation(theForm) {
+        if (theForm.rememberInfo.checked) {
+            rememberUser(theForm);
+        } else {
+            forgetUser(theForm);
+        }
+    }
+
+    function validateComments(theForm) {
+        if (theForm.content.value == "") {
+            alert("Please enter a comment.");
+            theForm.content.focus();
+            return false;
+        }
+ 
+        if (document.forms['commentForm'].name.value=="" ) {
+        document.forms['commentForm'].name.value = "guest";
+        }
+
+    }
+    </script>
+
+
+    </div>
+                                        
+                   
+				</div>
+
+                <!-- Sidebar -->
+                           <!-- Right Sidebar -->
+<div id="rightColumn">
+
+<!-- About -->
+  <div id="aboutSection">    
+    <h5 class="section-title">About</h5>
+    <div class="section-body">
+                  <p>Cheng Fang</p>
+            </div>
+  </div>  
+<!-- End About -->
+
+<!-- Search -->
+  <div id="searchSection">  
+    <h5 class="section-title">Search</h5>
+    <div class="section-body">
+        <script type="text/javascript">
+    function prepareSearchForm() {
+        document.getElementById("searchForm").searchQuery.name = "oq";
+        document.getElementById("searchFilter").innerHTML = "<input type='hidden' id='searchFilteredQuery' name='q' value=''>" +
+                "<br /><input type='checkbox' id='searchScope' checked='true' /><label for='searchScope'>Search only this blog</label>";
+    }
+    function submitSearchForm() {
+        var form = document.getElementById("searchForm");
+        var query = form.searchQuery.value;
+        var urlSearchOp = form.searchOp.value; //searchOp
+        var urlGroup = form.searchGroup.value; //group
+         
+        if (query == null || query == "") {
+            return false;
+        }
+        var filter = " weblog:chengfang";
+        var curUrl = window.location.href;
+        if (form.searchScope.checked && form.searchQuery.value.indexOf(filter) == -1) {
+            form.searchFilteredQuery.value = form.searchQuery.value + filter;
+        }
+        else {
+            form.searchFilteredQuery.value = form.searchQuery.value;
+        }
+
+        						 form.action="https://search.oracle.com/search/search";
+				
+        window.location = form.action + "?search_p_main_operator=" + urlSearchOp + "&group=" + urlGroup +"&q=" + form.searchFilteredQuery.value;
+        return false;
+    }
+</script>
+<form id="searchForm" action="http://search.oracle.com/search/search"
+      onsubmit="return submitSearchForm();" method="get">
+    <input type="hidden" id="searchOp" name="search_p_main_operator" value="all" />
+    <input type="hidden" id="searchGroup" name="group" value="Blogs" />
+    <label for="searchQuery" title="Enter search term">Enter search term:</label>
+    <br />
+    <input type="text" id="searchQuery" name="q" class="text" alt="Enter Search Term" />
+    <input type="image" class="input-image" id="searchSubmit" alt="Submit Search" title="Submit Search" src="https://blogs.oracle.com/chengfang/resource/search-button.gif" />
+    <span id="searchFilter">
+    <noscript>Search filtering requires JavaScript</noscript>
+    </span>
+</form>
+<script type="text/javascript">prepareSearchForm();</script>
+    </div>
+  </div>    
+<!-- End Search -->
+
+<!-- Recent Posts -->
+  <div id="recentSection">  
+                <h5 class="section-title">Recent Posts</h5>
+        <div class="section-body">
+            <ul>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/glassfish_to_glassfish_remote_ejb">GlassFish-to-GlassFish Remote EJB Invocation</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/glassfish_asadmin_list_components">GlassFish asadmin list-components</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/glassfish_asadmin_commands">GlassFish asadmin commands</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/riddles_with_ejb_3_1">Riddles with EJB 3.1</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/javaee_5_api_javadoc_in">JavaEE 5 API Javadoc in Chinese Now Available</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/install_javaee_samples_with_glassfish">Install JavaEE samples with glassfish updatecenter</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/a_generic_beanfactory_class_for">A generic BeanFactory class for custom JNDI resource</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/how_to_parameterize_and_configure">How to parameterize and configure custom resources</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/how_to_inject_and_look">How to inject and look up custom resources in Glassfish</a></li>
+                                    <li><a href="https://blogs.oracle.com/chengfang/entry/how_to_create_custom_resources">How to create custom resources in Glassfish</a></li>
+                            </ul>
+        </div>
+      </div>    
+<!-- End Recent Posts -->
+
+
+<!-- Top Tags -->
+  <div id="tagsSection">  
+            <h5 class="section-title">Top Tags</h5>
+    <div class="tags section-body">
+        <ul class="tag-cloud">
+                    <li><a href="https://blogs.oracle.com/chengfang/tags/custom%2Bresource" title="1" class="weight-1">custom+resource</a></li>
+                    <li><a href="https://blogs.oracle.com/chengfang/tags/glassfish" title="8" class="weight-5">glassfish</a></li>
+                    <li><a href="https://blogs.oracle.com/chengfang/tags/javaee" title="3" class="weight-3">javaee</a></li>
+                    <li><a href="https://blogs.oracle.com/chengfang/tags/jndi" title="2" class="weight-2">jndi</a></li>
+                    <li><a href="https://blogs.oracle.com/chengfang/tags/sjsas" title="3" class="weight-3">sjsas</a></li>
+                </ul>
+    </div>
+    </div>    
+<!-- End Top Tags -->
+    
+
+<!-- Categories -->
+  <div id="categoriesSection">
+    <h5 class="section-title">Categories</h5>
+    <div class="section-body">
+                        <ul class="rCategory">
+                                                                            <li><a href="https://blogs.oracle.com/chengfang/category/GlassFish">GlassFish</a></li>
+                                                                                                            <li><a href="https://blogs.oracle.com/chengfang/category/NetBeans">NetBeans</a></li>
+                                                                                                            <li><a href="https://blogs.oracle.com/chengfang/category/Other">Other</a></li>
+                                                                            </ul>
+        </div>
+  </div>
+<!-- End Categories -->
+
+
+<!-- Archives -->
+   <div id="archiveSection">
+    <h5 class="section-title">Archives</h5>
+    <div class="section-body">
+        <table cellspacing="0" border="0"  summary="Blog Archive Calendar" class="hCalendarTable"><tr><td colspan="7" align="center" class="hCalendarMonthYearRow"><a href="/chengfang/date/201204" title="Prev" class="hCalendarNavBar">&laquo;</a> December 2013</td></tr><tr><th class="hCalendarDayNameRow" align="center">Sun</th><th class="hCalendarDayNameRow" align="center">Mon</th><th class="hCalendarDayNameRow" align="center">Tue</th><th class="hCalendarDayNameRow" align="center">Wed</th><th class="hCalendarDayNameRow" align="center">Thu</th><th class="hCalendarDayNameRow" align="center">Fri</th><th class="hCalendarDayNameRow" align="center">Sat</th></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">1</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">2</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">3</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">4</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">5</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">6</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">7</div></td></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">8</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">9</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">10</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">11</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">12</div></td><td class="hCalendarDayCurrent"><div class="hCalendarDayTitle">13</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">14</div></td></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">15</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">16</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">17</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">18</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">19</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">20</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">21</div></td></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">22</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">23</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">24</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">25</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">26</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">27</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">28</div></td></tr><tr><td class="hCalendarDay"><div class="hCalendarDayTitle">29</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">30</div></td><td class="hCalendarDay"><div class="hCalendarDayTitle">31</div></td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td></tr><tr><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td><td class="hCalendarDayNotInMonth">&nbsp;</td></tr><tr class="hCalendarNextPrev"><td colspan="7" align="center"><a href="/chengfang/" class="hCalendarNavBar">Today</a></td></tr></table>
+    </div>
+  </div>
+<!-- End Archives -->
+
+<!-- Bookmarks -->
+   <div id="bookmarkSection">
+                <h5 class="section-title">Bookmarks</h5>
+        <div class="section-body">
+            <ul class="rFolder">
+                    <li class="rFolderItem">
+                                <a href="http://java.sun.com/javase/6/docs/api/index.html"
+               title="$bookmark.description"
+               class="rBookmark0">JDK 6 API Javadoc</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://docs.oracle.com/javase/7/docs/api/"
+               title="$bookmark.description"
+               class="rBookmark0">JDK 7 API Javadoc</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://docs.oracle.com/javaee/6/api/"
+               title="$bookmark.description"
+               class="rBookmark0">Java EE 6 API Javadoc</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://www.catb.org/~esr/writings/taoup/html/ch01s06.html"
+               title="Basics of the Unix Philosophy"
+               class="rBookmark0">Basics of the Unix Philosophy</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://johnjmclaughlin.blogspot.com/feeds/posts/default"><img class="smrssbadge"
+               src="https://blogs.oracle.com/images/smrssbadge.gif"
+               alt="URL of site''s RSS feed"/></a>
+                        <a href="http://johnjmclaughlin.blogspot.com/"
+               title="IT News"
+               class="rBookmark0">johnjmclaughlin</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://news.ycombinator.com/rss"><img class="smrssbadge"
+               src="https://blogs.oracle.com/images/smrssbadge.gif"
+               alt="URL of site''s RSS feed"/></a>
+                        <a href="http://news.ycombinator.com/news"
+               title="Hacker News"
+               class="rBookmark0">ycombinator</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="https://blogs.oracle.com/theaquarium/feed/entries/atom"><img class="smrssbadge"
+               src="https://blogs.oracle.com/images/smrssbadge.gif"
+               alt="URL of site''s RSS feed"/></a>
+                        <a href="https://blogs.oracle.com/theaquarium/"
+               title="The Aquarium,open-source Java EE, XML, SOA..."
+               class="rBookmark0">GlassFish Aquarium</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://forums.java.net/jive/rss/rssmessages.jspa?forumID=56"><img class="smrssbadge"
+               src="https://blogs.oracle.com/images/smrssbadge.gif"
+               alt="URL of site''s RSS feed"/></a>
+                        <a href="http://forums.java.net/jive/forum.jspa?forumID=56&start=0"
+               title="GlassFish user forum"
+               class="rBookmark0">GlassFish Forum</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="https://blogs.oracle.com/glassfishpodcast/feed/entries/atom"><img class="smrssbadge"
+               src="https://blogs.oracle.com/images/smrssbadge.gif"
+               alt="URL of site''s RSS feed"/></a>
+                        <a href="https://blogs.oracle.com/glassfishpodcast/"
+               title="$bookmark.description"
+               class="rBookmark0">GlassFish Podcast</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://java.net/jira/plugins/servlet/streams?key=GLASSFISH&os_authType=basic"><img class="smrssbadge"
+               src="https://blogs.oracle.com/images/smrssbadge.gif"
+               alt="URL of site''s RSS feed"/></a>
+                        <a href="http://java.net/jira/browse/GLASSFISH"
+               title="GlassFish Issue Tracker"
+               class="rBookmark0">GlassFish Issue Tracker</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href=" http://javahowto.blogspot.com/atom.xml"><img class="smrssbadge"
+               src="https://blogs.oracle.com/images/smrssbadge.gif"
+               alt="URL of site''s RSS feed"/></a>
+                        <a href="http://javahowto.blogspot.com/"
+               title="Tutorials and howto on Java, JavaEE, Glassfish, Tomcat, etc"
+               class="rBookmark0">Java How To</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://www.oracle.com/technetwork/middleware/glassfish/documentation/index.html"
+               title="$bookmark.description"
+               class="rBookmark0">Oracle GlassFish Server Product Documentation</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://www.oracle.com/technetwork/middleware/weblogic/documentation/index.html"
+               title="$bookmark.description"
+               class="rBookmark0">Oracle WebLogic Server Product Documentation</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://glassfish.java.net/public/downloadsindex.html#top"
+               title="GlassFish Download"
+               class="rBookmark0">GlassFish Download</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="http://docs.oracle.com/javaee/6/tutorial/doc/"
+               title="$bookmark.description"
+               class="rBookmark0">Java EE 6 Tutorial</a>
+                </li>
+            <li class="rFolderItem">
+                                <a href="https://svn.java.net/svn/glassfish~svn/trunk/main/"
+               title="$bookmark.description"
+               class="rBookmark0">GlassFish svn</a>
+                </li>
+                    </ul>
+        </div>
+          </div>    
+<!-- End Bookmarks -->
+
+<!-- Blog and Author Menu -->
+   <div id="menuSection">
+    <h5 class="section-title">Menu</h5>
+    <div class="section-body">
+            <ul class="rNavigationBar">
+        <li class="rNavItem">
+            <a href="/"><span>Blogs Home</span></a>
+        </li>
+        <li class="rNavItem">
+            <a href="https://blogs.oracle.com/chengfang/"><span>Weblog</span></a>
+        </li>
+                                                                                                                                                                                                                                                                                                                                                                                                <li class="rNavItem">
+                    <a href="/roller-ui/login-redirect.rol"><span>Login</span></a>
+                </li>
+                        </ul>
+            </div>
+  </div>    
+<!-- End Blog and Author Menu -->
+
+    
+<!-- Feeds -->
+   <div id="feedsSection">   
+    <h5 class="section-title">Feeds</h5>
+    <div class="section-body">
+        <b>RSS</b>
+            <ul class="rFeeds">
+    <li><a href="https://blogs.oracle.com/chengfang/feed/entries/rss">All</a></li>
+                        <li><a href="https://blogs.oracle.com/chengfang/feed/entries/rss?cat=%2FGlassFish">/GlassFish</a></li>
+                    <li><a href="https://blogs.oracle.com/chengfang/feed/entries/rss?cat=%2FNetBeans">/NetBeans</a></li>
+                    <li><a href="https://blogs.oracle.com/chengfang/feed/entries/rss?cat=%2FOther">/Other</a></li>
+        <li><a href="https://blogs.oracle.com/chengfang/feed/comments/rss">Comments</a></li>
+    </ul>
+        <b>Atom</b>    
+            <ul class="rFeeds">
+    <li><a href="https://blogs.oracle.com/chengfang/feed/entries/atom">All</a></li>
+                        <li><a href="https://blogs.oracle.com/chengfang/feed/entries/atom?cat=%2FGlassFish">/GlassFish</a></li>
+                    <li><a href="https://blogs.oracle.com/chengfang/feed/entries/atom?cat=%2FNetBeans">/NetBeans</a></li>
+                    <li><a href="https://blogs.oracle.com/chengfang/feed/entries/atom?cat=%2FOther">/Other</a></li>
+        <li><a href="https://blogs.oracle.com/chengfang/feed/comments/atom">Comments</a></li>
+    </ul>
+    </div>
+  </div>          
+<!-- End Feeds -->    
+    
+</div>    			</div>
+
+			<!-- Footer -->
+			<div id="footer">
+				<p>The views expressed on this blog are those of the author and do not necessarily reflect the views of Oracle. <a href="http://www.oracle.com/html/terms.html">Terms of Use</a> | <a href="http://www.oracle.com/html/privacy.html">Your Privacy Rights</a> | <span id='teconsent'><script type='text/javascript' src='https://consent.truste.com/notice?domain=oracle.com&c=teconsent&language=en&text=true'></script>   </span>  </p>
+			</div>
+			<!-- Omniture Script --> 
+<!-- Start SiteCatalyst code -->
+
+<script language="JavaScript" src="/main/resource/resources/ora_blogs.js"></script>
+
+<!-- End SiteCatalyst code -->
+		</div>
+	</body>
+</html>

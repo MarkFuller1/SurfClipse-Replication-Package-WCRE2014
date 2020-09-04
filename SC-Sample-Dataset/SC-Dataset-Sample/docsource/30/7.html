@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Failing to load N3 encoded rdf using HTTP ...</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>jena-users mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/jena-users" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/jena-users/201207.mbox/%3c501822CA.5090504@apache.org%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/jena-users/201207.mbox/date" title="View messages sorted by date">Date</a> &raquo; &middot; <a href="/mod_mbox/jena-users/201207.mbox/%3cCAM0wMfSLLSrC=jJF4wMkb6tAN8A-SVxe5O4i0qKmbrXLVpDrhA@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/jena-users/201207.mbox/thread" title="View messages sorted by thread">Thread</a> &raquo;</th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/jena-users/201207.mbox/%3c501822CA.5090504@apache.org%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/jena-users/201207.mbox/date" title="View messages sorted by date">Date</a> &raquo; &middot; <a href="/mod_mbox/jena-users/201207.mbox/%3cCAM0wMfSLLSrC=jJF4wMkb6tAN8A-SVxe5O4i0qKmbrXLVpDrhA@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/jena-users/201207.mbox/thread" title="View messages sorted by thread">Thread</a> &raquo;</th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">Jim Karavias &lt;jkarav...@innovation-asset.com&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Failing to load N3 encoded rdf using HTTP ...</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Tue, 31 Jul 2012 18:37:27 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+Hi,
+
+I've been trying to load a dataset using an assembler when starting Fuseki.
+ I have no trouble loading RDF/XML when specifying external content using
+an http: url.  Fuseki fails to load n3 data served the same way.
+
+For example, if i use the following assembler, fuseki loads the dataset
+just fine:
+
+@prefix tdb:     &lt;http://jena.hpl.hp.com/2008/tdb#&gt; .
+@prefix rdf:     &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix rdfs:    &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix ja:      &lt;http://jena.hpl.hp.com/2005/11/Assembler#&gt; .
+@prefix jpk:  &lt;http://jpk.iag.com/assembler#&gt; .
+
+[] ja:loadClass "com.hp.hpl.jena.tdb.TDB" .
+
+jpk:root rdf:type ja:RDFDataset ;
+ ja:defaultGraph jpk:testgraph;
+.
+
+jpk:testgraph rdf:type ja:MemoryModel ;
+ ja:content    [
+    ja:externalContent &lt;http://localhost:8080/test/resources/IDTestModel.rdf
+&gt;;
+];
+.
+
+However the following fails with a SAX parser error that I believe
+indicates that its still trying to parse RDF/XML when the external content
+is N3:
+
+@prefix tdb:     &lt;http://jena.hpl.hp.com/2008/tdb#&gt; .
+@prefix rdf:     &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix rdfs:    &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix ja:      &lt;http://jena.hpl.hp.com/2005/11/Assembler#&gt; .
+@prefix jpk:  &lt;http://jpk.iag.com/assembler#&gt; .
+
+[] ja:loadClass "com.hp.hpl.jena.tdb.TDB" .
+
+jpk:root rdf:type ja:RDFDataset ;
+ ja:defaultGraph jpk:testgraph;
+.
+
+jpk:testgraph rdf:type ja:MemoryModel ;
+ ja:content [
+
+ja:contentEncoding "N3" ;
+
+ja:externalContent &lt;http://localhost:8080/test/resources/IDTestModel.n3&gt;
+
+];
+.
+
+Exception:
+
+C:\Program Files\jena-fuseki-0.2.1-incubating&gt;java -jar fuseki-server.jar
+--update  --desc=C:\git-repositories\snap-client\src\test\
+resources\IDTestAssembler.ttl /DB
+11:15:03 INFO  Server               :: Dataset from assembler
+11:15:03 ERROR RDFDefaultErrorHandler ::
+http://localhost:8080/test/resources/IDTestModel.n3(line 1 column 1):
+Content is not allowe
+d in prolog.
+com.hp.hpl.jena.assembler.exceptions.AssemblerException: caught:
+org.xml.sax.SAXParseException; systemId: http://localhost:8080/test
+/resources/IDTestModel.n3; lineNumber: 1; columnNumber: 1; Content is not
+allowed in prolog.
+  doing:
+    root: 4243f4d7:138de3f8d93:-7ffe with type:
+http://jena.hpl.hp.com/2005/11/Assembler#ContentItem assembler class: class
+com.hp.h
+pl.jena.assembler.assemblers.ContentAssembler
+    root: 4243f4d7:138de3f8d93:-7fe8 with type:
+http://jena.hpl.hp.com/2005/11/Assembler#Content assembler class: class
+com.hp.hpl.j
+ena.assembler.assemblers.ContentAssembler
+    root: http://jpk.iag.com/assembler#testgraph with type:
+http://jena.hpl.hp.com/2005/11/Assembler#MemoryModel assembler class: cl
+ass com.hp.hpl.jena.assembler.assemblers.MemoryModelAssembler
+    root: http://jpk.iag.com/assembler#root with type:
+http://jena.hpl.hp.com/2005/11/Assembler#RDFDataset assembler class: class
+co
+m.hp.hpl.jena.sparql.core.assembler.DatasetAssembler
+
+        at
+com.hp.hpl.jena.assembler.assemblers.AssemblerGroup$PlainAssemblerGroup.openBySpecificType(AssemblerGroup.java:138)
+        at
+com.hp.hpl.jena.assembler.assemblers.AssemblerGroup$PlainAssemblerGroup.open(AssemblerGroup.java:117)
+        at
+com.hp.hpl.jena.assembler.assemblers.AssemblerGroup$ExpandingAssemblerGroup.open(AssemblerGroup.java:81)
+        at
+com.hp.hpl.jena.assembler.assemblers.AssemblerBase.open(AssemblerBase.java:52)
+...(omitted)...
+        at arq.cmdline.CmdArgModule.process(CmdArgModule.java:51)
+        at arq.cmdline.CmdMain.mainMethod(CmdMain.java:96)
+        at arq.cmdline.CmdMain.mainRun(CmdMain.java:59)
+        at arq.cmdline.CmdMain.mainRun(CmdMain.java:46)
+        at org.apache.jena.fuseki.FusekiCmd.main(FusekiCmd.java:101)
+Caused by: com.hp.hpl.jena.shared.JenaException:
+org.xml.sax.SAXParseException; systemId:
+http://localhost:8080/test/resources/IDTes
+tModel.n3; lineNumber: 1; columnNumber: 1; Content is not allowed in prolog.
+        at
+com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler.fatalError(RDFDefaultErrorHandler.java:60)
+        at
+com.hp.hpl.jena.rdf.arp.impl.ARPSaxErrorHandler.fatalError(ARPSaxErrorHandler.java:51)
+        at
+com.hp.hpl.jena.rdf.arp.impl.XMLHandler.warning(XMLHandler.java:211)
+        at
+com.hp.hpl.jena.rdf.arp.impl.XMLHandler.fatalError(XMLHandler.java:241)
+        at org.apache.xerces.util.ErrorHandlerWrapper.fatalError(Unknown
+Source)
+        at org.apache.xerces.impl.XMLErrorReporter.reportError(Unknown
+Source)
+        at org.apache.xerces.impl.XMLErrorReporter.reportError(Unknown
+Source)
+...(omitted) ...
+        at
+com.hp.hpl.jena.assembler.assemblers.ContentAssembler.objectAsContent(ContentAssembler.java:154)
+        at
+com.hp.hpl.jena.assembler.assemblers.ContentAssembler.addExternalContents(ContentAssembler.java:82)
+        at
+com.hp.hpl.jena.assembler.assemblers.ContentAssembler.loadContent(ContentAssembler.java:68)
+        at
+com.hp.hpl.jena.assembler.assemblers.ContentAssembler.open(ContentAssembler.java:44)
+        at
+com.hp.hpl.jena.assembler.assemblers.AssemblerGroup$PlainAssemblerGroup.openBySpecificType(AssemblerGroup.java:130)
+        ... 36 more
+Caused by: org.xml.sax.SAXParseException; systemId:
+http://localhost:8080/test/resources/IDTestModel.n3; lineNumber: 1;
+columnNumber
+: 1; Content is not allowed in prolog.
+        at
+org.apache.xerces.util.ErrorHandlerWrapper.createSAXParseException(Unknown
+Source)
+        ... 61 more
+
+
+
+I've tried with and without the .n3 extension on the URL.  I've also
+ensured that the content is being served as "text/n3" from apache.
+
+Here are the first few lines of n3 I'm trying to load:
+
+@prefix xsd:  &lt;http://www.w3.org/2001/XMLSchema#&gt;.
+@prefix urn:  &lt;http://www.iag.com/2012/snap#&gt;.
+
+   &lt;urn:1&gt;   a  &lt;urn:ID&gt;;
+
+&lt;http://www.w3.org/2000/01/rdf-schema#label&gt; "This is the title"@en;
+
+&lt;urn:hasTitle&gt; "this is the title"@en;
+
+&lt;urn:hasDescription&gt; "this is the description"@en;
+
+&lt;urn:hasCreator&gt; &lt;urn:2&gt;;
+
+&lt;urn:hasOrganization&gt; &lt;urn:3&gt;...
+
+
+Am I using ja:contentEncoding property correctly?
+
+Regards,
+
+Jim Karavias
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li>Unnamed multipart/alternative (inline, None, 0 bytes)</li>
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/jena-users/201207.mbox/raw/%3cCAL4rVxhAs9_pBT6wPySa96NXWPa68mdRbRBjP4N3D7BOL3z_Fw@mail.gmail.com%3e/1">Unnamed text/plain</a> (inline, None, 6001 bytes)</li>
+</ul>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/jena-users/201207.mbox/raw/%3cCAL4rVxhAs9_pBT6wPySa96NXWPa68mdRbRBjP4N3D7BOL3z_Fw@mail.gmail.com%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

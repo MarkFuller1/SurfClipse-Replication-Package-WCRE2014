@@ -1,0 +1,21 @@
+public static void main(String[] args) 
+       throws ParserConfigurationException, SAXException, 
+              IOException, XPathExpressionException {
+
+        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+        domFactory.setNamespaceAware(true); // never forget this!
+        DocumentBuilder builder = domFactory.newDocumentBuilder();
+        Document doc = builder.parse("books.xml");
+
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        XPathExpression expr 
+         = xpath.compile("//Sample/*/text()");////book/Sample[author='Neal Stephenson']/title/text()
+
+        Object result = expr.evaluate(doc, XPathConstants.NODESET);
+        NodeList nodes = (NodeList) result;
+        for (int i = 0; i < nodes.getLength(); i++) {
+            System.out.println(nodes.item(i).getNodeValue()); 
+        }
+
+      }

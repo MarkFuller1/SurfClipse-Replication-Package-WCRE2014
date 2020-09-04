@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head profile="http://gmpg.org/xfn/11">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+		<meta name="keywords" content="" />
+	<meta name="description" content="<p>Anything related to Java.</p>
+" />
+
+	<title>Jeff Sinclair&#8217;s Website &raquo; java</title>
+	<link rel="alternate" type="application/rss+xml" title="RSS 2.0 - all posts" href="http://www.cooljeff.co.uk/feed/" />
+	<link rel="alternate" type="application/rss+xml" title="RSS 2.0 - all comments" href="http://www.cooljeff.co.uk/comments/feed/" />
+	<link rel="pingback" href="http://www.cooljeff.co.uk/xmlrpc.php" />
+
+	<!-- style -->
+	<style type="text/css" media="screen">@import url( http://www.cooljeff.co.uk/wp-content/themes/inove/style.css );</style>
+		
+	<!-- script -->
+	<script type="text/javascript" src="http://www.cooljeff.co.uk/wp-content/themes/inove/js/util.js"></script>
+	<script type="text/javascript" src="http://www.cooljeff.co.uk/wp-content/themes/inove/js/menu.js"></script>
+
+	<link rel="alternate" type="application/rss+xml" title="Jeff Sinclair&#039;s Website &raquo; java Category Feed" href="http://www.cooljeff.co.uk/category/java/feed/" />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.cooljeff.co.uk/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.cooljeff.co.uk/wp-includes/wlwmanifest.xml" /> 
+<link rel='index' title='Jeff Sinclair&#039;s Website' href='http://www.cooljeff.co.uk' />
+<meta name="generator" content="WordPress 2.8.5" />
+
+</head>
+
+
+<body>
+<!-- wrap START -->
+<div id="wrap">
+<!-- container START -->
+<div id="container">
+
+<!-- header START -->
+<div id="header">
+	<div id="caption">
+		<h1 id="title"><a href="http://www.cooljeff.co.uk/">Jeff Sinclair&#8217;s Website</a></h1>
+		<div id="tagline">my 2 pence to the world</div>
+	</div>
+
+	<!-- navigation START -->
+	<div id="navigation">
+		<ul id="menus">
+			<li class="page_item"><a class="home" title="Home" href="http://www.cooljeff.co.uk/">Home</a></li>
+			<li class="page_item page-item-2"><a href="http://www.cooljeff.co.uk/about/" title="About">About</a></li>
+<li class="page_item page-item-5"><a href="http://www.cooljeff.co.uk/photos/" title="Photos">Photos</a></li>
+<li class="page_item page-item-7"><a href="http://www.cooljeff.co.uk/cv/" title="CV">CV</a></li>
+			<li><a class="lastmenu" href="javascript:void(0);"></a></li>
+		</ul>
+
+		<!-- searchbox START -->
+		<div id="searchbox">
+							<form action="http://www.cooljeff.co.uk" method="get">
+					<div class="content">
+						<input type="text" class="textfield" name="s" size="24" value="" />
+						<a class="switcher" >Switcher</a>
+					</div>
+				</form>
+					</div>
+		<!-- searchbox END -->
+
+		<div class="fixed"></div>
+	</div>
+	<!-- navigation END -->
+
+	<div class="fixed"></div>
+</div>
+<!-- header END -->
+
+<!-- content START -->
+<div id="content">
+
+	<!-- main START -->
+	<div id="main">
+
+<div class="boxcaption"><h3>Archive</h3></div>
+<div class="box">
+	Archive for the &#8216;java&#8217; Category</div>
+
+			<div class="post" id="post-172">
+			<h2><a class="title" href="http://www.cooljeff.co.uk/2009/12/12/custom-url-protocols-and-multiple-classloaders/" rel="bookmark">Custom URL protocols and multiple classloaders</a></h2>
+			<div class="info">
+				<span class="date">December 12th, 2009</span>
+				<div class="act">
+					<span class="comments"><a href="http://www.cooljeff.co.uk/2009/12/12/custom-url-protocols-and-multiple-classloaders/#comments" title="Comment on Custom URL protocols and multiple classloaders">3,298 comments</a></span>
+										<div class="fixed"></div>
+				</div>
+				<div class="fixed"></div>
+			</div>
+			<div class="content">
+				<p>In the introduction to Spring&#8217;s <a href="http://static.springsource.org/spring/docs/2.5.6/reference/resources.html">Resources</a>, the following is mentioned in reference to the standard <em>java.net.URL</em>:</p>
+<blockquote><p>While it is possible to register new handlers for specialized URL prefixes (similar to existing handlers for prefixes such as http:), this is generally quite complicated, and the URL interface still lacks some desirable functionality, such as a method to check for the existence of the resource being pointed to.
+</p></blockquote>
+<p>Whilst I don&#8217;t disagree on the need for a simpler resource abstraction, I do think that the statement misses the key point that the URL protocol extension mechanism does not work well in multiple classloader environments (e.g. Webapps and OSGI bundles), hence I thought I would write this blog entry to explain:</p>
+<ul>
+<li>The way custom URL protocol handlers are registered.</li>
+<li>Why the extension mechanism does not work well with multiple classloaders.</li>
+</ul>
+<h4>Registering a custom URL protocol handler</h4>
+<p>To register a custom URL protocol handler the following needs to be done:</p>
+<ol>
+<li>Provide a concrete implementation for <em>URLStreamHandler</em>.</li>
+<li>Provide a concrete implementation for <em>URLConnection</em>.</li>
+<li>Name your <em>URLStreamHandler</em> class <em>Handler</em> and put it in a special package.</li>
+</ol>
+<p>The following code illustrates a protocol called <em>user</em>, which will treat all file paths relative to the user&#8217;s home directory:</p>
+<pre class="java5" style="font-family:monospace;">&nbsp;
+<span style="color: #000000; font-weight: bold;">package</span> <span style="color: #006699;">sun.net.www.protocol.user</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.io.File</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.io.FileInputStream</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.io.IOException</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.io.InputStream</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.net.URL</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.net.URLConnection</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">import</span> <span style="color: #006699;">java.net.URLStreamHandler</span><span style="color: #339933;">;</span>
+<span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/logging/Handler.html"><span style="color: #003399; font-weight: bold;">Handler</span></a> <span style="color: #000000; font-weight: bold;">extends</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URLStreamHandler.html"><span style="color: #003399; font-weight: bold;">URLStreamHandler</span></a> <span style="color: #009900;">&#123;</span>
+  @<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Override.html"><span style="color: #003399; font-weight: bold;">Override</span></a>
+  <span style="color: #000000; font-weight: bold;">protected</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URLConnection.html"><span style="color: #003399; font-weight: bold;">URLConnection</span></a> openConnection<span style="color: #009900;">&#40;</span><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html"><span style="color: #003399; font-weight: bold;">URL</span></a> url<span style="color: #009900;">&#41;</span> <span style="color: #000000; font-weight: bold;">throws</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html"><span style="color: #003399; font-weight: bold;">IOException</span></a> <span style="color: #009900;">&#123;</span>
+    <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #000000; font-weight: bold;">new</span> UserURLConnection<span style="color: #009900;">&#40;</span>url<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #009900;">&#125;</span>
+  <span style="color: #000000; font-weight: bold;">private</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #000000; font-weight: bold;">class</span> UserURLConnection <span style="color: #000000; font-weight: bold;">extends</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URLConnection.html"><span style="color: #003399; font-weight: bold;">URLConnection</span></a> <span style="color: #009900;">&#123;</span>
+    <span style="color: #000000; font-weight: bold;">private</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html"><span style="color: #003399; font-weight: bold;">String</span></a> fileName<span style="color: #339933;">;</span>
+    <span style="color: #000000; font-weight: bold;">public</span> UserURLConnection<span style="color: #009900;">&#40;</span><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html"><span style="color: #003399; font-weight: bold;">URL</span></a> url<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+      <span style="color: #000000; font-weight: bold;">super</span><span style="color: #009900;">&#40;</span>url<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+      fileName = url.<span style="color: #006633;">getPath</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">&#125;</span>
+    @<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Override.html"><span style="color: #003399; font-weight: bold;">Override</span></a>
+    <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #006600; font-weight: bold;">void</span> connect<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span> <span style="color: #000000; font-weight: bold;">throws</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html"><span style="color: #003399; font-weight: bold;">IOException</span></a> <span style="color: #009900;">&#123;</span>
+    <span style="color: #009900;">&#125;</span>
+    @<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Override.html"><span style="color: #003399; font-weight: bold;">Override</span></a>
+    <span style="color: #000000; font-weight: bold;">public</span> <a href="http://www.google.com/search?sitesearch=java.sun.com&amp;q=allinurl%3Aj2se%2F1+5+0%2Fdocs%2Fapi+InputStream"><span style="color: #003399; font-weight: bold;">InputStream</span></a> getInputStream<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span> <span style="color: #000000; font-weight: bold;">throws</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/io/IOException.html"><span style="color: #003399; font-weight: bold;">IOException</span></a> <span style="color: #009900;">&#123;</span>
+      <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html"><span style="color: #003399; font-weight: bold;">File</span></a> absolutePath = <span style="color: #000000; font-weight: bold;">new</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/io/File.html"><span style="color: #003399; font-weight: bold;">File</span></a><span style="color: #009900;">&#40;</span><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/System.html"><span style="color: #003399; font-weight: bold;">System</span></a>.<span style="color: #006633;">getProperty</span><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;user.home&quot;</span><span style="color: #009900;">&#41;</span>, fileName<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+      <span style="color: #000000; font-weight: bold;">return</span> <span style="color: #000000; font-weight: bold;">new</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/io/FileInputStream.html"><span style="color: #003399; font-weight: bold;">FileInputStream</span></a><span style="color: #009900;">&#40;</span>absolutePath<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">&#125;</span>
+  <span style="color: #009900;">&#125;</span>
+<span style="color: #009900;">&#125;</span></pre>
+<p>Note that the package is <em>sun.net.www.protocol.user</em> and the class is called <em>Handler</em>. The extension mechanism requires you to call your class <em>Handler</em> and put it in a subpackage that is your protocol name. The parent package can be arbitrary however by default <em>sun.net.www.protocol</em> will be searched. If you wish to use your own parent package you must also provide a system property called <em>java.protocol.handler.pkgs</em> which lists your package name (e.g. <em>uk.co.cooljeff.protocol.user</em>).</p>
+<p>The following test case illustrates how the customer user protocol can be used:</p>
+<pre class="java5" style="font-family:monospace;">&nbsp;
+<span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> URLTest <span style="color: #009900;">&#123;</span>
+  @Test
+  <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #006600; font-weight: bold;">void</span> testUserProtocol<span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span> <span style="color: #000000; font-weight: bold;">throws</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Exception.html"><span style="color: #003399; font-weight: bold;">Exception</span></a> <span style="color: #009900;">&#123;</span>
+    <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html"><span style="color: #003399; font-weight: bold;">URL</span></a> url = <span style="color: #000000; font-weight: bold;">new</span> <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/net/URL.html"><span style="color: #003399; font-weight: bold;">URL</span></a><span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;user:.profile&quot;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    <a href="http://www.google.com/search?sitesearch=java.sun.com&amp;q=allinurl%3Aj2se%2F1+5+0%2Fdocs%2Fapi+InputStream"><span style="color: #003399; font-weight: bold;">InputStream</span></a> ins = url.<span style="color: #006633;">openStream</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    assertNotNull<span style="color: #009900;">&#40;</span>ins<span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    ins.<span style="color: #006633;">close</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+  <span style="color: #009900;">&#125;</span>
+<span style="color: #009900;">&#125;</span></pre>
+<p>This is all that needs to be done which I found pretty simple to do. The hardest bit was finding the documentation. Unfortunately the documentation for the extension mechanism is found on one of the <a href="http://java.sun.com/javase/6/docs/api/java/net/URL.html#URL(java.lang.String,%20java.lang.String,%20int,%20java.lang.String)">java.net.URL constructors</a> and not in the class level documentation for <em>URL</em> or the package documentation for <em>java.net</em>.</p>
+<h4>Multiple classloaders and custom URL protocol handlers</h4>
+<p>The custom user protocol described in the previous section works without any issue in an Eclipse project or in a vanilla standalone application. However if I were to supply my custom protocol in a web app deployed on tomcat, the following exception is likely to have been seen:</p>
+<pre class="text" style="font-family:monospace;">&nbsp;
+Caused by: java.net.MalformedURLException: unknown protocol: user
+	at java.net.URL.(URL.java:574)
+	at java.net.URL.(URL.java:464)
+	at java.net.URL.(URL.java:413)
+	at uk.co.cooljeff.protocol.user.URLTest.testUserProtocol(URLTest.java:12)
+	. . . 5 more</pre>
+<p>To understand why, take a look at the logic used to locate custom protocols (found in<em> URL.getURLStreamHandler(String)</em>):</p>
+<pre class="text" style="font-family:monospace;">&nbsp;
+static URLStreamHandler getURLStreamHandler(String protocol) {
+. . .
+    String clsName = packagePrefix + &quot;.&quot; + protocol + &quot;.Handler&quot;;
+    Class cls = null;
+    try {
+      cls = Class.forName(clsName);
+    } catch (ClassNotFoundException e) {
+      ClassLoader cl = ClassLoader.getSystemClassLoader();
+      if (cl != null) {
+        cls = cl.loadClass(clsName);
+      }
+    }
+    if (cls != null) {
+      handler  = (URLStreamHandler)cls.newInstance();
+    }
+. . .</pre>
+<p>You will notice that <em>Class.forName()</em> is used. The issue here is that the classloader that will be used is the classloader of the calling class. The calling class in this instance is <em>URL</em>. Hence if <em>URL</em> is loaded in a parent classloader of where the custom protocol is, it won&#8217;t be found. This is why custom URL protocols have to be put on the web containers classpath rather than being bundled in the web app that uses it.</p>
+<h4>Conclusion</h4>
+<p>The URL protocol extension mechanism is fundamentally flawed when it comes to multi classloader environments such as OSGI and Webapp containers. The registration mechanism does not work because in such environments, the URL class itself is likely to be in a parent classloader of the custom protocol, resulting in the custom protocol not being visible to the registration logic. In addition there is no standardization for the default package structure for where additional protocols should be found. This leads to either a non portable solution across JVMs or the need to use system properties which are not that friendly in enterprise web app containers.</p>
+<h4>Resources</h4>
+<ul>
+<li><a href="http://static.springsource.org/spring/docs/2.5.6/reference/resources.html">Spring&#8217;s Resource abstraction</a></li>
+<li><a href="http://java.sun.com/javase/6/docs/api/java/net/URL.html#URL(java.lang.String,%20java.lang.String,%20int,%20java.lang.String)">Registration of custom protocol handlers in Java 6</a></li>
+</ul>
+				<p class="under">
+					<span class="categories"><a href="http://www.cooljeff.co.uk/category/java/" title="View all posts in java" rel="category tag">java</a></span>
+					<span class="tags"></span>
+				</p>
+				<div class="fixed"></div>
+			</div>
+		</div>
+			<div class="post" id="post-153">
+			<h2><a class="title" href="http://www.cooljeff.co.uk/2009/11/01/garbage-collection-of-the-permanent-generation-permgen/" rel="bookmark">Garbage collection of the permanent generation (permgen)</a></h2>
+			<div class="info">
+				<span class="date">November 1st, 2009</span>
+				<div class="act">
+					<span class="comments"><a href="http://www.cooljeff.co.uk/2009/11/01/garbage-collection-of-the-permanent-generation-permgen/#comments" title="Comment on Garbage collection of the permanent generation (permgen)">1,338 comments</a></span>
+										<div class="fixed"></div>
+				</div>
+				<div class="fixed"></div>
+			</div>
+			<div class="content">
+				<p>There is often confusion around what the permanent generation contains and given its name, whether or not it can be garbage collected. To cut a long story short, the permanent generation can be garbage collected and is where reflective class meta data, as well as string constants are stored. </p>
+<p>This blog entry takes a practical approach to answer the following questions:</p>
+<ul>
+<li>Can the permanent generation be garbage collected?</li>
+<li>Does the value of -Xmx (the maximum heap size) include the permanent generation?</li>
+</ul>
+<h4>Can the permanent generation be garbage collected?</h4>
+<p>Yes it can. There is often the misconception that string constants cannot be garbage collected. However the only requirement that the JVM specification stipulates is that identity comparison works for constant string values. There is no requirement that the constant be the same object throughout the lifetime of the JVM. Hence if there are no references left to a string constant, there is no reason why it cannot be garbage collected.</p>
+<p>To prove this take the following code:</p>
+<pre class="java5" style="font-family:monospace;">&nbsp;
+<span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">class</span> PermGenDemo <span style="color: #009900;">&#123;</span>
+  <span style="color: #000000; font-weight: bold;">public</span> <span style="color: #000000; font-weight: bold;">static</span> <span style="color: #006600; font-weight: bold;">void</span> main<span style="color: #009900;">&#40;</span><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html"><span style="color: #003399; font-weight: bold;">String</span></a><span style="color: #009900;">&#91;</span><span style="color: #009900;">&#93;</span> args<span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+    <span style="color: #006600; font-weight: bold;">int</span> i = <span style="color: #cc66cc;">0</span><span style="color: #339933;">;</span>
+    <span style="color: #000000;  font-weight: bold;">while</span> <span style="color: #009900;">&#40;</span><span style="color: #006600; font-weight: bold;">true</span><span style="color: #009900;">&#41;</span> <span style="color: #009900;">&#123;</span>
+      <span style="color: #009900;">&#40;</span><span style="color: #0000ff;">&quot;string-&quot;</span> + ++i<span style="color: #009900;">&#41;</span>.<span style="color: #006633;">intern</span><span style="color: #009900;">&#40;</span><span style="color: #009900;">&#41;</span><span style="color: #339933;">;</span>
+    <span style="color: #009900;">&#125;</span>
+  <span style="color: #009900;">&#125;</span>
+<span style="color: #009900;">&#125;</span></pre>
+<p>If the above code is run using the following command:</p>
+<pre class="bash" style="font-family:monospace;">&nbsp;
+$ java -verbose:<span style="color: #c20cb9; font-weight: bold;">gc</span> -XX:<span style="color: #007800;">PermSize</span>=8m -XX:<span style="color: #007800;">MaxPermSize</span>=64m PermGenDemo</pre>
+<p>The following output will be seen (note output cut for brevity):</p>
+<pre class="bash" style="font-family:monospace;">&nbsp;
+<span style="color: #7a0874; font-weight: bold;">&#91;</span>Full GC <span style="color: #7a0874; font-weight: bold;">&#91;</span>PSYoungGen: 32K-<span style="color: #000000; font-weight: bold;">&gt;</span>0K<span style="color: #7a0874; font-weight: bold;">&#40;</span>28928K<span style="color: #7a0874; font-weight: bold;">&#41;</span><span style="color: #7a0874; font-weight: bold;">&#93;</span> . . . <span style="color: #7a0874; font-weight: bold;">&#91;</span>PSPermGen: 65535K-<span style="color: #000000; font-weight: bold;">&gt;</span>6461K<span style="color: #7a0874; font-weight: bold;">&#40;</span>65536K<span style="color: #7a0874; font-weight: bold;">&#41;</span><span style="color: #7a0874; font-weight: bold;">&#93;</span><span style="color: #7a0874; font-weight: bold;">&#93;</span>
+<span style="color: #7a0874; font-weight: bold;">&#91;</span>Full GC <span style="color: #7a0874; font-weight: bold;">&#91;</span>PSYoungGen: 32K-<span style="color: #000000; font-weight: bold;">&gt;</span>0K<span style="color: #7a0874; font-weight: bold;">&#40;</span>31168K<span style="color: #7a0874; font-weight: bold;">&#41;</span><span style="color: #7a0874; font-weight: bold;">&#93;</span> . . . <span style="color: #7a0874; font-weight: bold;">&#91;</span>PSPermGen: 65535K-<span style="color: #000000; font-weight: bold;">&gt;</span>6461K<span style="color: #7a0874; font-weight: bold;">&#40;</span>65536K<span style="color: #7a0874; font-weight: bold;">&#41;</span><span style="color: #7a0874; font-weight: bold;">&#93;</span><span style="color: #7a0874; font-weight: bold;">&#93;</span></pre>
+<p>The above conclusively shows that the permanent generation is collected and when it requires collecting, triggers a full collection.</p>
+<h4>Does the value of -Xmx (the maximum heap size) include the permanent generation?</h4>
+<p>No it does not. The size of the permanent generation is controlled by the following JVM options:</p>
+<p>   * <em>-XX:MaxPermSize</em> controls the maximum permanent generation size.<br />
+   * <em>-XX:PermSize</em> controls the initial permanent generation size.</p>
+<p>The permanent generation is like any other generational compartment: it can grow to a maximum, technically can shrink and can also be garbage collected.</p>
+<p>To demonstrate that the permanent generation is not included in the maximum heap settings, pmap can be used (e.g. by running <em>pmap &lt;pid&gt; | tail -1</em>).</p>
+<p>The following table illustrates the output of pmap using different JVM heap and permanent generation settings:</p>
+<table border="1">
+<tr>
+<td><strong>JVM options</strong></td>
+<td><strong>pmap output</strong></td>
+</tr>
+<tr>
+<td>java -Xms256m -Xmx256m -XX:PermSize=64m -XX:MaxPermSize=64m</td>
+<td>512204K</td>
+</tr>
+<tr>
+<td>java -Xms512m -Xmx512m -XX:PermSize=64m -XX:MaxPermSize=64m</td>
+<td>760556K</td>
+</tr>
+<tr>
+<td>java -Xms512m -Xmx512m -XX:PermSize=128m -XX:MaxPermSize=128m</td>
+<td>825188K</td>
+</tr>
+</table>
+<p>In the above <em>-Xms=-Xmx</em> and <em>-XX:PermSize=-XX:MaxPermSize</em> are set deliberately to stop the heap expanding and ensure constant results. The first value of <em>512204K</em> gives us a base value which takes into account any overhead introduced by native libraries (including the jvm itself) being mapped into memory. The second value of <em>760556K</em> is an exact increase of <em>256m</em>, which is exactly how much the heap was increased by. The third value of <em>825188K</em> is an exact increase of <em>64m</em>, which is exactly how much the permanent generation was increased by. </p>
+<p>The above results clearly show that the settings for permgen are unrelated to that of the heap.</p>
+<h4>Conclusion</h4>
+<ul>
+<li>The permanent generation can be garbage collected like other generations.</li>
+<li>The permanent generation is additional memory to the java heap.</li>
+<li><em>-XX:MaxPermSize</em> controls the maximum memory used by the permanent generation.</li>
+<li><em>-XX:PermSize</em> controls the initial memory used by the permanent generation.</li>
+</ul>
+<h4>Resources</h4>
+<ol>
+<li><a href=" http://java.sun.com/javase/technologies/hotspot/vmoptions.jsp">Java Hotspot VM Options</a></li>
+<li><a href="http://blogs.sun.com/jonthecollector/entry/presenting_the_permanent_generation">Presenting the Permanent Generation</a></li>
+</ol>
+				<p class="under">
+					<span class="categories"><a href="http://www.cooljeff.co.uk/category/java/" title="View all posts in java" rel="category tag">java</a></span>
+					<span class="tags"><a href="http://www.cooljeff.co.uk/tag/hotspot/" rel="tag">hotspot</a>, <a href="http://www.cooljeff.co.uk/tag/java/" rel="tag">java</a>, <a href="http://www.cooljeff.co.uk/tag/jvm/" rel="tag">jvm</a></span>
+				</p>
+				<div class="fixed"></div>
+			</div>
+		</div>
+			<div class="post" id="post-129">
+			<h2><a class="title" href="http://www.cooljeff.co.uk/2009/08/01/handling-native-dependencies-with-apache-ivy/" rel="bookmark">Handling native dependencies with Apache Ivy</a></h2>
+			<div class="info">
+				<span class="date">August 1st, 2009</span>
+				<div class="act">
+					<span class="comments">

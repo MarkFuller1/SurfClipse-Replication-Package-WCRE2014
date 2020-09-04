@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: AvroStorage Issue - Possibly version related</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#08671">
+<link rel="index" href="maillist.html#08671">
+<link rel="prev" href="msg08670.html">
+<link rel="next" href="msg08624.html">
+<link rel="alternate" title="user RSS" href="#" type="application/rss+xml">
+<link rel="canonical" href="https://www.mail-archive.com/user@pig.apache.org/msg08671.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=user@pig.apache.org&amp;q=subject:%22Re%3A+AvroStorage+Issue+-+Possibly+version+related%22" rel="nofollow"><span itemprop="name">Re: AvroStorage Issue - Possibly version related</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=user@pig.apache.org&amp;q=from:%22j.barrett+Strausser%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">j.barrett Strausser</span></span></a></span>
+<span class="date"><a href="/search?l=user@pig.apache.org&amp;q=date:20131001" rel="nofollow"><span itemprop="datePublished" content="2013-10-01T07:38:28-0700">Tue, 01 Oct 2013 07:38:28 -0700</span></a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Thanks for the heads up and the solution.
+
+I was trying to get pig working with avro in a prototype fashion so I
+didn't have any version constraints.</pre><pre>
+
+
+
+On Tue, Oct 1, 2013 at 10:00 AM, Rohini Palaniswamy &lt;rohini.adi...@gmail.com
+&gt; wrote:
+
+&gt; 0.23 has json-simple jar in the hadoop installation, so there is no
+&gt; problem. When you go to hadoop 2.x, you will hit the same problem as
+&gt; json-simple is not in 2.x hadoop installation. I actually hit the error you
+&gt; mentioned with 1.x while trying 2.x.
+&gt;
+&gt; Regards,
+&gt; Rohini
+&gt;
+&gt;
+&gt; On Mon, Sep 30, 2013 at 6:09 PM, j.barrett Strausser &lt;
+&gt; j.barrett.straus...@gmail.com&gt; wrote:
+&gt;
+&gt; &gt; I ended up just using the .23.9 hadoop release without any issue.
+&gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt; On Mon, Sep 30, 2013 at 8:54 PM, Rohini Palaniswamy &lt;
+&gt; &gt; rohini.adi...@gmail.com
+&gt; &gt; &gt; wrote:
+&gt; &gt;
+&gt; &gt; &gt;  It hits this error when json-simple-1.1.jar is not in classpath. You
+&gt; can
+&gt; &gt; &gt; get around that by adding it to PIG_CLASSPATH apart from registering
+&gt; the
+&gt; &gt; &gt; jar.  The problem is with java classloading where it fails to load the
+&gt; &gt; &gt; exception class(ParseException) thrown by a constructor of the class(
+&gt; &gt; &gt; AvroStorage) from the custom classloader which includes the registered
+&gt; &gt; &gt; jars. Can you file a jira for this? I had spent some time earlier
+&gt; trying
+&gt; &gt; to
+&gt; &gt; &gt; find solution but couldn't. If fixing classloading is not possible,
+&gt; easy
+&gt; &gt; &gt; thing would be to change AvroStorage constructor to throw
+&gt; &gt; RunTimeException
+&gt; &gt; &gt; instead of ParseException
+&gt; &gt; &gt;
+&gt; &gt; &gt; Regards,
+&gt; &gt; &gt; Rohini
+&gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt; &gt; On Thu, Sep 19, 2013 at 1:10 PM, j.barrett Strausser &lt;
+&gt; &gt; &gt; j.barrett.straus...@gmail.com&gt; wrote:
+&gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Not my day I guess.
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Trying with Hadoop 1.2.x
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Getting :
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Caused by: java.lang.RuntimeException: could not instantiate
+&gt; &gt; &gt; &gt; 'org.apache.pig.piggybank.storage.avro.AvroStorage' with arguments
+&gt; &gt; 'null'
+&gt; &gt; &gt; &gt;         at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.pig.impl.PigContext.instantiateFuncFromSpec(PigContext.java:618)
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Caused by: java.lang.NoClassDefFoundError:
+&gt; &gt; &gt; &gt; org/json/simple/parser/ParseException
+&gt; &gt; &gt; &gt;         at java.lang.Class.getDeclaredConstructors0(Native Method)
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; When I attempt to load the relation using
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Load 'path' USING
+&gt; org.apache.pig.piggybank.storage.avro.AvroStorage();
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; I've registered  :  json-simple-1.1.jar
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; On Thu, Sep 19, 2013 at 3:14 PM, j.barrett Strausser &lt;
+&gt; &gt; &gt; &gt; j.barrett.straus...@gmail.com&gt; wrote:
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt; Are the releases from the download page not compatible with 23.x?
+&gt; or
+&gt; &gt; &gt; 2.X
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt; Says they are -
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; <a  rel="nofollow" href="http://pig.apache.org/releases.html#1+April%2C+2013%3A+release+0.11.1+available">http://pig.apache.org/releases.html#1+April%2C+2013%3A+release+0.11.1+available</a>
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt; In any case I tried it with .23.9 and received a different error:
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt; 2013-09-19 15:13:56,044 [main] WARN
+&gt; &gt; &gt; &gt; &gt; org.apache.pig.backend.hadoop20.PigJobControl - falling back to
+&gt; &gt; default
+&gt; &gt; &gt; &gt; &gt; JobControl (not using hadoop 0.20 ?)
+&gt; &gt; &gt; &gt; &gt; java.lang.NoSuchFieldException: runnerState
+&gt; &gt; &gt; &gt; &gt;     at java.lang.Class.getDeclaredField(Class.java:1938)
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt; On Thu, Sep 19, 2013 at 2:24 PM, Mark Wagner &lt;
+&gt; &gt; wagner.mar...@gmail.com
+&gt; &gt; &gt; &gt; &gt;wrote:
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; It sounds like you're using a version of Pig that wasn't compiled
+&gt; &gt; for
+&gt; &gt; &gt; &gt; &gt;&gt; Hadoop 2.x/.23. Try recompiling with 'ant clean jar
+&gt; &gt; &gt; &gt; &gt;&gt; -Dhadoopversion=23'.
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt; &gt;&gt; -Mark
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt; &gt;&gt; On Thu, Sep 19, 2013 at 9:23 AM, j.barrett Strausser
+&gt; &gt; &gt; &gt; &gt;&gt; &lt;j.barrett.straus...@gmail.com&gt; wrote:
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; Running
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; Hadoop-2.1.0-Beta
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; Pig-0.11.1
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; Hive-0.11.1
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; 1. Created Avro backed table in Hive.
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; 2. Loaded the table in Pig - records = Load '/path' USING
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; org.apache.pig.piggybank.storage.avro.AvroStorage();
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; 3. Can successfully describe the relation.
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; I registered the following on pig start :
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; REGISTER piggybank.jar
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; REGISTER avro-*.jar
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; REGISTER jackson-core-asl-1.8.8.jar
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; REGISTER jackson-mapper-asl-1.8.8.jar
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; REGISTER json-simple-1.1.jar
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; REGISTER snappy-java-1.0.3.2.jar
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; The avro tools are at 1.7.5
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; *
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; *
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; *Running Dump Produces the following*:
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; 2013-09-19 12:08:21,639 [JobControl] ERROR
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl - Error
+&gt; &gt; while
+&gt; &gt; &gt; &gt; &gt;&gt; trying
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; to run jobs.
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; java.lang.IncompatibleClassChangeError: Found interface
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; org.apache.hadoop.mapreduce.JobContext, but class was expected
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;     at
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.setupUdfEnvAndStores(PigOutputFormat.java:225)
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;     at
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.checkOutputSpecs(PigOutputFormat.java:186)
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;     at
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.hadoop.mapreduce.JobSubmitter.checkSpecs(JobSubmitter.java:441)
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;     at
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:340)
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; 2013-09-19 12:08:21,651 [main] ERROR
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; org.apache.pig.tools.pigstats.SimplePigStats - ERROR 2997:
+&gt; Unable
+&gt; &gt; to
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; recreate exception from backend error: Unexpected System Error
+&gt; &gt; &gt; &gt; Occured:
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; java.lang.IncompatibleClassChangeError: Found interface
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; org.apache.hadoop.mapreduce.JobContext, but class was expected
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;     at
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.setupUdfEnvAndStores(PigOutputFormat.java:225)
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;     at
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.checkOutputSpecs(PigOutputFormat.java:186)
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;     at
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.hadoop.mapreduce.JobSubmitter.checkSpecs(JobSubmitter.java:441)
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;     at
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:340)
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; *Running illustrate :*
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; Pig Stack Trace
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; ---------------
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; ERROR 1070: Could not resolve
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; org.apache.pig.piggybank.storage.avro.AvroStorage using imports:
+&gt; &gt; [,
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; org.apache.pig.builtin., org.apache.pig.impl.builtin.]
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; Pig Stack Trace
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; ---------------
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; ERROR 2998: Unhandled internal error.
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.hadoop.mapreduce.Mapper$Context.&lt;init&gt;(Lorg/apache/hadoop/mapreduce/Mapper;Lorg/apache/hadoop/conf/Configuration;Lorg/apache/hadoop/mapreduce/TaskAttemptID;L$
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; java.lang.NoSuchMethodError:
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.hadoop.mapreduce.Mapper$Context.&lt;init&gt;(Lorg/apache/hadoop/mapreduce/Mapper;Lorg/apache/hadoop/conf/Configuration;Lorg/apache/hadoop/mapreduce/TaskAttemptID;Lorg/apach$
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; Any thougths?
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; --
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt;
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; <a  rel="nofollow" href="https://github.com/bearrito">https://github.com/bearrito</a>
+&gt; &gt; &gt; &gt; &gt;&gt; &gt; @deepbearrito
+&gt; &gt; &gt; &gt; &gt;&gt;
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt; --
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; &gt; <a  rel="nofollow" href="https://github.com/bearrito">https://github.com/bearrito</a>
+&gt; &gt; &gt; &gt; &gt; @deepbearrito
+&gt; &gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; --
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; <a  rel="nofollow" href="https://github.com/bearrito">https://github.com/bearrito</a>
+&gt; &gt; &gt; &gt; @deepbearrito
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt; --
+&gt; &gt;
+&gt; &gt;
+&gt; &gt; <a  rel="nofollow" href="https://github.com/bearrito">https://github.com/bearrito</a>
+&gt; &gt; @deepbearrito
+&gt; &gt;
+&gt;
+
+
+
+-- 
+
+
+<a  rel="nofollow" href="https://github.com/bearrito">https://github.com/bearrito</a>
+@deepbearrito
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages
+</h2>
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg08670.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#08671">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#08671">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg08624.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceLiset margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages within this thread
+</h2>
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg08622.html">AvroStorage Issue - Possibly version related</a></span> <span class="sender italic">j.barrett Strausser</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg08623.html">Re: AvroStorage Issue - Possibly version related</a></span> <span class="sender italic">Mark Wagner</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg08625.html">Re: AvroStorage Issue - Possibly version rela...</a></span> <span class="sender italic">j.barrett Strausser</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg08626.html">Re: AvroStorage Issue - Possibly version ...</a></span> <span class="sender italic">j.barrett Strausser</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg08665.html">Re: AvroStorage Issue - Possibly vers...</a></span> <span class="sender italic">Rohini Palaniswamy</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg08667.html">Re: AvroStorage Issue - Possibly...</a></span> <span class="sender italic">j.barrett Strausser</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg08670.html">Re: AvroStorage Issue - Poss...</a></span> <span class="sender italic">Rohini Palaniswamy</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: AvroStorage Issue - ...</span><span class="sender italic">j.barrett Strausser</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="HIDDEN" name="subject" value="Re: AvroStorage Issue - Possibly version related">
+<input type="HIDDEN" name="msgid" value="CAD5d8QCyhhBosma+hAjfJOuaeL=Gh56UEJXju88B4Rxx_iXhyw@mail.gmail.com">
+<input type="submit" value=" j.barrett Strausser ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="user@pig.apache.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search user">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<h2 class="hidden">
+				Site navigation
+</h2>
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/user@pig.apache.org/">user - all messages</a></li>
+<li class="icons-about"><a href="/user@pig.apache.org/info.html">user - about the list</a></li>
+<li class="icons-prev"><a href="msg08670.html">Previous message</a></li>
+<li class="icons-next"><a href="msg08624.html">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+<h2 class="hidden">
+				Mail list logo
+</h2>
+
+</div>
+<div class="bannertower margintopdouble">
+<h2 class="hidden">
+				Advertising banner
+</h2>
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<h2 class="hidden">
+		Footer information
+</h2>
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+</ul>
+</div>
+</body>
+</html>

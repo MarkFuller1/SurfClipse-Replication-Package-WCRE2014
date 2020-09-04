@@ -1,0 +1,528 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<title>Java NIO框架Netty教程(五) 消息收发次数不匹配的问题 - Java - 次元立方网 - 电脑知识与技术互动交流平台</title>
+<meta name="keywords" content="NIO框架,Netty教程" />
+<meta name="description" content="本来周末是最好的学习时间，不过这周末收房子，可想而知事情自然也不会少。这段时间的周末，可能很少有时间学习了。见缝插针吧。" />
+<link rel="stylesheet" href="http://www.it165.net/statics/css/it165List2.0.Css" type="text/css" />
+<script src="http://www.it165.net/statics/js/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="http://www.it165.net/statics/js/jquery.sgallery.js"></script>
+<script type="text/javascript" src="http://cbjs.baidu.com/js/m.js"></script>
+
+
+</head>
+<body>
+<div class="box1">
+<div class="wrapbox">
+		<ul class="wrapper">
+			<li class="addforver"><a href="http://www.it165.net/">次元立方首页</a></li>
+
+		</ul>
+		<ul class="LoginBoxL">
+			<iframe name="loginwin" id="loginwin" src="http://www.it165.net/index.php?m=member&c=index&a=mini&forward=http%3A%2F%2Fwww.it165.net%2Fpro%2Fhtml%2F201207%2F3219.html&siteid=1" allowTransparency="true"  width="340" height="31" frameborder="0" scrolling="no"></iframe>
+		</ul>
+		</div>
+</div>
+<div class="bodyW">
+	<div class="box4">
+		<ul class="ulBox">
+			<li><a href="http://www.it165.net/news/">IT资讯</a></li>
+			<li><a href="http://www.it165.net/video/">视频教程</a></li>
+			<li><a href="http://www.it165.net/pro/">编程</a></li>
+			<li><a href="http://www.it165.net/os/">系统</a></li>
+			<li><a href="http://www.it165.net/database/">数据库</a></li>
+			<li><a href="http://www.it165.net/safe/">安全</a></li>
+			<li><a href="http://www.it165.net/design/">设计</a></li>
+			<li><a href="http://www.it165.net/network/">组网</a></li>
+			<li><a href="http://codes.it165.net/">源码</a></li>
+			<li><a href="http://ebooks.it165.net/">IT电子书</a></li>
+			<li><a href="http://www.it165.net/edu/">电脑基础</a></li>
+			<li><a href="http://www.it165.net/qq/">QQ家园</a></li>
+		</ul>
+	</div>
+	<div class="box7">
+		<script type="text/javascript">BAIDU_CLB_fillSlot("339995");</script></div>
+	<div class="CateLSBox">
+		<ul class="LAddBox">
+						<li class="Logo"><a href="http://www.it165.net/pro/"><img alt="" src="http://www.it165.net/statics/images/2.0/proLogo.jpg" width="88" height="23" /></a></li>
+			<li class="CateFor">
+																																				<a href="http://www.it165.net/Pro/prweb/">WEB开发</a>
+												<a href="http://www.it165.net/Pro/pryy/">软件开发</a>
+												<a href="http://www.it165.net/Pro/pryd/">移动开发</a>
+												<a href="http://www.it165.net/Pro/pkgame/">游戏开发</a>
+												<a href="http://www.it165.net/Pro/shouce/">参考手册</a>
+												<a href="http://www.it165.net/Pro/proqita/">综合编程</a>
+												<a href="http://www.it165.net/pro/safepro/">安全编程</a>
+															</li>
+			
+
+		</ul>
+		<ul class="RSearchBox">
+			<form action="http://s.it165.net/" method="get" target="_blank">
+			<input type="hidden" name="t" value="13" id="t"/>
+			<li class="KeyWordBox"><input name="q" type="text" /></li>
+			<li class="ButtonBox">
+			<input name="Submit1" type="submit" value=" " /></li>
+			</form>
+		</ul>
+	</div>
+	<div class="bule_Top_Twoline"></div><script type="text/javascript" src="http://www.it165.net/statics/js/syntaxhighlighter.js" charset="UTF-8"></script>
+<link type="text/css" rel="stylesheet" href="http://www.it165.net/statics/js/syntaxhighlighter/styles/shCore.css"/>
+<link type="text/css" rel="stylesheet" href="http://www.it165.net/statics/js/syntaxhighlighter/styles/shThemeDefault.css"/>
+<script type="text/javascript"> 
+SyntaxHighlighter.config.clipboardSwf ='http://www.it165.net/statics/js/syntaxhighlighter/scripts/clipboard.swf';
+SyntaxHighlighter.all();
+</script>
+	<div class="CArticleBox">
+		<div class="CListLeft">
+			<ul class="Posion">
+				<li class="PosionLi"><a href="http://www.it165.net">主页</a> &gt; <a href="http://www.it165.net/Pro/">编程大巴</a> > <a href="http://www.it165.net/Pro/pryy/">软件开发</a> > <a href="http://www.it165.net/Pro/yyjava/">Java</a> >  正文</li>
+				<li class="CatNameLi">
+				<span><a href="http://www.it165.net/pro/">编程大巴</a></span> <em><a href="http://www.it165.net/pro">http://www.it165.net/pro</a></em>				</li>
+			</ul>
+			<div class="ArticleBox">
+				<ul class="ulBox">
+					<a class="tg" style="right:0px;top:10px" target="_blank" href="http://my.it165.net/index.php?m=member&c=content&a=publish"></a>
+					<a class="sc" style="right:0px;top:40px"  href="javascript:;" onclick="add_favorite('Java NIO框架Netty教程(五) 消息收发次数不匹配的问题');"></a>
+					<script type="text/javascript">
+					<!--
+						function add_favorite(title) {
+							$.getJSON('http://www.it165.net/api.php?op=add_favorite&title='+encodeURIComponent(title)+'&url='+encodeURIComponent(location.href)+'&'+Math.random()+'&callback=?', function(data){
+								if(data.status==1)	{
+									$("#favorite").html('收藏成功');
+									alert("已经收藏");
+								} else {
+									alert("您还未登录");
+								}
+							});
+						}
+					//-->
+					</script>
+					<li><h1>Java NIO框架Netty教程(五) 消息收发次数不匹配的问题</h1></li>
+					<li class="ShowInfo">发布日期：2012-07-17 09:59:53 &nbsp;&nbsp;作者：OneCoder&nbsp;&nbsp;</li>
+				</ul>
+				<ul class="DivOperationBox">
+					<li class="Like">
+						<a class="poplight" target="_blank" href="http://www.it165.net/index.php?m=formguide&c=index&a=show&formid=27&siteid=1"></a>
+					</li>
+					<li class="OperLink">
+						<a class="print" href="javascript:window.print();"></a>
+						<a class="Comment" href="#comment_iframe">我来说两句(<strong id="comment">0</strong>)</a>
+					</li>
+				</ul>
+				<ul class="ContentAdv">
+					<li><script type="text/javascript">BAIDU_CLB_fillSlot("332361");</script></li>
+				</ul>
+				<ul class="Content">
+					<li id="ArticleBox">
+						<p>本来周末是最好的学习时间，不过这周末收房子，可想而知事情自然也不会少。这段时间的周末，可能很少有时间学习了。见缝插针吧。</p>
+<p>不说废话了，好好学习。上回通过代码理解了Netty底层信息的流的传递机制，不过只是一个感性上的认识。教会你应该如何使用和使用的时候应该注意的方面。但是有一些细节的问题，并没有提及。比如在上回（《Java NIO框架Netty教程（四）- ChannelBuffer》<a href="http://www.it165.net/pro/html/201207/3198.html">http://www.it165.net/pro/html/201207/3198.html</a>）的代码里，我们通过:</p>
+<br />
+<pre class="brush:java;">
+private void sendMessageByFrame(ChannelStateEvent e) {
+		String msgOne = &quot;Hello, &quot;;
+		String msgTwo = &quot;I&#39;m &quot;;
+		String msgThree = &quot;client.&quot;;
+		e.getChannel().write(tranStr2Buffer(msgOne));
+		e.getChannel().write(tranStr2Buffer(msgTwo));
+		e.getChannel().write(tranStr2Buffer(msgThree));
+	}
+</pre>
+<br />
+<p>这样的方式，连续返送三次消息。但是如果你在服务端进行接收计数的话，你会发现，大部分时候都是接收到两次的事件请求。不过消息都是完整的。网上也有人提到过，进行10000次的连续放松，往往接受到的消息个数是999X的，总是就是消息数目上不匹配，这又是为何呢？笔者也只能通过阅读Netty的源码来找原因，我们一起来慢慢分析吧<a href="http://www.it165.net">www.it165.net</a>。</p>
+<p>起点自然是选择在e.getChannel().writer()方法上。一路跟踪首先来到了：AbstractNioWorker.java类</p>
+<br />
+<pre class="brush:java;">
+protected void write0(AbstractNioChannel&lt;?&gt; channel) {
+        boolean open = true;
+        boolean addOpWrite = false;
+        boolean removeOpWrite = false;
+        boolean iothread = isIoThread(channel);
+
+        long writtenBytes = 0;
+
+        final SocketSendBufferPool sendBufferPool = this.sendBufferPool;
+        final WritableByteChannel ch = channel.channel;
+        final Queue&lt;MessageEvent&gt; writeBuffer = channel.writeBufferQueue;
+        final int writeSpinCount = channel.getConfig().getWriteSpinCount();
+        synchronized (channel.writeLock) {
+            channel.inWriteNowLoop = true;
+            for (;;) {
+                MessageEvent evt = channel.currentWriteEvent;
+                SendBuffer buf;
+                if (evt == null) {
+                    if ((channel.currentWriteEvent = evt = writeBuffer.poll()) == null) {
+                        removeOpWrite = true;
+                        channel.writeSuspended = false;
+                        break;
+                    }
+
+                    channel.currentWriteBuffer = buf = sendBufferPool.acquire(evt.getMessage());
+                } else {
+                    buf = channel.currentWriteBuffer;
+                }
+
+                ChannelFuture future = evt.getFuture();
+                try {
+                    long localWrittenBytes = 0;
+                    for (int i = writeSpinCount; i &gt; 0; i --) {
+                        localWrittenBytes = buf.transferTo(ch);
+                        if (localWrittenBytes != 0) {
+                            writtenBytes += localWrittenBytes;
+                            break;
+                        }
+                        if (buf.finished()) {
+                            break;
+                        }
+                    }
+
+                    if (buf.finished()) {
+                        // Successful write - proceed to the next message.
+                        buf.release();
+                        channel.currentWriteEvent = null;
+                        channel.currentWriteBuffer = null;
+                        evt = null;
+                        buf = null;
+                        future.setSuccess();
+                    } else {
+                        // Not written fully - perhaps the kernel buffer is full.
+                        addOpWrite = true;
+                        channel.writeSuspended = true;
+
+                        if (localWrittenBytes &gt; 0) {
+                            // Notify progress listeners if necessary.
+                            future.setProgress(
+                                    localWrittenBytes,
+                                    buf.writtenBytes(), buf.totalBytes());
+                        }
+                        break;
+                    }
+                } catch (AsynchronousCloseException e) {
+                    // Doesn&#39;t need a user attention - ignore.
+                } catch (Throwable t) {
+                    if (buf != null) {
+                        buf.release();
+                    }
+                    channel.currentWriteEvent = null;
+                    channel.currentWriteBuffer = null;
+                    buf = null;
+                    evt = null;
+                    future.setFailure(t);
+                    if (iothread) {
+                        fireExceptionCaught(channel, t);
+                    } else {
+                        fireExceptionCaughtLater(channel, t);
+                    }
+                    if (t instanceof IOException) {
+                        open = false;
+                        close(channel, succeededFuture(channel));
+                    }
+                }
+            }
+            channel.inWriteNowLoop = false;
+
+            // Initially, the following block was executed after releasing
+            // the writeLock, but there was a race condition, and it has to be
+            // executed before releasing the writeLock:
+            //
+            //     https://issues.jboss.org/browse/NETTY-410
+            //
+            if (open) {
+                if (addOpWrite) {
+                    setOpWrite(channel);
+                } else if (removeOpWrite) {
+                    clearOpWrite(channel);
+                }
+            }
+        }
+        if (iothread) {
+            fireWriteComplete(channel, writtenBytes);
+        } else {
+            fireWriteCompleteLater(channel, writtenBytes);
+        }
+    }
+</pre>
+<br />
+<p>这里， buf.transferTo(ch);的就是调用底层WritableByteChannel的write方法，把buffer写到管道里，传递过去。通过Debug可以看到，没调用一次这个方法，服务端的messageReceived方法就会进入断点一次。当然这个也只是表相，或者说也是在预料之内的。因为笔者从开始就怀疑是连续写入过快导致的问题，所以测试过每次write后停顿1秒。再write下一次。结果一切正常。</p>
+<p>&nbsp;<br />
+那么我们跟到这里的意义何在呢？笔者的思路是先证明不是在write端出现的写覆盖的问题，这样就可以从read端寻找问题。这里笔者也在这里加入了一个计数，测试究竟transferTo了几次。结果确实是3次。</p>
+<br />
+<pre class="brush:java;">
+for (int i = writeSpinCount; i &gt; 0; i --) {
+                        localWrittenBytes = buf.transferTo(ch);
+                        System.out.println(++count);</pre>
+<br />
+接下来就从接收端找找原因，在NioWorker的read方法，实现如下：<br />
+<pre class="brush:java;">
+@Override
+    protected boolean read(SelectionKey k) {
+        final SocketChannel ch = (SocketChannel) k.channel();
+        final NioSocketChannel channel = (NioSocketChannel) k.attachment();
+
+        final ReceiveBufferSizePredictor predictor =
+            channel.getConfig().getReceiveBufferSizePredictor();
+        final int predictedRecvBufSize = predictor.nextReceiveBufferSize();
+
+        int ret = 0;
+        int readBytes = 0;
+        boolean failure = true;
+
+        ByteBuffer bb = recvBufferPool.acquire(predictedRecvBufSize);
+        try {
+            while ((ret = ch.read(bb)) &gt; 0) {
+                readBytes += ret;
+                if (!bb.hasRemaining()) {
+                    break;
+                }
+            }
+            failure = false;
+        } catch (ClosedChannelException e) {
+            // Can happen, and does not need a user attention.
+        } catch (Throwable t) {
+            fireExceptionCaught(channel, t);
+        }
+
+        if (readBytes &gt; 0) {
+            bb.flip();
+
+            final ChannelBufferFactory bufferFactory =
+                channel.getConfig().getBufferFactory();
+            final ChannelBuffer buffer = bufferFactory.getBuffer(readBytes);
+            buffer.setBytes(0, bb);
+            buffer.writerIndex(readBytes);
+
+            recvBufferPool.release(bb);
+
+            // Update the predictor.
+            predictor.previousReceiveBufferSize(readBytes);
+
+            // Fire the event.
+            fireMessageReceived(channel, buffer);
+        } else {
+            recvBufferPool.release(bb);
+        }
+
+        if (ret &lt; 0 || failure) {
+            k.cancel(); // Some JDK implementations run into an infinite loop without this.
+            close(channel, succeededFuture(channel));
+            return false;
+        }
+
+        return true;
+    }
+</pre>
+<br />
+<p>在这个方法的外层是一个循环，不停的遍历，如果有SelectionKey k存在，则进入此方法读取buffer中的数据。这个SelectionKey 区分只是一种类型，这个设计到Java NIO中的Seletor机制，这个笔者准备下讲穿插一下。属于Netty底层的一个重要的机制。</p>
+<p>messageReceived事件的触发，是在读取完当前缓冲池中所有的信息之后在触发的。这倒是可以解释，为什么即使我们收到事件的次数少，但是消息是完整的。<br />
+&nbsp;<br />
+从目前来看，Netty通过Java 的NIO机制传递数据，数据读写跟事件没有严格的绑定机制。数据是以流的形式独立存在，读写都有一个缓冲池。<br />
+&nbsp;<br />
+不过，这些还远未解决笔者的疑惑。笔者决定先了解一下Seletor机制，再回头来探索这个问题。<br />
+&nbsp;<br />
+待解决&hellip;&hellip;<br />
+<br />
+下一篇：<a href="http://www.it165.net/pro/html/201207/3260.html" target="_blank"><span>Java NIO框架Netty教程(六) Java NIO Selector模式</span></a><span style="display: none">&nbsp;</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://www.it165.net/pro/html/201207/3260.html">http://www.it165.net/pro/html/201207/3260.html</a></p>
+						<br />
+					</li>
+					<script type="text/javascript">
+					<!--
+					$(function(){
+					  $('#ArticleBox img').LoadImage(true, 560, 560,'http://www.it165.net/statics/images/s_nopic.gif');    
+					})
+					//-->
+					</script>
+				</ul>
+								<div id="pages">
+									</div>
+				<ul class="Share">
+					<li>
+						<!-- Baidu Button BEGIN -->
+						    <div id="bdshare" class="bdshare_t bds_tools_32 get-codes-bdshare">
+						        <a class="bds_tqq"></a>
+						        <a class="bds_tsina"></a>
+						        <a class="bds_renren"></a>
+						        <a class="bds_kaixin001"></a>
+						        <a class="bds_baidu"></a>
+						        <a class="bds_hi"></a>
+						        <a class="bds_tieba"></a>
+						        <a class="bds_tqf"></a>
+						        <a class="bds_msn"></a>
+						        <a class="bds_t163"></a>
+						        <a class="bds_qq"></a>
+						        <a class="bds_ty"></a>
+						        <a class="bds_fbook"></a>
+						        <span class="bds_more"></span>
+								<a class="shareCount"></a>
+						    </div>
+						<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=602574" ></script>
+						<script type="text/javascript" id="bdshell_js"></script>
+						<script type="text/javascript">
+							document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?t=" + new Date().getHours();
+						</script>
+						<!-- Baidu Button END -->
+					</li>
+				</ul>
+				<ul class="tag">
+					<strong>Tag标签：</strong>
+										<a target="_blank" href="http://s.it165.net/?t=13&q=NIO%BF%F2%BC%DC">NIO框架</a>
+										<a target="_blank" href="http://s.it165.net/?t=13&q=Netty%BD%CC%B3%CC">Netty教程</a>
+									</ul>
+				<ul class="ContentLine"><li></li></ul>
+				<ul class="NextPreBox">
+					<li><span>上一篇：</span><a href="http://www.it165.net/pro/html/201207/3198.html">Java NIO框架Netty教程(四) ChannelBuffer</a></li>
+					<li><span>下一篇：</span><a href="http://www.it165.net/pro/html/201207/3229.html">Java 取得MySQL的table列表</a></li>
+				</ul>
+				<div class="abbox">
+					<ul class="aboutBox listul14">
+										 					 						<li><a href="http://www.it165.net/pro/html/201207/3142.html">Java NIO框架Netty教程(一) Hello Netty</a><span>2012-07-11</span></li>
+											<li><a href="http://www.it165.net/pro/html/201207/3173.html">Java NIO框架Netty教程(二) 白话概念</a><span>2012-07-13</span></li>
+											<li><a href="http://www.it165.net/pro/html/201207/3174.html">Java NIO框架Netty教程(三) 字符串消息收发</a><span>2012-07-13</span></li>
+											<li><a href="http://www.it165.net/pro/html/201207/3198.html">Java NIO框架Netty教程(四) ChannelBuffer</a><span>2012-07-14</span></li>
+											<li><a href="http://www.it165.net/pro/html/201207/3260.html">Java NIO框架Netty教程(六) Java NIO Selector模式</a><span>2012-07-19</span></li>
+											<li><a href="http://www.it165.net/pro/html/201207/3287.html">Java NIO框架Netty教程(七)-再谈收发信息次数问题</a><span>2012-07-22</span></li>
+											<li><a href="http://www.it165.net/pro/html/201207/3302.html">Java NIO框架Netty教程(八) Object对象传递</a><span>2012-07-23</span></li>
+											<li><a href="http://www.it165.net/pro/html/201207/3328.html">Java NIO框架Netty教程(九) Object对象编/解码</a><span>2012-07-25</span></li>
+																				</ul>
+					<ul class="baiduBox">
+						<li><script type="text/javascript">BAIDU_CLB_fillSlot("158833");</script></li>
+					</ul>
+				</div>
+				<ul class="ContentNoLine"><li></li></ul>
+								<div class="CommentBox" id="#comment_iframe">
+					<iframe src="http://www.it165.net/index.php?m=comment&c=index&a=init&commentid=content_111-3219-1&iframe=1" width="100%" height="100%" id="comment_iframe" frameborder="0" scrolling="no"></iframe>
+				</div>
+							</div>
+		</div>
+		<div class="CMBox">
+			<ul class="lwhiteine"></ul>
+			<ul class="adv32"><li><script type="text/javascript">BAIDU_CLB_fillSlot("108906");</script></li></ul>
+			<ul class="lwhiteine"></ul>
+			<ul class="titul"><li>点击排行</li></ul>
+			<ul class="numul">
+										<li><a title="SpringTest框架JUnit单元测试用例获取ApplicationContext实例的方法" href="http://www.it165.net/pro/html/201210/3981.html" style="" >SpringTest框架JUnit单元测试用例获取A...</a></li>
+							<li><a title="Servlet3.0下基于注解的SpringMVC3.1配置 完全零配置文件" href="http://www.it165.net/pro/html/201210/3955.html" style="" >Servlet3.0下基于注解的SpringMVC3.1配...</a></li>
+							<li><a title="POI用addPicture插入图片到word里面无法显示" href="http://www.it165.net/pro/html/201108/451.html" style="" >POI用addPicture插入图片到word里面无法...</a></li>
+							<li><a title="JAVA通过JOLT方式调用TUXEDO服务（TOUPPER）" href="http://www.it165.net/pro/html/201206/2607.html" style="" >JAVA通过JOLT方式调用TUXEDO服务（TOUP...</a></li>
+							<li><a title="利用JDBC存入数据库指定字段" href="http://www.it165.net/pro/html/201106/14.html" style="" >利用JDBC存入数据库指定字段</a></li>
+							<li><a title="Java NIO框架Netty教程(一) Hello Netty" href="http://www.it165.net/pro/html/201207/3142.html" style="" >Java NIO框架Netty教程(一) Hello Netty</a></li>
+							<li><a title="Java ClassLoader 基本使用笔记" href="http://www.it165.net/pro/html/201210/4011.html" style="" >Java ClassLoader 基本使用笔记</a></li>
+							<li><a title="如何从Mysqll读取数据写入csv文件" href="http://www.it165.net/pro/html/201211/4088.html" style="" >如何从Mysqll读取数据写入csv文件</a></li>
+							<li><a title="JAVA UDP编程实现两台电脑的通讯" href="http://www.it165.net/pro/html/201210/3922.html" style="" >JAVA UDP编程实现两台电脑的通讯</a></li>
+							<li><a title="java 提取字符串或一段文本中的手机号码" href="http://www.it165.net/pro/html/201109/694.html" style="" >java 提取字符串或一段文本中的手机号码</a></li>
+									</ul>
+			<ul class="Bwhiteine"></ul>
+			<div class="titul">
+				<ul>
+					<li>最新文章</li>
+				</ul>
+			</div>
+			<ul class="iconul">
+												<li><a target="_blank" title="Java程序连接linux服务器的几种方式之Scp" href="http://www.it165.net/pro/html/201211/4257.html" style="" >Java程序连接linux服务器的几种方式之Scp</a></li>
+								<li><a target="_blank" title="Java程序连接linux服务器的几种方式之JSch" href="http://www.it165.net/pro/html/201211/4256.html" style="" >Java程序连接linux服务器的几种方式之JSch</a></li>
+								<li><a target="_blank" title="JAVA Calendar类setFirstDayOfWeek和setMinimalDaysInFirstWeek" href="http://www.it165.net/pro/html/201211/4230.html" style="" >JAVA Calendar类setFirstDayOfWeek和s...</a></li>
+								<li><a target="_blank" title="Java中simpleDateFormat类" href="http://www.it165.net/pro/html/201211/4224.html" style="" >Java中simpleDateFormat类</a></li>
+								<li><a target="_blank" title="Java中String类的compareTo方法" href="http://www.it165.net/pro/html/201211/4209.html" style="" >Java中String类的compareTo方法</a></li>
+								<li><a target="_blank" title="Java反射查找父类方法" href="http://www.it165.net/pro/html/201211/4180.html" style="" >Java反射查找父类方法</a></li>
+								<li><a target="_blank" title="分析Socket通信编程中Input和Output" href="http://www.it165.net/pro/html/201211/4172.html" style="" >分析Socket通信编程中Input和Output</a></li>
+								<li><a target="_blank" title="HBase利用bulk load批量导入数据" href="http://www.it165.net/pro/html/201211/4168.html" style="" >HBase利用bulk load批量导入数据</a></li>
+								<li><a target="_blank" title="java捕获windows进程信息的见解" href="http://www.it165.net/pro/html/201211/4142.html" style="" >java捕获windows进程信息的见解</a></li>
+								<li><a target="_blank" title="利用爪哇类库的Runtim类监控Java系统资源" href="http://www.it165.net/pro/html/201211/4141.html" style="" >利用爪哇类库的Runtim类监控Java系统资源</a></li>
+											</ul>
+						<ul class="Bwhiteine"></ul>
+			<div class="titul">
+				<ul>
+					<li>源码教程文章</li>
+				</ul>
+			</div>
+			<ul class="iconul">
+												<li><a target="_blank" title="利用Expression Tree提升反射效率" href="http://www.it165.net/pro/html/201211/4151.html" style="" >利用Expression Tree提升反射效率</a></li>
+								<li><a target="_blank" title="Visifire柱形图表应用之分组图示" href="http://www.it165.net/pro/html/201211/4123.html" style="" >Visifire柱形图表应用之分组图示</a></li>
+								<li><a target="_blank" title=".NET设定对象Binding的格式" href="http://www.it165.net/pro/html/201211/4110.html" style="" >.NET设定对象Binding的格式</a></li>
+								<li><a target="_blank" title="cocos2d-x中利用cocosbuilder建立单独骨骼动画文件(三)" href="http://www.it165.net/pro/html/201211/4062.html" style="" >cocos2d-x中利用cocosbuilder建立单独骨...</a></li>
+								<li><a target="_blank" title="cocos2d-x中利用cocosbuilder建立单独骨骼动画文件(二)" href="http://www.it165.net/pro/html/201211/4061.html" style="" >cocos2d-x中利用cocosbuilder建立单独骨...</a></li>
+								<li><a target="_blank" title="Android中ListView利用自定义Adapter及时更新数据" href="http://www.it165.net/pro/html/201210/4054.html" style="" >Android中ListView利用自定义Adapter及...</a></li>
+								<li><a target="_blank" title="D3介绍基于数据的操作文档的JavaScript库" href="http://www.it165.net/pro/html/201210/4052.html" style="" >D3介绍基于数据的操作文档的JavaScript库</a></li>
+								<li><a target="_blank" title="解决jQuery配UpdatePanel后第二次执行失效问题" href="http://www.it165.net/pro/html/201210/4026.html" style="" >解决jQuery配UpdatePanel后第二次执行失...</a></li>
+								<li><a target="_blank" title="理解并实现模板模式" href="http://www.it165.net/pro/html/201210/4022.html" style="" >理解并实现模板模式</a></li>
+								<li><a target="_blank" title="利用Socket类别建立非同步模组控制Alien Reader" href="http://www.it165.net/pro/html/201210/4019.html" style="" >利用Socket类别建立非同步模组控制Alie...</a></li>
+											</ul>
+						<ul class="Bwhiteine"></ul>
+			<ul class="titul"><li><a target="_blank" href="http://www.it165.net/special/">推荐专题</a></li></ul>
+			<ul class="RListBox">
+																<li class="RLPicBox">
+					<div class="PicBox"><a title="Directx11 游戏编程入门教程" target="_blank" href="http://www.it165.net//special/Directx/"><img  alt="Directx11 游戏编程入门教程" src="http://www.it165.net/uploadfile/2012/0411/thumb_94_74_20120411103408469.jpg" width="94" height="74" /></a></div>
+					<div class="ZTTitle"><a title="Directx11 游戏编程入门教程" target="_blank" href="http://www.it165.net//special/Directx/" style="color:default;" >Directx11 游戏编程入...</a></div>
+					<div class="ZTDes">专题主要学习DirectX的初级编程入门学习，对Directx11...</div>
+				</li>
+																<li class="RLPicBox">
+					<div class="PicBox"><a title="Javascript 面向对象编程" target="_blank" href="http://www.it165.net/pro/special/javascript/"><img  alt="Javascript 面向对象编程" src="http://www.it165.net/uploadfile/2011/1217/thumb_94_74_20111217103814404.jpg" width="94" height="74" /></a></div>
+					<div class="ZTTitle"><a title="Javascript 面向对象编程" target="_blank" href="http://www.it165.net/pro/special/javascript/" style="color:pro;" >Javascript 面向对象编程</a></div>
+					<div class="ZTDes">&quot;面向对象的JavaScript&quot;这一说法多少有些冗余，因为Ja...</div>
+				</li>
+															</ul>
+			<ul class="Bwhiteine"></ul>
+			<div class="titul">
+				<ul>
+					<li>栏目导航</li>
+				</ul>
+			</div>
+			<ul class="catlist">
+															<li class="da"><a href="http://www.it165.net/Pro/prweb/">WEB开发</a></li><li class="xiao">
+															<a href="http://www.it165.net/Pro/webasp/">ASP</a>
+										<a href="http://www.it165.net/Pro/webnet/">ASP.NET</a>
+										<a href="http://www.it165.net/Pro/webphp/">PHP</a>
+										<a href="http://www.it165.net/Pro/webjsp/">JSP</a>
+										<a href="http://www.it165.net/Pro/yyvbsc/">VBScript</a>
+										<a href="http://www.it165.net/Pro/yyjs/">JavaScript</a>
+																						<li class="da"><a href="http://www.it165.net/Pro/pryy/">软件开发</a></li><li class="xiao">
+															<a href="http://www.it165.net/Pro/yyc/">C/C++</a>
+										<a href="http://www.it165.net/Pro/yyjava/">Java</a>
+										<a href="http://www.it165.net/Pro/yycs/">C#</a>
+										<a href="http://www.it165.net/Pro/yyvbnet/">VB.NET</a>
+										<a href="http://www.it165.net/Pro/yyvb6/">VB6</a>
+										<a href="http://www.it165.net/Pro/yydp/">Delphi</a>
+										<a href="http://www.it165.net/Pro/yyperl/">Perl</a>
+										<a href="http://www.it165.net/Pro/yyrb/">Ruby</a>
+										<a href="http://www.it165.net/Pro/yypt/">Python</a>
+										<a href="http://www.it165.net/Pro/yysam/">汇编</a>
+										<a href="http://www.it165.net/Pro/pkmfc/">MFC</a>
+										<a href="http://www.it165.net/Pro/pkqt/">QT</a>
+																						<li class="da"><a href="http://www.it165.net/Pro/pryd/">移动开发</a></li><li class="xiao">
+															<a href="http://www.it165.net/Pro/ydad/">Android</a>
+										<a href="http://www.it165.net/Pro/ydip/">IOS</a>
+										<a href="http://www.it165.net/Pro/ydsb/">Symbian</a>
+										<a href="http://www.it165.net/Pro/ydzh/">移动编程综合</a>
+										<a href="http://www.it165.net/Pro/wp/">Windows Phone </a>
+																						<li class="da"><a href="http://www.it165.net/Pro/pkgame/">游戏开发</a></li><li class="xiao">
+																											<li class="da"><a href="http://www.it165.net/Pro/shouce/">参考手册</a></li><li class="xiao">
+																											<li class="da"><a href="http://www.it165.net/Pro/proqita/">综合编程</a></li><li class="xiao">
+																											<li class="da"><a href="http://www.it165.net/pro/safepro/">安全编程</a></li><li class="xiao">
+																			</li>
+			</ul>
+		</div>
+	</div>
+	<div class="bule_Top_Twoline"></div>
+</div>
+<div class="footer">
+<a target="_blank" href="http://www.it165.net/about/index.html">About IT165</a> -
+	<a target="_blank" href="http://www.it165.net/about/gg.html">广告服务</a> -
+	<a target="_blank" href="http://www.it165.net/about/ys.html">隐私声明</a> -
+	<a target="_blank" href="http://www.it165.net/about/bq.html">版权申明</a> -
+	<a target="_blank" href="http://www.it165.net/about/disclaimers.html">免责条款</a> -
+	<a target="_blank" href="http://www.it165.net/about/map.html">网站地图</a> -
+	<a target="_blank" href="http://www.it165.net/about/tg.html">网友投稿</a> -
+	<a target="_blank" href="http://www.it165.net/about/lxwm.html">联系方式</a>
+	<br />
+	版权所有: it165.net(次元立方网) -- 成就IT技术人才的摇篮 Email:admin#it165.net 
+	<script src="http://www.it165.net/statics/js/Head.js" type="text/javascript"></script>
+<script language="JavaScript" src="http://www.it165.net/api.php?op=count&id=3219&modelid=13"></script>
+<script type="text/javascript">/*百度对联*/ var cpro_id = 'u532251';</script><script src="http://cpro.baidu.com/cpro/ui/f.js" type="text/javascript"></script>
+
+<script src="http://s5.cnzz.com/stat.php?id=2814506&web_id=2814506&show=pic" language="JavaScript"></script>
+<script language="javascript" type="text/javascript" src="http://js.users.51.la/7453851.js"></script>
+<noscript><a href="http://www.51.la/?7453851" target="_blank"><img alt="&#x6211;&#x8981;&#x5566;&#x514D;&#x8D39;&#x7EDF;&#x8BA1;" src="http://img.users.51.la/7453851.asp" style="border:none" /></a></noscript>
+<br /></div>
+</body>
+
+</html>

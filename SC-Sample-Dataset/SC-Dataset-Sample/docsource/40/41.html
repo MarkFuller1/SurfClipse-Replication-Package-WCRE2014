@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
+<meta name="generator" content="hypermail pre-2.1.9, see http://www.hypermail.org/" />
+<title>[squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message from Rami Jaamour on 2003-12-01 (squid-users)</title>
+<meta name="Author" content="Rami Jaamour (rjaamour@dont-contact.us)" />
+<meta name="Subject" content="[squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message" />
+<meta name="Date" content="2003-12-01" />
+<style type="text/css">
+/*<![CDATA[*/
+/* To be incorporated in the main stylesheet, don't code it in hypermail! */
+body {color: black; background: #ffffff}
+dfn {font-weight: bold;}
+pre { background-color:inherit;}
+.head { border-bottom:1px solid black;}
+.foot { border-top:1px solid black;}
+th {font-style:italic;}
+table { margin-left:2em;}map ul {list-style:none;}
+#mid { font-size:0.9em;}
+#received { float:right;}
+address { font-style:inherit ;}
+/*]]>*/
+.quotelev1 {color : #990099}
+.quotelev2 {color : #ff7700}
+.quotelev3 {color : #007799}
+.quotelev4 {color : #95c500}
+</style>
+</head>
+<body>
+<div class="head">
+<h1>[squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message</h1>
+<!-- received="Mon Dec  1 18:45:08 2003" -->
+<!-- isoreceived="20031202014508" -->
+<!-- sent="Mon, 01 Dec 2003 17:42:54 -0800" -->
+<!-- isosent="20031202014254" -->
+<!-- name="Rami Jaamour" -->
+<!-- email="rjaamour@dont-contact.us" -->
+<!-- subject="[squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message" -->
+<!-- id="3FCBEE1E.3000407@parasoft.com" -->
+<!-- charset="us-ascii" -->
+<!-- expires="-1" -->
+<map id="navbar" name="navbar">
+<ul class="links">
+<li>
+<dfn>This message</dfn>:
+[ <a href="#start" name="options1" id="options1" tabindex="1">Message body</a> ]
+ [ <a href="#options2">More options</a> ]
+</li>
+<li>
+<dfn>Related messages</dfn>:
+<!-- unext="start" -->
+[ <a href="0032.html" title="Henrik Nordstrom: &quot;Re: [squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message&quot;">Next message</a> ]
+[ <a href="0030.html" title="Henrik Nordstrom: &quot;Re: [squid-users] proxy authentication/system access&quot;">Previous message</a> ]
+<!-- unextthread="start" -->
+[ <a href="0032.html" title="Henrik Nordstrom: &quot;Re: [squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message&quot;">Next in thread</a> ]
+ [ <a href="#replies">Replies</a> ]
+<!-- ureply="end" -->
+</li>
+</ul>
+</map>
+</div>
+<!-- body="start" -->
+<div class="mail">
+<address class="headers">
+<span id="from">
+<dfn>From</dfn>: Rami Jaamour &lt;<a href="mailto:rjaamour&#64;dont-contact.us?Subject=Re:%20[squid-users]%20authentication%20problem%20and%20&amp;quot;Server%20redirected%20too%20many%20%20times%20(20)&amp;quot;%20error%20message">rjaamour@dont-contact.us</a>&gt;
+</span><br />
+<span id="date"><dfn>Date</dfn>: Mon, 01 Dec 2003 17:42:54 -0800</span><br />
+</address>
+<p>
+Hello,
+<br />
+<p>My Squid works fine without authentication but when I try to use
+<br />
+ncsa_auth I get problems.
+<br />
+<p>When attempting to make a HTTP connection from a Java app, I get:
+<br />
+java.net.ProtocolException: Server redirected too many  times (20)
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at
+<br />
+sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:800)
+<br />
+<p>When I use mozilla with the proxy settings configured to my squid, it
+<br />
+keeps infinitely prompting for the username and password even though I
+<br />
+give it the correct username and password.
+<br />
+<p>Here is the diff -w of my squid.conf against squid.conf.default:
+<br />
+<p>1007a1008
+<br />
+<em class="quotelev1">  &gt; redirect_program /usr/local/squid/libexec/redirector.pl
+</em><br />
+1073c1074,1076
+<br />
+&lt; #     auth_param basic program /usr/local/squid/bin/ncsa_auth
+<br />
+/usr/local/squid/etc/passwd
+<br />
+<pre>
+---
+  &gt; auth_param basic program /usr/local/squid/bin/ncsa_auth
+/usr/local/squid/etc/users
+  &gt;
+1726a1730,1732
+  &gt; acl authenticated_user proxy_auth REQUIRED
+  &gt;
+1765a1772,1773
+  &gt; http_access allow authenticated_user
+1986a1995,1996
+  &gt; cache_effective_user rjaamour
+  &gt; cache_effective_group root
+The &quot;users&quot; password file was created using httpass -c users &lt;username&gt;
+and it works fine when I validate it using
+ncsa_auth users
+meaning, only when I type the correct username and password pair it
+returns &quot;OK&quot; and it returns &quot;ERR&quot; otherwise.
+My redirector.pl is just
+#!/usr/bin/perl
+$|=1;
+while (&lt;&gt;) {
+     s@<a href="http://rami&#64;http://fox">http://rami&#64;http://fox</a>@;
+     s@<a href="http://jeehong&#64;http://trout">http://jeehong&#64;http://trout</a>@;
+     print;
+}
+Which appears to work fine when I run it alone.
+I'm using Squid 2.5.STABLE-4 on Mandrake 9.2 (kernel 2.4.22), apache 2.0.48. Help!
+Sincerely,
+-- 
+Rami Jaamour
+SOAPtest &lt;<a href="http://www.parasoft.com/jsp/products/home.jsp?product=SOAP">http://www.parasoft.com/jsp/products/home.jsp?product=SOAP</a>&gt;
+Development
+ParaSoft Corporation &lt;<a href="http://www.parasoft.com">http://www.parasoft.com</a>&gt;
+</pre>
+<span id="received"><dfn>Received on</dfn> Mon Dec 01 2003 - 18:45:08 MST</span>
+</div>
+<!-- body="end" -->
+<div class="foot">
+<map id="navbarfoot" name="navbarfoot" title="Related messages">
+<ul class="links">
+<li><dfn>This message</dfn>: [ <a href="#start">Message body</a> ]</li>
+<!-- lnext="start" -->
+<li><dfn>Next message</dfn>: <a href="0032.html" title="Next message in the list">Henrik Nordstrom: "Re: [squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message"</a></li>
+<li><dfn>Previous message</dfn>: <a href="0030.html" title="Previous message in the list">Henrik Nordstrom: "Re: [squid-users] proxy authentication/system access"</a></li>
+<!-- lnextthread="start" -->
+<li><dfn>Next in thread</dfn>: <a href="0032.html" title="Next message in this discussion thread">Henrik Nordstrom: "Re: [squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message"</a></li>
+<li><a name="replies" id="replies"></a>
+<dfn>Reply</dfn>: <a href="0032.html" title="Message sent in reply to this message">Henrik Nordstrom: "Re: [squid-users] authentication problem and &quot;Server redirected too many  times (20)&quot; error message"</a></li>
+<!-- lreply="end" -->
+</ul>
+<ul class="links">
+<li><a name="options2" id="options2"></a><dfn>Contemporary messages sorted</dfn>: [ <a href="date.html#31" title="Contemporary messages by date">by date</a> ] [ <a href="index.html#31" title="Contemporary discussion threads">by thread</a> ] [ <a href="subject.html#31" title="Contemporary messages by subject">by subject</a> ] [ <a href="author.html#31" title="Contemporary messages by author">by author</a> ] [ <a href="attachment.html" title="Contemporary messages by attachment">by messages with attachments</a> ]</li>
+</ul>
+</map>
+</div>
+<!-- trailer="footer" -->
+<p><small><em>
+This archive was generated by <a href="http://www.hypermail.org/">hypermail pre-2.1.9</a> 
+: Thu Jan 01 2004 - 12:00:03 MST
+</em></small></p>
+</body>
+</html>

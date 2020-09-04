@@ -1,0 +1,22 @@
+ public static String[] getMessageContent(MimeMessage message)
+            throws MessagingException, IOException
+    {
+        String contentType = message.getContentType();
+
+        switch (ContentTypes.getType(contentType))
+        {
+            case Plain:
+                return new String[] { (String) message.getContent() };
+            case Multipart:
+                return getMutlipartContent(
+                        (Multipart) message.getContent()).toArray(new String[0]);
+            case HTML:
+                String s = org.clapper.util.html.HTMLUtil.textFromHTML((String) message
+                        .getContent()).trim();
+                if (s.length() != 0)
+                    return new String[] {s};
+            default:
+                return new String[0];
+        }
+
+    }

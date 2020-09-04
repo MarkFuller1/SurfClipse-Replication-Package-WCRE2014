@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- code.jsp -->
+
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>java.net: URIEncoderDecoder.java</title>
+</head>
+<body style="padding:0 0 0 0;margin:0 0 0 0">
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; java &#187;  <a href='/docs/api/java/net/package-index.html'>net</a> &#187; 
+ [<a href="/docs/api/java/net/URIEncoderDecoder.html">javadoc</a> | source]
+</div>
+<pre>
+<a name='1'>    1 &nbsp; /*
+    2 &nbsp;  *  Licensed to the Apache Software Foundation (ASF) under one or more
+    3 &nbsp;  *  contributor license agreements.  See the NOTICE file distributed with
+    4 &nbsp;  *  this work for additional information regarding copyright ownership.
+    5 &nbsp;  *  The ASF licenses this file to You under the Apache License, Version 2.0
+    6 &nbsp;  *  (the "License"); you may not use this file except in compliance with
+    7 &nbsp;  *  the License.  You may obtain a copy of the License at
+    8 &nbsp;  *
+    9 &nbsp;  *     http://www.apache.org/licenses/LICENSE-2.0
+   10 &nbsp;  *
+<a name='11'>   11 &nbsp;  *  Unless required by applicable law or agreed to in writing, software
+   12 &nbsp;  *  distributed under the License is distributed on an "AS IS" BASIS,
+   13 &nbsp;  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   14 &nbsp;  *  See the License for the specific language governing permissions and
+   15 &nbsp;  *  limitations under the License.
+   16 &nbsp;  */
+   17 &nbsp; 
+   18 &nbsp; <span class='kw'>package</span> <a href=/docs/api/java/net/package-index.html>java.net</a>;
+   19 &nbsp; 
+   20 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/ByteArrayOutputStream.html>java.io.ByteArrayOutputStream</a>;
+<a name='21'>   21 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/UnsupportedEncodingException.html>java.io.UnsupportedEncodingException</a>;
+   22 &nbsp; 
+   23 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/apache/harmony/luni/internal/nls/Messages.html>org.apache.harmony.luni.internal.nls.Messages</a>;
+   24 &nbsp; 
+   25 &nbsp; /**
+   26 &nbsp;  * This class is used to encode a string using the format required by {@code
+   27 &nbsp;  * application/x-www-form-urlencoded} MIME content type. It contains helper
+   28 &nbsp;  * methods used by the URI class, and performs encoding and decoding in a
+   29 &nbsp;  * slightly different way than {@code URLEncoder} and {@code URLDecoder}.
+   30 &nbsp;  */
+<a name='31'>   31 &nbsp; class URIEncoderDecoder {
+   32 &nbsp; 
+   33 &nbsp;     static final String digits = "0123456789ABCDEF"; //$NON-NLS-1$
+   34 &nbsp; 
+   35 &nbsp;     static final String encoding = "UTF8"; //$NON-NLS-1$
+   36 &nbsp; 
+   37 &nbsp;     /**
+   38 &nbsp;      * Validate a string by checking if it contains any characters other than:
+   39 &nbsp;      * 1. letters ('a'..'z', 'A'..'Z') 2. numbers ('0'..'9') 3. characters in
+   40 &nbsp;      * the legalset parameter 4. others (unicode characters that are not in
+<a name='41'>   41 &nbsp;      * US-ASCII set, and are not ISO Control or are not ISO Space characters)
+   42 &nbsp;      * &lt;p&gt;
+   43 &nbsp;      * called from {@code URI.Helper.parseURI()} to validate each component
+   44 &nbsp;      *
+   45 &nbsp;      * @param s
+   46 &nbsp;      *            {@code java.lang.String} the string to be validated
+   47 &nbsp;      * @param legal
+   48 &nbsp;      *            {@code java.lang.String} the characters allowed in the String
+   49 &nbsp;      *            s
+   50 &nbsp;      */
+<a name='51'>   51 &nbsp;     static void validate(String s, String legal) throws URISyntaxException {
+   52 &nbsp;         for (int i = 0; i &lt; s.length();) {
+   53 &nbsp;             char ch = s.charAt(i);
+   54 &nbsp;             if (ch == '%') {
+   55 &nbsp;                 do {
+   56 &nbsp;                     if (i + 2 &gt;= s.length()) {
+   57 &nbsp;                         throw new URISyntaxException(s, Messages.getString("luni.7D"), //$NON-NLS-1$
+   58 &nbsp;                                 i);
+   59 &nbsp;                     }
+   60 &nbsp;                     int d1 = Character.digit(s.charAt(i + 1), 16);
+<a name='61'>   61 &nbsp;                     int d2 = Character.digit(s.charAt(i + 2), 16);
+   62 &nbsp;                     if (d1 == -1 || d2 == -1) {
+   63 &nbsp;                         throw new URISyntaxException(s, Messages.getString("luni.7E", //$NON-NLS-1$
+   64 &nbsp;                                 s.substring(i, i + 3)), i);
+   65 &nbsp;                     }
+   66 &nbsp; 
+   67 &nbsp;                     i += 3;
+   68 &nbsp;                 } while (i &lt; s.length() &amp;&amp; s.charAt(i) == '%');
+   69 &nbsp; 
+   70 &nbsp;                 continue;
+<a name='71'>   71 &nbsp;             }
+   72 &nbsp;             if (!((ch &gt;= 'a' &amp;&amp; ch &lt;= 'z') || (ch &gt;= 'A' &amp;&amp; ch &lt;= 'Z')
+   73 &nbsp;                     || (ch &gt;= '0' &amp;&amp; ch &lt;= '9') || legal.indexOf(ch) &gt; -1 || (ch &gt; 127
+   74 &nbsp;                     &amp;&amp; !Character.isSpaceChar(ch) &amp;&amp; !Character
+   75 &nbsp;                     .isISOControl(ch)))) {
+   76 &nbsp;                 throw new URISyntaxException(s, Messages.getString("luni.7F"), i); //$NON-NLS-1$
+   77 &nbsp;             }
+   78 &nbsp;             i++;
+   79 &nbsp;         }
+   80 &nbsp;     }
+<a name='81'>   81 &nbsp; 
+   82 &nbsp;     static void validateSimple(String s, String legal)
+   83 &nbsp;             throws URISyntaxException {
+   84 &nbsp;         for (int i = 0; i &lt; s.length();) {
+   85 &nbsp;             char ch = s.charAt(i);
+   86 &nbsp;             if (!((ch &gt;= 'a' &amp;&amp; ch &lt;= 'z') || (ch &gt;= 'A' &amp;&amp; ch &lt;= 'Z')
+   87 &nbsp;                     || (ch &gt;= '0' &amp;&amp; ch &lt;= '9') || legal.indexOf(ch) &gt; -1)) {
+   88 &nbsp;                 throw new URISyntaxException(s, Messages.getString("luni.7F"), i); //$NON-NLS-1$
+   89 &nbsp;             }
+   90 &nbsp;             i++;
+<a name='91'>   91 &nbsp;         }
+   92 &nbsp;     }
+   93 &nbsp; 
+   94 &nbsp;     /**
+   95 &nbsp;      * All characters except letters ('a'..'z', 'A'..'Z') and numbers ('0'..'9')
+   96 &nbsp;      * and legal characters are converted into their hexidecimal value prepended
+   97 &nbsp;      * by '%'.
+   98 &nbsp;      * &lt;p&gt;
+   99 &nbsp;      * For example: '#' -&gt; %23
+  100 &nbsp;      * Other characters, which are unicode chars that are not US-ASCII, and are
+<a name='101'>  101 &nbsp;      * not ISO Control or are not ISO Space chars, are preserved.
+  102 &nbsp;      * &lt;p&gt;
+  103 &nbsp;      * Called from {@code URI.quoteComponent()} (for multiple argument
+  104 &nbsp;      * constructors)
+  105 &nbsp;      *
+  106 &nbsp;      * @param s
+  107 &nbsp;      *            java.lang.String the string to be converted
+  108 &nbsp;      * @param legal
+  109 &nbsp;      *            java.lang.String the characters allowed to be preserved in the
+  110 &nbsp;      *            string s
+<a name='111'>  111 &nbsp;      * @return java.lang.String the converted string
+  112 &nbsp;      */
+  113 &nbsp;     static String quoteIllegal(String s, String legal)
+  114 &nbsp;             throws UnsupportedEncodingException {
+  115 &nbsp;         StringBuilder buf = new StringBuilder();
+  116 &nbsp;         for (int i = 0; i &lt; s.length(); i++) {
+  117 &nbsp;             char ch = s.charAt(i);
+  118 &nbsp;             if ((ch &gt;= 'a' &amp;&amp; ch &lt;= 'z')
+  119 &nbsp;                     || (ch &gt;= 'A' &amp;&amp; ch &lt;= 'Z')
+  120 &nbsp;                     || (ch &gt;= '0' &amp;&amp; ch &lt;= '9')
+<a name='121'>  121 &nbsp;                     || legal.indexOf(ch) &gt; -1
+  122 &nbsp;                     || (ch &gt; 127 &amp;&amp; !Character.isSpaceChar(ch) &amp;&amp; !Character
+  123 &nbsp;                             .isISOControl(ch))) {
+  124 &nbsp;                 buf.append(ch);
+  125 &nbsp;             } else {
+  126 &nbsp;                 byte[] bytes = new String(new char[] { ch }).getBytes(encoding);
+  127 &nbsp;                 for (int j = 0; j &lt; bytes.length; j++) {
+  128 &nbsp;                     buf.append('%');
+  129 &nbsp;                     buf.append(digits.charAt((bytes[j] &amp; 0xf0) &gt;&gt; 4));
+  130 &nbsp;                     buf.append(digits.charAt(bytes[j] &amp; 0xf));
+<a name='131'>  131 &nbsp;                 }
+  132 &nbsp;             }
+  133 &nbsp;         }
+  134 &nbsp;         return buf.toString();
+  135 &nbsp;     }
+  136 &nbsp; 
+  137 &nbsp;     /**
+  138 &nbsp;      * Other characters, which are Unicode chars that are not US-ASCII, and are
+  139 &nbsp;      * not ISO Control or are not ISO Space chars are not preserved. They are
+  140 &nbsp;      * converted into their hexidecimal value prepended by '%'.
+<a name='141'>  141 &nbsp;      * &lt;p&gt;
+  142 &nbsp;      * For example: Euro currency symbol -&gt; "%E2%82%AC".
+  143 &nbsp;      * &lt;p&gt;
+  144 &nbsp;      * Called from URI.toASCIIString()
+  145 &nbsp;      *
+  146 &nbsp;      * @param s
+  147 &nbsp;      *            java.lang.String the string to be converted
+  148 &nbsp;      * @return java.lang.String the converted string
+  149 &nbsp;      */
+  150 &nbsp;     static String encodeOthers(String s) throws UnsupportedEncodingException {
+<a name='151'>  151 &nbsp;         StringBuilder buf = new StringBuilder();
+  152 &nbsp;         for (int i = 0; i &lt; s.length(); i++) {
+  153 &nbsp;             char ch = s.charAt(i);
+  154 &nbsp;             if (ch &lt;= 127) {
+  155 &nbsp;                 buf.append(ch);
+  156 &nbsp;             } else {
+  157 &nbsp;                 byte[] bytes = new String(new char[] { ch }).getBytes(encoding);
+  158 &nbsp;                 for (int j = 0; j &lt; bytes.length; j++) {
+  159 &nbsp;                     buf.append('%');
+  160 &nbsp;                     buf.append(digits.charAt((bytes[j] &amp; 0xf0) &gt;&gt; 4));
+<a name='161'>  161 &nbsp;                     buf.append(digits.charAt(bytes[j] &amp; 0xf));
+  162 &nbsp;                 }
+  163 &nbsp;             }
+  164 &nbsp;         }
+  165 &nbsp;         return buf.toString();
+  166 &nbsp;     }
+  167 &nbsp; 
+  168 &nbsp;     /**
+  169 &nbsp;      * Decodes the string argument which is assumed to be encoded in the {@code
+  170 &nbsp;      * x-www-form-urlencoded} MIME content type using the UTF-8 encoding scheme.
+<a name='171'>  171 &nbsp;      * &lt;p&gt;
+  172 &nbsp;      *'%' and two following hex digit characters are converted to the
+  173 &nbsp;      * equivalent byte value. All other characters are passed through
+  174 &nbsp;      * unmodified.
+  175 &nbsp;      * &lt;p&gt;
+  176 &nbsp;      * e.g. "A%20B%20C %24%25" -&gt; "A B C $%"
+  177 &nbsp;      * &lt;p&gt;
+  178 &nbsp;      * Called from URI.getXYZ() methods
+  179 &nbsp;      * 
+  180 &nbsp;      * @param s
+<a name='181'>  181 &nbsp;      *            java.lang.String The encoded string.
+  182 &nbsp;      * @return java.lang.String The decoded version.
+  183 &nbsp;      */
+  184 &nbsp;     static String decode(String s) throws UnsupportedEncodingException {
+  185 &nbsp; 
+  186 &nbsp;         StringBuilder result = new StringBuilder();
+  187 &nbsp;         ByteArrayOutputStream out = new ByteArrayOutputStream();
+  188 &nbsp;         for (int i = 0; i &lt; s.length();) {
+  189 &nbsp;             char c = s.charAt(i);
+  190 &nbsp;             if (c == '%') {
+<a name='191'>  191 &nbsp;                 out.reset();
+  192 &nbsp;                 do {
+  193 &nbsp;                     if (i + 2 &gt;= s.length()) {
+  194 &nbsp;                         throw new IllegalArgumentException(Messages.getString(
+  195 &nbsp;                                 "luni.80", i)); //$NON-NLS-1$
+  196 &nbsp;                     }
+  197 &nbsp;                     int d1 = Character.digit(s.charAt(i + 1), 16);
+  198 &nbsp;                     int d2 = Character.digit(s.charAt(i + 2), 16);
+  199 &nbsp;                     if (d1 == -1 || d2 == -1) {
+  200 &nbsp;                         throw new IllegalArgumentException(Messages.getString(
+<a name='201'>  201 &nbsp;                                 "luni.81", s.substring(i, i + 3), //$NON-NLS-1$
+  202 &nbsp;                                 String.valueOf(i)));
+  203 &nbsp;                     }
+  204 &nbsp;                     out.write((byte) ((d1 &lt;&lt; 4) + d2));
+  205 &nbsp;                     i += 3;
+  206 &nbsp;                 } while (i &lt; s.length() &amp;&amp; s.charAt(i) == '%');
+  207 &nbsp;                 result.append(out.toString(encoding));
+  208 &nbsp;                 continue;
+  209 &nbsp;             }
+  210 &nbsp;             result.append(c);
+<a name='211'>  211 &nbsp;             i++;
+  212 &nbsp;         }
+  213 &nbsp;         return result.toString();
+  214 &nbsp;     }
+  215 &nbsp; 
+  216 &nbsp; }
+
+</pre>
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; java &#187;  <a href='/docs/api/java/net/package-index.html'>net</a> &#187; 
+ [<a href="/docs/api/java/net/URIEncoderDecoder.html">javadoc</a> | source]
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-138120-1");
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- end -->

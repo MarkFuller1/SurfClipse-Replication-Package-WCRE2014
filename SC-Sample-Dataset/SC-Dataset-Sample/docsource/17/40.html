@@ -1,0 +1,1336 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type" />
+    <title>hated-error-messages</title>
+  </head>
+  <body>
+    <h1>Hated Error Messages in GlassFish&nbsp;<img alt="." height="46"
+    src="glassfish_logo.gif" width="100" /></h1>
+    <p>Cay S. Horstmann</p>
+    <p>I am assembling this material in response to a <a
+    href="http://forums.java.net/jive/thread.jspa?messageID=35967">discussion
+    topic</a> on the GlassFish forum. These are messages that I get from
+    GlassFish, together with suggestions for more developer-friendly
+    messages.</p>
+    <p>Also note this blog: <a
+    href="http://blogs.sun.com/roller/page/swchan?entry=troubleshooting_deployment_in_glassfish">http://blogs.sun.com/roller/page/swchan?entry=troubleshooting_deployment_in_glassfish</a></p>
+    <h2>Using the Verifier Separately</h2>
+    <h3>Scenario:</h3>
+    <p>Deploy with</p>
+    <pre xml:space="preserve">&lt;sun-appserv-deploy file="${build.dir}/${ear.file}" <b>verify="true"</b> ..."/&gt;&nbsp;</pre>
+    <h3>Message:</h3>
+    <p><tt>An exception occurred while running the command. The exception
+    message is: CLI171 Command deploy failed : Deploying application in domain
+    failed; Some verifier tests failed for the given application. Aborting
+    deployment. Please verify your application using the verifier separately
+    for more details</tt></p>
+    <h3>Comment:</h3>
+    <p>Huh? Why do I have to run it separately? Didn't GlassFish run the
+    verifier? Can't it tell me what went wrong?</p>
+    <h2>Multiple Writable Mappings Exist</h2>
+    <h3>Scenario:</h3>
+    <p>In build &lt;= 33 (and maybe beyond), TopLink requires a
+    <tt>@JoinColumn</tt> together with a <tt>@ManyToOne</tt> annotation,
+    e.g.</p>
+    <pre xml:space="preserve">@Entity
+public class Response implements Serializable {
+    . . .
+    @ManyToOne 
+    @JoinColumn(name="Question_Id") 
+    public Question getQuestion() { 
+        return question;
+    }
+}
+</pre>
+    <p>Actually, this should not be necessary according to the EJB3 spec, but
+    that's not the point. Commenting out the <tt>@JoinColumn</tt> yields the
+    following.</p>
+    <h3>Message:&nbsp;&nbsp;</h3>
+    <pre xml:space="preserve">Test Name : tests.persistence.DefaultProviderVerification
+Test Assertion : Test validity of EJB 3.0 persistence unit. This
+test tests validity using a portable persistence provider.
+Test Description : For [ register#register-ejb.jar#defaultPersistenceUnit ]
+Exception Description: Multiple writable mappings exist for the field
+[RESPONSE.ID].&nbsp; Only one may be defined as writable, all others
+must be specified read-only.
+Mapping: oracle.toplink.essentials.mappings.OneToOneMapping[question]
+Descriptor: RelationalDescriptor(elvis.entity.Response --&gt; [DatabaseTable(RESPONSE)])</pre>
+    <h3>Comment:</h3>
+    <p>It is not clear how to figure out the problem from the error message.
+    What does RESPONSE.ID have to do with this? The desired error message
+    would have been something like:</p>
+    <pre xml:space="preserve">File elvis/entity/Response.java line 39: Need handholding to implement @ManyToOne relationship for QUESTION property.
+</pre>
+    <h2>Give me something to work with...</h2>
+    <h3>Scenario:</h3>
+    <p>Accidentally removed <tt>@ManyToOne</tt> before
+    <tt>@JoinColumn</tt>.</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;---------------------------
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; STATIC VERIFICATION RESULTS
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ---------------------------
+
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;----------------------------------
+&nbsp;&nbsp;&nbsp; &nbsp;NUMBER OF FAILURES/WARNINGS/ERRORS
+&nbsp;&nbsp;&nbsp; &nbsp;----------------------------------
+&nbsp;&nbsp;&nbsp; &nbsp;# of Failures : 0
+&nbsp;&nbsp;&nbsp;&nbsp; # of Warnings : 0
+&nbsp;&nbsp;&nbsp; &nbsp;# of Errors : 1
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -----------------------------------------------------
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ERRORS THAT OCCURED WHILE RUNNING STATIC VERIFICATION
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ----------------------------------------------------- 
+&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; Error Name : com.sun.enterprise.tools.verifier.tests.persistence.DefaultProviderVerification
+&nbsp;&nbsp;&nbsp; Error Description : java.lang.ClassCastException: oracle.toplink.essentials.mappings.DirectToFieldMapping
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.annotations.EJBAnnotationsProcessor.processOneToMany(EJBAnnotationsProcessor.java:1895)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.annotations.EJBAnnotationsProcessor.processRelationshipAccessor(EJBAnnotationsProcessor.java:2231)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.annotations.EJBAnnotationsProcessor.processRelatedClass(EJBAnnotationsProcessor.java:2202)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.annotations.EJBAnnotationsProcessor.processORAnnotations(EJBAnnotationsProcessor.java:1975)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.EntityManagerSetupImpl.predeploy(EntityManagerSetupImpl.java:329)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider.createContainerEntityManagerFactory(EntityManagerFactoryProvider.java:120)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.tests.persistence.DefaultProviderVerification.check(DefaultProviderVerification.java:68)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.CheckMgr.check(CheckMgr.java:120)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.persistence.PersistenceUnitCheckMgrImpl.check(PersistenceUnitCheckMgrImpl.java:80)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.CheckMgr.checkPersistenceUnits(CheckMgr.java:377)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.ejb.EjbCheckMgrImpl.check(EjbCheckMgrImpl.java:67)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.BaseVerifier.verify(BaseVerifier.java:133)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.ejb.EjbVerifier.verify(EjbVerifier.java:65)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.VerificationHandler.runVerifier(VerificationHandler.java:217)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.VerificationHandler.verifyArchive(VerificationHandler.java:128)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.Verifier.verify(Verifier.java:131)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.tools.verifier.Verifier.main(Verifier.java:101)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ----------------------------------
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; END OF STATIC VERIFICATION RESULTS
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ----------------------------------
+</pre>
+    <h3>Comments:<tt> &nbsp;&nbsp; </tt></h3>
+    <ul>
+      <li>Ok, give me something to work with... What went wrong? Where? Should
+      I sacrifice a small animal?</li>
+    </ul>
+    <h2>Encountered "USER"</h2>
+    <h3>Scenario:&nbsp;</h3>
+    <p>Naming an entity <tt>User</tt> is fatal (at least with Derby) because
+    USER is a SQL keyword.</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">[sun-appserv-deploy] Command deploy executed successfully with following warning messages:
+
+[sun-appserv-deploy] JDO76614: Deployment encountered SQL Exceptions:
+[sun-appserv-deploy]&nbsp;&nbsp;&nbsp;
+JDO76609: Got SQLException executing statement "CREATE TABLE QUIZFORM
+(ID INTEGER NOT NULL, TITLE VARCHAR(255), PRIMARY KEY (ID))":
+org.apache.derby.client.am.SqlException: Table/View 'QUIZFORM' already
+exists in Schema 'APP'.
+[sun-appserv-deploy]&nbsp;&nbsp;&nbsp;
+JDO76609: Got SQLException executing statement "CREATE TABLE USER
+(USERID VARCHAR(255) NOT NULL, TYPE VARCHAR(255), EMAIL VARCHAR(255),
+PASSWORD VARCHAR(255), LASTNAME VARCHAR(255), FIRSTNAME VARCHAR(255),
+MIDDLENAME VARCHAR(255), PRIMARY KEY (USERID))":
+org.apache.derby.client.am.SqlException: Syntax error: Encountered
+"USER" at line 1, column 14.
+(many more)</pre>
+    <h3>Comment:</h3>
+    <ol>
+      <li>This is an error; it should not be reported as successful
+      deployment</li>
+      <li>The first error message (which is reported for every table other
+      than USER) is misleading</li>
+      <li>It is not clear how Elvis can figure out from <tt>Syntax error:
+      Encountered "USER" at line 1, column 14</tt> that the solution is to
+      rename the&nbsp;<tt>User</tt> entity</li>
+    </ol>
+    <p>The desired error message would be: File elvis/entity/User.java line
+    13: Entity name <tt>User</tt> conflicts with SQL keyword</p>
+    <h2>Attempted to Redeploy a Session</h2>
+    <p>Here is a link to a blog in which the author complains about an
+    inscrutable message when restarting GlassFish and redeploying. <a
+    href="http://www.iasandcb.pe.kr/blog/2006/01/first-jpa.html">http://www.iasandcb.pe.kr/blog/2006/01/first-jpa.html</a>.
+    His solution: To deploy the app in another domain. Puhleeze.</p>
+    <h2>Nested exception is...</h2>
+    <h3>Scenario:</h3>
+    <p>A session bean throws an exception (because of a programmer error)</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">&nbsp;&nbsp;&nbsp;&nbsp;
+Exception in thread "main" javax.ejb.EJBException: nested exception is:
+java.rmi.ServerException: RemoteException occurred in server thread;
+nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.javax.rmi.CORBA.Util.mapSystemException(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at javax.rmi.CORBA.Util.mapSystemException(Util.java:67)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.privateInvoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.bcel.BCELStubBase.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session.__Setup_Remote_DynamicStub.setupDemo(__Setup_Remote_DynamicStub.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session._Setup_Wrapper.setupDemo(elvis.session._Setup_Wrapper.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.client.Client.main(Client.java:13)
+&nbsp;&nbsp;&nbsp;&nbsp; Caused by: java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.iiop.POAProtocolMgr.mapException(POAProtocolMgr.java:234)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1254)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:67)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at $Proxy85.setupDemo(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp; javax.ejb.EJBException: nested exception is: java.rmi.ServerException: RemoteException occurred in
+server thread; nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session._Setup_Wrapper.setupDemo(elvis.session._Setup_Wrapper.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.client.Client.main(Client.java:13)
+</pre>
+    <h3>Comment:</h3>
+    <p>Deep in the logs, I can see the real reason:</p>
+    <pre xml:space="preserve">javax.ejb.EJBException
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.processSystemException(BaseContainer.java:3712)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.completeNewTx(BaseContainer.java:3612)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvokeTx(BaseContainer.java:3413)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1221)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:67)
+&nbsp;&nbsp;&nbsp; at $Proxy85.setupDemo(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(Unknown Source)
+<b>Caused by: java.lang.NullPointerException
+&nbsp;&nbsp;&nbsp; at elvis.session.SetupImpl.makeSampleCourse(SetupImpl.java:39)</b>
+&nbsp;&nbsp;&nbsp; at elvis.session.SetupImpl.setupDemo(SetupImpl.java:24)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.SecurityUtil$2.run(SecurityUtil.java:171)
+&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.application.EJBSecurityManager.doAsPrivileged(EJBSecurityManager.java:975)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.SecurityUtil.invoke(SecurityUtil.java:176)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.invokeTargetBeanMethod(BaseContainer.java:2748)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.intercept(BaseContainer.java:3825)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:190)
+&nbsp;&nbsp;&nbsp; ... 17 more</pre>
+    <ul>
+      <li>After looking into SetupImpl.java:39, the error was obvious. I
+      caused a NPE the old-fashioned way, clueless coding</li>
+      <li>Did I get lucky that the message wasn't buried inside ...17
+      more?</li>
+      <li>When a business method is called and it throws an exception, that
+      exception ought to be thrust into the face of the developer, not chained
+      to other exceptions and not buried in the logs.</li>
+    </ul>
+    <h2>TopLink Warning</h2>
+    <h3>Scenario:</h3>
+    <p>I mistakenly try to persist two distinct entities with the same ID.</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">&nbsp;Exception
+in thread "main" javax.ejb.EJBException: nested exception is:
+java.rmi.ServerException: RemoteException occurred in server thread;
+nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+java.rmi.RemoteException: Transaction aborted; nested exception is:
+javax.transaction.RollbackException: Transaction marked for rollback.;
+nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; javax.transaction.RollbackException: Transaction marked for rollback.
+&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+java.rmi.RemoteException: Transaction aborted; nested exception is:
+javax.transaction.RollbackException: Transaction marked for rollback.;
+nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; javax.transaction.RollbackException: Transaction marked for rollback.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.javax.rmi.CORBA.Util.mapSystemException(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at javax.rmi.CORBA.Util.mapSystemException(Util.java:67)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.privateInvoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.bcel.BCELStubBase.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session.__Setup_Remote_DynamicStub.setupDemo(__Setup_Remote_DynamicStub.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session._Setup_Wrapper.setupDemo(elvis.session._Setup_Wrapper.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.client.Client.main(Client.java:13)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Caused by: java.rmi.RemoteException: Transaction aborted; nested
+exception is: javax.transaction.RollbackException: Transaction marked
+for rollback.; nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; javax.transaction.RollbackException: Transaction marked for rollback.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.iiop.POAProtocolMgr.mapException(POAProtocolMgr.java:234)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1254)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:67)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at $Proxy44.setupDemo(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp; Caused by: javax.transaction.RollbackException: Transaction marked for rollback.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.distributedtx.J2EETransaction.commit(J2EETransaction.java:394)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.distributedtx.J2EETransactionManagerOpt.commit(J2EETransactionManagerOpt.java:357)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.completeNewTx(BaseContainer.java:3635)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvokeTx(BaseContainer.java:3413)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1221)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ... 18 more
+&nbsp;&nbsp;&nbsp;&nbsp;
+javax.ejb.EJBException: nested exception is: java.rmi.ServerException:
+RemoteException occurred in server thread; nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+java.rmi.RemoteException: Transaction aborted; nested exception is:
+javax.transaction.RollbackException: Transaction marked for rollback.;
+nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; javax.transaction.RollbackException: Transaction marked for rollback.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session._Setup_Wrapper.setupDemo(elvis.session._Setup_Wrapper.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.client.Client.main(Client.java:13)</pre>
+    <h3>Comments:</h3>
+    <ul>
+      <li>Funny, that looks just like the preceding error message.</li>
+      <li>Deep in the logs, there is a nugget of useful information, kicked up
+      from Derby.</li>
+      <li>You'd think with all these stack traces it would be possible to find
+      the offending code. However, nothing in the logs reported the session
+      bean method that caused the error.</li>
+    </ul>
+    <pre xml:space="preserve">#|2006-01-17T14:30:10.494-0800|INFO|sun-appserver-pe9.0|javax.enterprise.system.stream.out|_ThreadID=15;_ThreadName=p:
+thread-pool-1; w: 1;|[TopLink Warning]: 2006.01.17
+02:30:10.486--UnitOfWork(13404366)--Thread(Thread[p: thread-pool-1; w:
+1,5,main])--Local Exception Stack: 
+Exception [TOPLINK-4002]
+(Oracle TopLink Essentials - 10g release 4 (10.1.4.0.0) (Build
+060104Dev)): oracle.toplink.essentials.exceptions.DatabaseException
+Internal Exception: org.apache.derby.client.am.SqlException: <b>The
+statement was aborted because it would have caused a duplicate key
+value in a unique or primary key constraint or unique index</b> identified by 'SQL060117023006120' defined on 'QUESTION'.Error Code: -1
+Call:INSERT
+INTO QUESTION (ID, ANSWER, TEXT, TYPE) VALUES (0, '0xCAFEBABE', 'What
+are the first 4 bytes of every class file (in hexadecimal)?',
+'ChoiceQuestion')
+Query:InsertObjectQuery(elvis.entity.ChoiceQuestion[id=0,text=What
+are the first 4 bytes of every class file (in
+hexadecimal)?,answer=0xCAFEBABE,categories={[]}][choices=[elvis.entity.Choice[id=0,text=0xCAFEBABE],
+elvis.entity.Choice[id=0,text=JAVA],
+elvis.entity.Choice[id=0,text=0xFFFE or 0xFEFF],
+elvis.entity.Choice[id=0,text=PK]]])
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.exceptions.DatabaseException.sqlException(DatabaseException.java:295)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.databaseaccess.DatabaseAccessor.executeDirectNoSelect(DatabaseAccessor.java:639)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.databaseaccess.DatabaseAccessor.executeNoSelect(DatabaseAccessor.java:688)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.databaseaccess.DatabaseAccessor.basicExecuteCall(DatabaseAccessor.java:477)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.databaseaccess.DatabaseAccessor.executeCall(DatabaseAccessor.java:437)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.UnitOfWorkImpl.executeCall(UnitOfWorkImpl.java:1368)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.DatasourceCallQueryMechanism.executeCall(DatasourceCallQueryMechanism.java:213)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.DatasourceCallQueryMechanism.executeCall(DatasourceCallQueryMechanism.java:199)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.DatasourceCallQueryMechanism.insertObject(DatasourceCallQueryMechanism.java:331)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.StatementQueryMechanism.insertObject(StatementQueryMechanism.java:176)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.StatementQueryMechanism.insertObject(StatementQueryMechanism.java:192)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.DatabaseQueryMechanism.insertObjectForWrite(DatabaseQueryMechanism.java:457)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.queryframework.InsertObjectQuery.executeCommit(InsertObjectQuery.java:74)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.DatabaseQueryMechanism.performUserDefinedWrite(DatabaseQueryMechanism.java:635)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.DatabaseQueryMechanism.performUserDefinedInsert(DatabaseQueryMechanism.java:599)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.DatabaseQueryMechanism.insertObjectForWriteWithChangeSet(DatabaseQueryMechanism.java:495)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.queryframework.WriteObjectQuery.executeCommitWithChangeSet(WriteObjectQuery.java:130)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.queryframework.DatabaseQueryMechanism.executeWriteWithChangeSet(DatabaseQueryMechanism.java:283)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.queryframework.WriteObjectQuery.executeDatabaseQuery(WriteObjectQuery.java:67)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.queryframework.DatabaseQuery.execute(DatabaseQuery.java:609)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.queryframework.DatabaseQuery.executeInUnitOfWork(DatabaseQuery.java:536)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.queryframework.ObjectLevelModifyQuery.executeInUnitOfWorkObjectLevelModifyQuery(ObjectLevelModifyQuery.java:123)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.queryframework.ObjectLevelModifyQuery.executeInUnitOfWork(ObjectLevelModifyQuery.java:95)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.RepeatableWriteUnitOfWork.internalExecuteQuery(RepeatableWriteUnitOfWork.java:130)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.AbstractSession.executeQuery(AbstractSession.java:925)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.AbstractSession.executeQuery(AbstractSession.java:882)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.CommitManager.commitNewObjectsForClassWithChangeSet(CommitManager.java:254)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.CommitManager.commitAllObjectsForClassWithChangeSet(CommitManager.java:231)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.CommitManager.commitAllObjectsWithChangeSet(CommitManager.java:187)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.AbstractSession.writeAllObjectsWithChangeSet(AbstractSession.java:2575)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.UnitOfWorkImpl.commitToDatabase(UnitOfWorkImpl.java:1036)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.UnitOfWorkImpl.commitToDatabaseWithChangeSet(UnitOfWorkImpl.java:1120)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.UnitOfWorkImpl.issueSQLbeforeCompletion(UnitOfWorkImpl.java:2435)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.RepeatableWriteUnitOfWork.issueSQLbeforeCompletion(RepeatableWriteUnitOfWork.java:169)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.transaction.AbstractSynchronizationListener.beforeCompletion(AbstractSynchronizationListener.java:116)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.transaction.JTASynchronizationListener.beforeCompletion(JTASynchronizationListener.java:76)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.ContainerSynchronization.beforeCompletion(ContainerSynchronization.java:154)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.distributedtx.J2EETransaction.commit(J2EETransaction.java:377)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.distributedtx.J2EETransactionManagerOpt.commit(J2EETransactionManagerOpt.java:357)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.completeNewTx(BaseContainer.java:3635)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvokeTx(BaseContainer.java:3413)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1221)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:67)
+&nbsp;&nbsp;&nbsp; at $Proxy44.setupDemo(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(Unknown Source)
+Caused
+by: org.apache.derby.client.am.SqlException: The statement was aborted
+because it would have caused a duplicate key value in a unique or
+primary key constraint or unique index identified by
+'SQL060117023006120' defined on 'QUESTION'.
+&nbsp;&nbsp;&nbsp; at org.apache.derby.client.am.Statement.completeSqlca(Unknown Source)
+&nbsp;&nbsp;&nbsp; at org.apache.derby.client.am.Statement.completeExecuteImmediate(Unknown Source)
+&nbsp;&nbsp;&nbsp; at org.apache.derby.client.net.NetStatementReply.parseEXCSQLIMMreply(Unknown Source)
+&nbsp;&nbsp;&nbsp; at org.apache.derby.client.net.NetStatementReply.readExecuteImmediate(Unknown Source)
+&nbsp;&nbsp;&nbsp; at org.apache.derby.client.net.StatementReply.readExecuteImmediate(Unknown Source)
+&nbsp;&nbsp;&nbsp; at org.apache.derby.client.net.NetStatement.readExecuteImmediate_(|#]</pre>
+    <h2>NotSerializableException</h2>
+    <h3>Scenario:&nbsp;</h3>
+    <p>A class that is moved from a session bean to a JSF managed bean is not
+    declared as serializable.</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">javax.servlet.ServletException: nested exception is: java.rmi.MarshalException: CORBA BAD_PARAM 1330446342 Maybe; nested exception is: 
+	java.io.NotSerializableException: 
+	javax.faces.webapp.FacesServlet.service(FacesServlet.java:230)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:585)
+	org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+	java.security.AccessController.doPrivileged(Native Method)
+	javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+	org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+	org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+	com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+	com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+	org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+	com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+	com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+</pre>
+    <p><b>root cause</b></p>
+    <pre xml:space="preserve">javax.ejb.EJBException: nested exception is: java.rmi.MarshalException: CORBA BAD_PARAM 1330446342 Maybe; nested exception is: 
+	java.io.NotSerializableException: 
+	elvis.session._Registration_Wrapper.find(elvis.session._Registration_Wrapper.java)
+	elvis.web.UserManagement.login<b>(UserManagement.java:38)</b>
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:585)
+	com.sun.el.parser.AstValue.invoke(AstValue.java:151)
+	com.sun.el.MethodExpressionImpl.invoke(MethodExpressionImpl.java:283)
+	javax.faces.component.MethodBindingMethodExpressionAdapter.invoke(MethodBindingMethodExpressionAdapter.java:71)
+	com.sun.faces.application.ActionListenerImpl.processAction(ActionListenerImpl.java:94)
+	javax.faces.component.UICommand.broadcast(UICommand.java:384)
+	javax.faces.component.UIViewRoot.broadcastEvents(UIViewRoot.java:452)
+	javax.faces.component.UIViewRoot.processApplication(UIViewRoot.java:764)
+	com.sun.faces.lifecycle.InvokeApplicationPhase.execute(InvokeApplicationPhase.java:97)
+	com.sun.faces.lifecycle.LifecycleImpl.phase(LifecycleImpl.java:262)
+	com.sun.faces.lifecycle.LifecycleImpl.execute(LifecycleImpl.java:130)
+	javax.faces.webapp.FacesServlet.service(FacesServlet.java:218)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:585)
+	org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+	java.security.AccessController.doPrivileged(Native Method)
+	javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+	org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+	org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+	com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+	com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+	org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+	com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+	com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+</pre>
+    <h3>Comment:</h3>
+    <ul>
+      <li>Pray tell, which class is not serializable?&nbsp;</li>
+      <li>On the positive side, careful scrutiny yields a useful file
+      name/line #. I didn't even have to look inside the logs.</li>
+    </ul>
+    <h2>NameNotFoundException</h2>
+    <h3>Scenario:</h3>
+    <p>I forgot to annotate a session bean as <tt>@Stateless</tt>. The class
+    implements an interface that is annotated as <tt>@Remote</tt>.</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">&nbsp;&nbsp;&nbsp;&nbsp;
+Exception in thread "main" javax.naming.NameNotFoundException:
+elvis.session.AssignmentSubmission not found
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.naming.TransientContext.doLookup(TransientContext.java:203)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.naming.TransientContext.lookup(TransientContext.java:175)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.naming.SerialContextProviderImpl.lookup(SerialContextProviderImpl.java:61)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.naming.RemoteSerialContextProviderImpl.lookup(RemoteSerialContextProviderImpl.java:116)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.GeneratedMethodAccessor247.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(Unknown Source)</pre>
+    <h3>Comments:</h3>
+    <p>It would have been nice if the verifier had issued a warning. I admit
+    this is a bit tough to diagnose. It is legal to implement a remote
+    interface without being a session bean.</p>
+    <h2>EJBQL Syntax</h2>
+    <h3>Scenario:</h3>
+    <p>An error in EJB QL Syntax</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">[#|2006-01-18T11:02:54.495-0800|INFO|sun-appserver-pe9.0|javax.enterprise.system.container.ejb|_ThreadID=39;_ThreadName=p:
+thread-pool-1; w: 249;|
+javax.ejb.EJBException
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.processSystemException(BaseContainer.java:3712)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.completeNewTx(BaseContainer.java:3612)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvokeTx(BaseContainer.java:3413)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1221)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:67)
+&nbsp;&nbsp;&nbsp; at $Proxy78.getOpenAssignments(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(Unknown Source)
+Caused by: java.lang.IllegalArgumentException: An exception occured while creating a query in EntityManager
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.EntityManagerImpl.createQuery(EntityManagerImpl.java:146)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.util.EntityManagerWrapper.createQuery(EntityManagerWrapper.java:189)
+&nbsp;&nbsp;&nbsp; at elvis.session.AssignmentSubmissionImpl.getOpenAssignments(AssignmentSubmissionImpl.java:22)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.SecurityUtil$2.run(SecurityUtil.java:171)
+&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.application.EJBSecurityManager.doAsPrivileged(EJBSecurityManager.java:975)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.SecurityUtil.invoke(SecurityUtil.java:176)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.invokeTargetBeanMethod(BaseContainer.java:2748)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.intercept(BaseContainer.java:3825)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:190)
+&nbsp;&nbsp;&nbsp; ... 17 more
+Caused
+by: Exception [TOPLINK-8001] (Oracle TopLink Essentials - 10g release 4
+(10.1.4.0.0) (Build 060104Dev)):
+oracle.toplink.essentials.exceptions.EJBQLException
+Exception
+Description: Syntax Recognition Problem parsing the EJBQL [SELECT a
+FROM Course c, IN (c.students) s, IN (c.assignments) a WHERE s.userId =
+:id AND ]. The parser returned the following [unexpected token: null].
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.exceptions.EJBQLException.recognitionException(EJBQLException.java:88)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.parsing.ejbql.EJBQLParserBase.reportError(EJBQLParserBase.java:195)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.parsing.ejbql.antlr273.EJBQLParser.conditionalFactor(EJBQLParser.java:2077)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.parsing.ejbql.antlr273.EJBQLParser.conditionalTerm(EJBQLParser.java:1939)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.parsing.ejbql.antlr273.EJBQLParser.conditionalExpression(EJBQLParser.java:1891)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.parsing.ejbql.antlr273.EJBQLParser.whereClause(EJBQLParser.java:511)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.parsing.ejbql.antlr273.EJBQLParser.selectStatement(EJBQLParser.java:188)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.parsing.ejbql.antlr273.EJBQLParser.document(EJBQLParser.java:139)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.parsing.ejbql.EJBQLParserBase.parseEJBQLString(EJBQLParserBase.java:249)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.EJBQueryImpl.buildEJBQLDatabaseQuery(EJBQueryImpl.java:198)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.EJBQueryImpl.buildEJBQLDatabaseQuery(EJBQueryImpl.java:173)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.EJBQueryImpl.buildEJBQLDatabaseQuery(EJBQueryImpl.java:137)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.EJBQueryImpl.&lt;init&gt;(EJBQueryImpl.java:98)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.EJBQueryImpl.&lt;init&gt;(EJBQueryImpl.java:83)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.EJBQueryImpl.&lt;init&gt;(EJBQueryImpl.java:71)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.EntityManagerImpl.createQuery(EntityManagerImpl.java:141)
+&nbsp;&nbsp;&nbsp; ... 30 more
+|#]</pre>
+    <h3>Comments:</h3>
+    <ul>
+      <li>As always, the cause of the error is buried in the middle of a stack
+      trace. It shouldn't be.</li>
+      <li>It should be possible to track this back to the file name/line
+      number of the session bean code</li>
+    </ul>
+    <h2>Could not find class</h2>
+    <h3>Scenario:</h3>
+    <p>An entity with a lazily fetched field is exported outside the
+    container, and a client whose class path only includes javaee.jar and
+    appserv-rt.jar receives it.&nbsp;</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">&nbsp;&nbsp;&nbsp;&nbsp;
+Exception in thread "main" javax.ejb.EJBException: nested exception is:
+java.rmi.MarshalException: CORBA MARSHAL 1398079745 Maybe; nested
+exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+org.omg.CORBA.MARSHAL:&nbsp;&nbsp; vmcid: SUN&nbsp; minor code: 257
+completed: Maybe
+&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.MarshalException: CORBA MARSHAL 1398079745 Maybe; nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+org.omg.CORBA.MARSHAL:&nbsp;&nbsp; vmcid: SUN&nbsp; minor code: 257
+completed: Maybe
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.javax.rmi.CORBA.Util.mapSystemException(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at javax.rmi.CORBA.Util.mapSystemException(Util.java:67)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.privateInvoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.bcel.BCELStubBase.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session.__AssignmentSubmission_Remote_DynamicStub.getOpenAssignments(__AssignmentSubmission_Remote_DynamicStub.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session._AssignmentSubmission_Wrapper.getOpenAssignments(elvis.session._AssignmentSubmission_Wrapper.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.client.Client.main(Client.java:19)
+&nbsp;&nbsp;&nbsp;&nbsp; Caused by: org.omg.CORBA.MARSHAL:&nbsp;&nbsp; vmcid: SUN&nbsp; minor code: 257 completed: Maybe
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.logging.ORBUtilSystemException.couldNotFindClass(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream_1_0.read_value(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream.read_value(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.inputObjectField(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.inputClassFields(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.inputObject(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.simpleReadObject(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.ValueHandlerImpl.readValueInternal(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.ValueHandlerImpl.readValue(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream_1_0.read_value(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream.read_value(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.inputObjectField(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.inputClassFields(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.inputObject(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.simpleReadObject(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.ValueHandlerImpl.readValueInternal(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.ValueHandlerImpl.readValue(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream_1_0.read_value(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream_1_0.read_value(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream_1_0.read_abstract_interface(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream_1_0.read_abstract_interface(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream.read_abstract_interface(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.readObjectDelegate(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.readObjectOverride(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at java.io.ObjectInputStream.readObject(ObjectInputStream.java:333)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at java.util.ArrayList.readObject(ArrayList.java:591)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.invokeObjectReader(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.inputObject(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.IIOPInputStream.simpleReadObject(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.ValueHandlerImpl.readValueInternal(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.io.ValueHandlerImpl.readValue(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream_1_0.read_value(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.encoding.CDRInputStream.read_value(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.DynamicMethodMarshallerImpl$14.read(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.DynamicMethodMarshallerImpl.readResult(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ... 6 more
+&nbsp;&nbsp;&nbsp;&nbsp; Caused by: java.lang.ClassNotFoundException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ... 44 more
+&nbsp;&nbsp;&nbsp;&nbsp;
+javax.ejb.EJBException: nested exception is: java.rmi.MarshalException:
+CORBA MARSHAL 1398079745 Maybe; nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+org.omg.CORBA.MARSHAL:&nbsp;&nbsp; vmcid: SUN&nbsp; minor code: 257
+completed: Maybe
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+at
+elvis.session._AssignmentSubmission_Wrapper.getOpenAssignments(elvis.session._AssignmentSubmission_Wrapper.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.client.Client.main(Client.java:19)</pre>
+    <h3>Comments:</h3>
+    <ul>
+      <li><i>Which class???</i>&nbsp;</li>
+      <li>A remedy is to mark all the fields for eager fetching. I found that
+      out after a few hours of futzing around.&nbsp;</li>
+    </ul>
+    <h2>Unknown Property</h2>
+    <h3>Scenario:</h3>
+    <p>I had this code in faces-config.xml:</p>
+    <pre xml:space="preserve">    &lt;managed-bean&gt;
+        &lt;managed-bean-name&gt;assign&lt;/managed-bean-name&gt;
+        &lt;managed-bean-class&gt;elvis.web.AssignmentWork&lt;/managed-bean-class&gt;
+        &lt;managed-bean-scope&gt;session&lt;/managed-bean-scope&gt;
+        &lt;managed-property&gt;
+            &lt;property-name&gt;user&lt;/property-name&gt;
+            &lt;value&gt;#{userMgmt}&lt;/value&gt;
+        &lt;/managed-property&gt;
+    &lt;/managed-bean&gt;
+</pre>
+    <p>However, the class had no property with name <tt>user</tt>. (It was
+    <tt>currentUser</tt> :-()</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">javax.servlet.ServletException: Unknown property 'user'
+	javax.faces.webapp.FacesServlet.service(FacesServlet.java:230)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:585)
+	org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+	java.security.AccessController.doPrivileged(Native Method)
+	javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+	org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+	org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+	com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+	com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+	org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+	com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+	com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+</pre>
+    <p></p>
+    <p><b>root cause</b></p>
+    <pre xml:space="preserve">java.lang.NoSuchMethodException: Unknown property 'user'
+	org.apache.commons.beanutils.PropertyUtils.setSimpleProperty(PropertyUtils.java:1777)
+	com.sun.faces.config.ManagedBeanFactoryImpl.setPropertiesIntoBean(ManagedBeanFactoryImpl.java:615)
+	com.sun.faces.config.ManagedBeanFactoryImpl.newInstance(ManagedBeanFactoryImpl.java:293)
+	com.sun.faces.application.ApplicationAssociate.createAndMaybeStoreManagedBeans(ApplicationAssociate.java:493)
+	com.sun.faces.el.ManagedBeanELResolver.getValue(ManagedBeanELResolver.java:83)
+	javax.el.CompositeELResolver.getValue(CompositeELResolver.java:145)
+	com.sun.faces.el.FacesCompositeELResolver.getValue(FacesCompositeELResolver.java:58)
+	com.sun.el.parser.AstIdentifier.getValue(AstIdentifier.java:65)
+	com.sun.el.parser.AstValue.getValue(AstValue.java:106)
+	com.sun.el.ValueExpressionImpl.getValue(ValueExpressionImpl.java:192)
+	javax.faces.component.UIOutput.getValue(UIOutput.java:176)
+	com.sun.faces.renderkit.html_basic.HtmlBasicInputRenderer.getValue(HtmlBasicInputRenderer.java:101)
+	com.sun.faces.renderkit.html_basic.HtmlBasicRenderer.getCurrentValue(HtmlBasicRenderer.java:281)
+	com.sun.faces.renderkit.html_basic.HtmlBasicRenderer.encodeEnd(HtmlBasicRenderer.java:207)
+	javax.faces.component.UIComponentBase.encodeEnd(UIComponentBase.java:878)
+	javax.faces.component.UIComponentBase.encodeAll(UIComponentBase.java:905)
+	javax.faces.render.Renderer.encodeChildren(Renderer.java:137)
+	javax.faces.component.UIComponentBase.encodeChildren(UIComponentBase.java:858)
+	javax.faces.component.UIComponentBase.encodeAll(UIComponentBase.java:895)
+	javax.faces.component.UIComponentBase.encodeAll(UIComponentBase.java:901)
+	com.sun.faces.application.ViewHandlerImpl.doRenderView(ViewHandlerImpl.java:248)
+	com.sun.faces.application.ViewHandlerImpl.renderView(ViewHandlerImpl.java:166)
+	com.sun.faces.lifecycle.RenderResponsePhase.execute(RenderResponsePhase.java:108)
+	com.sun.faces.lifecycle.LifecycleImpl.phase(LifecycleImpl.java:262)
+	com.sun.faces.lifecycle.LifecycleImpl.render(LifecycleImpl.java:157)
+	javax.faces.webapp.FacesServlet.service(FacesServlet.java:219)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:585)
+	org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+	java.security.AccessController.doPrivileged(Native Method)
+	javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+	org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+	org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+	com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+	com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+	org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+	com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+	com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+</pre>
+    <h3>Comments:</h3>
+    <ul>
+      <li>I don't give a rat's ass about the life story of the app server.
+      Just give me a message "faces-config.xml line 54"--no property 'user' in
+      class elvis.web.AssignmentWork.</li>
+    </ul>
+    <h2>Almost Right</h2>
+    <h3>Scenario:</h3>
+    <p>Wrong attribute name in JSF tag</p>
+    <h3>Message:</h3>
+    <pre xml:space="preserve">&nbsp;SEVERE:
+file:/tmp/exploded20060119123613/register/web_war/select-assignment.jsp(20,107)
+Attribute columnStyles invalid for tag dataTable according to TLD</pre>
+    <h3>Comments:</h3>
+    <ul>
+      <li>I had to run the verifier to get this message</li>
+      <li>It can be done: file name, line number</li>
+      <li>A bit more work is needed to make this IDE friendly. How would an
+      IDE know the significance of&nbsp;/tmp/exploded20060119123613?</li>
+    </ul>
+    <h2>What is Worse Than the Stack Trace from Hell? No Stack Trace!</h2>
+    <h3>Scenario:</h3>
+    <p>Write a JSF action listener that throws a NullPointerException.</p>
+    <h3>Message:</h3>
+    <h3>Comments:</h3>
+    <ul>
+      <li>That's right. No message at all. The "invoke application" phase ends
+      and the current page is redisplayed. The application appears
+      dead.&nbsp;</li>
+      <li>Desired behavior: NullPointerException in file Work.java line
+      62.</li>
+      <li>In ASP.NET, you could debug this in a jiffy. Put a breakpoint in the
+      listener and launch the debugger.&nbsp;</li>
+    </ul>
+    <h2>Cannot Persist Detached Object</h2>
+    <h3>Scenario:</h3>
+    <ol>
+      <li>Make a session bean that calls <tt>em.persist(new
+      MyEntity());</tt></li>
+      <li>Call that session bean from a client using <tt>javaagent</tt>, as
+      described in <a
+      href="https://glassfish.dev.java.net/javaee5/persistence/entity-persistence-support.html">https://glassfish.dev.java.net/javaee5/persistence/entity-persistence-support.html</a>,
+      but do that without making a transaction. (I thought the transaction
+      would be made for me since it works when I invoke the client without the
+      javaagent.)</li>
+    </ol>
+    <h3>Message:</h3>
+    <p>From client:</p>
+    <pre xml:space="preserve">
+
+Exception
+in thread "main" javax.ejb.EJBException: nested exception is:
+java.rmi.ServerException: RemoteException occurred in server thread;
+nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+java.rmi.ServerException: RemoteException occurred in server thread; nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.javax.rmi.CORBA.Util.mapSystemException(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at javax.rmi.CORBA.Util.mapSystemException(Util.java:67)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.privateInvoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.bcel.BCELStubBase.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session.__Setup_Remote_DynamicStub.setupDemo(__Setup_Remote_DynamicStub.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session._Setup_Wrapper.setupDemo(elvis.session._Setup_Wrapper.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.client.Client.main(Client.java:17)
+Caused by: java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.enterprise.iiop.POAProtocolMgr.mapException(POAProtocolMgr.java:234)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1254)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:67)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at $Proxy74.setupDemo(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(Unknown Source)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(Unknown Source)
+javax.ejb.EJBException: nested exception is: 
+java.rmi.ServerException: RemoteException occurred in server thread;
+nested exception is:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.session._Setup_Wrapper.setupDemo(elvis.session._Setup_Wrapper.java)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at elvis.client.Client.main(Client.java:17)
+</pre>
+    <p>Useless as always. The logs give a clue:</p>
+    <pre xml:space="preserve">javax.ejb.EJBException
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.processSystemException(BaseContainer.java:3712)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.completeNewTx(BaseContainer.java:3612)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvokeTx(BaseContainer.java:3413)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1221)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:67)
+&nbsp;&nbsp;&nbsp; at $Proxy74.setupDemo(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.ReflectiveTie._invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatchToServant(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaServerRequestDispatcherImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequestRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleInput(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.giopmsgheaders.RequestMessage_1_2.callback(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.protocol.CorbaMessageMediatorImpl.handleRequest(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.dispatch(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.transport.SocketOrChannelConnectionImpl.doWork(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.orbutil.threadpool.ThreadPoolImpl$WorkerThread.run(Unknown Source)
+Caused by: java.lang.IllegalArgumentException: <b>Can not PERSIST detatched object: userId=cayhorstmann,name=Cay Stephan Horstmann</b>.
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.UnitOfWorkImpl.registerNotRegisteredNewObjectForPersist(UnitOfWorkImpl.java:3204)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.RepeatableWriteUnitOfWork.registerNotRegisteredNewObjectForPersist(RepeatableWriteUnitOfWork.java:291)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.sessions.UnitOfWorkImpl.registerNewObjectForPersist(UnitOfWorkImpl.java:3181)
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.EntityManagerImpl.persist(EntityManagerImpl.java:103)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.util.EntityManagerWrapper.persist(EntityManagerWrapper.java:165)
+&nbsp;&nbsp;&nbsp; at <b>elvis.session.SetupImpl.makeSampleCourse(SetupImpl.java:51)</b>
+&nbsp;&nbsp;&nbsp; at elvis.session.SetupImpl.setupDemo(SetupImpl.java:26)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.SecurityUtil$2.run(SecurityUtil.java:171)
+&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.application.EJBSecurityManager.doAsPrivileged(EJBSecurityManager.java:975)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.SecurityUtil.invoke(SecurityUtil.java:176)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.invokeTargetBeanMethod(BaseContainer.java:2748)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.intercept(BaseContainer.java:3825)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:190)
+&nbsp;&nbsp;&nbsp; ... 17 more
+</pre>
+    <h3>Comments:</h3>
+    <p>Look at the highlighted part of the stack trace. In this case, it would
+    be an easy matter to give the developer a useful report: Error in
+    SetupImpl.java line 51.</p>
+    <h2>How deeply can you bury it?</h2>
+    <h3>Scenario:</h3>
+    <p>Refresh an entity that no longer exists, in a session bean that is
+    called from a JSF managed bean. An "entity not found exception" is buried
+    in the mother of all stack traces.</p>
+    <h3>Message:</h3>
+    <p>The browser shows this message, useless as always:</p>
+    <pre xml:space="preserve">javax.servlet.ServletException: nested exception is: java.rmi.ServerException: RemoteException occurred in server thread; nested exception is: 
+	java.rmi.RemoteException
+	javax.faces.webapp.FacesServlet.service(Unknown Source)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:585)
+	org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+	java.security.AccessController.doPrivileged(Native Method)
+	javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+	org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+	org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+	com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+	com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+	org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+	com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+	com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+</pre>
+    <p></p>
+    <p><b>root cause</b></p>
+    <pre xml:space="preserve">javax.ejb.EJBException: nested exception is: java.rmi.ServerException: RemoteException occurred in server thread; nested exception is: 
+	java.rmi.RemoteException
+	elvis.session._AssignmentSubmission_Wrapper.getOpenSubmissions(elvis.session._AssignmentSubmission_Wrapper.java)
+	elvis.web.AssignmentWork.getOpenSubmissions(AssignmentWork.java:39)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:585)
+	javax.el.BeanELResolver.getValue(BeanELResolver.java:275)
+	javax.el.CompositeELResolver.getValue(CompositeELResolver.java:145)
+	com.sun.faces.el.FacesCompositeELResolver.getValue(Unknown Source)
+	com.sun.el.parser.AstValue.getValue(AstValue.java:117)
+	com.sun.el.ValueExpressionImpl.getValue(ValueExpressionImpl.java:192)
+	javax.faces.component.UIData.getValue(Unknown Source)
+	javax.faces.component.UIData.getDataModel(Unknown Source)
+	javax.faces.component.UIData.setRowIndex(Unknown Source)
+	com.sun.faces.renderkit.html_basic.TableRenderer.encodeBegin(Unknown Source)
+	javax.faces.component.UIComponentBase.encodeBegin(Unknown Source)
+	javax.faces.component.UIData.encodeBegin(Unknown Source)
+	javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+	javax.faces.render.Renderer.encodeChildren(Unknown Source)
+	javax.faces.component.UIComponentBase.encodeChildren(Unknown Source)
+	javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+	javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+	com.sun.faces.application.ViewHandlerImpl.doRenderView(Unknown Source)
+	com.sun.faces.application.ViewHandlerImpl.renderView(Unknown Source)
+	com.sun.faces.lifecycle.RenderResponsePhase.execute(Unknown Source)
+	com.sun.faces.lifecycle.LifecycleImpl.phase(Unknown Source)
+	com.sun.faces.lifecycle.LifecycleImpl.render(Unknown Source)
+	javax.faces.webapp.FacesServlet.service(Unknown Source)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:585)
+	org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+	java.security.AccessController.doPrivileged(Native Method)
+	javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+	org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+	org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+	com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+	com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+	org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+	com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+	com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+	com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+	com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+</pre>
+    <p>Ok, on to the log:</p>
+    <pre xml:space="preserve">[#|2006-01-25T10:54:00.093-0800|INFO|sun-appserver-pe9.0|javax.enterprise.system.container.ejb|_ThreadID=20;_ThreadName=httpWorkerThread-8080-0;|
+javax.ejb.EJBException
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.processSystemException(BaseContainer.java:3712)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.completeNewTx(BaseContainer.java:3612)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvokeTx(BaseContainer.java:3413)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.postInvoke(BaseContainer.java:1221)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:197)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandlerDelegate.invoke(EJBObjectInvocationHandlerDelegate.java:67)
+&nbsp;&nbsp;&nbsp; at $Proxy53.getOpenSubmissions(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.privateInvoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.bcel.BCELStubBase.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at elvis.session.__AssignmentSubmission_Remote_DynamicStub.getOpenSubmissions(__AssignmentSubmission_Remote_DynamicStub.java)
+&nbsp;&nbsp;&nbsp; at elvis.session._AssignmentSubmission_Wrapper.getOpenSubmissions(elvis.session._AssignmentSubmission_Wrapper.java)
+&nbsp;&nbsp;&nbsp; at elvis.web.AssignmentWork.getOpenSubmissions(AssignmentWork.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at javax.el.BeanELResolver.getValue(BeanELResolver.java:275)
+&nbsp;&nbsp;&nbsp; at javax.el.CompositeELResolver.getValue(CompositeELResolver.java:145)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.el.FacesCompositeELResolver.getValue(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.el.parser.AstValue.getValue(AstValue.java:117)
+&nbsp;&nbsp;&nbsp; at com.sun.el.ValueExpressionImpl.getValue(ValueExpressionImpl.java:192)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.getValue(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.getDataModel(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.setRowIndex(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.renderkit.html_basic.TableRenderer.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.render.Renderer.encodeChildren(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeChildren(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.application.ViewHandlerImpl.doRenderView(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.application.ViewHandlerImpl.renderView(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.RenderResponsePhase.execute(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.LifecycleImpl.phase(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.LifecycleImpl.render(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.webapp.FacesServlet.service(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)
+&nbsp;&nbsp;&nbsp; at javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ApplicationFilterChain.servletService(ApplicationFilterChain.java:390)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:279)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:536)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardContextValve.invokeInternal(StandardContextValve.java:240)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:179)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:174)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:939)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:137)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:536)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:939)
+&nbsp;&nbsp;&nbsp; at org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+Caused
+by: javax.persistence.EntityNotFoundException: Entity no longer exists
+in the database:
+elvis.entity.Submission[id=2183,assignment=elvis.entity.Assignment[id=2176,title=A
+Java Trivia Quiz,course=elvis.entity.Course[name=Sample
+Course]],responses=[],student=userId=jqpublic,name=John Quincy
+Public,status=NOT_STARTED].
+&nbsp;&nbsp;&nbsp; at oracle.toplink.essentials.internal.ejb.cmp3.base.EntityManagerImpl.refresh(EntityManagerImpl.java:234)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.util.EntityManagerWrapper.refresh(EntityManagerWrapper.java:209)
+&nbsp;&nbsp;&nbsp; at elvis.session.AssignmentSubmissionImpl.getOpenSubmissions(AssignmentSubmissionImpl.java:70)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.SecurityUtil$2.run(SecurityUtil.java:171)
+&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.application.EJBSecurityManager.doAsPrivileged(EJBSecurityManager.java:975)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.security.SecurityUtil.invoke(SecurityUtil.java:176)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.invokeTargetBeanMethod(BaseContainer.java:2748)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.BaseContainer.intercept(BaseContainer.java:3825)
+&nbsp;&nbsp;&nbsp; at com.sun.ejb.containers.EJBObjectInvocationHandler.invoke(EJBObjectInvocationHandler.java:190)
+&nbsp;&nbsp;&nbsp; ... 71 more
+|#]
+
+[#|2006-01-25T10:54:00.102-0800|WARNING|sun-appserver-pe9.0|javax.enterprise.resource.webcontainer.jsf.lifecycle|_ThreadID=20;_ThreadName=httpWorkerThread-8080-0;_RequestID=2ca6705f-5f16-4f96-86ed-2cbc60acd271;|executePhase(RENDER_RESPONSE
+6,com.sun.faces.context.FacesContextImpl@12d73bb) threw exception
+javax.faces.FacesException:
+javax.el.ELException: javax.ejb.EJBException: nested exception is:
+java.rmi.ServerException: RemoteException occurred in server thread;
+nested exception is: 
+&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.getValue(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.getDataModel(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.setRowIndex(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.renderkit.html_basic.TableRenderer.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.render.Renderer.encodeChildren(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeChildren(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.application.ViewHandlerImpl.doRenderView(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.application.ViewHandlerImpl.renderView(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.RenderResponsePhase.execute(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.LifecycleImpl.phase(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.LifecycleImpl.render(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.webapp.FacesServlet.service(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)
+&nbsp;&nbsp;&nbsp; at javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ApplicationFilterChain.servletService(ApplicationFilterChain.java:390)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:279)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:536)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardContextValve.invokeInternal(StandardContextValve.java:240)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:179)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:174)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:939)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:137)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:536)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:939)
+&nbsp;&nbsp;&nbsp; at org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+Caused by: javax.el.ELException: javax.ejb.EJBException: nested exception is:
+java.rmi.ServerException: RemoteException occurred in server thread;
+nested exception is: 
+&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp; at javax.el.BeanELResolver.getValue(BeanELResolver.java:280)
+&nbsp;&nbsp;&nbsp; at javax.el.CompositeELResolver.getValue(CompositeELResolver.java:145)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.el.FacesCompositeELResolver.getValue(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.el.parser.AstValue.getValue(AstValue.java:117)
+&nbsp;&nbsp;&nbsp; at com.sun.el.ValueExpressionImpl.getValue(ValueExpressionImpl.java:192)
+&nbsp;&nbsp;&nbsp; ... 50 more
+Caused by: javax.ejb.EJBException: nested exception is:
+java.rmi.ServerException: RemoteException occurred in server thread;
+nested exception is: 
+&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp; at elvis.session._AssignmentSubmission_Wrapper.getOpenSubmissions(elvis.session._AssignmentSubmission_Wrapper.java)
+&nbsp;&nbsp;&nbsp; at elvis.web.AssignmentWork.getOpenSubmissions(AssignmentWork.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at javax.el.BeanELResolver.getValue(BeanELResolver.java:275)
+&nbsp;&nbsp;&nbsp; ... 54 more
+|#]
+
+[#|2006-01-25T10:54:00.108-0800|SEVERE|sun-appserver-pe9.0|javax.enterprise.system.container.web|_ThreadID=20;_ThreadName=httpWorkerThread-8080-0;_RequestID=2ca6705f-5f16-4f96-86ed-2cbc60acd271;|StandardWrapperValve[Faces
+Servlet]: Servlet.service() for servlet Faces Servlet threw exception
+javax.ejb.EJBException:
+nested exception is: java.rmi.ServerException: RemoteException occurred
+in server thread; nested exception is: 
+&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+java.rmi.ServerException: RemoteException occurred in server thread; nested exception is: 
+&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.javax.rmi.CORBA.Util.wrapException(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.rmi.CORBA.Util.wrapException(Util.java:279)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.privateInvoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.StubInvocationHandlerImpl.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.corba.ee.impl.presentation.rmi.bcel.BCELStubBase.invoke(Unknown Source)
+&nbsp;&nbsp;&nbsp; at elvis.session.__AssignmentSubmission_Remote_DynamicStub.getOpenSubmissions(__AssignmentSubmission_Remote_DynamicStub.java)
+&nbsp;&nbsp;&nbsp; at elvis.session._AssignmentSubmission_Wrapper.getOpenSubmissions(elvis.session._AssignmentSubmission_Wrapper.java)
+&nbsp;&nbsp;&nbsp; at elvis.web.AssignmentWork.getOpenSubmissions(AssignmentWork.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at javax.el.BeanELResolver.getValue(BeanELResolver.java:275)
+&nbsp;&nbsp;&nbsp; at javax.el.CompositeELResolver.getValue(CompositeELResolver.java:145)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.el.FacesCompositeELResolver.getValue(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.el.parser.AstValue.getValue(AstValue.java:117)
+&nbsp;&nbsp;&nbsp; at com.sun.el.ValueExpressionImpl.getValue(ValueExpressionImpl.java:192)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.getValue(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.getDataModel(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.setRowIndex(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.renderkit.html_basic.TableRenderer.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.render.Renderer.encodeChildren(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeChildren(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.application.ViewHandlerImpl.doRenderView(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.application.ViewHandlerImpl.renderView(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.RenderResponsePhase.execute(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.LifecycleImpl.phase(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.LifecycleImpl.render(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.webapp.FacesServlet.service(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)
+&nbsp;&nbsp;&nbsp; at javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ApplicationFilterChain.servletService(ApplicationFilterChain.java:390)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:279)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:536)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardContextValve.invokeInternal(StandardContextValve.java:240)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:179)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:174)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:939)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:137)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:536)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:939)
+&nbsp;&nbsp;&nbsp; at org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+Caused by: java.rmi.RemoteException
+javax.ejb.EJBException:
+nested exception is: java.rmi.ServerException: RemoteException occurred
+in server thread; nested exception is: 
+&nbsp;&nbsp;&nbsp; java.rmi.RemoteException
+&nbsp;&nbsp;&nbsp;
+at
+elvis.session._AssignmentSubmission_Wrapper.getOpenSubmissions(elvis.session._AssignmentSubmission_Wrapper.java)
+&nbsp;&nbsp;&nbsp; at elvis.web.AssignmentWork.getOpenSubmissions(AssignmentWork.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at javax.el.BeanELResolver.getValue(BeanELResolver.java:275)
+&nbsp;&nbsp;&nbsp; at javax.el.CompositeELResolver.getValue(CompositeELResolver.java:145)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.el.FacesCompositeELResolver.getValue(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.el.parser.AstValue.getValue(AstValue.java:117)
+&nbsp;&nbsp;&nbsp; at com.sun.el.ValueExpressionImpl.getValue(ValueExpressionImpl.java:192)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.getValue(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.getDataModel(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.setRowIndex(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.renderkit.html_basic.TableRenderer.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIData.encodeBegin(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.render.Renderer.encodeChildren(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeChildren(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.component.UIComponentBase.encodeAll(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.application.ViewHandlerImpl.doRenderView(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.application.ViewHandlerImpl.renderView(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.RenderResponsePhase.execute(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.LifecycleImpl.phase(Unknown Source)
+&nbsp;&nbsp;&nbsp; at com.sun.faces.lifecycle.LifecycleImpl.render(Unknown Source)
+&nbsp;&nbsp;&nbsp; at javax.faces.webapp.FacesServlet.service(Unknown Source)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&nbsp;&nbsp;&nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&nbsp;&nbsp;&nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&nbsp;&nbsp;&nbsp; at java.lang.reflect.Method.invoke(Method.java:585)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:262)
+&nbsp;&nbsp;&nbsp; at java.security.AccessController.doPrivileged(Native Method)
+&nbsp;&nbsp;&nbsp; at javax.security.auth.Subject.doAsPrivileged(Subject.java:517)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:295)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:178)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ApplicationFilterChain.servletService(ApplicationFilterChain.java:390)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:279)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:536)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardContextValve.invokeInternal(StandardContextValve.java:240)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:179)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:73)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:174)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.VirtualServerPipeline.invoke(VirtualServerPipeline.java:120)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:939)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:137)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.doInvoke(StandardPipeline.java:566)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:536)
+&nbsp;&nbsp;&nbsp; at org.apache.catalina.core.ContainerBase.invoke(ContainerBase.java:939)
+&nbsp;&nbsp;&nbsp; at org.apache.coyote.tomcat5.CoyoteAdapter.service(CoyoteAdapter.java:223)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.invokeAdapter(ProcessorTask.java:664)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.processNonBlocked(ProcessorTask.java:571)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ProcessorTask.process(ProcessorTask.java:846)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ReadTask.executeProcessorTask(ReadTask.java:345)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.ReadTask.doTask(ReadTask.java:237)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.TaskBase.run(TaskBase.java:240)
+&nbsp;&nbsp;&nbsp; at com.sun.enterprise.web.connector.grizzly.WorkerThread.run(WorkerThread.java:75)
+|#]
+
+</pre>
+    <h3>Comments:</h3>
+    <p>How long did it take you to spot the relevant message?&nbsp;Hint: It is
+    <tt>javax.persistence.EntityNotFoundException: Entity no longer exists in
+    the database...</tt>&nbsp;And a couple of lines below,
+    <tt>elvis.session.AssignmentSubmissionImpl.getOpenSubmissions(AssignmentSubmissionImpl.java:70)</tt></p>
+    <p>Glassfish developers: Your challenge, should you accept it, is to
+    extract&nbsp;this information and put it in front of the developer's
+    eyes.</p>
+  </body>
+</html>

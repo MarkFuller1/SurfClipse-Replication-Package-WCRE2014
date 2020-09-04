@@ -1,0 +1,324 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>HashMap vs Hashtable (Beginning Java forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/436103/java/java/HashMap-Hashtable"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/436103/java/java/HashMap-Hashtable?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-33/java">Beginning Java</a>
+<div class="subject">HashMap vs Hashtable</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: sandeep raj, Greenhorn<br />
+  on <span class="lastPostTime">Mar 16, 2009 01:32:34</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I googled around for the differences between these and most of the websites stated the following - 
+<br /> "The key difference between the two is that access to the Hashtable is synchronized on the table while access to the HashMap isn't. You can add it, but it isn't there by default.
+<br /> Another difference is that iterator in the HashMap is fail-safe while the enumerator for the Hashtable isn't. If you change the map while iterating, you'll know.
+<br /> And, a third difference is that HashMap permits null values in it, while Hashtable doesn't. "
+<br /> 
+<br />  I am unable to understand the second difference (that the hashmap iterator is failsafe). The hashmap doesnt have a iterator in the first place and the only way to get a iterator would be something like Iterator&lt;Map.Entry&lt;String, Integer&gt;&gt; it = g.entrySet().iterator(); Does that mean that while accessing the iterator i cannot add elements to the hashmap ? because I tried that and the program worked without giving me an error. Can anyone explain what the second difference actually means? Also does the second difference pose a benefit since hashtable is synchronized and the only possible way in which the contents can be modified in a different thread is if that thread can obtain a lock on the object.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Manish R Singh, Greenhorn<br />
+  on <span class="lastPostTime">Mar 16, 2009 01:36:23</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Fail safe meaning in thread context while accessing mutiple  threads
+<br /> 
+<br /> 
+<br /> The iterators for the concrete collection implementations
+<br /> are fail-fast. 
+<br /> That means that if you are using an Iterator to traverse a
+<br /> collection while underlying collection is being modified by
+<br /> another thread, then the Iterator fails immediately by
+<br /> throwing a ConcurrentModificationException (another
+<br /> RuntimeException). That means the next time an Iterator
+<br /> method is called, and the underlying collection has been
+<br /> modified, the ConcurrentModificationException exception gets
+<br /> thrown.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Harshit Rastogi, Ranch Hand<br />
+  on <span class="lastPostTime">Mar 16, 2009 05:59:18</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">let me put in easy words:
+<br /> 
+<br /> While iterating through iterator a hashmap can be changed but at the same time if any other thread modifies the same object at the time of iteration through iterator, iterator will throw an exception </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ryan Beckett, Ranch Hand<br />
+  on <span class="lastPostTime">Mar 16, 2009 10:59:40</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">A ConcurrentModificationException will be thrown
+<br /> 
+<br /> <a class="snap_shots" href="http://java.sun.com/j2se/1.4.2/docs/api/java/util/ConcurrentModificationException.html" target="_new" >ConcurrentModificationException</a></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Paul Clapham, Bartender<br />
+  on <span class="lastPostTime">Mar 16, 2009 15:48:05</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Manish &#x0052; Singh wrote:</cite>That means that if you are using an Iterator to traverse a
+<br /> collection while underlying collection is being modified by
+<br /> another thread, then the Iterator fails immediately by
+<br /> throwing a ConcurrentModificationException...</div>
+		</blockquote>
+<br /> 
+<br /> In fact the failure will occur even if it's the same thread which modifies the underlying collection. Many people are surprised when this happens, perhaps because they have seen explanations like this one.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: sandeep raj, Greenhorn<br />
+  on <span class="lastPostTime">Mar 18, 2009 03:01:44</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">thanks for the explanation guys. 
+<br /> @paul - I actually tried modifying the hashmap after obtaining the iterator and wasnt posed with any exception. what i did was basically 
+<br /> get the iterator using Iterator&lt;Map.Entry&lt;String, Integer&gt;&gt; it = g.entrySet().iterator();  I then looped on the iterator 'i' and inserted additional values in the middle of the loop. The iterator did not print out the newly inserted values and it did not give me an exception, so I am wondering why i wasnt posed with an exception based on what you said. All the code of obtaining the iterator and looping was within the main thread.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Campbell Ritchie, Sheriff<br />
+  on <span class="lastPostTime">Mar 18, 2009 03:11:57</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">It would appear you have successfully added values, but you have only added values to the Set which the entrySet method returns. You haven't added anything to the original Map. Maybe you have entered the values before the position of the Iterator, so you would never find them.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Rob Spoor, Sheriff<br />
+  on <span class="lastPostTime">Mar 18, 2009 03:50:21</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Campbell Ritchie wrote:</cite>It would appear you have successfully added values, but you have only added values to the Set which the entrySet method returns. You haven't added anything to the original Map.</div>
+		</blockquote>
+<br /> Actually, entrySet() returns a view, so removing anything from it should remove the underlying map entry as well. As far as I know, adding elements to keySet(), values() or entrySet() will throw an UnsupportedOperationException for all known Map implementations.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Campbell Ritchie, Sheriff<br />
+  on <span class="lastPostTime">Mar 18, 2009 05:35:01</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Yes, Rob, you are right.
+<br /> 
+<br /> There must be a different explanation. Can't think what it is at the moment. An Iterator doesn't have an add method, so you shouldn't be able to add with the Iterator, only remove elements.</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/436103'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=33'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:26:33</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/33"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/436103/java/java/HashMap-Hashtable?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

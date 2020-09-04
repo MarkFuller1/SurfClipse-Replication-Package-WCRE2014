@@ -1,0 +1,182 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>Capturing HTML output in a String (Servlets forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/356759/Servlets/java/Capturing-HTML-output-String"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/356759/Servlets/java/Capturing-HTML-output-String?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-7/Servlets">Servlets</a>
+<div class="subject">Capturing HTML output in a String</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Chris Garrison, Ranch Hand<br />
+  on <span class="lastPostTime">Aug 19, 2003 12:36:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I want to have a link (to another URL) in a servlet. Instead of forwarding to that link, I want to capture the HTML output of the other URL.<br /> So:<br /> Servlet A has link to Servlet B<br /> Link is clicked.<br /> I somehow in Servlet A capture the output in HTML of Servlet B in a String.<br /> Then from servlet A  - out.print(hmtlString);<br /> Any ideas? <br /> I'm working with these dang portals.<br /> Thanks.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tom Blough, Ranch Hand<br />
+  on <span class="lastPostTime">Aug 19, 2003 13:00:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">The output from a servlet can be treated just like any other HTTP stream.   This example program <a href="http://www.mycgiserver.com/~tblough/screenscrape.htm" target="_blank" rel="nofollow"> screenscrapes</a> text from a cgi script but will work the same with any web source.<br /> [ August 19, 2003: Message edited by: Tom Blough ]<br /> [ August 19, 2003: Message edited by: Tom Blough ]<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: William Brogden, Rancher<br />
+  on <span class="lastPostTime">Aug 19, 2003 13:00:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">You need to look into the java.net package URL, URLConnection and HttpURLConnection classes. Once you have created a connection you can open an InputStream to read the output of servlet B.<br /> I think we have had several extended discussions of this sort of thing recently.<br /> Bill</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Chris Garrison, Ranch Hand<br />
+  on <span class="lastPostTime">Aug 19, 2003 14:45:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Thanks for the input. I did several searches (FYI) and they were a help. Unfortunatly, I'm kinda of a newby so it's tough.  <img src="http://cache-www.coderanch.com/images/smilies/jr-confused.gif" border="0">  <br /> Thanks for pointing me to java.net. I think I'm well on my way.<br /> I'm gettin the following exception:<br /> java.net.UnknownServiceException: protocol doesn't support input<br /> at java.net.URLConnection.getInputStream(URLConnection.java:666)<br /> at UFSTest.doGet(UFSTest.java:25)<br /> at javax.servlet.http.HttpServlet.service(HttpServlet.java:740)<br /> at javax.servlet.http.HttpServlet.service(HttpServlet.java:853)<br /> <br /> Heres the servlet/doGet code:<br /> (note: UFSTestHelper is a class I created b/c I had to extend HttpURLConnection - I defined all (previously) abstract methods to return true?!?!?) <br /> anyway - here's the code<br /> import javax.servlet.*;<br /> import javax.servlet.http.*;<br /> import java.io.*;<br /> import java.util.*;<br /> import java.net.*;<br /> public class UFSTest extends HttpServlet{<br /> <br /> public void doGet(HttpServletRequest request, HttpServletResponse response)<br /> throws ServletException, IOException{<br /> response.setContentType("text/html");<br /> PrintWriter out = response.getWriter();<br /> <br /> out.println("&lt;HTML&gt;");<br /> out.println("&lt;HEAD&gt;");<br /> out.println("&lt;/HEAD&gt;&lt;BODY&gt;");<br /> URL url = new URL("https://XXXXXXXXXXXXXXXX");<br /> UFSTestHelper huc = new UFSTestHelper(url);<br /> huc.connect();<br /> <br /> InputStream is = huc.getInputStream();<br /> out.print(is);<br /> <br /> out.print("&lt;/BODY&gt;&lt;/HTML&gt;");<br /> }.<br /> <br /> The HTML I'm trying to capture is coming from a page that uses struts. I don't know if that makes a difference??!</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/356759'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=7'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:55:25</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/7"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/356759/Servlets/java/Capturing-HTML-output-String?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

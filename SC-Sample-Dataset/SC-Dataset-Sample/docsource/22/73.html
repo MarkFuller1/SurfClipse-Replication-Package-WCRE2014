@@ -1,0 +1,265 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>java.text.ParseException: Unparseable date (Java in General forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/382893/java/java/java-text-ParseException-Unparseable-date"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/382893/java/java/java-text-ParseException-Unparseable-date?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-1/java">Java in General</a>
+<div class="subject">java.text.ParseException: Unparseable date</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: rajareddy annavaarm, Ranch Hand<br />
+  on <span class="lastPostTime">Jun 12, 2007 22:43:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">DateFormat df = new SimpleDateFormat("yyyy-MM-dd");<br />  <br />         // df.format(new Date(properties.getProperty(<br />         // df.format(new Date(properties.getProperty(calForm)<br />         int iNoOfWorkingDays = 0;<br />  <br />         do {<br />             ss = calFrom.get(Calendar.YEAR) + "" + calFrom.get(Calendar.MONTH) + ""<br />                  + calFrom.get(Calendar.DAY_OF_MONTH);<br />  <br />             Date dd = new SimpleDateFormat().parse(ss);<br />  <br />             ss = df.format(dd);<br />             System.out.println("sadfsafsafsaf        " + ss);<br />             System.out.println("sadfsafsafsaf        " + properties.getProperty(ss));<br />  <br /> <b>I am getting exception like below when I am executing above code</b><br />  <br /> Exception in thread "main" java.text.ParseException: Unparseable date: "2007215"<br />         at java.text.DateFormat.parse(Unknown Source)<br />         at DateDifference.getDateDifferenceInDaysExcludingSatSun(DateDifference.java:175)<br />         at DateDifference.main(DateDifference.java:51)<br />  <br /> my property file is like this<br /> 200746=Good Friday<br /> 200712=New Years Day<br /> 200711=New Years Day<br /> 20071013=Hari Raya Puasa</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ulf Dittmer, Marshal<br />
+  on <span class="lastPostTime">Jun 12, 2007 23:31:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">The problem is likely this line:<br />  <br /> <textarea name="code" class="java" cols="60" rows="10">Date dd = new SimpleDateFormat().parse(ss);</textarea><br />  <br /> where you are creating a SimpleDateFormat without specifying which pattern it should use. I'm guessing that the default pattern it uses (whichever that may be) can't handle the "2007215" that you're throwing at it.<br />  <br /> Actually, most patterns would have problems with that, because the month field is of varying length. You should use "20070215" instead.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: rajareddy annavaarm, Ranch Hand<br />
+  on <span class="lastPostTime">Jun 13, 2007 00:15:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody"><textarea name="code" class="java" cols="60" rows="10"> Calendar calTo = Calendar.getInstance();
+ 
+        calTo.setTime(toDate);
+ 
+        //
+        DateFormat  df = new SimpleDateFormat("yyyy-MM-dd");
+ 
+        // df.format(new Date(properties.getProperty(
+        // df.format(new Date(properties.getProperty(calForm)
+        int iNoOfWorkingDays = 0;
+ 
+        do {
+         //   ss = calFrom.get(Calendar.YEAR) + "-" + calFrom.get(Calendar.MONTH) + "-+ calFrom.get(Calendar.DAY_OF_MONTH);
+String ss=null;
+            Date dd = df.parse(String.valueOf((Date)calFrom.getTime()));
+System.out.println("dd       " + dd);
+ss = df.format(dd);
+ 
+            
+            System.out.println("11111111        " + ss);
+            System.out.println("22222222222        " + properties.getProperty(ss));
+ 
+            if ((calFrom.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY)
+                    &#0124;&#0124; (calFrom.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)) {
+                if (properties.getProperty(ss) == null) {
+                    System.out.println("inner if    sssssssss      " + ss);
+                    iNoOfWorkingDays += 1;
+                }
+            }
+ 
+            calFrom.add(Calendar.DATE, 1);
+        } while (calFrom.getTimeInMillis() &lt; calTo.getTimeInMillis());</textarea><br />  <br /> <b>I am getting exception like below </b><br />  <br /> Exception in thread "main" java.text.ParseException: Unparseable date: "Thu Mar 15 11:40:11 GMT+05:30 2007"<br />         at java.text.DateFormat.parse(Unknown Source)<br />         at DateDifference.getDateDifferenceInDaysExcludingSatSun(DateDifference.java:171)<br />         at DateDifference.main(DateDifference.java:51)<br />  <br /> <br /> property file is like this<br />  <br /> 2007-10-13=Hari Raya Puasa<br /> 2007-12-25=Christmas Day<br /> 2007-08-09=National Day</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: rajareddy annavaarm, Ranch Hand<br />
+  on <span class="lastPostTime">Jun 13, 2007 00:19:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody"><textarea name="code" class="java" cols="60" rows="10"> Calendar calTo = Calendar.getInstance();
+ 
+        calTo.setTime(toDate);
+ 
+        //
+        DateFormat  df = new SimpleDateFormat("yyyy-MM-dd");
+ 
+        // df.format(new Date(properties.getProperty(
+        // df.format(new Date(properties.getProperty(calForm)
+        int iNoOfWorkingDays = 0;
+ 
+        do {
+         //   ss = calFrom.get(Calendar.YEAR) + "-" + calFrom.get(Calendar.MONTH) + "-+ calFrom.get(Calendar.DAY_OF_MONTH);
+String ss=null;
+            Date dd = df.parse(String.valueOf((Date)calFrom.getTime()));
+System.out.println("dd       " + dd);
+ss = df.format(dd);
+ 
+            
+            System.out.println("11111111        " + ss);
+            System.out.println("22222222222        " + properties.getProperty(ss));
+ 
+            if ((calFrom.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY)
+                    &#0124;&#0124; (calFrom.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)) {
+                if (properties.getProperty(ss) == null) {
+                    System.out.println("inner if    sssssssss      " + ss);
+                    iNoOfWorkingDays += 1;
+                }
+            }
+ 
+            calFrom.add(Calendar.DATE, 1);
+        } while (calFrom.getTimeInMillis() &lt; calTo.getTimeInMillis());</textarea><br />  <br /> <b>I am getting exception like below </b><br />  <br /> Exception in thread "main" java.text.ParseException: Unparseable date: "Thu Mar 15 11:40:11 GMT+05:30 2007"<br />         at java.text.DateFormat.parse(Unknown Source)<br />         at DateDifference.getDateDifferenceInDaysExcludingSatSun(DateDifference.java:171)<br />         at DateDifference.main(DateDifference.java:51)<br />  <br /> <br /> property file is like this<br />  <br /> 2007-10-13=Hari Raya Puasa<br /> 2007-12-25=Christmas Day<br /> 2007-08-09=National Day</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jim Yingst, Sheriff<br />
+  on <span class="lastPostTime">Jun 13, 2007 00:49:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody"><textarea name="code" class="java" cols="60" rows="10"> Date dd = df.parse(String.valueOf((Date)calFrom.getTime()));</textarea><br />  <br /> Why are you doing this?  You start with a Calendar, you use getTime() to get a Date, then you use String.valueOf() to get a String and then use parse() to try to get a Date again?  Why not just use the Date you had from getTime()?  Surely that would be simpler.<br />  <br /> The problem here is that String.valueOf() is calling toString(), and this is not formatting the date in the same format that your df object expects.  Really, it would be best if you do not try to use String.valueOf() on a Date object, as you can't control the format used here.  I can't see any reason why you would need it anyway.</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/382893'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=1'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:51:01</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/1"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/382893/java/java/java-text-ParseException-Unparseable-date?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

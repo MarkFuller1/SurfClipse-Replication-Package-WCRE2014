@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- code.jsp -->
+
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>java.util.zip: GZIPInputStream.java</title>
+</head>
+<body style="padding:0 0 0 0;margin:0 0 0 0">
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; java &#187;  <a href='/docs/api/java/util/package-index.html'>util</a> &#187;  <a href='/docs/api/java/util/zip/package-index.html'>zip</a> &#187; 
+ [<a href="/docs/api/java/util/zip/GZIPInputStream.html">javadoc</a> | source]
+</div>
+<pre>
+<a name='1'>    1 &nbsp; /*
+    2 &nbsp;  * Copyright (c) 1996, 2010, Oracle and/or its affiliates. All rights reserved.
+    3 &nbsp;  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+    4 &nbsp;  *
+    5 &nbsp;  * This code is free software; you can redistribute it and/or modify it
+    6 &nbsp;  * under the terms of the GNU General Public License version 2 only, as
+    7 &nbsp;  * published by the Free Software Foundation.  Oracle designates this
+    8 &nbsp;  * particular file as subject to the "Classpath" exception as provided
+    9 &nbsp;  * by Oracle in the LICENSE file that accompanied this code.
+   10 &nbsp;  *
+<a name='11'>   11 &nbsp;  * This code is distributed in the hope that it will be useful, but WITHOUT
+   12 &nbsp;  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   13 &nbsp;  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+   14 &nbsp;  * version 2 for more details (a copy is included in the LICENSE file that
+   15 &nbsp;  * accompanied this code).
+   16 &nbsp;  *
+   17 &nbsp;  * You should have received a copy of the GNU General Public License version
+   18 &nbsp;  * 2 along with this work; if not, write to the Free Software Foundation,
+   19 &nbsp;  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+   20 &nbsp;  *
+<a name='21'>   21 &nbsp;  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+   22 &nbsp;  * or visit www.oracle.com if you need additional information or have any
+   23 &nbsp;  * questions.
+   24 &nbsp;  */
+   25 &nbsp; 
+   26 &nbsp; <span class='kw'>package</span> <a href=/docs/api/java/util/zip/package-index.html>java.util.zip</a>;
+   27 &nbsp; 
+   28 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/SequenceInputStream.html>java.io.SequenceInputStream</a>;
+   29 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/ByteArrayInputStream.html>java.io.ByteArrayInputStream</a>;
+   30 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/InputStream.html>java.io.InputStream</a>;
+<a name='31'>   31 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/IOException.html>java.io.IOException</a>;
+   32 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/EOFException.html>java.io.EOFException</a>;
+   33 &nbsp; 
+   34 &nbsp; /**
+   35 &nbsp;  * This class implements a stream filter for reading compressed data in
+   36 &nbsp;  * the GZIP file format.
+   37 &nbsp;  *
+   38 &nbsp;  * @see         InflaterInputStream
+   39 &nbsp;  * @author      David Connelly
+   40 &nbsp;  *
+<a name='41'>   41 &nbsp;  */
+   42 &nbsp; public
+   43 &nbsp; class GZIPInputStream extends InflaterInputStream {
+   44 &nbsp;     /**
+   45 &nbsp;      * CRC-32 for uncompressed data.
+   46 &nbsp;      */
+   47 &nbsp;     protected CRC32 crc = new CRC32();
+   48 &nbsp; 
+   49 &nbsp;     /**
+   50 &nbsp;      * Indicates end of input stream.
+<a name='51'>   51 &nbsp;      */
+   52 &nbsp;     protected boolean eos;
+   53 &nbsp; 
+   54 &nbsp;     private boolean closed = false;
+   55 &nbsp; 
+   56 &nbsp;     /**
+   57 &nbsp;      * Check to make sure that this stream has not been closed
+   58 &nbsp;      */
+   59 &nbsp;     private void ensureOpen() throws IOException {
+   60 &nbsp;         if (closed) {
+<a name='61'>   61 &nbsp;             throw new IOException("Stream closed");
+   62 &nbsp;         }
+   63 &nbsp;     }
+   64 &nbsp; 
+   65 &nbsp;     /**
+   66 &nbsp;      * Creates a new input stream with the specified buffer size.
+   67 &nbsp;      * @param in the input stream
+   68 &nbsp;      * @param size the input buffer size
+   69 &nbsp;      *
+   70 &nbsp;      * @exception ZipException if a GZIP format error has occurred or the
+<a name='71'>   71 &nbsp;      *                         compression method used is unsupported
+   72 &nbsp;      * @exception IOException if an I/O error has occurred
+   73 &nbsp;      * @exception IllegalArgumentException if size is &lt;= 0
+   74 &nbsp;      */
+   75 &nbsp;     public GZIPInputStream(InputStream in, int size) throws IOException {
+   76 &nbsp;         super(in, new Inflater(true), size);
+   77 &nbsp;         usesDefaultInflater = true;
+   78 &nbsp;         readHeader(in);
+   79 &nbsp;     }
+   80 &nbsp; 
+<a name='81'>   81 &nbsp;     /**
+   82 &nbsp;      * Creates a new input stream with a default buffer size.
+   83 &nbsp;      * @param in the input stream
+   84 &nbsp;      *
+   85 &nbsp;      * @exception ZipException if a GZIP format error has occurred or the
+   86 &nbsp;      *                         compression method used is unsupported
+   87 &nbsp;      * @exception IOException if an I/O error has occurred
+   88 &nbsp;      */
+   89 &nbsp;     public GZIPInputStream(InputStream in) throws IOException {
+   90 &nbsp;         this(in, 512);
+<a name='91'>   91 &nbsp;     }
+   92 &nbsp; 
+   93 &nbsp;     /**
+   94 &nbsp;      * Reads uncompressed data into an array of bytes. If &lt;code&gt;len&lt;/code&gt; is not
+   95 &nbsp;      * zero, the method will block until some input can be decompressed; otherwise,
+   96 &nbsp;      * no bytes are read and &lt;code&gt;0&lt;/code&gt; is returned.
+   97 &nbsp;      * @param buf the buffer into which the data is read
+   98 &nbsp;      * @param off the start offset in the destination array &lt;code&gt;b&lt;/code&gt;
+   99 &nbsp;      * @param len the maximum number of bytes read
+  100 &nbsp;      * @return  the actual number of bytes read, or -1 if the end of the
+<a name='101'>  101 &nbsp;      *          compressed input stream is reached
+  102 &nbsp;      *
+  103 &nbsp;      * @exception  NullPointerException If &lt;code&gt;buf&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;.
+  104 &nbsp;      * @exception  IndexOutOfBoundsException If &lt;code&gt;off&lt;/code&gt; is negative,
+  105 &nbsp;      * &lt;code&gt;len&lt;/code&gt; is negative, or &lt;code&gt;len&lt;/code&gt; is greater than
+  106 &nbsp;      * &lt;code&gt;buf.length - off&lt;/code&gt;
+  107 &nbsp;      * @exception ZipException if the compressed input data is corrupt.
+  108 &nbsp;      * @exception IOException if an I/O error has occurred.
+  109 &nbsp;      *
+  110 &nbsp;      */
+<a name='111'>  111 &nbsp;     public int read(byte[] buf, int off, int len) throws IOException {
+  112 &nbsp;         ensureOpen();
+  113 &nbsp;         if (eos) {
+  114 &nbsp;             return -1;
+  115 &nbsp;         }
+  116 &nbsp;         int n = super.read(buf, off, len);
+  117 &nbsp;         if (n == -1) {
+  118 &nbsp;             if (readTrailer())
+  119 &nbsp;                 eos = true;
+  120 &nbsp;             else
+<a name='121'>  121 &nbsp;                 return this.read(buf, off, len);
+  122 &nbsp;         } else {
+  123 &nbsp;             crc.update(buf, off, n);
+  124 &nbsp;         }
+  125 &nbsp;         return n;
+  126 &nbsp;     }
+  127 &nbsp; 
+  128 &nbsp;     /**
+  129 &nbsp;      * Closes this input stream and releases any system resources associated
+  130 &nbsp;      * with the stream.
+<a name='131'>  131 &nbsp;      * @exception IOException if an I/O error has occurred
+  132 &nbsp;      */
+  133 &nbsp;     public void close() throws IOException {
+  134 &nbsp;         if (!closed) {
+  135 &nbsp;             super.close();
+  136 &nbsp;             eos = true;
+  137 &nbsp;             closed = true;
+  138 &nbsp;         }
+  139 &nbsp;     }
+  140 &nbsp; 
+<a name='141'>  141 &nbsp;     /**
+  142 &nbsp;      * GZIP header magic number.
+  143 &nbsp;      */
+  144 &nbsp;     public final static int GZIP_MAGIC = 0x8b1f;
+  145 &nbsp; 
+  146 &nbsp;     /*
+  147 &nbsp;      * File header flags.
+  148 &nbsp;      */
+  149 &nbsp;     private final static int FTEXT      = 1;    // Extra text
+  150 &nbsp;     private final static int FHCRC      = 2;    // Header CRC
+<a name='151'>  151 &nbsp;     private final static int FEXTRA     = 4;    // Extra field
+  152 &nbsp;     private final static int FNAME      = 8;    // File name
+  153 &nbsp;     private final static int FCOMMENT   = 16;   // File comment
+  154 &nbsp; 
+  155 &nbsp;     /*
+  156 &nbsp;      * Reads GZIP member header and returns the total byte number
+  157 &nbsp;      * of this member header.
+  158 &nbsp;      */
+  159 &nbsp;     private int readHeader(InputStream this_in) throws IOException {
+  160 &nbsp;         CheckedInputStream in = new CheckedInputStream(this_in, crc);
+<a name='161'>  161 &nbsp;         crc.reset();
+  162 &nbsp;         // Check header magic
+  163 &nbsp;         if (readUShort(in) != GZIP_MAGIC) {
+  164 &nbsp;             throw new ZipException("Not in GZIP format");
+  165 &nbsp;         }
+  166 &nbsp;         // Check compression method
+  167 &nbsp;         if (readUByte(in) != 8) {
+  168 &nbsp;             throw new ZipException("Unsupported compression method");
+  169 &nbsp;         }
+  170 &nbsp;         // Read flags
+<a name='171'>  171 &nbsp;         int flg = readUByte(in);
+  172 &nbsp;         // Skip MTIME, XFL, and OS fields
+  173 &nbsp;         skipBytes(in, 6);
+  174 &nbsp;         int n = 2 + 2 + 6;
+  175 &nbsp;         // Skip optional extra field
+  176 &nbsp;         if ((flg &amp; FEXTRA) == FEXTRA) {
+  177 &nbsp;             int m = readUShort(in);
+  178 &nbsp;             skipBytes(in, m);
+  179 &nbsp;             n += m + 2;
+  180 &nbsp;         }
+<a name='181'>  181 &nbsp;         // Skip optional file name
+  182 &nbsp;         if ((flg &amp; FNAME) == FNAME) {
+  183 &nbsp;             do {
+  184 &nbsp;                 n++;
+  185 &nbsp;             } while (readUByte(in) != 0);
+  186 &nbsp;         }
+  187 &nbsp;         // Skip optional file comment
+  188 &nbsp;         if ((flg &amp; FCOMMENT) == FCOMMENT) {
+  189 &nbsp;             do {
+  190 &nbsp;                 n++;
+<a name='191'>  191 &nbsp;             } while (readUByte(in) != 0);
+  192 &nbsp;         }
+  193 &nbsp;         // Check optional header CRC
+  194 &nbsp;         if ((flg &amp; FHCRC) == FHCRC) {
+  195 &nbsp;             int v = (int)crc.getValue() &amp; 0xffff;
+  196 &nbsp;             if (readUShort(in) != v) {
+  197 &nbsp;                 throw new ZipException("Corrupt GZIP header");
+  198 &nbsp;             }
+  199 &nbsp;             n += 2;
+  200 &nbsp;         }
+<a name='201'>  201 &nbsp;         crc.reset();
+  202 &nbsp;         return n;
+  203 &nbsp;     }
+  204 &nbsp; 
+  205 &nbsp;     /*
+  206 &nbsp;      * Reads GZIP member trailer and returns true if the eos
+  207 &nbsp;      * reached, false if there are more (concatenated gzip
+  208 &nbsp;      * data set)
+  209 &nbsp;      */
+  210 &nbsp;     private boolean readTrailer() throws IOException {
+<a name='211'>  211 &nbsp;         InputStream in = this.in;
+  212 &nbsp;         int n = inf.getRemaining();
+  213 &nbsp;         if (n &gt; 0) {
+  214 &nbsp;             in = new SequenceInputStream(
+  215 &nbsp;                         new ByteArrayInputStream(buf, len - n, n), in);
+  216 &nbsp;         }
+  217 &nbsp;         // Uses left-to-right evaluation order
+  218 &nbsp;         if ((readUInt(in) != crc.getValue()) ||
+  219 &nbsp;             // rfc1952; ISIZE is the input size modulo 2^32
+  220 &nbsp;             (readUInt(in) != (inf.getBytesWritten() &amp; 0xffffffffL)))
+<a name='221'>  221 &nbsp;             throw new ZipException("Corrupt GZIP trailer");
+  222 &nbsp; 
+  223 &nbsp;         // If there are more bytes available in "in" or
+  224 &nbsp;         // the leftover in the "inf" is &gt; 26 bytes:
+  225 &nbsp;         // this.trailer(8) + next.header.min(10) + next.trailer(8)
+  226 &nbsp;         // try concatenated case
+  227 &nbsp;         if (this.in.available() &gt; 0 || n &gt; 26) {
+  228 &nbsp;             int m = 8;                  // this.trailer
+  229 &nbsp;             try {
+  230 &nbsp;                 m += readHeader(in);    // next.header
+<a name='231'>  231 &nbsp;             } catch (IOException ze) {
+  232 &nbsp;                 return true;  // ignore any malformed, do nothing
+  233 &nbsp;             }
+  234 &nbsp;             inf.reset();
+  235 &nbsp;             if (n &gt; m)
+  236 &nbsp;                 inf.setInput(buf, len - n + m, n - m);
+  237 &nbsp;             return false;
+  238 &nbsp;         }
+  239 &nbsp;         return true;
+  240 &nbsp;     }
+<a name='241'>  241 &nbsp; 
+  242 &nbsp;     /*
+  243 &nbsp;      * Reads unsigned integer in Intel byte order.
+  244 &nbsp;      */
+  245 &nbsp;     private long readUInt(InputStream in) throws IOException {
+  246 &nbsp;         long s = readUShort(in);
+  247 &nbsp;         return ((long)readUShort(in) &lt;&lt; 16) | s;
+  248 &nbsp;     }
+  249 &nbsp; 
+  250 &nbsp;     /*
+<a name='251'>  251 &nbsp;      * Reads unsigned short in Intel byte order.
+  252 &nbsp;      */
+  253 &nbsp;     private int readUShort(InputStream in) throws IOException {
+  254 &nbsp;         int b = readUByte(in);
+  255 &nbsp;         return ((int)readUByte(in) &lt;&lt; 8) | b;
+  256 &nbsp;     }
+  257 &nbsp; 
+  258 &nbsp;     /*
+  259 &nbsp;      * Reads unsigned byte.
+  260 &nbsp;      */
+<a name='261'>  261 &nbsp;     private int readUByte(InputStream in) throws IOException {
+  262 &nbsp;         int b = in.read();
+  263 &nbsp;         if (b == -1) {
+  264 &nbsp;             throw new EOFException();
+  265 &nbsp;         }
+  266 &nbsp;         if (b &lt; -1 || b &gt; 255) {
+  267 &nbsp;             // Report on this.in, not argument in; see read{Header, Trailer}.
+  268 &nbsp;             throw new IOException(this.in.getClass().getName()
+  269 &nbsp;                 + ".read() returned value out of range -1..255: " + b);
+  270 &nbsp;         }
+<a name='271'>  271 &nbsp;         return b;
+  272 &nbsp;     }
+  273 &nbsp; 
+  274 &nbsp;     private byte[] tmpbuf = new byte[128];
+  275 &nbsp; 
+  276 &nbsp;     /*
+  277 &nbsp;      * Skips bytes of input data blocking until all bytes are skipped.
+  278 &nbsp;      * Does not assume that the input stream is capable of seeking.
+  279 &nbsp;      */
+  280 &nbsp;     private void skipBytes(InputStream in, int n) throws IOException {
+<a name='281'>  281 &nbsp;         while (n &gt; 0) {
+  282 &nbsp;             int len = in.read(tmpbuf, 0, n &lt; tmpbuf.length ? n : tmpbuf.length);
+  283 &nbsp;             if (len == -1) {
+  284 &nbsp;                 throw new EOFException();
+  285 &nbsp;             }
+  286 &nbsp;             n -= len;
+  287 &nbsp;         }
+  288 &nbsp;     }
+  289 &nbsp; }
+
+</pre>
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; java &#187;  <a href='/docs/api/java/util/package-index.html'>util</a> &#187;  <a href='/docs/api/java/util/zip/package-index.html'>zip</a> &#187; 
+ [<a href="/docs/api/java/util/zip/GZIPInputStream.html">javadoc</a> | source]
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-138120-1");
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- end -->

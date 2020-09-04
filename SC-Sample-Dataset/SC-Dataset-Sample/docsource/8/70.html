@@ -1,0 +1,1092 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+			<html>
+				<head>
+					<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+					<link rel="stylesheet" href="/nabble.pack.css?v=27" type="text/css" />
+	<link rel="stylesheet" href="/template/NamlServlet.jtp?macro=site_style" type="text/css" />
+					<script src="/util/jquery-1.7.2.pack.js" type="text/javascript"></script>
+	<script src="/util/nabbledropdown-2.4.1.pack.js" type="text/javascript"></script>
+	<script src="/template/NamlServlet.jtp?macro=javascript_library&amp;v=60" type="text/javascript"></script>
+					<script type="text/javascript">
+		var terms = Nabble.getSearchTerms();
+		var hasTurnOff = false;
+		Nabble.searchHighlight = function($elem) {
+			if (terms != null && terms.length > 0) {
+				$elem.each(function() {
+					Nabble.highlightSearchTerms(terms, this);
+				});
+				if (Nabble.hasHighlightedTerms && !hasTurnOff) {
+					var turnOffLink = '<span id="turn-off-highlight-control"><span class="highlight">&nbsp;X&nbsp;</span> ';
+					turnOffLink += '<a href="javascript:void(0)" onclick="Nabble.turnOffHighlight()">Turn off highlighting</a></span>';
+					$('#topics-controls-right').prepend(turnOffLink);
+					hasTurnOff = true;
+				}
+			}
+		};
+		Nabble.turnOffHighlight = function() {
+			Nabble.deleteCookie("query");
+			Nabble.deleteCookie("searchuser");
+			Nabble.deleteCookie("searchterms");
+			$('span.search-highlight').removeClass('bold highlight');
+			$('#turn-off-highlight-control').hide();
+		};
+	</script>
+	<script type="text/javascript">
+		Nabble.messageTextWidth();
+	</script>
+			<script type="text/javascript"> $(document).ready(function() { Nabble.searchHighlight($('h2.post-subject,div.message-text')); }); </script> <script type="text/javascript"> var _hash = Nabble.hash(); if (_hash) { (function(){ var post = _hash.substr(2); var allPosts = [4914858, 4924076, 5696252]; var allURLs = ["/SessionBean-with-interface-causes-quot-java-lang-IllegalArgumentException-object-is-not-an-instance--td4914858.html"]; var iPost = allPosts.indexOf(parseInt(post)); var lower = 0; var upper = lower + 20; if (iPost != -1 && (iPost < lower || iPost >= upper)) location.replace(allURLs[Math.floor(iPost/20)]+_hash); })(); } $(document).ready(function() { var rootId = '4914858'; var currentPostId = rootId; var isChangingViews = _hash == '#none'; if (_hash && !isChangingViews) currentPostId = _hash.substr(2); Nabble.hideQuotes(); function scrollToSelectedPost() { var $arrow = $('#red-arrow'+currentPostId).show(); if ($arrow.size() > 0) { var isRootPost = currentPostId == rootId; if (Nabble.isEmbedded) { if (Nabble.canScroll()) scrollTo(0, 0); var y = isChangingViews? null : isRootPost? 1 : $arrow.parents('div.classic-row').offset().top; Nabble.resizeFrames('', y); } else if (Nabble.canScroll() && !isRootPost) { var yPos = $arrow.offset().top; scrollTo(0,yPos-20); } } else { if (Nabble.isEmbedded && Nabble.canScroll()) { Nabble.resizeFrames('', 1); } else { var tb = $('div.top-bar').get(0); if (tb) tb.scrollIntoView(); } } }; $(window).load(scrollToSelectedPost); if (Nabble.isEmbedded) { $('div.message-text img').load(Nabble.resizeFrames); } }); </script> <style type="text/css"> div.classic-header { height:2.2em; clear:both; overflow:hidden; } div.classic-author-name { float:left; width: 140px; overflow: hidden; text-align:center; font-weight:bold; } div.classic-subject-line { left:.5em; overflow:hidden; height:1.3em; position:relative; } div.classic-right-menu { float:right; padding-left:1em; } div.classic-bar { padding:.5em .3em; clear:both; height:1.8em; } table.classic-body { border-collapse:collapse; margin-bottom:1em; table-layout: fixed; width:100%; } td.classic-author { vertical-align: top; text-align:center; width:140px; padding-bottom:1em; } td.classic-message { vertical-align:top; padding:1em; } div.message-text { cursor:text; overflow-x:auto; } div.avatar-inner { margin-left:20px; } div.avatar-outer { width:140px; text-align:left; } div.avatar-label { white-space:nowrap; font-size:80%; } </style>
+
+	<title>Jersey - SessionBean with interface causes &quot;java.lang.IllegalArgumentException: object is not an instance of declaring class&quot;</title>
+			<META NAME="description" CONTENT="SessionBean with interface causes &quot;java.lang.IllegalArgumentException: object is not an instance of declaring class&quot;. Hi, I have strange situation. I have some SessionBean which implements..."/>
+			<META NAME="keywords" CONTENT="sessionbean, with, interface, causes, quot, java, lang, illegalargumentexception, object, not, instance, declaring, class, have, strange, situation, some, which, implements, simple, anotated, local, or, remote, jersey"/>
+			<style type="text/css">
+			#search-box-dropdown {
+				text-align:left;
+				position:absolute;
+				display:none;
+				z-index:1000;
+				overflow:hidden;
+			}
+		</style>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var $sdd = $('#search-box-dropdown');
+				var $sb = $('#search-input');
+				var $form = $sb.parent();
+				var timeout;
+				$(document).click(function(o){
+					var $target = $(o.target);
+					if ($target.parents().hasClass('search-box-dropdown')) {
+						clearTimeout(timeout);
+						$sb.focus();
+					}
+				});
+				$sb.focusin(function(e) {
+					$sdd.css('left', $sb.position().left - 5);
+					$sdd.width($sb.outerWidth() + 10);
+					$sdd.show();
+				});
+				$sb.focusout(function() {
+					timeout = setTimeout(function() {
+						$sdd.hide();
+					},250);
+				});
+				$('input[type=radio]', $sdd).change(function() {
+					var nodeId = $(this).val();
+					$('input[name="node"]', $form).val(nodeId);
+				});
+				$('input[name="node"]', $form).val(576304);
+			});
+		</script><script type="text/javascript">
+			Nabble.setView = function(view,url,post) {
+				Nabble.setVar("tview",view);
+				url += Nabble.getClientID(';');
+				if (url.indexOf('#') == -1)
+					url += '#none';
+				location.replace(url);
+			};
+		</script><style type="text/css"> div.nabble-tooltip, div.nabble-tooltip * { color: #EEE; font-weight:bold; } div.nabble-tooltip { background: #000; font-size:90%; line-height:normal; display: none; position: absolute; z-index: 88888; padding: .5em; border: 1px solid #FFF; white-space:normal; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; } div.nabble-tooltip-small-row, div.nabble-tooltip-small-row * { color:#D0EAF2; } div.nabble-tooltip-small-row { font-size:80%; font-weight:normal; padding-top: .4em; } div.nabble-tooltip-arrow { font: 40px Arial, Sans-serif; line-height:1em; left:15px; position:absolute; bottom:-15px; height:15px; width:30px; overflow:hidden; } div.nabble-tooltip-arrow div { position:absolute; } div.nabble-tooltip-arrow div.d1 { top:-22px; color: #FFF; } div.nabble-tooltip-arrow div.d2 { top:-25px; color: #000; } </style> <script type="text/javascript"> Nabble.startTooltip = function(e, position, delay) { if (e.nabbletooltip) return; e.nabbletooltip = true; var $this = $(e); var $arrow = $this.children().last(); var $elem = $this.prev(); $elem.hover( function() { setTip(); setTimer(); }, function() { stopTimer(); $this.hide(); } ); function setTimer() { $this.showTipTimer = setTimeout(function() { $('div.nabble-tooltip').hide(); stopTimer(); $this.fadeTo('fast', .8); }, delay); }; function stopTimer() { clearInterval($this.showTipTimer); }; function setTip(){ if ($this.parent().get() != document.body) $(document.body).append($this); var useTitle = $this.attr('use_title') == 'true'; if (useTitle) { var title = $elem.attr('title'); if (title != '') { $arrow.remove(); $this.html(title); $elem.attr('title',''); $this.append($arrow); } } var win = $(window).width(); if (position == 'up') { var w = $this.outerWidth(); if (w > 250) { w = 250; $this.width(w); } var xMid = $elem.offset().left + $elem.outerWidth()/2; var xTip = xMid - w/2; if (xTip+w > win-5) xTip = win-w-5; if (xTip < 0) xTip = 0; var xArrow = xMid-xTip-11; var yTip = $elem.offset().top-$this.outerHeight()-12; $arrow.css('left', xArrow); $this.css({'top' : yTip, 'left' : xTip}); } else if (position == 'right') { var h = $this.outerHeight(); var yMid = $elem.offset().top + $elem.outerHeight()/2; var yTip = yMid - h/2; var xTip = $elem.offset().left + $elem.outerWidth() + 10; $arrow.width(8).height(24).css({bottom:0,left:-8}); var yArrow = (h - 24)/2; $arrow.css({top:yArrow}); var $d1 = $arrow.children().first(); var $d2 = $arrow.children().last(); $d1.css({top:-11}); $d2.css({top:-11,left:1}); $this.css({'top' : yTip, 'left' : xTip}); } }; }; </script><script type="text/javascript">
+			Nabble.pinTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=pin_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#pin-icon').show();
+					NabbleDropdown.show('unpinTopic');
+					NabbleDropdown.hide('pinTopic');
+					alert('This topic has been pinned.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.unpinTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=unpin_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#pin-icon').hide();
+					NabbleDropdown.hide('unpinTopic');
+					NabbleDropdown.show('pinTopic');
+					alert('This topic has been unpinned.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.lockTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=lock_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#lock-icon').show();
+					NabbleDropdown.show('unlockTopic');
+					NabbleDropdown.hide('lockTopic');
+					alert('This topic has been locked.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.unlockTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=unlock_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#lock-icon').hide();
+					NabbleDropdown.hide('unlockTopic');
+					NabbleDropdown.show('lockTopic');
+					alert('This topic has been unlocked.');
+				});
+			};
+		</script><script type="text/javascript">
+		var starredImg = new Image();
+		starredImg.src = "/images/icon_starred.png";
+		var unstarredImg = new Image();
+		unstarredImg.src = "/images/icon_unstarred.png";
+		var star = '<img src="/images/icon_starred.png" class="star" alt="star"/>';
+
+		function starInit(isStarred, c, id) {
+			$('#star'+c+id)
+				.css('cursor','pointer')
+				.click(function(){
+					starToggle(c,id);
+				});
+
+			starShow(isStarred,c,id);
+		};
+
+		function starShow(isStarred,c,id) {
+			var $img = $('#img-star'+c+id);
+			if (isStarred)
+				$img.attr('src', starredImg.src).attr('title', "Favorite (click to remove this item from your favorites list)");
+			else
+				$img.attr('src', unstarredImg.src).attr('title', "Add this item to your favorites list");
+			updateReadonlyStars(isStarred, id);
+		};
+
+		function updateReadonlyStars(isStarred, id) {
+			var $stars = $('#starC'+id+',#starD'+id);
+			$stars.html(isStarred? star : '');
+		};
+
+		function starToggle(c,id) {
+			if (!Nabble.userId) {
+				if( confirm("You must log in to star this item.\nWould you like to login now?") ) {
+					parent.location = "/template/NamlServlet.jtp?macro=login_page&nextUrl="+encodeURIComponent(parent.location) + Nabble.getClientID();
+				}
+				return;
+			}
+			var $img = $('#img-star'+c+id);
+			var isStarred = $img.attr('src') == starredImg.src;
+			isStarred = !isStarred;
+			var descendants = c == 'A';
+			var path = "/template/NamlServlet.jtp?node=" + id;
+			if( descendants && !isStarred )
+				path += "&macro=clear_descendant_stars";
+			else
+				path += "&macro=set_star&star=" + isStarred;
+			$.getScript(path + Nabble.getClientID(), function() {
+				starShow(isStarred,c,id);
+			});
+		};
+	</script><script type="text/javascript" src="http://www.adbayes.com/LoadUnit.jtp?c=1"></script>
+			<script type="text/javascript">
+				Nabble.adbayes();
+			</script><script type="text/javascript">
+			Nabble.nViews = function(id, views) {
+				var $v = $('#v'+id);
+				var pos = views=='1'?0:1;
+				var t = $v.html()? $v.html().split('|')[pos]:'';
+				$v.html(t == ''? views : t.replace(/%1/g,views)).show();
+			};
+		</script><style type="text/css">
+			img.report-flag {
+				vertical-align:middle;
+				cursor: pointer;
+			}
+			#report-inappropriate-content {
+				position: fixed;
+				z-index:9999;
+				display:none;
+				padding:1.5em;
+				left:8%;
+				right:8%;
+				top:8%;
+				background-color:#555;
+			}
+			#report-inappropriate-content-inner { padding:.5em; }
+			#report-inappropriate-content-inner div.big {
+				height:5em;
+				padding-top:2em;
+				text-align:center;
+				font-size:250%;
+			}
+			#report-inappropriate-content-inner div.big2 { font-size:70%; }
+			div.inappropriate-option { margin:.5em 0; }
+		</style>
+		<script type="text/javascript">
+			var reportNodeId = null;
+			Nabble.reportContent = function(nodeId) {
+				reportNodeId = nodeId;
+				$('#report-inappropriate-content').show();
+				var url = '/template/NamlServlet.jtp?macro=report_inappropriate_content_form';
+				$.get(url, function(data) {
+					$('#report-inappropriate-content-inner').html(data);
+				});
+			}
+			Nabble.closeReport = function() {
+				$('#report-inappropriate-content').hide();
+			}
+			Nabble.sendReport = function() {
+				$('#send-report-button').attr('disabled','true').addClass('toolbar-disabled');
+				var type = $('input[name=report_type]:checked').val();
+				var url = '/template/NamlServlet.jtp?macro=report_inappropriate_content_submit&node='+reportNodeId+'&type='+type+Nabble.getClientID();
+				$.get(url, function(data) {
+					var h = 'Thank You';
+					h += '<div class="weak-color big2">We will review your report soon.</div>';
+					h += '<a href="javascript: void Nabble.closeReport()">Close</a>';
+					$('#report-inappropriate-content-inner').html('<div class="big">'+h+'</div>');
+				});
+			}
+		</script>
+					<script type="text/javascript">
+		Nabble.setFontSize();
+		
+	</script>
+	<script type="text/javascript">
+		if (Nabble.analytics) Nabble.analytics();
+	</script>
+	<!-- Start Quantcast tag -->
+	<script type="text/javascript">
+		_qoptions={ qacct:"p-34EL1DZyJypTI" };
+	</script>
+	<script type="text/javascript" src="http://edge.quantserve.com/quant.js"></script>
+	<noscript>
+		<a href="http://www.quantcast.com/p-34EL1DZyJypTI" target="_blank" rel="nofollow">
+			<img src="http://pixel.quantserve.com/pixel/p-34EL1DZyJypTI.gif" style="display: none;" border="0" height="1" width="1" alt="Quantcast"/>
+		</a>
+	</noscript>
+	<!-- End Quantcast tag -->
+	<!-- Start Google Analytics -->
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['nabble._setAccount', 'UA-91855-9']);
+		_gaq.push(['nabble._trackPageview']);
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+	<!-- End Google Analytics -->
+	<script type="text/javascript">
+		var site_admins = [349101, 387931, 229235];
+	</script>
+	<script type="text/javascript">
+		var isSafe = true;
+		var Ads = Ads || {};
+		Ads.text = {
+			daysLeft: 'Trial period ends in $1 day(s)',
+			removeAds: 'Remove Ads',
+			buyCredits: 'Buy credits'
+		};
+		$(document).ready(function() {
+			if (Nabble.wasCreatedRecently && Nabble.currentCredits == 0) {
+				var s = '<div class="weak-color" style="text-align:center;margin:1em;font-size:80%">';
+				s += Ads.text.daysLeft.replace(/\$1/,daysLeft)+' &ndash; ';
+				s += '<a href="'+Nabble.buyCreditsPath+'">'+(Nabble.isSafe?Ads.text.removeAds:Ads.text.buyCredits)+'</a>';
+				s += '</div>';
+				var isAdmin = Nabble.userId && site_admins.indexOf(Number(Nabble.userId)) >= 0;
+				if (!isSafe || isAdmin)
+					$('div.nabble').append(s);
+			}
+		});
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			if (Nabble.userId && site_admins.indexOf(Number(Nabble.userId)) >= 0)
+				$('div.no-ads-message').show();
+		});
+	</script>
+				</head>
+				<body>
+					<div id="notice" class="notice rounded-bottom"></div>
+					<div class="nabble macro_classic_forum_topic" id="nabble">
+						
+			
+			<div class="top-bar">
+		<div class="breadcrumbs" style="float:left">
+			<span id="breadcrumbs" class="weak-color">
+		
+				<a href="http://jersey.576304.n2.nabble.com/">Jersey</a>
+	</span>
+		</div>
+		<div style="text-align:right;">
+			<span style="white-space:nowrap;" id="nabble-user-header"></span>
+	<script type="text/javascript">Nabble.userHeader();</script>
+		</div>
+	</div>
+			
+			<div id="nabble-newsflash" class="info-message" style="display:none;padding:.5em;margin-bottom:.5em"></div>
+	
+			<div id="topic-search-box" class="search-box float-right" style="padding:.5em 0">
+		<form action="/template/NamlServlet.jtp">
+		<input type="hidden" name="macro" value="search_page" />
+		<input type="hidden" name="node" value="4914858" />
+		
+		
+		
+		
+		<input id="search-input" name="query" size="18" class="medium-border-color"/>
+		<div id="search-box-dropdown" class="search-box-dropdown light-bg-color drop-shadow border1 medium-border-color rounded-bottom">
+		<div style="margin:.5em .5em 0 .5em">
+					<b>Search</b><br/>
+					<input id="search-root-node" type="radio" name="n" value="576304" checked="true"/>
+					<label for="search-root-node">everywhere</label><br/>
+
+					<input id="search-this-node" type="radio" name="n" value="4914858"/>
+					<label for="search-this-node">
+						only in this topic
+					</label>
+				</div>
+		<div style="margin:.5em;line-height:2em">
+			<input class="toolbar action-button float-right" type="submit" value="Search"/>
+			<a href="/template/NamlServlet.jtp?macro=adv_search_page&amp;node=4914858" rel="nofollow" style="font-size:80%">Advanced Search</a>
+		</div>
+	</div>
+	</form>
+	</div>
+
+	<h1 id="post-title" class="adbayes-content" style="margin:0.25em 0 .8em">
+		SessionBean with interface causes &quot;java.lang.IllegalArgumentExcep<wbr />tion: object is not an instance of declaring class&quot;
+	</h1>
+			<div style="margin:1.2em 0 5em">
+		<div id="topics-controls-left" class="float-left nowrap">
+			<table>
+		<tr>
+			<td style="padding-right:.1em">
+		<img src="/images/view-classic.gif" width="18" height="18" style="border:none" alt="classic"/>
+	</td>
+
+	<td style="padding-right:1.1em">
+		Classic
+	</td>
+
+			<td style="padding-right:.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('list', '/SessionBean-with-interface-causes-quot-java-lang-IllegalArgumentException-object-is-not-an-instance--tc4914858.html',null)"><img src="/images/view-list.gif" width="18" height="18" style="border:none" alt="list"/></a>
+	</td>
+
+	<td style="padding-right:1.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('list', '/SessionBean-with-interface-causes-quot-java-lang-IllegalArgumentException-object-is-not-an-instance--tc4914858.html',null)">List</a>
+	</td>
+
+			<td style="padding-right:.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/SessionBean-with-interface-causes-quot-java-lang-IllegalArgumentException-object-is-not-an-instance--tt4914858.html',null)"><img src="/images/view-threaded.gif" width="18" height="18" style="border:none" alt="threaded"/></a>
+	</td>
+
+	<td style="padding-right:1.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/SessionBean-with-interface-causes-quot-java-lang-IllegalArgumentException-object-is-not-an-instance--tt4914858.html',null)">Threaded</a>
+	</td>
+		</tr>
+	</table>
+		</div>
+		<div id="topics-controls-right" class="float-right nowrap" style="padding-top:.3em">
+			<span style="padding-right:1em;height:21px">
+		<img id="pin-icon" src="/images/pin.png" width="20" height="21" title="This topic has been pinned in Jersey." style="vertical-align:middle;display:none;"/>
+		<div id="tooltip42459" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip42459'), 'up', 400);
+	</script>
+	</span>
+	<span id="lock-icon" class="weak-color" style="padding:0 .5em;margin-right:.5em;display:none;">
+		<img src="/images/lock_sm.png" width="10" height="15" style="vertical-align:middle"/> Locked
+	</span>
+	<span style="padding-right:1em">
+		3 messages
+	</span>
+	<img src="/images/gear.png" class="image16" alt="Options"/>
+	<span id="dd_topicdropdown"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("topicdropdown", "Options","Click for more options");
+		
+		dropdown.add('topicSubscriptionLink', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dsubscribe&amp;node\x3D4914858\" rel\x3D\"nofollow\"\x3ESubscribe via email\x3C/a\x3E');
+		dropdown.addSeparator();
+		dropdown.add('moveTopic', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4914858\" rel\x3D\"nofollow\"\x3EMove topic\x3C/a\x3E', 'display:none');
+		dropdown.add('pinTopic', '\x3Ca href\x3D\"javascript: void Nabble.pinTopic(4914858)\" rel\x3D\"nofollow\"\x3EPin topic\x3C/a\x3E', 'display:none');
+		dropdown.add('unpinTopic', '\x3Ca href\x3D\"javascript: void Nabble.unpinTopic(4914858)\" rel\x3D\"nofollow\"\x3EUnpin topic\x3C/a\x3E', 'display:none');
+		dropdown.add('lockTopic', '\x3Ca href\x3D\"javascript: void Nabble.lockTopic(4914858)\" rel\x3D\"nofollow\"\x3ELock topic\x3C/a\x3E', 'display:none');
+		dropdown.add('unlockTopic', '\x3Ca href\x3D\"javascript: void Nabble.unlockTopic(4914858)\" rel\x3D\"nofollow\"\x3EUnlock topic\x3C/a\x3E', 'display:none');
+		dropdown.add('deleteRecursively', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4914858)\" rel\x3D\"nofollow\"\x3EDelete this topic\x3C/a\x3E', 'display:none');
+			dropdown.add('deletePost', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4914858)\" rel\x3D\"nofollow\"\x3EDelete this topic\x3C/a\x3E', 'display:none');
+		dropdown.add('changeMetaTags', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_title_and_meta_tags&amp;node\x3D4914858\" rel\x3D\"nofollow\"\x3EChange title and meta tags\x3C/a\x3E', 'display:none');
+		dropdown.add('embedPost4914858', '\x3Ca href\x3D\"/embed/EmbedOptions.jtp?node\x3D4914858\" rel\x3D\"nofollow\"\x3EEmbed post\x3C/a\x3E');
+		dropdown.add('permalink4914858', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://jersey.576304.n2.nabble.com/SessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.build('dd_topicdropdown');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=topic_dropdown_later&node=4914858' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+		</div>
+	</div>
+			<div id="topic-contents" style="margin-top:1em;clear:both">
+		<div id="classic-contents">
+		
+		<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://jersey.576304.n2.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=37110">jszczepankiewicz</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4914858" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/SessionBean-with-interface-causes-quot-java-lang-IllegalArgumentException-object-is-not-an-instance--tt4914858.html',4914858)">Threaded</a>
+	<div id="tooltip87424" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip87424'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4914858"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4914858", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4914858', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4914858\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4914858', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4914858\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4914858', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4914858\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4914858', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4914858)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4914858', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4914858)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4914858', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4914858\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4914858', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4914858\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4914858', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://jersey.576304.n2.nabble.com/SessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4914858', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4914858\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.add('social4914858', '\x3Ca href\x3D\"http://twitter.com/share?text\x3DSessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22&amp;related\x3DJersey&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html\" title\x3D\"Twitter\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/twitter.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.facebook.com/share.php?v\x3D4&amp;src\x3Dbm&amp;u\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html&amp;t\x3DSessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Facebook\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/facebook.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://del.icio.us/post?url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html&amp;title\x3DSessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Delicious\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/delicious.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.google.com/bookmarks/mark?op\x3Dadd&amp;bkmk\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html&amp;title\x3DSessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Google Bookmarks\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/google.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.stumbleupon.com/submit?url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html&amp;title\x3DSessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Stumble Upon\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/stumbleupon.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.linkedin.com/shareArticle?mini\x3Dtrue&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html&amp;title\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html&amp;source\x3DJersey\" title\x3D\"LinkedIn\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/linkedin.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://digg.com/submit?phase\x3D2&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858.html&amp;title\x3DSessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Digg\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/digg.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E','white-space:nowrap');
+		dropdown.build('dd_postdropdown4914858');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4914858' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4914858)"/>
+	<div id="tooltip40390" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip40390'), 'up', 400);
+	</script>
+					<span id="starB4914858">
+		<img id="img-starB4914858" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip87124" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip87124'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4914858" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1271447380267-24"></span><script type="text/javascript">
+		Nabble.get('d1271447380267-24').innerHTML= Nabble.formatDateLong(new Date(1271447380267));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		SessionBean with interface causes &quot;java.lang.IllegalArgumentExcep<wbr />tion: object is not an instance of declaring class&quot;
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://jersey.576304.n2.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=37110" rel="nofollow" title="View profile of jszczepankiewicz" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/4cc566b07c9457ae230c394d05725f0d?s=100&amp;r=pg&amp;d=http%3A%2F%2Fn2.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="jszczepankiewicz" title="jszczepankiewicz"/><img src="/images/online.png" class="online37110 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count37110 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message4914858" class="message-text adbayes-content">
+		Hi,
+<br/><br/>I have strange situation. I have some SessionBean which implements some simple interface (not anotated with @Local or @Remote). If It implements some interface I have exception:
+<br/>-------------------------------------------------
+<br/>java.lang.IllegalArgumentException: object is not an instance of declaring class
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.lang.reflect.Method.invoke(Method.java:597)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.model.method.dispatch.AbstractResourceMethodDispatchProvider$TypeOutInvoker._dispatch(AbstractResourceMethodDispatchProvider.java:149)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.model.method.dispatch.ResourceJavaMethodDispatcher.dispatch(ResourceJavaMethodDispatcher.java:67)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.uri.rules.HttpMethodRule.accept(HttpMethodRule.java:259)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:133)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.uri.rules.ResourceClassRule.accept(ResourceClassRule.java:83)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:133)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.uri.rules.RootResourceClassesRule.accept(RootResourceClassesRule.java:71)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.application.WebApplicationImpl._handleRequest(WebApplicationImpl.java:990)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.application.WebApplicationImpl.handleRequest(WebApplicationImpl.java:941)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.server.impl.application.WebApplicationImpl.handleRequest(WebApplicationImpl.java:932)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.spi.container.servlet.WebComponent.service(WebComponent.java:384)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.spi.container.servlet.ServletContainer.service(ServletContainer.java:451)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.jersey.spi.container.servlet.ServletContainer.service(ServletContainer.java:632)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at javax.servlet.http.HttpServlet.service(HttpServlet.java:847)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.catalina.core.StandardWrapper.service(StandardWrapper.java:1523)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:279)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:188)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java:641)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:97)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.enterprise.web.PESessionLockingStandardPipeline.invoke(PESessionLockingStandardPipeline.java:85)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:185)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.catalina.connector.CoyoteAdapter.doService(CoyoteAdapter.java:332)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:233)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.enterprise.v3.services.impl.ContainerMapper.service(ContainerMapper.java:165)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.http.ProcessorTask.invokeAdapter(ProcessorTask.java:791)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.http.ProcessorTask.doProcess(ProcessorTask.java:693)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.http.ProcessorTask.process(ProcessorTask.java:954)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.http.DefaultProtocolFilter.execute(DefaultProtocolFilter.java:170)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.DefaultProtocolChain.executeProtocolFilter(DefaultProtocolChain.java:135)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.DefaultProtocolChain.execute(DefaultProtocolChain.java:102)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.DefaultProtocolChain.execute(DefaultProtocolChain.java:88)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.http.HttpProtocolChain.execute(HttpProtocolChain.java:76)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.ProtocolChainContextTask.doCall(ProtocolChainContextTask.java:53)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.SelectionKeyContextTask.call(SelectionKeyContextTask.java:57)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.ContextTask.run(ContextTask.java:69)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.util.AbstractThreadPool$Worker.doWork(AbstractThreadPool.java:330)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at com.sun.grizzly.util.AbstractThreadPool$Worker.run(AbstractThreadPool.java:309)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.lang.Thread.run(Thread.java:619)
+<br/>------------------
+<br/>If I remote the &quot;implements X&quot; declaration there is no exception and everythings works ok. Using Glassfish 3.0.1. Is there any explanation what am I doing wrong? I want to not remove interface since is brings more readability to code.
+<br/><br/>Thanks in advance.
+
+	
+	
+	
+	</div>
+	<script type="text/javascript">
+				Nabble.ads('first_classic_message');
+			</script>
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://jersey.576304.n2.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=229235">Paul Sandoz</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=4924076" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/SessionBean-with-interface-causes-quot-java-lang-IllegalArgumentException-object-is-not-an-instance--tt4914858.html#a4924076',4924076)">Threaded</a>
+	<div id="tooltip12206" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip12206'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown4924076"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown4924076", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor4924076', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D4924076\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost4924076', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D4924076\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost4924076', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D4924076\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost4924076', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(4924076)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively4924076', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(4924076)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate4924076', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D4924076\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print4924076', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D4924076\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink4924076', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://jersey.576304.n2.nabble.com/SessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail4924076', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D4924076\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.add('social4924076', '\x3Ca href\x3D\"http://twitter.com/share?text\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22&amp;related\x3DJersey&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html\" title\x3D\"Twitter\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/twitter.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.facebook.com/share.php?v\x3D4&amp;src\x3Dbm&amp;u\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html&amp;t\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Facebook\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/facebook.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://del.icio.us/post?url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html&amp;title\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Delicious\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/delicious.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.google.com/bookmarks/mark?op\x3Dadd&amp;bkmk\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html&amp;title\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Google Bookmarks\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/google.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.stumbleupon.com/submit?url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html&amp;title\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Stumble Upon\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/stumbleupon.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.linkedin.com/shareArticle?mini\x3Dtrue&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html&amp;title\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html&amp;source\x3DJersey\" title\x3D\"LinkedIn\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/linkedin.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://digg.com/submit?phase\x3D2&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4924076.html&amp;title\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Digg\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/digg.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E','white-space:nowrap');
+		dropdown.build('dd_postdropdown4924076');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=4924076' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(4924076)"/>
+	<div id="tooltip86809" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip86809'), 'up', 400);
+	</script>
+					<span id="starB4924076">
+		<img id="img-starB4924076" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip18362" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip18362'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow4924076" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1271665498000-60"></span><script type="text/javascript">
+		Nabble.get('d1271665498000-60').innerHTML= Nabble.formatDateLong(new Date(1271665498000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: SessionBean with interface causes &quot;java.lang.IllegalArgumentExcep<wbr />tion: object is not an instance of declaring class&quot;
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://jersey.576304.n2.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=229235" rel="nofollow" title="View profile of Paul Sandoz" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/c99994410408f9204ff4e34d124e59e0?s=100&amp;r=pg&amp;d=http%3A%2F%2Fn2.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="Paul Sandoz" title="Paul Sandoz"/><img src="/images/online.png" class="online229235 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	<div class="avatar-label weak-color"><b>Administrator</b></div>
+	
+	<div class="post-count229235 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message4924076" class="message-text adbayes-content">
+		Hi,
+<br/><br/>Can you send me a test case, preferably a maven project?
+<br/><br/>I think the problem is that the EJB reference obtained from JNDI &nbsp;
+<br/>lookup is not what is expected. But a test case will help me work that &nbsp;
+<br/>out faster. There is some slightly complex rules about EJBs, &nbsp;
+<br/>interfaces and reference look up (due to legacy reasons i think).
+<br/><br/>Paul.
+<br/><br/>On Apr 16, 2010, at 9:49 PM, jszczepankiewicz wrote:
+<br/><div class='shrinkable-quote'><br/>&gt;
+<br/>&gt; Hi,
+<br/>&gt;
+<br/>&gt; I have strange situation. I have some SessionBean which implements &nbsp;
+<br/>&gt; some
+<br/>&gt; simple interface (not anotated with @Local or @Remote). If It &nbsp;
+<br/>&gt; implements
+<br/>&gt; some interface I have exception:
+<br/>&gt; -------------------------------------------------
+<br/>&gt; java.lang.IllegalArgumentException: object is not an instance of &nbsp;
+<br/>&gt; declaring
+<br/>&gt; class
+<br/>&gt; 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+<br/>&gt; 	at
+<br/>&gt; sun 
+<br/>&gt; .reflect 
+<br/>&gt; .NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+<br/>&gt; 	at
+<br/>&gt; sun 
+<br/>&gt; .reflect 
+<br/>&gt; .DelegatingMethodAccessorImpl 
+<br/>&gt; .invoke(DelegatingMethodAccessorImpl.java:25)
+<br/>&gt; 	at java.lang.reflect.Method.invoke(Method.java:597)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl.model.method.dispatch.AbstractResourceMethodDispatchProvider 
+<br/>&gt; $ 
+<br/>&gt; TypeOutInvoker._dispatch(AbstractResourceMethodDispatchProvider.java: 
+<br/>&gt; 149)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl 
+<br/>&gt; .model 
+<br/>&gt; .method 
+<br/>&gt; .dispatch 
+<br/>&gt; .ResourceJavaMethodDispatcher 
+<br/>&gt; .dispatch(ResourceJavaMethodDispatcher.java:67)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server.impl.uri.rules.HttpMethodRule.accept(HttpMethodRule.java:259)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:133)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl.uri.rules.ResourceClassRule.accept(ResourceClassRule.java:83)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:133)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl 
+<br/>&gt; .uri 
+<br/>&gt; .rules.RootResourceClassesRule.accept(RootResourceClassesRule.java:71)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl 
+<br/>&gt; .application 
+<br/>&gt; .WebApplicationImpl._handleRequest(WebApplicationImpl.java:990)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl 
+<br/>&gt; .application 
+<br/>&gt; .WebApplicationImpl.handleRequest(WebApplicationImpl.java:941)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .server 
+<br/>&gt; .impl 
+<br/>&gt; .application 
+<br/>&gt; .WebApplicationImpl.handleRequest(WebApplicationImpl.java:932)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey.spi.container.servlet.WebComponent.service(WebComponent.java: 
+<br/>&gt; 384)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .spi 
+<br/>&gt; .container.servlet.ServletContainer.service(ServletContainer.java:451)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .jersey 
+<br/>&gt; .spi 
+<br/>&gt; .container.servlet.ServletContainer.service(ServletContainer.java:632)
+<br/>&gt; 	at javax.servlet.http.HttpServlet.service(HttpServlet.java:847)
+<br/>&gt; 	at
+<br/>&gt; org 
+<br/>&gt; .apache.catalina.core.StandardWrapper.service(StandardWrapper.java: 
+<br/>&gt; 1523)
+<br/>&gt; 	at
+<br/>&gt; org 
+<br/>&gt; .apache 
+<br/>&gt; .catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java: 
+<br/>&gt; 279)
+<br/>&gt; 	at
+<br/>&gt; org 
+<br/>&gt; .apache 
+<br/>&gt; .catalina.core.StandardContextValve.invoke(StandardContextValve.java: 
+<br/>&gt; 188)
+<br/>&gt; 	at
+<br/>&gt; org 
+<br/>&gt; .apache.catalina.core.StandardPipeline.invoke(StandardPipeline.java: 
+<br/>&gt; 641)
+<br/>&gt; 	at com.sun.enterprise.web.WebPipeline.invoke(WebPipeline.java:97)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .enterprise 
+<br/>&gt; .web 
+<br/>&gt; .PESessionLockingStandardPipeline 
+<br/>&gt; .invoke(PESessionLockingStandardPipeline.java:85)
+<br/>&gt; 	at
+<br/>&gt; org 
+<br/>&gt; .apache 
+<br/>&gt; .catalina.core.StandardHostValve.invoke(StandardHostValve.java:185)
+<br/>&gt; 	at
+<br/>&gt; org 
+<br/>&gt; .apache 
+<br/>&gt; .catalina.connector.CoyoteAdapter.doService(CoyoteAdapter.java:332)
+<br/>&gt; 	at
+<br/>&gt; org 
+<br/>&gt; .apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java: 
+<br/>&gt; 233)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .enterprise 
+<br/>&gt; .v3.services.impl.ContainerMapper.service(ContainerMapper.java:165)
+<br/>&gt; 	at &nbsp;
+<br/>&gt; com.sun.grizzly.http.ProcessorTask.invokeAdapter(ProcessorTask.java: 
+<br/>&gt; 791)
+<br/>&gt; 	at com.sun.grizzly.http.ProcessorTask.doProcess(ProcessorTask.java: 
+<br/>&gt; 693)
+<br/>&gt; 	at com.sun.grizzly.http.ProcessorTask.process(ProcessorTask.java:954)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .grizzly 
+<br/>&gt; .http.DefaultProtocolFilter.execute(DefaultProtocolFilter.java:170)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .grizzly 
+<br/>&gt; .DefaultProtocolChain 
+<br/>&gt; .executeProtocolFilter(DefaultProtocolChain.java:135)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun.grizzly.DefaultProtocolChain.execute(DefaultProtocolChain.java: 
+<br/>&gt; 102)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun.grizzly.DefaultProtocolChain.execute(DefaultProtocolChain.java: 
+<br/>&gt; 88)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun.grizzly.http.HttpProtocolChain.execute(HttpProtocolChain.java:76)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .grizzly 
+<br/>&gt; .ProtocolChainContextTask.doCall(ProtocolChainContextTask.java:53)
+<br/>&gt; 	at
+<br/>&gt; com 
+<br/>&gt; .sun 
+<br/>&gt; .grizzly.SelectionKeyContextTask.call(SelectionKeyContextTask.java:57)
+<br/>&gt; 	at com.sun.grizzly.ContextTask.run(ContextTask.java:69)
+<br/>&gt; 	at
+<br/>&gt; com.sun.grizzly.util.AbstractThreadPool 
+<br/>&gt; $Worker.doWork(AbstractThreadPool.java:330)
+<br/>&gt; 	at
+<br/>&gt; com.sun.grizzly.util.AbstractThreadPool 
+<br/>&gt; $Worker.run(AbstractThreadPool.java:309)
+<br/>&gt; 	at java.lang.Thread.run(Thread.java:619)
+<br/>&gt; ------------------
+<br/>&gt; If I remote the &quot;implements X&quot; declaration there is no exception and
+<br/>&gt; everythings works ok. Using Glassfish 3.0.1. Is there any &nbsp;
+<br/>&gt; explanation what
+<br/>&gt; am I doing wrong? I want to not remove interface since is brings more
+<br/>&gt; readability to code.
+<br/>&gt;
+<br/>&gt; Thanks in advance.
+<br/>&gt; -- 
+<br/>&gt; View this message in context: <a href="http://n2.nabble.com/SessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4914858.html" target="_top" rel="nofollow" link="external">http://n2.nabble.com/SessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p4914858.html</a><br/>&gt; Sent from the Jersey mailing list archive at Nabble.com.
+<br/>&gt;
+<br/>&gt; ---------------------------------------------------------------------
+<br/>&gt; To unsubscribe, e-mail: <a href="/user/SendEmail.jtp?type=node&node=4924076&i=0" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>&gt; For additional commands, e-mail: <a href="/user/SendEmail.jtp?type=node&node=4924076&i=1" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>&gt;
+</div><br/><br/>---------------------------------------------------------------------
+<br/>To unsubscribe, e-mail: <a href="/user/SendEmail.jtp?type=node&node=4924076&i=2" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>For additional commands, e-mail: <a href="/user/SendEmail.jtp?type=node&node=4924076&i=3" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/><br/>
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://jersey.576304.n2.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=300365">Vincenzo</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=5696252" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/SessionBean-with-interface-causes-quot-java-lang-IllegalArgumentException-object-is-not-an-instance--tt4914858.html#a5696252',5696252)">Threaded</a>
+	<div id="tooltip96951" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip96951'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown5696252"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown5696252", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor5696252', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D5696252\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost5696252', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D5696252\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost5696252', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D5696252\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost5696252', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(5696252)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively5696252', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(5696252)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate5696252', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D5696252\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print5696252', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D5696252\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink5696252', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://jersey.576304.n2.nabble.com/SessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail5696252', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D5696252\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.add('social5696252', '\x3Ca href\x3D\"http://twitter.com/share?text\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22&amp;related\x3DJersey&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html\" title\x3D\"Twitter\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/twitter.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.facebook.com/share.php?v\x3D4&amp;src\x3Dbm&amp;u\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html&amp;t\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Facebook\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/facebook.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://del.icio.us/post?url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html&amp;title\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Delicious\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/delicious.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.google.com/bookmarks/mark?op\x3Dadd&amp;bkmk\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html&amp;title\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Google Bookmarks\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/google.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.stumbleupon.com/submit?url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html&amp;title\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Stumble Upon\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/stumbleupon.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://www.linkedin.com/shareArticle?mini\x3Dtrue&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html&amp;title\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html&amp;source\x3DJersey\" title\x3D\"LinkedIn\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/linkedin.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E \x3Ca href\x3D\"http://digg.com/submit?phase\x3D2&amp;url\x3Dhttp%3A%2F%2Fjersey.576304.n2.nabble.com%2FSessionBean-with-interface-causes-java-lang-IllegalArgumentException-object-is-not-an-instance-of-de-tp4914858p5696252.html&amp;title\x3DRe%3A+SessionBean+with+interface+causes+%22java.lang.IllegalArgumentException%3A+object+is+not+an+instance+of+declaring+class%22\" title\x3D\"Digg\" target\x3D\"_blank\" ignore\x3D\"y\"\x3E \x3Cimg src\x3D\"/images/social/digg.png\" style\x3D\"width:16px;height:16px;margin-top:.2em;border:none;\"/\x3E \x3C/a\x3E','white-space:nowrap');
+		dropdown.build('dd_postdropdown5696252');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=5696252' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(5696252)"/>
+	<div id="tooltip48192" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip48192'), 'up', 400);
+	</script>
+					<span id="starB5696252">
+		<img id="img-starB5696252" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip18324" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip18324'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow5696252" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1288687396826-877"></span><script type="text/javascript">
+		Nabble.get('d1288687396826-877').innerHTML= Nabble.formatDateLong(new Date(1288687396826));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: SessionBean with interface causes &quot;java.lang.IllegalArgumentExcep<wbr />tion: object is not an instance of declaring class&quot;
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://jersey.576304.n2.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=300365" rel="nofollow" title="View profile of Vincenzo" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/a696989c79a907e72c32aedcd175e4b8?s=100&amp;r=pg&amp;d=http%3A%2F%2Fn2.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="Vincenzo" title="Vincenzo"/><img src="/images/online.png" class="online300365 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count300365 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					<div class="info-message rounded" style="padding:.5em;margin:-.8em -.8em .8em -.8em;font-size:90%">
+				This post has NOT been accepted by the mailing list yet.
+			</div>
+	
+	
+	<div id="message5696252" class="message-text adbayes-content">
+		Paul, I have the same problem, and I explained it at this stackoverflow.com question: <a href="http://stackoverflow.com/questions/4056356" target="_top" rel="nofollow" link="external">http://stackoverflow.com/questions/4056356</a>. If necessary I can post my entire Maven project here, just let me know. Thanks.
+
+	
+	
+	
+	</div>
+	
+			<script type="text/javascript">
+				Nabble.ads('last_classic_message');
+			</script>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+		
+	</div>
+	</div>
+			<div id="topic-footer" class="weak-color" style="padding-top:1em">
+		&laquo;
+		<a href="http://jersey.576304.n2.nabble.com/">Return to Jersey</a>
+		&nbsp;|&nbsp;
+		<span id="v4914858" style="display:none">1 view|%1 views</span>
+	
+	
+	</div>
+			<div id="report-inappropriate-content" class="report-inappropriate-content rounded">
+		<div id="report-inappropriate-content-inner" class="no-bg-color medium-border-color border2">
+			<div class="big">Loading...</div>
+		</div>
+	</div>
+				<script type="text/javascript">
+				Nabble.ads('topic_bottom');
+			</script>
+	<script type="text/javascript">
+	var infolinks_pid = 1480243;
+	var infolinks_wsid = 0;
+	</script>
+	<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
+			<table class="footer-table shaded-bg-color">
+		<tr>
+			<td class="footer-left weak-color">
+				Powered by
+				<a href="http://www.nabble.com/" target="_top">Nabble</a>
+			</td>
+			<td class="footer-right">
+				<a href="/template/NamlServlet.jtp?macro=macro_viewer&amp;id=classic_forum_topic%21nabble%3Atopic.naml&amp;base=nabble.view.web.template.ServletNamespace" rel="nofollow">Edit this page</a>
+			</td>
+		</tr>
+	</table>
+	<!-- Ad.true -->
+			<script type='text/javascript'>
+var scriptUrl = '/template/NamlServlet.jtp?macro=js_page&searchSpecial=4914858&incViewCount=4914858&newsflash=&starB=4914858|4924076|5696252&visitorOnline=&avatarOnline=37110|229235|300365&postCount=37110|229235|300365&markVisited=5696252&views=4914858';
+scriptUrl += '&_=' + Math.floor(Math.random()*9999) + Nabble.getClientID();
+$.getScript(scriptUrl, function() { Nabble.resizeFrames(); });
+</script>
+
+					</div>
+					<script type="text/javascript">
+		$(document).ready(function() { Nabble.fixCookieClientID(); });
+		(function(){ var sNew = document.createElement("script"); sNew.defer = true; sNew.src = "http://tag.crsspxl.com/s1.js?d=1294"; var s0 = document.getElementsByTagName('script')[0]; s0.parentNode.insertBefore(sNew, s0); })();
+	</script>
+					<!-- n2.nabble.com | Site ID = 576304 -->
+				</body>
+			</html>

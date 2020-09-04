@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Re: CXFAuthenticator causing &quot;ProtocolException: Server redirected too many times (20)&quot; instead of HTTP-401 when providing wrong credentials</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>cxf-users mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/cxf-users" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/cxf-users/201007.mbox/%3c37E441377F780F4E91E1D8753EEE2A6A94CD6EF611@DEN-MEXMS-001.corp.ebay.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/cxf-users/201007.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/cxf-users/201007.mbox/%3c201007201456.33934.dkulp@apache.org%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/cxf-users/201007.mbox/%3cAANLkTin563DiiFEBl6qk9tmqUxLOoZSGvAJPP7XatQK_@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/cxf-users/201007.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/cxf-users/201007.mbox/%3cAANLkTik-poxRvMWQFEafsSYnp5eHyLsklLVs3Rw30I1d@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/cxf-users/201007.mbox/%3c37E441377F780F4E91E1D8753EEE2A6A94CD6EF611@DEN-MEXMS-001.corp.ebay.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/cxf-users/201007.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/cxf-users/201007.mbox/%3c201007201456.33934.dkulp@apache.org%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/cxf-users/201007.mbox/%3cAANLkTin563DiiFEBl6qk9tmqUxLOoZSGvAJPP7XatQK_@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/cxf-users/201007.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/cxf-users/201007.mbox/%3cAANLkTik-poxRvMWQFEafsSYnp5eHyLsklLVs3Rw30I1d@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">Daniel Kulp &lt;dk...@apache.org&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Re: CXFAuthenticator causing &quot;ProtocolException: Server redirected too many times (20)&quot; instead of HTTP-401 when providing wrong credentials</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Tue, 20 Jul 2010 18:51:29 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+
+
+This actually sounds like a bug in the HttpURLConnection.   Not sure why it 
+would keep sending the request like that.  
+
+Can you try messing with some of the other settings to see if they would help.   
+In particular, try turning ON the autoRedirect or turning the maxRetransmits 
+up to 2 or something.   Maybe keeping chunking on, but setting the 
+ChunkingThreshold to something larger than any message you might be setting.   
+One of those MAY help as we'd end up caching things and possibly handling the 
+401 ourself (which would throw an exception).
+
+Beyond that, we would need to update the CXFAuthenticator somehow.   Most 
+likely, I would do something like:
+
+        Message m = PhaseInterceptorChain.getCurrentMessage();
+        if (m != null) {
+            if (m.containsKey(CXFAuthenticator.class.getName() + 
+getRequestorType().toString())) {
+                return auth;
+            }
+            m.put(CXFAuthenticator.class.getName() + 
+getRequestorType().toString(),
+                  Boolean.TRUE);
+ ......
+
+to make it only trigger once per message.   
+
+Is there anyway you could test that change? 
+
+As a little history, the CXFAuthenticator was added I think in 2.2.6 for two 
+use cases:
+
+1) NTLM authentication - to use the NTLM stuff built into Java6, we need to 
+pass the auth creds via the Authenticator.   
+
+2) SSL proxy authentication - there isn't a way to use a Proxy server via SSL 
+and using authentication with that proxy without a Authenticator.  
+
+Thus, the CXFAuthenticator was added to get those cases working.
+
+
+Dan
+
+
+
+On Monday 19 July 2010 2:20:08 pm Johannes Michler wrote:
+&gt; Hi,
+&gt; 
+&gt; we're using Apache CXF 2.2.9 to access a webservice. The service is served
+&gt; on a tomcat-server (using the cxf-servlet, but this is not important here)
+&gt; and protected by requiring http basic auth. When supplying correct
+&gt; username/password-data in our client this works as expected when using the
+&gt; following code:
+&gt; 
+&gt; JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+&gt;         factory.setServiceClass( IReferenceManagerImpl.class);
+&gt;         factory.setAddress( wsAddress.toString());
+&gt;         factory.setUsername( horus_user);
+&gt;         factory.setPassword( horus_password);
+&gt; 
+&gt;         IReferenceManagerImpl implementation = ( IReferenceManagerImpl)
+&gt; factory.create();
+&gt; //afterwards we're setting allowChunking to false for our
+&gt; http-client-policy since chunking gives us some problem with oracle
+&gt; webcache, but this isn't the point here...
+&gt; 
+&gt; However, when the user supplied a wrong password, things go wrong. Instead
+&gt; of CXF to give me a HTTP 401 Exception code it tries for many times to
+&gt; authenticate against the server (20 times I think) and finally gives me the
+&gt; following exception:
+&gt; 
+&gt; Caused by: java.net.ProtocolException: Server redirected too many  times
+&gt; (20)
+&gt; at sun.net.www.protocol.http.HttpURLConnection.getInputStream(Unknown
+&gt; Source)
+&gt; at java.net.HttpURLConnection.getResponseCode(Unknown Source)
+&gt; at
+&gt; org.apache.cxf.transport.http.HTTPConduit$WrappedOutputStream.handleRespons
+&gt; eInternal(HTTPConduit.java:2165)
+&gt; 
+&gt; 
+&gt; This is fatal for us, since after so much error-nous tries our ldap-server
+&gt; locks the user that provide a wrong password.
+&gt; 
+&gt; I tracked down the issue and found out that the Sun HttpURLConnection asks
+&gt; the default Authenticator for username/password when getting 401. This
+&gt; repeats in a loop for I think 20 times. Unfortunately, CXF set the default
+&gt; Authenticator to CXFAuthenticator wich provides the username/password on
+&gt; every consecuting try.
+&gt; 
+&gt; For me there are two possible workarounds:
+&gt; 1) I can set Authenticator.setDefault(null) after CXF set it to
+&gt; CXFAuthenticator
+&gt; 2) I can do httpConduit.setAuthorization(null) on my HttpConduit.
+&gt; 
+&gt; This doesn't prevent from authorization to work since it seems that CXF
+&gt; sets the right HTTP-Authorization-Request on the HttpUrlConnection before
+&gt; the initial try. But when providing wrong credentials I'm getting the HTTP
+&gt; 401-Exception I would excpect.
+&gt; 
+&gt; I'm quite sure this was the default behavior on older cxf-versions. (we
+&gt; startet with 2.2.2)
+&gt; 
+&gt; Isn't it bad style to try to authenticate over and over again with the same
+&gt; credentials? What is that CXFAuthenticator actually good for? And wich of
+&gt; my workarounds is actually "better"? Do they have side-effects I cannot
+&gt; see at the moment?
+&gt; 
+&gt; 
+&gt; Best regards
+&gt; Johannes
+
+-- 
+Daniel Kulp
+dkulp@apache.org
+http://dankulp.com/blog
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/cxf-users/201007.mbox/raw/%3c201007201451.29541.dkulp@apache.org%3e/">Unnamed text/plain</a> (inline, 7-Bit, 4458 bytes)</li>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/cxf-users/201007.mbox/raw/%3c201007201451.29541.dkulp@apache.org%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

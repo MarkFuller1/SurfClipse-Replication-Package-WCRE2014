@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta content='IE=edge;chrome=1' http-equiv='X-UA-Compatible'>
+    <title>Unable to import openssl key to java keystore</title>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'>
+    <link href='/stylesheets/bootstrap.css' media='screen' rel='stylesheet'>
+    <link href='/stylesheets/custom.css' media='screen' rel='stylesheet'>
+    <link href='/stylesheets/syntax.css' media='screen' rel='stylesheet'>
+    <link href='/favicon.ico' rel='shortcut icon'>
+    <link href='/feed.xml' rel='alternate home' type='application/rss+xml'>
+  </head>
+  <body>
+    <div class='navbar'>
+      <div class='container'>
+        <button class='navbar-toggle' data-target='.navbar-responsive-collapse' data-toggle='collapse' type='button'>
+          <span class='icon-bar'></span>
+          <span class='icon-bar'></span>
+          <span class='icon-bar'></span>
+        </button>
+        <a class='navbar-brand' href='/'>
+          Chris Searle
+        </a>
+        <div class='nav-collapse collapse navbar-responsive-collapse'>
+          <ul class='nav navbar-nav'>
+            <li>
+              <a href='/'>
+                Home
+              </a>
+            </li>
+            <li>
+              <a href='/tags/'>
+                All Tags
+              </a>
+            </li>
+            <li>
+              <a href='/articles/'>
+                All Articles
+              </a>
+            </li>
+          </ul>
+          <ul class='nav navbar-nav pull-right'>
+            <li><a href="/certificate_authority/">Certificate Authority</a></li>
+            <li><a href="/cryptographic_keys/">Cryptographic Keys</a></li>
+            <li>
+              <a href='http://about.me/chrissearle/' target='_blank'>
+                Other Sites
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class='container'>
+      <div class='row'>
+        <div class='col-12 col-lg-9'>
+          <article>
+            <h1>Unable to import openssl key to java keystore</h1>
+            <p class='well'>
+              Posted:
+              2008-07-11 11:42
+              |
+              <a href="/tags/ssl/">ssl</a>
+              |
+              <a href="/tags/keystore/">keystore</a>
+              |
+              <a href="/tags/openssl/">openssl</a>
+            </p>
+            <p><strong>UPDATE - progress - see end of article</strong></p>
+            
+            <p>I have an openssl self-signed certificate for some websites. These are based on an openssl RSA key. I can use them successfully as client keys - but - it seems that glassfish (perhaps all others - I don’t know) need the key in the keystore as well as the certificate.</p>
+            
+            <p>So - I have an RSA key file and a PEM certificate file.</p>
+            
+            <p>keytool only imports the certificate (this works fine for this certificate for java processes that act as an SSL client - but here I want to act as the SSL server) - so here are the other things I have tried:</p>
+            
+            <p><strong>Jetty PKCS12Import</strong></p>
+            
+            <p>From <a href="http://number9.hellooperator.net/articles/category/security">http://number9.hellooperator.net/articles/category/security</a></p>
+            
+            <p>Pre-requisite</p>
+            
+            <pre class="highlight text">curl -O http://dist.codehaus.org/jetty/jetty-6.1.11/jetty-6.1.11.zip
+            unzip -j jetty-6.1.11.zip jetty-6.1.11/lib/jetty-6.1.11.jar
+            </pre>
+            <p>Now - convert to pkcs12</p>
+            
+            <pre class="highlight text">openssl pkcs12 -export -out keystore.pcks12 -in /etc/apache2/ssl/certificate.crt -inkey /etc/ssl/private/key.key
+            </pre>
+            <p>And then import</p>
+            
+            <pre class="highlight text">java -cp jetty-6.1.11.jar org.mortbay.jetty.security.PKCS12Import keystore.pcks12 keystore.jks
+            </pre>
+            <p>Problem is that I get:</p>
+            
+            <pre class="highlight text">Exception in thread &quot;main&quot; java.io.IOException: failed to decrypt safe contents entry: java.lang.ArithmeticException: / by zero
+                at com.sun.net.ssl.internal.pkcs12.PKCS12KeyStore.engineLoad(PKCS12KeyStore.java:1277)
+                at java.security.KeyStore.load(KeyStore.java:1185)
+                at org.mortbay.jetty.security.PKCS12Import.main(PKCS12Import.java:95)
+            Caused by: java.lang.ArithmeticException: / by zero
+                at com.sun.crypto.provider.PKCS12PBECipherCore.a(DashoA13*..)
+                at com.sun.crypto.provider.PKCS12PBECipherCore.a(DashoA13*..)
+                at com.sun.crypto.provider.PKCS12PBECipherCore.a(DashoA13*..)
+                at com.sun.crypto.provider.PKCS12PBECipherCore.a(DashoA13*..)
+                at com.sun.crypto.provider.PKCS12PBECipherCore$PBEWithSHA1AndRC2_40.engineInit(DashoA13*..)
+                at javax.crypto.Cipher.a(DashoA13*..)
+                at javax.crypto.Cipher.a(DashoA13*..)
+                at javax.crypto.Cipher.init(DashoA13*..)
+                at javax.crypto.Cipher.init(DashoA13*..)
+                at com.sun.net.ssl.internal.pkcs12.PKCS12KeyStore.engineLoad(PKCS12KeyStore.java:1273)
+                ... 2 more&lt;/code&gt;&lt;/pre&gt;
+            </pre>
+            <p><strong>Neal Groothius</strong></p>
+            
+            <p>From: <a href="http://www.nealgroothuis.name/import-a-private-key-into-a-java-keystore/">http://www.nealgroothuis.name/import-a-private-key-into-a-java-keystore/</a></p>
+            
+            <p>This wants the certificate and key in DER form:</p>
+            
+            <pre class="highlight text">openssl rsa -in /etc/ssl/private/key.key -out key.der -outform DER
+            openssl x509 -in /etc/apache2/ssl/certificate.crt -out cert.der -outform DER
+            </pre>
+            <p>Then import:</p>
+            
+            <pre class="highlight text">java -cp . KeyStoreImport keystore.jks cert.der key.der keyalias
+            </pre>
+            <p>But that gives:</p>
+            
+            <pre class="highlight text">java.security.spec.InvalidKeySpecException: java.security.InvalidKeyException: IOException : algid parse error, not a sequence
+                at sun.security.rsa.RSAKeyFactory.engineGeneratePrivate(RSAKeyFactory.java:175)
+                at java.security.KeyFactory.generatePrivate(KeyFactory.java:342)
+                at KeyStoreImport.main(KeyStoreImport.java:80)
+            Caused by: java.security.InvalidKeyException: IOException : algid parse error, not a sequence
+                at sun.security.pkcs.PKCS8Key.decode(PKCS8Key.java:344)
+                at sun.security.pkcs.PKCS8Key.decode(PKCS8Key.java:350)
+                at sun.security.rsa.RSAPrivateCrtKeyImpl.&lt;init&gt;(RSAPrivateCrtKeyImpl.java:74)
+                at sun.security.rsa.RSAPrivateCrtKeyImpl.newKey(RSAPrivateCrtKeyImpl.java:58)
+                at sun.security.rsa.RSAKeyFactory.generatePrivate(RSAKeyFactory.java:274)
+                at sun.security.rsa.RSAKeyFactory.engineGeneratePrivate(RSAKeyFactory.java:171)
+                ... 2 more
+            </pre>
+            <p><strong>Not yet commons-ssl</strong></p>
+            
+            <p>From: <a href="http://juliusdavies.ca/commons-ssl/">http://juliusdavies.ca/commons-ssl/</a></p>
+            
+            <pre class="highlight text">java -cp not-yet-commons-ssl-0.3.10.jar org.apache.commons.ssl.KeyStoreBuilder pass key.key /etc/apache2/ssl/certificate.crt
+            </pre>
+            <p>Gives:</p>
+            
+            <pre class="highlight text">Exception in thread &quot;main&quot; java.util.NoSuchElementException
+                at java.util.LinkedList$ListItr.next(LinkedList.java:698)
+                at java.util.Collections$UnmodifiableCollection$1.next(Collections.java:1010)
+                at org.apache.commons.ssl.KeyStoreBuilder.build(KeyStoreBuilder.java:167)
+                at org.apache.commons.ssl.KeyStoreBuilder.build(KeyStoreBuilder.java:97)
+                at org.apache.commons.ssl.KeyStoreBuilder.main(KeyStoreBuilder.java:555)&lt;/code&gt;&lt;/pre&gt;
+            </pre>
+            <p><strong>UPDATE</strong></p>
+            
+            <p>Progress. Julius Davies (not yet commons-ssl) got back to me and said - bug in 0.3.10 - try 0.3.9. Now - checking the download page it <em>says</em> that 0.3.10 is alpha - but I never made it that far down the page.</p>
+            
+            <pre class="highlight text">java -cp not-yet-commons-ssl-0.3.9.jar org.apache.commons.ssl.KeyStoreBuilder pass_for_new_keystore key.key /etc/apache2/ssl/certificate.crt
+            </pre>
+            <p>This worked. Created a new keystore for me (named &lt;certificate’s OU&gt;.jks). This has the certificate in it as well as the key (keytool -list shows it as a PrivateKeyEntry rather than a trustedCertEntry).</p>
+            
+            <p>You can get it into the glassfish keystore too:</p>
+            
+            <pre class="highlight text">keytool -importkeystore -srckeystore keystore.jks -destkeystore glassfish/domains/domain1/keystore.jks -srcstorepass pass_for_new_keystore -deststorepass changeit
+            </pre>
+            <p>I’ll test to see if it can use it next week. If so - this article will be superseded with a new one :)</p>
+          </article>
+          <div class='centered'>
+            <ul class='pagination'>
+              <li class=''>
+                <a href="/2008/07/11/Migrating_Jira_and_Confluence_from_Tomcat_to_Glassfish/">< Migrating Jira and Confluence from...</a>
+              </li>
+              <li class=''>
+                <a href="/2008/07/21/Patching_denyhosts_to_allow_correct_plugin_reporting/">Patching denyhosts to allow correct... ></a>
+              </li>
+            </ul>
+          </div>
+          <div id='disqus_thread'></div>
+          <script src='/javascripts/disqus.js'></script>
+        </div>
+        <div class='col-12 col-lg-3'>
+          <form action='http://www.google.com' id='cse-search-box'>
+            <div>
+              <input name='cx' type='hidden' value='partner-pub-6208435820744910:2042811242'>
+              <input name='ie' size='UTF-8' type='hidden'>
+              <input name='q' size='40' type='text'>
+              <input name='sa' type='submit' value='Search'>
+            </div>
+          </form>
+          <script src='http://www.google.com/coop/cse/brand?form=cse-search-box&amp;amp;lang=en'></script>
+          <h2>
+            Popular Tags
+          </h2>
+          <div class='list-group'>
+            <a class='list-group-item' href='/tags/debian/'>
+              <span class='badge'>46</span>
+              debian
+            </a>
+            <a class='list-group-item' href='/tags/mac/'>
+              <span class='badge'>43</span>
+              mac
+            </a>
+            <a class='list-group-item' href='/tags/java/'>
+              <span class='badge'>22</span>
+              java
+            </a>
+            <a class='list-group-item' href='/tags/osx/'>
+              <span class='badge'>20</span>
+              osx
+            </a>
+            <a class='list-group-item' href='/tags/linux/'>
+              <span class='badge'>18</span>
+              linux
+            </a>
+            <a class='list-group-item' href='/tags/ssl/'>
+              <span class='badge'>15</span>
+              ssl
+            </a>
+            <a class='list-group-item' href='/tags/drupal/'>
+              <span class='badge'>12</span>
+              drupal
+            </a>
+            <a class='list-group-item' href='/tags/exim4/'>
+              <span class='badge'>11</span>
+              exim4
+            </a>
+          </div>
+          <div class='centered'>
+            <script src='/javascripts/left-thin-as.js'></script>
+            <script src='http://pagead2.googlesyndication.com/pagead/show_ads.js'></script>
+          </div>
+          <h2>
+            Recent Articles
+          </h2>
+          <div class='list-group'>
+            <a class='list-group-item' href='/2013/12/13/puppet-service-config-for-ejabberd/'>
+              Puppet service config for ejabberd
+            </a>
+            <a class='list-group-item' href='/2013/10/26/automated-app-compat-virtual-machines-for-ie-testing/'>
+              Automated App Compat virtual machines for IE testing
+            </a>
+            <a class='list-group-item' href='/2013/08/14/totp/'>
+              Time-based One-Time Password (TOTP) authentication for Google and more on iOS7
+            </a>
+            <a class='list-group-item' href='/2013/08/10/site-converted-to-use-middleman-static-site-generator/'>
+              Site converted to use middleman static site generator
+            </a>
+            <a class='list-group-item' href='/2013/05/25/Enabling_GPU_for_Premiere_Pro_CS6_and_After_Effects/'>
+              Enabling GPU for Premiere Pro CS6 and After Effects
+            </a>
+            <a class='list-group-item' href='/2013/04/16/BankID_on_Mountain_Lion/'>
+              BankID on Mountain Lion
+            </a>
+            <a class='list-group-item' href='/2013/02/25/Generating_twitter_auth_tokens_for_non-web_clients/'>
+              Generating twitter auth tokens for non-web clients
+            </a>
+            <a class='list-group-item' href='/2013/02/08/Setting_a_fixed_hostname_alias_on_mac_overriding_DHCP/'>
+              Setting a fixed hostname alias on mac overriding DHCP
+            </a>
+            <a class='list-group-item' href='/2013/02/02/Sony_Pulse_Elite_headset_not_connecting/'>
+              Sony Pulse Elite headset not connecting
+            </a>
+            <a class='list-group-item' href='/2012/12/17/Google_apps_removing_EAS_support_-_moving_to_CalDAV_CardDAV/'>
+              Google apps removing EAS support - moving to CalDAV/CardDAV
+            </a>
+          </div>
+          <h2>
+            By Year
+          </h2>
+          <div class='list-group'>
+            <a class='list-group-item' href='/2013/'>
+              <span class='badge'>9</span>
+              2013
+            </a>
+            <a class='list-group-item' href='/2012/'>
+              <span class='badge'>8</span>
+              2012
+            </a>
+            <a class='list-group-item' href='/2011/'>
+              <span class='badge'>14</span>
+              2011
+            </a>
+            <a class='list-group-item' href='/2010/'>
+              <span class='badge'>23</span>
+              2010
+            </a>
+            <a class='list-group-item' href='/2009/'>
+              <span class='badge'>24</span>
+              2009
+            </a>
+            <a class='list-group-item' href='/2008/'>
+              <span class='badge'>33</span>
+              2008
+            </a>
+            <a class='list-group-item' href='/2007/'>
+              <span class='badge'>30</span>
+              2007
+            </a>
+            <a class='list-group-item' href='/2006/'>
+              <span class='badge'>28</span>
+              2006
+            </a>
+            <a class='list-group-item' href='/2005/'>
+              <span class='badge'>36</span>
+              2005
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class='footer'>
+      <script src='/javascripts/footer-large-as.js'></script>
+      <script src='http://pagead2.googlesyndication.com/pagead/show_ads.js'></script>
+    </footer>
+    <script src='http://code.jquery.com/jquery.js'></script>
+    <script src='/javascripts/bootstrap.js'></script>
+    <script src='/javascripts/ga.js'></script>
+  </body>
+</html>
+
+

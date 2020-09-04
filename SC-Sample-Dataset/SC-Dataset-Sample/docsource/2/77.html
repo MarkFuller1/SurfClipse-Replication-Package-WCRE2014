@@ -1,0 +1,806 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>How to deal with Concurrent Modification Exception (Threads forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/233932/threads/java/deal-Concurrent-Modification-Exception"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/233932/threads/java/deal-Concurrent-Modification-Exception?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-27/threads">Threads and Synchronization</a>
+<div class="subject">How to deal with Concurrent Modification Exception</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: qunfeng wang, Ranch Hand<br />
+  on <span class="lastPostTime">Aug 28, 2007 23:41:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote class="uncited">
+			<div><br /> Exception in thread "Thread-7" java.util.ConcurrentModificationException<br />         at java.util.AbstractList$Itr.checkForComodification(AbstractList.java:449)<br />         at java.util.AbstractList$Itr.next(AbstractList.java:420)<br />         at Main.CGuiUpdater.run(CGuiUpdater.java:139)<br />         at java.lang.Thread.run(Thread.java:595)<br /> </div>
+		</blockquote><br /> It's a static List. Several threads poll this list to get some information but no modification. Whenever runing to CGuiUpdater.run, the runtime exception throws. Is it because I use Iterator to iterator List or something else? And how to resolve it, Thanks.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jim Yingst, Sheriff<br />
+  on <span class="lastPostTime">Aug 29, 2007 18:12:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">It's a combination of things - it's because you're using the Iterator at the same time another thread is modifying the list, and there's apparently no synchronization (or perhaps, insufficient or incorrect synchronization) to prevent these events from occurring near-simultaneously.<br />  <br /> One solution is to synchronize all access to the List, using the list itself as the monitor:<br /> <textarea name="code" class="java" cols="60" rows="10">synchronized (list) {
+    for (Iterator it = list.iterator(); it.hashNext(); ) {
+        Foo f = (Foo) it.next();
+        // do what you need with f
+    }
+}</textarea><br /> Whatever other threads are modifying the list, they need to be synchronized too, also on the list.  E.g.:<br /> <textarea name="code" class="java" cols="60" rows="10">syncronized (list) {
+    list.add(new Foo());
+}</textarea><br /> or<br /> <textarea name="code" class="java" cols="60" rows="10">syncronized (list) {
+    list.remove(oldFoo);
+}</textarea><br /> Now this may be undesirable if the list is long and performance is critical, because if it takes a long time to iterate through the list, other threads are also blocked while waiting for this to complete.  There are various alternatives.  One is to use a <a href="http://java.sun.com/javase/6/docs/api/java/util/concurrent/CopyOnWriteArrayList.html" target="_blank" >CopyOnWriteArrayList</a>.  This is good if writes are fairly infrequent.  You may also be able to revise your code in a way that it is not necessary to iterate an entire list.  You may be able to use other data structures instead, such as <a href="http://java.sun.com/javase/6/docs/api/java/util/concurrent/ConcurrentHashMap.html" target="_blank" >ConcurrentHashMap</a> or <a href="http://java.sun.com/javase/6/docs/api/java/util/concurrent/ConcurrentLinkedQueue.html" target="_blank" >ConcurrentLinkedQueue</a>.  It's hard to say what would be most suitable here without more details on what you're doing.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: qunfeng wang, Ranch Hand<br />
+  on <span class="lastPostTime">Aug 29, 2007 19:44:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Thanks for your reply.<br />  <br /> The list is modified(add elements)only at the begining. The following code only get elements from it. So I'm thinking if I can make sure the modification operation occurs before getting operation, the exception won't happen?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jim Yingst, Sheriff<br />
+  on <span class="lastPostTime">Aug 29, 2007 22:08:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Yes, that should be correct.  If you're seeing this exception, then probably one thread is not done initializing the list before another thread checks it.  Even if common sense is telling you it really <i>should</i> be done.  Threads can do some strange things.<br />  <br /> One approach is something like this:<br /> <textarea name="code" class="java" cols="60" rows="10">class MyClass {
+    private final List myList = makeList();
+ 
+    private static list makeList() {
+        List list = new ArrayList();
+        // do what you need to initialize this
+        return Collections.unmodifiableList(list);
+    }
+ 
+    public List getList() { 
+       return myList; 
+    }
+}</textarea><br /> Note that when you initialize the list, no other thread can possibly know about it yet.  "list" is just a local variable, while "myList" does not yet know anything about the new list.  Only after it's initialized does myList get the reference to the list.  The fact that myList is declared final here is actually important for subtle reasons - otherwise the compiler or JIT may perform some weird optimizations that you only notice when multiple threads are involved.  And then only rarely - but when they happen, they're a real pain to track down.  <br />  <br /> If making the variable final is not an option for you, there are other strategies.  Maybe make it volatile - but then you have to worry about whether it's null, before you do anything with it.  As it is now (with final), that's not possible.<br />  <br /> For more extended discussion of this and many related threading issues, I heartily recommend <a href="http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601/" target="_blank" >Java Concurrency in Practice</a>, an excellent use of time and money for any multithreaded programmer (at least if they're already pretty comfortable with the threading topics covered in the Java Tutorial).<br /> [ August 29, 2007: Message edited by: Jim Yingst ]<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Billy Tsai, Ranch Hand<br />
+  on <span class="lastPostTime">Jan 10, 2010 20:56:55</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hello,
+<br /> 
+<br /> I have a method which retrieves a java.util.List of objects for display on the UI and this method is always access concurrently by hundred or even thousands of threads at the same time(high concurrency), 
+<br /> however if certain condition is true I need to remove some objects from that List before it is returned by that method, since this method has a very high usage I must take performance into account therefore 
+<br /> I can't use synchronized block in the method, I just want some confirmations I can't use Iterator.remove in a multi-thread situation but there should be no performance difference in directly looping through the 
+<br /> list using 
+<br /> (for int i=0; i&lt;List.size(); i++) {List.get(i)} 
+<br /> and with 
+<br /> for (final Iterator i = temp.iterator(); i.hasNext();) , 
+<br /> I have attached the following code snippets
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">    
+public List getOrderedChildOfferProducts() {
+//getDisplayableChildOfferProductInstances method retrieves a List of displayable products from the database through an ORM framework
+        final List temp = new ArrayList(this.getDisplayableChildOfferProductInstances()); 
+        final HttpSession session = request.getSession();
+        final Plan currentPlan = (Plan)session.getObject("plan");
+        if (currentPlan != null && !temp.isEmpty()) {
+            final List products = currentPlan.getAllProducts();
+            for (final Iterator i = temp.iterator(); i.hasNext();) {
+              final Product product = (Product)i.next();
+              if (!products.contains(product)) {
+              	i.remove();
+              }
+            }
+        }
+        Sort.sort(temp, "displayOrder", true);
+        return Collections.unmodifiableList(temp);
+}
+</textarea>
+<br /> 
+<br /> I want to confirm here in a multithreaded situation the i.remove() would not work in the above method?
+<br /> 
+<br /> my currently solution is as follows and would like to know if are there any advises to better improve this method for better efficiency since it is a critical method
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10"> 
+public List getOrderedChildOfferProducts() {
+//getDisplayableChildOfferProductInstances method retrieves a List of displayable products from the database through an ORM framework
+        final List temp = new ArrayList(this.getDisplayableChildOfferProductInstances()); 
+        final HttpSession session = request.getSession();
+        final Plan currentPlan = (Plan)session.getObject("plan");
+        if (currentPlan != null && !temp.isEmpty()) {
+            final List removableProducts = new ArrayList();
+            final List products = currentPlan.getAllProducts();
+            for (final Iterator i = temp.iterator(); i.hasNext();) {
+              final Product product = (Product)i.next();
+              if (!products.contains(product)) {
+              	removableProducts.add(op);
+              }
+            }
+            temp.removeAll(removableProducts);
+        }
+        Sort.sort(temp, "displayOrder", true);
+        return Collections.unmodifiableList(temp);
+}
+</textarea>&gt;</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ori An, Greenhorn<br />
+  on <span class="lastPostTime">Jan 19, 2010 02:53:51</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">There is another simple way to avoid this exception. This way does not involve any locks . 
+<br /> 
+<br /> Instead of a simple iterator you can use a copy of the list and iterate the copy. See example here:
+<br /> 
+<br /> <a class="snap_shots" href="http://www.small-software.com/programming/dynamic-collection-iterator.html" target="_new" rel="nofollow">Dynamic Collection Iterator</a></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Dennis Hopfer, Ranch Hand<br />
+  on <span class="lastPostTime">Feb 10, 2012 19:00:50</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I know this is an old topic but a simple, elegant solution is as follows:
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">for (Object instance : (ArrayList&lt;Object&gt;)list.clone())
+{	
+    list.remove(instance);
+}</textarea>
+<br /> 
+<br /> Since Java does shallow copying on clone() calls this seems to work fine and since they (original & clone) have different iterators there's no violation when the original is modified.
+<br /> 
+<br /> Happy coding!!!</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Feb 10, 2012 23:05:08</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>qunfeng wang wrote:</cite>
+<br /> It's a static List. </div>
+		</blockquote>
+<br /> 
+<br /> There is no such thing.
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Praveen Kumar M K, Ranch Hand<br />
+  on <span class="lastPostTime">Feb 17, 2012 13:37:20</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Be wary of this - <a class="snap_shots" href="http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/src/test/jtreg/util/AbstractList/CheckForComodification.java?view=co" target="_new" rel="nofollow">ConcurrentModificationException bug</a>.
+<br /> 
+<br /> Not sure if its fixed in Java 7, however.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Feb 17, 2012 13:48:27</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Praveen Kumar M K wrote:</cite>Be wary of this - <a class="snap_shots" href="http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/src/test/jtreg/util/AbstractList/CheckForComodification.java?view=co" target="_new" rel="nofollow">ConcurrentModificationException bug</a>.
+<br /> 
+<br /> Not sure if its fixed in Java 7, however.</div>
+		</blockquote>
+<br /> 
+<br /> True, but from the CCME docs:
+<br /> 
+<br /> <blockquote class="uncited">
+			<div>
+<br /> Note that fail-fast behavior cannot be guaranteed [snip]. Fail-fast operations throw ConcurrentModificationException on a best-effort basis. Therefore, it would be wrong to write a program that depended on this exception for its correctness
+<br /> </div>
+		</blockquote>
+<br /> 
+<br /> So, yeah, on the 2nd to last iteration, Java may not do you the favor of telling you that you have a bug. <img src="http://cache-www.coderanch.com/images/smilies/3b63d1616c5dfcf29f8a7a031aaa7cad.gif" /></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Praveen Kumar M K, Ranch Hand<br />
+  on <span class="lastPostTime">Feb 17, 2012 14:36:32</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Yes, and this behavior is with list.remove() only, that too if one were using foreach loop instead of iterator methods.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Feb 17, 2012 15:11:46</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Praveen Kumar M K wrote:</cite>that too if one were using foreach loop instead of iterator methods.</div>
+		</blockquote>
+<br /> 
+<br /> A foreach loop <i>does</i> use an Iterator.
+<br /> 
+<br /> Notice how all 3 methods produce the same bytecode.
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+import java.util.*;
+
+public abstract class Z {
+  static List&lt;String&gt; x;
+
+  static void foo() {
+    for (String s : x) {
+      s.length();
+    }
+  }
+
+  static void bar() {
+    for (Iterator&lt;String&gt; iter = x.iterator(); iter.hasNext();) {
+      String s = iter.next();
+      s.length();
+    }
+  }
+
+  static void baz() {
+    Iterator&lt;String&gt; iter = x.iterator();
+    while (iter.hasNext()) {
+      String s = iter.next();
+      s.length();
+    }
+  }
+}
+
+
+:; javap -c -classpath . Z
+Compiled from "Z.java"
+public abstract class Z extends java.lang.Object{
+static java.util.List x;
+
+public Z();
+  Code:
+   0:   aload_0
+   1:   invokespecial   #1; //Method java/lang/Object."&lt;init&gt;":()V
+   4:   return
+
+static void foo();
+  Code:
+   0:   getstatic       #2; //Field x:Ljava/util/List;
+   3:   invokeinterface #3,  1; //InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+   8:   astore_0
+   9:   aload_0
+   10:  invokeinterface #4,  1; //InterfaceMethod java/util/Iterator.hasNext:()Z
+   15:  ifeq    36
+   18:  aload_0
+   19:  invokeinterface #5,  1; //InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+   24:  checkcast       #6; //class java/lang/String
+   27:  astore_1
+   28:  aload_1
+   29:  invokevirtual   #7; //Method java/lang/String.length:()I
+   32:  pop
+   33:  goto    9
+   36:  return
+
+static void bar();
+  Code:
+   0:   getstatic       #2; //Field x:Ljava/util/List;
+   3:   invokeinterface #8,  1; //InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+   8:   astore_0
+   9:   aload_0
+   10:  invokeinterface #4,  1; //InterfaceMethod java/util/Iterator.hasNext:()Z
+   15:  ifeq    36
+   18:  aload_0
+   19:  invokeinterface #5,  1; //InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+   24:  checkcast       #6; //class java/lang/String
+   27:  astore_1
+   28:  aload_1
+   29:  invokevirtual   #7; //Method java/lang/String.length:()I
+   32:  pop
+   33:  goto    9
+   36:  return
+
+static void baz();
+  Code:
+   0:   getstatic       #2; //Field x:Ljava/util/List;
+   3:   invokeinterface #8,  1; //InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+   8:   astore_0
+   9:   aload_0
+   10:  invokeinterface #4,  1; //InterfaceMethod java/util/Iterator.hasNext:()Z
+   15:  ifeq    36
+   18:  aload_0
+   19:  invokeinterface #5,  1; //InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+   24:  checkcast       #6; //class java/lang/String
+   27:  astore_1
+   28:  aload_1
+   29:  invokevirtual   #7; //Method java/lang/String.length:()I
+   32:  pop
+   33:  goto    9
+   36:  return
+
+}
+
+
+</textarea>
+<br /> 
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Praveen Kumar M K, Ranch Hand<br />
+  on <span class="lastPostTime">Feb 17, 2012 16:23:05</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I suspected that there would be a reply on similar lines <img src="http://cache-www.coderanch.com/images/smilies/3b63d1616c5dfcf29f8a7a031aaa7cad.gif" />
+<br /> 
+<br /> What I meant with regards to CCME, was this
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+    int indexCount = 0;
+    for (Iterator&lt;String&gt; iter = list.iterator(); iter.hasNext();iter.next()) {   
+         if(indexCount == (LENGTH - 2)) {
+              list.remove(indexCount);
+         }
+         indexCount++;
+    } 
+</textarea>
+<br /> 
+<br /> Above code produced the CCM exception. I suppose we can attribute it to the non-deterministic behavior as the doc suggests.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Bhanuprakash Sreenivas, Greenhorn<br />
+  on <span class="lastPostTime">Feb 20, 2012 00:16:15</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I had a similar problem with one of the method variables. Spent hours debugging . Finally had to use Collections.unmodifiableList to 
+<br /> retrieve a unmodifiable list. 
+<br /> Feel it has more to do with the JRE being used.
+<br /> 
+<br /> Thanks
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Feb 20, 2012 06:38:39</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Dennis Hopper wrote:</cite>I know this is an old topic but a simple, elegant solution is as follows:
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">for (Object instance : (ArrayList&lt;Object&gt;)list.clone())
+{	
+    list.remove(instance);
+}</textarea>
+<br /> 
+<br /> Since Java does shallow copying on clone() calls this seems to work fine and since they (original & clone) have different iterators there's no violation when the original is modified.
+<br /> </div>
+		</blockquote>
+<br /> 
+<br /> Not sure what the point of that is supposed to be.
+<br /> 
+<br /> First, it runs in O(n^2).
+<br /> 
+<br /> Second, it accomplishes nothing more than list.clear().
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Feb 20, 2012 06:39:34</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote class="uncited">
+			<div>
+<br /> I had a similar problem with one of the method variables. Spent hours debugging . Finally had to use Collections.unmodifiableList to
+<br /> retrieve a unmodifiable list.
+<br /> Feel it has more to do with the JRE being used. 
+<br /> </div>
+		</blockquote>
+<br /> 
+<br /> Sorry, I'm confused. What problem exactly did you have? And how did using unmodifiableList() solve it? And why do you think it's a JRE-specific issue?
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Dennis Hopfer, Ranch Hand<br />
+  on <span class="lastPostTime">Apr 24, 2012 19:24:51</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+for (Object instance : (ArrayList&lt;Object&gt;)list.clone())  
+{     
+    list.remove(instance);  
+}  </textarea>
+<br /> 
+<br /> Since evidently it requires explanation I will explain.  This isn't necessarily slower than a normal for-loop; just make the clone call and save it to a variable. 
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+ArrayList&lt;Object&gt; clone = (ArrayList&lt;Object&gt;)list.clone();
+for (Object instance : clone)  
+{     
+    list.remove(instance);  
+}  </textarea>
+<br /> 
+<br /> And this code's applicability is not limited to clearing an array.  Using this technique one can use all the functions of the List class and without the liability of having to use the ugly Iterator interface.  And since you aren't modifying the original you don't need to worry about throwing ConcurrentModificationException instances.  This should be pretty obviously the correct solution for this problem.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Jeff Verdegan, Bartender<br />
+  on <span class="lastPostTime">Apr 24, 2012 21:07:46</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote>
+			<div>
+				<cite>Dennis Hopper wrote:</cite>
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+for (Object instance : (ArrayList&lt;Object&gt;)list.clone())  
+{     
+    list.remove(instance);  
+}  </textarea>
+<br /> 
+<br /> Since evidently it requires explanation I will explain.  This isn't necessarily slower than a normal for-loop; </div>
+		</blockquote>
+<br /> 
+<br /> It may not necessarily be slower than a poorly written for loop, but it's definitely slower than a normal one.. As I said previously: It's O(n^2) and it accomplishes only list.clear(), which is O(1).
+<br /> 
+<br /> <blockquote class="uncited">
+			<div>just make the clone call and save it to a variable. 
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+ArrayList&lt;Object&gt; clone = (ArrayList&lt;Object&gt;)list.clone();
+for (Object instance : clone)  
+{     
+    list.remove(instance);  
+}  </textarea>
+<br /> </div>
+		</blockquote>
+<br /> 
+<br /> That's identical to the original. Introducing the variable changes nothing.
+<br /> 
+<br /> <blockquote class="uncited">
+			<div>And this code's applicability is not limited to clearing an array.  Using this technique one can use all the functions of the List class and without the liability of having to use the ugly Iterator interface.  </div>
+		</blockquote>
+<br /> 
+<br /> It's nonstandard, confusing code that serves no purpose. Iterator isn't particularly ugly. There are cases where it makes sense to operate on a copy of the original, but there's nothing about your example that makes any sense.
+<br /> 
+<br /> <blockquote class="uncited">
+			<div>And since you aren't modifying the original </div>
+		</blockquote>
+<br /> 
+<br /> In the example you gave you certianly are. You're clearing it the very, very long way around.
+<br /> 
+<br /> <blockquote class="uncited">
+			<div>you don't need to worry about throwing ConcurrentModificationException instances.  This should be pretty obviously the correct solution for this problem.</div>
+		</blockquote>
+<br /> 
+<br /> There are already better and easy-to-use approaches to avoiding CME. Whatever the original problem was, I guarantee this is not even remotely a correct solution.
+<br /> </span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/233932'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=27'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:21:13</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/27"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/233932/threads/java/deal-Concurrent-Modification-Exception?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

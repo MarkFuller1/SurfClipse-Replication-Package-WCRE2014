@@ -1,0 +1,490 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]><html  xmlns:fb="https://www.facebook.com/2008/fbml"  xmlns:og="http://ogp.me/ns#" lang="en-US" class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->
+<!--[if IE 7]><html  xmlns:fb="https://www.facebook.com/2008/fbml"  xmlns:og="http://ogp.me/ns#" lang="en-US" class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if IE 8]><html  xmlns:fb="https://www.facebook.com/2008/fbml"  xmlns:og="http://ogp.me/ns#" lang="en-US" class="no-js lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!--><html  xmlns:fb="https://www.facebook.com/2008/fbml"  xmlns:og="http://ogp.me/ns#" lang="en-US" class="no-js"><!--<![endif]--> 
+<head>    
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="description" lang="en" content="Apache Cassandra 1.1 Documentation on Troubleshooting Guide provided by DataStax"/>	
+	<title>Troubleshooting Guide | DataStax Cassandra 1.1 Documentation </title>
+		<link rel="shortcut icon" href="http://www.datastax.com/wp-content/themes/datastax-2013/favicon.ico">
+		
+	<!-- CSS + jQuery + JavaScript -->
+	<link rel='stylesheet' id='otw_sbm.css-css'  href='http://www.datastax.com/wp-content/plugins/sidebar-manager-light/css/otw_sbm.css?ver=3.5.1' media='all' />
+<link rel='stylesheet' id='wpgform-css-css'  href='http://www.datastax.com/wp-content/plugins/wpgform/css/wpgform.css?ver=3.5.1' media='all' />
+<link rel='stylesheet' id='css-css'  href='http://www.datastax.com/wp-content/themes/datastax-2013/css/styles.css?ver=1.1' media='all' />
+<link rel='stylesheet' id='A2A_SHARE_SAVE-css'  href='http://www.datastax.com/wp-content/plugins/add-to-any/addtoany.min.css?ver=1.5' media='all' />
+<link rel="stylesheet" type="text/css" href="http://www.datastax.com/wp-content/plugins/wp-facebox-gallery/facebox3.css" />
+<script type="text/javascript">/* wp-facebox */
+	WPFB = { root: "http://www.datastax.com/wp-content/plugins/wp-facebox-gallery", home: "http://www.datastax.com", site: "http://www.datastax.com" };
+	WPFB.options = {
+		image_types     : [ 'png', 'jpg', 'jpeg', 'gif' ],
+		loadingImage	: WPFB.root + '/images/v3/loading.gif',
+		closeImage		: WPFB.root + '/images/v3/closelabel.png',
+		next_image      : WPFB.root + '/images/v3/fast_forward.png',
+        prev_image      : WPFB.root + '/images/v3/rewind.png',
+        play_image      : WPFB.root + '/images/v3/play.png',
+        pause_image     : WPFB.root + '/images/v3/pause.png'
+	};
+</script>
+<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js?ver=1.9.0'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/plugins/wp-facebox-gallery/facebox3.js?ver=3.0'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/themes/datastax-2013/js/modernizr.min.js?ver=2.6.2'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/themes/datastax-2013/js/scripts.js?ver=1.1.0'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/themes/datastax-2013/js/jquery.easytabs.min.js?ver=3.5.1'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/themes/datastax-2013/js/jquery.ba-hashchange.min.js?ver=3.5.1'></script>
+
+<script type="text/javascript"><!--
+var a2a_config=a2a_config||{},wpa2a={done:false,html_done:false,script_ready:false,script_load:function(){var a=document.createElement('script'),s=document.getElementsByTagName('script')[0];a.type='text/javascript';a.async=true;a.src='http://static.addtoany.com/menu/page.js';s.parentNode.insertBefore(a,s);wpa2a.script_load=function(){};},script_onready:function(){if(a2a.type=='page'){wpa2a.script_ready=true;if(wpa2a.html_done)wpa2a.init();}},init:function(){for(var i=0,el,target,targets=wpa2a.targets,length=targets.length;i<length;i++){el=document.getElementById('wpa2a_'+(i+1));target=targets[i];a2a_config.linkname=target.title;a2a_config.linkurl=target.url;if(el){a2a.init('page',{target:el});el.id='';}wpa2a.done=true;}wpa2a.targets=[];}};a2a_config.tracking_callback=['ready',wpa2a.script_onready];
+//--></script>
+      <!-- Open Graph Meta Tags for Facebook and LinkedIn Sharing !-->
+		<meta property="og:title" content="Documentation"/>
+		<meta property="og:description" content="" />
+		<meta property="og:url" content="http://www.datastax.com/docs"/>
+		<meta property="og:image" content="http://www.datastax.com/wp-content/themes/datastax-2013/images/common/logo.png" />
+		<meta property="og:type" content="article"
+		/>
+		<meta property="og:site_name" content="DataStax"/>
+		<!-- End Open Graph Meta Tags !-->
+
+    <script type="text/javascript">if (jQuery && jQuery.facebox) jQuery(function($) { $("a[rel*='facebox'], .gallery-item a").facebox(WPFB.options); });</script>
+
+<!-- All in One SEO Pack 2.1 by Michael Torbert of Semper Fi Web Design[-1,-1] -->
+<meta name="description" content="The General, Administrator, and Developer links guide you to key topics in DataStax Enterprise 3.2, its complementary Cassandra 1.2, and the Java and C#" />
+
+<!-- /all in one seo pack -->
+<script type="text/javascript">var src="http://www.datastax.com/wp-admin/admin-ajax.php?action=wordfence_logHuman&hid=CCEDB4BFF42AB64E57618CE053D98EBA"; if(window.location.protocol == "https:"){ src = src.replace("http:", "https:"); } var wfHTImg = new Image();  wfHTImg.src=src;</script><meta id="syntaxhighlighteranchor" name="syntaxhighlighter-version" content="3.1.3" />
+	
+	<script src="/doc-source/cassandra/quick_start/docs-jquery.js?ver=1.0" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" href="/doc-source/css/documentation.css">
+</head>
+<body class="page page-id-17600 page-parent page-template page-template-template-documentation-php dev-center docs">
+	<div id="Wrapper" class="row">
+		<div class="twelve columns wrapperContainer">
+        
+        	<div id="Header" class="row">
+		    <div class="three columns offset-by-one">
+		      <div id="SiteId">
+              	<a href="http://www.datastax.com">
+					<img src="http://www.datastax.com/wp-content/themes/datastax-2013/images/common/logo.png" alt="DataStax logo" />
+				</a>
+              </div>
+		    </div>
+			<div class="seven columns end clearfix">
+			    <div class="toolbar">
+						<div class="search clearfix">
+							<div class="formContainer">
+								<form class="gsc-search-box" accept-charset="utf-8" action="/search">
+									<div class="searchBox">
+										<input type="text" autocomplete="off" size="10" class="gsc-input" name="q" title="search" id="gsc-i-id1" dir="ltr" spellcheck="false" style="outline: medium none;">
+										<input type="image" alt="Search" class="gsc-search-button" title="search" src="http://www.datastax.com/wp-content/themes/datastax-2013/images/common/search-submit.png" />
+									</div>
+								</form>
+							</div>
+							<a href="http://planetcassandra.org/" class="planetCassandra"><img src="http://www.datastax.com/wp-content/themes/datastax-2013/images/common/planet-cassandra.png" alt="Planet Cassandra Community" /></a>
+						</div>
+						<ul class="links right"><li id="menu-item-13820" class="first-menu-item menu-item menu-item-type-post_type menu-item-object-page menu-item-13820"><a href="http://www.datastax.com/what-we-offer/products-services/support">Support</a></li>
+<li id="menu-item-13821" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13821"><a href="/blog">Blog</a></li>
+<li id="menu-item-17674" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17674"><a href="http://www.datastax.com/resources">Resources</a></li>
+<li id="menu-item-17675" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17675"><a href="http://www.datastax.com/company/careers">Careers</a></li>
+<li id="menu-item-14754" class="last-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-14754"><a href="/company#contact">Contact Us</a></li>
+</ul>			</div>
+            <div id="NavigationPrimary">
+            	<ul><li id="menu-item-13695" class="first-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-13695"><a href="/big-data-challenges">Big Data Challenges</a>
+<ul class="sub-menu">
+	<li id="menu-item-13696" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13696"><a href="/big-data-challenges">Overview</a></li>
+</ul>
+</li>
+<li id="menu-item-13653" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13653"><a href="/customers">Customers</a>
+<ul class="sub-menu">
+	<li id="menu-item-13651" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13651"><a href="/customers">Overview</a></li>
+</ul>
+</li>
+<li id="menu-item-17594" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17594"><a href="http://www.datastax.com/what-we-offer">What We Offer</a>
+<ul class="sub-menu">
+	<li id="menu-item-17617" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-17617"><a href="/what-we-offer/products-services">Overview</a></li>
+	<li id="menu-item-5952" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5952"><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise">DataStax Enterprise</a></li>
+	<li id="menu-item-18964" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18964"><a href="http://www.datastax.com/what-we-offer/products-services/devcenter">DataStax DevCenter</a></li>
+	<li id="menu-item-17623" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17623"><a href="http://www.datastax.com/what-we-offer/products-services/datastax-opscenter">DataStax OpsCenter</a></li>
+	<li id="menu-item-9768" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-9768"><a href="http://www.datastax.com/what-we-offer/products-services/support">Support</a></li>
+	<li id="menu-item-9767" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-9767"><a href="http://www.datastax.com/what-we-offer/products-services/training">Training</a></li>
+	<li id="menu-item-9772" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-9772"><a href="http://www.datastax.com/what-we-offer/products-services/consulting">Consulting</a></li>
+</ul>
+</li>
+<li id="menu-item-2361" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2361"><a href="/dev">Developer Center</a>
+<ul class="sub-menu">
+	<li id="menu-item-13649" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13649"><a href="/dev">Overview</a></li>
+	<li id="menu-item-10081" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-10081"><a href="/docs/quick_start/quickstart">Quick Start Guide</a></li>
+	<li id="menu-item-2365" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2365"><a href="/docs">Documentation</a></li>
+	<li id="menu-item-2364" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2364"><a href="/dev/blog">Developer Blog</a></li>
+	<li id="menu-item-17627" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17627"><a href="http://www.datastax.com/dev/tutorials">Tutorials</a></li>
+</ul>
+</li>
+<li id="menu-item-17598" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17598"><a href="http://www.datastax.com/company">Company</a>
+<ul class="sub-menu">
+	<li id="menu-item-17651" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17651"><a href="http://www.datastax.com/company">About DataStax</a></li>
+	<li id="menu-item-14305" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14305"><a href="/company#management">Management</a></li>
+	<li id="menu-item-17642" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17642"><a href="http://www.datastax.com/company/news-and-events/press-releases">Press Releases</a></li>
+	<li id="menu-item-17641" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17641"><a href="http://www.datastax.com/company/news-and-events/in-the-news">In the News</a></li>
+	<li id="menu-item-17644" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17644"><a href="http://www.datastax.com/company/news-and-events/events">Events</a></li>
+	<li id="menu-item-16822" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16822"><a href="http://www.datastax.com/bod">Board of Directors</a></li>
+	<li id="menu-item-17660" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17660"><a href="http://www.datastax.com/company/investors">Investors</a></li>
+	<li id="menu-item-15026" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-15026"><a href="/company#partners">Partners</a></li>
+	<li id="menu-item-14307" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14307"><a href="/company#rebel-elite">Rebel Elite Program</a></li>
+	<li id="menu-item-20007" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20007"><a href="http://www.datastax.com/company/careers">Careers</a></li>
+	<li id="menu-item-14309" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14309"><a href="/company#contact">Contact Us</a></li>
+</ul>
+</li>
+<li id="menu-item-13652" class="last-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-13652"><a href="/download">Download</a></li>
+</ul>            </div>
+		</div>
+	</div> <!-- #Header -->
+    
+    <div id="MainBody">
+		<div id="NavigationSecondary" class="row">
+			<div class="ten columns offset-by-one channel">
+				<ul></ul>			</div>
+		</div>
+		<div id="Breadcrumbs" class="row">
+				<ul class="ten columns offset-by-one end">
+					<li><a href="/">DataStax</a>&nbsp;&gt;&nbsp;</li>
+					<li><a href="/docs">Documentation</a></li>
+				</ul>
+		</div> <!-- #Breadcrumbs -->
+        <div id="MainChannel" class="row">
+			<div id="Content" class=" columns" style="width: 100%; padding: 0px 30px 30px 30px;">
+				<div id="ContentChannel">
+											<h3 class="super" style="width: 500px; font-size: 24px;">Apache Cassandra 1.1 Documentation</h3>
+																<div id="searchwrapper" style="margin-top: 3px;">
+							<div id="cse-search-form" style="width: 100%;">
+								<div class="gsc-control-searchbox-only gsc-control-searchbox-only-en" dir="ltr">
+								<form method="get" id="searchform" action="/docs/search-1-1/">
+								<table cellspacing="0" cellpadding="0" >
+								<tbody>
+								<tr>
+								<td class="gsc-input"><input type="text" class="field gsc-input" name="q" id="q"  value="Search 1.1 Docs" onfocus="if (value =='Search 1.1 Docs')this.value = '';" onblur="if (value =='') this.value = 'Search 1.1 Docs';"  /></td>
+								<td class="gsc-search-button"><input type="submit" value="Search" class="gsc-search-button" title="search"></td>
+								</tr></tbody></table>
+								</form>
+								</div>
+							</div>
+						</div>
+												<div class="doc-navigation" style="margin: 25px 0 10px;">
+																								<div style="float:left; width: 500px;"><a href="../references/start_stop_ref">&laquo; Starting and Stopping a Cassandra Cluster</a></div>
+																								<div style="float:right; width: 500px; text-align: right;"><a href="../dsc_release_notes">DataStax Community Release Notes &raquo;</a></div>
+																<div style="clear:both;"></div>
+							</div>
+							
+							<div class="documentation"><div class="doc_content" style="width: 100%;">
+																
+
+  <div class="section" id="troubleshooting-guide">
+<span id="troubleshooting"></span><h1>Troubleshooting Guide<a class="headerlink" href="#troubleshooting-guide" title="Permalink to this headline">¶</a></h1>
+<div style="margin: 5px 25px 15px 25px; background-color: #fafafa; padding: 2px; border: 1px solid #ccc;">
+   <p style="font-size: 14px; font-weight:bold; color:#016b90; line-height:16px; text-align: center; padding-top:10px;">This document corresponds to an earlier product version. Make sure you are using the version that corresponds to your version.</p>
+     <p style="font-size: 14px; text-align: center;"><a href="http://www.datastax.com/docs/latest-dsc/">Latest Cassandra documentation</a> | <a href="http://www.datastax.com/docs/earlier-documentation">Earlier Cassandra documentation</a></p>
+</div><div style="float:right; width: 340px; text-align: right;">
+   <a href="../index">Back to Table of Contents</a>
+</div>
+<div style="clear:both;"></div>
+<div style="float:right; width: 152px; text-align: right; border-top: 1px solid #003e7a; padding-top: 1px; margin-bottom: 12px">
+   <a href="http://www.datastax.com/docs">All Documents List</a>
+</div>
+<div style="clear:both;"></div><p>This page contains recommended fixes and workarounds for issues commonly encountered with Cassandra:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#reads"><em>Reads are getting slower while writes are still fast</em></a></li>
+<li><a class="reference internal" href="#freeze"><em>Nodes seem to freeze after some period of time</em></a></li>
+<li><a class="reference internal" href="#oom"><em>Nodes are dying with OOM errors</em></a></li>
+<li><a class="reference internal" href="#jmx"><em>Nodetool or JMX connections failing on remote nodes</em></a></li>
+<li><a class="reference internal" href="#ring"><em>View of ring differs between some nodes</em></a></li>
+<li><a class="reference internal" href="#toomany"><em>Java reports an error saying there are too many open files</em></a></li>
+<li><a class="reference internal" href="#ulimit-settings"><em>Insufficient user resource limits errors</em></a></li>
+<li><a class="reference internal" href="#snappy"><em>Cannot initialize class org.xerial.snappy.Snappy</em></a></li>
+</ul>
+<div class="section" id="reads-are-getting-slower-while-writes-are-still-fast">
+<span id="reads"></span><h2>Reads are getting slower while writes are still fast<a class="headerlink" href="#reads-are-getting-slower-while-writes-are-still-fast" title="Permalink to this headline">¶</a></h2>
+<p>Check the SSTable counts in <a class="reference internal" href="../references/nodetool#nodetool-cfstats"><em>cfstats</em></a>.  If the count
+is continually growing, the cluster's IO capacity is not enough to handle
+the write load it is receiving.  Reads have slowed down because the data
+is fragmented across many SSTables and compaction is continually running
+trying to reduce them.  Adding more IO capacity, either via more machines
+in the cluster, or faster drives such as SSDs, will be necessary to solve this.</p>
+<p>If the SSTable count is relatively low (32 or less) then the amount of file
+cache available per machine compared to the amount of data per machine needs to
+be considered, as well as the application's read pattern.  The amount of file
+cache can be formulated as (TotalMemory – JVMHeapSize) and if the amount of
+data is greater and the read pattern is approximately random, an equal ratio of
+reads to the cache:data ratio will need to seek the disk.  With spinning media,
+this is a slow operation.  You may be able to mitigate many of the seeks by
+using a key cache of 100%, and a small amount of row cache (10000-20000) if you
+have some 'hot' rows and they are not extremely large.</p>
+</div>
+<div class="section" id="nodes-seem-to-freeze-after-some-period-of-time">
+<span id="freeze"></span><h2>Nodes seem to freeze after some period of time<a class="headerlink" href="#nodes-seem-to-freeze-after-some-period-of-time" title="Permalink to this headline">¶</a></h2>
+<p>Check your system.log for messages from the GCInspector.  If the GCInspector
+is indicating that either the ParNew or ConcurrentMarkSweep collectors took
+longer than 15 seconds, there is a very high probability that some portion of
+the JVM is being swapped out by the OS.  One way this might happen is if the
+mmap DiskAccessMode is used without JNA support.  The address space will be
+exhausted by mmap, and the OS will decide to swap out some portion of the JVM
+that isn't in use, but eventually the JVM will try to GC this space.  Adding
+the JNA libraries will solve this (they cannot be shipped with Cassandra due to
+carrying a GPL license, but are freely available) or the DiskAccessMode can be
+switched to mmap_index_only, which as the name implies will only mmap the
+indicies, using much less address space.  DataStax recommends that Cassandra
+nodes disable swap entirely (<tt class="docutils literal"><span class="pre">sudo</span> <span class="pre">swapoff</span> <span class="pre">--all</span></tt>), since it is better to have the OS OutOfMemory (OOM)
+killer kill the Java process entirely than it is to have the JVM buried in swap and
+responding poorly.</p>
+<p>If the GCInspector isn't reporting very long GC times, but is reporting moderate
+times frequently (ConcurrentMarkSweep taking a few seconds very often) then it
+is likely that the JVM is experiencing extreme GC pressure and will
+eventually OOM.  See the section below on OOM errors.</p>
+</div>
+<div class="section" id="nodes-are-dying-with-oom-errors">
+<span id="oom"></span><h2>Nodes are dying with OOM errors<a class="headerlink" href="#nodes-are-dying-with-oom-errors" title="Permalink to this headline">¶</a></h2>
+<p>If nodes are dying with OutOfMemory exceptions, check for these typical causes:</p>
+<ul class="simple">
+<li>Row cache is too large, or is caching large rows<ul>
+<li>Row cache is generally a high-end optimization.  Try disabling it and see if
+the OOM problems continue.</li>
+</ul>
+</li>
+<li>The memtable sizes are too large for the amount of heap allocated to the JVM<ul>
+<li>You can expect N + 2 memtables resident in memory, where N is the number of column families.  Adding another 1GB on top of that for Cassandra itself is a good estimate of   total heap usage.</li>
+</ul>
+</li>
+</ul>
+<p>If none of these seem to apply to your situation, try loading the heap dump in
+<a class="reference external" href="http://www.eclipse.org/mat">MAT</a> and see which class is consuming the bulk
+of the heap for clues.</p>
+</div>
+<div class="section" id="nodetool-or-jmx-connections-failing-on-remote-nodes">
+<span id="jmx"></span><h2>Nodetool or JMX connections failing on remote nodes<a class="headerlink" href="#nodetool-or-jmx-connections-failing-on-remote-nodes" title="Permalink to this headline">¶</a></h2>
+<p>If you can run nodetool commands locally but not on other nodes in the ring, you may have a common JMX connection problem that is resolved by adding an entry like the following in <tt class="docutils literal"><span class="pre">&lt;install_location&gt;/conf/cassandra-env.sh</span></tt> on each node:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">JVM_OPTS</span><span class="o">=</span><span class="s2">&quot;$JVM_OPTS -Djava.rmi.server.hostname=&lt;public name&gt;&quot;</span>
+</pre></div>
+</div>
+<p>If you still cannot run nodetool commands remotely after making this configuration change, do a full evaluation of your firewall and network security.  The nodetool utility communciates through JMX on port 7199.</p>
+</div>
+<div class="section" id="view-of-ring-differs-between-some-nodes">
+<span id="ring"></span><h2>View of ring differs between some nodes<a class="headerlink" href="#view-of-ring-differs-between-some-nodes" title="Permalink to this headline">¶</a></h2>
+<p>This is an indication that the ring is in a bad state.  This can happen when there are token conflicts (for instance, when bootstrapping two nodes simultaneously with automatic token selection.)  Unfortunately, the only way to resolve this is to do a full cluster restart; a rolling restart is insufficient since gossip from nodes with the bad state will repopulate it on newly booted nodes.</p>
+</div>
+<div class="section" id="java-reports-an-error-saying-there-are-too-many-open-files">
+<span id="toomany"></span><h2>Java reports an error saying there are too many open files<a class="headerlink" href="#java-reports-an-error-saying-there-are-too-many-open-files" title="Permalink to this headline">¶</a></h2>
+<p>Java is not allowed to open enough file descriptors.  Cassandra generally needs more than the default (1024) amount.  To increase the number of file descriptors, change the security limits on your Cassandra nodes.  For example, using the following commands:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nb">echo</span> <span class="s2">&quot;* soft nofile 32768&quot;</span> | sudo tee -a /etc/security/limits.conf
+<span class="nb">echo</span> <span class="s2">&quot;* hard nofile 32768&quot;</span> | sudo tee -a /etc/security/limits.conf
+<span class="nb">echo</span> <span class="s2">&quot;root soft nofile 32768&quot;</span> | sudo tee -a /etc/security/limits.conf
+<span class="nb">echo</span> <span class="s2">&quot;root hard nofile 32768&quot;</span> | sudo tee -a /etc/security/limits.conf
+</pre></div>
+</div>
+<p>Another, much less likely possibility, is a file descriptor leak in Cassandra. Run <tt class="docutils literal"><span class="pre">lsof</span> <span class="pre">-n</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">java</span></tt> to check that the number of file descriptors opened by Java is reasonable and reports the error if the number is greater than a few thousand.</p>
+</div>
+<div class="section" id="insufficient-user-resource-limits-errors">
+<span id="ulimit-settings"></span><h2>Insufficient user resource limits errors<a class="headerlink" href="#insufficient-user-resource-limits-errors" title="Permalink to this headline">¶</a></h2>
+<p>Insufficient resource limits may result in a number of errors in Cassandra and OpsCenter, including the following:</p>
+<div class="section" id="cassandra-errors">
+<h3>Cassandra errors<a class="headerlink" href="#cassandra-errors" title="Permalink to this headline">¶</a></h3>
+<p><strong>Insufficient as (address space) or memlock setting:</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre>ERROR <span class="o">[</span>SSTableBatchOpen:1<span class="o">]</span> 2012-07-25 15:46:02,913 AbstractCassandraDaemon.java <span class="o">(</span>line 139<span class="o">)</span>
+Fatal exception in thread Thread<span class="o">[</span>SSTableBatchOpen:1,5,main<span class="o">]</span>
+java.io.IOError: java.io.IOException: Map failed  at ...
+</pre></div>
+</div>
+<p><strong>Insufficient memlock settings:</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre>WARN <span class="o">[</span>main<span class="o">]</span> 2011-06-15 09:58:56,861 CLibrary.java <span class="o">(</span>line 118<span class="o">)</span> Unable to lock JVM memory <span class="o">(</span>ENOMEM<span class="o">)</span>.
+This can result in part of the JVM being swapped out, especially with mmapped I/O enabled.
+Increase RLIMIT_MEMLOCK or run Cassandra as root.
+</pre></div>
+</div>
+<p><strong>Insufficient nofiles setting:</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre>WARN 05:13:43,644 Transport error occurred during acceptance of message.
+org.apache.thrift.transport.TTransportException: java.net.SocketException:
+Too many open files ...
+</pre></div>
+</div>
+<p><strong>Insufficient nofiles setting:</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre>ERROR <span class="o">[</span>MutationStage:11<span class="o">]</span> 2012-04-30 09:46:08,102 AbstractCassandraDaemon.java <span class="o">(</span>line 139<span class="o">)</span>
+Fatal exception in thread Thread<span class="o">[</span>MutationStage:11,5,main<span class="o">]</span>
+java.lang.OutOfMemoryError: unable to create new native thread
+</pre></div>
+</div>
+</div>
+<div class="section" id="opscenter-errors">
+<h3>OpsCenter errors<a class="headerlink" href="#opscenter-errors" title="Permalink to this headline">¶</a></h3>
+<p><strong>Insufficient nofiles setting:</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre>2012-08-13 11:22:51-0400 <span class="o">[]</span> INFO: Could not accept new connection <span class="o">(</span>EMFILE<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="recommended-settings">
+<h3>Recommended settings<a class="headerlink" href="#recommended-settings" title="Permalink to this headline">¶</a></h3>
+<p>You can view the current limits using the <tt class="docutils literal"><span class="pre">ulimit</span> <span class="pre">-a</span></tt> command. Although limits can also be temporarily set using this command, DataStax recommends permanently changing the settings by adding the following entries to your <tt class="file docutils literal"><span class="pre">/etc/security/limits.conf</span></tt> file:</p>
+<div class="highlight-bash"><div class="highlight"><pre>* soft nofile 32768
+* hard nofile 32768
+root soft nofile 32768
+root hard nofile 32768
+* soft memlock unlimited
+* hard memlock unlimited
+root soft memlock unlimited
+root hard memlock unlimited
+* soft as unlimited
+* hard as unlimited
+root soft as unlimited
+root hard as unlimited
+</pre></div>
+</div>
+<p>In addition, you may need to be run the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre>sysctl -w vm.max_map_count<span class="o">=</span>131072
+</pre></div>
+</div>
+<p>The command enables more mapping. It is not in the <tt class="file docutils literal"><span class="pre">limits.conf</span></tt> file.</p>
+<p>On CentOS, RHEL, OEL Sysems, change the system limits from 1024 to 10240 in <tt class="file docutils literal"><span class="pre">/etc/security/limits.d/90-nproc.conf</span></tt> and then start a new shell for these changes to take effect.</p>
+<div class="highlight-bash"><div class="highlight"><pre>*  soft  nproc  10240
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="cannot-initialize-class-org-xerial-snappy-snappy">
+<span id="snappy"></span><h2>Cannot initialize class org.xerial.snappy.Snappy<a class="headerlink" href="#cannot-initialize-class-org-xerial-snappy-snappy" title="Permalink to this headline">¶</a></h2>
+<p>The following error may occur when Snappy compression/decompression is enabled although its library is available from the classpath:</p>
+<div class="highlight-bash"><div class="highlight"><pre>java.util.concurrent.ExecutionException: java.lang.NoClassDefFoundError:
+    Could not initialize class org.xerial.snappy.Snappy
+...
+Caused by: java.lang.NoClassDefFoundError: Could not initialize class org.xerial.snappy.Snappy
+   at org.apache.cassandra.io.compress.SnappyCompressor.initialCompressedBufferLength
+       <span class="o">(</span>SnappyCompressor.java:39<span class="o">)</span>
+</pre></div>
+</div>
+<p>The native library <tt class="docutils literal"><span class="pre">snappy-1.0.4.1-libsnappyjava.so</span></tt> for Snappy compression is included in the <tt class="file docutils literal"><span class="pre">snappy-java-1.0.4.1.jar</span></tt> file. When the JVM initializes the JAR, the library is added to the default temp directory. If the default temp directory is mounted with a <tt class="docutils literal"><span class="pre">noexec</span></tt> option, it results in the above exception.</p>
+<p>One solution is to specify a different temp directory that has already been mounted without the <tt class="docutils literal"><span class="pre">noexec</span></tt> option, as follows:</p>
+<ul>
+<li><p class="first">If you use the DSE/Cassandra command <tt class="docutils literal"><span class="pre">$_BIN/dse</span> <span class="pre">cassandra</span></tt> or <tt class="docutils literal"><span class="pre">$_BIN/cassandra</span></tt>, simply append the command line:</p>
+<p><strong>DSE</strong>: <tt class="docutils literal"><span class="pre">bin/dse</span> <span class="pre">cassandra</span> <span class="pre">-t</span> <span class="pre">-Dorg.xerial.snappy.tempdir=/path/to/newtmp</span></tt></p>
+<p><strong>Cassandra</strong>: <tt class="docutils literal"><span class="pre">bin/cassandra</span> <span class="pre">-Dorg.xerial.snappy.tempdir=/path/to/newtmp</span></tt></p>
+</li>
+<li><p class="first">If starting from a package using <tt class="docutils literal"><span class="pre">service</span> <span class="pre">dse</span> <span class="pre">start</span></tt> or <tt class="docutils literal"><span class="pre">service</span> <span class="pre">cassandra</span> <span class="pre">start</span></tt>, add a system environment variable <tt class="docutils literal"><span class="pre">JVM_OPTS</span></tt> with the value:</p>
+<p><tt class="docutils literal"><span class="pre">JVM_OPTS=-Dorg.xerial.snappy.tempdir=/path/to/newtmp</span></tt></p>
+<p>The default <tt class="docutils literal"><span class="pre">cassandra-env.sh</span></tt> looks for the variable and appends to it when starting the JVM.</p>
+</li>
+</ul>
+</div>
+</div>
+
+							</div></div>
+																<div style="float:left; width: 500px;"><a href="../references/start_stop_ref">&laquo; Starting and Stopping a Cassandra Cluster</a></div>
+																								<div style="float:right; width: 500px; text-align: right;"><a href="../dsc_release_notes">DataStax Community Release Notes &raquo;</a></div>
+																<div style="clear:both;"></div>
+					</div> <!-- ContentChannel -->
+				</div> <!-- Content -->
+
+	</div> <!-- #MainChannel -->
+    					<div id="Announcements">
+										<div class="row carouselContainer">
+						<div class="twelve columns">
+							<div class="ten columns offset-by-one end">
+								<div class="row">
+									<div class="two columns announcementsNav">
+										<span>DataStax News</span>
+										<div class="navLinks clearfix"><a href="#" class="prev">&lt;</a> <a href="#" class="next">&gt;</a></div>
+									</div>
+																		<div class="nine columns end carouselContent">
+										<ul class="carousel">
+	                                    												<li><a href="http://www.datastax.com/2013/12/datastax-enterprise-3-1-5-now-available">DataStax Enterprise 3.1.5 Now Available</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/12/the-five-minute-interview-engine">The Five Minute Interview – Engine</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/12/datastax-tests-enterprise-grade-cassandra-database-on-google-compute-engine">DataStax Tests Enterprise-grade Cassandra Database on Google Compute Engine</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/12/datastax-enterprise-3-0-9-now-available">DataStax Enterprise 3.0.9 Now Available</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/12/the-five-minute-interview-amara-health-analytics">The Five Minute Interview – Amara Health Analytics</a></li>
+	                                        											<li><a href="http://www.slideshare.net/IDGConnect/20-pre-ipo-companies-in-2014-b2-b-tech">20 Red Hot, Pre-IPO Companies in 2014 B2B Tech</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/11/the-five-minute-interview-nexgate">The Five Minute Interview – Nexgate</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/11/the-five-minute-interview-shift">The Five Minute Interview – Shift</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/11/the-five-minute-interview-chill-com">The Five Minute Interview – Chill.com</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/11/the-five-minute-interview-codemettle">The Five Minute Interview – CodeMettle</a></li>
+	                                        										 </ul>
+									 </div>
+								 </div>
+							</div>
+						</div> <!-- twelve columns -->
+					</div>
+				</div> <!-- #Announcements -->
+                          
+				
+				<div id="ContentFooter" class="row">
+					<div class="fiveCol ten offset-by-one end">
+                    	<div class="col"></ul><h3><a href="http://www.datastax.com/customers">Customers</a></h3><ul></ul><h3><a href="/what-we-offer/products-services">What We Offer</a></h3><ul><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise">DataStax Enterprise</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-opscenter">DataStax OpsCenter</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise/apache-cassandra">Apache Cassandra</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise/apache-hadoop">Analytics with Cassandra</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise/apache-solr">Enterprise Search with Cassandra</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/support">Support</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/training">Training</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/consulting">Consulting</a></li></ul></div><div class="col"><h3><a href="http://www.datastax.com/dev">Developer Center</a></h3><ul><li><a href="/docs/quick_start/quickstart">Quick Start Guide</a></li><li><a href="/docs">Documentation</a></li><li><a href="/support-forums/">Support Forums</a></li><li><a href="/dev/blog">Developer Blog</a></li><li><a href="http://www.datastax.com/dev/tutorials">Tutorials</a></li></ul></div><div class="col"><h3><a href="http://www.datastax.com/company">About DataStax</a></h3><ul><li><a href="/company#management">Management</a></li><li><a href="http://www.datastax.com/company/news-and-events/press-releases">Press Releases</a></li><li><a href="http://www.datastax.com/company/news-and-events/in-the-news">In the News</a></li><li><a href="http://www.datastax.com/company/news-and-events/events">Events</a></li><li><a href="http://www.datastax.com/company/investors">Investors</a></li><li><a href="http://www.datastax.com/company/partners">Partners</a></li><li><a href="/company#mvp">MVP Program</a></li><li><a href="/careers">Careers</a></li><li><a href="/company#contact">Contact Us</a></li></ul></div><div class="col"><h3><a href="http://www.datastax.com/download">Download</a></h3><ul></ul></div><div class="col"><h3><a href="http://www.datastax.com/blog">Blog</a></h3><ul></ul></div><div class="col"><h3><a href="http://www.datastax.com/resources">Resources</a></h3><ul><li><a href="http://www.datastax.com/resources/casestudies">Customer Case Studies</a></li><li><a href="http://www.datastax.com/resources/datasheets">Data Sheets</a></li><li><a href="http://www.datastax.com/resources/webinars">Webinars</a></li><li><a href="http://www.datastax.com/resources/whitepapers">White Papers</a></li><li><a href="http://www.datastax.com/resources/faq">FAQ</a></li></ul></div>						<div class="col last">
+							<ul class="social">
+								<li><a href="http://www.facebook.com/datastax" class="facebook" target="_blank">Facebook</a></li>
+								<li><a href="http://www.twitter.com/datastax" class="twitter" target="_blank">Twitter</a></li>
+								<li><a href="https://plus.google.com/118217019989017627230/posts" class="googlePlus" target="_blank">Google+</a></li>
+								<li><a href="http://feeds.feedburner.com/datastax" class="blog" target="_blank">Bog</a></li>
+							</ul>
+						</div>
+					</div> <!-- .fiveCol -->
+				</div> <!-- #ContentFooter -->
+			</div> <!-- #MainBody -->
+		</div> <!-- .wrapperContainer -->
+	</div> <!-- #Wrapper -->
+	
+  <!-- Footer -->
+  <div id="WrapperFooter" class="row">
+		<div class="twelve columns footerContainer">
+			<footer class="row">
+				<div class="ten columns offset-by-one end">
+                	<ul class="siteLinks"><li id="menu-item-13842" class="first-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-13842"><a href="/">© 2013 DataStax, All rights reserved.</a></li>
+<li id="menu-item-13843" class="last-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-13843"><a href="/terms-of-use">Terms of Use</a></li>
+</ul>				</div>
+			</footer>
+		</div> <!-- .footerContainer -->
+	</div>
+
+  
+  <!-- Included JS Files (Compressed) -->
+  <script src="http://www.datastax.com/wp-content/themes/datastax-2013/js/plugins.js"></script>
+	<script src="http://www.datastax.com/wp-content/themes/datastax-2013/js/library.js"></script>
+	<img src="http://ad.retargeter.com/seg?add=598160&t=2" width="1" height="1" />
+	<script type="text/javascript">
+	(function() {
+	  var didInit = false;
+	  function initMunchkin() {
+	    if(didInit === false) {
+	      didInit = true;
+	      Munchkin.init('059-YLZ-577');
+	    }
+	  }
+	  var s = document.createElement('script');
+	  s.type = 'text/javascript';
+	  s.async = true;
+	  s.src = document.location.protocol + '//munchkin.marketo.net/munchkin.js';
+	  s.onreadystatechange = function() {
+	    if (this.readyState == 'complete' || this.readyState == 'loaded') {
+	      initMunchkin();
+	    }
+	  };
+	  s.onload = initMunchkin;
+	  document.getElementsByTagName('head')[0].appendChild(s);
+	})();
+	</script>
+	<script> 
+
+	// Open menu on first tap on touch devices.
+
+	jQuery(document).ready(function () {
+	  $(".menu-item").has("ul").children("a").attr("aria-haspopup", "true");
+	});
+
+	</script>
+	
+<script type="text/javascript"><!--
+wpa2a.targets=[];
+wpa2a.html_done=true;if(wpa2a.script_ready&&!wpa2a.done)wpa2a.init();wpa2a.script_load();
+//--></script>
+<!-- Google Analytics --><script>var _gaq=[['_setAccount','UA-XXXXXXXX-X'],['_trackPageview']];
+            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g,s)}(document,'script'));</script><!-- Protocol Relative jQuery fall back if Google CDN offline --><script>window.jQuery || document.write('<script src="http://www.datastax.com/wp-content/themes/datastax-2013/js/jquery-1.9.0.min.js"><\/script>')</script><script type='text/javascript' src='http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js?ver=3.5.1'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/plugins/wpgform/js/jquery.columnizer.js?ver=3.5.1'></script>
+</body>
+</html>

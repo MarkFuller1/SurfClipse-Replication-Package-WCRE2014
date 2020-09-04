@@ -1,0 +1,931 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>HashMap.java</title>
+<style type="text/css">
+.enscript-comment { font-style: italic; color: rgb(178,34,34); }
+.enscript-function-name { font-weight: bold; color: rgb(0,0,255); }
+.enscript-variable-name { font-weight: bold; color: rgb(184,134,11); }
+.enscript-keyword { font-weight: bold; color: rgb(160,32,240); }
+.enscript-reference { font-weight: bold; color: rgb(95,158,160); }
+.enscript-string { font-weight: bold; color: rgb(188,143,143); }
+.enscript-builtin { font-weight: bold; color: rgb(218,112,214); }
+.enscript-type { font-weight: bold; color: rgb(34,139,34); }
+.enscript-highlight { text-decoration: underline; color: 0; }
+</style>
+</head>
+<body id="top">
+<h1 style="margin:8px;" id="f1">HashMap.java&nbsp;&nbsp;&nbsp;<span style="font-weight: normal; font-size: 0.5em;">[<a href="?txt">plain text</a>]</span></h1>
+<hr/>
+<div></div>
+<pre>
+<span class="enscript-comment">/* HashMap.java -- a class providing a basic hashtable data structure,
+   mapping Object --&gt; Object
+   Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005  Free Software Foundation, Inc.
+
+This file is part of GNU Classpath.
+
+GNU Classpath is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+GNU Classpath is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with GNU Classpath; see the file COPYING.  If not, write to the
+Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+02111-1307 USA.
+
+Linking this library statically or dynamically with other modules is
+making a combined work based on this library.  Thus, the terms and
+conditions of the GNU General Public License cover the whole
+combination.
+
+As a special exception, the copyright holders of this library give you
+permission to link this library with independent modules to produce an
+executable, regardless of the license terms of these independent
+modules, and to copy and distribute the resulting executable under
+terms of your choice, provided that you also meet, for each linked
+independent module, the terms and conditions of the license of that
+module.  An independent module is a module which is not derived from
+or based on this library.  If you modify this library, you may extend
+this exception to your version of the library, but you are not
+obligated to do so.  If you do not wish to do so, delete this
+exception statement from your version. */</span>
+
+
+<span class="enscript-keyword">package</span> java.util;
+
+<span class="enscript-keyword">import</span> java.io.IOException;
+<span class="enscript-keyword">import</span> java.io.ObjectInputStream;
+<span class="enscript-keyword">import</span> java.io.ObjectOutputStream;
+<span class="enscript-keyword">import</span> java.io.Serializable;
+
+<span class="enscript-comment">// NOTE: This implementation is very similar to that of Hashtable. If you fix
+</span><span class="enscript-comment">// a bug in here, chances are you should make a similar change to the Hashtable
+</span><span class="enscript-comment">// code.
+</span>
+<span class="enscript-comment">// NOTE: This implementation has some nasty coding style in order to
+</span><span class="enscript-comment">// support LinkedHashMap, which extends this.
+</span>
+<span class="enscript-comment">/**
+ * This class provides a hashtable-backed implementation of the
+ * Map interface.
+ * &lt;p&gt;
+ *
+ * It uses a hash-bucket approach; that is, hash collisions are handled
+ * by linking the new node off of the pre-existing node (or list of
+ * nodes).  In this manner, techniques such as linear probing (which
+ * can cause primary clustering) and rehashing (which does not fit very
+ * well with Java's method of precomputing hash codes) are avoided.
+ * &lt;p&gt;
+ *
+ * Under ideal circumstances (no collisions), HashMap offers O(1)
+ * performance on most operations (&lt;code&gt;containsValue()&lt;/code&gt; is,
+ * of course, O(n)).  In the worst case (all keys map to the same
+ * hash code -- very unlikely), most operations are O(n).
+ * &lt;p&gt;
+ *
+ * HashMap is part of the JDK1.2 Collections API.  It differs from
+ * Hashtable in that it accepts the null key and null values, and it
+ * does not support &quot;Enumeration views.&quot; Also, it is not synchronized;
+ * if you plan to use it in multiple threads, consider using:&lt;br&gt;
+ * &lt;code&gt;Map m = Collections.synchronizedMap(new HashMap(...));&lt;/code&gt;
+ * &lt;p&gt;
+ *
+ * The iterators are &lt;i&gt;fail-fast&lt;/i&gt;, meaning that any structural
+ * modification, except for &lt;code&gt;remove()&lt;/code&gt; called on the iterator
+ * itself, cause the iterator to throw a
+ * &lt;code&gt;ConcurrentModificationException&lt;/code&gt; rather than exhibit
+ * non-deterministic behavior.
+ *
+ * @author Jon Zeppieri
+ * @author Jochen Hoenicke
+ * @author Bryce McKinlay
+ * @author Eric Blake (<a href="mailto:ebb9@email.byu.edu">ebb9@email.byu.edu</a>)
+ * @see Object#hashCode()
+ * @see Collection
+ * @see Map
+ * @see TreeMap
+ * @see LinkedHashMap
+ * @see IdentityHashMap
+ * @see Hashtable
+ * @since 1.2
+ * @status updated to 1.4
+ */</span>
+<span class="enscript-keyword">public</span> <span class="enscript-keyword">class</span> HashMap <span class="enscript-keyword">extends</span> AbstractMap
+  <span class="enscript-keyword">implements</span> Map, Cloneable, Serializable
+{
+  <span class="enscript-comment">/**
+   * Default number of buckets. This is the value the JDK 1.3 uses. Some
+   * early documentation specified this value as 101. That is incorrect.
+   * Package visible for use by HashSet.
+   */</span>
+  <span class="enscript-keyword">static</span> <span class="enscript-keyword">final</span> <span class="enscript-keyword">int</span> DEFAULT_CAPACITY = 11;
+
+  <span class="enscript-comment">/**
+   * The default load factor; this is explicitly specified by the spec.
+   * Package visible for use by HashSet.
+   */</span>
+  <span class="enscript-keyword">static</span> <span class="enscript-keyword">final</span> <span class="enscript-keyword">float</span> DEFAULT_LOAD_FACTOR = 0.75f;
+
+  <span class="enscript-comment">/**
+   * Compatible with JDK 1.2.
+   */</span>
+  <span class="enscript-keyword">private</span> <span class="enscript-keyword">static</span> <span class="enscript-keyword">final</span> <span class="enscript-keyword">long</span> serialVersionUID = 362498820763181265L;
+
+  <span class="enscript-comment">/**
+   * The rounded product of the capacity and the load factor; when the number
+   * of elements exceeds the threshold, the HashMap calls
+   * &lt;code&gt;rehash()&lt;/code&gt;.
+   * @serial the threshold for rehashing
+   */</span>
+  <span class="enscript-keyword">private</span> <span class="enscript-keyword">int</span> threshold;
+
+  <span class="enscript-comment">/**
+   * Load factor of this HashMap:  used in computing the threshold.
+   * Package visible for use by HashSet.
+   * @serial the load factor
+   */</span>
+  <span class="enscript-keyword">final</span> <span class="enscript-keyword">float</span> loadFactor;
+
+  <span class="enscript-comment">/**
+   * Array containing the actual key-value mappings.
+   * Package visible for use by nested and subclasses.
+   */</span>
+  <span class="enscript-keyword">transient</span> HashEntry[] buckets;
+
+  <span class="enscript-comment">/**
+   * Counts the number of modifications this HashMap has undergone, used
+   * by Iterators to know when to throw ConcurrentModificationExceptions.
+   * Package visible for use by nested and subclasses.
+   */</span>
+  <span class="enscript-keyword">transient</span> <span class="enscript-keyword">int</span> modCount;
+
+  <span class="enscript-comment">/**
+   * The size of this HashMap:  denotes the number of key-value pairs.
+   * Package visible for use by nested and subclasses.
+   */</span>
+  <span class="enscript-keyword">transient</span> <span class="enscript-keyword">int</span> size;
+
+  <span class="enscript-comment">/**
+   * The cache for {@link #entrySet()}.
+   */</span>
+  <span class="enscript-keyword">private</span> <span class="enscript-keyword">transient</span> Set entries;
+
+  <span class="enscript-comment">/**
+   * Class to represent an entry in the hash table. Holds a single key-value
+   * pair. Package visible for use by subclass.
+   *
+   * @author Eric Blake (<a href="mailto:ebb9@email.byu.edu">ebb9@email.byu.edu</a>)
+   */</span>
+  <span class="enscript-keyword">static</span> <span class="enscript-keyword">class</span> HashEntry <span class="enscript-keyword">extends</span> AbstractMap.BasicMapEntry
+  {
+    <span class="enscript-comment">/**
+     * The next entry in the linked list. Package visible for use by subclass.
+     */</span>
+    HashEntry next;
+
+    <span class="enscript-comment">/**
+     * Simple constructor.
+     * @param key the key
+     * @param value the value
+     */</span>
+    HashEntry(Object key, Object value)
+    {
+      <span class="enscript-keyword">super</span>(key, value);
+    }
+
+    <span class="enscript-comment">/**
+     * Called when this entry is accessed via {@link #put(Object, Object)}.
+     * This version does nothing, but in LinkedHashMap, it must do some
+     * bookkeeping for access-traversal mode.
+     */</span>
+    <span class="enscript-keyword">void</span> access()
+    {
+    }
+
+    <span class="enscript-comment">/**
+     * Called when this entry is removed from the map. This version simply
+     * returns the value, but in LinkedHashMap, it must also do bookkeeping.
+     *
+     * @return the value of this key as it is removed
+     */</span>
+    Object cleanup()
+    {
+      <span class="enscript-keyword">return</span> value;
+    }
+  }
+
+  <span class="enscript-comment">/**
+   * Construct a new HashMap with the default capacity (11) and the default
+   * load factor (0.75).
+   */</span>
+  <span class="enscript-keyword">public</span> HashMap()
+  {
+    <span class="enscript-keyword">this</span>(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
+  }
+
+  <span class="enscript-comment">/**
+   * Construct a new HashMap from the given Map, with initial capacity
+   * the greater of the size of &lt;code&gt;m&lt;/code&gt; or the default of 11.
+   * &lt;p&gt;
+   *
+   * Every element in Map m will be put into this new HashMap.
+   *
+   * @param m a Map whose key / value pairs will be put into the new HashMap.
+   *        &lt;b&gt;NOTE: key / value pairs are not cloned in this constructor.&lt;/b&gt;
+   * @throws NullPointerException if m is null
+   */</span>
+  <span class="enscript-keyword">public</span> HashMap(Map m)
+  {
+    <span class="enscript-keyword">this</span>(Math.max(m.size() * 2, DEFAULT_CAPACITY), DEFAULT_LOAD_FACTOR);
+    putAll(m);
+  }
+
+  <span class="enscript-comment">/**
+   * Construct a new HashMap with a specific inital capacity and
+   * default load factor of 0.75.
+   *
+   * @param initialCapacity the initial capacity of this HashMap (&amp;gt;=0)
+   * @throws IllegalArgumentException if (initialCapacity &amp;lt; 0)
+   */</span>
+  <span class="enscript-keyword">public</span> HashMap(<span class="enscript-keyword">int</span> initialCapacity)
+  {
+    <span class="enscript-keyword">this</span>(initialCapacity, DEFAULT_LOAD_FACTOR);
+  }
+
+  <span class="enscript-comment">/**
+   * Construct a new HashMap with a specific inital capacity and load factor.
+   *
+   * @param initialCapacity the initial capacity (&amp;gt;=0)
+   * @param loadFactor the load factor (&amp;gt; 0, not NaN)
+   * @throws IllegalArgumentException if (initialCapacity &amp;lt; 0) ||
+   *                                     ! (loadFactor &amp;gt; 0.0)
+   */</span>
+  <span class="enscript-keyword">public</span> HashMap(<span class="enscript-keyword">int</span> initialCapacity, <span class="enscript-keyword">float</span> loadFactor)
+  {
+    <span class="enscript-keyword">if</span> (initialCapacity &lt; 0)
+      <span class="enscript-keyword">throw</span> <span class="enscript-keyword">new</span> IllegalArgumentException(<span class="enscript-string">&quot;Illegal Capacity: &quot;</span>
+                                         + initialCapacity);
+    <span class="enscript-keyword">if</span> (! (loadFactor &gt; 0)) <span class="enscript-comment">// check for NaN too
+</span>      <span class="enscript-keyword">throw</span> <span class="enscript-keyword">new</span> IllegalArgumentException(<span class="enscript-string">&quot;Illegal Load: &quot;</span> + loadFactor);
+
+    <span class="enscript-keyword">if</span> (initialCapacity == 0)
+      initialCapacity = 1;
+    buckets = <span class="enscript-keyword">new</span> HashEntry[initialCapacity];
+    <span class="enscript-keyword">this</span>.loadFactor = loadFactor;
+    threshold = (<span class="enscript-keyword">int</span>) (initialCapacity * loadFactor);
+  }
+
+  <span class="enscript-comment">/**
+   * Returns the number of kay-value mappings currently in this Map.
+   *
+   * @return the size
+   */</span>
+  <span class="enscript-keyword">public</span> <span class="enscript-keyword">int</span> size()
+  {
+    <span class="enscript-keyword">return</span> size;
+  }
+
+  <span class="enscript-comment">/**
+   * Returns true if there are no key-value mappings currently in this Map.
+   *
+   * @return &lt;code&gt;size() == 0&lt;/code&gt;
+   */</span>
+  <span class="enscript-keyword">public</span> <span class="enscript-keyword">boolean</span> isEmpty()
+  {
+    <span class="enscript-keyword">return</span> size == 0;
+  }
+
+  <span class="enscript-comment">/**
+   * Return the value in this HashMap associated with the supplied key,
+   * or &lt;code&gt;null&lt;/code&gt; if the key maps to nothing.  NOTE: Since the value
+   * could also be null, you must use containsKey to see if this key
+   * actually maps to something.
+   *
+   * @param key the key for which to fetch an associated value
+   * @return what the key maps to, if present
+   * @see #put(Object, Object)
+   * @see #containsKey(Object)
+   */</span>
+  <span class="enscript-keyword">public</span> Object get(Object key)
+  {
+    <span class="enscript-keyword">int</span> idx = hash(key);
+    HashEntry e = buckets[idx];
+    <span class="enscript-keyword">while</span> (e != <span class="enscript-keyword">null</span>)
+      {
+        <span class="enscript-keyword">if</span> (equals(key, e.key))
+          <span class="enscript-keyword">return</span> e.value;
+        e = e.next;
+      }
+    <span class="enscript-keyword">return</span> <span class="enscript-keyword">null</span>;
+  }
+
+  <span class="enscript-comment">/**
+   * Returns true if the supplied object &lt;code&gt;equals()&lt;/code&gt; a key
+   * in this HashMap.
+   *
+   * @param key the key to search for in this HashMap
+   * @return true if the key is in the table
+   * @see #containsValue(Object)
+   */</span>
+  <span class="enscript-keyword">public</span> <span class="enscript-keyword">boolean</span> containsKey(Object key)
+  {
+    <span class="enscript-keyword">int</span> idx = hash(key);
+    HashEntry e = buckets[idx];
+    <span class="enscript-keyword">while</span> (e != <span class="enscript-keyword">null</span>)
+      {
+        <span class="enscript-keyword">if</span> (equals(key, e.key))
+          <span class="enscript-keyword">return</span> <span class="enscript-keyword">true</span>;
+        e = e.next;
+      }
+    <span class="enscript-keyword">return</span> <span class="enscript-keyword">false</span>;
+  }
+
+  <span class="enscript-comment">/**
+   * Puts the supplied value into the Map, mapped by the supplied key.
+   * The value may be retrieved by any object which &lt;code&gt;equals()&lt;/code&gt;
+   * this key. NOTE: Since the prior value could also be null, you must
+   * first use containsKey if you want to see if you are replacing the
+   * key's mapping.
+   *
+   * @param key the key used to locate the value
+   * @param value the value to be stored in the HashMap
+   * @return the prior mapping of the key, or null if there was none
+   * @see #get(Object)
+   * @see Object#equals(Object)
+   */</span>
+  <span class="enscript-keyword">public</span> Object put(Object key, Object value)
+  {
+    <span class="enscript-keyword">int</span> idx = hash(key);
+    HashEntry e = buckets[idx];
+
+    <span class="enscript-keyword">while</span> (e != <span class="enscript-keyword">null</span>)
+      {
+        <span class="enscript-keyword">if</span> (equals(key, e.key))
+          {
+            e.access(); <span class="enscript-comment">// Must call this for bookkeeping in LinkedHashMap.
+</span>            Object r = e.value;
+            e.value = value;
+            <span class="enscript-keyword">return</span> r;
+          }
+        <span class="enscript-keyword">else</span>
+          e = e.next;
+      }
+
+    <span class="enscript-comment">// At this point, we know we need to add a new entry.
+</span>    modCount++;
+    <span class="enscript-keyword">if</span> (++size &gt; threshold)
+      {
+        rehash();
+        <span class="enscript-comment">// Need a new hash value to suit the bigger table.
+</span>        idx = hash(key);
+      }
+
+    <span class="enscript-comment">// LinkedHashMap cannot override put(), hence this call.
+</span>    addEntry(key, value, idx, <span class="enscript-keyword">true</span>);
+    <span class="enscript-keyword">return</span> <span class="enscript-keyword">null</span>;
+  }
+
+  <span class="enscript-comment">/**
+   * Copies all elements of the given map into this hashtable.  If this table
+   * already has a mapping for a key, the new mapping replaces the current
+   * one.
+   *
+   * @param m the map to be hashed into this
+   */</span>
+  <span class="enscript-keyword">public</span> <span class="enscript-keyword">void</span> putAll(Map m)
+  {
+    Iterator itr = m.entrySet().iterator();
+    <span class="enscript-keyword">while</span> (itr.hasNext())
+      {
+        Map.Entry e = (Map.Entry) itr.next();
+        <span class="enscript-comment">// Optimize in case the Entry is one of our own.
+</span>        <span class="enscript-keyword">if</span> (e <span class="enscript-keyword">instanceof</span> AbstractMap.BasicMapEntry)
+          {
+            AbstractMap.BasicMapEntry entry = (AbstractMap.BasicMapEntry) e;
+            put(entry.key, entry.value);
+          }
+        <span class="enscript-keyword">else</span>
+          put(e.getKey(), e.getValue());
+      }
+  }
+  
+  <span class="enscript-comment">/**
+   * Removes from the HashMap and returns the value which is mapped by the
+   * supplied key. If the key maps to nothing, then the HashMap remains
+   * unchanged, and &lt;code&gt;null&lt;/code&gt; is returned. NOTE: Since the value
+   * could also be null, you must use containsKey to see if you are
+   * actually removing a mapping.
+   *
+   * @param key the key used to locate the value to remove
+   * @return whatever the key mapped to, if present
+   */</span>
+  <span class="enscript-keyword">public</span> Object remove(Object key)
+  {
+    <span class="enscript-keyword">int</span> idx = hash(key);
+    HashEntry e = buckets[idx];
+    HashEntry last = <span class="enscript-keyword">null</span>;
+
+    <span class="enscript-keyword">while</span> (e != <span class="enscript-keyword">null</span>)
+      {
+        <span class="enscript-keyword">if</span> (equals(key, e.key))
+          {
+            modCount++;
+            <span class="enscript-keyword">if</span> (last == <span class="enscript-keyword">null</span>)
+              buckets[idx] = e.next;
+            <span class="enscript-keyword">else</span>
+              last.next = e.next;
+            size--;
+            <span class="enscript-comment">// Method call necessary for LinkedHashMap to work correctly.
+</span>            <span class="enscript-keyword">return</span> e.cleanup();
+          }
+        last = e;
+        e = e.next;
+      }
+    <span class="enscript-keyword">return</span> <span class="enscript-keyword">null</span>;
+  }
+
+  <span class="enscript-comment">/**
+   * Clears the Map so it has no keys. This is O(1).
+   */</span>
+  <span class="enscript-keyword">public</span> <span class="enscript-keyword">void</span> clear()
+  {
+    <span class="enscript-keyword">if</span> (size != 0)
+      {
+        modCount++;
+        Arrays.fill(buckets, <span class="enscript-keyword">null</span>);
+        size = 0;
+      }
+  }
+
+  <span class="enscript-comment">/**
+   * Returns true if this HashMap contains a value &lt;code&gt;o&lt;/code&gt;, such that
+   * &lt;code&gt;o.equals(value)&lt;/code&gt;.
+   *
+   * @param value the value to search for in this HashMap
+   * @return true if at least one key maps to the value
+   * @see containsKey(Object)
+   */</span>
+  <span class="enscript-keyword">public</span> <span class="enscript-keyword">boolean</span> containsValue(Object value)
+  {
+    <span class="enscript-keyword">for</span> (<span class="enscript-keyword">int</span> i = buckets.length - 1; i &gt;= 0; i--)
+      {
+        HashEntry e = buckets[i];
+        <span class="enscript-keyword">while</span> (e != <span class="enscript-keyword">null</span>)
+          {
+            <span class="enscript-keyword">if</span> (equals(value, e.value))
+              <span class="enscript-keyword">return</span> <span class="enscript-keyword">true</span>;
+            e = e.next;
+          }
+      }
+    <span class="enscript-keyword">return</span> <span class="enscript-keyword">false</span>;
+  }
+
+  <span class="enscript-comment">/**
+   * Returns a shallow clone of this HashMap. The Map itself is cloned,
+   * but its contents are not.  This is O(n).
+   *
+   * @return the clone
+   */</span>
+  <span class="enscript-keyword">public</span> Object clone()
+  {
+    HashMap copy = <span class="enscript-keyword">null</span>;
+    <span class="enscript-keyword">try</span>
+      {
+        copy = (HashMap) <span class="enscript-keyword">super</span>.clone();
+      }
+    <span class="enscript-keyword">catch</span> (CloneNotSupportedException x)
+      {
+        <span class="enscript-comment">// This is impossible.
+</span>      }
+    copy.buckets = <span class="enscript-keyword">new</span> HashEntry[buckets.length];
+    copy.putAllInternal(<span class="enscript-keyword">this</span>);
+    <span class="enscript-comment">// Clear the entry cache. AbstractMap.clone() does the others.
+</span>    copy.entries = <span class="enscript-keyword">null</span>;
+    <span class="enscript-keyword">return</span> copy;
+  }
+
+  <span class="enscript-comment">/**
+   * Returns a &quot;set view&quot; of this HashMap's keys. The set is backed by the
+   * HashMap, so changes in one show up in the other.  The set supports
+   * element removal, but not element addition.
+   *
+   * @return a set view of the keys
+   * @see #values()
+   * @see #entrySet()
+   */</span>
+  <span class="enscript-keyword">public</span> Set keySet()
+  {
+    <span class="enscript-keyword">if</span> (keys == <span class="enscript-keyword">null</span>)
+      <span class="enscript-comment">// Create an AbstractSet with custom implementations of those methods
+</span>      <span class="enscript-comment">// that can be overridden easily and efficiently.
+</span>      keys = <span class="enscript-keyword">new</span> AbstractSet()
+      {
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">int</span> size()
+        {
+          <span class="enscript-keyword">return</span> size;
+        }
+
+        <span class="enscript-keyword">public</span> Iterator iterator()
+        {
+          <span class="enscript-comment">// Cannot create the iterator directly, because of LinkedHashMap.
+</span>          <span class="enscript-keyword">return</span> HashMap.<span class="enscript-keyword">this</span>.iterator(KEYS);
+        }
+
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">void</span> clear()
+        {
+          HashMap.<span class="enscript-keyword">this</span>.clear();
+        }
+
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">boolean</span> contains(Object o)
+        {
+          <span class="enscript-keyword">return</span> containsKey(o);
+        }
+
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">boolean</span> remove(Object o)
+        {
+          <span class="enscript-comment">// Test against the size of the HashMap to determine if anything
+</span>          <span class="enscript-comment">// really got removed. This is necessary because the return value
+</span>          <span class="enscript-comment">// of HashMap.remove() is ambiguous in the null case.
+</span>          <span class="enscript-keyword">int</span> oldsize = size;
+          HashMap.<span class="enscript-keyword">this</span>.remove(o);
+          <span class="enscript-keyword">return</span> oldsize != size;
+        }
+      };
+    <span class="enscript-keyword">return</span> keys;
+  }
+
+  <span class="enscript-comment">/**
+   * Returns a &quot;collection view&quot; (or &quot;bag view&quot;) of this HashMap's values.
+   * The collection is backed by the HashMap, so changes in one show up
+   * in the other.  The collection supports element removal, but not element
+   * addition.
+   *
+   * @return a bag view of the values
+   * @see #keySet()
+   * @see #entrySet()
+   */</span>
+  <span class="enscript-keyword">public</span> Collection values()
+  {
+    <span class="enscript-keyword">if</span> (values == <span class="enscript-keyword">null</span>)
+      <span class="enscript-comment">// We don't bother overriding many of the optional methods, as doing so
+</span>      <span class="enscript-comment">// wouldn't provide any significant performance advantage.
+</span>      values = <span class="enscript-keyword">new</span> AbstractCollection()
+      {
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">int</span> size()
+        {
+          <span class="enscript-keyword">return</span> size;
+        }
+
+        <span class="enscript-keyword">public</span> Iterator iterator()
+        {
+          <span class="enscript-comment">// Cannot create the iterator directly, because of LinkedHashMap.
+</span>          <span class="enscript-keyword">return</span> HashMap.<span class="enscript-keyword">this</span>.iterator(VALUES);
+        }
+
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">void</span> clear()
+        {
+          HashMap.<span class="enscript-keyword">this</span>.clear();
+        }
+      };
+    <span class="enscript-keyword">return</span> values;
+  }
+
+  <span class="enscript-comment">/**
+   * Returns a &quot;set view&quot; of this HashMap's entries. The set is backed by
+   * the HashMap, so changes in one show up in the other.  The set supports
+   * element removal, but not element addition.&lt;p&gt;
+   *
+   * Note that the iterators for all three views, from keySet(), entrySet(),
+   * and values(), traverse the HashMap in the same sequence.
+   *
+   * @return a set view of the entries
+   * @see #keySet()
+   * @see #values()
+   * @see Map.Entry
+   */</span>
+  <span class="enscript-keyword">public</span> Set entrySet()
+  {
+    <span class="enscript-keyword">if</span> (entries == <span class="enscript-keyword">null</span>)
+      <span class="enscript-comment">// Create an AbstractSet with custom implementations of those methods
+</span>      <span class="enscript-comment">// that can be overridden easily and efficiently.
+</span>      entries = <span class="enscript-keyword">new</span> AbstractSet()
+      {
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">int</span> size()
+        {
+          <span class="enscript-keyword">return</span> size;
+        }
+
+        <span class="enscript-keyword">public</span> Iterator iterator()
+        {
+          <span class="enscript-comment">// Cannot create the iterator directly, because of LinkedHashMap.
+</span>          <span class="enscript-keyword">return</span> HashMap.<span class="enscript-keyword">this</span>.iterator(ENTRIES);
+        }
+
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">void</span> clear()
+        {
+          HashMap.<span class="enscript-keyword">this</span>.clear();
+        }
+
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">boolean</span> contains(Object o)
+        {
+          <span class="enscript-keyword">return</span> getEntry(o) != <span class="enscript-keyword">null</span>;
+        }
+
+        <span class="enscript-keyword">public</span> <span class="enscript-keyword">boolean</span> remove(Object o)
+        {
+          HashEntry e = getEntry(o);
+          <span class="enscript-keyword">if</span> (e != <span class="enscript-keyword">null</span>)
+            {
+              HashMap.<span class="enscript-keyword">this</span>.remove(e.key);
+              <span class="enscript-keyword">return</span> <span class="enscript-keyword">true</span>;
+            }
+          <span class="enscript-keyword">return</span> <span class="enscript-keyword">false</span>;
+        }
+      };
+    <span class="enscript-keyword">return</span> entries;
+  }
+
+  <span class="enscript-comment">/**
+   * Helper method for put, that creates and adds a new Entry.  This is
+   * overridden in LinkedHashMap for bookkeeping purposes.
+   *
+   * @param key the key of the new Entry
+   * @param value the value
+   * @param idx the index in buckets where the new Entry belongs
+   * @param callRemove whether to call the removeEldestEntry method
+   * @see #put(Object, Object)
+   */</span>
+  <span class="enscript-keyword">void</span> addEntry(Object key, Object value, <span class="enscript-keyword">int</span> idx, <span class="enscript-keyword">boolean</span> callRemove)
+  {
+    HashEntry e = <span class="enscript-keyword">new</span> HashEntry(key, value);
+    e.next = buckets[idx];
+    buckets[idx] = e;
+  }
+
+  <span class="enscript-comment">/**
+   * Helper method for entrySet(), which matches both key and value
+   * simultaneously.
+   *
+   * @param o the entry to match
+   * @return the matching entry, if found, or null
+   * @see #entrySet()
+   */</span>
+  <span class="enscript-comment">// Package visible, for use in nested classes.
+</span>  <span class="enscript-keyword">final</span> HashEntry getEntry(Object o)
+  {
+    <span class="enscript-keyword">if</span> (! (o <span class="enscript-keyword">instanceof</span> Map.Entry))
+      <span class="enscript-keyword">return</span> <span class="enscript-keyword">null</span>;
+    Map.Entry me = (Map.Entry) o;
+    Object key = me.getKey();
+    <span class="enscript-keyword">int</span> idx = hash(key);
+    HashEntry e = buckets[idx];
+    <span class="enscript-keyword">while</span> (e != <span class="enscript-keyword">null</span>)
+      {
+        <span class="enscript-keyword">if</span> (equals(e.key, key))
+          <span class="enscript-keyword">return</span> equals(e.value, me.getValue()) ? e : <span class="enscript-keyword">null</span>;
+        e = e.next;
+      }
+    <span class="enscript-keyword">return</span> <span class="enscript-keyword">null</span>;
+  }
+
+  <span class="enscript-comment">/**
+   * Helper method that returns an index in the buckets array for `key'
+   * based on its hashCode().  Package visible for use by subclasses.
+   *
+   * @param key the key
+   * @return the bucket number
+   */</span>
+  <span class="enscript-keyword">final</span> <span class="enscript-keyword">int</span> hash(Object key)
+  {
+    <span class="enscript-keyword">return</span> key == <span class="enscript-keyword">null</span> ? 0 : Math.abs(key.hashCode() % buckets.length);
+  }
+
+  <span class="enscript-comment">/**
+   * Generates a parameterized iterator.  Must be overrideable, since
+   * LinkedHashMap iterates in a different order.
+   *
+   * @param type {@link #KEYS}, {@link #VALUES}, or {@link #ENTRIES}
+   * @return the appropriate iterator
+   */</span>
+  Iterator iterator(<span class="enscript-keyword">int</span> type)
+  {
+    <span class="enscript-keyword">return</span> <span class="enscript-keyword">new</span> HashIterator(type);
+  }
+
+  <span class="enscript-comment">/**
+   * A simplified, more efficient internal implementation of putAll(). clone() 
+   * should not call putAll or put, in order to be compatible with the JDK 
+   * implementation with respect to subclasses.
+   *
+   * @param m the map to initialize this from
+   */</span>
+  <span class="enscript-keyword">void</span> putAllInternal(Map m)
+  {
+    Iterator itr = m.entrySet().iterator();
+    size = 0;
+    <span class="enscript-keyword">while</span> (itr.hasNext())
+      {
+        size++;
+	Map.Entry e = (Map.Entry) itr.next();
+	Object key = e.getKey();
+	<span class="enscript-keyword">int</span> idx = hash(key);
+	addEntry(key, e.getValue(), idx, <span class="enscript-keyword">false</span>);
+      }
+  }
+
+  <span class="enscript-comment">/**
+   * Increases the size of the HashMap and rehashes all keys to new
+   * array indices; this is called when the addition of a new value
+   * would cause size() &amp;gt; threshold. Note that the existing Entry
+   * objects are reused in the new hash table.
+   *
+   * &lt;p&gt;This is not specified, but the new size is twice the current size
+   * plus one; this number is not always prime, unfortunately.
+   */</span>
+  <span class="enscript-keyword">private</span> <span class="enscript-keyword">void</span> rehash()
+  {
+    HashEntry[] oldBuckets = buckets;
+
+    <span class="enscript-keyword">int</span> newcapacity = (buckets.length * 2) + 1;
+    threshold = (<span class="enscript-keyword">int</span>) (newcapacity * loadFactor);
+    buckets = <span class="enscript-keyword">new</span> HashEntry[newcapacity];
+
+    <span class="enscript-keyword">for</span> (<span class="enscript-keyword">int</span> i = oldBuckets.length - 1; i &gt;= 0; i--)
+      {
+        HashEntry e = oldBuckets[i];
+        <span class="enscript-keyword">while</span> (e != <span class="enscript-keyword">null</span>)
+          {
+            <span class="enscript-keyword">int</span> idx = hash(e.key);
+            HashEntry dest = buckets[idx];
+            HashEntry next = e.next;
+            e.next = buckets[idx];
+            buckets[idx] = e;
+            e = next;
+          }
+      }
+  }
+
+  <span class="enscript-comment">/**
+   * Serializes this object to the given stream.
+   *
+   * @param s the stream to write to
+   * @throws IOException if the underlying stream fails
+   * @serialData the &lt;i&gt;capacity&lt;/i&gt;(int) that is the length of the
+   *             bucket array, the &lt;i&gt;size&lt;/i&gt;(int) of the hash map
+   *             are emitted first.  They are followed by size entries,
+   *             each consisting of a key (Object) and a value (Object).
+   */</span>
+  <span class="enscript-keyword">private</span> <span class="enscript-keyword">void</span> writeObject(ObjectOutputStream s) <span class="enscript-keyword">throws</span> IOException
+  {
+    <span class="enscript-comment">// Write the threshold and loadFactor fields.
+</span>    s.defaultWriteObject();
+
+    s.writeInt(buckets.length);
+    s.writeInt(size);
+    <span class="enscript-comment">// Avoid creating a wasted Set by creating the iterator directly.
+</span>    Iterator it = iterator(ENTRIES);
+    <span class="enscript-keyword">while</span> (it.hasNext())
+      {
+        HashEntry entry = (HashEntry) it.next();
+        s.writeObject(entry.key);
+        s.writeObject(entry.value);
+      }
+  }
+
+  <span class="enscript-comment">/**
+   * Deserializes this object from the given stream.
+   *
+   * @param s the stream to read from
+   * @throws ClassNotFoundException if the underlying stream fails
+   * @throws IOException if the underlying stream fails
+   * @serialData the &lt;i&gt;capacity&lt;/i&gt;(int) that is the length of the
+   *             bucket array, the &lt;i&gt;size&lt;/i&gt;(int) of the hash map
+   *             are emitted first.  They are followed by size entries,
+   *             each consisting of a key (Object) and a value (Object).
+   */</span>
+  <span class="enscript-keyword">private</span> <span class="enscript-keyword">void</span> readObject(ObjectInputStream s)
+    <span class="enscript-keyword">throws</span> IOException, ClassNotFoundException
+  {
+    <span class="enscript-comment">// Read the threshold and loadFactor fields.
+</span>    s.defaultReadObject();
+
+    <span class="enscript-comment">// Read and use capacity, followed by key/value pairs.
+</span>    buckets = <span class="enscript-keyword">new</span> HashEntry[s.readInt()];
+    <span class="enscript-keyword">int</span> len = s.readInt();
+    size = len;
+    <span class="enscript-keyword">while</span> (len-- &gt; 0)
+      {
+        Object key = s.readObject();
+        addEntry(key, s.readObject(), hash(key), <span class="enscript-keyword">false</span>);
+      }
+  }
+
+  <span class="enscript-comment">/**
+   * Iterate over HashMap's entries.
+   * This implementation is parameterized to give a sequential view of
+   * keys, values, or entries.
+   *
+   * @author Jon Zeppieri
+   */</span>
+  <span class="enscript-keyword">private</span> <span class="enscript-keyword">final</span> <span class="enscript-keyword">class</span> HashIterator <span class="enscript-keyword">implements</span> Iterator
+  {
+    <span class="enscript-comment">/**
+     * The type of this Iterator: {@link #KEYS}, {@link #VALUES},
+     * or {@link #ENTRIES}.
+     */</span>
+    <span class="enscript-keyword">private</span> <span class="enscript-keyword">final</span> <span class="enscript-keyword">int</span> type;
+    <span class="enscript-comment">/**
+     * The number of modifications to the backing HashMap that we know about.
+     */</span>
+    <span class="enscript-keyword">private</span> <span class="enscript-keyword">int</span> knownMod = modCount;
+    <span class="enscript-comment">/** The number of elements remaining to be returned by next(). */</span>
+    <span class="enscript-keyword">private</span> <span class="enscript-keyword">int</span> count = size;
+    <span class="enscript-comment">/** Current index in the physical hash table. */</span>
+    <span class="enscript-keyword">private</span> <span class="enscript-keyword">int</span> idx = buckets.length;
+    <span class="enscript-comment">/** The last Entry returned by a next() call. */</span>
+    <span class="enscript-keyword">private</span> HashEntry last;
+    <span class="enscript-comment">/**
+     * The next entry that should be returned by next(). It is set to something
+     * if we're iterating through a bucket that contains multiple linked
+     * entries. It is null if next() needs to find a new bucket.
+     */</span>
+    <span class="enscript-keyword">private</span> HashEntry next;
+
+    <span class="enscript-comment">/**
+     * Construct a new HashIterator with the supplied type.
+     * @param type {@link #KEYS}, {@link #VALUES}, or {@link #ENTRIES}
+     */</span>
+    HashIterator(<span class="enscript-keyword">int</span> type)
+    {
+      <span class="enscript-keyword">this</span>.type = type;
+    }
+
+    <span class="enscript-comment">/**
+     * Returns true if the Iterator has more elements.
+     * @return true if there are more elements
+     * @throws ConcurrentModificationException if the HashMap was modified
+     */</span>
+    <span class="enscript-keyword">public</span> <span class="enscript-keyword">boolean</span> hasNext()
+    {
+      <span class="enscript-keyword">if</span> (knownMod != modCount)
+        <span class="enscript-keyword">throw</span> <span class="enscript-keyword">new</span> ConcurrentModificationException();
+      <span class="enscript-keyword">return</span> count &gt; 0;
+    }
+
+    <span class="enscript-comment">/**
+     * Returns the next element in the Iterator's sequential view.
+     * @return the next element
+     * @throws ConcurrentModificationException if the HashMap was modified
+     * @throws NoSuchElementException if there is none
+     */</span>
+    <span class="enscript-keyword">public</span> Object next()
+    {
+      <span class="enscript-keyword">if</span> (knownMod != modCount)
+        <span class="enscript-keyword">throw</span> <span class="enscript-keyword">new</span> ConcurrentModificationException();
+      <span class="enscript-keyword">if</span> (count == 0)
+        <span class="enscript-keyword">throw</span> <span class="enscript-keyword">new</span> NoSuchElementException();
+      count--;
+      HashEntry e = next;
+
+      <span class="enscript-keyword">while</span> (e == <span class="enscript-keyword">null</span>)
+        e = buckets[--idx];
+
+      next = e.next;
+      last = e;
+      <span class="enscript-keyword">if</span> (type == VALUES)
+        <span class="enscript-keyword">return</span> e.value;
+      <span class="enscript-keyword">if</span> (type == KEYS)
+        <span class="enscript-keyword">return</span> e.key;
+      <span class="enscript-keyword">return</span> e;
+    }
+
+    <span class="enscript-comment">/**
+     * Removes from the backing HashMap the last element which was fetched
+     * with the &lt;code&gt;next()&lt;/code&gt; method.
+     * @throws ConcurrentModificationException if the HashMap was modified
+     * @throws IllegalStateException if called when there is no last element
+     */</span>
+    <span class="enscript-keyword">public</span> <span class="enscript-keyword">void</span> remove()
+    {
+      <span class="enscript-keyword">if</span> (knownMod != modCount)
+        <span class="enscript-keyword">throw</span> <span class="enscript-keyword">new</span> ConcurrentModificationException();
+      <span class="enscript-keyword">if</span> (last == <span class="enscript-keyword">null</span>)
+        <span class="enscript-keyword">throw</span> <span class="enscript-keyword">new</span> IllegalStateException();
+
+      HashMap.<span class="enscript-keyword">this</span>.remove(last.key);
+      last = <span class="enscript-keyword">null</span>;
+      knownMod++;
+    }
+  }
+}
+</pre>
+<hr />
+</body></html>

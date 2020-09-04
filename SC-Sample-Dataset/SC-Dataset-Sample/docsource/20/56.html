@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html class='v2' dir='ltr'>
+<head>
+<meta content='width=1100' name='viewport'/>
+<meta content='text/html; charset=UTF-8' http-equiv='Content-Type'/>
+<script type="text/javascript">(function() { var b=window,f="jstiming",g="tick";(function(){function d(a){this.t={};this.tick=function(a,d,c){var e=void 0!=c?c:(new Date).getTime();this.t[a]=[e,d];if(void 0==c)try{b.console.timeStamp("CSI/"+a)}catch(h){}};this[g]("start",null,a)}var a;b.performance&&(a=b.performance.timing);var m=a?new d(a.responseStart):new d;b.jstiming={Timer:d,load:m};if(a){var c=a.navigationStart,h=a.responseStart;0<c&&h>=c&&(b[f].srt=h-c)}if(a){var e=b[f].load;0<c&&h>=c&&(e[g]("_wtsrt",void 0,c),e[g]("wtsrt_","_wtsrt",h),e[g]("tbsd_","wtsrt_"))}try{a=null,
+b.chrome&&b.chrome.csi&&(a=Math.floor(b.chrome.csi().pageT),e&&0<c&&(e[g]("_tbnd",void 0,b.chrome.csi().startE),e[g]("tbnd_","_tbnd",c))),null==a&&b.gtbExternal&&(a=b.gtbExternal.pageT()),null==a&&b.external&&(a=b.external.pageT,e&&0<c&&(e[g]("_tbnd",void 0,b.external.startE),e[g]("tbnd_","_tbnd",c))),a&&(b[f].pt=a)}catch(n){}})();b.tickAboveFold=function(d){var a=0;if(d.offsetParent){do a+=d.offsetTop;while(d=d.offsetParent)}d=a;750>=d&&b[f].load[g]("aft")};var k=!1;function l(){k||(k=!0,b[f].load[g]("firstScrollTime"))}b.addEventListener?b.addEventListener("scroll",l,!1):b.attachEvent("onscroll",l);
+ })();</script>
+<meta content='blogger' name='generator'/>
+<link href='http://llewellynfalco.blogspot.ca/favicon.ico' rel='icon' type='image/x-icon'/>
+<link href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html' rel='canonical'/>
+<link rel="alternate" type="application/atom+xml" title="The way things work in Llewellyn&#39;s world - Atom" href="http://llewellynfalco.blogspot.com/feeds/posts/default" />
+<link rel="alternate" type="application/rss+xml" title="The way things work in Llewellyn&#39;s world - RSS" href="http://llewellynfalco.blogspot.com/feeds/posts/default?alt=rss" />
+<link rel="service.post" type="application/atom+xml" title="The way things work in Llewellyn&#39;s world - Atom" href="http://www.blogger.com/feeds/6889884053798500413/posts/default" />
+
+<link rel="alternate" type="application/atom+xml" title="The way things work in Llewellyn&#39;s world - Atom" href="http://llewellynfalco.blogspot.com/feeds/2636903737922925874/comments/default" />
+<!--[if IE]><script type="text/javascript" src="https://www.blogger.com/static/v1/jsbin/850967532-ieretrofit.js"></script>
+<![endif]-->
+<link rel="image_src" href="http://3.bp.blogspot.com/_s2oZS5jFv1g/TKr8S7Bs4eI/AAAAAAAAAZQ/QArjjPJnO7g/s72-c/Java+Lambda+Syntax.png" />
+<!--[if IE]> <script> (function() { var html5 = ("abbr,article,aside,audio,canvas,datalist,details," + "figure,footer,header,hgroup,mark,menu,meter,nav,output," + "progress,section,time,video").split(','); for (var i = 0; i < html5.length; i++) { document.createElement(html5[i]); } try { document.execCommand('BackgroundImageCache', false, true); } catch(e) {} })(); </script> <![endif]-->
+<title>The way things work in Llewellyn's world: Lamdbas in Java 1.6</title>
+<link type='text/css' rel='stylesheet' href='https://www.blogger.com/static/v1/widgets/2356033831-widget_css_2_bundle.css' />
+<link type='text/css' rel='stylesheet' href='//www.blogger.com/dyn-css/authorization.css?targetBlogID=6889884053798500413&zx=93228ef1-8b4e-44b7-89a4-51ec31f75158' />
+<style id='page-skin-1' type='text/css'><!--
+/*
+-----------------------------------------------
+Blogger Template Style
+Name:     Watermark
+Designer: Josh Peterson
+URL:      www.noaesthetic.com
+----------------------------------------------- */
+/* Variable definitions
+====================
+<Variable name="keycolor" description="Main Color" type="color" default="#c0a154"/>
+<Group description="Page Text" selector="body">
+<Variable name="body.font" description="Font" type="font"
+default="normal normal 14px Arial, Tahoma, Helvetica, FreeSans, sans-serif"/>
+<Variable name="body.text.color" description="Text Color" type="color" default="#333333"/>
+</Group>
+<Group description="Backgrounds" selector=".main-inner">
+<Variable name="body.background.color" description="Outer Background" type="color" default="#c0a154"/>
+<Variable name="footer.background.color" description="Footer Background" type="color" default="transparent"/>
+</Group>
+<Group description="Links" selector=".main-inner">
+<Variable name="link.color" description="Link Color" type="color" default="#cc3300"/>
+<Variable name="link.visited.color" description="Visited Color" type="color" default="#993322"/>
+<Variable name="link.hover.color" description="Hover Color" type="color" default="#ff3300"/>
+</Group>
+<Group description="Blog Title" selector=".header h1">
+<Variable name="header.font" description="Title Font" type="font"
+default="normal normal 60px Georgia, Utopia, 'Palatino Linotype', Palatino, serif"/>
+<Variable name="header.text.color" description="Title Color" type="color" default="#ffffff" />
+</Group>
+<Group description="Blog Description" selector=".header .description">
+<Variable name="description.text.color" description="Description Color" type="color"
+default="#997755" />
+</Group>
+<Group description="Tabs Text" selector=".tabs-inner .widget li a">
+<Variable name="tabs.font" description="Font" type="font"
+default="normal normal 20px Georgia, Utopia, 'Palatino Linotype', Palatino, serif"/>
+<Variable name="tabs.text.color" description="Text Color" type="color" default="#cc3300"/>
+<Variable name="tabs.selected.text.color" description="Selected Color" type="color" default="#000000"/>
+</Group>
+<Group description="Tabs Background" selector=".tabs-outer .PageList">
+<Variable name="tabs.background.color" description="Background Color" type="color" default="transparent"/>
+<Variable name="tabs.separator.color" description="Separator Color" type="color" default="#c0a154"/>
+</Group>
+<Group description="Date Header" selector="h2.date-header">
+<Variable name="date.font" description="Font" type="font"
+default="normal normal 16px Arial, Tahoma, Helvetica, FreeSans, sans-serif"/>
+<Variable name="date.text.color" description="Text Color" type="color" default="#997755"/>
+</Group>
+<Group description="Post" selector="h3.post-title, .comments h4">
+<Variable name="post.title.font" description="Title Font" type="font"
+default="normal normal 30px Georgia, Utopia, 'Palatino Linotype', Palatino, serif"/>
+<Variable name="post.background.color" description="Background Color" type="color" default="transparent"/>
+<Variable name="post.border.color" description="Border Color" type="color" default="#ccbb99" />
+</Group>
+<Group description="Post Footer" selector=".post-footer">
+<Variable name="post.footer.text.color" description="Text Color" type="color" default="#997755"/>
+</Group>
+<Group description="Gadgets" selector="h2">
+<Variable name="widget.title.font" description="Title Font" type="font"
+default="normal normal 20px Georgia, Utopia, 'Palatino Linotype', Palatino, serif"/>
+<Variable name="widget.title.text.color" description="Title Color" type="color" default="#000000"/>
+<Variable name="widget.alternate.text.color" description="Alternate Color" type="color" default="#777777"/>
+</Group>
+<Group description="Footer" selector=".footer-inner">
+<Variable name="footer.text.color" description="Text Color" type="color" default="#333333"/>
+<Variable name="footer.widget.title.text.color" description="Gadget Title Color" type="color" default="#000000"/>
+</Group>
+<Group description="Footer Links" selector=".footer-inner">
+<Variable name="footer.link.color" description="Link Color" type="color" default="#cc3300"/>
+<Variable name="footer.link.visited.color" description="Visited Color" type="color" default="#993322"/>
+<Variable name="footer.link.hover.color" description="Hover Color" type="color" default="#ff3300"/>
+</Group>
+<Variable name="body.background" description="Body Background" type="background"
+color="#c0a154" default="$(color) url(//www.blogblog.com/1kt/watermark/body_background_birds.png) repeat scroll top left"/>
+<Variable name="body.background.overlay" description="Overlay Background" type="background" color="#c0a154"
+default="transparent url(//www.blogblog.com/1kt/watermark/body_overlay_birds.png) no-repeat scroll top right"/>
+<Variable name="body.background.overlay.height" description="Overlay Background Height" type="length" default="121px"/>
+<Variable name="tabs.background.inner" description="Tabs Background Inner" type="url" default="none"/>
+<Variable name="tabs.background.outer" description="Tabs Background Outer" type="url" default="none"/>
+<Variable name="tabs.border.size" description="Tabs Border Size" type="length" default="0"/>
+<Variable name="tabs.shadow.spread" description="Tabs Shadow Spread" type="length" default="0"/>
+<Variable name="main.padding.top" description="Main Padding Top" type="length" default="30px"/>
+<Variable name="main.cap.height" description="Main Cap Height" type="length" default="0"/>
+<Variable name="main.cap.image" description="Main Cap Image" type="url" default="none"/>
+<Variable name="main.cap.overlay" description="Main Cap Overlay" type="url" default="none"/>
+<Variable name="main.background" description="Main Background" type="background"
+default="transparent none no-repeat scroll top left"/>
+<Variable name="post.background.url" description="Post Background URL" type="url"
+default="url(//www.blogblog.com/1kt/watermark/post_background_birds.png)"/>
+<Variable name="post.border.size" description="Post Border Size" type="length" default="1px"/>
+<Variable name="post.border.style" description="Post Border Style" type="string" default="dotted"/>
+<Variable name="post.shadow.spread" description="Post Shadow Spread" type="length" default="0"/>
+<Variable name="footer.background" description="Footer Background" type="background"
+color="#330000" default="$(color) url(//www.blogblog.com/1kt/watermark/body_background_navigator.png) repeat scroll top left"/>
+<Variable name="mobile.background.overlay" description="Mobile Background Overlay" type="string"
+default="transparent none repeat scroll top left"/>
+<Variable name="startSide" description="Side where text starts in blog language" type="automatic" default="left"/>
+<Variable name="endSide" description="Side where text ends in blog language" type="automatic" default="right"/>
+*/
+/* Use this with templates/1ktemplate-*.html */
+/* Content
+----------------------------------------------- */
+body {
+font: normal normal 14px Arial, Tahoma, Helvetica, FreeSans, sans-serif;
+color: #333333;
+background: #c0a154 url(//www.blogblog.com/1kt/watermark/body_background_birds.png) repeat scroll top left;
+}
+html body .content-outer {
+min-width: 0;
+max-width: 100%;
+width: 100%;
+}
+.content-outer {
+font-size: 92%;
+}
+a:link {
+text-decoration:none;
+color: #cc3300;
+}
+a:visited {
+text-decoration:none;
+color: #993322;
+}
+a:hover {
+text-decoration:underline;
+color: #ff3300;
+}
+.body-fauxcolumns .cap-top {
+margin-top: 30px;
+background: transparent url(//www.blogblog.com/1kt/watermark/body_overlay_birds.png) no-repeat scroll top right;
+height: 121px;
+}
+.content-inner {
+padding: 0;
+}
+/* Header
+----------------------------------------------- */
+.header-inner .Header .titlewrapper,
+.header-inner .Header .descriptionwrapper {
+padding-left: 20px;
+padding-right: 20px;
+}
+.Header h1 {
+font: normal normal 60px Georgia, Utopia, 'Palatino Linotype', Palatino, serif;
+color: #ffffff;
+text-shadow: 2px 2px rgba(0, 0, 0, .1);
+}
+.Header h1 a {
+color: #ffffff;
+}
+.Header .description {
+font-size: 140%;
+color: #997755;
+}
+/* Tabs
+----------------------------------------------- */
+.tabs-inner .section {
+margin: 0 20px;
+}
+.tabs-inner .PageList, .tabs-inner .LinkList, .tabs-inner .Labels {
+margin-left: -11px;
+margin-right: -11px;
+background-color: transparent;
+border-top: 0 solid #ffffff;
+border-bottom: 0 solid #ffffff;
+-moz-box-shadow: 0 0 0 rgba(0, 0, 0, .3);
+-webkit-box-shadow: 0 0 0 rgba(0, 0, 0, .3);
+-goog-ms-box-shadow: 0 0 0 rgba(0, 0, 0, .3);
+box-shadow: 0 0 0 rgba(0, 0, 0, .3);
+}
+.tabs-inner .PageList .widget-content,
+.tabs-inner .LinkList .widget-content,
+.tabs-inner .Labels .widget-content {
+margin: -3px -11px;
+background: transparent none  no-repeat scroll right;
+}
+.tabs-inner .widget ul {
+padding: 2px 25px;
+max-height: 34px;
+background: transparent none no-repeat scroll left;
+}
+.tabs-inner .widget li {
+border: none;
+}
+.tabs-inner .widget li a {
+display: inline-block;
+padding: .25em 1em;
+font: normal normal 20px Georgia, Utopia, 'Palatino Linotype', Palatino, serif;
+color: #cc3300;
+border-right: 1px solid #c0a154;
+}
+.tabs-inner .widget li:first-child a {
+border-left: 1px solid #c0a154;
+}
+.tabs-inner .widget li.selected a, .tabs-inner .widget li a:hover {
+color: #000000;
+}
+/* Headings
+----------------------------------------------- */
+h2 {
+font: normal normal 20px Georgia, Utopia, 'Palatino Linotype', Palatino, serif;
+color: #000000;
+margin: 0 0 .5em;
+}
+h2.date-header {
+font: normal normal 16px Arial, Tahoma, Helvetica, FreeSans, sans-serif;
+color: #997755;
+}
+/* Main
+----------------------------------------------- */
+.main-inner .column-center-inner,
+.main-inner .column-left-inner,
+.main-inner .column-right-inner {
+padding: 0 5px;
+}
+.main-outer {
+margin-top: 0;
+background: transparent none no-repeat scroll top left;
+}
+.main-inner {
+padding-top: 30px;
+}
+.main-cap-top {
+position: relative;
+}
+.main-cap-top .cap-right {
+position: absolute;
+height: 0;
+width: 100%;
+bottom: 0;
+background: transparent none repeat-x scroll bottom center;
+}
+.main-cap-top .cap-left {
+position: absolute;
+height: 245px;
+width: 280px;
+right: 0;
+bottom: 0;
+background: transparent none no-repeat scroll bottom left;
+}
+/* Posts
+----------------------------------------------- */
+.post-outer {
+padding: 15px 20px;
+margin: 0 0 25px;
+background: transparent url(//www.blogblog.com/1kt/watermark/post_background_birds.png) repeat scroll top left;
+_background-image: none;
+border: dotted 1px #ccbb99;
+-moz-box-shadow: 0 0 0 rgba(0, 0, 0, .1);
+-webkit-box-shadow: 0 0 0 rgba(0, 0, 0, .1);
+-goog-ms-box-shadow: 0 0 0 rgba(0, 0, 0, .1);
+box-shadow: 0 0 0 rgba(0, 0, 0, .1);
+}
+h3.post-title {
+font: normal normal 30px Georgia, Utopia, 'Palatino Linotype', Palatino, serif;
+margin: 0;
+}
+.comments h4 {
+font: normal normal 30px Georgia, Utopia, 'Palatino Linotype', Palatino, serif;
+margin: 1em 0 0;
+}
+.post-body {
+font-size: 105%;
+line-height: 1.5;
+position: relative;
+}
+.post-header {
+margin: 0 0 1em;
+color: #997755;
+}
+.post-footer {
+margin: 10px 0 0;
+padding: 10px 0 0;
+color: #997755;
+border-top: dashed 1px #777777;
+}
+#blog-pager {
+font-size: 140%
+}
+#comments .comment-author {
+padding-top: 1.5em;
+border-top: dashed 1px #777777;
+background-position: 0 1.5em;
+}
+#comments .comment-author:first-child {
+padding-top: 0;
+border-top: none;
+}
+.avatar-image-container {
+margin: .2em 0 0;
+}
+/* Comments
+----------------------------------------------- */
+.comments .comments-content .icon.blog-author {
+background-repeat: no-repeat;
+background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEgAACxIB0t1+/AAAAAd0SU1FB9sLFwMeCjjhcOMAAAD+SURBVDjLtZSvTgNBEIe/WRRnm3U8RC1neQdsm1zSBIU9VVF1FkUguQQsD9ITmD7ECZIJSE4OZo9stoVjC/zc7ky+zH9hXwVwDpTAWWLrgS3QAe8AZgaAJI5zYAmc8r0G4AHYHQKVwII8PZrZFsBFkeRCABYiMh9BRUhnSkPTNCtVXYXURi1FpBDgArj8QU1eVXUzfnjv7yP7kwu1mYrkWlU33vs1QNu2qU8pwN0UpKoqokjWwCztrMuBhEhmh8bD5UDqur75asbcX0BGUB9/HAMB+r32hznJgXy2v0sGLBcyAJ1EK3LFcbo1s91JeLwAbwGYu7TP/3ZGfnXYPgAVNngtqatUNgAAAABJRU5ErkJggg==);
+}
+.comments .comments-content .loadmore a {
+border-top: 1px solid #777777;
+border-bottom: 1px solid #777777;
+}
+.comments .continue {
+border-top: 2px solid #777777;
+}
+/* Widgets
+----------------------------------------------- */
+.widget ul, .widget #ArchiveList ul.flat {
+padding: 0;
+list-style: none;
+}
+.widget ul li, .widget #ArchiveList ul.flat li {
+padding: .35em 0;
+text-indent: 0;
+border-top: dashed 1px #777777;
+}
+.widget ul li:first-child, .widget #ArchiveList ul.flat li:first-child {
+border-top: none;
+}
+.widget .post-body ul {
+list-style: disc;
+}
+.widget .post-body ul li {
+border: none;
+}
+.widget .zippy {
+color: #777777;
+}
+.post-body img, .post-body .tr-caption-container, .Profile img, .Image img,
+.BlogList .item-thumbnail img {
+padding: 5px;
+background: #fff;
+-moz-box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
+-webkit-box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
+-goog-ms-box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
+box-shadow: 1px 1px 5px rgba(0, 0, 0, .5);
+}
+.post-body img, .post-body .tr-caption-container {
+padding: 8px;
+}
+.post-body .tr-caption-container {
+color: #333333;
+}
+.post-body .tr-caption-container img {
+padding: 0;
+background: transparent;
+border: none;
+-moz-box-shadow: 0 0 0 rgba(0, 0, 0, .1);
+-webkit-box-shadow: 0 0 0 rgba(0, 0, 0, .1);
+-goog-ms-box-shadow: 0 0 0 rgba(0, 0, 0, .1);
+box-shadow: 0 0 0 rgba(0, 0, 0, .1);
+}
+/* Footer
+----------------------------------------------- */
+.footer-outer {
+color:#ccbb99;
+background: #330000 url(//www.blogblog.com/1kt/watermark/body_background_navigator.png) repeat scroll top left;
+}
+.footer-outer a {
+color: #ff7755;
+}
+.footer-outer a:visited {
+color: #dd5533;
+}
+.footer-outer a:hover {
+color: #ff9977;
+}
+.footer-outer .widget h2 {
+color: #eeddbb;
+}
+/* Mobile
+----------------------------------------------- */
+body.mobile  {
+background-size: 100% auto;
+}
+.mobile .body-fauxcolumn-outer {
+background: transparent none repeat scroll top left;
+}
+html .mobile .mobile-date-outer {
+border-bottom: none;
+background: transparent url(//www.blogblog.com/1kt/watermark/post_background_birds.png) repeat scroll top left;
+_background-image: none;
+margin-bottom: 10px;
+}
+.mobile .main-inner .date-outer {
+padding: 0;
+}
+.mobile .main-inner .date-header {
+margin: 10px;
+}
+.mobile .main-cap-top {
+z-index: -1;
+}
+.mobile .content-outer {
+font-size: 100%;
+}
+.mobile .post-outer {
+padding: 10px;
+}
+.mobile .main-cap-top .cap-left {
+background: transparent none no-repeat scroll bottom left;
+}
+.mobile .body-fauxcolumns .cap-top {
+margin: 0;
+}
+.mobile-link-button {
+background: transparent url(//www.blogblog.com/1kt/watermark/post_background_birds.png) repeat scroll top left;
+}
+.mobile-link-button a:link, .mobile-link-button a:visited {
+color: #cc3300;
+}
+.mobile-index-date .date-header {
+color: #997755;
+}
+.mobile-index-contents {
+color: #333333;
+}
+.mobile .tabs-inner .section {
+margin: 0;
+}
+.mobile .tabs-inner .PageList {
+margin-left: 0;
+margin-right: 0;
+}
+.mobile .tabs-inner .PageList .widget-content {
+margin: 0;
+color: #000000;
+background: transparent url(//www.blogblog.com/1kt/watermark/post_background_birds.png) repeat scroll top left;
+}
+.mobile .tabs-inner .PageList .widget-content .pagelist-arrow {
+border-left: 1px solid #c0a154;
+}
+
+--></style>
+<style id='template-skin-1' type='text/css'><!--
+body {
+min-width: 1000px;
+}
+.content-outer, .content-fauxcolumn-outer, .region-inner {
+min-width: 1000px;
+max-width: 1000px;
+_width: 1000px;
+}
+.main-inner .columns {
+padding-left: 0px;
+padding-right: 260px;
+}
+.main-inner .fauxcolumn-center-outer {
+left: 0px;
+right: 260px;
+/* IE6 does not respect left and right together */
+_width: expression(this.parentNode.offsetWidth -
+parseInt("0px") -
+parseInt("260px") + 'px');
+}
+.main-inner .fauxcolumn-left-outer {
+width: 0px;
+}
+.main-inner .fauxcolumn-right-outer {
+width: 260px;
+}
+.main-inner .column-left-outer {
+width: 0px;
+right: 100%;
+margin-left: -0px;
+}
+.main-inner .column-right-outer {
+width: 260px;
+margin-right: -260px;
+}
+#layout {
+min-width: 0;
+}
+#layout .content-outer {
+min-width: 0;
+width: 800px;
+}
+#layout .region-inner {
+min-width: 0;
+width: auto;
+}
+--></style>
+<script type="text/javascript">var a="indexOf",b="&m=1",e="(^|&)m=",f="?",g="?m=1";function h(){var c=window.location.href,d=c.split(f);switch(d.length){case 1:return c+g;case 2:return 0<=d[1].search(e)?null:c+b;default:return null}}var k=navigator.userAgent;if(-1!=k[a]("Mobile")&&-1!=k[a]("WebKit")&&-1==k[a]("iPad")||-1!=k[a]("Opera Mini")||-1!=k[a]("IEMobile")){var l=h();l&&window.location.replace(l)};
+</script><script type="text/javascript">
+if (window.jstiming) window.jstiming.load.tick('headEnd');
+</script></head>
+<body class='loading'>
+<div class='navbar section' id='navbar'><div class='widget Navbar' id='Navbar1'><script type="text/javascript">
+    function setAttributeOnload(object, attribute, val) {
+      if(window.addEventListener) {
+        window.addEventListener('load',
+          function(){ object[attribute] = val; }, false);
+      } else {
+        window.attachEvent('onload', function(){ object[attribute] = val; });
+      }
+    }
+  </script>
+<div id="navbar-iframe-container"></div>
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<script type="text/javascript">
+        gapi.load("gapi.iframes:gapi.iframes.style.bubble", function() {
+          if (gapi.iframes && gapi.iframes.getContext) {
+            gapi.iframes.getContext().openChild({
+                url: '//www.blogger.com/navbar.g?targetBlogID\0756889884053798500413\46blogName\75The+way+things+work+in+Llewellyn\47s+world\46publishMode\75PUBLISH_MODE_BLOGSPOT\46navbarType\75LIGHT\46layoutType\75LAYOUTS\46searchRoot\75http://llewellynfalco.blogspot.com/search\46blogLocale\75en\46v\0752\46homepageUrl\75http://llewellynfalco.blogspot.com/\46targetPostID\0752636903737922925874\46blogPostOrPageUrl\75http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html\46vt\0757813631434274047652',
+                where: document.getElementById("navbar-iframe-container"),
+                id: "navbar-iframe"
+            });
+          }
+        });
+      </script><script type="text/javascript">
+(function() {
+var script = document.createElement('script');
+script.type = 'text/javascript';
+script.src = '//pagead2.googlesyndication.com/pagead/js/google_top_exp.js';
+var head = document.getElementsByTagName('head')[0];
+if (head) {
+head.appendChild(script);
+}})();
+</script>
+</div></div>
+<div class='body-fauxcolumns'>
+<div class='fauxcolumn-outer body-fauxcolumn-outer'>
+<div class='cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left'>
+<div class='fauxborder-right'></div>
+<div class='fauxcolumn-inner'>
+</div>
+</div>
+<div class='cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+</div>
+<div class='content'>
+<div class='content-fauxcolumns'>
+<div class='fauxcolumn-outer content-fauxcolumn-outer'>
+<div class='cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left'>
+<div class='fauxborder-right'></div>
+<div class='fauxcolumn-inner'>
+</div>
+</div>
+<div class='cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+</div>
+<div class='content-outer'>
+<div class='content-cap-top cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left content-fauxborder-left'>
+<div class='fauxborder-right content-fauxborder-right'></div>
+<div class='content-inner'>
+<header>
+<div class='header-outer'>
+<div class='header-cap-top cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left header-fauxborder-left'>
+<div class='fauxborder-right header-fauxborder-right'></div>
+<div class='region-inner header-inner'>
+<div class='header section' id='header'><div class='widget Header' id='Header1'>
+<div id='header-inner'>
+<div class='titlewrapper'>
+<h1 class='title'>
+<a href='http://llewellynfalco.blogspot.ca/'>The way things work in Llewellyn's world</a>
+</h1>
+</div>
+<div class='descriptionwrapper'>
+<p class='description'><span>
+</span></p>
+</div>
+</div>
+</div></div>
+</div>
+</div>
+<div class='header-cap-bottom cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+</header>
+<div class='tabs-outer'>
+<div class='tabs-cap-top cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left tabs-fauxborder-left'>
+<div class='fauxborder-right tabs-fauxborder-right'></div>
+<div class='region-inner tabs-inner'>
+<div class='tabs section' id='crosscol'></div>
+<div class='tabs section' id='crosscol-overflow'></div>
+</div>
+</div>
+<div class='tabs-cap-bottom cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+<div class='main-outer'>
+<div class='main-cap-top cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left main-fauxborder-left'>
+<div class='fauxborder-right main-fauxborder-right'></div>
+<div class='region-inner main-inner'>
+<div class='columns fauxcolumns'>
+<div class='fauxcolumn-outer fauxcolumn-center-outer'>
+<div class='cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left'>
+<div class='fauxborder-right'></div>
+<div class='fauxcolumn-inner'>
+</div>
+</div>
+<div class='cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+<div class='fauxcolumn-outer fauxcolumn-left-outer'>
+<div class='cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left'>
+<div class='fauxborder-right'></div>
+<div class='fauxcolumn-inner'>
+</div>
+</div>
+<div class='cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+<div class='fauxcolumn-outer fauxcolumn-right-outer'>
+<div class='cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left'>
+<div class='fauxborder-right'></div>
+<div class='fauxcolumn-inner'>
+</div>
+</div>
+<div class='cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+<!-- corrects IE6 width calculation -->
+<div class='columns-inner'>
+<div class='column-center-outer'>
+<div class='column-center-inner'>
+<div class='main section' id='main'><div class='widget Blog' id='Blog1'>
+<div class='blog-posts hfeed'>
+<!-- google_ad_section_start(name=default) -->
+
+          <div class="date-outer">
+        
+<h2 class='date-header'><span>Thursday, September 23, 2010</span></h2>
+
+          <div class="date-posts">
+        
+<div class='post-outer'>
+<div class='post hentry uncustomized-post-template' itemprop='blogPost' itemscope='itemscope' itemtype='http://schema.org/BlogPosting'>
+<meta content='http://3.bp.blogspot.com/_s2oZS5jFv1g/TKr8S7Bs4eI/AAAAAAAAAZQ/QArjjPJnO7g/s320/Java+Lambda+Syntax.png' itemprop='image_url'/>
+<meta content='6889884053798500413' itemprop='blogId'/>
+<meta content='2636903737922925874' itemprop='postId'/>
+<a name='2636903737922925874'></a>
+<h3 class='post-title entry-title' itemprop='name'>
+Lamdbas in Java 1.6
+</h3>
+<div class='post-header'>
+<div class='post-header-line-1'></div>
+</div>
+<div class='post-body entry-content' id='post-body-2636903737922925874' itemprop='description articleBody'>
+If you've ever heard that java is a poor language because it doesn't have lambdas, that ends today!<br />
+<br />
+I created a way to do lambda's in java 1.6 without changing: the JDK, the compiler, the ByteCode or the Syntax.<br />
+<br />
+I vBlogged my thoughts here:<br />
+<object height="344" width="425"><param name="movie" value="http://www.youtube.com/v/3OZxhhBiHzE?hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/3OZxhhBiHzE?hl=en&fs=1" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object><br />
+<br />
+It's only a jar file, no special requirements or changes.<br />
+<br />
+You can down load it here at <a href="http://sourceforge.net/projects/approvaltests/files/">www.approvaltests.com</a><br />
+<br />
+You might also be interested in my&nbsp;similar&nbsp;addition of <a href="http://llewellynfalco.blogspot.com/2009/03/extensions-methods-in-java.html">extension method in java</a><br />
+<br />
+Here's the diagram of the syntax :<br />
+<div class="separator" style="clear: both; text-align: center;"><a href="http://3.bp.blogspot.com/_s2oZS5jFv1g/TKr8S7Bs4eI/AAAAAAAAAZQ/QArjjPJnO7g/s1600/Java+Lambda+Syntax.png" imageanchor="1" style="margin-left: 1em; margin-right: 1em;"><img border="0" height="166" src="http://3.bp.blogspot.com/_s2oZS5jFv1g/TKr8S7Bs4eI/AAAAAAAAAZQ/QArjjPJnO7g/s320/Java+Lambda+Syntax.png" width="320" /></a></div><div class="separator" style="clear: both; text-align: center;"><br />
+</div><div class="separator" style="clear: both; text-align: left;">I also made a small tutorial here :&nbsp;<a href="http://blog.approvaltests.com/2010/10/java-lambdas.html">http://blog.approvaltests.com/2010/10/java-lambdas.html</a></div><br />
+<div class="separator" style="clear: both; text-align: center;"><br />
+</div>
+<div style='clear: both;'></div>
+</div>
+<div class='post-footer'>
+<div class='post-footer-line post-footer-line-1'>
+<span class='post-author vcard'>
+Posted by
+<span class='fn' itemprop='author' itemscope='itemscope' itemtype='http://schema.org/Person'>
+<meta content='http://www.blogger.com/profile/11668997629228826023' itemprop='url'/>
+<a class='g-profile' href='http://www.blogger.com/profile/11668997629228826023' rel='author' title='author profile'>
+<span itemprop='name'>Llewellyn Falco</span>
+</a>
+</span>
+</span>
+<span class='post-timestamp'>
+at
+<meta content='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html' itemprop='url'/>
+<a class='timestamp-link' href='http://llewellynfalco.blogspot.ca/2010/09/lamdbas-in-java-16.html' rel='bookmark' title='permanent link'><abbr class='published' itemprop='datePublished' title='2010-09-23T02:02:00-07:00'>2:02 AM</abbr></a>
+</span>
+<span class='reaction-buttons'>
+</span>
+<span class='star-ratings'>
+</span>
+<span class='post-comment-link'>
+</span>
+<span class='post-backlinks post-comment-link'>
+</span>
+<span class='post-icons'>
+<span class='item-control blog-admin pid-1073526979'>
+<a href='http://www.blogger.com/post-edit.g?blogID=6889884053798500413&postID=2636903737922925874&from=pencil' title='Edit Post'>
+<img alt='' class='icon-action' height='18' src='http://img2.blogblog.com/img/icon18_edit_allbkg.gif' width='18'/>
+</a>
+</span>
+</span>
+<div class='post-share-buttons goog-inline-block'>
+</div>
+</div>
+<div class='post-footer-line post-footer-line-2'>
+<span class='post-labels'>
+</span>
+</div>
+<div class='post-footer-line post-footer-line-3'>
+<span class='post-location'>
+</span>
+</div>
+</div>
+</div>
+<div class='comments' id='comments'>
+<a name='comments'></a>
+<h4>11 comments:</h4>
+<div id='Blog1_comments-block-wrapper'>
+<dl class='avatar-comment-indent' id='comments-block'>
+<dt class='comment-author ' id='c8850635184541324955'>
+<a name='c8850635184541324955'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="http://www.blogger.com/profile/05331344136202246869" rel="nofollow" onclick="" class="avatar-hovercard" id="av-0-05331344136202246869"><img src="http://img2.blogblog.com/img/b16-rounded.gif" width="16" height="16" alt="" title="Brian Maso">
+
+</a></span></div>
+<a href='http://www.blogger.com/profile/05331344136202246869' rel='nofollow'>Brian Maso</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-8850635184541324955'>
+<p>
+I like the &quot;{{...}}&quot; trick -- about the simplest way to have an anonymous code block.<br /><br />One downside is that the closure must be run at least once, when the Function object gets created initially. Not a dealbreaker, but definitely a quirk of which to be aware!
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285257911556#c8850635184541324955' title='comment permalink'>
+September 23, 2010 at 9:05 AM
+</a>
+<span class='item-control blog-admin pid-694192511'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=8850635184541324955' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c83386273217429490'>
+<a name='c83386273217429490'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="http://www.blogger.com/profile/16726967424873450617" rel="nofollow" onclick="" class="avatar-hovercard" id="av-1-16726967424873450617"><img src="http://img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" class="delayLoad" style="display: none;" longdesc="http://3.bp.blogspot.com/_AgcP7L_T8ZQ/SayiuGUcOBI/AAAAAAAAAEo/nbUz5i3Y3_I/S45/me2.PNG" title="Razie">
+
+<noscript><img src="http://3.bp.blogspot.com/_AgcP7L_T8ZQ/SayiuGUcOBI/AAAAAAAAAEo/nbUz5i3Y3_I/S45/me2.PNG" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='http://www.blogger.com/profile/16726967424873450617' rel='nofollow'>Razie</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-83386273217429490'>
+<p>
+Nice! I think it also does a great job explaining lambdas to non-functional folk...and a whiff of closures.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285259462308#c83386273217429490' title='comment permalink'>
+September 23, 2010 at 9:31 AM
+</a>
+<span class='item-control blog-admin pid-1930107943'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=83386273217429490' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c4862903893692147614'>
+<a name='c4862903893692147614'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="http://www.blogger.com/profile/09613798275781723597" rel="nofollow" onclick="" class="avatar-hovercard" id="av-2-09613798275781723597"><img src="http://img2.blogblog.com/img/b16-rounded.gif" width="16" height="16" alt="" title="Scott">
+
+</a></span></div>
+<a href='http://www.blogger.com/profile/09613798275781723597' rel='nofollow'>Scott</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-4862903893692147614'>
+<p>
+Those are anonymous methods not lambdas.  Lambdas are just a syntax thing derived from lambda calculus.  <br />That shouldn&#39;t in any way diminish from the coolness of what you are showing though :)
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285265595222#c4862903893692147614' title='comment permalink'>
+September 23, 2010 at 11:13 AM
+</a>
+<span class='item-control blog-admin pid-1448126107'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=4862903893692147614' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c8170225850174948042'>
+<a name='c8170225850174948042'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="http://www.blogger.com/profile/11149956661907218421" rel="nofollow" onclick="" class="avatar-hovercard" id="av-3-11149956661907218421"><img src="http://img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" class="delayLoad" style="display: none;" longdesc="http://3.bp.blogspot.com/_9Q-J0-vVOvI/S-Qs30Pp1bI/AAAAAAAABN0/0lZlLpauV88/S45/Photo%2B13.jpg" title="Christian Gruber">
+
+<noscript><img src="http://3.bp.blogspot.com/_9Q-J0-vVOvI/S-Qs30Pp1bI/AAAAAAAABN0/0lZlLpauV88/S45/Photo%2B13.jpg" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='http://www.blogger.com/profile/11149956661907218421' rel='nofollow'>Christian Gruber</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-8170225850174948042'>
+<p>
+Um... Lambda.002.zip doesn&#39;t seem to contain Lambdas at all.  Did you mis-upload, or am I missing something.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285275169487#c8170225850174948042' title='comment permalink'>
+September 23, 2010 at 1:52 PM
+</a>
+<span class='item-control blog-admin pid-1654947349'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=8170225850174948042' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c3501838630941336740'>
+<a name='c3501838630941336740'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="http://www.blogger.com/profile/11149956661907218421" rel="nofollow" onclick="" class="avatar-hovercard" id="av-4-11149956661907218421"><img src="http://img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" class="delayLoad" style="display: none;" longdesc="http://3.bp.blogspot.com/_9Q-J0-vVOvI/S-Qs30Pp1bI/AAAAAAAABN0/0lZlLpauV88/S45/Photo%2B13.jpg" title="Christian Gruber">
+
+<noscript><img src="http://3.bp.blogspot.com/_9Q-J0-vVOvI/S-Qs30Pp1bI/AAAAAAAABN0/0lZlLpauV88/S45/Photo%2B13.jpg" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='http://www.blogger.com/profile/11149956661907218421' rel='nofollow'>Christian Gruber</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-3501838630941336740'>
+<p>
+Totally awesome syntactic sugar, though.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285275195871#c3501838630941336740' title='comment permalink'>
+September 23, 2010 at 1:53 PM
+</a>
+<span class='item-control blog-admin pid-1654947349'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=3501838630941336740' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author blog-author' id='c8405037652102357222'>
+<a name='c8405037652102357222'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="http://www.blogger.com/profile/11668997629228826023" rel="nofollow" onclick="" class="avatar-hovercard" id="av-5-11668997629228826023"><img src="http://img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" class="delayLoad" style="display: none;" longdesc="http://4.bp.blogspot.com/_s2oZS5jFv1g/SaojAB_LtpI/AAAAAAAAAEo/x9ZX9dXfDc0/S45/Llew.jpg" title="Llewellyn Falco">
+
+<noscript><img src="http://4.bp.blogspot.com/_s2oZS5jFv1g/SaojAB_LtpI/AAAAAAAAAEo/x9ZX9dXfDc0/S45/Llew.jpg" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='http://www.blogger.com/profile/11668997629228826023' rel='nofollow'>Llewellyn Falco</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-8405037652102357222'>
+<p>
+My mistake, forgot to modify the build script.<br /><br />Lambda.003 works
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285275610305#c8405037652102357222' title='comment permalink'>
+September 23, 2010 at 2:00 PM
+</a>
+<span class='item-control blog-admin pid-1073526979'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=8405037652102357222' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c2516848120691050623'>
+<a name='c2516848120691050623'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="http://www.blogger.com/profile/16109906004227436458" rel="nofollow" onclick="" class="avatar-hovercard" id="av-6-16109906004227436458"><img src="http://img2.blogblog.com/img/b16-rounded.gif" width="16" height="16" alt="" title="Allan">
+
+</a></span></div>
+<a href='http://www.blogger.com/profile/16109906004227436458' rel='nofollow'>Allan</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-2516848120691050623'>
+<p>
+Nice little trick for creating something akin to continuations, and a great explanation why you would want to pursue it. However, it has very little to with lambda calculus.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285350887568#c2516848120691050623' title='comment permalink'>
+September 24, 2010 at 10:54 AM
+</a>
+<span class='item-control blog-admin pid-1884178805'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=2516848120691050623' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c6156512867869466046'>
+<a name='c6156512867869466046'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="http://www.blogger.com/profile/05495580929866102756" rel="nofollow" onclick="" class="avatar-hovercard" id="av-7-05495580929866102756"><img src="http://img2.blogblog.com/img/b16-rounded.gif" width="16" height="16" alt="" title="mario">
+
+</a></span></div>
+<a href='http://www.blogger.com/profile/05495580929866102756' rel='nofollow'>mario</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-6156512867869466046'>
+<p>
+Hi Llewellyn,<br /><br />I&#39;m Mario, the creator of lambdaj, and we met at JavaOne. Thank you for sharing this. It&#39;s a really smart trick and I&#39;m already playing with it :)
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285875672076#c6156512867869466046' title='comment permalink'>
+September 30, 2010 at 12:41 PM
+</a>
+<span class='item-control blog-admin pid-1407730562'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=6156512867869466046' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c8435300069222851755'>
+<a name='c8435300069222851755'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="http://www.blogger.com/profile/00461192445071361043" rel="nofollow" onclick="" class="avatar-hovercard" id="av-8-00461192445071361043"><img src="http://img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" class="delayLoad" style="display: none;" longdesc="http://1.bp.blogspot.com/_UZzjPhczYTc/SZczlhpFBUI/AAAAAAAAAtA/ocbg_O-Y_K8/S45/148814142_d385e5d029_m.jpg" title="John Yeary">
+
+<noscript><img src="http://1.bp.blogspot.com/_UZzjPhczYTc/SZczlhpFBUI/AAAAAAAAAtA/ocbg_O-Y_K8/S45/148814142_d385e5d029_m.jpg" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='http://www.blogger.com/profile/00461192445071361043' rel='nofollow'>John Yeary</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-8435300069222851755'>
+<p>
+Hello Llewellyn,<br /><br />Thanks for the email with the update. <br /><br />It was great to meet you at JavaOne, and have you actively participate in the Java User Group (JUG) Sunday on the discussions on: &quot;Languages on the JVM&quot;, &quot;Future Enhancements to Java&quot;, and &quot;If I were King/Queen for a Day... What would I change in Java&quot;.<br /><br />I am very glad and proud that the Sunday discussion got your creative juices flowing. <br /><br />Your initial implementation demo to Sven Reimers, Martin Klähn, and I was cool, but as I noted: your modification of Object creates an extension long tail. I am glad to see that you took it to heart and made changes to your current API design.<br /><br />You are incredibly bright, and this is a great piece of syntatic sugar to get &quot;Closures&quot; in JDK 6.<br /><br />Thanks for sharing this with the rest of us. Duke was impressed!
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1285980787660#c8435300069222851755' title='comment permalink'>
+October 1, 2010 at 5:53 PM
+</a>
+<span class='item-control blog-admin pid-712539308'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=8435300069222851755' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author ' id='c4367826093425869615'>
+<a name='c4367826093425869615'></a>
+<div class="avatar-image-container avatar-stock"><span dir="ltr"><a href="http://www.blogger.com/profile/05820711930335804562" rel="nofollow" onclick="" class="avatar-hovercard" id="av-9-05820711930335804562"><img src="http://img2.blogblog.com/img/b16-rounded.gif" width="16" height="16" alt="" title="kinko">
+
+</a></span></div>
+<a href='http://www.blogger.com/profile/05820711930335804562' rel='nofollow'>kinko</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-4367826093425869615'>
+<p>
+Would be nice if it actually worked. All I get is the below.<br /><br />Also you example code picture is syntactically incorrect.<br /><br />Exception in thread &quot;main&quot; java.lang.Error: java.lang.NoSuchFieldException: this$0<br /> at com.spun.util.ObjectUtils.throwAsError(ObjectUtils.java:140)<br /> at org.lambda.functions.Function.getParentThisReference(Function.java:103)<br /> at org.lambda.functions.Function.initalizeParameters(Function.java:79)<br /> at org.lambda.functions.Function.getParameters(Function.java:65)<br /> at org.lambda.functions.Function.call(Function.java:37)<br /> at org.lambda.functions.F1.call(F1.java:13)<br /> at test.Test.main(Test.java:13)<br />Caused by: java.lang.NoSuchFieldException: this$0<br /> at java.lang.Class.getDeclaredField(Class.java:1882)<br /> at org.lambda.functions.Function.getParentThisReference(Function.java:97)<br /> ... 5 more
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1286030378626#c4367826093425869615' title='comment permalink'>
+October 2, 2010 at 7:39 AM
+</a>
+<span class='item-control blog-admin pid-1317593058'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=4367826093425869615' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+<dt class='comment-author blog-author' id='c5146914600662936443'>
+<a name='c5146914600662936443'></a>
+<div class="avatar-image-container vcard"><span dir="ltr"><a href="http://www.blogger.com/profile/11668997629228826023" rel="nofollow" onclick="" class="avatar-hovercard" id="av-10-11668997629228826023"><img src="http://img1.blogblog.com/img/blank.gif" width="35" height="35" alt="" class="delayLoad" style="display: none;" longdesc="http://4.bp.blogspot.com/_s2oZS5jFv1g/SaojAB_LtpI/AAAAAAAAAEo/x9ZX9dXfDc0/S45/Llew.jpg" title="Llewellyn Falco">
+
+<noscript><img src="http://4.bp.blogspot.com/_s2oZS5jFv1g/SaojAB_LtpI/AAAAAAAAAEo/x9ZX9dXfDc0/S45/Llew.jpg" width="35" height="35" class="photo" alt=""></noscript></a></span></div>
+<a href='http://www.blogger.com/profile/11668997629228826023' rel='nofollow'>Llewellyn Falco</a>
+said...
+</dt>
+<dd class='comment-body' id='Blog1_cmt-5146914600662936443'>
+<p>
+@kinko thanks, I didn&#39;t notice the photo had some extra )&#39;s it fixed now.<br /><br />Also, I wasn&#39;t able to completely reproduce the bug you had. I think it&#39;s because your compiler is creating a different default name for the parent class.  <br /><br />But I faked it by using a different name, and fixed it for that scenario. The code is posted in Lambda.006 try it out and let me know if it works.<br /><br />Again, thanks for submitting feedback. My code is unit tested, but I can only test on my own system. Too often when things don&#39;t work, no one tells me, and the problems never get solved.
+</p>
+</dd>
+<dd class='comment-footer'>
+<span class='comment-timestamp'>
+<a href='http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html?showComment=1286274402632#c5146914600662936443' title='comment permalink'>
+October 5, 2010 at 3:26 AM
+</a>
+<span class='item-control blog-admin pid-1073526979'>
+<a class='comment-delete' href='http://www.blogger.com/delete-comment.g?blogID=6889884053798500413&postID=5146914600662936443' title='Delete Comment'>
+<img src='//www.blogger.com/img/icon_delete13.gif'/>
+</a>
+</span>
+</span>
+</dd>
+</dl>
+</div>
+<p class='comment-footer'>
+<a href='http://www.blogger.com/comment.g?blogID=6889884053798500413&amp;postID=2636903737922925874' onclick=''>Post a Comment</a>
+</p>
+<div id='backlinks-container'>
+<div id='Blog1_backlinks-container'>
+</div>
+</div>
+</div>
+</div>
+
+        </div></div>
+      
+<!-- google_ad_section_end -->
+</div>
+<div class='blog-pager' id='blog-pager'>
+<span id='blog-pager-newer-link'>
+<a class='blog-pager-newer-link' href='http://llewellynfalco.blogspot.ca/2010/09/extension-methods.html' id='Blog1_blog-pager-newer-link' title='Newer Post'>Newer Post</a>
+</span>
+<span id='blog-pager-older-link'>
+<a class='blog-pager-older-link' href='http://llewellynfalco.blogspot.ca/2010/09/theory-based-testing.html' id='Blog1_blog-pager-older-link' title='Older Post'>Older Post</a>
+</span>
+<a class='home-link' href='http://llewellynfalco.blogspot.ca/'>Home</a>
+</div>
+<div class='clear'></div>
+<div class='post-feeds'>
+<div class='feed-links'>
+Subscribe to:
+<a class='feed-link' href='http://llewellynfalco.blogspot.com/feeds/2636903737922925874/comments/default' target='_blank' type='application/atom+xml'>Post Comments (Atom)</a>
+</div>
+</div>
+<script type="text/javascript">window.___gcfg = {'lang': 'en'};</script>
+</div></div>
+</div>
+</div>
+<div class='column-left-outer'>
+<div class='column-left-inner'>
+<aside>
+</aside>
+</div>
+</div>
+<div class='column-right-outer'>
+<div class='column-right-inner'>
+<aside>
+<div class='sidebar section' id='sidebar-right-1'><div class='widget LinkList' id='LinkList1'>
+<div class='widget-content'>
+<ul>
+<li><a href='http://www.google.com/profiles/llewellyn.falco'>Llewellyn's Bio</a></li>
+<li><a href='http://www.teachingkidsprogramming.org/'>Teaching Kids Programming</a></li>
+<li><a href='http://www.approvaltests.com/'>Approval Tests</a></li>
+</ul>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=6889884053798500413&widgetType=LinkList&widgetId=LinkList1&action=editWidget&sectionId=sidebar-right-1' onclick='return _WidgetManager._PopupConfig(document.getElementById("LinkList1"));' target='configLinkList1' title='Edit'>
+<img alt='' height='18' src='http://img1.blogblog.com/img/icon18_wrench_allbkg.png' width='18'/>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div>
+</div><div class='widget PageList' id='PageList1'>
+<h2>Pages</h2>
+<div class='widget-content'>
+<ul>
+<li><a href='http://llewellynfalco.blogspot.ca/'>Home</a></li>
+<li><a href='http://llewellynfalco.blogspot.ca/p/legacy-code.html'>Legacy Code</a></li>
+<li><a href='http://llewellynfalco.blogspot.ca/p/agile-thoughts-of-day.html'>Agile Thoughts of the Day</a></li>
+<li><a href='http://llewellynfalco.blogspot.ca/p/great-technical-talks.html'>Great Technical Talks</a></li>
+</ul>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=6889884053798500413&widgetType=PageList&widgetId=PageList1&action=editWidget&sectionId=sidebar-right-1' onclick='return _WidgetManager._PopupConfig(document.getElementById("PageList1"));' target='configPageList1' title='Edit'>
+<img alt='' height='18' src='http://img1.blogblog.com/img/icon18_wrench_allbkg.png' width='18'/>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div>
+</div><div class='widget BlogArchive' id='BlogArchive1'>
+<h2>Blog Archive</h2>
+<div class='widget-content'>
+<div class='ltr' id='ArchiveList'>
+<div id='BlogArchive1_ArchiveList'>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/search?updated-min=2013-01-01T00:00:00-08:00&amp;updated-max=2014-01-01T00:00:00-08:00&amp;max-results=2'>2013</a>
+<span class='post-count' dir='ltr'>(2)</span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2013_01_01_archive.html'>January</a>
+<span class='post-count' dir='ltr'>(2)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/search?updated-min=2012-01-01T00:00:00-08:00&amp;updated-max=2013-01-01T00:00:00-08:00&amp;max-results=3'>2012</a>
+<span class='post-count' dir='ltr'>(3)</span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2012_09_01_archive.html'>September</a>
+<span class='post-count' dir='ltr'>(2)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2012_01_01_archive.html'>January</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/search?updated-min=2011-01-01T00:00:00-08:00&amp;updated-max=2012-01-01T00:00:00-08:00&amp;max-results=8'>2011</a>
+<span class='post-count' dir='ltr'>(8)</span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2011_12_01_archive.html'>December</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2011_09_01_archive.html'>September</a>
+<span class='post-count' dir='ltr'>(3)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2011_05_01_archive.html'>May</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2011_04_01_archive.html'>April</a>
+<span class='post-count' dir='ltr'>(2)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2011_01_01_archive.html'>January</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate expanded'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/search?updated-min=2010-01-01T00:00:00-08:00&amp;updated-max=2011-01-01T00:00:00-08:00&amp;max-results=9'>2010</a>
+<span class='post-count' dir='ltr'>(9)</span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2010_11_01_archive.html'>November</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate expanded'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2010_09_01_archive.html'>September</a>
+<span class='post-count' dir='ltr'>(4)</span>
+<ul class='posts'>
+<li><a href='http://llewellynfalco.blogspot.ca/2010/09/extension-methods.html'>Extension Methods</a></li>
+<li><a href='http://llewellynfalco.blogspot.ca/2010/09/lamdbas-in-java-16.html'>Lamdbas in Java 1.6</a></li>
+<li><a href='http://llewellynfalco.blogspot.ca/2010/09/theory-based-testing.html'>Theory Based Testing</a></li>
+<li><a href='http://llewellynfalco.blogspot.ca/2010/09/rewriting-vs-refactoring.html'>Rewriting Vs Refactoring</a></li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2010_08_01_archive.html'>August</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2010_01_01_archive.html'>January</a>
+<span class='post-count' dir='ltr'>(3)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/search?updated-min=2009-01-01T00:00:00-08:00&amp;updated-max=2010-01-01T00:00:00-08:00&amp;max-results=2'>2009</a>
+<span class='post-count' dir='ltr'>(2)</span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2009_03_01_archive.html'>March</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2009_01_01_archive.html'>January</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/search?updated-min=2008-01-01T00:00:00-08:00&amp;updated-max=2009-01-01T00:00:00-08:00&amp;max-results=5'>2008</a>
+<span class='post-count' dir='ltr'>(5)</span>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2008_10_01_archive.html'>October</a>
+<span class='post-count' dir='ltr'>(2)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2008_09_01_archive.html'>September</a>
+<span class='post-count' dir='ltr'>(1)</span>
+</li>
+</ul>
+<ul class='hierarchy'>
+<li class='archivedate collapsed'>
+<a class='toggle'>
+<span class='zippy'></span>
+</a>
+<a class='post-count-link' href='http://llewellynfalco.blogspot.ca/2008_07_01_archive.html'>July</a>
+<span class='post-count' dir='ltr'>(2)</span>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=6889884053798500413&widgetType=BlogArchive&widgetId=BlogArchive1&action=editWidget&sectionId=sidebar-right-1' onclick='return _WidgetManager._PopupConfig(document.getElementById("BlogArchive1"));' target='configBlogArchive1' title='Edit'>
+<img alt='' height='18' src='http://img1.blogblog.com/img/icon18_wrench_allbkg.png' width='18'/>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div>
+</div><div class='widget Profile' id='Profile1'>
+<h2>About Me</h2>
+<div class='widget-content'>
+<a href='http://www.blogger.com/profile/11668997629228826023'><img alt='My Photo' class='profile-img' height='80' src='http://3.bp.blogspot.com/_s2oZS5jFv1g/SPTCNxT1pyI/AAAAAAAAABI/bW8VaJ-Hlwk/S220/Llew.jpg' width='61'/></a>
+<dl class='profile-datablock'>
+<dt class='profile-data'>
+<a class='profile-name-link g-profile' href='http://www.blogger.com/profile/11668997629228826023' rel='author' style='background-image: url(//www.blogger.com/img/logo-16.png);'>
+Llewellyn Falco
+</a>
+</dt>
+</dl>
+<a class='profile-link' href='http://www.blogger.com/profile/11668997629228826023' rel='author'>View my complete profile</a>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=6889884053798500413&widgetType=Profile&widgetId=Profile1&action=editWidget&sectionId=sidebar-right-1' onclick='return _WidgetManager._PopupConfig(document.getElementById("Profile1"));' target='configProfile1' title='Edit'>
+<img alt='' height='18' src='http://img1.blogblog.com/img/icon18_wrench_allbkg.png' width='18'/>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div>
+</div></div>
+</aside>
+</div>
+</div>
+</div>
+<div style='clear: both'></div>
+<!-- columns -->
+</div>
+<!-- main -->
+</div>
+</div>
+<div class='main-cap-bottom cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+<footer>
+<div class='footer-outer'>
+<div class='footer-cap-top cap-top'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+<div class='fauxborder-left footer-fauxborder-left'>
+<div class='fauxborder-right footer-fauxborder-right'></div>
+<div class='region-inner footer-inner'>
+<div class='foot section' id='footer-1'></div>
+<table border='0' cellpadding='0' cellspacing='0' class='section-columns columns-2'>
+<tbody>
+<tr>
+<td class='first columns-cell'>
+<div class='foot section' id='footer-2-1'></div>
+</td>
+<td class='columns-cell'>
+<div class='foot section' id='footer-2-2'></div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- outside of the include in order to lock Attribution widget -->
+<div class='foot section' id='footer-3'><div class='widget Attribution' id='Attribution1'>
+<div class='widget-content' style='text-align: center;'>
+Watermark template. Powered by <a href='http://www.blogger.com' target='_blank'>Blogger</a>.
+</div>
+<div class='clear'></div>
+<span class='widget-item-control'>
+<span class='item-control blog-admin'>
+<a class='quickedit' href='//www.blogger.com/rearrange?blogID=6889884053798500413&widgetType=Attribution&widgetId=Attribution1&action=editWidget&sectionId=footer-3' onclick='return _WidgetManager._PopupConfig(document.getElementById("Attribution1"));' target='configAttribution1' title='Edit'>
+<img alt='' height='18' src='http://img1.blogblog.com/img/icon18_wrench_allbkg.png' width='18'/>
+</a>
+</span>
+</span>
+<div class='clear'></div>
+</div></div>
+</div>
+</div>
+<div class='footer-cap-bottom cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+</footer>
+<!-- content -->
+</div>
+</div>
+<div class='content-cap-bottom cap-bottom'>
+<div class='cap-left'></div>
+<div class='cap-right'></div>
+</div>
+</div>
+</div>
+<script type='text/javascript'>
+    window.setTimeout(function() {
+        document.body.className = document.body.className.replace('loading', '');
+      }, 10);
+  </script>
+<script type="text/javascript">
+if (window.jstiming) window.jstiming.load.tick('widgetJsBefore');
+</script><script type="text/javascript" src="https://www.blogger.com/static/v1/widgets/58075626-widgets.js"></script>
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+<script type='text/javascript'>
+if (typeof(BLOG_attachCsiOnload) != 'undefined' && BLOG_attachCsiOnload != null) { window['blogger_templates_experiment_id'] = "templatesV2";window['blogger_blog_id'] = '6889884053798500413';BLOG_attachCsiOnload('item_'); }_WidgetManager._Init('//www.blogger.com/rearrange?blogID\x3d6889884053798500413','//llewellynfalco.blogspot.ca/2010/09/lamdbas-in-java-16.html','6889884053798500413');
+_WidgetManager._SetDataContext([{'name': 'blog', 'data': {'blogId': '6889884053798500413', 'bloggerUrl': 'http://www.blogger.com', 'title': 'The way things work in Llewellyn\47s world', 'pageType': 'item', 'url': 'http://llewellynfalco.blogspot.ca/2010/09/lamdbas-in-java-16.html', 'canonicalUrl': 'http://llewellynfalco.blogspot.com/2010/09/lamdbas-in-java-16.html', 'canonicalHomepageUrl': 'http://llewellynfalco.blogspot.com/', 'homepageUrl': 'http://llewellynfalco.blogspot.ca/', 'blogspotFaviconUrl': 'http://llewellynfalco.blogspot.ca/favicon.ico', 'enabledCommentProfileImages': true, 'adultContent': false, 'disableAdSenseWidget': false, 'analyticsAccountNumber': '', 'searchLabel': '', 'searchQuery': '', 'pageName': 'Lamdbas in Java 1.6', 'pageTitle': 'The way things work in Llewellyn\47s world: Lamdbas in Java 1.6', 'encoding': 'UTF-8', 'locale': 'en', 'localeUnderscoreDelimited': 'en', 'isPrivate': false, 'isMobile': false, 'isMobileRequest': false, 'mobileClass': '', 'isPrivateBlog': false, 'languageDirection': 'ltr', 'feedLinks': '\74link rel\75\42alternate\42 type\75\42application/atom+xml\42 title\75\42The way things work in Llewellyn\46#39;s world - Atom\42 href\75\42http://llewellynfalco.blogspot.com/feeds/posts/default\42 /\76\n\74link rel\75\42alternate\42 type\75\42application/rss+xml\42 title\75\42The way things work in Llewellyn\46#39;s world - RSS\42 href\75\42http://llewellynfalco.blogspot.com/feeds/posts/default?alt\75rss\42 /\76\n\74link rel\75\42service.post\42 type\75\42application/atom+xml\42 title\75\42The way things work in Llewellyn\46#39;s world - Atom\42 href\75\42http://www.blogger.com/feeds/6889884053798500413/posts/default\42 /\76\n\n\74link rel\75\42alternate\42 type\75\42application/atom+xml\42 title\75\42The way things work in Llewellyn\46#39;s world - Atom\42 href\75\42http://llewellynfalco.blogspot.com/feeds/2636903737922925874/comments/default\42 /\76\n', 'meTag': '', 'openIdOpTag': '', 'postImageThumbnailUrl': 'http://3.bp.blogspot.com/_s2oZS5jFv1g/TKr8S7Bs4eI/AAAAAAAAAZQ/QArjjPJnO7g/s72-c/Java+Lambda+Syntax.png', 'imageSrcTag': '\74link rel\75\42image_src\42 href\75\42http://3.bp.blogspot.com/_s2oZS5jFv1g/TKr8S7Bs4eI/AAAAAAAAAZQ/QArjjPJnO7g/s72-c/Java+Lambda+Syntax.png\42 /\76\n', 'latencyHeadScript': '\74script type\75\42text/javascript\42\76(function() { var b\75window,f\75\42jstiming\42,g\75\42tick\42;(function(){function d(a){this.t\75{};this.tick\75function(a,d,c){var e\75void 0!\75c?c:(new Date).getTime();this.t[a]\75[e,d];if(void 0\75\75c)try{b.console.timeStamp(\42CSI/\42+a)}catch(h){}};this[g](\42start\42,null,a)}var a;b.performance\46\46(a\75b.performance.timing);var m\75a?new d(a.responseStart):new d;b.jstiming\75{Timer:d,load:m};if(a){var c\75a.navigationStart,h\75a.responseStart;0\74c\46\46h\76\75c\46\46(b[f].srt\75h-c)}if(a){var e\75b[f].load;0\74c\46\46h\76\75c\46\46(e[g](\42_wtsrt\42,void 0,c),e[g](\42wtsrt_\42,\42_wtsrt\42,h),e[g](\42tbsd_\42,\42wtsrt_\42))}try{a\75null,\nb.chrome\46\46b.chrome.csi\46\46(a\75Math.floor(b.chrome.csi().pageT),e\46\0460\74c\46\46(e[g](\42_tbnd\42,void 0,b.chrome.csi().startE),e[g](\42tbnd_\42,\42_tbnd\42,c))),null\75\75a\46\46b.gtbExternal\46\46(a\75b.gtbExternal.pageT()),null\75\75a\46\46b.external\46\46(a\75b.external.pageT,e\46\0460\74c\46\46(e[g](\42_tbnd\42,void 0,b.external.startE),e[g](\42tbnd_\42,\42_tbnd\42,c))),a\46\46(b[f].pt\75a)}catch(n){}})();b.tickAboveFold\75function(d){var a\0750;if(d.offsetParent){do a+\75d.offsetTop;while(d\75d.offsetParent)}d\75a;750\76\75d\46\46b[f].load[g](\42aft\42)};var k\75!1;function l(){k||(k\75!0,b[f].load[g](\42firstScrollTime\42))}b.addEventListener?b.addEventListener(\42scroll\42,l,!1):b.attachEvent(\42onscroll\42,l);\n })();\74/script\076', 'mobileHeadScript': '', 'ieCssRetrofitLinks': '\74!--[if IE]\76\74script type\75\42text/javascript\42 src\75\42https://www.blogger.com/static/v1/jsbin/850967532-ieretrofit.js\42\76\74/script\76\n\74![endif]--\076', 'view': '', 'dynamicViewsCommentsSrc': '//www.blogblog.com/dynamicviews/4224c15c4e7c9321/js/comments.js', 'dynamicViewsScriptSrc': '//www.blogblog.com/dynamicviews/d6f37bb30c327165', 'plusOneApiSrc': 'https://apis.google.com/js/plusone.js', 'testHtml5CssSrc': 'https://www.blogger.com/static/v1/widgets/2412321170-css_bundle_html5.css', 'sf': 'n', 'tf': ''}}, {'name': 'skin', 'data': {'vars': {'tabs_border_size': '0', 'tabs_shadow_spread': '0', 'link_visited_color': '#993322', 'post_title_font': 'normal normal 30px Georgia, Utopia, \47Palatino Linotype\47, Palatino, serif', 'tabs_separator_color': '#c0a154', 'tabs_text_color': '#cc3300', 'post_shadow_spread': '0', 'body_background_overlay_height': '121px', 'main_cap_height': '0', 'widget_title_font': 'normal normal 20px Georgia, Utopia, \47Palatino Linotype\47, Palatino, serif', 'body_background_overlay': 'transparent url(//www.blogblog.com/1kt/watermark/body_overlay_birds.png) no-repeat scroll top right', 'tabs_background_outer': 'none', 'keycolor': '#c0a154', 'main_background': 'transparent none no-repeat scroll top left', 'header_font': 'normal normal 60px Georgia, Utopia, \47Palatino Linotype\47, Palatino, serif', 'post_border_style': 'dotted', 'footer_link_visited_color': '#dd5533', 'post_background_url': 'url(//www.blogblog.com/1kt/watermark/post_background_birds.png)', 'footer_link_hover_color': '#ff9977', 'mobile_background_overlay': 'transparent none repeat scroll top left', 'tabs_background_color': 'transparent', 'link_hover_color': '#ff3300', 'footer_link_color': '#ff7755', 'description_text_color': '#997755', 'body_text_color': '#333333', 'post_border_color': '#ccbb99', 'footer_text_color': '#ccbb99', 'post_background_color': 'transparent', 'endSide': 'right', 'post_footer_text_color': '#997755', 'tabs_background_inner': 'none', 'tabs_font': 'normal normal 20px Georgia, Utopia, \47Palatino Linotype\47, Palatino, serif', 'startSide': 'left', 'body_font': 'normal normal 14px Arial, Tahoma, Helvetica, FreeSans, sans-serif', 'main_cap_overlay': 'none', 'date_text_color': '#997755', 'widget_title_text_color': '#000000', 'link_color': '#cc3300', 'footer_widget_title_text_color': '#eeddbb', 'post_border_size': '1px', 'main_cap_image': 'none', 'footer_background_color': '#330000', 'header_text_color': '#ffffff', 'date_font': 'normal normal 16px Arial, Tahoma, Helvetica, FreeSans, sans-serif', 'main_padding_top': '30px', 'tabs_selected_text_color': '#000000', 'body_background_color': '#c0a154', 'widget_alternate_text_color': '#777777'}, 'override': ''}}, {'name': 'view', 'data': {'classic': {'name': 'classic', 'url': '/?view\75classic'}, 'flipcard': {'name': 'flipcard', 'url': '/?view\75flipcard'}, 'magazine': {'name': 'magazine', 'url': '/?view\75magazine'}, 'mosaic': {'name': 'mosaic', 'url': '/?view\75mosaic'}, 'sidebar': {'name': 'sidebar', 'url': '/?view\75sidebar'}, 'snapshot': {'name': 'snapshot', 'url': '/?view\75snapshot'}, 'timeslide': {'name': 'timeslide', 'url': '/?view\75timeslide'}}}]);
+_WidgetManager._RegisterWidget('_LinkListView', new _WidgetInfo('LinkList1', 'sidebar-right-1', null, document.getElementById('LinkList1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_PageListView', new _WidgetInfo('PageList1', 'sidebar-right-1', null, document.getElementById('PageList1'), {'title': 'Pages', 'links': [{'href': 'http://llewellynfalco.blogspot.ca/', 'title': 'Home', 'isCurrentPage': false}, {'href': 'http://llewellynfalco.blogspot.ca/p/legacy-code.html', 'title': 'Legacy Code', 'isCurrentPage': false}, {'href': 'http://llewellynfalco.blogspot.ca/p/agile-thoughts-of-day.html', 'title': 'Agile Thoughts of the Day', 'isCurrentPage': false}, {'href': 'http://llewellynfalco.blogspot.ca/p/great-technical-talks.html', 'title': 'Great Technical Talks', 'isCurrentPage': false}], 'mobile': false}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_BlogArchiveView', new _WidgetInfo('BlogArchive1', 'sidebar-right-1', null, document.getElementById('BlogArchive1'), {'languageDirection': 'ltr'}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_ProfileView', new _WidgetInfo('Profile1', 'sidebar-right-1', null, document.getElementById('Profile1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_AttributionView', new _WidgetInfo('Attribution1', 'footer-3', null, document.getElementById('Attribution1'), {'attribution': 'Watermark template. Powered by \74a href\75\47http://www.blogger.com\47 target\75\47_blank\47\76Blogger\74/a\76.'}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_HeaderView', new _WidgetInfo('Header1', 'header', null, document.getElementById('Header1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_NavbarView', new _WidgetInfo('Navbar1', 'navbar', null, document.getElementById('Navbar1'), {}, 'displayModeFull'));
+_WidgetManager._RegisterWidget('_BlogView', new _WidgetInfo('Blog1', 'main', null, document.getElementById('Blog1'), {'cmtInteractionsEnabled': false, 'lightboxEnabled': true, 'lightboxModuleUrl': 'https://www.blogger.com/static/v1/jsbin/3650913290-lbx.js', 'lightboxCssUrl': 'https://www.blogger.com/static/v1/v-css/4138445517-lightbox_bundle.css'}, 'displayModeFull'));
+</script>
+</body>
+</html>

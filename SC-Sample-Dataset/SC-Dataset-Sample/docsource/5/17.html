@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<!--[if IE 6]>
+<html id="ie6" dir="ltr" lang="en-US">
+<![endif]-->
+<!--[if IE 7]>
+<html id="ie7" dir="ltr" lang="en-US">
+<![endif]-->
+<!--[if IE 8]>
+<html id="ie8" dir="ltr" lang="en-US">
+<![endif]-->
+<!--[if !(IE 6) | !(IE 7) | !(IE 8)  ]><!-->
+<html dir="ltr" lang="en-US">
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<title>Solving Tomcat OutOfMemoryError: Heap space and PermGen space  | Web2.0 Tutorials</title>
+<link rel="profile" href="http://gmpg.org/xfn/11" />
+<link rel="stylesheet" type="text/css" media="all" href="http://www.zulutown.com/blog/wp-content/themes/twentyeleven/style.css" />
+<link rel="pingback" href="http://www.zulutown.com/blog/xmlrpc.php" />
+<!--[if lt IE 9]>
+<script src="http://www.zulutown.com/blog/wp-content/themes/twentyeleven/js/html5.js" type="text/javascript"></script>
+<![endif]-->
+<link rel="alternate" type="application/rss+xml" title="Web2.0 Tutorials &raquo; Feed" href="http://www.zulutown.com/blog/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Web2.0 Tutorials &raquo; Comments Feed" href="http://www.zulutown.com/blog/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Web2.0 Tutorials &raquo; Solving Tomcat OutOfMemoryError: Heap space and PermGen space Comments Feed" href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/feed/" />
+<script type='text/javascript' src='http://www.zulutown.com/blog/wp-includes/js/comment-reply.js?ver=20090102'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.zulutown.com/blog/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.zulutown.com/blog/wp-includes/wlwmanifest.xml" /> 
+<link rel='prev' title='SSH Tunnelling to Remote Servers, and with Local Address Binding' href='http://www.zulutown.com/blog/2009/02/28/ssh-tunnelling-to-remote-servers-and-with-local-address-binding/' />
+<link rel='next' title='Creating Tomcat6 Windows Services' href='http://www.zulutown.com/blog/2009/03/12/creating-tomcat6-windows-services/' />
+<meta name="generator" content="WordPress 3.3.3" />
+<link rel='canonical' href='http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/' />
+<link rel='shortlink' href='http://www.zulutown.com/blog/?p=95' />
+</head>
+
+<body class="single single-post postid-95 single-format-standard single-author singular two-column right-sidebar">
+<div id="page" class="hfeed">
+	<header id="branding" role="banner">
+			<hgroup>
+				<h1 id="site-title"><span><a href="http://www.zulutown.com/blog/" title="Web2.0 Tutorials" rel="home">Web2.0 Tutorials</a></span></h1>
+				<h2 id="site-description">All the Guides You Need to Become a Web2.0 Expert</h2>
+			</hgroup>
+
+						<a href="http://www.zulutown.com/blog/">
+									<img src="http://www.zulutown.com/blog/wp-content/themes/twentyeleven/images/headers/hanoi.jpg" width="1000" height="288" alt="" />
+							</a>
+			
+								<form method="get" id="searchform" action="http://www.zulutown.com/blog/">
+		<label for="s" class="assistive-text">Search</label>
+		<input type="text" class="field" name="s" id="s" placeholder="Search" />
+		<input type="submit" class="submit" name="submit" id="searchsubmit" value="Search" />
+	</form>
+			
+			<nav id="access" role="navigation">
+				<h3 class="assistive-text">Main menu</h3>
+								<div class="skip-link"><a class="assistive-text" href="#content" title="Skip to primary content">Skip to primary content</a></div>
+				<div class="skip-link"><a class="assistive-text" href="#secondary" title="Skip to secondary content">Skip to secondary content</a></div>
+								<div class="menu"><ul><li ><a href="http://www.zulutown.com/blog/" title="Home">Home</a></li></ul></div>
+			</nav><!-- #access -->
+	</header><!-- #branding -->
+
+
+	<div id="main">
+		<div id="primary">
+			<div id="content" role="main">
+
+				
+					<nav id="nav-single">
+						<h3 class="assistive-text">Post navigation</h3>
+						<span class="nav-previous"><a href="http://www.zulutown.com/blog/2009/02/28/ssh-tunnelling-to-remote-servers-and-with-local-address-binding/" rel="prev"><span class="meta-nav">&larr;</span> Previous</a></span>
+						<span class="nav-next"><a href="http://www.zulutown.com/blog/2009/03/12/creating-tomcat6-windows-services/" rel="next">Next <span class="meta-nav">&rarr;</span></a></span>
+					</nav><!-- #nav-single -->
+
+					
+<article id="post-95" class="post-95 post type-post status-publish format-standard hentry category-tomcat tag-heap tag-java-options tag-jvmmx tag-jvmoptions tag-limit tag-maximum-memory-pool tag-maxpermsize tag-memory tag-outofmemoryerror tag-permgen-tomcat tag-space tag-tomcat6 tag-tomcat6w">
+	<header class="entry-header">
+		<h1 class="entry-title">Solving Tomcat OutOfMemoryError: Heap space and PermGen space</h1>
+
+				<div class="entry-meta">
+			<span class="sep">Posted on </span><a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/" title="1:44 pm" rel="bookmark"><time class="entry-date" datetime="2009-03-12T13:44:04+00:00" pubdate>March 12, 2009</time></a><span class="by-author"> <span class="sep"> by </span> <span class="author vcard"><a class="url fn n" href="http://www.zulutown.com/blog/author/admin/" title="View all posts by Zulutown Webmaster" rel="author">Zulutown Webmaster</a></span></span>		</div><!-- .entry-meta -->
+			</header><!-- .entry-header -->
+
+	<div class="entry-content">
+		<p>It&#8217;s quite common to run In <em>memory problems</em> when running some big Java EE application on a Tomcat server.<br />
+Some of the most commmon errors are like the following ones.</p>
+<p>This is about a full <em>Heap space</em>:</p>
+<pre>SEVERE: Servlet.service() for servlet jsp threw exception
+java.lang.OutOfMemoryError: Java heap space</pre>
+<p>This other is about the <em>PermGen space</em> that&#8217;s a memory area, where compiled classes (and <code>JSPs</code>) are kept, and this error might happen often if the running web application have many .java and .jsp.</p>
+<pre>MemoryError: PermGen space
+java.lang.OutOfMemoryError: PermGen space</pre>
+<p>To increase the memory available to Tomcat, about <em>heap</em> and <em>permgen</em> the correct options are the following ones.</p>
+<p>This sets the max <em>heap</em> available to Tomcat at 1Gb of memory:</p>
+<pre>--JvmMx 1024</pre>
+<p>This sets the max <em>permgen</em> available to Tomcat at 256Mb of memory:</p>
+<pre>-XX:MaxPermSize=256m</pre>
+<p>To change the Tomcat memory settings (when Tomcat is installed on Windows as <em>system service</em>), it&#8217;s required to use the command-line tool <code>tomcat6</code>. The next command changes the memory settings for the Tomcat service named <em>Tomcat6</em></p>
+<pre>tomcat6 //US//Tomcat6 --JvmMx 1024 ++JvmOptions="-XX:MaxPermSize=256m"</pre>
+<p>The label <code>//US//Tomcat6</code> has the meaning of <em>U</em>pdating <em>S</em>erver parameters for the service named <em>Tomcat6</em>.<br />
+Obviously this command should be executed from the directory <code>C:\Program Files\Apache Software Foundation\Tomcat 6.0\bin</code> or from wherever is the <code>bin</code> directory of your Tomcat installation. Or to make things simple, that directoy should be added to your <code>PATH</code> environment variable.</p>
+<p>It&#8217;s even possible to update memory settings from a GUI frontend, or to view what happened after running the command line tool. Running the following command:</p>
+<pre>tomcat6w //ES//Tomcat6</pre>
+<p>a window will open showing all the parameters about the windows service <em>Tomcat6</em>.</p>
+<p>It&#8217;s possible to see in this image that, after running the previous command, for setting higher memory limits, in the sections <strong>Maximum memory pool</strong> and at the end of the <strong>Java Options</strong> the new memory limits are set.</p>
+<div id="attachment_96" class="wp-caption alignnone" style="width: 426px"><img class="size-full wp-image-96" title="Tomcat Memory Settings on Windows" src="http://www.zulutown.com/blog/wp-content/uploads/2009/03/configuration.png" alt="Tomcat Memory Settings on Windows" width="416" height="403" /><p class="wp-caption-text">Tomcat Memory Settings on Windows</p></div>
+			</div><!-- .entry-content -->
+
+	<footer class="entry-meta">
+		This entry was posted in <a href="http://www.zulutown.com/blog/category/tomcat/" title="View all posts in Tomcat" rel="category tag">Tomcat</a> and tagged <a href="http://www.zulutown.com/blog/tag/heap/" rel="tag">heap</a>, <a href="http://www.zulutown.com/blog/tag/java-options/" rel="tag">java options</a>, <a href="http://www.zulutown.com/blog/tag/jvmmx/" rel="tag">jvmmx</a>, <a href="http://www.zulutown.com/blog/tag/jvmoptions/" rel="tag">jvmoptions</a>, <a href="http://www.zulutown.com/blog/tag/limit/" rel="tag">limit</a>, <a href="http://www.zulutown.com/blog/tag/maximum-memory-pool/" rel="tag">maximum memory pool</a>, <a href="http://www.zulutown.com/blog/tag/maxpermsize/" rel="tag">maxpermsize</a>, <a href="http://www.zulutown.com/blog/tag/memory/" rel="tag">memory</a>, <a href="http://www.zulutown.com/blog/tag/outofmemoryerror/" rel="tag">outofmemoryerror</a>, <a href="http://www.zulutown.com/blog/tag/permgen-tomcat/" rel="tag">permgen tomcat</a>, <a href="http://www.zulutown.com/blog/tag/space/" rel="tag">space</a>, <a href="http://www.zulutown.com/blog/tag/tomcat6/" rel="tag">tomcat6</a>, <a href="http://www.zulutown.com/blog/tag/tomcat6w/" rel="tag">tomcat6w</a> by <a href="http://www.zulutown.com/blog/author/admin/">Zulutown Webmaster</a>. Bookmark the <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/" title="Permalink to Solving Tomcat OutOfMemoryError: Heap space and PermGen space" rel="bookmark">permalink</a>.		
+			</footer><!-- .entry-meta -->
+</article><!-- #post-95 -->
+
+						<div id="comments">
+	
+	
+			<h2 id="comments-title">
+			24 thoughts on &ldquo;<span>Solving Tomcat OutOfMemoryError: Heap space and PermGen space</span>&rdquo;		</h2>
+
+		
+		<ol class="commentlist">
+				<li class="comment even thread-even depth-1" id="li-comment-1493">
+		<article id="comment-1493" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/7366aeea25d2c4db99eb02f0c4de4f5d?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Sudheer</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-1493"><time pubdate datetime="2009-04-14T05:25:39+00:00">April 14, 2009 at 5:25 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>good&#8230;<br />
+how to solve the same problem in Ubuntu..<br />
+when am executing the same command am getting the error like &#8221; tomcat6 command not found &#8221; in bin directory</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=1493#respond' onclick='return addComment.moveForm("comment-1493", "1493", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class='children'>
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-1494">
+		<article id="comment-1494" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/544aa753f19d2bd6267a7c6858ebb7f1?s=39&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D39&amp;r=G' class='avatar avatar-39 photo' height='39' width='39' /><span class="fn">Zulutown Webmaster</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-1494"><time pubdate datetime="2009-04-14T05:44:42+00:00">April 14, 2009 at 5:44 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>tomcat6.exe is for Windows.<br />
+On ubuntu&#8230; I suggest to give you a look to catalina.sh, and set the  $CATALINA_OPTS variable.<br />
+How do you run Tomcat on your ubuntu server?</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=1494#respond' onclick='return addComment.moveForm("comment-1494", "1494", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment even depth-2" id="li-comment-17296">
+		<article id="comment-17296" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/b0d4f040cdb0f3df24e4afda81217175?s=39&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D39&amp;r=G' class='avatar avatar-39 photo' height='39' width='39' /><span class="fn">Swetha</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-17296"><time pubdate datetime="2011-07-25T23:47:34+00:00">July 25, 2011 at 11:47 pm</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Hi While Iam trying to run above command (tomcat6w //ES//Tomcat6) the window  showing all the parameters is not opened and its giving me error &#8230;</p>
+<p>[2011-07-25 14:39:52] [427  prunsrv.c] [error]<br />
+The operation completed successfully.<br />
+[2011-07-25 14:39:52] [1336 prunsrv.c] [error]<br />
+Load configuration failed</p>
+<p>Please help us ASAP.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=17296#respond' onclick='return addComment.moveForm("comment-17296", "17296", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class='children'>
+	<li class="comment odd alt depth-3" id="li-comment-45313">
+		<article id="comment-45313" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/097d177c22126ccf7af8f04d195de50a?s=39&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D39&amp;r=G' class='avatar avatar-39 photo' height='39' width='39' /><span class="fn">pandu</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-45313"><time pubdate datetime="2013-07-09T03:50:17+00:00">July 9, 2013 at 3:50 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>fuck off u</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=45313#respond' onclick='return addComment.moveForm("comment-45313", "45313", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+</ul>
+</li>
+</ul>
+</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-3614">
+		<article id="comment-3614" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/65198f361da4aa603fef17ce6b8efece?s=68&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">shobha</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-3614"><time pubdate datetime="2009-07-12T03:27:42+00:00">July 12, 2009 at 3:27 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thanks a ton.<br />
+I am able to resolve memory issue now. But i am unable to run tomcat6w //ES//Tomcat6, it gives me an error message telling that an instance of &#8216; Tomcat is already running&#8217; even though i have stopped it. Any tips to resolve this too.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=3614#respond' onclick='return addComment.moveForm("comment-3614", "3614", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-3966">
+		<article id="comment-3966" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/b8bb43da4447c1c6fa8a61b42091dda3?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn"><a href='http://www.jaycee.com.ar' rel='external nofollow' class='url'>Jaycee</a></span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-3966"><time pubdate datetime="2009-09-01T08:35:27+00:00">September 1, 2009 at 8:35 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>I&#8217;m a little confused about how the maximum values por &#8220;maximum memory pool&#8221; are afected by the windows version or sistem&#8217;s memory size&#8230;</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=3966#respond' onclick='return addComment.moveForm("comment-3966", "3966", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-8470">
+		<article id="comment-8470" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/16769e38a85c31b4bc2cb71bed1d6334?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn"><a href='http://nztechnologies.com' rel='external nofollow' class='url'>Sam</a></span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-8470"><time pubdate datetime="2010-06-04T03:47:39+00:00">June 4, 2010 at 3:47 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thanks a lot. You are adorable. Such a nice help.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=8470#respond' onclick='return addComment.moveForm("comment-8470", "8470", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-8646">
+		<article id="comment-8646" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/4461e2a66de38f66c2d505ca5b3eac59?s=68&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn"><a href='http://www.sigmasquared.co.za' rel='external nofollow' class='url'>Ross Saunders</a></span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-8646"><time pubdate datetime="2010-07-01T03:39:56+00:00">July 1, 2010 at 3:39 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>This article is by far the simplest and most effective I&#8217;ve found on this topic. Good going!</p>
+<p>@shobha &#8211; Make sure that the Tomcat monitor is not running in the taskbar next to the clock. Double click on the monitor to see the config.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=8646#respond' onclick='return addComment.moveForm("comment-8646", "8646", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-8651">
+		<article id="comment-8651" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/be861e348e9aa3d0a0c928b8d63ae490?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">EMS</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-8651"><time pubdate datetime="2010-07-02T11:22:31+00:00">July 2, 2010 at 11:22 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thank you Thank you. Excellent tutorial. Solved my issue.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=8651#respond' onclick='return addComment.moveForm("comment-8651", "8651", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-8713">
+		<article id="comment-8713" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/9d8e3fa5f5a6cd9593e4dcb8dedda0ca?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Lakshmi</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-8713"><time pubdate datetime="2010-07-15T08:50:16+00:00">July 15, 2010 at 8:50 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thankyou for the post.<br />
+I am able to solve the issue.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=8713#respond' onclick='return addComment.moveForm("comment-8713", "8713", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-9368">
+		<article id="comment-9368" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/d6f182ffc1d7ee4984c9ce70355f38e7?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Radheshyam</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-9368"><time pubdate datetime="2010-09-30T19:47:49+00:00">September 30, 2010 at 7:47 pm</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Bulls Eye Hit. Thank you.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=9368#respond' onclick='return addComment.moveForm("comment-9368", "9368", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-9459">
+		<article id="comment-9459" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/c032a2ebac2e7a546a1dde3f1555ab35?s=68&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Andy</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-9459"><time pubdate datetime="2010-10-06T11:45:19+00:00">October 6, 2010 at 11:45 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Great post, thanks for the tips!</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=9459#respond' onclick='return addComment.moveForm("comment-9459", "9459", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-9550">
+		<article id="comment-9550" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/b0f8786e26666d834595785b27e2cac3?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn"><a href='http://dkjfj.com/map.html' rel='external nofollow' class='url'>Tworogarf</a></span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-9550"><time pubdate datetime="2010-10-14T01:00:02+00:00">October 14, 2010 at 1:00 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p><a href="http://dkjfj.com/goserelin-acetate-implant/" rel="nofollow">foam poly vynal acetate</a> <a href="http://dkjfj.com/herpes-zoster-vaccination/" rel="nofollow">topical spray for varicella zoster virus</a> <a href="http://dkjfj.com/clobetasol-for-lichen-sclerosis/" rel="nofollow">clobetasol .05</a> <a href="http://dkjfj.com/valium-vs-xanax/" rel="nofollow">dangers of valium</a> <a href="http://dkjfj.com/low-oxygen-level-symptoms/" rel="nofollow">fever for five days no symptoms</a> <a href="http://dkjfj.com/manitou-mlt/" rel="nofollow">mlt memorex</a> <a href="http://dkjfj.com/somas-muscle-relaxer/" rel="nofollow">soma cod delivery</a> <a href="http://dkjfj.com/ketoprofen-history/" rel="nofollow">ketoprofen injection</a> <a href="http://dkjfj.com/what-is-clarithromycin/" rel="nofollow">biaxin clarithromycin</a> <a href="http://dkjfj.com/geodon-anxiety/" rel="nofollow">qtc geodon</a> <a href="http://dkjfj.com/mail-order-xopenex/" rel="nofollow">xopenex in pediatrics</a> <a href="http://dkjfj.com/afromormosin-from-astragalus-membranaceus/" rel="nofollow">astragalus extract</a> <a href="http://dkjfj.com/ogden-weber-applied-technology-college/" rel="nofollow">applied computers</a> <a href="http://dkjfj.com/the-analogs/" rel="nofollow">natural analogs for geologic co2 sequestration</a> <a href="http://dkjfj.com/benzalkonium/" rel="nofollow">pdi brand benzalkonium chloride packets</a> <a href="http://dkjfj.com/lyrics-for-low-flo-rida/" rel="nofollow">flo beds</a> <a href="http://dkjfj.com/thyroglobulin/" rel="nofollow">can we measure serum thyroglobulin</a> <a href="http://dkjfj.com/mike-amin/" rel="nofollow">ehsan amin</a> <a href="http://dkjfj.com/cyclophosphamide-induced-lung-damage/" rel="nofollow">fludarabine cyclophosphamide regimen aplastic anemia tbi</a> <a href="http://dkjfj.com/epi-book-club-se/" rel="nofollow">epi in imaging</a> <a href="http://dkjfj.com/spf-shirts/" rel="nofollow">facial moisturizers with spf</a> <a href="http://dkjfj.com/inhaled-tobramycin/" rel="nofollow">tobramycin ophthalmic</a> <a href="http://dkjfj.com/cat-c15-acert-features/" rel="nofollow">cat c15 issues</a> <a href="http://dkjfj.com/estar/" rel="nofollow">conjugation of estar</a> <a href="http://dkjfj.com/caremark-cost-of-synagis/" rel="nofollow">synagis how long until effective</a> <a href="http://dkjfj.com/h-pylori-doxycycline/" rel="nofollow">what is doxycycline hyclate used for</a> <a href="http://dkjfj.com/xenical-effectiveness/" rel="nofollow">xenical weight loss medicine</a> <a href="http://dkjfj.com/zel-okullar-dernegi/" rel="nofollow">yakov zel dovich</a> <a href="http://dkjfj.com/loratadine-claritin/" rel="nofollow">loratadine medicine</a> <a href="http://dkjfj.com/sigma-apo-tele-converter/" rel="nofollow">apo definition</a> <a href="http://dkjfj.com/00-pm-search-fmls-add/" rel="nofollow">fml is a omniform file extension</a> <a href="http://dkjfj.com/ambrotose-double-blind-study/" rel="nofollow">ambrotose</a> <a href="http://dkjfj.com/free-naked-gfs/" rel="nofollow">woolworths financial services gfs richard umbers</a> <a href="http://dkjfj.com/asacol-dosage/" rel="nofollow">asacol drug</a> <a href="http://dkjfj.com/pie-jesu-andrew-lloyd-webber/" rel="nofollow">tory webber</a> <a href="http://dkjfj.com/off-lable-use-of-protonix/" rel="nofollow">called drug protonix</a> <a href="http://dkjfj.com/virgil-brown-ezetimibe-2008/" rel="nofollow">virgil brown ezetimibe 2008</a> <a href="http://dkjfj.com/vigamox-side-effects/" rel="nofollow">vigamox how many times a day</a> <a href="http://dkjfj.com/enbrel-injections-into-joints-children-ja/" rel="nofollow">enbrel patient story</a> <a href="http://dkjfj.com/dextromethorphan-new-jersey-restriction-sales/" rel="nofollow">dextromethorphan and phantom pain</a> <a href="http://dkjfj.com/coughing-up-mucos/" rel="nofollow">coughing up mucos</a> <a href="http://dkjfj.com/trazodone-hangover/" rel="nofollow">trazodone side effects dose related</a> <a href="http://dkjfj.com/is-trinessa-a-good-drug/" rel="nofollow">acne medicine trinessa</a> <a href="http://dkjfj.com/uaa-gainesville-gator/" rel="nofollow">uaa homer</a> <a href="http://dkjfj.com/dealership-actuations/" rel="nofollow">skf actuation system</a> <a href="http://dkjfj.com/symbicort-girl/" rel="nofollow">cheap symbicort</a> <a href="http://dkjfj.com/facts-about-skeletal-system/" rel="nofollow">feline and avian skeletal systems</a> <a href="http://dkjfj.com/buy-pediasure/" rel="nofollow">pediasure in australia</a> <a href="http://dkjfj.com/maple-grove-grange-hall-boise-contac/" rel="nofollow">contac lens</a> <a href="http://dkjfj.com/dangers-of-red-oxide-while-rolling/" rel="nofollow">black oxide process</a> <a href="http://dkjfj.com/animal-ferrets-in-war/" rel="nofollow">free ferrets in florida</a> <a href="http://dkjfj.com/psyllium-sand/" rel="nofollow">psyllium husk bfad</a> <a href="http://dkjfj.com/ammonia-as-fuel/" rel="nofollow">ammonia storage</a> <a href="http://dkjfj.com/side-effects-of-alendronate/" rel="nofollow">alendronate 35 ndc</a> <a href="http://dkjfj.com/bloodroot-tincture/" rel="nofollow">usnea tincture</a> <a href="http://dkjfj.com/bacteriostatic-stethescope-covers/" rel="nofollow">i need to order bacteriostatic water</a> <a href="http://dkjfj.com/dimethyl-sulfoxide-diuretic/" rel="nofollow">dimethyl sulfoxide 99.5</a> <a href="http://dkjfj.com/supress-access-2000-messages/" rel="nofollow">appetite supress weightloss drops</a> <a href="http://dkjfj.com/avail-medical-products/" rel="nofollow">avail shipping</a> <a href="http://dkjfj.com/micardis-telmisartan/" rel="nofollow">micardis</a> <a href="http://dkjfj.com/npp-nandrolone-homebrew-recipe/" rel="nofollow">nandrolone decanoate liver toxic</a> <a href="http://dkjfj.com/false-positive-for-stanozolol/" rel="nofollow">stanozolol winstrol</a> <a href="http://dkjfj.com/12inone-vitamins/" rel="nofollow">vitamins injectable</a> <a href="http://dkjfj.com/celestron-c8-telescope/" rel="nofollow">rheem integrity c8 24</a> <a href="http://dkjfj.com/forced-alcohol-treatmen/" rel="nofollow">dane county wisconsin alcohol treatment programs</a> <a href="http://dkjfj.com/valerian-root-veterinary/" rel="nofollow">valerian panic attacks</a> <a href="http://dkjfj.com/peg-leg-petes-pensacola-beach/" rel="nofollow">horseshoe peg distance</a> <a href="http://dkjfj.com/zolpidem-generic-identify/" rel="nofollow">zolpidem somit</a> <a href="http://dkjfj.com/atorvastatin-and-alcohol/" rel="nofollow">side effects off atorvastatin</a> <a href="http://dkjfj.com/liquid-finasteride/" rel="nofollow">generic finasteride identification</a> <a href="http://dkjfj.com/home-health-aide-webster-ny/" rel="nofollow">codesp instructional aide tutorial</a> <a href="http://dkjfj.com/virginia-uva-part-time-lecturer-pay/" rel="nofollow">uva enoteca</a> <a href="http://dkjfj.com/sunday-worship-predates-charlemagne/" rel="nofollow">predates woolly adelgid</a> <a href="http://dkjfj.com/winstrol-wiki/" rel="nofollow">winstrol anadrol</a> <a href="http://dkjfj.com/propranolol-breastfeeding/" rel="nofollow">does propranolol erase memories</a> <a href="http://dkjfj.com/hand-sanitizer-toxins/" rel="nofollow">foot toxin removal</a> <a href="http://dkjfj.com/uses-for-zanaflex/" rel="nofollow">zanaflex flexeril</a> <a href="http://dkjfj.com/clk-500-2003-amg/" rel="nofollow">clk wallpaper</a> <a href="http://dkjfj.com/enteric-coated-multivitamins/" rel="nofollow">enteric coated aspirin coronary artery disease</a> <a href="http://dkjfj.com/accutane-worse-acne/" rel="nofollow">does accutane work</a> <a href="http://dkjfj.com/iro-greek-mythology/" rel="nofollow">sora no iro</a> <a href="http://dkjfj.com/dyne-pens/" rel="nofollow">dyne test solutions</a> <a href="http://dkjfj.com/ext-reme-piercing/" rel="nofollow">james wands reme</a> <a href="http://dkjfj.com/vardenafil-tablets/" rel="nofollow">order vermox tablets</a> <a href="http://dkjfj.com/venetian-plaster-wall-texture/" rel="nofollow">plaster how-to repair holes</a> <a href="http://dkjfj.com/mcdonalds-nutrition-information-canada/" rel="nofollow">sona nutrition</a> <a href="http://dkjfj.com/zostavax-19400/" rel="nofollow">zostavax local skin reactions</a> <a href="http://dkjfj.com/changing-to-focalin-xr-adhd/" rel="nofollow">high off focalin</a> <a href="http://dkjfj.com/cartilage-tissue/" rel="nofollow">define articular cartilage</a> <a href="http://dkjfj.com/tapazole-for-pets-side-effects/" rel="nofollow">tapazole tabs</a> <a href="http://dkjfj.com/tandem-motorized-paraglider/" rel="nofollow">tandem tractors in the 60 s</a> <a href="http://dkjfj.com/jel-eve-online/" rel="nofollow">water jel fire blankets</a> <a href="http://dkjfj.com/tazorac-acne-results/" rel="nofollow">tazorac</a> <a href="http://dkjfj.com/qual-e-o-teu-qi/" rel="nofollow">nra rifle qual patch</a> <a href="http://dkjfj.com/papain-injections-mexico/" rel="nofollow">papain safety</a> <a href="http://dkjfj.com/dong-quai-side-affects/" rel="nofollow">dong quai root fever</a> <a href="http://dkjfj.com/hy-vee-commercials/" rel="nofollow">1987 cruisers in chateau vee specs</a> <a href="http://dkjfj.com/dow-tordon-rtu/" rel="nofollow">dow tordon rtu</a> <a href="http://dkjfj.com/topiramate-oral-capsule/" rel="nofollow">topiramate alcoholism</a> <a href="http://dkjfj.com/ascorbic-acid-in-jam/" rel="nofollow">ascorbic acid for swollen ankles</a></p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=9550#respond' onclick='return addComment.moveForm("comment-9550", "9550", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-9712">
+		<article id="comment-9712" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/5cf9520fa14400f6efc4bdf71b96dc83?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Steinar</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-9712"><time pubdate datetime="2010-10-23T17:10:15+00:00">October 23, 2010 at 5:10 pm</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thank you, thank you, thank you! I&#8217;ve been strugling with OutOfMemoryError for a while. Everywhere I&#8217;ve looked, the reference is to CATALINA_OPTS, but that did not change anything. The advice in this post fixed it!</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=9712#respond' onclick='return addComment.moveForm("comment-9712", "9712", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-13947">
+		<article id="comment-13947" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/c097590a78c90a9f507a505f3017049f?s=68&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Alan</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-13947"><time pubdate datetime="2011-03-25T11:57:42+00:00">March 25, 2011 at 11:57 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Make sure that there is at least 1 blank space at the end of the setting on the previous line, and make sure that there are NO TRAILING SPACES after the 256m.</p>
+<p>Just spent an hour trying find what was causing the following<br />
+[2011-03-25 13:37:54] [error] CreateJavaVM Failed<br />
+[2011-03-25 13:37:54] [error] The system could not find the environment option that was entered.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=13947#respond' onclick='return addComment.moveForm("comment-13947", "13947", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-15326">
+		<article id="comment-15326" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/2091870d49834a9f099362d08c96663b?s=68&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Mathias</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-15326"><time pubdate datetime="2011-05-18T12:01:21+00:00">May 18, 2011 at 12:01 pm</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>This is not a solution; this just buys you some time. If you run out of PermGen space this means your class files are not unloaded for some reason. You will still run out of PermGen space sooner or later.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=15326#respond' onclick='return addComment.moveForm("comment-15326", "15326", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-21295">
+		<article id="comment-21295" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/50b6722c67d848c6a32b0da6b54458f9?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Chompy</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-21295"><time pubdate datetime="2011-11-23T14:08:33+00:00">November 23, 2011 at 2:08 pm</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>It solves the problem when you app too big. Thank!</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=21295#respond' onclick='return addComment.moveForm("comment-21295", "21295", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-23714">
+		<article id="comment-23714" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/50094dd5827e9258112a5f432276f01f?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Brad</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-23714"><time pubdate datetime="2012-02-02T10:30:58+00:00">February 2, 2012 at 10:30 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Nice post. Thanks.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=23714#respond' onclick='return addComment.moveForm("comment-23714", "23714", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-31247">
+		<article id="comment-31247" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/8824dac0a36040098bacd6703b33f607?s=68&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Arnaldo Escossio</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-31247"><time pubdate datetime="2012-07-06T05:58:06+00:00">July 6, 2012 at 5:58 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thanks, solves my problem</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=31247#respond' onclick='return addComment.moveForm("comment-31247", "31247", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="post pingback">
+		<p>Pingback: <a href='http://proxy-servers.eu/tomcat-7-getting-createjavavm-failed-error/' rel='external nofollow' class='url'>Proxy Servers &raquo; Tomcat 7 getting CreateJavaVM Failed Error</a></p>
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-32444">
+		<article id="comment-32444" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/fc534c8689c6dc20b15a384d3e724d95?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Hayk</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-32444"><time pubdate datetime="2012-08-28T08:12:19+00:00">August 28, 2012 at 8:12 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thank you it helped me !!!</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=32444#respond' onclick='return addComment.moveForm("comment-32444", "32444", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="post pingback">
+		<p>Pingback: <a href='http://tunwinnaing.wordpress.com/2012/12/01/pentaho-service-on-windows-64-bit/' rel='external nofollow' class='url'>Install Pentaho 4.5 CE as service on Windows 7 x64 | Dot &#8230;</a></p>
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-45126">
+		<article id="comment-45126" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/e815439a4ea84e6f77d5c5a5ded843d6?s=68&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn"><a href='http://conecuhso.com' rel='external nofollow' class='url'>equifax Com</a></span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-45126"><time pubdate datetime="2013-07-02T18:36:20+00:00">July 2, 2013 at 6:36 pm</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>I just could not depart your site prior to suggesting that I<br />
+actually loved the standard information a person supply in your<br />
+visitors? Is going to be again regularly in order to check up on new posts</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=45126#respond' onclick='return addComment.moveForm("comment-45126", "45126", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="li-comment-48300">
+		<article id="comment-48300" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/9f3d105429d87d7cc76456467936eb8f?s=68&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D68&amp;r=G' class='avatar avatar-68 photo' height='68' width='68' /><span class="fn">Saurabh Agarwal</span> on <a href="http://www.zulutown.com/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/comment-page-1/#comment-48300"><time pubdate datetime="2013-10-10T04:43:54+00:00">October 10, 2013 at 4:43 am</time></a> <span class="says">said:</span>
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Nice post.Solved my problem.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/?replytocom=48300#respond' onclick='return addComment.moveForm("comment-48300", "48300", "respond", "95")'>Reply <span>&darr;</span></a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li>
+		</ol>
+
+		
+	
+									<div id="respond">
+				<h3 id="reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="/blog/2009/03/12/solving-tomcat-outofmemoryerror-heap-space-and-permgen-space/#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://www.zulutown.com/blog/wp-comments-post.php" method="post" id="commentform">
+																			<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p>							<p class="comment-form-author"><label for="author">Name</label> <span class="required">*</span><input id="author" name="author" type="text" value="" size="30" aria-required='true' /></p>
+<p class="comment-form-email"><label for="email">Email</label> <span class="required">*</span><input id="email" name="email" type="text" value="" size="30" aria-required='true' /></p>
+<p class="comment-form-url"><label for="url">Website</label><input id="url" name="url" type="text" value="" size="30" /></p>
+												<p class="comment-form-comment"><label for="comment">Comment</label><textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment" />
+							<input type='hidden' name='comment_post_ID' value='95' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+						</p>
+						<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="601cfe5dae" /></p>					</form>
+							</div><!-- #respond -->
+						
+</div><!-- #comments -->
+
+				
+			</div><!-- #content -->
+		</div><!-- #primary -->
+
+
+	</div><!-- #main -->
+
+	<footer id="colophon" role="contentinfo">
+
+			
+<div id="supplementary" class="two">
+		<div id="first" class="widget-area" role="complementary">
+		<aside id="linkcat-2" class="widget widget_links"><h3 class="widget-title">Blogroll</h3>
+	<ul class='xoxo blogroll'>
+<li><a href="http://hocjava.com" title="Java Tutorials">Hoc Java</a></li>
+<li><a href="http://www.fotoprezzo.com" rel="friend" title="I migliori prezzi di materiale fotografico, obiettivi, accessori, flash" target="_blank">Prezzi Fotografia e Obiettivi</a></li>
+
+	</ul>
+</aside>
+	</div><!-- #first .widget-area -->
+	
+		<div id="second" class="widget-area" role="complementary">
+				<aside id="recent-posts-2" class="widget widget_recent_entries">		<h3 class="widget-title">Recent Posts</h3>		<ul>
+				<li><a href="http://www.zulutown.com/blog/2011/08/24/finding-an-oracle-foreign-key-by-its-id-to-understand-which-tables-are-referenced-by-it/" title="Finding an Oracle Foreign Key by its ID to understand which tables are referenced by it">Finding an Oracle Foreign Key by its ID to understand which tables are referenced by it</a></li>
+				<li><a href="http://www.zulutown.com/blog/2011/05/08/importing-an-excel-spreadsheet-in-mysql-to-quickly-manipulate-its-data/" title="Importing an Excel spreadsheet in MySQL to quickly manipulate its data">Importing an Excel spreadsheet in MySQL to quickly manipulate its data</a></li>
+				<li><a href="http://www.zulutown.com/blog/2009/07/12/ajax-dynamic-content-with-struts2-jquery-and-json-plugin/" title="Ajax Dynamic Content with Struts2, JQuery and JSON plugin">Ajax Dynamic Content with Struts2, JQuery and JSON plugin</a></li>
+				<li><a href="http://www.zulutown.com/blog/2009/04/12/hibernate-hashcode-equals-and-eclipse/" title="Hibernate, hashCode, equals and Eclipse">Hibernate, hashCode, equals and Eclipse</a></li>
+				<li><a href="http://www.zulutown.com/blog/2009/04/01/watch-p2p-television-on-linux-with-sopcast-and-vlc-player/" title="Watch P2P Television on Linux with Sopcast and VLC player">Watch P2P Television on Linux with Sopcast and VLC player</a></li>
+				</ul>
+		</aside>	</div><!-- #second .widget-area -->
+	
+	</div><!-- #supplementary -->
+			<div id="site-generator">
+								<a href="http://wordpress.org/" title="Semantic Personal Publishing Platform" rel="generator">Proudly powered by WordPress</a>
+			</div>
+	</footer><!-- #colophon -->
+</div><!-- #page -->
+
+
+</body>
+</html>

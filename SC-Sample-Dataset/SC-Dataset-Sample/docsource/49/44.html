@@ -1,0 +1,1229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  
+
+  
+
+
+  <head>
+    <title>
+      #353 (source format raises error and breaks view)
+     – PHPEclipse
+    </title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+        <link rel="search" href="/search" />
+        <link rel="prev" href="/ticket/352" title="Ticket #352" />
+        <link rel="last" href="/ticket/873" title="Ticket #873" />
+        <link rel="help" href="/wiki/TracGuide" />
+        <link rel="alternate" href="/ticket/353?format=csv" type="text/csv" class="csv" title="Comma-delimited Text" /><link rel="alternate" href="/ticket/353?format=tab" type="text/tab-separated-values" class="tab" title="Tab-delimited Text" /><link rel="alternate" href="/ticket/353?format=rss" type="application/rss+xml" class="rss" title="RSS Feed" />
+        <link rel="next" href="/ticket/354" title="Ticket #354" />
+        <link rel="start" href="/wiki" />
+        <link rel="stylesheet" href="/chrome/common/css/trac.css" type="text/css" /><link rel="stylesheet" href="/chrome/common/css/ticket.css" type="text/css" />
+        <link rel="first" href="/ticket/1" title="Ticket #1" />
+        <link rel="shortcut icon" href="/chrome/common/trac.ico" type="image/x-icon" />
+        <link rel="icon" href="/chrome/common/trac.ico" type="image/x-icon" />
+      <link type="application/opensearchdescription+xml" rel="search" href="/search/opensearch" title="Search PHPEclipse" />
+    <script type="text/javascript">
+      var auto_preview_timeout=2.0;
+      var form_token="82a8939fa43f79c6daac80a6";
+      var comments_prefs={"comments_only":"false","comments_order":"oldest"};
+    </script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/jquery.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/babel.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/messages/en_US.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/trac.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/search.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/folding.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/wikitoolbar.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/resizer.js"></script>
+      <script type="text/javascript" charset="utf-8" src="/chrome/common/js/auto_preview.js"></script>
+    <script type="text/javascript" src="/chrome/common/js/threaded_comments.js"></script>
+    <script type="text/javascript">
+      jQuery(document).ready(function($) {
+        $("div.description").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+        $(".foldable").enableFolding(false, true);
+      /*<![CDATA[*/
+        $("#attachments").toggleClass("collapsed");
+        $("#trac-up-attachments").click(function () {
+          $("#attachments").removeClass("collapsed");
+          return true;
+        });
+        $("#modify").parent().toggleClass("collapsed");
+        /* only enable control elements for the currently selected action */
+        var actions = $("#action input[name='action']");
+        function updateActionFields() {
+          actions.each(function () {
+            $(this).siblings().find("*[id]").enable($(this).checked());
+            $(this).siblings().filter("*[id]").enable($(this).checked());
+          });
+        }
+        actions.click(updateActionFields);
+        updateActionFields();
+        function setRevertHandler() {
+          $("button.trac-revert").click(function() {
+            var div = $("div", this);
+            var field_name = div[0].id.substr(7);
+            var field_value = div.text();
+            var input = $("#propertyform *[name=field_" + field_name + "]");
+            if (input.length > 0) {
+              if (input.filter("input[type=radio]").length > 0) {
+                input.val([field_value]);
+              } else if (input.filter("input[type=checkbox]").length > 0) {
+                input.val(field_value == "1" ? [field_value] : []);
+              } else {
+                input.val(field_value);
+              }
+            } else { // Special case for CC checkbox
+              input = $("#propertyform input[name=cc_update]").val([]);
+            }
+            input.change();
+            $(this).closest("li").remove();
+            return false;
+          });
+        }
+        setRevertHandler();
+        var comment_focused = false;
+        $("#comment").focus(function() { comment_focused = true; })
+                     .blur(function() { comment_focused = false; });
+        $("#propertyform").autoSubmit({preview: '1'}, function(data, reply) {
+          var items = $(reply);
+          // Update ticket box
+          $("#ticket").replaceWith(items.filter('#ticket'));
+          // Unthread, unrevert and update changelog
+          if (!$('#trac-comments-oldest').checked())
+            $('#trac-comments-oldest').click().change();
+          $("#changelog").replaceWith(items.filter("#changelog"));
+          if ($('#trac-comments-only-toggle').attr('checked'))
+            $('#trac-comments-only-toggle').click().attr('checked', true);
+          // Show warning
+          var new_changes = $("#changelog .trac-new");
+          $("#trac-edit-warning").toggle(new_changes.length != 0);
+          if (new_changes.length != 0)
+            $("#changelog").parent().show().removeClass("collapsed");
+          // Update view time
+          $("#propertyform input[name='view_time']").replaceWith(items.filter("input[name='view_time']"));
+          // Update preview
+          var preview = $("#ticketchange").html(items.filter('#preview').children());
+          var show_preview = preview.children().length != 0;
+          $("#ticketchange").toggle(show_preview);
+          setRevertHandler();
+          // Collapse property form if comment editor has focus
+          if (show_preview && comment_focused)
+            $("#modify").parent().addClass("collapsed");
+        }, "#ticketchange .trac-loading");
+        $("#trac-comment-editor").autoSubmit({preview_comment: '1'}, function(data, reply) {
+          var comment = $("#trac-comment-editor").next("div.comment").html(reply);
+          comment.toggle(comment.children().length != 0);
+        }, "#changelog .trac-loading");
+        /*]]>*/
+      });
+    </script>
+  </head>
+  <body>
+    <div id="banner">
+      <div id="header">
+        <a id="logo" href="http://www.phpeclipse.com/"><img src="/chrome/site/eclipsebutton_med.png" alt="(please configure the [header_logo] section in trac.ini)" height="86" width="80" /></a>
+      </div>
+      <form id="search" action="/search" method="get">
+        <div>
+          <label for="proj-search">Search:</label>
+          <input type="text" id="proj-search" name="q" size="18" value="" />
+          <input type="submit" value="Search" />
+        </div>
+      </form>
+      <div id="metanav" class="nav">
+    <ul>
+      <li class="first"><a href="/login">Login</a></li><li><a href="/prefs">Preferences</a></li><li><a href="/wiki/TracGuide">Help/Guide</a></li><li><a href="/about">About Trac</a></li><li class="last"><a href="/register">Register</a></li>
+    </ul>
+  </div>
+    </div>
+    <div id="mainnav" class="nav">
+    <ul>
+      <li class="first"><a href="/wiki">Wiki</a></li><li><a href="/timeline">Timeline</a></li><li><a href="/roadmap">Roadmap</a></li><li><a href="/browser">Browse Source</a></li><li class="active"><a href="/report">View Tickets</a></li><li><a href="/search">Search</a></li><li class="last"><a href="/blog">Blog</a></li>
+    </ul>
+  </div>
+    <div id="main">
+      <div id="ctxtnav" class="nav">
+        <h2>Context Navigation</h2>
+        <ul>
+          <li class="first"><span>&larr; <a class="prev" href="/ticket/352" title="Ticket #352">Previous Ticket</a></span></li><li class="last"><span><a class="next" href="/ticket/354" title="Ticket #354">Next Ticket</a> &rarr;</span></li>
+        </ul>
+        <hr />
+      </div>
+    <div id="content" class="ticket">
+        <div id="ticket" class="trac-content ">
+  <div class="date">
+    <p>Opened <a class="timeline" href="/timeline?from=2005-10-18T06%3A03%3A53-05%3A00&amp;precision=second" title="See timeline at 2005-10-18T06:03:53-05:00">8 years ago</a></p>
+    <p>Closed <a class="timeline" href="/timeline?from=2009-02-16T21%3A16%3A12-06%3A00&amp;precision=second" title="See timeline at 2009-02-16T21:16:12-06:00">5 years ago</a></p>
+    <p>Last modified <a class="timeline" href="/timeline?from=2010-05-03T21%3A47%3A05-05%3A00&amp;precision=second" title="See timeline at 2010-05-03T21:47:05-05:00">4 years ago</a></p>
+  </div>
+  <h2>
+    <a href="/ticket/353" class="trac-id">#353</a>
+    <span class="trac-status">
+      <a href="/query?status=closed">closed</a>
+    </span>
+    <span class="trac-type">
+      <a href="/query?status=!closed&amp;type=Bugs">Bugs</a>
+    </span>
+    <span class="trac-resolution">
+      (<a href="/query?status=closed&amp;resolution=None">None</a>)
+    </span>
+  </h2>
+  <h1 id="trac-ticket-title" class="searchable">
+    <span class="summary">source format raises error and breaks view</span>
+  </h1>
+  <table class="properties">
+    <tr>
+      <th id="h_reporter">Reported by:</th>
+      <td headers="h_reporter" class="searchable"><a href="/query?status=!closed&amp;reporter=norcas">norcas</a></td>
+      <th id="h_owner">Owned by:</th>
+      <td headers="h_owner"><a href="/query?status=!closed&amp;owner=ed_mann">ed_mann</a></td>
+    </tr>
+    <tr>
+        <th id="h_priority">
+          Priority:
+        </th>
+        <td headers="h_priority">
+              <a href="/query?status=!closed&amp;priority=5">5</a>
+        </td>
+        <th id="h_milestone">
+          Milestone:
+        </th>
+        <td headers="h_milestone">
+              <a class="milestone" href="/milestone/1.5.0">1.5.0</a>
+        </td>
+    </tr><tr>
+        <th id="h_component">
+          Component:
+        </th>
+        <td headers="h_component">
+              <a href="/query?status=!closed&amp;component=PHP+Parser">PHP Parser</a>
+        </td>
+        <th id="h_version">
+          Version:
+        </th>
+        <td headers="h_version">
+              <a href="/query?status=!closed&amp;version=1.2.0-nightly">1.2.0-nightly</a>
+        </td>
+    </tr><tr>
+        <th id="h_keywords" class="missing">
+          Keywords:
+        </th>
+        <td headers="h_keywords" class="searchable">
+        </td>
+        <th id="h_cc" class="missing">
+          Cc:
+        </th>
+        <td headers="h_cc" class="searchable">
+        </td>
+    </tr>
+  </table>
+  <div class="description">
+    <h3 id="comment:description">
+      Description
+      <a href="/ticket/353?action=diff&amp;version=11" class="lastmod trac-diff" title="2008-01-09 17:15:13+00:00">
+        (last modified by ed_mann)
+      </a>
+    </h3>
+    <div class="searchable">
+      <pre class="wiki">When I use code format by pressing Ctrl+Shift+F the 
+editor view clears and nothing is shown anymore. Often 
+(not always) an error box occures saying: "Format" did 
+not complete normally.  Please see the log for more 
+information.
+
+At that point I close and reopen the file to work on with 
+the file - which is now shown again and formated(!).
+
+WinXP SP2, Eclipse 3.1.1 (and 3.1), phpeclipse 1.1.
+8CVS-2005-10-12 (and 1.1.7 ...)
+
+Thanks for a great plugin.
+
+
+
+
+!SESSION 2005-10-18 12:44:28.964 -----------------------------
+------------------
+eclipse.buildId=I20050627-1435
+java.version=1.5.0_02
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=win32, ARCH=x86, 
+WS=win32, NL=de_DE
+Command-line arguments:  -os win32 -ws win32 -arch 
+x86
+
+
+!ENTRY org.eclipse.ui 4 4 2005-10-18 12:46:33.319
+!MESSAGE "Format" did not complete normally.  Please 
+see the log for more information.
+
+!ENTRY org.eclipse.ui 4 0 2005-10-18 12:46:33.319
+!MESSAGE Argument not valid
+!STACK 0
+java.lang.IllegalArgumentException: Argument not valid
+</pre>
+    </div>
+  </div>
+</div>
+          
+
+        <div>
+          <div style="position: relative">
+            <form id="prefs" method="get" action="/prefs" style="position: absolute; right: 0">
+              <div id="trac-comments-order">
+                <input type="radio" id="trac-comments-oldest" name="trac-comments-order" value="oldest" checked="checked" />
+                <label for="trac-comments-oldest">Oldest first</label>
+                <input type="radio" id="trac-comments-newest" name="trac-comments-order" value="newest" />
+                <label for="trac-comments-newest">Newest first</label>
+                <span id="trac-threaded-toggle" style="display: none">
+                  <input type="radio" id="trac-comments-threaded" name="trac-comments-order" value="threaded" />
+                  <label for="trac-comments-threaded">Threaded</label>
+                </span>
+              </div>
+              <div>
+                <input id="trac-comments-only-toggle" type="checkbox" />
+                <label for="trac-comments-only-toggle">Comments only</label>
+              </div>
+            </form>
+          </div>
+          <h3 class="foldable">Change History <span class="trac-count">(15)</span></h3>
+          <div id="changelog">
+              <div class="change" id="trac-change-1-1130364292000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:1" class="cnum">
+    <a href="#comment:1">comment:1</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2005-10-26T17%3A04%3A52-05%3A00&amp;precision=second" title="See timeline at 2005-10-26T17:04:52-05:00">8 years ago</a> by nobody
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: NO 
+
+This bug seems to be related to code folding.
+If you disable the folding the formater seems to work.
+
+Maybe related to Document.positions handling in the
+formatter or to the DefaultJavaFoldingStructureProvider.java
+implementation.
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-2-1136415300000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:2" class="cnum">
+    <a href="#comment:2">comment:2</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-01-04T16%3A55%3A00-06%3A00&amp;precision=second" title="See timeline at 2006-01-04T16:55:00-06:00">8 years ago</a> by bananeweizen
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=440739
+
+Could you please test with the next CVS version? I made some
+changes to the code formatter today so that it does no
+longer fail when markers (like folding or problem markers)
+have invalid positions after the formatting. And folding
+markers are sometimes out of sync...
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-3-1136534014000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:3" class="cnum">
+    <a href="#comment:3">comment:3</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-01-06T01%3A53%3A34-06%3A00&amp;precision=second" title="See timeline at 2006-01-06T01:53:34-06:00">8 years ago</a> by norcas
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=302230
+
+Sorry, it still does not working completely.
+
+Here are my steps:
+I open my file, everything is collapsed, I see to plus signs 
+(one collapsed phpdoc, one collapsed class). 
+I press CTRL+SHIFT+F, the plus signs become minus signs, but 
+ there is no code anymore (empty editor/white page).
+If I press CTRL+SHIFT+F again, an error msg pops up:
+ - title: Error Executing Command
+ - Message: "Format" did not complete normally. Please see 
+the log for more information. Reason: Argument not valid.
+ - Details: overlaps with existing fragment
+
+Here is a working way:
+(Closed file without saving)
+Reopen file, press CTRL+(Num-/), whole code is unfolded, 
+press CTRL+SHIFT+F, everythings works fine.
+
+--
+Details:
+After format, the background eclipse says on its console: 
+Unhandled event loop exception
+Reason:
+Failed to execute runnable (java.lang.IllegalStateException)
+Unhandled event loop exception
+Reason:
+Failed to execute runnable (java.lang.IllegalStateException)
+Unhandled event loop exception
+Reason:
+Failed to execute runnable (java.lang.IllegalStateException)
+Unhandled event loop exception
+Reason:
+Failed to execute runnable (java.lang.IllegalStateException)
+
+Log says:
+
+
+!ENTRY org.eclipse.ui 4 4 2006-01-06 08:52:42.82
+!MESSAGE Unhandled event loop exception
+
+!ENTRY org.eclipse.ui 4 0 2006-01-06 08:52:42.82
+!MESSAGE Failed to execute runnable (java.lang.
+IllegalStateException)
+!STACK 0
+org.eclipse.swt.SWTException: Failed to execute runnable 
+(java.lang.IllegalStateException)
+	at org.eclipse.swt.SWT.error(SWT.java:2942)
+	at org.eclipse.swt.SWT.error(SWT.java:2865)
+	at org.eclipse.swt.widgets.Synchronizer.
+runAsyncMessages(Synchronizer.java:126)
+	at org.eclipse.swt.widgets.Display.
+runAsyncMessages(Display.java:3057)
+	at org.eclipse.swt.widgets.Display.
+readAndDispatch(Display.java:2716)
+	at org.eclipse.ui.internal.Workbench.
+runEventLoop(Workbench.java:1699)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.
+java:1663)
+	at org.eclipse.ui.internal.Workbench.
+createAndRunWorkbench(Workbench.java:367)
+	at org.eclipse.ui.PlatformUI.
+createAndRunWorkbench(PlatformUI.java:143)
+	at org.eclipse.ui.internal.ide.IDEApplication.
+run(IDEApplication.java:103)
+	at org.eclipse.core.internal.runtime.
+PlatformActivator$1.run(PlatformActivator.java:226)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.
+run(EclipseStarter.java:376)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.
+run(EclipseStarter.java:163)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native 
+Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown 
+Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.
+invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.eclipse.core.launcher.Main.
+invokeFramework(Main.java:334)
+	at org.eclipse.core.launcher.Main.basicRun(Main.java:
+278)
+	at org.eclipse.core.launcher.Main.run(Main.java:973)
+	at org.eclipse.core.launcher.Main.main(Main.java:948)
+Caused by: java.lang.IllegalStateException
+	at org.eclipse.jface.text.projection.
+ProjectionMapping.toImageLine(ProjectionMapping.java:478)
+	at org.eclipse.jface.text.TextViewer.
+modelLine2WidgetLine(TextViewer.java:4745)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+doPaint1(ChangeRulerColumn.java:397)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+doubleBufferPaint(ChangeRulerColumn.java:262)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+redraw(ChangeRulerColumn.java:414)
+	at org.eclipse.jface.text.source.ChangeRulerColumn$3.
+run(ChangeRulerColumn.java:640)
+	at org.eclipse.swt.widgets.RunnableLock.
+run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.
+runAsyncMessages(Synchronizer.java:123)
+	... 18 more
+
+!ENTRY org.eclipse.ui 4 4 2006-01-06 08:52:42.92
+!MESSAGE Unhandled event loop exception
+
+!ENTRY org.eclipse.ui 4 0 2006-01-06 08:52:42.92
+!MESSAGE Failed to execute runnable (java.lang.
+IllegalStateException)
+!STACK 0
+org.eclipse.swt.SWTException: Failed to execute runnable 
+(java.lang.IllegalStateException)
+	at org.eclipse.swt.SWT.error(SWT.java:2942)
+	at org.eclipse.swt.SWT.error(SWT.java:2865)
+	at org.eclipse.swt.widgets.Synchronizer.
+runAsyncMessages(Synchronizer.java:126)
+	at org.eclipse.swt.widgets.Display.
+runAsyncMessages(Display.java:3057)
+	at org.eclipse.swt.widgets.Display.
+readAndDispatch(Display.java:2716)
+	at org.eclipse.ui.internal.Workbench.
+runEventLoop(Workbench.java:1699)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.
+java:1663)
+	at org.eclipse.ui.internal.Workbench.
+createAndRunWorkbench(Workbench.java:367)
+	at org.eclipse.ui.PlatformUI.
+createAndRunWorkbench(PlatformUI.java:143)
+	at org.eclipse.ui.internal.ide.IDEApplication.
+run(IDEApplication.java:103)
+	at org.eclipse.core.internal.runtime.
+PlatformActivator$1.run(PlatformActivator.java:226)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.
+run(EclipseStarter.java:376)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.
+run(EclipseStarter.java:163)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native 
+Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown 
+Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.
+invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.eclipse.core.launcher.Main.
+invokeFramework(Main.java:334)
+	at org.eclipse.core.launcher.Main.basicRun(Main.java:
+278)
+	at org.eclipse.core.launcher.Main.run(Main.java:973)
+	at org.eclipse.core.launcher.Main.main(Main.java:948)
+Caused by: java.lang.IllegalStateException
+	at org.eclipse.jface.text.projection.
+ProjectionMapping.toImageLine(ProjectionMapping.java:478)
+	at org.eclipse.jface.text.TextViewer.
+modelLine2WidgetLine(TextViewer.java:4745)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+doPaint1(ChangeRulerColumn.java:397)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+doubleBufferPaint(ChangeRulerColumn.java:262)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+redraw(ChangeRulerColumn.java:414)
+	at org.eclipse.jface.text.source.ChangeRulerColumn$3.
+run(ChangeRulerColumn.java:640)
+	at org.eclipse.swt.widgets.RunnableLock.
+run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.
+runAsyncMessages(Synchronizer.java:123)
+	... 18 more
+
+!ENTRY org.eclipse.ui 4 4 2006-01-06 08:52:42.102
+!MESSAGE Unhandled event loop exception
+
+!ENTRY org.eclipse.ui 4 0 2006-01-06 08:52:42.102
+!MESSAGE Failed to execute runnable (java.lang.
+IllegalStateException)
+!STACK 0
+org.eclipse.swt.SWTException: Failed to execute runnable 
+(java.lang.IllegalStateException)
+	at org.eclipse.swt.SWT.error(SWT.java:2942)
+	at org.eclipse.swt.SWT.error(SWT.java:2865)
+	at org.eclipse.swt.widgets.Synchronizer.
+runAsyncMessages(Synchronizer.java:126)
+	at org.eclipse.swt.widgets.Display.
+runAsyncMessages(Display.java:3057)
+	at org.eclipse.swt.widgets.Display.
+readAndDispatch(Display.java:2716)
+	at org.eclipse.ui.internal.Workbench.
+runEventLoop(Workbench.java:1699)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.
+java:1663)
+	at org.eclipse.ui.internal.Workbench.
+createAndRunWorkbench(Workbench.java:367)
+	at org.eclipse.ui.PlatformUI.
+createAndRunWorkbench(PlatformUI.java:143)
+	at org.eclipse.ui.internal.ide.IDEApplication.
+run(IDEApplication.java:103)
+	at org.eclipse.core.internal.runtime.
+PlatformActivator$1.run(PlatformActivator.java:226)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.
+run(EclipseStarter.java:376)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.
+run(EclipseStarter.java:163)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native 
+Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown 
+Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.
+invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.eclipse.core.launcher.Main.
+invokeFramework(Main.java:334)
+	at org.eclipse.core.launcher.Main.basicRun(Main.java:
+278)
+	at org.eclipse.core.launcher.Main.run(Main.java:973)
+	at org.eclipse.core.launcher.Main.main(Main.java:948)
+Caused by: java.lang.IllegalStateException
+	at org.eclipse.jface.text.projection.
+ProjectionMapping.toImageLine(ProjectionMapping.java:478)
+	at org.eclipse.jface.text.TextViewer.
+modelLine2WidgetLine(TextViewer.java:4745)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+doPaint1(ChangeRulerColumn.java:397)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+doubleBufferPaint(ChangeRulerColumn.java:262)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+redraw(ChangeRulerColumn.java:414)
+	at org.eclipse.jface.text.source.ChangeRulerColumn$3.
+run(ChangeRulerColumn.java:640)
+	at org.eclipse.swt.widgets.RunnableLock.
+run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.
+runAsyncMessages(Synchronizer.java:123)
+	... 18 more
+
+!ENTRY org.eclipse.ui 4 4 2006-01-06 08:52:42.513
+!MESSAGE Unhandled event loop exception
+
+!ENTRY org.eclipse.ui 4 0 2006-01-06 08:52:42.513
+!MESSAGE Failed to execute runnable (java.lang.
+IllegalStateException)
+!STACK 0
+org.eclipse.swt.SWTException: Failed to execute runnable 
+(java.lang.IllegalStateException)
+	at org.eclipse.swt.SWT.error(SWT.java:2942)
+	at org.eclipse.swt.SWT.error(SWT.java:2865)
+	at org.eclipse.swt.widgets.Synchronizer.
+runAsyncMessages(Synchronizer.java:126)
+	at org.eclipse.swt.widgets.Display.
+runAsyncMessages(Display.java:3057)
+	at org.eclipse.swt.widgets.Display.
+readAndDispatch(Display.java:2716)
+	at org.eclipse.ui.internal.Workbench.
+runEventLoop(Workbench.java:1699)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.
+java:1663)
+	at org.eclipse.ui.internal.Workbench.
+createAndRunWorkbench(Workbench.java:367)
+	at org.eclipse.ui.PlatformUI.
+createAndRunWorkbench(PlatformUI.java:143)
+	at org.eclipse.ui.internal.ide.IDEApplication.
+run(IDEApplication.java:103)
+	at org.eclipse.core.internal.runtime.
+PlatformActivator$1.run(PlatformActivator.java:226)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.
+run(EclipseStarter.java:376)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.
+run(EclipseStarter.java:163)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native 
+Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown 
+Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.
+invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.eclipse.core.launcher.Main.
+invokeFramework(Main.java:334)
+	at org.eclipse.core.launcher.Main.basicRun(Main.java:
+278)
+	at org.eclipse.core.launcher.Main.run(Main.java:973)
+	at org.eclipse.core.launcher.Main.main(Main.java:948)
+Caused by: java.lang.IllegalStateException
+	at org.eclipse.jface.text.projection.
+ProjectionMapping.toImageLine(ProjectionMapping.java:478)
+	at org.eclipse.jface.text.TextViewer.
+modelLine2WidgetLine(TextViewer.java:4745)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+doPaint1(ChangeRulerColumn.java:397)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+doubleBufferPaint(ChangeRulerColumn.java:262)
+	at org.eclipse.jface.text.source.ChangeRulerColumn.
+redraw(ChangeRulerColumn.java:414)
+	at org.eclipse.jface.text.source.ChangeRulerColumn$3.
+run(ChangeRulerColumn.java:640)
+	at org.eclipse.swt.widgets.RunnableLock.
+run(RunnableLock.java:35)
+	at org.eclipse.swt.widgets.Synchronizer.
+runAsyncMessages(Synchronizer.java:123)
+	... 18 more
+
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-4-1136597805000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:4" class="cnum">
+    <a href="#comment:4">comment:4</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-01-06T19%3A36%3A45-06%3A00&amp;precision=second" title="See timeline at 2006-01-06T19:36:45-06:00">8 years ago</a> by schmunk
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=1104620
+
+I can confirm this bug with Eclipse 3.1 and phpeclipse-1.1.8
+on Mac OS X 10.4.3.
+"Disable folding" had no effect for me.
+
+Just a note: The source formatting worked for me with the
+xored-1.0.1-plugin from http://www.xored.com, also with
+folding enabled.
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-5-1136631104000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:5" class="cnum">
+    <a href="#comment:5">comment:5</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-01-07T04%3A51%3A44-06%3A00&amp;precision=second" title="See timeline at 2006-01-07T04:51:44-06:00">8 years ago</a> by bananeweizen
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=440739
+
+Can someone please attach a php file which causes this bug
+for him?
+Thanks.
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-6-1136801688000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:6" class="cnum">
+    <a href="#comment:6">comment:6</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-01-09T04%3A14%3A48-06%3A00&amp;precision=second" title="See timeline at 2006-01-09T04:14:48-06:00">8 years ago</a> by schmunk
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=1104620
+
+Can you reproduce this, with the PHP file below (sorry, don't know where to 
+add another "file")?
+
+1. Open the PHP-file and fold "class SthAdminPage extends LPage" (you 
+should see only about 20 lines of code)
+2. Right-click on the editor: Source &gt; Format
+
+This causes the described error (broken editor view).
+Maybe because of my brackets style with breaks. If the class is open 
+(unfolded) everything works fine. So I have to correct my previous post: code 
+folding has an effect for me.
+
+8&lt;------------ snipp ----------------
+&lt;?php
+/**
+ * Admin page file.
+ *
+ * @license http://opensource.org/licenses/mozilla1.1.php Mozilla Public 
+License 
+ * @copyright 2005, diemeisterei GmbH. All rights reserved.
+ * @author $Author: tobias $
+ * @version $Revision: 1.2 $  $Date: 2006/01/04 00:15:11 $
+ * @package LModules.Sitehandler
+ * @subpackage Pages
+ */
+
+/**
+ * Displays and manages the pagehandler admin page
+ *
+ * @package LModules.Sitehandler
+ * @subpackage Pages
+ */
+
+class SthAdminPage extends LPage
+{
+	private $UI;
+
+	/**
+	 * Adds name mapping
+	 */
+	public function onInit($param)
+	{
+		parent::onInit($param);
+		$this-&gt;UI =&amp; $this-&gt;CellModule;
+	}
+	
+	/**
+	 * DEV FUNC
+	 *
+	 * @internal
+	 */
+	function onPreRender($param)
+	{
+		$this-&gt;UI-&gt;CreateSiteName-&gt;setText("page ".rand(100,10000));
+		parent::onPreRender($param);
+	}
+
+	/**
+	 * Prepares data and calls the core function
+	 */
+	public function onCreateSitenode()
+	{
+		$this-&gt;Log-&gt;log('Create site postback');
+		$path 	=&amp; $this-&gt;UI-&gt;CreateSitePath-&gt;getSelectedValue();
+		$name 	=&amp; $this-&gt;UI-&gt;CreateSiteName-&gt;getText();
+		$pos 	=&amp; $this-&gt;UI-&gt;CreateSitePosition-&gt;getText();
+		$modpage = split(":",$this-&gt;UI-&gt;CreateSiteModulePage-
+&gt;getSelectedValue());
+		$mod 	=&amp; $modpage[0];
+		$page 	=&amp; $modpage[1];
+		SthCore::createSiteNode($path, $pos, $name, $mod, $page);
+	}
+
+	/**
+	 * Prepares data and calls the core function
+	 */
+	public function onCreateBrick()
+	{
+		$this-&gt;Log-&gt;log('Create brick postback');
+		SthCore::createBrick(
+			$this-&gt;UI-&gt;CreateBrickSiteId-&gt;getValue(),
+			$this-&gt;UI-&gt;CreateBrickPosition-&gt;getSelectedValue(),
+			$this-&gt;UI-&gt;CreateBrickControl-&gt;getSelectedValue(),
+			$this-&gt;UI-&gt;CreateBrickParam-&gt;getText()
+		);
+		$this-&gt;Application-&gt;transfer($this-&gt;Application-&gt;getRequest()-
+&gt;getRequestedPage());
+	}
+
+	/**
+	 * Prepares data and calls the core function
+	 */
+	public function onMoveSitenode()
+	{
+		$this-&gt;Log-&gt;log('Nove nodes postback');
+		SthCore::moveNodes(
+			$this-&gt;UI-&gt;MoveSrcNodePath-&gt;getSelectedValue(),
+			$this-&gt;UI-&gt;MoveDestNodePath-&gt;getSelectedValue(),
+			$this-&gt;UI-&gt;MoveDestPosition-&gt;getText()
+		);
+	}
+
+	/**
+	 * DEV FUNC
+	 *
+	 * @internal
+	 */
+	public function onReset()
+	{
+		SthCore::genRoot();
+	}
+}
+
+?&gt;
+8&lt;------------ snipp ----------------
+
+Thanks for developing this plugin.
+ 
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-7-1136967725000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:7" class="cnum">
+    <a href="#comment:7">comment:7</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-01-11T02%3A22%3A05-06%3A00&amp;precision=second" title="See timeline at 2006-01-11T02:22:05-06:00">8 years ago</a> by bananeweizen
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=440739
+
+I can reproduce it. I debugged that thing and found that the
+segment positions for the folding fragments become invalid
+during the formatting, but I didn't find the root cause for
+those invalid positions in the PositionUpdater.
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-8-1137137558000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:8" class="cnum">
+    <a href="#comment:8">comment:8</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-01-13T01%3A32%3A38-06%3A00&amp;precision=second" title="See timeline at 2006-01-13T01:32:38-06:00">8 years ago</a> by norcas
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=302230
+
+I noticed another strange behaviour while formating the code 
+posted below:
+
+Before formating there are no blank lines between &lt;?php and 
+the /**. 
+After formating it once there is one blank. 
+After formating it again there is a second blank line. 
+Further formats do not insert more blanks.
+
+Why is it inserting blanks? 
+If this is wanted why does this take two steps?
+
+Hope this is related and helps.
+
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-9-1137154115000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:9" class="cnum">
+    <a href="#comment:9">comment:9</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-01-13T06%3A08%3A35-06%3A00&amp;precision=second" title="See timeline at 2006-01-13T06:08:35-06:00">8 years ago</a> by norcas
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=302230
+
+One more detail: 
+take an empty file, insert 
+&lt;?
+?&gt;
+set cursor to very first position,
+start code formater.
+=&gt; after format the first 2 chars are selected.
+
+if one starts again with this emtpy php code, cursor set to 
+end of line one. After code formating the cursor jumped to 
+the middle of last line (line 3).
+
+(in both cases there is a blank line inserted between 
+opening and closing php)
+
+Again: Hope this is related and helps.
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-10-1162402591000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:10" class="cnum">
+    <a href="#comment:10">comment:10</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2006-11-01T11%3A36%3A31-06%3A00&amp;precision=second" title="See timeline at 2006-11-01T11:36:31-06:00">7 years ago</a> by salamanders
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <pre class="wiki">Logged In: YES 
+user_id=370500
+
+Confirming that this bug exists (Format sometimes causes an
+"Argument not valid" error, can still save the file, but
+have to close the open window) in PHPEclipse 1.1.9.CVS-20060424
+
+Also confirmed that disabling all folding was a successful
+workaround - error no longer happens.
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-11-1199898913000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:11" class="cnum">
+    <a href="#comment:11">comment:11</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2008-01-09T11%3A15%3A13-06%3A00&amp;precision=second" title="See timeline at 2008-01-09T11:15:13-06:00">6 years ago</a> by ed_mann
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+  <ul class="changes">
+    <li class="trac-field-billable">
+      <strong class="trac-field-billable">billable</strong>
+        set to <em>0</em>
+    </li><li class="trac-field-component">
+      <strong class="trac-field-component">Component</strong>
+        changed from <em>PHP Editor</em> to <em>PHP Parser</em>
+    </li><li class="trac-field-description">
+      <strong class="trac-field-description">Description</strong>
+        modified (<a href="/ticket/353?action=diff&amp;version=11">diff</a>)
+    </li><li class="trac-field-owner">
+      <strong class="trac-field-owner">Owner</strong>
+        changed from <em>nobody</em> to <em>ed_mann</em>
+    </li><li class="trac-field-status">
+      <strong class="trac-field-status">Status</strong>
+        changed from <em>assigned</em> to <em>new</em>
+    </li><li class="trac-field-version">
+      <strong class="trac-field-version">Version</strong>
+        changed from <em>None</em> to <em>1.2.0-nightly</em>
+    </li>
+  </ul>
+
+              </div>
+              <div class="change" id="trac-change-12-1200426130000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:12" class="cnum">
+    <a href="#comment:12">comment:12</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2008-01-15T13%3A42%3A10-06%3A00&amp;precision=second" title="See timeline at 2008-01-15T13:42:10-06:00">6 years ago</a> by ed_mann
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+  <ul class="changes">
+    <li class="trac-field-milestone">
+      <strong class="trac-field-milestone">Milestone</strong>
+        set to <em>1.5.x</em>
+    </li><li class="trac-field-os_platform">
+      <strong class="trac-field-os_platform">os_platform</strong>
+        set to <em>Linux</em>
+    </li>
+  </ul>
+
+              </div>
+              <div class="change" id="trac-change-13-1202511600000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:13" class="cnum">
+    <a href="#comment:13">comment:13</a>
+  </span>
+        in reply to:
+    <a href="#comment:description">↑ description</a>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2008-02-08T17%3A00%3A00-06%3A00&amp;precision=second" title="See timeline at 2008-02-08T17:00:00-06:00">6 years ago</a> by zhil
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <p>
+I have another problem with formatting.<br />
+When I try to format php class I get such error<br />
+</p>
+<p>
+"Format" did not complete normally.  Please see the log for more information.<br />
+overlaps with existing fragment<br />
+</p>
+<p>
+sometimes its showed in a such way<br />
+</p>
+<p>
+"Format" did not complete normally.  Please see the log for more information.<br />
+java.lang.<a class="missing wiki">IllegalStateException?</a><br />
+</p>
+<p>
+Error occurs ONLY when I set cursor at the first line, first position.<br />
+For other positions the same file/settings format code ok.<br />
+</p>
+<p>
+My version is phpeclipse_1.2.0.200802080703NGT<br />
+</p>
+
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-14-1228332517000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:14" class="cnum">
+    <a href="#comment:14">comment:14</a>
+  </span>
+        in reply to:
+    <a href="#comment:description">↑ description</a>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2008-12-03T13%3A28%3A37-06%3A00&amp;precision=second" title="See timeline at 2008-12-03T13:28:37-06:00">5 years ago</a> by benjaminhill
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+    <div class="comment searchable">
+      <p>
+Getting this error as well.  WinXP, Latest Eclipse 3.4.1, PHPEclipse 1.2.1.200812010702NGT<br />
+</p>
+<p>
+Formatting modifies the file but throws the error.  I can save and close the file in eclipse, re-open the file, try to format again, and it will complete without the error. Very consistent for complex PHP formatting.<br />
+</p>
+<p>
+I've had this error for years now.<br />
+</p>
+<pre class="wiki">!ENTRY org.eclipse.ui 4 4 2008-12-03 11:21:07.659
+!MESSAGE "Format" did not complete normally.  Please see the log for more information.
+
+!ENTRY org.eclipse.ui 4 0 2008-12-03 11:21:07.739
+!MESSAGE Argument not valid
+!STACK 0
+java.lang.IllegalArgumentException: Argument not valid
+	at org.eclipse.swt.SWT.error(SWT.java:3761)
+	at org.eclipse.swt.SWT.error(SWT.java:3695)
+	at org.eclipse.swt.SWT.error(SWT.java:3666)
+	at org.eclipse.swt.custom.StyledText.setSelectionRange(StyledText.java:7760)
+	at org.eclipse.jface.text.TextViewer.setSelectedRange(TextViewer.java:2319)
+	at org.eclipse.jface.text.TextViewer$ViewerState.restore(TextViewer.java:1189)
+	at org.eclipse.jface.text.TextViewer.enabledRedrawing(TextViewer.java:4721)
+	at org.eclipse.jface.text.TextViewer.enabledRedrawing(TextViewer.java:4696)
+	at org.eclipse.jface.text.TextViewer.setRedraw(TextViewer.java:4783)
+	at org.eclipse.jface.text.TextViewer.setRedraw(TextViewer.java:4755)
+	at org.eclipse.jface.text.TextViewer$RewriteTarget.setRedraw(TextViewer.java:1051)
+	at org.eclipse.jface.text.TextViewer$DocumentRewriteSessionListener.documentRewriteSessionChanged(TextViewer.java:1419)
+	at org.eclipse.jface.text.AbstractDocument.fireRewriteSessionChanged(AbstractDocument.java:1516)
+	at org.eclipse.jface.text.AbstractDocument.stopRewriteSession(AbstractDocument.java:1602)
+	at org.eclipse.jface.text.source.SourceViewer.doOperation(SourceViewer.java:878)
+	at org.eclipse.jface.text.source.projection.ProjectionViewer.doOperation(ProjectionViewer.java:1506)
+	at net.sourceforge.phpeclipse.phpeditor.JavaSourceViewer.doOperation(JavaSourceViewer.java:163)
+	at net.sourceforge.phpeclipse.phpeditor.PHPUnitEditor$AdaptedSourceViewer.doOperation(PHPUnitEditor.java:324)
+	at org.eclipse.ui.texteditor.TextOperationAction$1.run(TextOperationAction.java:131)
+	at org.eclipse.swt.custom.BusyIndicator.showWhile(BusyIndicator.java:70)
+	at org.eclipse.ui.texteditor.TextOperationAction.run(TextOperationAction.java:129)
+	at org.eclipse.jface.action.Action.runWithEvent(Action.java:498)
+	at org.eclipse.ui.commands.ActionHandler.execute(ActionHandler.java:185)
+	at org.eclipse.ui.internal.handlers.LegacyHandlerWrapper.execute(LegacyHandlerWrapper.java:109)
+	at org.eclipse.core.commands.Command.executeWithChecks(Command.java:476)
+	at org.eclipse.core.commands.ParameterizedCommand.executeWithChecks(ParameterizedCommand.java:508)
+	at org.eclipse.ui.internal.handlers.HandlerService.executeCommand(HandlerService.java:169)
+	at org.eclipse.ui.internal.keys.WorkbenchKeyboard.executeCommand(WorkbenchKeyboard.java:472)
+	at org.eclipse.ui.internal.keys.WorkbenchKeyboard.press(WorkbenchKeyboard.java:824)
+	at org.eclipse.ui.internal.keys.WorkbenchKeyboard.processKeyEvent(WorkbenchKeyboard.java:882)
+	at org.eclipse.ui.internal.keys.WorkbenchKeyboard.filterKeySequenceBindings(WorkbenchKeyboard.java:571)
+	at org.eclipse.ui.internal.keys.WorkbenchKeyboard.access$3(WorkbenchKeyboard.java:512)
+	at org.eclipse.ui.internal.keys.WorkbenchKeyboard$KeyDownFilter.handleEvent(WorkbenchKeyboard.java:127)
+	at org.eclipse.swt.widgets.EventTable.sendEvent(EventTable.java:84)
+	at org.eclipse.swt.widgets.Display.filterEvent(Display.java:1184)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1002)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1027)
+	at org.eclipse.swt.widgets.Widget.sendEvent(Widget.java:1012)
+	at org.eclipse.swt.widgets.Widget.sendKeyEvent(Widget.java:1040)
+	at org.eclipse.swt.widgets.Widget.sendKeyEvent(Widget.java:1036)
+	at org.eclipse.swt.widgets.Widget.wmChar(Widget.java:1352)
+	at org.eclipse.swt.widgets.Control.WM_CHAR(Control.java:3894)
+	at org.eclipse.swt.widgets.Canvas.WM_CHAR(Canvas.java:341)
+	at org.eclipse.swt.widgets.Control.windowProc(Control.java:3787)
+	at org.eclipse.swt.widgets.Canvas.windowProc(Canvas.java:337)
+	at org.eclipse.swt.widgets.Display.windowProc(Display.java:4528)
+	at org.eclipse.swt.internal.win32.OS.DispatchMessageW(Native Method)
+	at org.eclipse.swt.internal.win32.OS.DispatchMessage(OS.java:2371)
+	at org.eclipse.swt.widgets.Display.readAndDispatch(Display.java:3420)
+	at org.eclipse.ui.internal.Workbench.runEventLoop(Workbench.java:2382)
+	at org.eclipse.ui.internal.Workbench.runUI(Workbench.java:2346)
+	at org.eclipse.ui.internal.Workbench.access$4(Workbench.java:2198)
+	at org.eclipse.ui.internal.Workbench$5.run(Workbench.java:493)
+	at org.eclipse.core.databinding.observable.Realm.runWithDefault(Realm.java:288)
+	at org.eclipse.ui.internal.Workbench.createAndRunWorkbench(Workbench.java:488)
+	at org.eclipse.ui.PlatformUI.createAndRunWorkbench(PlatformUI.java:149)
+	at org.eclipse.ui.internal.ide.application.IDEApplication.start(IDEApplication.java:113)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:193)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:386)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:549)
+	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:504)
+	at org.eclipse.equinox.launcher.Main.run(Main.java:1236)
+
+</pre>
+    </div>
+
+              </div>
+              <div class="change" id="trac-change-15-1234840572000000">
+                
+  <h3 class="change">
+    <span class="threading">
+      <span id="comment:15" class="cnum">
+    <a href="#comment:15">comment:15</a>
+  </span>
+    </span>
+        Changed <a class="timeline" href="/timeline?from=2009-02-16T21%3A16%3A12-06%3A00&amp;precision=second" title="See timeline at 2009-02-16T21:16:12-06:00">5 years ago</a> by incastrix
+  </h3>
+  <div class="trac-ticket-buttons">
+  </div>
+  <ul class="changes">
+    <li class="trac-field-status">
+      <strong class="trac-field-status">Status</strong>
+        changed from <em>new</em> to <em>closed</em>
+    </li>
+  </ul>
+    <div class="comment searchable">
+      <p>
+Old one.<br />
+</p>
+
+    </div>
+
+              </div>
+          </div>
+        </div>
+      <div id="help"><strong>Note:</strong> See
+        <a href="/wiki/TracTickets">TracTickets</a> for help on using
+        tickets.</div>
+    </div>
+    <div id="altlinks">
+      <h3>Download in other formats:</h3>
+      <ul>
+        <li class="first">
+          <a rel="nofollow" href="/ticket/353?format=csv" class="csv">Comma-delimited Text</a>
+        </li><li>
+          <a rel="nofollow" href="/ticket/353?format=tab" class="tab">Tab-delimited Text</a>
+        </li><li class="last">
+          <a rel="nofollow" href="/ticket/353?format=rss" class="rss">RSS Feed</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+    <div id="footer" lang="en" xml:lang="en"><hr />
+      <a id="tracpowered" href="http://trac.edgewall.org/"><img src="/chrome/common/trac_logo_mini.png" height="30" width="107" alt="Trac Powered" /></a>
+      <p class="left">Powered by <a href="/about"><strong>Trac 1.0</strong></a><br />
+        By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+      <p class="right">Visit the Trac open source project at<br /><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+    </div>
+  </body>
+</html>

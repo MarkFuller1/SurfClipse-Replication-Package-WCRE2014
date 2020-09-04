@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>java.net.MalformedURLException: unknown protocol:</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>xml-xalan-j-users mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/xml-xalan-j-users" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/xml-xalan-j-users/200210.mbox/%3c001101c26ae4$08184050$5dc8c8c8@Michalsankot%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/%3cD2B8F479C42D604DB260D23421AAF46A7551A0@chennai-mail.selectica.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/%3c001101c26ae4$08184050$5dc8c8c8@Michalsankot%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/%3c5.1.1.6.0.20021004105041.00a91e10@mail.firstlightassociates.co.uk%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/xml-xalan-j-users/200210.mbox/%3c001101c26ae4$08184050$5dc8c8c8@Michalsankot%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/%3cD2B8F479C42D604DB260D23421AAF46A7551A0@chennai-mail.selectica.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/%3c001101c26ae4$08184050$5dc8c8c8@Michalsankot%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/xml-xalan-j-users/200210.mbox/%3c5.1.1.6.0.20021004105041.00a91e10@mail.firstlightassociates.co.uk%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">mk...@ca.ibm.com</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">java.net.MalformedURLException: unknown protocol:</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Thu, 03 Oct 2002 16:13:25 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+Hi,
+
+I have been seeing many user reports for the
+"java.net.MalformedURLException: unknown protocol:" problems when using
+Xalan. The most likely cause has something to do with spaces in the path.
+Here is a simple way to reproduce the problem:
+
+1. Create a Windows directory whose name has space character (e.g. c:\my
+files)
+2. Put any pair of xml and xsl inside that directory
+3. Run Xalan with the following command:
+&gt; java org.apache.xalan.xslt.Process -in "c:\my files\test.xml" -xsl "c:\my
+files\test.xsl" -EDUMP
+
+You will see the exception:
+java.net.MalformedURLException: unknown protocol: c
+        at java.net.URL.&lt;init&gt;(URL.java:480)
+        at java.net.URL.&lt;init&gt;(URL.java:376)
+        at java.net.URL.&lt;init&gt;(URL.java:330)
+        at org.apache.xerces.impl.XMLEntityManager.startEntity(Unknown
+Source)
+        at
+org.apache.xerces.impl.XMLEntityManager.startDocumentEntity(Unknown Source)
+        at
+org.apache.xerces.impl.XMLDocumentScannerImpl.setInputSource(UnknownSource)
+        at org.apache.xerces.parsers.DTDConfiguration.parse(Unknown Source)
+        at org.apache.xerces.parsers.DTDConfiguration.parse(Unknown Source)
+        at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+        at org.apache.xerces.parsers.AbstractSAXParser.parse(Unknown
+Source)
+        at
+org.apache.xalan.processor.TransformerFactoryImpl.newTemplates(TransformerFactoryImpl.java:983)
+        at org.apache.xalan.xslt.Process.main(Process.java:769)
+
+This is actually a Xerces problem. Xerces should replace the space with
+"%20" to produce a valid URI. There is a Bugzilla report for this problem
+(http://nagoya.apache.org/bugzilla/show_bug.cgi?id=12305). It is still not
+fixed at the moment. Currently you can work around it by replacing the long
+names with  DOS short names. The following command will work.
+&gt; java org.apache.xalan.xslt.Process -in "c:\myfile~1\test.xml" -xsl "c:
+\myfile~1\test.xsl"
+
+Remember that this problem can also be reproduced from TRAX API, if you set
+the systemId to a String with space in it.
+
+Morris Kwan
+XSLT Development
+IBM Toronto Lab
+Tel: (905)413-3729
+Email: mkwan@ca.ibm.com
+
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/xml-xalan-j-users/200210.mbox/raw/%3cOF5F66BDB8.DF41AC49-ON85256C47.00577D62@torolab.ibm.com%3e/">Unnamed text/plain</a> (inline, None, 2119 bytes)</li>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/xml-xalan-j-users/200210.mbox/raw/%3cOF5F66BDB8.DF41AC49-ON85256C47.00577D62@torolab.ibm.com%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

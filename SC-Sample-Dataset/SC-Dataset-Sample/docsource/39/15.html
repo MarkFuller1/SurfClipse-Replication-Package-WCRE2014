@@ -1,0 +1,684 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <link rel="P3Pv1" href="/w3c/p3p.xml" />
+        <script type="text/javascript">
+            //<![CDATA[
+            var mashery_info = {
+                        };
+
+            // iframe'd detection, to pop out if in an iframe
+            if (window.location !== parent.window.location && !(/(page|docs|blog)\/preview/.test(window.location.pathname))) {
+                parent.window.location = window.location;
+            }
+            //]]>
+        </script>
+            <title>Mashery Support Portals - Using the Mashery API with Java</title>
+    <link rel="alternate" type="application/rss+xml" href="http://support.mashery.com/docs/feed-comments/mashery_api/20/samples/Java" />
+    <link rel="stylesheet"  type="text/css" media="screen" href="/public/Mashery/styles-min/Mashery-base.css" />
+    <link rel="stylesheet"  type="text/css" media="screen" href="/public/Mashery/styles/mashery/mashery-support.css" />
+    <link rel="stylesheet"  media="print" type="text/css" href="/public/Mashery/styles/print-default.css" />
+<style type="text/css" media="screen">
+<!--
+div#user-nav li.register {display:none;}
+body.signed-in p.sign-in-blurb {display: none}
+th {
+    font-weight: 400;
+    background-color: #999;
+    color: #fff;
+}
+
+th,
+td {
+    border: 1px solid #444;
+    padding: 2px 3px;
+}
+dt {
+    font-weight: 700;
+    line-height: 1.5;
+    margin-top: 1em;
+}
+
+dd {
+    margin-left: 15px;
+}
+
+body div#section-meta {display:none;}
+p.comments-locked {display:none;}
+div.comments h3 {display:none;}
+
+h3 {
+    font-size: 14px;
+    font-weight: normal;
+}
+
+div#search { top: 112px; right: 20px; }
+form#search-input input#search-box { width: 150px; }
+
+div#content div#main .markdown-code-highlighter {
+    margin-left: 20px;
+}
+
+div#content div#main .markdown-code-highlighter li {
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    border: 0;
+}
+
+.parameters th {
+color: black;
+}
+-->
+</style>
+    <script src="/public/Mashery/scripts/Mashery/Mashery-base.js?25453" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+function checkIoDocsPermissions()
+{ var page = document.location.href;
+  if((/io-docs/.test(window.location.pathname))) {
+	  if (typeof mashery_info.username ==  "undefined" ||  ( mashery_info.username.indexOf('mandevpro') == -1 &&  mashery_info.username.indexOf('scottro') == -1 &&  mashery_info.username.indexOf('ajmash') == -1 &&  mashery_info.username.indexOf('shailendra') == -1 &&  mashery_info.username.indexOf('clippi') == -1 &&  mashery_info.username.indexOf('jparisi') == -1 &&  mashery_info.username.indexOf('tsingleton') == -1 && mashery_info.username.indexOf('jpollock') == -1 && mashery_info.username.indexOf('matty') == -1 &&  mashery_info.username.indexOf('jimruga') == -1 &&  mashery_info.username.indexOf('sqmk') == -1) &&  mashery_info.username.indexOf('fentie') == -1 &&  mashery_info.username.indexOf('azazeldt') == -1)
+	  {
+		window.location = "http://support.mashery.com/docs"
+	  } 
+	}	 
+}
+jQuery(document).ready(function() {
+  jQuery("#showManualKeySecret").click(function() { jQuery("#apiSecretContainer").show(); } );
+  if (typeof mashery_info.username ==  "undefined") {
+    jQuery("#apiSecretContainer").show();
+  }
+});
+//]]>
+</script>
+        <!-- add syntax highlighter -->
+        <script type="text/javascript">
+            if(window.SyntaxHighlighter != undefined) { // check for syntax highlighter load before using
+                SyntaxHighlighter.all();
+            }
+        </script>
+        <!-- end syntax highlighter -->
+        <!--[if lt IE 7.]>
+            <link href="/public/Mashery/styles/IE6.css" type="text/css" media="screen" rel="stylesheet" />
+        <![endif]-->
+        <!--[if IE 7]>
+            <link href="/public/Mashery/styles/IE7.css" type="text/css" media="screen" rel="stylesheet" />
+        <![endif]-->
+        <!--[if gte IE 8]>
+            <link href="/public/Mashery/styles/IE8.css" type="text/css" media="screen" rel="stylesheet" />
+        <![endif]-->
+
+    </head>
+    <body id="page-docs" class="page-docs read en_US">
+        <!-- PAGE -->
+        <div id="page" class="page read">
+
+            <!-- HEADER -->
+            <div id="header" class="header">
+                <div id="branding" class="branding">
+                    <div id="branding-logo" class="branding-logo">
+                        Mashery Support Portals                    </div><!-- /branding-logo -->
+                    <div id="branding-tagline">
+                    </div><!-- /branding-tagline -->
+                    <div id="branding-mashery">
+                    </div><!-- /branding-mashery -->
+                </div><!-- /branding -->
+                <div id="search" class="search">
+    <form id="search-input" class="search-input" method="get" action="/search">
+        <div>
+            <input id="search-box" class="search-box" type="text"
+                    value="" name="q" />
+            <input id="search-button" class="search-button" type="submit"
+                    value="Search" />
+        </div>
+    </form>
+</div>
+            </div>
+            <!-- /HEADER -->
+
+            <div id="user" class="user">
+                <div id="user-auth" class="user-auth">
+                </div><!-- /user-auth -->
+                <div id="user-main" class="user-main">
+                </div><!-- /user-main -->
+                <div id="user-nav" class="user-nav">
+                    <ul>
+                                        <li class="first sign-in">
+            <a href="http://support.mashery.com/login/mashery-id?r=http%3A%2F%2Fsupport.mashery.com%2Fdocs%2Fread%2Fmashery_api%2F20%2Fsamples%2FJava&amp;h=eb6b2b8537be15a70df24d4d05df8b12">Sign In</a>        </li>
+                            <li class="register">
+                <a href="http://support.mashery.com/member/register">Register</a>            </li>
+        
+        
+                        </ul>
+                </div><!-- /user-nav -->
+                <div id="user-menu">
+    </div>
+            </div><!-- /user -->
+
+            <div id="info" class="info" style="display: none;">
+            </div><!-- /info -->
+
+            <!-- CONTENT -->
+            <div id="content" class="content">
+
+                
+                <div id="main" class="main">
+                    
+<h1 class="first">Using the Mashery API with Java</h1>
+
+    <div class="section">
+        <div class="section-body">
+<pre class="brush: java;fontsize: 100; first-line: 1; ">import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class MasheryAPIExampleBase {
+&nbsp;&nbsp;&nbsp; protected static String masheryV2ApiKey = ""; //TODO: Enter your Mashery V2 API Key
+&nbsp;&nbsp;&nbsp; protected static String masheryV2ApiSecret = ""; //TODO: Enter your Mashery V2 API Secret
+&nbsp;&nbsp;&nbsp; protected static String siteIdFromDashboard = ""; //TODO: Enter your Mashery Site ID (from Dashboard)
+
+&nbsp;&nbsp;&nbsp; protected static int getResultTotalPages(String jsonResponse) throws Exception {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ObjectMapper mapper = new ObjectMapper();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; JsonNode rootNode = mapper.readValue(jsonResponse, JsonNode.class);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; JsonNode totalNode = rootNode.path("result").path("total_pages");
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return Integer.parseInt(totalNode.toString());
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; protected static String callMasheryAPI(String jsonString) throws Exception
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; long epoch = System.currentTimeMillis()/1000;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String timestamp = Long.toString(epoch);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String sig = MD5(masheryV2ApiKey + masheryV2ApiSecret + timestamp);&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String urlStr = "http://api.mashery.com/v2/json-rpc";
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String urlParams ="apikey=" + masheryV2ApiKey + "&amp;sig=" + sig;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; urlStr = urlStr + "/" + siteIdFromDashboard +"?" + urlParams;&nbsp;&nbsp;&nbsp; 
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; URL url = new URL(urlStr);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; URLConnection connection = url.openConnection();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setDoOutput(true); // Triggers POST.
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setDoInput(true);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setReadTimeout(0);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setRequestProperty("Content-Type", "application/json");
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; wr.write(jsonString);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; wr.flush();
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String inputLine;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; StringBuffer buf = new StringBuffer();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; while ((inputLine = in.readLine()) != null)
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; buf.append(inputLine);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; wr.close();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; in.close();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return buf.toString();
+&nbsp;&nbsp;&nbsp; }
+
+&nbsp;&nbsp;&nbsp; protected static String callMasheryReportingAPI(String reportingMethod, String reportingParams) throws Exception
+&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; long epoch = System.currentTimeMillis()/1000;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String timestamp = Long.toString(epoch);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String sig = MD5(masheryV2ApiKey + masheryV2ApiSecret + timestamp);&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String urlStr = "http://api.mashery.com/v2/rest";
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String urlParams ="apikey=" + masheryV2ApiKey + "&amp;sig=" + sig;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; urlStr = urlStr + "/" + siteIdFromDashboard + "/" + reportingMethod&nbsp; +"?" + reportingParams + "&amp;" + urlParams;&nbsp;&nbsp;&nbsp; 
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; URL url = new URL(urlStr);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; URLConnection connection = url.openConnection();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setDoInput(true);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setReadTimeout(0);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setRequestProperty("Accept-Charset", "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; connection.setRequestProperty("Content-Type", "application/json");
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String inputLine;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; StringBuffer buf = new StringBuffer();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; while ((inputLine = in.readLine()) != null)
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; buf.append(inputLine);
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; buf.append("\n");
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; in.close();
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return buf.toString();
+&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; private static String convertToHex(byte[] data) { 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; StringBuffer buf = new StringBuffer();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; data.length; i++) { 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int halfbyte = (data[i] &gt;&gt;&gt; 4) &amp; 0x0F;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int two_halfs = 0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; do { 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ((0 &lt;= halfbyte) &amp;&amp; (halfbyte &lt;= 9)) 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buf.append((char) ('0' + halfbyte));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buf.append((char) ('a' + (halfbyte - 10)));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; halfbyte = data[i] &amp; 0x0F;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } while(two_halfs++ &lt; 1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return buf.toString();
+&nbsp;&nbsp;&nbsp; } 
+&nbsp;
+&nbsp;&nbsp;&nbsp; private static String MD5(String text) 
+&nbsp;&nbsp;&nbsp; throws NoSuchAlgorithmException, UnsupportedEncodingException&nbsp; { 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MessageDigest md;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; md = MessageDigest.getInstance("MD5");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; byte[] md5hash = new byte[32];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; md.update(text.getBytes("iso-8859-1"), 0, text.length());
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; md5hash = md.digest();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return convertToHex(md5hash);
+&nbsp;&nbsp;&nbsp; }
+}
+</pre>        </div>
+
+
+        <div class="section-meta">
+            <p>
+            <span class="revision">version 5</span> <span class="timestamp">as of <abbr title="9/6/12 11:03 am">1 year ago</abbr></span> <span class="moniker">by <span class="user-reference"><a href="http://support.mashery.com/profile/238485">Jeremy Pollock</a></span></span></p>
+        </div>
+        
+        
+            </div>
+
+    
+
+                </div><!-- /main -->
+
+                <!-- SUB -->
+                <div id="sub" class="sub">
+                    <h2>Docs Navigation</h2>
+
+<ul>
+<li class="active"><a href="http://support.mashery.com/docs/read/Home">Support Documentation Portal</a></li>
+<li class="active"><a href="http://support.mashery.com/docs/read/mashery_api">Mashery API Documentation</a><ul>
+<li class="active"><a href="http://support.mashery.com/docs/read/mashery_api/20">Mashery 2.0 API Guide</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/OAuth_Supporting_Methods">OAuth Supporting Methods</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/oauth_supporting_methods/OAuth_Generated_Errors">OAuth Generated Errors</a></li>
+</ul>
+</li>
+<li class="active"><a href="http://support.mashery.com/docs/read/mashery_api/20/Samples">Examples</a><ul>
+<li class="active"><a href="http://support.mashery.com/docs/read/mashery_api/20/samples/Java" class="active">Using the Mashery API with Java</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/samples/java/GetAllDeveloperEmails">GetAllDeveloperEmails</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/samples/java/CreateApplicationAndPackageKeysForDeveloper">CreateApplicationAndPackageKeysForDeveloper</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/API_Sandbox">API Sandbox</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/JSON_RPC">JSON RPC</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/Authentication">Authentication</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/API_Objects">API Objects</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/Fetching_Objects">Fetching Objects</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/Query_Language">Query Language</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/Creating_Objects">Creating Objects</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/Updating_Objects">Updating Objects</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/Validating_Fields">Validating Fields</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/Deleting_Objects">Deleting Objects</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/application">Applications</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/application/applicationfetch">application.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/application/applicationcreate">application.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/application/applicationupdate">application.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/application/applicationvalidate">application.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/application/applicationdelete">application.delete</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/object">General Object Methods</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/object/objectlist">object.list</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/object/objectdescribe">object.describe</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/object/objectquery">object.query</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/member">Members</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/member/memberfetch">member.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/member/membercreate">member.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/member/memberupdate">member.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/member/membervalidate">member.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/member/memberdelete">member.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/member/memberaddRole">member.addRole</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/member/memberremoveRole">member.removeRole</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package">Packages</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package/packagecreate">package.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package/packageclone">package.clone</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package/packagefetch">package.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package/packagevalidate">package.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package/packagedelete">package.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package/packageupdate">package.update</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan">Plans</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plandelete">plan.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/planfetch">plan.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/planvalidate">plan.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/planupdate">plan.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/planclone">plan.clone</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plancreate">plan.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_service"> Plan Services</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_service/plan_servicecreate">plan_service.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_service/plan_servicedelete">plan_service.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_service/plan_servicefetch">plan_service.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_service/plan_servicevalidate">plan_service.validate</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_endpoint"> Plan Endpoints</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_endpoint/plan_endpointdelete">plan_endpoint.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_endpoint/plan_endpointfetch">plan_endpoint.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_endpoint/plan_endpointupdate">plan_endpoint.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_endpoint/plan_endpointvalidate">plan_endpoint.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_endpoint/plan_endpointcreate">plan_endpoint.create</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_method"> Plan Methods</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_method/plan_methodupdate">plan_method.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_method/plan_methodcreate">plan_method.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_method/plan_methodvalidate">plan_method.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_method/plan_methoddelete">plan_method.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_method/plan_methodfetch">plan_method.fetch</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_filter"> Plan Filters</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_filter/plan_filterfetch">plan_filter.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_filter/plan_filtercreate">plan_filter.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_filter/plan_filterdelete">plan_filter.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/plan/plan_filter/plan_filtervalidate">plan_filter.validate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key"> Package Keys</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/package_keyfetch">package_key.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/package_keyupdate">package_key.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/package_keyvalidate">package_key.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/package_keycreate">package_key.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/method_override"> Method Overrides</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/method_override/method_overridefetch">method_override.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/method_override/method_overridedelete">method_override.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/method_override/method_overridecreate">method_override.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/method_override/method_overridevalidate">method_override.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/package_key/method_override/method_overrideupdate">method_override.update</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/key">Keys</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/key/keyfetch">key.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/key/keycreate">key.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/key/keyupdate">key.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/key/keyvalidate">key.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/key/keydelete">key.delete</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class"> Developer Classes</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/developer_classfetch">developer_class.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/developer_classcreate">developer_class.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/developer_classupdate">developer_class.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/developer_classvalidate">developer_class.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/developer_classdelete">developer_class.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/service_class"> Service Classes</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/service_class/service_classfetch">service_class.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/service_class/service_classupdate">service_class.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/developer_class/service_class/service_classvalidate">service_class.validate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service">Services</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/servicefetch">service.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/servicegetCacheStatus">service.getCacheStatus</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/serviceflushCache">service.flushCache</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/serviceexpireCacheObject">service.expireCacheObject</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods">Defining Methods</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition"> Service Definitions</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition/service_definitionfetch">service_definition.fetch</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_endpoint"> Service Definition Endpoints</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_endpoint/service_definition_endpointfetch">service_definition_endpoint.fetch</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_method"> Service Definition Methods</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_method/service_definition_methodupdate">service_definition_method.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_method/service_definition_methodcreate">service_definition_method.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_method/service_definition_methoddelete">service_definition_method.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_method/service_definition_methodfetch">service_definition_method.fetch</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_response"> Service Definition Response</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_response/service_definition_responsecreate">service_definition_response.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_response/service_definition_responsevalidate">service_definition_response.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_response/service_definition_responseupdate">service_definition_response.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_response/service_definition_responsedelete">service_definition_response.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/service/defining_methods/service_definition_response/service_definition_responsefetch">service_definition_response.fetch</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/role">Roles</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/role/rolefetch">role.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/role/rolecreate">role.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/role/roleupdate">role.update</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/role/rolevalidate">role.validate</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20/role/roledelete">role.delete</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20_reporting">Mashery 2.0 Reporting API Guide</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20_reporting/Authentication">Authentication</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20_reporting/error_codes">Error Codes &amp; Responses</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20_reporting/REST_Resources">REST Resources</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/20_reporting/I_O_Docs">I/O Docs</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive">Mashery 1.0 API Guide</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/Authentication">Authentication</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/Using_OAuth">OAuth Supporting Methods</a><ul>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/using_oauth/List_Applications">List Applications</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/using_oauth/Revoke_Access">Revoke Access</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/using_oauth/Verify_Access">Verify Access</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/developerfetch">developer.fetch</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/developercreate">developer.create</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/developerdelete">developer.delete</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/developerfetchAll">developer.fetchAll</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/developergetLimits">developer.getLimits</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/developersetLimits">developer.setLimits</a></li>
+<li><a href="http://support.mashery.com/docs/read/mashery_api/version_1_archive/developerupdate">developer.update</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/Tips_and_Tricks">Tips and Tricks</a><ul>
+<li><a href="http://support.mashery.com/docs/read/Tips_and_Tricks/Configure_Email_Notification">Configure Email Notifications</a></li>
+<li><a href="http://support.mashery.com/docs/read/Tips_and_Tricks/Customize_Terms_of_Use">Customize Terms of Use</a></li>
+<li><a href="http://support.mashery.com/docs/read/tips_and_tricks/oAuth">OAuth Signature Validation Tool</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/Customizing_Your_Portal">Customizing Your Portal</a><ul>
+<li><a href="http://support.mashery.com/docs/read/customizing_your_portal/Markdown_Cheat_Sheet">Markdown Cheat Sheet</a></li>
+<li><a href="http://support.mashery.com/docs/read/customizing_your_portal/Portal_Search_Feature">Portal Search Feature</a></li>
+</ul>
+</li>
+<li><a href="http://support.mashery.com/docs/read/Proxy_Information">API Traffic Manager</a><ul>
+<li><a href="http://support.mashery.com/docs/read/proxy_information/Call_Caching">Call Caching</a></li>
+<li><a href="http://support.mashery.com/docs/read/proxy_information/Call_Limiting">Call Limiting</a></li>
+<li><a href="http://support.mashery.com/docs/read/proxy_information/Security_Options">Security Options</a></li>
+<li><a href="http://support.mashery.com/docs/read/proxy_information/Archived_IP_Whitlisting_Information">Archived IP Whitelisting information</a><ul>
+<li><a href="http://support.mashery.com/docs/read/proxy_information/archived_ip_whitlisting_information/v42">Version 4.2</a></li>
+<li><a href="http://support.mashery.com/docs/read/proxy_information/archived_ip_whitlisting_information/v41">Version 4.1</a></li>
+<li><a href="http://support.mashery.com/docs/read/proxy_information/archived_ip_whitlisting_information/v4">Version 4</a></li>
+<li><a href="http://support.mashery.com/docs/read/proxy_information/archived_ip_whitlisting_information/V3">Version 3</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+                </div>
+                <!-- /SUB -->
+
+                <div id="breadcrumbs">
+                </div><!-- /breadcrumbs -->
+
+                <div id="local" class="local">
+                    <ul>
+    <li class=" first"><a href="http://support.mashery.com/Home">Home</a></li>
+    <li class=" "><a href="http://support.mashery.com/GettingStarted">Getting Started</a></li>
+    <li class="active "><a href="http://support.mashery.com/docs">Documentation</a></li>
+    <li class=" "><a href="http://support.mashery.com/FAQ">Knowledge Base</a></li>
+    <li class=" "><a href="http://support.mashery.com/forum">Forum</a></li>
+    <li class=" last"><a href="http://support.mashery.com/blog">Blog</a></li>
+</ul>
+                </div><!-- /local -->
+
+                                    <div id="nav" class="nav">
+                    </div><!-- /nav -->
+                            </div>
+            <!-- /CONTENT -->
+
+            <div id="footer" class="footer">
+
+                
+                <!-- SITEINFO -->
+                <div id="siteinfo" class="siteinfo">
+                        <p><script type="text/javascript">
+//<![CDATA[
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+//]]>
+</script>
+<!-- Start Quantcast tag -->
+<script type="text/javascript">
+_qoptions={
+qacct:"p-2eDO_fDX5hTv6"
+};
+</script>
+<script type="text/javascript" src="http://edge.quantserve.com/quant.js"></script>
+<noscript>
+<img src="http://pixel.quantserve.com/pixel/p-2eDO_fDX5hTv6.gif" style="display: none;" border="0" height="1" width="1" alt="Quantcast"/>
+</noscript>
+<!-- End Quantcast tag --></p>                </div>
+                <!-- /SITEINFO -->
+            </div><!-- /footer -->
+        </div>
+        <!-- /page -->
+
+        <!-- Start Branding script tag -->
+        <script type="text/javascript">
+            // get the branding logo to set the mouseover/out and onclick
+            var brandingLogo = document.getElementById('branding-logo');
+            if(brandingLogo != undefined) {
+                brandingLogo['onclick'] = function() {
+                    location.href = "http://support.mashery.com/";
+                };
+                brandingLogo['onmouseover'] = function() {
+                    this.style.cursor = 'pointer';
+                };
+                brandingLogo['onmouseout'] = function() {
+                    this.style.cursor = 'auto';
+                };
+            }
+
+            // get the mashery logo to set the mouseover/out and onclick
+            var masheryLogo = document.getElementById('branding-mashery');
+            if(masheryLogo != undefined) {
+                masheryLogo['onclick'] = function() {
+                    location.href = "http://www.mashery.com/";
+                };
+                masheryLogo['onmouseover'] = function() {
+                    this.style.cursor = 'pointer';
+                };
+                masheryLogo['onmouseout'] = function() {
+                    this.style.cursor = 'auto';
+                };
+            }
+        </script>
+        <!-- End Branding script tag -->
+            <!-- <div id="extra1">&nbsp;</div>
+            <div id="extra2">&nbsp;</div> -->
+
+        <script type="text/javascript">
+//<![CDATA[
+(function() {
+    buildDocTree(); // build the proper documentation tree
+})();
+
+// build the api documentation tree dynamically off of the retrieved data
+function buildDocTree() {
+    // get the main navigation div
+    var navigationDiv = document.getElementById('sub');
+
+    // make sure we got it before continuing
+    if(navigationDiv != undefined) {
+        // get the list of UL's holding each section
+        var navigationUL = navigationDiv.getElementsByTagName('ul');
+
+        // first go through each UL and make it hidden
+        for(var i = 1; i < navigationUL.length; i++) { // starts off at 1 since we want to show the first one
+            // local reference of the current ul
+            var currentUL = navigationUL[i];
+
+            // make sure we got a valid element
+            if(currentUL != undefined) {
+                // get the UL's parent which is an LI
+                var parentLI = currentUL.parentNode;
+
+                // make sure we got something and it's an LI
+                if(parentLI != undefined && parentLI.tagName == 'LI') {
+                    // check for the active class
+                    if(parentLI.className == 'active') {
+                        currentUL.style.display = 'block'; // show the UL
+                    } else {
+                        currentUL.style.display = 'none'; // hide it otherwise
+                    }
+                }
+            }
+        }
+    }
+}
+
+//Commenting out since Reporting API was released (2/8/12 - JPP)
+//will remove once things are officially stable
+//checkIoDocsPermissions();
+//]]>
+</script>
+        <!-- Start Quantcast tag -->
+        <script type="text/javascript">
+            _qoptions={
+                qacct:"p-2eDO_fDX5hTv6"
+            };
+        </script>
+        <script type="text/javascript" src="http://edge.quantserve.com/quant.js"></script>
+        <noscript>
+            <img src="http://pixel.quantserve.com/pixel/p-2eDO_fDX5hTv6.gif" style="display: none;" border="0" height="1" width="1" alt="Quantcast"/>
+        </noscript>
+        <!-- End Quantcast tag -->
+    </body>
+</html>

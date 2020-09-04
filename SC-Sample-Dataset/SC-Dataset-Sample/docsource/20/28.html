@@ -1,0 +1,610 @@
+<!--CS_PAGE_BREAK-->
+<h2>
+<csfield name="title"></h2>
+<csfield name="id_author" before="by " hrefaction="pub"><br />
+<csfield name="date">
+<!-- sidebar begins -->
+<!-- don't move sidebars -->
+<!-- sidebar ends -->
+
+<p>
+As everyone knows, unit testing is a great way of ensuring
+that code actually does what it claims it does, and that over time, as
+the system changes, it carries on doing the same thing.  Formal processes
+like Extreme Programming (XP) depend heavily on consistent unit testing.
+</p>
+<p>
+When used together, object-oriented design and comprehensive unit tests can lead to a very clean design, as the test-first methodology implies a user-based interface design, resulting in a public interface that is simple yet efficient.
+</p>
+<p>
+However, when it comes to testing, sometimes these clean interfaces are not
+as good as they could be.  There are often member variables that the test
+suite would like to access but that have been scoped <code>private</code> or
+<code>protected</code>, and making these members <code>public</code> would
+expose the internals, ruining the clean design. C++ has a way of working
+around this: by declaring the test suite as a <code>friend</code> class,
+the access protection is sidelined.  In Java, a similar approach can be
+used by making certain members <code>package</code> scope and putting the
+test classes into the same package. However, this leads to an
+unsatisfactory design, as some members are <code>private</code> or
+<code>protected</code> for good reasons, and then an arbitrary set of
+members are <code>package</code> scope solely for the current test suite.
+</p>
+<p>
+However, there is a third option available to Java programmers.  The Java
+Reflection API allows the program to introspect arbitrary classes at
+runtime, accessing members at will.  Most competent Java
+programmers should know this much, but what many don't know is that the security
+layer preventing you from accessing <code>private</code> members is only
+optional, and can be turned off.  This allows the system code to be
+written without explicitly planning the unit tests, and if the unit tests
+really do need to access a <code>private</code> or <code>protected</code>
+member, they can.</p>
+
+<!-- sidebar begins -->
+<table width="220" border="0" cellspacing="12" cellpadding="6" 
+align="right">
+<tr>
+<td valign="top" bgcolor="#efefef">
+<p class="headline">Example Files</p>
+<p class="secondary">Download <a href="/onjava/2003/11/12/examples/java-reflection-examples.tar.gz"><i>java-reflection-examples.tar.gz</i></a> for the example code found in this article.</p>
+</td>
+</tr>
+</table>
+<!-- sidebar ends -->
+
+<p>Throughout this article, I shall deal with the simplest case:
+fields. In Java Reflection, fields, methods, and constructors are all
+treated in a very similar manner, so whenever I say "field" here, it can
+generally be replaced with "method" and the examples will still work.
+</p>
+
+<h3>Does <code>private</code> Mean Private?</h3>
+<p>
+Let's begin by proving to ourselves that a <code>private</code> field is
+really a private field, and this is not just something we've all been told.  First
+we need a class with some <code>private</code> members; this is the test
+class I shall use for the following examples.</p>
+
+<pre><code>class FieldTest {
+    public String publicString = "Foobar";
+    private String privateString = "Hello, World!";
+}</code></pre>
+
+<p>
+Here we have a simple class with two fields: one <code>private</code>
+field and one <code>public</code> field.  We would assume that arbitrary
+code can access the <code>public</code> field, but not the
+<code>private</code> field.</p>
+
+<pre><code>public class Test1 {
+  public static void main(String args[]) {
+    System.out.println(new FieldTest().publicString);
+    System.out.println(new FieldTest().privateString);
+  }
+}</code></pre>
+
+<p>When we compile this we get: </p>
+
+<pre><code>Test1.java:4: privateString has private access in FieldTest
+    System.out.println(new FieldTest().privateString);
+                       ^
+1 error</code></pre>
+
+<p>This shows that <code>private</code> fields really are private fields, as
+the Java compiler won't allow access to them.
+</p>
+
+<h3>The Class Object</h3>
+<p>
+In Java 1.0, the <code>java.lang.Class</code> object was fairly
+trivial. However, in Java 1.1, the Reflection API was added. A cursory
+glance at the documentation reveals several interesting methods:
+</p>
+<ul>
+<li><code>getField()</code></li>
+<li><code>getFields()</code></li>
+<li><code>getDeclaredFields()</code></li>
+</ul>
+<p>
+These methods return <code>Field</code> instances (arrays, in the latter
+two) that allow us to see the name of the field and its type, and more
+importantly, get its value.
+</p>
+<p>
+It seems that if we can get a <code>Class</code> instance, we can call
+<code>getField()</code> to get a <code>Field</code> instance, which we can
+use to get at the value we want.  And the easiest way to get a
+<code>Class</code> object for the class <code>Foo</code> is to write
+<code>Foo.class</code>, a construct called a <i>class literal</i>.
+</p>
+
+<p>Calling <code>getField()</code> looks like this:</p>
+
+<pre><code>import java.lang.reflect.Field;
+
+public class Test2 {
+  public static void main(String args[])
+    throws Exception {
+    Field f;
+    
+    f = FieldTest.class.getField("publicString");
+    System.out.println("Public Field: " + f);
+
+    f = FieldTest.class.getField("privateString");
+    System.out.println("Private Field: " + f);
+  }
+}</code></pre>
+
+<p>Running this gives us:</p>
+
+<pre><code>Public Field: public java.lang.String FieldTest.publicString
+Exception in thread "main"
+  java.lang.NoSuchFieldException: privateString
+	at java.lang.Class.getField0(Class.java:1735)
+	at java.lang.Class.getField(Class.java:900)
+	at Test2.main(Test2.java:10)</code></pre>
+
+<p> So what happened here? The code managed to get a reference to
+<code>publicString</code> but failed when trying to get a reference to
+<code>privateString</code>. The exception thrown was
+<code>NoSuchFieldException</code>, but I know it does exist, since I created
+it.  However, the fine print in the API documentation for
+<code>Class.getField()</code> clearly states, &quot;... the specified
+<i>public</i> member field ...&quot;.  Time to try
+<code>getFields()</code> and <code>getDeclaredFields()</code>.
+</p>
+
+<csinclude record="b/875" template="b/article_sidebar2.view">
+
+<h3>Enumerating Fields</h3>
+<p>
+At first glance, <code>getFields()</code> and
+<code>getDeclaredFields()</code> seem very similar. Nevertheless, a closer
+read of the API documentation reveals that they are very different.
+</p>
+<p>
+The method <code>getFields()</code> reflects (no pun intended) what the
+Java programmer conceptually sees when programming: it enumerates all
+publicly accessible fields in the class and all of its superclasses.
+</p>
+<p>
+On the other hand, <code>getDeclaredFields()</code> reveals how the class
+is constructed. It enumerates fields, but only if they are actually
+declared in that class; any inherited fields are ignored.
+</p>
+<p>
+The reason for the existence of two methods (instead of a single method that returns
+all fields, including inherited ones) seems to be so that simple dynamic
+lookup of <code>public</code> fields can be achieved easily (using
+<code>getField()</code> and <code>getFields()</code>) and generally does
+the right thing. If a program wants to see the <code>private</code> fields,
+it will probably want to handle inherited fields specially (for example,
+an object-oriented debugger).
+</p>
+<p>
+Exercising these methods is always a good thing, to check they do what we
+expect. Here is a test for <code>getFields()</code>.</p>
+
+<pre><code>import java.lang.reflect.Field;
+
+public class Test3 {
+  public static void main(String args[]) {
+    final Field fields[] =
+        FieldTest.class.getFields();
+    for (int i = 0; i &lt; fields.length; ++i) {
+      System.out.println("Field: " + fields[i]);
+    }
+  }
+}</code></pre>
+
+<p>The output is rather predicable:</p>
+
+<pre><code>Field: public java.lang.String FieldTest.publicString</code></pre>
+
+<p>Now let's try the same test, but use <code>getDeclaredFields()</code> instead.</p>
+
+<pre><code>import java.lang.reflect.Field;
+
+public class Test4 {
+  public static void main(String args[]) {
+    final Field fields[] =
+        FieldTest.class.getDeclaredFields();
+    for (int i = 0; i &lt; fields.length; ++i) {
+      System.out.println("Field: " + fields[i]);
+    }
+  }
+}</code></pre>
+
+<p>We hope that this will yield all of the fields, both <code>public</code> and <code>private</code>:</p>
+
+<pre><code>Field: public java.lang.String FieldTest.publicString
+Field: private java.lang.String FieldTest.privateString</code></pre>
+
+<p>Life is indeed good. Now that we can enumerate all of the fields in a
+class, we can get the specific field we are after and hopefully manipulate
+it however we want.</p>
+
+<csinclude template="a/multipage_bottom.view">
+<!--CS_PAGE_INDEX-->
+<csinclude template="a/multipage_bottomb.view">
+<a href="<!--CS_NEXT_REF-->">
+<csinclude template="a/multipage_bottomc.view">
+
+<!--CS_PAGE_BREAK-->
+
+<csinclude template="a/multipage_top.view">
+<!--CS_PAGE_INDEX-->
+<csinclude template="a/multipage_topb.view">
+
+<h3>Using Field Objects</h3>
+
+<p>
+Time to investigate what the <code>Field</code> object can do for us.
+There are the classic <code>get()</code> and <code>set()</code> methods, a
+large array of convenience methods to handle the getting/setting of a
+particular primitive type (to avoid having to wrap the primitive in an
+object manually), and a few methods to determine what the field is
+(<code>getName()</code>, <code>getModifiers()</code>).
+</p>
+<p>
+It is the <code>get()</code> method that we need, as we want to retrieve
+the value of a <code>String</code> field. This method takes a reference to
+the object that that we want to get the field from (this object is ignored
+if the field is <code>static</code>).  So this next example should work
+fine:</p>
+
+<pre><code>import java.lang.reflect.Field;
+
+public class Test5 {
+  public static void main(String args[])
+    throws Exception {
+    final Field fields[] =
+        FieldTest.class.getDeclaredFields();
+    for (int i = 0; i &lt; fields.length; ++i) {
+      if ("privateString".equals(fields[i].getName())) {
+        System.out.println(
+            fields[i].get(new FieldTest()));
+        break;
+      }
+    }
+  }
+}</code></pre>
+
+<p>However, running this produces an exception:</p>
+
+<pre><code>Exception in thread "main" java.lang.IllegalAccessException:
+  Class Test5 can not access a member of class FieldTest
+  with modifiers "private"
+   at sun.reflect.Reflection.ensureMemberAccess(Reflection.java:57)
+   at java.lang.reflect.Field.doSecurityCheck(Field.java:811)
+   at java.lang.reflect.Field.getFieldAccessor(Field.java:758)
+   at java.lang.reflect.Field.get(Field.java:228)
+   at Test5.main(Test5.java:8)</code></pre>
+
+<p>And everything was looking so good. However, there is hope.  Another
+reading of the fine print in the API documentation leads to the
+interesting line &quot;<i>If</i> this <code>Field</code> object enforces
+Java language access control, and the underlying field is inaccessible,
+the method throws an <code>IllegalAccessException</code>&quot; (emphasis
+added). If enforcing access control is optional, there has to be a way to
+turn it off.</p>
+
+<h3>The Security Manager</h3>
+<p>
+The Security Manager in Java is designed to stop arbitrary code from
+performing unwanted actions. It is primarily used in controlled
+environments, such as Java applets, where you wouldn't trust the applet to
+read files from your disk (since it could send your password database to a
+cracker). However, in the common case of a Java application executed from
+the command line, the security manager imposes few restrictions.
+</p>
+<p>
+The exception we're getting comes from Java denying access to a
+<code>private</code> field, as the field is &quot;not
+accessible.&quot; This check doesn't involve the Security Manager, but
+simply calls <code>isAccessible()</code> on the superclass of
+<code>Field</code>, <code>AccessibleObject</code>. The accessibility of a
+<code>private</code> field defaults to false, but a call to
+<code>setAccessible()</code> will perform the appropriate security checks
+on my credentials and hopefully give me access.</p>
+
+<pre><code>import java.lang.reflect.Field;
+
+public class Test6 {
+  public static void main(String args[])
+    throws Exception {
+    final Field fields[] =
+        FieldTest.class.getDeclaredFields();
+    for (int i = 0; i &lt; fields.length; ++i) {
+      if ("privateString".equals(fields[i].getName())) {
+        fields[i].setAccessible(true);
+        System.out.println(
+            fields[i].get(new FieldTest()));
+        break;
+      }
+    }
+  }
+}</code></pre>
+
+<p>The only difference between this and <i>Test5.java</i> is the addition of the <code>setAccessible()</code> call. When we run this test we see: </p>
+
+<pre><code>Hello, World!</code></pre>
+
+<p>Which is exactly what we were after: we can access a <code>private</code>
+field and see its value. Very similar code should allow us to edit this
+field as well.</p>
+
+<pre><code>import java.lang.reflect.Field;
+
+public class Test7 {
+  public static void main(String args[])
+    throws Exception {
+    final Field fields[] =
+        FieldTest.class.getDeclaredFields();
+    for (int i = 0; i &lt; fields.length; ++i) {
+      if ("privateString".equals(fields[i].getName())) {
+        FieldTest fieldTest = new FieldTest();
+        Field f = fields[i];
+        f.setAccessible(true);
+        System.out.println(f.get(fieldTest));
+        f.set(fieldTest, "Modified Field");
+        System.out.println(f.get(fieldTest));
+        break;
+      }
+    }
+  }
+}</code></pre>
+
+<p>This code gives the predictable outcome:    </p>
+
+<pre><code>Hello, World!
+Modified Field</code></pre>
+
+<p>Note that no amount of code will allow you to change the value of a
+<code>final</code> field.</p>
+
+<h3>The Security Manager, Part 2</h3>
+
+<p>As I said earlier, the Java Security Manager only lets you access
+<code>private</code> fields if you have appropriate rights.  Code that I
+run on my desktop is trusted in some sense, as I have to explicity run
+it. However, Java applets can be hidden on web pages and executed without
+the user knowing, so these are untrusted.</p>
+
+<p>This can be demonstrated by re-writing <i>Test6.java</i> as an
+applet. This involves two parts, the actual Java code:</p>
+
+<pre><code>import java.lang.reflect.Field;
+import java.applet.Applet;
+import java.awt.Label;
+
+public class Test8 extends Applet {
+  public Test8() {
+    super();
+    String s = "Field not found";
+    try {
+      final Field fields[] =
+        FieldTest.class.getDeclaredFields();
+      for (int i = 0; i &lt; fields.length; ++i) {
+        if ("privateString".equals(fields[i].getName())) {
+          fields[i].setAccessible(true);
+          s = (String)fields[i].get(new FieldTest());
+          break;
+        }
+      }
+    } catch (Exception ex) {
+      s = ex.getMessage();
+    }
+    add(new Label(s));
+  }
+}</code></pre>
+
+<p>and an HTML page to load it: </p>
+
+<pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;applet width="100" height="50"
+        code="Test8.class"&gt;
+    &lt;/applet&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+<p>It's not exactly a great example of applet programming, but it does the
+job. Now, either load this HTML file into either a Java-enabled web
+browser, or use the <code>appletviewer</code> that is supplied with the
+JDK.  The result is shown in Figure 1.</p>
+
+<img src="/onjava/2003/11/12/graphics/Test8.png" alt="Figure 1" width="421" height="149" /><br />
+<i>Figure 1. Accessing private fields from an applet</i>
+
+<p>As expected, attempting to access the
+<code>private</code> field in a secure context has been blocked. The only
+way around this is to &quot;sign&quot; the applet, so that the user can
+see who wrote the code, and decide whether they trust them or
+not. However, signing .jar files is beyond the scope of this
+article, and best saved for another day.
+</p>
+
+<h3>Methods and Constructors</h3>
+
+<p>
+So far I have only shown examples of accessing fields via reflection.
+However, to prove that this concept <i>does</i> work for methods and
+constructors, here's an example of calling a <code>private</code> method.</p>
+
+<pre><code>import java.lang.reflect.Method;
+
+class MethodTest {
+  private final String sayHello(final String name) {
+    return "Hello, " + name;
+  }
+}
+
+public class Test9 {
+  public static void main(String args[])
+    throws Exception {
+    MethodTest test = new MethodTest();
+    final Method[] methods =
+        test.getClass().getDeclaredMethods();
+    for (int i = 0; i &lt; methods.length; ++i) {
+      if (methods[i].getName().equals("sayHello")) {
+        final Object params[] = {"Ross"};
+        methods[i].setAccessible(true);
+        Object ret = methods[i].invoke(test, params);
+        System.out.println(ret);
+      }
+    }
+  }
+}</code></pre>
+
+<p>As you can see, getting a list of the declared methods is straightforward, using
+<code>getDeclaredMethods()</code>. Then the array is searched as before,
+and the correct method made accessible.  The method that does the magic
+is <code>invoke()</code>.  You call this on a <code>Method</code> object,
+passing it the instance it should call the method on (unless it is a
+static method, in which case you pass <code>null</code>), and an
+<code>Object[]</code> of parameters to the method to be called.  If the
+method is <code>void</code>, then either an empty array or
+<code>null</code> is acceptable.  Java will also automatically marshal to
+and from primitive types, so, for example, if you have a method <code>int
+round (final float f)</code> that takes a <code>float</code> and
+returns an <code>int</code>, the parameter array would have a single
+instance of <code>java.lang.Float</code> and an instance of
+<code>java.lang.Integer</code> would be returned.
+</p>
+
+<h3>Conclusion</h3>
+
+<p>Now that the Reflection API has been well exercised, let's bring it back
+to the field of unit testing.  Say I wanted to write a unit test for
+FieldTest. Checking that the public field is the correct string is
+trivial:</p>
+
+<pre><code>import java.lang.reflect.Field;
+import junit.framework.TestCase;
+
+public class Test10 extends TestCase {
+  public Test10(final String name) {
+    super(name) ;
+  }
+  
+  public void test_reflection() throws Exception {
+    FieldTest f = new FieldTest();
+    assertEquals (f.publicString, "Foobar");
+  }
+}</code></pre>
+
+<p>When this test case is executed, it works as expected. </p>
+
+<pre><code>$ java Test10
+.
+Time: 0.036
+ 
+OK (1 test)</code></pre>
+
+<p>I could copy the loop I've been using to get a reference to the private
+field into the test case, but that would be very ugly if there were 10
+private fields I wanted to check.  Instead, a utility class is in
+order. Here is <code>PrivateAccessor.java</code>:</p>
+
+<pre><code>import java.lang.reflect.Field;
+import junit.framework.Assert;
+
+/**
+ * Provides access to private members in classes.
+ */
+public class PrivateAccessor {
+  public static Object getPrivateField (Object o,
+  String fieldName) {
+    /* Check we have valid arguments */
+    Assert.assertNotNull(o);
+    Assert.assertNotNull(fieldName);
+    /* Go and find the private field... */
+    final Field fields[] =
+        o.getClass().getDeclaredFields();
+    for (int i = 0; i &lt; fields.length; ++i) {
+      if (fieldName.equals(fields[i].getName())) {
+        try {
+          fields[i].setAccessible(true);
+          return fields[i].get(o);
+        } catch (IllegalAccessException ex) {
+          Assert.fail ("IllegalAccessException accessing " +
+            fieldName);
+        }
+      }
+    }
+    Assert.fail ("Field '" + fieldName +
+                 "' not found");
+    return null;
+  }
+}</code></pre>
+
+<p>The core of <code>PrivateAccessor.java</code> is the same as the previous
+examples, but the code is more reliable, as it checks the inputs and uses
+the <code>Assert</code> class to integrate with JUnit test cases. With
+this class, when a test case needs access to a private field, it can use
+<code>getPrivateField</code> to get a reference to the field, and the test
+case does the right thing automatically if the field was not found or the
+arguments were not valid.  The test case can then assume that is has been
+given a valid object, removing some error checking code.  I now present
+the final example, a JUnit test suite that tests <code>FieldTest</code>
+and uses <code>PrivateAccessor</code>:</p>
+
+<pre><code>import java.lang.reflect.Field;
+import junit.framework.TestCase;
+ 
+public class Test11 extends TestCase {
+  public Test11(final String name) {
+    super(name) ;
+  }
+
+  public void test_reflection() throws Exception {
+    FieldTest f = new FieldTest();
+    /* Assert we have a valid object */
+    assertNotNull(f);
+
+    /* Assert that the public field is "Foobar" */
+    assertEquals (f.publicString, "Foobar");
+
+    String s =
+        (String) PrivateAccessor.getPrivateField(f,
+                         "privateString");
+    assertEquals (s, "Hello, World!");
+  }
+ 
+  public static void main(String args[]) {
+    junit.textui.TestRunner.run (Test11.class);
+  }
+}</code></pre>
+
+<p>And to prove that this works: </p>
+
+<pre><code>$ java Test11
+.
+Time: 0.039
+ 
+OK (1 test)</code></pre>
+
+<p>By using <code>PrivateAccessor</code>, we can write our classes without having to 
+compromise the visibility of fields and other members just for the sake 
+of JUnit tests.  This way, we can do right by our sense of good
+object-oriented design, and still expose our classes to automated testing code.</p>
+
+<h3>Links</h3>
+
+<p>The following links will be helpful for background or further reading.</p>
+
+<ul>
+<li><a href="http://www.extremeprogramming.org/">The Extreme Programming home page</a></li>
+<li><a href="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/reflect/package-summary.html">Java Reflection API Documentation</a></li>
+<li><a href="http://junit.org/">JUnit</a></li>
+</ul>
+
+<p><i>
+<csfield name="id_author" after=" " hrefaction="pub">
+<csquery path="q/93" where="cs_rid = '{id_author}'"></i></p>
+
+<hr size="1" noshade />
+
+<p>Return to <a href="http://www.onjava.com/">ONJava.com</a>.</p>

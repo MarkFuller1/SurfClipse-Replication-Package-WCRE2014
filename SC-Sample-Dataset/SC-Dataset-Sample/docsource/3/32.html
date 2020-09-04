@@ -1,0 +1,374 @@
+		<!DOCTYPE HTML>
+<html lang="en"><head>
+<title>Software Development II Tutorials</title>
+<meta charset="utf-8">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="shortcut icon" href="../favicon.ico">
+<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;">
+<link rel="stylesheet" type="text/css" href="../../style13.css" />
+<!--[if IE]>
+<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<script src="../../prettify.js" type="text/javascript"></script>
+</head><body onload="prettyPrint()">
+ 
+<header>
+<nav>
+  <div id="navigation" class="clearfix"><a href="/taylor/" id="logo">Dr. Chris Taylor</a>
+    <div id="menu">
+      <ul>
+        <li><a href="/taylor/">Home</a></li>
+        <li><a href="/taylor/se1021/">SE1021</a></li>
+        <li><a href="/taylor/SrDsgn/">Sr Dsgn</a></li>
+        <li><a href="/taylor/Schedule">Sched</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+</header>
+
+
+
+		<section class="wrapper clearfix" role="main">
+		<div class="sidebarSpacer"><aside id="sidebar">
+		<section class="links"><h1>Links</h1>
+		<ul>
+  <li><a href="/taylor/tutorial/se1021/UMLClass">Class Diagrams</a></li>
+  <li><a href="/taylor/tutorial/se1021/inheritance">Inheritance</a></li>
+  <li><a href="/taylor/tutorial/se1021/listInterface">Interfaces</a></li>
+  <li><a href="/taylor/tutorial/se1021/abstractClasses">Abstract Classes</a></li>
+  <li><a href="/taylor/tutorial/se1021/GUIBasics">GUI Basics</a></li>
+  <li><a href="/taylor/tutorial/se1021/eventHandling">Events</a></li>
+  <li><a href="/taylor/tutorial/se1021/exceptionHandling">Exceptions</a></li>
+  <li><a href="/taylor/tutorial/se1021/fileIO">File IO</a></li>
+  <li><a href="/taylor/tutorial/se1021/reviewI">Review I</a></li>
+  <li><a href="/taylor/tutorial/se1021/reviewII">Review II</a></li>
+</ul>
+
+		</section>
+		  <section class="resources">
+    <h1>Resources</h1>
+    <ul>
+      <li><a href="/taylor/">Biography</a></li>
+      <li><a href="/taylor/current">Schedule</a></li>
+      <li><a href="/taylor/courses">Course Archive</a></li>
+      <li><a href="/taylor/resources/policy.htm">Policies</a></li>
+      <li><a href="/taylor/resources/javadoc.htm">Javadoc</a></li>
+      <li><a href="/taylor/tutorial/">Tutorials</a></li>
+      <li><a href="/taylor/exams/">Exam Archive</a></li>
+      <li><a href="/taylor/resources/software.htm">Software</a></li>
+      <li><a href="/taylor/faculty/">For Faculty</a></li>
+      <li><a href="http://unix.t-a-y-l-o-r.com/">Unix Tutorial</a></li>
+      <li><a href="http://photos.t-a-y-l-o-r.com/">Photos</a></li>
+    </ul>
+  </section>
+</aside>
+
+		<article>
+		<div class="badge"><div class="info">
+		<span class="cNum">
+Tutorials
+		</span>
+		<div class="lRing"></div><div class="rRing"></div></div>
+		<div class="dueDate">
+Exception Handling
+		</div></div>
+
+		<div class="banner"><h1>
+Exception Handling
+		</h1><h2>
+The exception handling features in the Java language provide a mechanism for gracefully recovering from a wide variety of unexpected situations in your code.
+		</h2><div class="lRing"></div><div class="rRing"></div></div>
+
+		<div class="content clearfix">
+
+<p>Even if you've never heard of exceptions in Java, if you don't much Java software development, you've likely encountered an exception of some sort.  Program "crashes" are often the result of "an exception being thrown."  When this happens, something like this is displayed to the console:</p>
+
+<pre>Exception in thread "main" java.lang.NullPointerException
+  at lecture.Driver.main(Driver.java:19)
+</pre>
+
+<p>The exception handling features in the Java language provide a mechanism for gracefully recovering from a wide variety of unexpected situations in your code.</p>
+
+<p>In the first example, I tried to call a method using a reference that was assigned to null.  Since it wasn't referring to an actual object, it was not possible to execute the method.  At that point, the normal flow of the program is interrupted by an exception being thrown.  In this case, I didn't do anything to handle the exception.  As a result, the exception was thrown all the way back the the JVM (Java Virtual Machine) which then displayed the <em>stack trace</em>.</p>
+
+<p>The stack trace is a list of all of the method calls that took place before the exception was thrown.  In this case, the exception was thrown from <code>main</code> (on line 19).</p>
+
+<p>Here is another example of an exception being thrown:</p>
+
+<pre>Exception in thread "main" java.lang.NumberFormatException: For input string: "not an integer"
+  at java.lang.NumberFormatException.forInputString(Unknown Source)
+  at java.lang.Integer.parseInt(Unknown Source)
+  at java.lang.Integer.parseInt(Unknown Source)
+  at edu.msoe.se1021.YOURLOGIN.Horse.calculatePrice(Horse.java:134)
+  at edu.msoe.se1021.YOURLOGIN.Lab4.displayMarketPrice(Lab4.java:74)
+  at edu.msoe.se1021.YOURLOGIN.Lab4.main(Lab4.java:61)
+</pre>
+
+<p>In this case, I called <code>Integer.parseInt</code> with "not an integer" as the argument.  Of course, this cannot be converted/parsed into an integer.  So what should we do?  One option would be to just ignore the error (silently fail).  If we did this, the <code>parseInt</code> method would still need to return something.  What should we return?  Another option would be to just give up and stop the program (that's essentially what happened here).</p>
+
+<p>If you look at the stack trace displayed above, you can see that the exception was thrown in the <code>Integer.parseInt</code> method which was called by the <code>Horse.calculatePrice</code> which was called by the <code>Lab4.displayMarketPrice</code> method which was called by the <code>Lab4.main</code> method.  The stack trace also includes the line numbers on which the each method was called.  This helps the developer track down the source of the exception.</p>
+
+<p>Depending on the design of our application, we may want to correct for this incorrect behavior in the <code>Horse.calculatePrice</code> method or <code>Lab4.displayMarketPrice</code> method or the <code>Lab4.main</code> method.  The exception handling mechanism in Java provides just the flexibility we need in order to handle error conditions that may be encountered (bad user input, missing file, no network connection, etc...) in a place that makes sense to us.</p>
+
+
+<h2>Exceptions</h2>
+
+<p>To summarize the discussion above:</p>
+
+<ul>
+  <li>An <strong>exception</strong> represents a condition in which something unexpected/abnormal has occurred.
+</li>
+  <li>This condition may occur during the normal execution of a program, e.g.,</li>
+</ul>
+<pre class="prettyprint">
+int x=Integer.parseInt("1.234");
+</pre>
+<ul>
+  <li>When an exception occurs, the normal flow of the program is terminated.</li>
+  <li>Normal program flow is terminated by <strong>throw</strong>ing and exception.</li>
+  <li>Once a exception has been thrown, program flow works backwards through the various method calls currently on the stack until the exception is caught.</li>
+  <li>An exception is caught by an exception handling routine.</li>
+  <li>We can provide exception handling routines or not.</li>
+  <li>If no exception handling routines are provided, the Java Virtual Machine will <strong>catch</strong> and handle the exception.</li>
+  <li>In order to <strong>catch</strong> an exception, we need to be watching for an exception to be thrown.</li>
+  <li>We watch for exceptions using a <strong>try</strong> block.</li>
+</ul>
+
+<p>Consider the following code snippet:</p>
+
+<pre class="prettyprint linenums">
+String input = JOptionPane.showInputDialog(null, "How old are you (in years)");
+int age;
+try {
+  age = Integer.parseInt(input);
+  JOptionPane.showMessageDialog(null, "I'm guessing you'll be " + (age+1) + " next year");
+} catch (NumberFormatException e) {
+  JOptionPane.showMessageDialog(null, "Error!  You should enter an integer value");
+}
+</pre>
+
+<p>If we enter something other than an integer, the program will display the error message, otherwise it will "guess" how old the user will be next year.</p>
+
+
+<h3>try block</h3>
+
+<ul>
+  <li>Code between curly braces following a <strong>try</strong> statement is part of what we call a <strong>try block</strong>.</li>
+  <li>If, at any time, an exception is thrown while we are in the try block, execution of the code within the try block is immediately halted.  Program flow is transferred to the end of the try block.</li>
+  <li>Note: an exception can be encountered either by an explicit <strong>throw</strong> command within the try block or as a result of an un-handled exception thrown by a method which was called within the try block.  In the above example, the exception was thrown by the parseInt method and was left unhandled.</li>
+</ul>
+
+
+<h3>catch blocks</h3>
+
+<ul>
+  <li>Code between curly braces following a <strong>catch</strong> statement is part of what we call a <strong>catch block</strong>.</li>
+  <li>A catch block is executed if
+  <ol>
+    <li>an exception has been encountered in the try block immediately preceding it and</li>
+    <li>the type of exception encountered matches the type of exception being caught.</li>
+  </ol></li>
+  <li>The type of exception a catch block catches is specified in parentheses after the catch statement.  In the above example, the catch block catches <a href="http://download.oracle.com/javase/7/docs/api/java/lang/NumberFormatException.html">NumberFormatException</a> type exceptions.</li>
+  <li>Only the first matching catch block after a try block will be executed.</li>
+  <li>If no exceptions were encountered during the execution of a try block, the catch block(s) after the try block are ignored.  Program flow continues with the statement following the try-catch statement.</li>
+  <li>If an exception is encountered, but no matching catch block is present, program control reverts to the calling method.</li>
+</ul>
+
+
+<h2>Types of Exceptions</h2>
+
+<ul>
+  <li>In order for an exception to be thrown, it must be an object from the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> class, or one of its subclasses.</li>
+  <li>The <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> class has two subclasses:
+  <ol>
+    <li><a href="http://download.oracle.com/javase/7/docs/api/java/lang/Error.html">Error</a></li>
+    <li><a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a></li>
+  </ol></li>
+  <li>Recall that the type of exception being caught must be specified in the catch block's parameter list.</li>
+  <li>There are many different types of exceptions.</li>
+</ul>
+
+<p>
+
+After studying the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a>, <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Error.html">Error</a>, and <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> classes we can conclude that:
+
+</p>
+<ul>
+  <li><a href="http://download.oracle.com/javase/7/docs/api/java/lang/Error.html">Error</a> and <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> types are specializations of the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> type.</li>
+  <li><a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> has all of the characteristics (attributes/behaviors) of a <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> object, but <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> may specialize (re-implement) some of these characteristics or add other characteristics that are shared by all <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> instances but don't apply to <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> instances.</li>
+  <li>The <a href="http://download.oracle.com/javase/7/docs/api/java/lang/package-summary.html">java.lang</a> package provides a number of subclasses (and subsubclasses, etc) of the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> class.</li>
+  <li>Objects from any of these subclasses can be thrown.</li>
+  <li>The diagram below shows some of the types that can be thrown.</li>
+</ul>
+
+<figure>
+<a href="exceptionUML.png"><img src="exceptionUML.png" alt="Exception Class Hierarchy" /></a><figcaption>Exception Class Hierarchy</figcaption>
+</figure>
+
+
+<h2>Handling Exceptions</h2>
+
+<ul>
+  <li>When an object from the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Error.html">Error</a> class is thrown, it represents a serious problem and normally should not be caught.</li>
+  <li>When an object from the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> class, or one of its subclasses, is thrown, it typically should be caught and handled.</li>
+  <li>The type of exception a catch block catches is specified in parentheses after the catch statement.
+  <ul>
+    <li>A thrown exception will be caught if it is the same type or a subtype of the type specified in parentheses.</li>
+    <li>For example, if a <a href="http://download.oracle.com/javase/7/docs/api/java/lang/NumberFormatException.html">NumberFormatException</a>, it would be caught by the following catch block:</li>
+  </ul></li>
+</ul>
+<pre class="prettyprint linenums">
+catch (Exception e) {
+  // ...
+}
+</pre>
+
+<p>since <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> is a superclass of <a href="http://download.oracle.com/javase/7/docs/api/java/lang/NumberFormatException.html">NumberFormatException</a>.</p>
+
+<ul>
+  <li>Once caught, methods from the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> class provide information about the exception that was thrown:
+  <ul>
+    <li>The <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getMessage%28%29">getMessage()</a> method returns a descriptive string.</li>
+    <li>The <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html#printStackTrace%28%29">printStackTrace()</a> method prints all of the methods on the stack, i.e., all of the still active methods called prior to encountering the exception.</li>
+  </ul></li>
+  <li>Be sure to catch more specialized exception types (subclasses) first since once a matching catch block is found, all other catch blocks are ignored.</li>
+  <li>If a thrown exception is not caught, anywhere in the program, the Java Virtual Machine (JVM) catches it.  The JVM handles exceptions by calling <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html#printStackTrace%28%29">printStackTrace()</a> and then terminating the program.</li>
+</ul>
+
+
+<h3>Recapping</h3>
+
+
+<p>Consider the following code:</p>
+
+<pre class="prettyprint linenums">
+String input = JOptionPane.showInputDialog(null, "How old are you (in years)");
+int age;
+try {
+  age = Integer.parseInt(input);
+  JOptionPane.showMessageDialog(null, "I'm guessing you'll be " + (age+1) + " next year");
+} catch (NumberFormatException e) {
+  JOptionPane.showMessageDialog(null, "Error!  You should enter an integer value");
+} catch (RuntimeException e) {
+  JOptionPane.showMessageDialog(null, "Error!  Some runtime exception other than NumberFormatException was thrown");
+  JOptionPane.showMessageDialog(null, "Hint: " + e.getMessage());
+  return;
+}
+&nbsp; 
+JOptionPane.showMessageDialog(null, "No worries.  Either way we'll continue on with our program");
+</pre>
+<ul>
+  <li>Recall that, if no exception occurs, all of the code except for the catch blocks will be executed.</li>
+  <li>If an exception is thrown while in the try block,
+  <ul>
+    <li>The first catch block will be executed if the exception thrown is of type <a href="http://download.oracle.com/javase/7/docs/api/java/lang/NumberFormatException.html">NumberFormatException</a>.  Once the catch block finishes executing, program execution continues after the last catch block.</li>
+    <li>The second catch block will be executed if the exception thrown is of type <a href="http://download.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html">RuntimeException</a> or any subclass of <a href="http://download.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html">RuntimeException</a> other than <a href="http://download.oracle.com/javase/7/docs/api/java/lang/NumberFormatException.html">NumberFormatException</a> (because that exception would have already been caught by the first catch block).  If the second catch block is executed, program control is returned to the calling method at the end of the catch block, so the "No worries" dialog will not be displayed.</li>
+    <li>If no catch block matches the exception thrown, execution of the current method is terminated and the exception is thrown to the calling method (which can either catch it or propagate the exception to the method that called it).</li>
+  </ul></li>
+</ul>
+
+
+<h3>throw statement</h3>
+
+<ul>
+  <li>We can explicitly throw exceptions using the following to steps:
+  <ol>
+    <li>Instantiate the appropriate <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> object.</li>
+    <li><strong>throw</strong> a reference to that object.</li>
+  </ol></li>
+  <li>An object is said to be a <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> object if it is an instance of the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a> class or one of <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a>'s subclasses.</li>
+  <li><a href="http://download.oracle.com/javase/7/docs/api/java/lang/Exception.html">Exception</a> is a subclass of <a href="http://download.oracle.com/javase/7/docs/api/java/lang/Throwable.html">Throwable</a>.</li>
+  <li>Here is what it looks like in Java:</li>
+</ul>
+<pre class="prettyprint">
+throw new Exception("Info about the exception");
+</pre>
+
+<p>Modifying the previous code to throw an exception if the user entered an age greater than 120 would look like this:</p>
+
+<pre class="prettyprint linenums">
+String input = JOptionPane.showInputDialog(null, "How old are you (in years)");
+int age;
+try {
+  age = Integer.parseInt(input);
+  if(age&gt;120)
+  {
+    throw new Exception("Out of bounds");
+  }
+  JOptionPane.showMessageDialog(null, "I'm guessing you'll be " + (age+1) + " next year");
+} catch (NumberFormatException e) {
+  JOptionPane.showMessageDialog(null, "Error!  You should enter an integer value");
+} catch (RuntimeException e) {
+  JOptionPane.showMessageDialog(null, "Error!  Some runtime exception other than NumberFormatException was thrown");
+  JOptionPane.showMessageDialog(null, "Hint: " + e.getMessage());
+  return;
+}
+&nbsp; 
+JOptionPane.showMessageDialog(null, "No worries.  Either way we'll continue on with our program");
+</pre>
+
+
+<h3>Exception throwers</h3>
+
+<ul>
+  <li>A method is said to be an exception thrower if it has the potential to throw an exception (directly or indirectly).</li>
+  <li>Such a method can be a:
+  <ul>
+    <li>Catcher &mdash; if it catches a thrown exception,</li>
+    <li>Propagator &mdash; if it leaves a exception uncaught (so that it propagates to the calling method, or</li>
+    <li>Both if it does some of each.</li>
+  </ul></li>
+</ul>
+
+
+<h3>Unchecked Exception</h3>
+
+<ul>
+  <li>Some exceptions are not allowed to propagate back to the JVM, i.e., they must be caught by your code.</li>
+  <li>A <em>checked exception</em> is an exception that is checked at compile time.</li>
+  <li>Objects from the <a href="http://download.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html">RuntimeException</a> or one of its subclasses are <em>unchecked</em> exceptions.
+  <ul>
+    <li>Do not need to be caught by your code.</li>
+    <li>Are detected only at runtime.</li>
+  </ul></li>
+  <li>Only <a href="http://download.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html">RuntimeException</a>s can be left unchecked.</li>
+  <li>In order to propagate a checked exception, the method propagating the exception must explicitly indicate that it may throw a checked exception.
+  <ul>
+    <li>To indicate that a method may throw a checked exception, the method's header must include a list of checked exceptions that it may throw.</li>
+    <li>The syntax makes use of the <strong>throws</strong> keyword as follows:</li>
+  </ul></li>
+</ul>
+<pre class="prettyprint linenums">
+void someMethod() throws IOException {
+  // ...
+}
+</pre>
+<ul>
+  <li>The exception classes shown in yellow in the figure above are all checked exceptions.  That is, the compiler checks to make sure if there is a potential that any of those types of exceptions are thrown, they must be handled.</li>
+  <li>Use of the <strong>throws</strong> keyword is optional for <a href="http://download.oracle.com/javase/7/docs/api/java/lang/RuntimeException.html">RuntimeException</a>s.</li>
+</ul>
+
+<h3>The finally Block</h3>
+
+<ul>
+  <li>A <strong>finally</strong> block may be used in conjunction with a <strong>try</strong> block.</li>
+  <li>Code within a <strong>finally</strong> block is executed regardless of whether an exception was thrown within the <strong>try</strong> block that it is associated with.</li>
+  <li>The <strong>finally</strong> block is discussed on the <a href="fileio.htm">File IO</a> page.</li>
+</ul>
+
+		</div><p id="modified">Last modified: Thursday, 17-May-2012 16:06:56 CDT
+		</p></article></div></section>
+		<footer class="footer">
+  <p class="contact">Office: L-343 &bull; Phone: 277-7339 &bull; np&#477;&#729;&#477;os&#623;@&#633;ol&#654;&#592;&#647;</p>
+
+  <div class="footMatter">
+    <span class="footerFace"></span>
+    <p>I am responsible for all content posted on these pages; <a href="http://www.msoe.edu">MSOE</a> is welcome to share these opinions but may not want to.
+    <p class="copyright">&#169; 2001-2013 <a href="/taylor/">Dr. Chris Taylor</a></p>
+  </div>
+</footer>
+
+<script src="//static.getclicky.com/js" type="text/javascript"></script>
+<script type="text/javascript">try{ clicky.init(66484323); }catch(e){}</script>
+<noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/66484323ns.gif" /></p></noscript>
+</body></html>

@@ -1,0 +1,984 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:og="http://ogp.me/ns#">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-jp">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<title>Scala 2.10.0 Futures and Promises - 1 - Starlight</title>
+<link rel="start" href="/" title="Starlight">
+<link rel="help" href="/help" title="ヘルプ">
+<link rel="prev" href="/Kazuhira/20130109/1357743942" title="[Scala]Scala 2.10.0 String Int...">
+<link rel="next" href="/Kazuhira/20130113/1358075059" title="[Scala]Scala 2.10.0 Futures an...">
+
+<link rel="stylesheet" href="http://d.st-hatena.com/statics/css/base.css?5d7f38e4a6d82f044c81959ae4de5445d7f238cd" type="text/css" media="all">
+<link rel="stylesheet" href="http://d.st-hatena.com/statics/css/headerstyle_wh.css?1e7f1ae8a305b254105e3093bcf711b2af81c2a0" type="text/css" media="all">
+<link rel="stylesheet" href="http://d.st-hatena.com/statics/theme/pure-soda/pure-soda.css?1e7f1ae8a305b254105e3093bcf711b2af81c2a0" type="text/css" media="all">
+
+
+<link rel="alternate" type="application/rss+xml" title="RSS" href="http://d.hatena.ne.jp/Kazuhira/rss">
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://d.hatena.ne.jp/Kazuhira/rss2">
+
+<link rel="meta" type="application/rdf+xml" title="FOAF" href="http://d.hatena.ne.jp/Kazuhira/foaf" />
+<link rel="search" type="application/opensearchdescription+xml" href="http://d.hatena.ne.jp/Kazuhira/opensearch/diary.xml" title="Starlight内日記検索" />
+<link rel="search" type="application/opensearchdescription+xml" href="http://d.hatena.ne.jp/Kazuhira/opensearch/archive.xml" title="Starlight内一覧検索" />
+
+
+
+<link rel="shortcut icon" href="http://d.hatena.ne.jp/images/wh_favicon.ico">
+
+
+
+
+<style type="text/css">
+<!-- 
+
+-->
+</style>
+
+
+<script type="text/javascript">if(/[\x3c\x3e\x22]/.test(location.hash))location.hash=location.hash.replace(/[\x3c\x3e\x22]/g,'');if(/[\x3c\x3e]/.test(document.referrer))location.href=location.href;</script>
+
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Scala 2.10.0 Futures and Promises - 1 - Starlight">
+<meta property="og:url" content="http://d.hatena.ne.jp/Kazuhira/20130111/1357920383">
+<meta property="og:description" content="今度は、Futures and Promisesです。 http://docs.scala-lang.org/overviews/core/futures.html 日本語訳。..">
+<meta property="og:site_name" content="はてなダイアリー">
+
+
+<!--
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<rdf:Description rdf:about="http://d.hatena.ne.jp/Kazuhira/20130111/1357920383">
+   <foaf:maker rdf:parseType="Resource">
+     <foaf:holdsAccount>
+       <foaf:OnlineAccount foaf:accountName="Kazuhira">
+         <foaf:accountServiceHomepage rdf:resource="http://www.hatena.ne.jp/" />
+       </foaf:OnlineAccount>
+     </foaf:holdsAccount>
+   </foaf:maker>
+</rdf:Description>
+</rdf:RDF>
+-->
+
+<link rel="alternate" media="handheld" type="text/html" href="http://d.hatena.ne.jp/Kazuhira/mobile?date=20130111&section=1357920383" />
+<!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+<rdf:Description
+  rdf:about="http://d.hatena.ne.jp/Kazuhira/20130111/1357920383"
+  trackback:ping="http://d.hatena.ne.jp/Kazuhira/20130111/1357920383"
+  dc:title="[Scala]Scala 2.10.0 Futures and Promises - 1"
+  dc:identifier="http://d.hatena.ne.jp/Kazuhira/20130111/1357920383" />
+</rdf:RDF>
+-->
+
+
+
+<link rel="canonical" href="http://d.hatena.ne.jp/Kazuhira/20130111/1357920383">
+
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site:id" content="1336830198">
+
+
+
+<script type="text/javascript" src="http://s.hatena.ne.jp/js/HatenaStar.js"></script>
+<script type="text/javascript">
+Hatena.Star.SiteConfig = {
+  entryNodes: {
+    'div.section': {
+      uri: 'h3 a',
+      title: 'h3',
+      container: 'h3'
+    }
+  }
+};
+Hatena.Author  = new Hatena.User('Kazuhira');
+Hatena.DiaryName  = new Hatena.User('Kazuhira');
+
+</script>
+
+
+
+
+
+<script type="text/javascript" src="http://d.st-hatena.com/statics/js/adcolor.js?1e7f1ae8a305b254105e3093bcf711b2af81c2a0"></script>
+
+
+<script type="text/javascript" src="http://d.st-hatena.com/statics/js/quick_pager.js?1e7f1ae8a305b254105e3093bcf711b2af81c2a0"></script>
+<script type="text/javascript" src="http://d.st-hatena.com/statics/js/diary_utils.js?1e7f1ae8a305b254105e3093bcf711b2af81c2a0"></script>
+<script type="text/javascript" src="http://d.st-hatena.com/statics/js/max_width_fotolife.js?1e7f1ae8a305b254105e3093bcf711b2af81c2a0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="http://d.st-hatena.com/statics/js/jquery-1.4.2.min.js?1e7f1ae8a305b254105e3093bcf711b2af81c2a0"></script>
+<script type="text/javascript">
+  jQuery.noConflict()(function($){
+    var j$ = jQuery;
+  });
+</script>
+
+
+
+
+</head>
+<body>
+
+<div id="simple-header">
+
+  <a href="http://www.hatena.ne.jp/"><img src="/images/hatena-simple_wh.gif" alt="Hatena::" title="Hatena::" id="logo-hatena" width="65" height="17"></a><a href="/"><img src="/images/diary-simple_wh.gif" alt="ブログ(Diary)" title="Diary" id="logo-diary" width="43" height="17"></a>
+  <form method="get" action="/search" class="search-form">
+    <input type="text" class="search-word" name="word" value=""><input name="name" value="Kazuhira" type="hidden"><input type="submit" name="diary" value="日記" class="search-button"><input type="submit" name="submit" value="検索" class="search-button">
+  </form>
+  <ul class="menu">
+    <li><a href="/Kazuhira/">ブログトップ</a></li>
+    <li><a href="/Kazuhira/archive">記事一覧</a></li>
+
+
+
+    <li><a href="https://www.hatena.ne.jp/login?backurl=http%3A%2F%2Fd.hatena.ne.jp%2FKazuhira%2F20130111%2F1357920383&add_timestamp=1">ログイン</a></li>
+    <li><a href="https://www.hatena.ne.jp/register?location=http%3A%2F%2Fd.hatena.ne.jp%3Fvia%3D200186&amp;via=200186">無料ブログ開設</a></li>
+
+  </ul>
+</div>
+
+
+
+<h1><a href="http://d.hatena.ne.jp/Kazuhira/">Starlight</a></h1>
+<div class="hatena-body">
+<div class="main">
+
+
+
+
+
+
+
+
+<div class="calendar" id="pager-top">
+  <a rel="prev" href="/Kazuhira/20130109/1357743942" class="prev">&lt;[Scala]Scala 2.10.0 String Int...</a>&nbsp;<span class="delimiter">|</span>&nbsp;<a rel="next" href="/Kazuhira/20130113/1358075059" class="next">[Scala]Scala 2.10.0 Futures an...&gt;</a><span id="edit-in-place-add"></span>
+</div>
+<div id="days">
+
+<div class="day day-br">
+<h2><a href="http://d.hatena.ne.jp/Kazuhira/20130111" rel="nofollow"><span class="date">2013-01-11</span></a></h2>
+
+<div class="body">
+
+<!-- rakuten_ad_target_begin -->
+<!-- google_ad_section_start -->
+
+		<div class="section">
+			<h3 class="title"><a href="/Kazuhira/20130111/1357920383" name="1357920383">Scala 2.10.0 Futures and Promises - 1</a></h3>
+			<p class="sectionheader"><span class="sectioncategory"><a href="/Kazuhira/searchdiary?word=%2A%5BScala%5D" class="sectioncategory">Scala</a></span></p>
+<p>今度は、Futures and Promisesです。<br><a href="http://docs.scala-lang.org/overviews/core/futures.html" target="_blank">http://docs.scala-lang.org/overviews/core/futures.html</a><br><br>日本語訳。<br><a href="http://docs.scala-lang.org/ja/overviews/core/futures.html" target="_blank">http://docs.scala-lang.org/ja/overviews/core/futures.html</a><br><br>そこそこ量が多くなりそうなので、分割していきます。まずはFutureから。<br></p>
+			<h4> Futureって？</h4>
+<p>ある計算処理を非同期（並列）に実行しておいて、結果は後から取得しようといったものです。マルチスレッド系のFutureパターンや、<a class="keyword" href="http://d.hatena.ne.jp/keyword/Java">Java</a>だと<a class="keyword" href="http://d.hatena.ne.jp/keyword/java">java</a>.util.concurrent.Futureでお馴染みかもですね。そういえば、Scala自身のActorパッケージにもあった気がしますが…。<br><br>まあ、2.10.0で追加されたFutureということで。<br><br>サンプルはこんな感じです。</p>
+<pre class="syntax-highlight">
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
+
+val session = ...
+val f: Future[List[String]] = future {
+  session.getRecentPosts
+}
+
+f onComplete {
+  case Success(posts) =&gt; for (post &lt;- posts) println(post)
+  case Failure(t) =&gt; println(&quot;エラーが発生した: &quot; + t.getMessage)
+}
+</pre>
+<br>
+<p>future関数で、Futureを作成することができます。また、Futureの計算結果には成功と失敗があります。計算処理で例外がスローされると、失敗となるみたいですね。<br><br>以下のimport文は、デフォルトの実行コンテキストを使用することを示しています。</p>
+<pre class="syntax-highlight">
+<span class="synPreProc">import</span> ExecutionContext.Implicits.global
+</pre>
+
+<p>この値が、Futureを作成したり実行したりする時の実行コンテキストとしてImplicit Parameterという形で与えられます。デフォルトの実行コンテキスト以外をどうやって作るのかは…ですが。とりあえず、今はこれのimportが必要ですよ、と。<br><br>また、future関数の結果として返ってくるFutureトレイトの<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A4%A5%F3%A5%B9%A5%BF%A5%F3%A5%B9">インスタンス</a>ですが、それ自身に待ち合わせの機能はありません。<br>＊<a class="keyword" href="http://d.hatena.ne.jp/keyword/Java">Java</a>は、Future#getで計算結果が得られるまで待ち合わせることができます<br><a href="http://www.scala-lang.org/api/current/index.html#scala.concurrent.Future" target="_blank">http://www.scala-lang.org/api/current/index.html#scala.concurrent.Future</a><br><br>スタンスとしては、Futureを使う時は結果を同期的に待つのではなくて、Futureトレイトの<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A4%A5%F3%A5%B9%A5%BF%A5%F3%A5%B9">インスタンス</a>にコールバック関数を登録して（先のサンプルでは、Future#onComplete）、非同期に結果を受け取って処理しなさい、というスタンスなようです。<br>＊その方が、性能的に好ましいということだそうで<br></p>
+			<h4> AwaitとDuration</h4>
+<p>とはいっても、Futureのバックグラウンドで使われているスレッドはForkJoinPoolのWorkerスレッド（<a class="keyword" href="http://d.hatena.ne.jp/keyword/Daemon">Daemon</a>スレッド）なので、普通にプログラムを実行してそれ以降の処理がないと、JavaVMが終了してしまいます…。<br>＊この辺り、<a class="keyword" href="http://d.hatena.ne.jp/keyword/Clojure">Clojure</a>と違いますよね<br><br>REPLでやっているならともかく、サンプルコードを書いているとやりづらくて仕方がないので、先に待ち合わせの方法から紹介します。<br><br>待ち合わせるためにはscala.concurrent.Awaitを、待ち合わせの時間を指定するにはscala.concurrent.duration.Durationを使用します。<br><br>以下、サンプルです。</p>
+<pre class="syntax-highlight">
+val f = future { Thread.sleep(3000L); 10 }
+println(Await.result(f, Duration.Inf)) // =&gt; 10
+</pre>
+
+<p>このサンプルを実行すると、3秒後にコメントで記載してあるような内容がコンソールに出力されます。<br><br>Await#result</p>
+<pre class="syntax-highlight">
+def result[T](awaitable: Awaitable[T], atMost: Duration): T
+</pre>
+
+<p>で、時間を表すDurationを指定してFutureの結果を取得します。結果は、future関数で作成した計算結果です。計算処理が失敗した（例外がスローされた）場合は、このメソッドから例外が飛んできます。<br><br>Await#ready</p>
+<pre class="syntax-highlight">
+<span class="synIdentifier">def</span> ready[T](awaitable: Awaitable[T], atMost: Duration): awaitable.<span class="synType">type</span>
+</pre>
+
+<p>Futureの計算結果を待ち合わせるだけのメソッドです。結果は、成功／失敗に関わらず、計算結果が終了したFutureが返ってきます。もちろん、引数に与えたFutureを見てもよいですが。<br><br>両メソッドとも、指定したDurationまでに終了しなかった場合には<a class="keyword" href="http://d.hatena.ne.jp/keyword/java">java</a>.util.concurrent.TimeoutExceptionがスローされます。<br><br>Durationは、時間を長さを表す基底クラスで、有限も無限も表現できます。先の例</p>
+<pre class="syntax-highlight">
+Duration.Inf
+</pre>
+
+<p>は無限でした。<br><br>Durationの<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A4%A5%F3%A5%B9%A5%BF%A5%F3%A5%B9">インスタンス</a>は、下記のような方法で作成することができます。まあ、これはガイドの写しですが。</p>
+<pre class="syntax-highlight">
+<span class="synPreProc">import</span> scala.concurrent.Duration
+<span class="synPreProc">import</span> scala.concurrent.duration._
+<span class="synPreProc">import</span> java.util.concurrent.TimeUnit._
+<span class="synComment">// 作成</span>
+<span class="synType">val</span> d1 = Duration(<span class="synConstant">100</span>, MILLISECONDS) <span class="synComment">// from Long and TimeUnit</span>
+<span class="synType">val</span> d2 = Duration(<span class="synConstant">100</span>, <span class="synConstant">&quot;millis&quot;</span>) <span class="synComment">// from Long and String</span>
+<span class="synType">val</span> d3 = <span class="synConstant">100</span> millis <span class="synComment">// implicitly from Long, Int or Double</span>
+<span class="synType">val</span> d4 = Duration(<span class="synConstant">&quot;1.2 &amp;#181;s&quot;</span>) <span class="synComment">// from String</span>
+</pre>
+
+<p>パターンマッチも可能。</p>
+<pre class="syntax-highlight">
+<span class="synComment">// パターンマッチング</span>
+<span class="synType">val</span> Duration(length, <span class="synType">unit</span>) = <span class="synConstant">5</span> millis
+</pre>
+<br>
+<p>以降の例では、すべてimportとして</p>
+<pre class="syntax-highlight">
+import scala.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
+</pre>
+
+<p>が指定してあるものとし、待ち合わせを行う時間は</p>
+<pre class="syntax-highlight">
+Duration.Inf
+</pre>
+
+<p>で行うものとします。<br><br>また、Futureを作成する時には</p>
+<pre class="syntax-highlight">
+  <span class="synComment">// wait-and-get</span>
+<span class="synIdentifier">  def</span> wag(waitSec: Int, n: Int): Int = {
+    Thread.sleep(waitSec * <span class="synConstant">1000L</span>)
+    n
+  }
+</pre>
+
+<p>と指定時間待機するような関数を使い、時間の計測があった方が並列に動いていることがわかりやすいので</p>
+<pre class="syntax-highlight">
+  <span class="synComment">// stop-watch</span>
+<span class="synIdentifier">  def</span> sw[A](body: =&gt; A): Unit = {
+    <span class="synType">val</span> start = System.currentTimeMillis
+    <span class="synStatement">try</span> {
+      println(s<span class="synConstant">&quot;got [$body], elapsed time [${(System.currentTimeMillis - start) / 1000.0}]msec&quot;</span>)
+    } <span class="synStatement">catch</span> {
+      <span class="synType">case</span> th: Throwable =&gt;
+        println(s<span class="synConstant">&quot;got Exception[$th], elapsed time [${(System.currentTimeMillis - start) / 1000.0}]msec&quot;</span>)
+    }
+  }
+</pre>
+
+<p>という関数で包んで実行するものとします。<br><br>例えば、こんな感じです。</p>
+<pre class="syntax-highlight">
+    sw {
+      <span class="synType">val</span> f = future { wag(<span class="synConstant">3</span>, <span class="synConstant">5</span>) }
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got [5], elapsed time [3.019]msec</span>
+</pre>
+<br>
+			<h4> Future#value</h4>
+<p>Futureの値が取得できます。</p>
+<pre class="syntax-highlight">
+    sw {
+      val f = future { wag(3, 5) }
+      f.value
+    }
+    // =&gt; got [None], elapsed time [0.012]msec
+
+    sw {
+      val f = future { wag(3, 5) }
+      Await.ready(f, Duration.Inf)
+      f.value
+    }
+    // =&gt; got [Some(Success(5))], elapsed time [3.003]msec
+
+    sw {
+      val f = future { throw new Exception }
+      Await.ready(f, Duration.Inf)
+      f.value
+    }
+    // =&gt; got [Some(Failure(java.lang.Exception))], elapsed time [0.001]msec
+</pre>
+
+<p>別に結果の待ち合わせをするわけでもないので、計算処理が終了していない時にこのメソッドを呼ぶとNoneが返ります。計算処理が終了していた場合は、Someに包まれて結果が返ります。<br></p>
+			<h4> Future#onComplete</h4>
+<p>Futureの計算の成功、失敗に関わらず、終了時に呼び出されるコールバック関数を登録します。結果はscala.util.Tryの<a class="keyword" href="http://d.hatena.ne.jp/keyword/%A5%A4%A5%F3%A5%B9%A5%BF%A5%F3%A5%B9">インスタンス</a>として渡ってくるので、パターンマッチで判定します。<br>成功はSuccess、失敗はFailureとなります。</p>
+<pre class="syntax-highlight">
+    sw {
+      val f = future { wag(3, 5) }
+      f onComplete {
+        case Success(n) =&gt; println(s&quot;got success = $n&quot;)  // =&gt; got success = 5
+        case Failure(e) =&gt; println(s&quot;got error = $e&quot;)
+      }
+      Await.result(f, Duration.Inf)
+    }
+    // =&gt; got [5], elapsed time [3.018]msec
+
+    sw {
+      val f = future { throw new Exception }
+      f onComplete {
+        case Success(n) =&gt; println(s&quot;got success = $n&quot;)
+        case Failure(e) =&gt; println(s&quot;got error = $e&quot;)  // =&gt; got error = java.lang.Exception
+      }
+      Await.result(f, Duration.Inf)
+    }
+    // =&gt; got Exception[java.lang.Exception], elapsed time [0.002]msec
+</pre>
+
+<p>2つ目の方は、Futureが例外を投げているのでsw関数のcatch節に捕まったことになります。なお、コールバック関数は（ドキュメントの書き方は曖昧ですが）非同期に実行されているようです。<br><br>コールバック関数は、複数登録することもできます。</p>
+<pre class="syntax-highlight">
+    sw {
+      <span class="synType">val</span> f = future { wag(<span class="synConstant">3</span>, <span class="synConstant">5</span>) }
+      f onComplete {
+        <span class="synType">case</span> Success(n) =&gt; println(s<span class="synConstant">&quot;1. got success = $n&quot;</span>)
+        <span class="synType">case</span> Failure(e) =&gt; println(s<span class="synConstant">&quot;1. got error = $e&quot;</span>)
+      }
+
+      f onComplete {
+        <span class="synType">case</span> Success(n) =&gt; println(s<span class="synConstant">&quot;2. got success = $n&quot;</span>)
+        <span class="synType">case</span> Failure(e) =&gt; println(s<span class="synConstant">&quot;2. got error = $e&quot;</span>)
+      }
+
+      Await.result(f, Duration.Inf)
+    }
+</pre>
+
+<p>この場合も、登録した関数は登録順に関係なく非同期に実行されるようです。<br></p>
+			<h4> Future#onSuccess、Future#onFailure</h4>
+<p>それぞれ、onCompleteのようにコールバック関数を登録するメソッドですが、それぞれ成功時または失敗時のみにしか呼び出されないことが異なります。</p>
+<pre class="syntax-highlight">
+    sw {
+      val f = future { wag(3, 5) }
+      f onSuccess {
+        case n =&gt; println(s&quot;got success $n&quot;)  // =&gt; got success 5
+      }
+      f onFailure {
+        case t =&gt; println(s&quot;got failure $t&quot;)
+      }
+      Await.result(f, Duration.Inf)
+    }
+    // =&gt; got [5], elapsed time [3.017]msec
+
+    sw {
+      val f = future { throw new Exception }
+      f onSuccess {
+        case n =&gt; println(s&quot;got success $n&quot;)
+      }
+      f onFailure {
+        case t =&gt; println(s&quot;got failure $t&quot;)  // =&gt; got failure java.lang.Exception
+      }
+      Await.result(f, Duration.Inf)
+    }
+    // =&gt; got Exception[java.lang.Exception], elapsed time [0.008]msec
+</pre>
+
+<p>成功時にはonFailureに登録した関数が、失敗時にはonSuccessに登録した関数が無視されることになります。<br><br>こちらも、複数のコールバック関数を登録することが可能です。<br></p>
+			<h4> Future#map、Future#flatMap、Future#foreach、Future#withFilter、Future#collect</h4>
+<p>お馴染みの変換、反復メソッドですね。</p>
+<pre class="syntax-highlight">
+    sw {
+      val f = future { wag(3, 5) } map { n =&gt; wag(5, 10) }
+      f foreach println  // =&gt; 10
+      Await.result(f, Duration.Inf)
+    }
+    // =&gt; got [10], elapsed time [8.022]msec
+
+    sw {
+      val f1 = future { wag(3, 5) }
+      val f2 = future { wag(5, 10) }
+      val fs = f1 flatMap { n1 =&gt; f2 map { n2 =&gt; n1 + n2 } }
+      Await.result(fs, Duration.Inf)
+    }
+    // =&gt; got [15], elapsed time [5.003]msec
+</pre>
+
+<p>最初のmapの例では、Futureの計算結果に対してさらにFutureを使った計算をしています。よって、2つ目のFutureが最初のFutureの結果に依存しているため、逐次処理となり実行時間は8秒となっています。<br>対してflatMapの例では、2つのFutureの結果が揃わなければ結果は得られませんが、2つのFutureは別々に計算できるため5秒で実行が完了しています。2つのFutureは、並列に実行されたということですね。<br><br>Futureにおいてforeachは、onSuccessと同じと考えてよいみたいです。また、mapとflatMapに渡した関数も、Futureの計算が成功しなければ実行されません。この辺りは、OptionのSome、Noneの関係と同じと考えてよさそうですね。<br><br>map、flatMapが使えるので、先ほどのflatMapの例はfor式で書き直すことができます。</p>
+<pre class="syntax-highlight">
+    sw {
+      val f1 = future { wag(3, 5) }
+      val f2 = future { wag(5, 10) }
+      val fs = for {
+        n1 &lt;- f1
+        n2 &lt;- f2
+      } yield n1 + n2
+      Await.result(fs, Duration.Inf)
+    }
+</pre>
+<br>
+<p>withFilterとfilterもあるので、for式内でifを使用することもできます。ただ、withFilter（またはfilter）の結果がfalseとなった場合は、Futureの結果としては<a class="keyword" href="http://d.hatena.ne.jp/keyword/java">java</a>.util.NoSuchElementExceptionがスローされることになります。</p>
+<pre class="syntax-highlight">
+    sw {
+      val f1 = future { wag(3, 5) }
+      val f2 = future { wag(5, 10) }
+      val f = for {
+        n1 &lt;- f1
+        if n1 &gt; 5
+        n2 &lt;- f2
+      } yield n1 + n2
+      Await.result(f, Duration.Inf)
+    }
+    // =&gt; got Exception[java.util.NoSuchElementException: Future.filter predicate is not satisfied], elapsed time [3.002]msec
+</pre>
+<br>
+<p>collectは割愛〜。<br></p>
+			<h4> Future#recover、Future#recoverWith</h4>
+<p>Futureの計算が失敗した場合に、例外の結果から新たなFutureを作成して継続するためのメソッドです。</p>
+<pre class="syntax-highlight">
+    sw {
+      <span class="synType">val</span> f = future {
+        <span class="synConstant">1</span> / <span class="synConstant">0</span>
+      } recover {
+        <span class="synType">case</span> th: ArithmeticException =&gt; <span class="synConstant">5</span>
+      }
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got [5], elapsed time [0.035]msec</span>
+
+    sw {
+      <span class="synType">val</span> f = future {
+        <span class="synConstant">1</span> / <span class="synConstant">0</span>
+      } recoverWith {
+        <span class="synType">case</span> th: ArithmeticException =&gt; future { wag(<span class="synConstant">3</span>, <span class="synConstant">5</span>) }
+      }
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got [5], elapsed time [3.004]msec</span>
+</pre>
+
+<p>ガイドにも書いていますが、それぞれmapとflatMapによく似ていますね。なお、引数はPartialFunctionなので、部分関数に渡ってくる引数の例外に対してパターンマッチが成功しなかった場合は、recoverおよびrecoverWithの結果もまた失敗します。<br></p>
+			<h4> Future#fallbackTo</h4>
+<p>recover、recoverWithに似ていますが、失敗時の代替となるFutureを直接設定します。</p>
+<pre class="syntax-highlight">
+    sw {
+      <span class="synType">val</span> f = future { <span class="synConstant">1</span> / <span class="synConstant">0</span> } fallbackTo future { wag(<span class="synConstant">3</span>, <span class="synConstant">5</span>) }
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got [5], elapsed time [3.017]msec</span>
+</pre>
+<br>
+			<h4> Future#andThen</h4>
+<p>副作用を起こすことを目的として、PartialFunctionを指定します。結果はFutureが返りますが、andThenで呼び出される関数が何を返そうと、元のFutureの値が呼び出し元には返ります。</p>
+<pre class="syntax-highlight">
+    sw {
+      <span class="synType">val</span> f = future { wag(<span class="synConstant">3</span>, <span class="synConstant">5</span>) }
+                .andThen { <span class="synType">case</span> Success(n) =&gt; println(n); <span class="synConstant">20</span> }  <span class="synComment">// 5</span>
+                .andThen { <span class="synType">case</span> Success(n) =&gt; println(n); <span class="synConstant">10</span> }  <span class="synComment">// 5</span>
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got [5], elapsed time [3.065]msec</span>
+</pre>
+
+<p>この例では、PartialFunctionで最初のFutureと全然関係ない値を返していますが、andThenに渡される引数もAwait#resultで得られる結果も、最初のFutureの結果で得られるものです。<br></p>
+			<h4> Future#zip</h4>
+<p>2つのFutureをまとめることができます。</p>
+<pre class="syntax-highlight">
+    sw {
+      val f = future { wag(3, 5) } zip future { wag(5, 10) }
+      Await.result(f, Duration.Inf)
+    }
+    // =&gt; got [(5,10)], elapsed time [5.027]msec
+</pre>
+
+<p>並列実行されているようなので、実行時間は5秒となっています。<br><br>普通にタプルにした場合と、何が違うの？というところですが</p>
+<pre class="syntax-highlight">
+    sw {
+      <span class="synType">val</span> f = future { <span class="synStatement">throw</span> <span class="synStatement">new</span> Exception } zip future { wag(<span class="synConstant">5</span>, <span class="synConstant">10</span>) }
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got Exception[java.lang.Exception], elapsed time [0.026]msec</span>
+
+    sw {
+      <span class="synType">val</span> f = future { wag(<span class="synConstant">3</span>, <span class="synConstant">5</span>) } zip future { <span class="synStatement">throw</span> <span class="synStatement">new</span> Exception }
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got Exception[java.lang.Exception], elapsed time [3.003]msec</span>
+</pre>
+
+<p>どちらか片方でも失敗した場合は、その例外が得られることになります。<br></p>
+			<h4> Future#failed</h4>
+<p>完了したFutureが失敗した場合に、Future[Throwable]が返りforeach（もしくはfor内包表記）で使うことができます。</p>
+<pre class="syntax-highlight">
+    sw {
+      val f = future { wag(3, 5) }
+      f.failed.foreach(th =&gt; println(s&quot;got Exception[${th}]&quot;))
+      Await.result(f, Duration.Inf)
+    }
+
+    sw {
+      val f = future { Thread.sleep(3000L); 1 / 0 }
+      f.failed.foreach(th =&gt; println(s&quot;got Exception[${th}]&quot;))  // =&gt; got Exception[java.lang.ArithmeticException: / by zero]
+      Await.result(f, Duration.Inf)
+    }
+
+    sw {
+      val f = future { Thread.sleep(3000L); 1 / 0 }
+      for (th &lt;- f.failed) println(s&quot;got Exception[${th}]&quot;)  // =&gt; got Exception[java.lang.ArithmeticException: / by zero]
+      Await.result(f, Duration.Inf)
+    }
+</pre>
+
+<p>最初のコードはforeachで何も出力しません。<br></p>
+			<h4> Future#transform</h4>
+<p>Futureの結果を変換することができます。変換するための関数は、成功時と失敗時に対してそれぞれ設定します。</p>
+<pre class="syntax-highlight">
+    sw {
+      <span class="synType">val</span> f = future { wag(<span class="synConstant">3</span>, <span class="synConstant">5</span>) } transform ({ n =&gt; n * <span class="synConstant">10</span>}, { th =&gt; <span class="synStatement">new</span> RuntimeException(th) })
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got [50], elapsed time [3.016]msec</span>
+
+    sw {
+      <span class="synType">val</span> f = future { <span class="synConstant">1</span> / <span class="synConstant">0</span> } transform ({ n =&gt; n * <span class="synConstant">10</span>}, { th =&gt; <span class="synStatement">new</span> RuntimeException(th) })
+      Await.result(f, Duration.Inf)
+    }
+    <span class="synComment">// =&gt; got Exception[java.lang.RuntimeException: java.lang.ArithmeticException: / by zero], elapsed time [0.004]msec</span>
+</pre>
+
+<p>見た目的にそんなに変わらないのですが、Future#transformの宣言が</p>
+<pre class="syntax-highlight">
+def transform[S](s: (T) ⇒ S, f: (Throwable) ⇒ Throwable)(implicit executor: ExecutionContext): Future[S]
+</pre>
+
+<p>と、例外を受けた場合は例外を返却すればいいので、別にスローしなくていいんでしょうね。Await#resultでは、変換した例外が飛んできているようですが。<br><br>いやー、けっこう面白いです。まだFutureオブジェクトとPromiseが残っているので、これは次回以降に。</p>
+			<p class="sectionfooter"><a href="/Kazuhira/20130111/1357920383">Permalink</a> | <a href="/Kazuhira/20130111/1357920383#c">コメント(0)</a> | <a href="/Kazuhira/20130111/1357920383#tb">トラックバック(0)</a> | 01:06 <a href="http://b.hatena.ne.jp/entry/http://d.hatena.ne.jp/Kazuhira/20130111/1357920383" class="bookmark-icon"><img src="http://d.hatena.ne.jp/images/b_entry_wh.gif" border="0" title="Scala 2.10.0 Futures and Promises - 1を含むブックマーク" alt="Scala 2.10.0 Futures and Promises - 1を含むブックマーク" width="16" height="12" class="icon"></a> <a href="http://b.hatena.ne.jp/entry/http://d.hatena.ne.jp/Kazuhira/20130111/1357920383" class="bookmark-count"><img src="http://b.hatena.ne.jp/entry/image/http://d.hatena.ne.jp/Kazuhira/20130111/1357920383" title="はてなブックマーク - Scala 2.10.0 Futures and Promises - 1" alt=""></a></p>
+
+		</div>
+<div id="google_afc_user" class="section">
+  <script type="text/javascript"><!--
+     hatena_dfp_tag       = '/4374287/diary_user';
+     hatena_dfp_size      = [[300, 250], [336, 280]];
+     hatena_dfp_target_id = 'google_afc_user';
+  --></script>
+  <script type="text/javascript" src="http://ad.hatena.ne.jp/js/hatena_dfp-compiled.js"></script>
+</div>
+
+<!-- google_ad_section_end -->
+<!-- rakuten_ad_target_end -->
+
+
+</div>
+
+<form id="comment-form" method="post" action="/Kazuhira/comment#c" class="comment">
+<input type="hidden" name="mode" value="enter">
+<input type="hidden" name="rkm" value="">
+<input type="hidden" name="date" value="2013-01-11">
+<div class="comment">
+  <div class="caption"><a name="c">コメントを書く</a></div>
+  <div class="commentshort">
+    
+    
+
+    <a name="error-message"></a>
+    <p class="message" style="display:none"></p>
+
+    
+
+    
+            
+    <p class="commentform">
+      <span class="commentator">
+        <span class="usermailconfirm"><input name="usermail" size="1" value=""><input name="userurl" size="1" value="">スパム対策のためのダミーです。もし見えても何も入力しないでください<br></span>
+        <span class="username">
+        <img src="http://www.hatena.ne.jp/images/guest_icon.gif" class="hatena-id-icon" alt="ゲスト" title="ゲスト" height="16" width="16">
+        <input type="hidden" name="section" value="1357920383">
+        
+          <input id="comment-username" name="username" size="15">
+        
+        </span>
+        
+          <span class="usermail"><img src="/images/icon-usermail.gif" style="vertical-align:middle;margin-right:3px;"><input id="comment-usermail" name="useremail" size="15" value=""></span>
+          <span class="userurl"><img src="/images/icon-userurl.gif" style="vertical-align:middle;margin-right:3px;"><input id="comment-userurl" name="useruri" size="15" value=""></span>
+        
+      </span>
+<br>
+      <!-- NOT_VERIFIED_COMMENT_AUTH -->
+      <textarea id="comment-textarea" name="body" value="" cols="60" rows="3"></textarea><br>
+      
+          <div class="captcha">
+            <img src="/Kazuhira/captcha?1386977877" class="captcha-image">
+            <span class="captcha-message">画像認証</span><br />
+            <input type="text" name="captcha_code" size="10" class="captcha-string" id="comment-captcha">
+          </div>
+      
+      <span class="comment-submit"><input type="submit" id="comment-form-button" value="投稿"></span>
+    </p>
+
+      <script type="text/javascript" src="/js/diary_comment_edit_form.js"></script>
+    
+
+  </div>
+</div>
+
+</form>
+
+
+
+
+
+  
+  <div class="refererlist">
+    <div class="caption">
+      <a name="tb">トラックバック</a> - http://d.hatena.ne.jp/Kazuhira/20130111/1357920383
+    </div>
+    
+  </div>
+  
+  
+
+
+
+
+
+    <div class="refererlist">
+      <div class="caption">リンク元</div>
+      <ul>
+          <li>47 <a href="https://www.google.co.jp/" rel="nofollow">https://www.google.co.jp/</a></li>
+          <li>14 <a href="http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;ved=0CC0QFjAA&amp;url=http%3A%2F%2Fd.hatena.ne.jp%2FKazuhira%2F20111010%2F1318250407&amp;ei=h-jwULlFyreSBf3OgEA&amp;usg=AFQjCNFpwJ02k4kOSgIZ474DmU7WIA9NMg&amp;bvm=bv.1357700187,d.dGI" rel="nofollow">http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;ved=0CC0QFjAA&amp;url=http://d.hatena.ne.jp/Kazuhira/20111010/1318250407&amp;ei=h-jwULlFyreSBf3OgEA&amp;usg=AFQjCNFpwJ02k4kOSgIZ474DmU7WIA9NMg&amp;bvm=bv.1357700187,d.dGI</a></li>
+          <li>8 <a href="http://radi0ant.hatenablog.com/entry/2012/05/04/035243" rel="nofollow">http://radi0ant.hatenablog.com/entry/2012/05/04/035243</a></li>
+          <li>6 <a href="http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=2&amp;ved=0CDsQFjAB&amp;url=http%3A%2F%2Fd.hatena.ne.jp%2FKazuhira%2F20110618%2F1308399122&amp;ei=9gvxUN6BAcjLlAXjz4EI&amp;usg=AFQjCNF7a91LiZvNflXfuZ1YLY5NgrfTwQ&amp;bvm=bv.1357700187,d.dGI" rel="nofollow">http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=2&amp;ved=0CDsQFjAB&amp;url=http://d.hatena.ne.jp/Kazuhira/20110618/1308399122&amp;ei=9gvxUN6BAcjLlAXjz4EI&amp;usg=AFQjCNF7a91LiZvNflXfuZ1YLY5NgrfTwQ&amp;bvm=bv.1357700187,d.dGI</a></li>
+          <li>6 <a href="http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=4&amp;ved=0CE8QFjAD&amp;url=http%3A%2F%2Fd.hatena.ne.jp%2FKazuhira%2F20121118%2F1353241109&amp;ei=e8PwUMCaIMiRkQX3qIG4CQ&amp;usg=AFQjCNFoOOspxA2TzCBSSTlC_IW-WSgdkA&amp;sig2=5VsDbJnYBa45JjXCbsG4jQ&amp;bvm=bv.135770018" rel="nofollow">http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=4&amp;ved=0CE8QFjAD&amp;url=http://d.hatena.ne.jp/Kazuhira/20121118/1353241109&amp;ei=e8PwUMCaIMiRkQX3qIG4CQ&amp;usg=AFQjCNFoOOspxA2TzCBSSTlC_IW-WSgdkA&amp;sig2=5VsDbJnYBa45JjXCbsG4jQ&amp;bvm=bv.135770018</a></li>
+          <li>4 <a href="http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=3&amp;ved=0CEAQFjAC&amp;url=http%3A%2F%2Fd.hatena.ne.jp%2FKazuhira%2F20120708%2F1341733473&amp;ei=VX7xUI6eGYfjkgWn2IH4DA&amp;usg=AFQjCNEypaVR-ya7Bnqm5RC1f5UVliB22w&amp;sig2=ZZliCK9DARqNN88SqU1B1g&amp;bvm=bv.135770018" rel="nofollow">http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=3&amp;ved=0CEAQFjAC&amp;url=http://d.hatena.ne.jp/Kazuhira/20120708/1341733473&amp;ei=VX7xUI6eGYfjkgWn2IH4DA&amp;usg=AFQjCNEypaVR-ya7Bnqm5RC1f5UVliB22w&amp;sig2=ZZliCK9DARqNN88SqU1B1g&amp;bvm=bv.135770018</a></li>
+          <li>4 <a href="http://www.google.co.jp/webhp?sourceid=chrome-instant&amp;ion=1&amp;ie=UTF-8" rel="nofollow">http://www.google.co.jp/webhp?sourceid=chrome-instant&amp;ion=1&amp;ie=UTF-8</a></li>
+          <li>4 <a href="https://www.google.com/" rel="nofollow">https://www.google.com/</a></li>
+          <li>3 <a href="http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=6&amp;ved=0CF8QFjAF&amp;url=http%3A%2F%2Fd.hatena.ne.jp%2FKazuhira%2F20121118%2F1353241109&amp;ei=GQzxUNTAOcWikgXsl4CwBQ&amp;usg=AFQjCNFoOOspxA2TzCBSSTlC_IW-WSgdkA&amp;sig2=ia0xVZ3kYI6cpUX-kJvpGw&amp;bvm=bv.135770018" rel="nofollow">http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=6&amp;ved=0CF8QFjAF&amp;url=http://d.hatena.ne.jp/Kazuhira/20121118/1353241109&amp;ei=GQzxUNTAOcWikgXsl4CwBQ&amp;usg=AFQjCNFoOOspxA2TzCBSSTlC_IW-WSgdkA&amp;sig2=ia0xVZ3kYI6cpUX-kJvpGw&amp;bvm=bv.135770018</a></li>
+          <li>3 <a href="http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=9&amp;ved=0CG8QFjAI&amp;url=http%3A%2F%2Fd.hatena.ne.jp%2FKazuhira%2F20120408%2F1333885399&amp;ei=clnwUPbICofDlQWirYDgAw&amp;usg=AFQjCNE-f8nbRwJUPO0R7fYZBOKxu3fB2g&amp;sig2=Wax83WLJt4C1R0SWRknvdA&amp;bvm=bv.135770018" rel="nofollow">http://www.google.co.jp/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=9&amp;ved=0CG8QFjAI&amp;url=http://d.hatena.ne.jp/Kazuhira/20120408/1333885399&amp;ei=clnwUPbICofDlQWirYDgAw&amp;usg=AFQjCNE-f8nbRwJUPO0R7fYZBOKxu3fB2g&amp;sig2=Wax83WLJt4C1R0SWRknvdA&amp;bvm=bv.135770018</a></li>
+      </ul>
+      
+    </div>
+
+
+
+
+</div>
+
+
+
+</div>
+<div class="calendar" id="pager-bottom">
+  <a rel="prev" href="/Kazuhira/20130109/1357743942" class="prev">&lt;[Scala]Scala 2.10.0 String Int...</a>&nbsp;<span class="delimiter">|</span>&nbsp;<a rel="next" href="/Kazuhira/20130113/1358075059" class="next">[Scala]Scala 2.10.0 Futures an...&gt;</a>
+</div>
+</div>
+<div class="sidebar">
+	<div class="hatena-module hatena-module-profile">
+  <div class="hatena-moduletitle">プロフィール</div>
+  <div class="hatena-modulebody">
+    <div class="hatena-profile">
+      <p class="hatena-profile-image"><a href="/Kazuhira/about"><img src="http://www.st-hatena.com/users/Ka/Kazuhira/user_p.gif" alt="Kazuhira" /></a></p>
+      <p class="hatena-profile-id"><a href="/Kazuhira/about">Kazuhira</a></p>
+      <p class="hatena-profile-body">Sunday Programmer’s Diary？</p>
+    </div>
+  </div>
+</div>
+
+	<a target="_blank" href="http://www.geocities.jp/kazuhira_im/">Little Wings Origin Site</a><br>
+	<div class="hatena-module hatena-module-calendar2">
+<div class="hatena-moduletitle">カレンダー</div>
+<div class="hatena-modulebody">
+<table class="calendar" summary="calendar">
+<tr>
+<td class="calendar-prev-month" colspan="2"><a href="/Kazuhira/201212" title="201212" rel="nofollow">&lt;&lt;</a></td>
+<td class="calendar-current-month" colspan="3"><a href="/Kazuhira/archive/201301" rel="nofollow">2013/01</a></td>
+<td class="calendar-next-month" colspan="2"><a href="/Kazuhira/201302" title="201302" rel="nofollow">&gt;&gt;</a></td>
+</tr>
+<tr>
+<td class="calendar-sunday">日</td>
+<td class="calendar-weekday">月</td>
+<td class="calendar-weekday">火</td>
+<td class="calendar-weekday">水</td>
+<td class="calendar-weekday">木</td>
+<td class="calendar-weekday">金</td>
+<td class="calendar-saturday">土</td>
+</tr>
+	<tr>
+		<td class="calendar-day"></td>
+		<td class="calendar-day"></td>
+		<td class="calendar-day">1</td>
+		<td class="calendar-day">2</td>
+		<td class="calendar-day"><a href="/Kazuhira/20130103" title="3">3</a></td>
+		<td class="calendar-day">4</td>
+		<td class="calendar-day">5</td>
+	</tr>
+	<tr>
+		<td class="calendar-day">6</td>
+		<td class="calendar-day"><a href="/Kazuhira/20130107" title="7">7</a></td>
+		<td class="calendar-day"><a href="/Kazuhira/20130108" title="8">8</a></td>
+		<td class="calendar-day"><a href="/Kazuhira/20130109" title="9">9</a></td>
+		<td class="calendar-day">10</td>
+		<td class="calendar-day day-selected"><a href="/Kazuhira/20130111" title="11">11</a></td>
+		<td class="calendar-day">12</td>
+	</tr>
+	<tr>
+		<td class="calendar-day"><a href="/Kazuhira/20130113" title="13">13</a></td>
+		<td class="calendar-day"><a href="/Kazuhira/20130114" title="14">14</a></td>
+		<td class="calendar-day"><a href="/Kazuhira/20130115" title="15">15</a></td>
+		<td class="calendar-day">16</td>
+		<td class="calendar-day"><a href="/Kazuhira/20130117" title="17">17</a></td>
+		<td class="calendar-day">18</td>
+		<td class="calendar-day"><a href="/Kazuhira/20130119" title="19">19</a></td>
+	</tr>
+	<tr>
+		<td class="calendar-day">20</td>
+		<td class="calendar-day"><a href="/Kazuhira/20130121" title="21">21</a></td>
+		<td class="calendar-day">22</td>
+		<td class="calendar-day"><a href="/Kazuhira/20130123" title="23">23</a></td>
+		<td class="calendar-day"><a href="/Kazuhira/20130124" title="24">24</a></td>
+		<td class="calendar-day">25</td>
+		<td class="calendar-day">26</td>
+	</tr>
+	<tr>
+		<td class="calendar-day">27</td>
+		<td class="calendar-day">28</td>
+		<td class="calendar-day">29</td>
+		<td class="calendar-day">30</td>
+		<td class="calendar-day">31</td>
+		<td class="calendar-day"></td>
+		<td class="calendar-day"></td>
+	</tr>
+</table>
+	</div>
+</div>
+
+	<div class="hatena-module hatena-module-section">
+<div class="hatena-moduletitle"><a href="/Kazuhira/archive">最新タイトル</a></div>
+<div class="hatena-modulebody">
+<ul class="hatena-section">
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131211/1386776905">[Scala][Clojure]Undertowで遊んでみる</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131208/1386511961">[Arquillian][ScalaTest]ArquillianとScalaTestを合わせて使う</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131206/1386345512">[Scala]ScalaのString Interpolationを自分で書いて試してみる</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131205/1386256810">[JPA][MongoDB]EclipseLink × MongoDB</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131204/1386163253">[Infinispan][JCache][AdventCalendar]Standard Caching</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131203/1386084011">[Arquillian][JAX-RS][EJB]Arquillian Remoteを使ったテスト</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131201/1385900824">[ScalaTest]ScalaTest、はじめてみます</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131130/1385808406">[雑記]GitHubアカウントを作りました</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131130/1385800116">[Ehcache]Ehcacheで、Read Through的な</a></li>
+<li><a href="http://d.hatena.ne.jp/Kazuhira/20131128/1385644032">[JAX-RS][Arquillian]ArquillianでJAX-RSのテスト</a></li>
+</ul>
+</div>
+</div>
+
+	<div class="hatena-module hatena-module-comment">
+<div class="hatena-moduletitle">最近のコメント</div>
+<div class="hatena-modulebody">
+<ul class="hatena-recentcomment">
+<li><a href="/Kazuhira/20131121/1385047324#c">2013-11-21</a>&nbsp;Kazuhira</li>
+<li><a href="/Kazuhira/20131121/1385047324#c">2013-11-21</a>&nbsp;nekop</li>
+<li><a href="/Kazuhira/20131111/1384181540#c">2013-11-11</a>&nbsp;Kazuhira</li>
+<li><a href="/Kazuhira/20131111/1384181540#c">2013-11-11</a>&nbsp;emaggame</li>
+<li><a href="/Kazuhira/20121013/1350118101#c">2012-10-13</a>&nbsp;Kazuhira</li>
+</ul>
+</div>
+</div>
+
+	<div class="hatena-module hatena-module-trackback">
+<div class="hatena-moduletitle">最近のトラックバック</div>
+<div class="hatena-modulebody">
+<ul class="hatena-recentcomment">
+<li><a href="/Kazuhira/20131204/1386163253#tb">2013-12-04</a>&nbsp;<a href="http://d.hatena.ne.jp/tanakakns/20130306/1362564123">ぺーぺーSEの日記 - おれおれブックマーク</a></li>
+<li><a href="/Kazuhira/20131204/1386163253#tb">2013-12-04</a>&nbsp;<a href="http://d.hatena.ne.jp/gloryof/20131204/1386170095">シュンツのつまづき日記 - CDI1.1から追加されたbean-discovery-mod...</a></li>
+<li><a href="/Kazuhira/20131204/1386163253#tb">2013-12-04</a>&nbsp;<a href="http://d.hatena.ne.jp/gloryof/20131204/1386169995">シュンツのつまづき日記 - CDI1.1から追加されたbean-discovery-mode</a></li>
+<li><a href="/Kazuhira/20131204/1386163253#tb">2013-12-04</a>&nbsp;<a href="http://d.hatena.ne.jp/gloryof/20131204/1386169895">シュンツのつまづき日記 - CDI1.1から追加されたbean-discovery-mode</a></li>
+<li><a href="/Kazuhira/20131204/1386163253#tb">2013-12-04</a>&nbsp;<a href="http://d.hatena.ne.jp/gloryof/20131204/1386169843">シュンツのつまづき日記 - CDI1.1から追加されたbean-discovery-mode</a></li>
+</ul>
+</div>
+</div>
+
+	<div class="hatena-module hatena-module-searchform">
+<div class="hatena-moduletitle">日記の検索</div>
+<div class="hatena-modulebody">
+<form method="GET" action="/Kazuhira/searchdiary" class="hatena-searchform"><input type="text" name="word" class="hatena-searchform searchform-word" value=""><input type="submit" name=".submit" value="検索" class="hatena-searchform searchform-button"><br><label class="searchform-label-detail"><input type="radio" name="type" value="detail" checked="checked" class="searchform-radio">詳細</label> <label class="searchform-label-list"><input type="radio" name="type" value="list" class="searchform-radio">一覧</label></form>
+
+</div>
+</div>
+
+	<a href="http://b.hatena.ne.jp/entrylist?url=http://d.hatena.ne.jp/Kazuhira/"><img src="http://b.hatena.ne.jp/bc/wh/http://d.hatena.ne.jp/Kazuhira/" class="bcounter" alt="この日記のはてなブックマーク数" title="この日記のはてなブックマーク数"></a>
+
+	<div class="hatena-module hatena-module-sectioncategory">
+<div class="hatena-moduletitle">カテゴリー</div>
+<div class="hatena-modulebody">
+<ul class="hatena-sectioncategory">
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJava%5D">Java</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BScala%5D">Scala</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BPython%5D">Python</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5B%BB%A8%B5%AD%5D">雑記</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BMaven%5D">Maven</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BOSGi%5D">OSGi</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BSpring%5D">Spring</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BVirgo%5D">Virgo</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BSTS%5D">STS</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BIntelliJ%5D">IntelliJ</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BAndroid%5D">Android</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJRuby%5D">JRuby</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5Bsbt%5D">sbt</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BNetty%5D">Netty</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BXML%5D">XML</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BAST%CA%D1%B4%B9%5D">AST変換</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJMX%5D">JMX</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BTomcat%5D">Tomcat</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BiReport%5D">iReport</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJasperReports%5D">JasperReports</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BScheme%5D">Scheme</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BGauche%5D">Gauche</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BScalaz%5D">Scalaz</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BGroovy%5D">Groovy</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BEmacs%5D">Emacs</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BClojure%5D">Clojure</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BGrape%5D">Grape</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BLeiningen%5D">Leiningen</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJAXB%5D">JAXB</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BGradle%5D">Gradle</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BPerl%5D">Perl</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BApache%5D">Apache</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BPHP%5D">PHP</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BMySQL%5D">MySQL</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5Bmustache%5D">mustache</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BScalate%5D">Scalate</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BSelenium%5D">Selenium</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BInfinispan%5D">Infinispan</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJGroups%5D">JGroups</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BRuby%5D">Ruby</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BCassandra%5D">Cassandra</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BLucene%5D">Lucene</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BMongoDB%5D">MongoDB</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BEhcache%5D">Ehcache</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BHBase%5D">HBase</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BHadoop%5D">Hadoop</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJSON%5D">JSON</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BDirectMemory%5D">DirectMemory</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BHazelcast%5D">Hazelcast</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BByteman%5D">Byteman</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJPA%5D">JPA</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BEJB%5D">EJB</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJAX%2DRS%5D">JAX-RS</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJBossAS%5D">JBossAS</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BArquillian%5D">Arquillian</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BCDI%5D">CDI</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BScalaTest%5D">ScalaTest</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BJCache%5D">JCache</a></li>
+<li><a href="/Kazuhira/searchdiary?word=%2A%5BAdventCalendar%5D">AdventCalendar</a></li>
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+
+
+
+
+
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  var days = document.getElementById('days');
+  if (days && days.innerHTML.indexOf("今週のお題") != -1) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'odai', 3]);
+  }
+
+  if (days && /\u4eca\u9031\u306e\u304a\u984c/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'odai', 3]);
+  }
+
+  if (days && /CodeIQ\u306e\u554f\u984c\u30fb\u30d1\u30ba\u30eb\u3092\u8003\u3048\u3088\u3046\uff01/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'codeiq_matsuri2013_2_2', 3]);
+  }
+
+  if (days && /2013\u5e74\u306b\u3084\u308a\u305f\u3044\u3053\u3068/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'newyear2013', 3]);
+  }
+
+  if (days && /2012\u5e74\u30dc\u30c4\u738b\u6c7a\u5b9a\u6226\uff01\u30d5\u30eb\u30bf\u88fd\u83d3\ud7\u306f\u3066\u306a\u30d6\u30ed\u30b0\u304a\u984c\u30ad\u30e3\u30f3\u30da\u30fc\u30f3/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'furuta', 3]);
+  }
+
+  if (days && /\u6d77\u5916\u30c9\u30e9\u30de\u300e\u30e9\u30a4\u30fb\u30c8\u30a5\u30fb\u30df\u30fc \u5618\u306e\u77ac\u9593\u300f\u89b3\u305f\u3044\uff01|\u300e\u30e9\u30a4\u30fb\u30c8\u30a5\u30fb\u30df\u30fc \u5618\u306e\u77ac\u9593\u300f\u7b2c1\u8a71\u306e\u611f\u60f3\u3092\u6559\u3048\u3066\u304f\u3060\u3055\u3044|\u4eca\u3060\u304b\u3089\u8a00\u3048\u308b\u300c\u5618\u3092\u3064\u3044\u3066\u3057\u307e\u3063\u305f\u30a8\u30d4\u30bd\u30fc\u30c9\u300d\u3092\u6559\u3048\u3066\u304f\u3060\u3055\u3044|\u3060\u307e\u3055\u308c\u305f\u3051\u3069\u3001\u8a31\u305b\u3066\u3057\u307e\u3063\u305f\u5618\u3092\u6559\u3048\u3066\u304f\u3060\u3055\u3044/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'lietome', 3]);
+  }
+
+  if (days && /\u30de\u30a4\u30d9\u30b9\u30c8\u30bd\u30f3\u30b02013/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'mybestsong2013', 3]);
+  }
+
+  if (days && /Windows\/Office\u6b66\u52c7\u4f1d/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'WindowsDevOpen', 3]);
+  }
+
+  if (days && /\u590f\u306e\u5199\u771f2013/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'photocon2013summer', 3]);
+  }
+
+  if (days && /\u7d0d\u6dbc\uff01\u307b\u3093\u3068\u306b\u3042\u3063\u305f\u6016\u3044\u30b3\u30fc\u30c9/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'codeiq_matsuri2013_2_1', 3]);
+  }
+
+  if (days && /Visa\u30d7\u30ea\u30da\u30a4\u30c9\u300cV\u30d7\u30ea\u30ab\u300d\u8a66\u3057\u305f\u3044\uff01|Visa\u30d7\u30ea\u30da\u30a4\u30c9\u300cV\u30d7\u30ea\u30ab\u300d\u3001\u81ea\u5206\u306a\u3089\u3053\u3046\u4f7f\u3046\uff01|V\u30d7\u30ea\u30ab\u304c1\u4e07\u5186\u5206\u3042\u3063\u305f\u3089\u3001\u30cd\u30c3\u30c8\u3067\u4f55\u3092\u8cb7\u3044\u307e\u3059\u304b\uff1f/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'vpreca', 3]);
+  }
+
+  if (days && /\u300c\u79c1\u306f\u3007\u3007\u738b\uff01\u300d\u30d0\u30a4\u30af\u738b\ud7\u306f\u3066\u306a\u30d6\u30ed\u30b0\u304a\u984c\u30ad\u30e3\u30f3\u30da\u30fc\u30f3/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'bike-o', 3]);
+  }
+
+  if (days && /\u30a2\u30a4\u30c7\u30e0 \u30a8\u30f3\u30b8\u30cb\u30a2\u30ad\u30e3\u30ea\u30a2Hacks\u5171\u6709\u30d7\u30ed\u30b8\u30a7\u30af\u30c8|\u30a8\u30f3\u30b8\u30cb\u30a2\u3068\u3057\u3066\u306e\u3001\u3068\u3063\u3066\u304a\u304d\u306e\u30ad\u30e3\u30ea\u30a2Hacks\u3092\u6559\u3048\u3066\u304f\u3060\u3055\u3044|\u3042\u306a\u305f\u304c\u30a8\u30f3\u30b8\u30cb\u30a2\u8ee2\u8077\u30b5\u30a4\u30c8\u3092\u4f5c\u308b\u306a\u3089\u3001\u3069\u3093\u306a\u30b5\u30a4\u30c8\u306b\u3057\u307e\u3059\u304b\uff1f|5\u5e74\u5f8c\u306e\u300c\u30a8\u30f3\u30b8\u30cb\u30a2\u306e\u50cd\u304d\u65b9\u300d\u306f\u3001\u3069\u3046\u5909\u308f\u3063\u3066\u3044\u3066\u307b\u3057\u3044\u3067\u3059\u304b\uff1f/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'aidemcareer', 3]);
+  }
+
+  if (days && /\u306f\u3066\u306a\u30c0\u30a4\u30a2\u30ea\u30fc10\u5468\u5e74\u304a\u3081\u3067\u3068\u3046\uff01/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'hatenadiary10th', 3]);
+  }
+
+  if (days && /\u8aad\u307f\u653e\u984c\u3067\u30b3\u30b9\u30d1\u3088\u3057\uff01\u96fb\u5b50\u66f8\u7c4d\u30a2\u30d7\u30eayomel.jp\u30ad\u30e3\u30f3\u30da\u30fc\u30f3/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'yomel', 3]);
+  }
+
+  if (days && /\u30bb\u30c4\u30e4\u30af\u30a8\u30b9\u30c8/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'setsuyaquest', 3]);
+  }
+
+  if (days && /\u79cb\u306e\u591c\u9577\u306f\u8aad\u66f8\u3068\u30d6\u30ed\u30b0/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'bookreview2013fall', 3]);
+  }
+
+  if (days && /\u7279\u5225\u304a\u984c\u300c\u82b8\u8853\u306e\u79cb\u300d/.test(days.innerHTML)) {
+    _gaq.push(['_setCustomVar', 2, 'campaign', 'caillebotte', 3]);
+  }
+
+  _gaq.push(
+  ['_setAccount', 'UA-441387-31'],
+  ['_setCustomVar', 1, 'afc_type', 'point', 3],
+  ['_setCustomVar', 3, 'theme', 'pure-soda', 3],
+  ['_setCustomVar', 4, 'usertype', 'guest', 1],
+  ['_trackPageview'],
+  ['b._setAccount', 'UA-7855606-1'],
+  ['b._setDomainName', '.hatena.ne.jp'],
+  ['b._trackPageview']
+  
+  );
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+<!-- CG:1,CH:0,ICG:1,ICH:0,T: -->
+</body>
+</html>

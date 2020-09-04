@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>TO THE DEVELOPERS: java.net.SocketException: socket closed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="thrd28.html#13311">
+<link rel="index" href="mail29.html#13311">
+<link rel="prev" href="msg13309.html">
+<link rel="next" href="msg13317.html">
+<link rel="alternate" title="orion-interest RSS" href="#" type="application/rss+xml">
+<link rel="canonical" href="https://www.mail-archive.com/orion-interest@orionserver.com/msg13311.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=orion-interest@orionserver.com&amp;q=subject:%22TO+THE+DEVELOPERS%3A+java.net.SocketException%3A+socket+closed%22" rel="nofollow"><span itemprop="name">TO THE DEVELOPERS: java.net.SocketException: socket closed</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=orion-interest@orionserver.com&amp;q=from:%22Lachezar+Dobrev%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Lachezar Dobrev</span></span></a></span>
+<span class="date"><a href="/search?l=orion-interest@orionserver.com&amp;q=date:20010510" rel="nofollow"><span itemprop="datePublished" content="2001-05-10T08:40:03-0700">Thu, 10 May 2001 08:40:03 -0700</span></a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+
+
+
+<DIV><FONT face=Courier size=2>java.net.SocketException: socket 
+closed<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at 
+java.net.PlainDatagramSocketImpl.receive(Native 
+Method)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at 
+java.net.DatagramSocket.receive(DatagramSocket.java:392)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+at com.evermind.net.jc.ar0(JAX)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at 
+com.evermind.server.jms.ca.run(JAX)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+at java.lang.Thread.run(Thread.java:484)</FONT></DIV>
+<DIV><FONT face=Courier size=2></FONT>&nbsp;</DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; More: Using Win2k, Orion 1.4.5 
+(1.4.8), RMI clustering turned on.</FONT></DIV>
+<DIV><FONT face=Courier size=2></FONT>&nbsp;</DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Explanation: My research points, 
+that Orion is using one and the same port to multicast and receive multicasting 
+messages. However, if one tries to close the sending socket, the receiving one 
+is also closed (not in all 100% of the cases. Approximately that happens every 
+25%, something to do with the synchroinization I think).</FONT></DIV>
+<DIV><FONT face=Courier size=2></FONT>&nbsp;</DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Conducting the following 
+experiment:</FONT></DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Server: An application that listens 
+to MultiCast packets and prints them.</FONT></DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Client: An application, that opens a 
+multicast socket&nbsp;on the same port as the server is receiving on, and after 
+sendin, closes the socket.</FONT></DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; If the client, and the server live 
+on one and the same machine roughly every one of four receivings the server gets 
+the SocketException.</FONT></DIV>
+<DIV><FONT face=Courier size=2></FONT>&nbsp;</DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Basic solution: Don't close the 
+sending socket, anyway you don't need to.</FONT></DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Better solution: You don't have to 
+send from the same port number. When creating the MultiCast socket just leave 
+the port selection to the underlying software and hardware.</FONT></DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Solution three: Use one socket for 
+receiving, and another for sending. Leave port selection for the sending socket 
+to the framework. Thus you have only one port reserved for sending (in sollution 
+two you get a different port for every sending socket you create).</FONT></DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Can't help more. No source 
+:)</FONT></DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; BTW. I'm still curious how to 
+cluster RMIs on a couple of Orions...</FONT></DIV>
+<DIV><FONT face=Courier size=2></FONT>&nbsp;</DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Be well.</FONT></DIV>
+<DIV><FONT face=Courier size=2></FONT>&nbsp;</DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; Lachezar Dobrev</FONT></DIV>
+<DIV><FONT face=Courier size=2>&nbsp;&nbsp; May the shade of the tree strengthen 
+you.</FONT></DIV>
+
+
+</div>
+<div class="msgButtons margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages
+</h2>
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg13309.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="thrd28.html#13311">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="mail29.html#13311">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg13317.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceLiset margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages within this thread
+</h2>
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg13317.html">Re: TO THE DEVELOPERS: java.net.SocketException: socket cl...</a></span> <span class="sender italic">Lachezar Dobrev</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg13317.html">Re: TO THE DEVELOPERS: java.net.SocketException: sock...</a></span> <span class="sender italic">Tim Endres</span></li>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="HIDDEN" name="subject" value="TO THE DEVELOPERS: java.net.SocketException: socket closed">
+<input type="HIDDEN" name="msgid" value="4567774.989520583571.JavaMail.atm@orionserver.com">
+<input type="submit" value=" Lachezar Dobrev ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="orion-interest@orionserver.com">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search orion-interest">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<h2 class="hidden">
+				Site navigation
+</h2>
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/orion-interest@orionserver.com/">orion-interest - all messages</a></li>
+<li class="icons-about"><a href="/orion-interest@orionserver.com/info.html">orion-interest - about the list</a></li>
+<li class="icons-prev"><a href="msg13309.html">Previous message</a></li>
+<li class="icons-next"><a href="msg13317.html">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+<h2 class="hidden">
+				Mail list logo
+</h2>
+
+</div>
+<div class="bannertower margintopdouble">
+<h2 class="hidden">
+				Advertising banner
+</h2>
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<h2 class="hidden">
+		Footer information
+</h2>
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+</ul>
+</div>
+</body>
+</html>

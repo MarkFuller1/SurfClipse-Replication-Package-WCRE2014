@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Re: java.lang.InterruptedException in RollSink</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>incubator-flume-user mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/incubator-flume-user" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/incubator-flume-user/201112.mbox/%3c3351DCCF-9C96-4296-955C-6E9F1C2DC05E@sessionm.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/incubator-flume-user/201112.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/incubator-flume-user/201112.mbox/%3c9FDD2B1E-896B-43F6-9D6B-7E3758AE9455@xplosion.de%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/incubator-flume-user/201112.mbox/%3cCAC-RAHNt5tZetn=sOpahWctWz2JL9vgLcyckPwq9k6+5=2C8MA@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/incubator-flume-user/201112.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/incubator-flume-user/201112.mbox/%3cCACoQ6JsujFn8646yAA2XW2BqQWK2Cy0JQ84UfRBYQBs=P3nK+g@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/incubator-flume-user/201112.mbox/%3c3351DCCF-9C96-4296-955C-6E9F1C2DC05E@sessionm.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/incubator-flume-user/201112.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/incubator-flume-user/201112.mbox/%3c9FDD2B1E-896B-43F6-9D6B-7E3758AE9455@xplosion.de%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/incubator-flume-user/201112.mbox/%3cCAC-RAHNt5tZetn=sOpahWctWz2JL9vgLcyckPwq9k6+5=2C8MA@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/incubator-flume-user/201112.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/incubator-flume-user/201112.mbox/%3cCACoQ6JsujFn8646yAA2XW2BqQWK2Cy0JQ84UfRBYQBs=P3nK+g@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">&quot;Dawid Rasinski&quot; &lt;dawid.rasin...@gmx.net&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Re: java.lang.InterruptedException in RollSink</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Thu, 22 Dec 2011 12:10:42 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+Hi Prasad,
+
+thanks a lot for the hints. Applying both patches and setting the flume.collector.roll.timeout
+to 0 basically solved all problems I encountered when using Flume lately. I will observe whether
+the flow gets blocked by these settings, but as for now this doesn't seem to be the case.
+Thanks again!
+
+Best regards,
+
+Dawid Rasinski
+
+&gt; Hi Dawid,
+&gt; 
+&gt;     Flume-798 also added support for configurable timeout. You need to set
+&gt; a property flume.collector.roll.timeout (milliseconds) in the flume-conf
+&gt; file. This will cause the roller to wait for the specified time before
+&gt; attempting to abort the append operation. If this property is set to 0,
+&gt; then it will never abort the append, though in that case you run a risk of
+&gt; blocking the flow.
+&gt; 
+&gt; thanks
+&gt; Prasad
+&gt; 
+&gt; On Wed, Dec 21, 2011 at 5:50 AM, Dawid Rasinski
+&gt; &lt;dawid.rasinski@gmx.net&gt;wrote:
+&gt; 
+&gt; &gt; Hi!
+&gt; &gt;
+&gt; &gt; Thanks again for hinting the patch, Prasad. It solves part of the
+&gt; problem,
+&gt; &gt; being the agents and collectors stop working when the exceptions occur.
+&gt; Now
+&gt; &gt; they recover from the exceptions, although in most cases some data seems
+&gt; to
+&gt; &gt; be lost (the number of received events on the collectors is too low)
+&gt; even
+&gt; &gt; though I'm using DFO. Still the problem of
+&gt; java.lang.InterruptedExceptions
+&gt; &gt; occuring remains and my question is, whether I can do anything about it?
+&gt; &gt; For example, would a certain timeOut value for the RollSink help? I
+&gt; would
+&gt; &gt; rather avoid the occurence of the exceptions if it's possible somehow.
+&gt; Any
+&gt; &gt; hint there would for sure be helpful. Thanks in advance!
+&gt; &gt;
+&gt; &gt; Best regards,
+&gt; &gt;
+&gt; &gt; Dawid Rasinski
+&gt; &gt;
+&gt; &gt;
+&gt; &gt; &gt;    I guess you'll also need
+&gt; &gt; &gt; https://issues.apache.org/jira/browse/FLUME-762along with FLUME-798.
+&gt; &gt; &gt;
+&gt; &gt; &gt; thanks
+&gt; &gt; &gt; Prasad
+&gt; &gt; &gt;
+&gt; &gt; &gt; On Tue, Dec 20, 2011 at 3:10 AM, Dawid Rasinski
+&gt; &gt; &gt; &lt;dawid.rasinski@gmx.net&gt;wrote:
+&gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Hello,
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; I was doing some experiments with Flume lately and stumbled upon a
+&gt; &gt; &gt; problem
+&gt; &gt; &gt; &gt; I cannot solve. I was doing some performance tests, having three
+&gt; &gt; &gt; collectors
+&gt; &gt; &gt; &gt; (each having a heap size of 2500 MB) and four agents. Each agent
+&gt; reads
+&gt; &gt; a
+&gt; &gt; &gt; &gt; data file (1.1 GB, ~30kB per line) using a tail source (starting
+&gt; from
+&gt; &gt; &gt; the
+&gt; &gt; &gt; &gt; beginning), makes batches of 500 events and sends these to all three
+&gt; &gt; &gt; &gt; collectors using a fanout sink. This should lead to a lot of
+&gt; incoming
+&gt; &gt; &gt; &gt; traffic for the collectors. The corresponing configuration is:
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; senderA: tail("data.log", delim="\n", delimMode="exclude") |
+&gt; batch(500,
+&gt; &gt; &gt; &gt; 180000) [ agentDFOSink("receiver", 35853), agentDFOSink("receiver2",
+&gt; &gt; &gt; &gt; 35853), agentDFOSink("receiver3", 35853) ];
+&gt; &gt; &gt; &gt; senderB: tail("data.log", delim="\n", delimMode="exclude") |
+&gt; batch(500,
+&gt; &gt; &gt; &gt; 180000) [ agentDFOSink("receiver", 35853), agentDFOSink("receiver2",
+&gt; &gt; &gt; &gt; 35853), agentDFOSink("receiver3", 35853) ];
+&gt; &gt; &gt; &gt; senderC: tail("data.log", delim="\n", delimMode="exclude") |
+&gt; batch(500,
+&gt; &gt; &gt; &gt; 180000) [ agentDFOSink("receiver", 35853), agentDFOSink("receiver2",
+&gt; &gt; &gt; &gt; 35853), agentDFOSink("receiver3", 35853) ];
+&gt; &gt; &gt; &gt; senderD: tail("data.log", delim="\n", delimMode="exclude") |
+&gt; batch(500,
+&gt; &gt; &gt; &gt; 180000) [ agentDFOSink("receiver", 35853), agentDFOSink("receiver2",
+&gt; &gt; &gt; &gt; 35853), agentDFOSink("receiver3", 35853) ];
+&gt; &gt; &gt; &gt; receiver: collectorSource(35853) | unbatch
+&gt; &gt; &gt; &gt; collectorSink("hdfs://namenode:9000/flume.log/%Y%m%d%H00",
+&gt; &gt; &gt; &gt; "receiver-",10000);
+&gt; &gt; &gt; &gt; receiver2: collectorSource(35853) | unbatch
+&gt; &gt; &gt; &gt; collectorSink("hdfs://namenode:9000/flume.log/%Y%m%d%H00",
+&gt; &gt; &gt; &gt; "receiver2-",10000);
+&gt; &gt; &gt; &gt; receiver3: collectorSource(35853) | unbatch
+&gt; &gt; &gt; &gt; collectorSink("hdfs://namenode:9000/flume.log/%Y%m%d%H00",
+&gt; &gt; &gt; &gt; "receiver3-",10000);
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; With this setup I run into java.lang.InterruptedExceptions in the
+&gt; &gt; &gt; &gt; collector side RollSink, leading to the following stack trace:
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; 2011-12-20 09:45:29,145 [Roll-TriggerThread-0] ERROR
+&gt; rolling.RollSink:
+&gt; &gt; &gt; &gt; RollSink interrupted
+&gt; &gt; &gt; &gt; java.lang.InterruptedException
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireNanos(AbstractQueuedSynchronizer.java:918)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; java.util.concurrent.locks.AbstractQueuedSynchronizer.tryAcquireNanos(AbstractQueuedSynchronizer.java:1224)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; java.util.concurrent.locks.ReentrantReadWriteLock$WriteLock.tryLock(ReentrantReadWriteLock.java:976)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; com.cloudera.flume.handlers.rolling.RollSink.rotate(RollSink.java:283)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.rolling.RollSink$TriggerThread.run(RollSink.java:149)
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; This seems to coincide with this second error on the same collector
+&gt; &gt; &gt; node:
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; 2011-12-20 09:45:30,193 [logicalNode receiver3-19] INFO
+&gt; &gt; &gt; &gt; debug.InsistentAppendDec
+&gt; &gt; &gt; &gt; orator: Failed due to unexpected runtime exception during append
+&gt; &gt; attempt
+&gt; &gt; &gt; &gt; java.lang.RuntimeException: Blocked append interrupted by rotation
+&gt; &gt; event
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; com.cloudera.flume.handlers.rolling.RollSink.append(RollSink.java:215)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.EventSinkDecorator.append(EventSinkDecorator.java:60)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt; com.cloudera.flume.core.MaskDecorator.append(MaskDecorator.java:43)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.EventSinkDecorator.append(EventSinkDecorator.java:60)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.debug.InsistentOpenDecorator.append(InsistentOpenDecorator.java:169)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.EventSinkDecorator.append(EventSinkDecorator.java:60)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.debug.StubbornAppendSink.append(StubbornAppendSink.java:71)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.EventSinkDecorator.append(EventSinkDecorator.java:60)
+&gt; &gt; &gt; &gt; at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.debug.InsistentAppendDecorator.append(InsistentAppendDecorator.java:110)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.EventSinkDecorator.append(EventSinkDecorator.java:60)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.endtoend.AckChecksumChecker.append(AckChecksumChecker.java:113)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.EventSinkDecorator.append(EventSinkDecorator.java:60)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.batch.UnbatchingDecorator.append(UnbatchingDecorator.java:62)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.EventSinkDecorator.append(EventSinkDecorator.java:60)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.batch.GunzipDecorator.append(GunzipDecorator.java:81)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; com.cloudera.flume.collector.CollectorSink.append(CollectorSink.java:222)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.EventSinkDecorator.append(EventSinkDecorator.java:60)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.batch.UnbatchingDecorator.append(UnbatchingDecorator.java:74)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.core.connector.DirectDriver$PumperThread.run(DirectDriver.java:110)
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; I applied the patch mentioned in
+&gt; &gt; &gt; &gt; https://issues.apache.org/jira/browse/Flume-798 and played around
+&gt; with
+&gt; &gt; &gt; &gt; the values for timeOut a bit, however this did not solve the
+&gt; problem.
+&gt; &gt; In
+&gt; &gt; &gt; &gt; some cases I observed that before the first error occuring, a
+&gt; &gt; &gt; &gt; java.lang.OutOfMemoryError happens:
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Exception in thread "pool-1-thread-3" java.lang.OutOfMemoryError:
+&gt; Java
+&gt; &gt; &gt; &gt; heap space
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.thrift.protocol.TBinaryProtocol.readBinary(TBinaryProtocol.java:371)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.thrift.ThriftFlumeEvent.read(ThriftFlumeEvent.java:738)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.thrift.ThriftFlumeEventServer$append_args.read(ThriftFlumeEventServer.java:531)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.thrift.ThriftFlumeEventServer$Processor$append.process(ThriftFlumeEventServer.java:249)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; com.cloudera.flume.handlers.thrift.ThriftFlumeEventServer$Processor.process(ThriftFlumeEventServer.java:240)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; org.apache.thrift.server.TSaneThreadPoolServer$WorkerProcess.run(TSaneThreadPoolServer.java:280)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+&gt; &gt; &gt; &gt;        at
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt;
+&gt; &gt;
+&gt; java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+&gt; &gt; &gt; &gt;        at java.lang.Thread.run(Thread.java:662)
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; However, the java.lang.RuntimeException in RollSink is sometimes
+&gt; thrown
+&gt; &gt; &gt; &gt; without the java.lang.InterruptedException or
+&gt; &gt; java.lang.OutOfMemoryError
+&gt; &gt; &gt; &gt; being thrown. The whole problem happening seems to be more likely
+&gt; with
+&gt; &gt; &gt; &gt; increasing number of agents. Furthermore, the problem is not
+&gt; &gt; &gt; deterministic,
+&gt; &gt; &gt; &gt; meaning that for some runs it occurs in the very begining, for some
+&gt; &gt; runs
+&gt; &gt; &gt; &gt; very late and for some runs it does not happen at all. Any idea
+&gt; where
+&gt; &gt; &gt; the
+&gt; &gt; &gt; &gt; problem comes from? Is it for the JVM running low on memory or
+&gt; because
+&gt; &gt; &gt; of a
+&gt; &gt; &gt; &gt; thread timing problem? And any idea how to solve it? I'm thankful
+&gt; for
+&gt; &gt; &gt; any
+&gt; &gt; &gt; &gt; hints on that problem.
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Best regards,
+&gt; &gt; &gt; &gt;
+&gt; &gt; &gt; &gt; Dawid Rasinski
+
+-- 
+Empfehlen Sie GMX DSL Ihren Freunden und Bekannten und wir
+belohnen Sie mit bis zu 50,- Euro! https://freundschaftswerbung.gmx.de
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/incubator-flume-user/201112.mbox/raw/%3c20111222121042.267100@gmx.net%3e/">Unnamed text/plain</a> (inline, 8-Bit, 9847 bytes)</li>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/incubator-flume-user/201112.mbox/raw/%3c20111222121042.267100@gmx.net%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html><head><title>Closing ResultSet Objects - res.close()</title><meta content="This section describes how to close ResultSet objects with the res.close() method." name="description"/><meta content="Microsoft, SQL Server, 2005, JDBC, Driver, ResultSet, Close" name="keywords"/><meta content="text/html; charset=utf-8" http-equiv="Content-Type"/><link href="_hypub.css" type="text/css" rel="stylesheet"/><script src="../_upper.js" type="text/javascript">x=1;</script><script src="_hypub.js" type="text/javascript">x=1;</script></head><body><div class="body"><table cellpadding="0" cellspacing="0" class="frame"><tr><td colspan="3" class="frameTop"><script language="JavaScript">writeTop("http://www.herongyang.com/jdbc", "sqljdbc-jar-ResultSet-Close.html");</script></td></tr><tr><td class="frameLeft"><script language="JavaScript">writeLeft("http://www.herongyang.com/jdbc", "sqljdbc-jar-ResultSet-Close.html");</script></td><td class="frameCenter"><table cellpadding="0" cellspacing="0" class="pageBorder"><tr><td height="1" colspan="3"><img src="_dot.gif" width="100%" height="1"/></td></tr><tr><td rowspan="1" width="1"><img src="_dot.gif" width="1" height="100%"/></td><td><table cellpadding="0" cellspacing="0" class="page"><tr><td><table border="0" cellpadding="0" cellspacing="0"><tr><td colspan="3" aligh="left"><b>JDBC Tutorials - Herong's Tutorial Examples</b></td></tr><tr><td align="left">Dr. Herong Yang, Version 2.20</td><td align="center"/><td align="right"><script language="JavaScript">writeMenu("http://www.herongyang.com/jdbc", "sqljdbc-jar-ResultSet-Close.html");</script></td></tr><tr><td colspan="3" class="pageLine"><img src="_dot.gif" width="100%" height="1"/></td></tr><tr><td colspan="3" class="body"><table><tr><td class="pageLeft"><script language="JavaScript">bannerLeft("");</script><script src="http://pagead2.googlesyndication.com/pagead/show_ads.js" type="text/javascript">x=1;</script><script language="JavaScript">writePageLeft("http://www.herongyang.com/jdbc", "sqljdbc-jar-ResultSet-Close.html");</script></td><td class="pageRight">
+<!-- section start -->
+
+
+
+
+
+<p class="navIndex"><a href="index.html">JDBC Tutorials - Herong's Tutorial Examples</a></p>
+<p class="navChapter"><span class="navUp1">∟</span><a href="sqljdbc-jar-Query-Result-Set.html">Microsoft JDBC Driver - Query Statements and Result Sets</a></p>
+<p class="pageTitle"><span class="navUp2">∟</span>Closing ResultSet Objects - res.close()</p>
+<p class="pageDescription">This section describes how to close ResultSet objects with the res.close() method.</p>
+
+<script language="JavaScript">bannerTop("");</script><script src="http://pagead2.googlesyndication.com/pagead/show_ads.js" type="text/javascript">x=1;</script>
+
+<p>For each ResultSet object you received from a SELECT statement execution, 
+there is large amount of resource allocated to this object.
+When you no longer need any data from a ResultSet object, you should close it 
+with the res.close() method. 
+</p>
+
+<p>This tutorial Java program shows you how to do this:
+</p>
+<pre class="source">
+/**
+ * CloseResultSet.java
+ * Copyright (c) 2007 by Dr. Herong Yang. All rights reserved.
+ */
+import java.sql.*;
+public class CloseResultSet {
+  public static void main(String [] args) {
+    Connection con = null;
+    try {
+
+// Load Microsoft JDBC Driver 1.0
+      Class.forName(
+        "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+
+// Obtaining a connection to SQL Server
+      con = DriverManager.getConnection(
+          "jdbc:sqlserver://localhost:1269;"
+        + "user=sa;password=HerongYang;"
+        + "database=AdventureWorksLT");
+
+// Run a SELECT statement
+      Statement sta = con.createStatement(); 
+      ResultSet res = sta.executeQuery(
+        "SELECT * FROM SalesLT.Customer");
+      res.next();
+      String firstName = res.getString("FirstName");
+      String lastName = res.getString("LastName");
+      System.out.println("First customer: "+firstName+" "+lastName);
+
+// Closing the ResultSet object
+      res.close();
+      if (res.isClosed()) 
+        System.out.println("ResultSet closed.");
+
+      con.close();        
+    } catch (java.lang.ClassNotFoundException e) {
+      System.err.println("ClassNotFoundException: "
+        +e.getMessage());
+    } catch (SQLException e) {
+      System.err.println("SQLException: "
+        +e.getMessage());
+    }
+  }
+}
+</pre>
+
+<p>If you run this program, you will get:
+</p>
+<pre class="source">
+First customer: Orlando Gee
+
+Exception in thread "main" java.lang.AbstractMethodError: 
+com.microsoft.sqlserver.jdbc.SQLServerResultSet.isClosed()Z
+        at CloseResultSet.main(CloseResultSet.java:32)
+</pre>
+
+<p>As you can see, the res.close() method worked ok. But the res.isClosed() method
+gave an error, because res.isClosed was introduced in Java SE 6.0, and is not by Microsoft JDBC Driver 1.0.
+</p>
+
+<p/><script language="JavaScript">bannerBottom("");</script><script src="http://pagead2.googlesyndication.com/pagead/show_ads.js" type="text/javascript">x=1;</script>
+<p class="blockTitle">Table of Contents</p>
+<p class="bookToc"><span class="dotOff"> </span><a href="About-JDBC-Tutorials.html">About This Book</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="JDBC-Introduction.html">JDBC (Java Database Connectivity) Introduction</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="JDK-Java-SE-Installation.html">Downloading and Installing JDK - Java SE</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Java-DB-Installation.html">Installing and Running Java DB - Derby</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Derby-JDBC-Drivers.html">Derby (Java DB) JDBC Driver</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Derby-JDBC-DataSource.html">Derby (Java DB) JDBC DataSource Objects</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Derby-DML-Statements.html">Java DB (Derby) - DML Statements</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Derby-Query-ResultSet.html">Java DB (Derby) - ResultSet Objects of Queries</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Derby-PreparedStatement.html">Java DB (Derby) - PreparedStatement</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="MySQL-Installation-and-Setup.html">MySQL Installation on Windows</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="MySQL-JDBC-Driver.html">MySQL JDBC Driver (MySQL Connector/J)</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="MySQL-PreparedStatement.html">MySQL - PreparedStatement</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="MySQL-JdbcRowSet-Implementation.html">MySQL - Reference Implementation of JdbcRowSet</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="MySQL-CallableStatement.html">MySQL - JBDC CallableStatement</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="MySQL-CLOB-Large-Object.html">MySQL CLOB (Character Large Object) - TEXT</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="MySQL-BLOB-Large-Object.html">MySQL BLOB (Binary Large Object) - BLOB</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Oracle-Installation-and-Setup.html">Oracle Express Edition Installation on Windows</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Oracle-JDBC-Drivers.html">Oracle JDBC Drivers</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Oracle-JdbcRowSet-Implementation.html">Oracle - Reference Implementation of JdbcRowSet</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Oracle-PreparedStatement.html">Oracle - PreparedStatement</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Oracle-CallableStatement.html">Oracle - JBDC CallableStatement</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Oracle-CLOB-Large-Object.html">Oracle CLOB (Character Large Object) - TEXT</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Oracle-BLOB-Large-Object.html">Oracle BLOB (Binary Large Object) - BLOB</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="SQL-Server-2005-Express-Edition.html">Microsoft SQL Server 2005 Express Edition</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="sqljdbc-jar-Microsoft-JDBC-Driver.html">Microsoft JDBC Driver for SQL Server - sqljdbc.jar</a></p>
+<p class="bookToc"><span class="dotOn">►</span><a href="sqljdbc-jar-Query-Result-Set.html">Microsoft JDBC Driver - Query Statements and Result Sets</a></p>
+
+<p class="chapterToc"><span class="dotOff"> </span><a href="sqljdbc-jar-Common-Class-Methods.html">Commonly Used JDBC Class Methods</a></p>
+<p class="chapterToc"><span class="dotOff"> </span><a href="sqljdbc-jar-createStatement-executeQuery.html">Calling createStatement() and executeQuery</a></p>
+<p class="chapterToc"><span class="dotOff"> </span><a href="sqljdbc-jar-ResultSet-Data-Field.html">Receiving ResultSet Objects from executeQuery</a></p>
+<p class="chapterToc"><span class="dotOn">►</span><a href="sqljdbc-jar-ResultSet-Close.html">Closing ResultSet Objects - res.close()</a></p>
+<p class="chapterToc"><span class="dotOff"> </span><a href="sqljdbc-jar-ResultSet-Loop.html">Looping through ResultSet with res.next()</a></p>
+<p class="chapterToc"><span class="dotOff"> </span><a href="sqljdbc-jar-ResultSet-getString.html">Retrieving Field Values using res.get*() Methods</a></p>
+<p class="chapterToc"><span class="dotOff"> </span><a href="sqljdbc-jar-ResultSetMetaData.html">Using ResultSetMetaData Objects to List All Fields</a></p>
+
+<p class="bookToc"><span class="dotOff"> </span><a href="sqljdbc-jar-DatabaseMetaData.html">Microsoft JDBC Driver - DatabaseMetaData Object</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="sqljdbc-jar-DDL-Statements.html">Microsoft JDBC Driver - DDL Statements</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="sqljdbc-jar-DML-Statements.html">Microsoft JDBC Driver - DML Statements</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="SQL-Server-PreparedStatement.html">SQL Server - PreparedStatement</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="SQL-Server-CLOB-Large-Object.html">SQL Server CLOB (Character Large Object) - TEXT</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="SQL-Server-BLOB-Large-Object.html">SQL Server BLOB (Binary Large Object) - BLOB</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="JDBC-ODBC-Bridge-Driver.html">JDBC-ODBC Bridge Driver - sun.jdbc.odbc.JdbcOdbcDriver</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="JDBC-ODBC-Flat-Text-File.html">JDBC-ODBC Bridge Driver - Flat Text Files</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="JDBC-ODBC-MS-Access.html">JDBC-ODBC Bridge Driver - MS Access</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="JDBC-ODBC-SQL-Server.html">JDBC-ODBC Bridge Driver - MS SQL Server</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="Summary-Database-Servers.html">Summary of JDBC Drivers and Database Servers</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="To-Do-List.html">Additional Tutorial Notes to Be Added</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="References.html">References</a></p>
+<p class="bookToc"><span class="dotOff"> </span><a href="pdf.html">PDF Printing Version</a></p>
+<script type="text/javascript">writePageFooter("http://www.herongyang.com/jdbc", "sqljdbc-jar-ResultSet-Close.html");</script>
+<!-- section end -->
+</td></tr></table></td></tr><tr><td colspan="3" class="pageLine"><img src="_dot.gif" width="100%" height="1"/></td></tr><tr><td align="left">Dr. Herong Yang, updated in 2013</td><td align="center"/><td align="right"><script language="JavaScript">writeMenu("http://www.herongyang.com/jdbc", "sqljdbc-jar-ResultSet-Close.html");</script></td></tr><tr><td colspan="3" aligh="left"><b>
+Closing ResultSet Objects - res.close()</b></td></tr></table></td></tr></table></td><td rowspan="1" width="1"><img src="_dot.gif" width="1" height="100%"/></td></tr><tr><td height="1" colspan="3"><img src="_dot.gif" width="100%" height="1"/></td></tr></table></td><td class="frameRight"><script language="JavaScript">writeRight("http://www.herongyang.com/jdbc", "sqljdbc-jar-ResultSet-Close.html");</script></td></tr><tr><td colspan="3" class="frameBottom"><script language="JavaScript">writeBottom("http://www.herongyang.com/jdbc", "sqljdbc-jar-ResultSet-Close.html");</script></td></tr></table></div></body></html>

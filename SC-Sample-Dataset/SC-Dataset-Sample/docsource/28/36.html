@@ -1,0 +1,79 @@
+<head>
+ <meta http-equiv="Content-Type" content="text/html ">
+ <title>'Re: Protocol doesn't support output' - MARC</title>
+ <link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+
+<body bgcolor="#ffffff" text="#000000" link="#0000C0" vlink="#800080">
+<pre><b>[<a href="?l=xalan-dev&m=99919197118320&w=2">prev in list</a>] [<a href="?l=xalan-dev&m=99919462300360&w=2">next in list</a>] [<a href="?l=xalan-dev&m=99918820928785&w=2">prev in thread</a>] [<a href="?l=xalan-dev&m=99923930701884&w=2">next in thread</a>] </b>
+<b><font size=+1>
+List:       <a href="?l=xalan-dev&r=1&w=2">xalan-dev</a>
+Subject:    <a href="?t=99918823100013&r=1&w=2">Re: Protocol doesn't support output</a>
+From:       <a href="?a=96951963900012&r=1&w=2">Gary L Peskin &lt;garyp () firstech ! com&gt;</a>
+Date:       <a href="?l=xalan-dev&r=1&w=2&b=200108">2001-08-30 17:15:44</a></font>
+[<a href="?l=xalan-dev&m=99919302524323&q=raw">Download message RAW</a>]</b>
+
+Bruno Verachten wrote:
+&gt; 
+&gt; Hi,
+&gt; 
+&gt; I'm using  xalan-j_2_2_D9, and I get this error when I use the following
+&gt; code:
+&gt; ---------
+&gt; java.net.UnknownServiceException: protocol doesn't support output
+&gt;         at java.net.URLConnection.getOutputStream(Unknown Source)
+&gt;         at
+&gt; org.apache.xalan.xsltc.trax.TransformerImpl.getOutputHandler(TransformerImpl.java:232)
+&gt;         at
+&gt; org.apache.xalan.xsltc.trax.TransformerImpl.transform(TransformerImpl.java:166)
+&gt;         at
+&gt; net.atos.mm.fwk.xml.bench.xsl.BenchXSLTC.fromFileToFile(BenchXSLTC.java:228)
+&gt;         at
+&gt; net.atos.mm.fwk.xml.bench.xsl.BenchXSLTC.runTest(BenchXSLTC.java:140)
+&gt;         at net.atos.mm.fwk.xml.bench.xsl.BenchBase.run(BenchBase.java:245)
+&gt; ----------
+&gt;         private void fromFileToFile(String sourceID, String xslID)
+&gt;                 throws TransformerException,
+&gt; TransformerConfigurationException {
+&gt; 
+&gt;                 // Create a transform factory instance.
+&gt;                 TransformerFactory tfactory =
+&gt; TransformerFactory.newInstance();
+&gt; 
+&gt;                 // Create a transformer for the stylesheet.
+&gt;                 Transformer transformer =
+&gt;                         tfactory.newTransformer(new StreamSource(xslID));
+&gt; 
+&gt;                 // Transform the source XML to System.out.
+&gt;                 try {
+&gt;                         transformer.transform(new StreamSource(sourceID),
+&gt;                                                                     new
+&gt; StreamResult(new File("fromFileToFile.out").toURL().toString()));
+&gt;                 } catch (java.net.MalformedURLException e) {
+&gt;                 }
+&gt;       }
+&gt; 
+&gt; What did I miss?
+
+Have a look at the string created by
+  new File("fromFileToFile.out").toURL().toString()
+
+It probably looks funny.  In any event, the easiest way to do this is to
+just supply the File as the argument to StreamResult:
+
+  ... new StreamResult(new File("fromFileToFile.out"))
+
+Gary
+
+<b>[<a href="?l=xalan-dev&m=99919197118320&w=2">prev in list</a>] [<a href="?l=xalan-dev&m=99919462300360&w=2">next in list</a>] [<a href="?l=xalan-dev&m=99918820928785&w=2">prev in thread</a>] [<a href="?l=xalan-dev&m=99923930701884&w=2">next in thread</a>] </b>
+</pre>
+  </pre><br><center>
+    <a href="?q=configure">Configure</a> | 
+
+    <a href="?q=about">About</a> |
+    <a href="?q=news">News</a> |
+    <a href="mailto:webguy@marc.info?subject=Add a list to MARC">Add&nbsp;a&nbsp;list</a> |
+    Sponsored&nbsp;by&nbsp;<a href="http://www.korelogic.com/">KoreLogic</a>
+</center>
+</body>
+</html>

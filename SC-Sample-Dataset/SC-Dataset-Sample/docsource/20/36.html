@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Re: AvroStorage Issue - Possibly version related</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>pig-user mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/pig-user" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav">&laquo; <a href="/mod_mbox/pig-user/201310.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/pig-user/201310.mbox/%3cCAAnh3_8HqM_DVEe9m4chA1DuxRpHwmXaH0GTGVA_-e=kQaOQQw@mail.gmail.com%3e" title="Next by date">&raquo;</a> &middot; &laquo; <a href="/mod_mbox/pig-user/201310.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/pig-user/201310.mbox/%3cCAD5d8QCnWqNaF+opPBeSOm8nhns37jrABxhm4QN27ynQk7EjjA@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav">&laquo; <a href="/mod_mbox/pig-user/201310.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/pig-user/201310.mbox/%3cCAAnh3_8HqM_DVEe9m4chA1DuxRpHwmXaH0GTGVA_-e=kQaOQQw@mail.gmail.com%3e" title="Next by date">&raquo;</a> &middot; &laquo; <a href="/mod_mbox/pig-user/201310.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/pig-user/201310.mbox/%3cCAD5d8QCnWqNaF+opPBeSOm8nhns37jrABxhm4QN27ynQk7EjjA@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">Rohini Palaniswamy &lt;rohini.adi...@gmail.com&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Re: AvroStorage Issue - Possibly version related</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Tue, 01 Oct 2013 00:54:54 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+ It hits this error when json-simple-1.1.jar is not in classpath. You can
+get around that by adding it to PIG_CLASSPATH apart from registering the
+jar.  The problem is with java classloading where it fails to load the
+exception class(ParseException) thrown by a constructor of the class(
+AvroStorage) from the custom classloader which includes the registered
+jars. Can you file a jira for this? I had spent some time earlier trying to
+find solution but couldn't. If fixing classloading is not possible, easy
+thing would be to change AvroStorage constructor to throw RunTimeException
+instead of ParseException
+
+Regards,
+Rohini
+
+
+On Thu, Sep 19, 2013 at 1:10 PM, j.barrett Strausser &lt;
+j.barrett.strausser@gmail.com&gt; wrote:
+
+&gt; Not my day I guess.
+&gt;
+&gt; Trying with Hadoop 1.2.x
+&gt;
+&gt; Getting :
+&gt;
+&gt;
+&gt; Caused by: java.lang.RuntimeException: could not instantiate
+&gt; 'org.apache.pig.piggybank.storage.avro.AvroStorage' with arguments 'null'
+&gt;         at
+&gt; org.apache.pig.impl.PigContext.instantiateFuncFromSpec(PigContext.java:618)
+&gt;
+&gt; Caused by: java.lang.NoClassDefFoundError:
+&gt; org/json/simple/parser/ParseException
+&gt;         at java.lang.Class.getDeclaredConstructors0(Native Method)
+&gt;
+&gt;
+&gt;
+&gt; When I attempt to load the relation using
+&gt;
+&gt; Load 'path' USING org.apache.pig.piggybank.storage.avro.AvroStorage();
+&gt;
+&gt; I've registered  :  json-simple-1.1.jar
+&gt;
+&gt;
+&gt; On Thu, Sep 19, 2013 at 3:14 PM, j.barrett Strausser &lt;
+&gt; j.barrett.strausser@gmail.com&gt; wrote:
+&gt;
+&gt; &gt; Are the releases from the download page not compatible with 23.x? or 2.X
+&gt; &gt;
+&gt; &gt; Says they are -
+&gt; &gt;
+&gt; http://pig.apache.org/releases.html#1+April%2C+2013%3A+release+0.11.1+available
+&gt; &gt;
+&gt; &gt; In any case I tried it with .23.9 and received a different error:
+&gt; &gt;
+&gt; &gt; 2013-09-19 15:13:56,044 [main] WARN
+&gt; &gt; org.apache.pig.backend.hadoop20.PigJobControl - falling back to default
+&gt; &gt; JobControl (not using hadoop 0.20 ?)
+&gt; &gt; java.lang.NoSuchFieldException: runnerState
+&gt; &gt;     at java.lang.Class.getDeclaredField(Class.java:1938)
+&gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt; On Thu, Sep 19, 2013 at 2:24 PM, Mark Wagner &lt;wagner.mark.d@gmail.com
+&gt; &gt;wrote:
+&gt; &gt;
+&gt; &gt;&gt; It sounds like you're using a version of Pig that wasn't compiled for
+&gt; &gt;&gt; Hadoop 2.x/.23. Try recompiling with 'ant clean jar
+&gt; &gt;&gt; -Dhadoopversion=23'.
+&gt; &gt;&gt;
+&gt; &gt;&gt; -Mark
+&gt; &gt;&gt;
+&gt; &gt;&gt; On Thu, Sep 19, 2013 at 9:23 AM, j.barrett Strausser
+&gt; &gt;&gt; &lt;j.barrett.strausser@gmail.com&gt; wrote:
+&gt; &gt;&gt; &gt; Running
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; Hadoop-2.1.0-Beta
+&gt; &gt;&gt; &gt; Pig-0.11.1
+&gt; &gt;&gt; &gt; Hive-0.11.1
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; 1. Created Avro backed table in Hive.
+&gt; &gt;&gt; &gt; 2. Loaded the table in Pig - records = Load '/path' USING
+&gt; &gt;&gt; &gt; org.apache.pig.piggybank.storage.avro.AvroStorage();
+&gt; &gt;&gt; &gt; 3. Can successfully describe the relation.
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; I registered the following on pig start :
+&gt; &gt;&gt; &gt; REGISTER piggybank.jar
+&gt; &gt;&gt; &gt; REGISTER avro-*.jar
+&gt; &gt;&gt; &gt; REGISTER jackson-core-asl-1.8.8.jar
+&gt; &gt;&gt; &gt; REGISTER jackson-mapper-asl-1.8.8.jar
+&gt; &gt;&gt; &gt; REGISTER json-simple-1.1.jar
+&gt; &gt;&gt; &gt; REGISTER snappy-java-1.0.3.2.jar
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; The avro tools are at 1.7.5
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; *
+&gt; &gt;&gt; &gt; *
+&gt; &gt;&gt; &gt; *Running Dump Produces the following*:
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; 2013-09-19 12:08:21,639 [JobControl] ERROR
+&gt; &gt;&gt; &gt; org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl - Error while
+&gt; &gt;&gt; trying
+&gt; &gt;&gt; &gt; to run jobs.
+&gt; &gt;&gt; &gt; java.lang.IncompatibleClassChangeError: Found interface
+&gt; &gt;&gt; &gt; org.apache.hadoop.mapreduce.JobContext, but class was expected
+&gt; &gt;&gt; &gt;     at
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.setupUdfEnvAndStores(PigOutputFormat.java:225)
+&gt; &gt;&gt; &gt;     at
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.checkOutputSpecs(PigOutputFormat.java:186)
+&gt; &gt;&gt; &gt;     at
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.hadoop.mapreduce.JobSubmitter.checkSpecs(JobSubmitter.java:441)
+&gt; &gt;&gt; &gt;     at
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:340)
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; 2013-09-19 12:08:21,651 [main] ERROR
+&gt; &gt;&gt; &gt; org.apache.pig.tools.pigstats.SimplePigStats - ERROR 2997: Unable to
+&gt; &gt;&gt; &gt; recreate exception from backend error: Unexpected System Error
+&gt; Occured:
+&gt; &gt;&gt; &gt; java.lang.IncompatibleClassChangeError: Found interface
+&gt; &gt;&gt; &gt; org.apache.hadoop.mapreduce.JobContext, but class was expected
+&gt; &gt;&gt; &gt;     at
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.setupUdfEnvAndStores(PigOutputFormat.java:225)
+&gt; &gt;&gt; &gt;     at
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.PigOutputFormat.checkOutputSpecs(PigOutputFormat.java:186)
+&gt; &gt;&gt; &gt;     at
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.hadoop.mapreduce.JobSubmitter.checkSpecs(JobSubmitter.java:441)
+&gt; &gt;&gt; &gt;     at
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:340)
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; *Running illustrate :*
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; Pig Stack Trace
+&gt; &gt;&gt; &gt; ---------------
+&gt; &gt;&gt; &gt; ERROR 1070: Could not resolve
+&gt; &gt;&gt; &gt; org.apache.pig.piggybank.storage.avro.AvroStorage using imports: [,
+&gt; &gt;&gt; &gt; org.apache.pig.builtin., org.apache.pig.impl.builtin.]
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; Pig Stack Trace
+&gt; &gt;&gt; &gt; ---------------
+&gt; &gt;&gt; &gt; ERROR 2998: Unhandled internal error.
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.hadoop.mapreduce.Mapper$Context.&lt;init&gt;(Lorg/apache/hadoop/mapreduce/Mapper;Lorg/apache/hadoop/conf/Configuration;Lorg/apache/hadoop/mapreduce/TaskAttemptID;L$
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; java.lang.NoSuchMethodError:
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt;
+&gt; org.apache.hadoop.mapreduce.Mapper$Context.&lt;init&gt;(Lorg/apache/hadoop/mapreduce/Mapper;Lorg/apache/hadoop/conf/Configuration;Lorg/apache/hadoop/mapreduce/TaskAttemptID;Lorg/apach$
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; Any thougths?
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; --
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt;
+&gt; &gt;&gt; &gt; https://github.com/bearrito
+&gt; &gt;&gt; &gt; @deepbearrito
+&gt; &gt;&gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt; --
+&gt; &gt;
+&gt; &gt;
+&gt; &gt; https://github.com/bearrito
+&gt; &gt; @deepbearrito
+&gt; &gt;
+&gt;
+&gt;
+&gt;
+&gt; --
+&gt;
+&gt;
+&gt; https://github.com/bearrito
+&gt; @deepbearrito
+&gt;
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li>Unnamed multipart/alternative (inline, None, 0 bytes)</li>
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/pig-user/201310.mbox/raw/%3cCABBupGVNB-=GddtumLZJa=LGo8fKx6bCzEv5pZJSpRZRgSAnNA@mail.gmail.com%3e/1">Unnamed text/plain</a> (inline, None, 5837 bytes)</li>
+</ul>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/pig-user/201310.mbox/raw/%3cCABBupGVNB-=GddtumLZJa=LGo8fKx6bCzEv5pZJSpRZRgSAnNA@mail.gmail.com%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

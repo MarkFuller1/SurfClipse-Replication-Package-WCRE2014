@@ -1,0 +1,916 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>web service security issue (Web Services forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/455870/Web-Services/java/web-service-security"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/455870/Web-Services/java/web-service-security?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-51/Web-Services">Web Services</a>
+<div class="subject">web service security issue</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Goran Markovic, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 27, 2009 07:03:18</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi.
+<br /> I am learning from the book "Java web services: Up and Running".
+<br /> It is quite good one, but I have a problem in undertanding use of <b>keytool</b> in purpose of kreating kyestore.
+<br /> Here is problem.
+<br /> Generated .keystore using :<textarea name="code" class="java" cols="60" rows="10">keytool -genkey -alias tomcat -keyalg RSA</textarea>, is stored, just as a book says inside "account's home directory", in will be in my case : "E:\Documents and Settings\Boban", and the file .keystore, is there. But I have a problem to compile my client class. In book it stays :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+java -Djavax.net.ssl.trustStore=/home/mkalin/.keystore \
+       -Djavax.net.ssl.trustStorePassword=changeit       \
+       -Djavax.net.ssl.keyStore=/home/mkalin/.keystore   \
+       -Djavax.net.ssl.keyStorePassword=changeit ClientTC
+</textarea>
+<br /> I just replace "/home/mkalin/.keystore" with "E:/Documents and Settings/Boban/.keystore", bit I get an error (cannot find a class).
+<br /> I tried to create such a Properties in my client code, and to store the value above, but it won't work neither.
+<br /> So how can I accomplish this?
+<br /> Thanks</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ulf Dittmer, Marshal<br />
+  on <span class="lastPostTime">Jul 27, 2009 07:11:29</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Please post the exact and complete error message. Make sure the ClientTC.class file is in the directory from where you execute this command.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Goran Markovic, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 27, 2009 08:55:19</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Well it is ordinary exception which tells that class not found :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+Exception in thread "main" java.lang.NoClassDefFoundError: and
+Caused by: java.lang.ClassNotFoundException: and
+        at java.net.URLClassLoader$1.run(Unknown Source)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.net.URLClassLoader.findClass(Unknown Source)
+        at java.lang.ClassLoader.loadClass(Unknown Source)
+        at sun.misc.Launcher$AppClassLoader.loadClass(Unknown Source)
+        at java.lang.ClassLoader.loadClass(Unknown Source)
+        at java.lang.ClassLoader.loadClassInternal(Unknown Source)
+Could not find the main class: and.  Program will exit.
+
+</textarea>
+<br /> 
+<br /> It is when I run from command prompt, and simply place client class on C partition.
+<br /> However I have placed my own keystore into TOMECAT_HOME dir (named sler.keystore). When browser lunch secured service <b>https://localhost:8443/slersec/sler</b>, the keystore on I have placed have been activated and the browser is prompt to accept this key (because it perform validation on its own key/trust store repository. right?).
+<br /> So my keystore on server side has been successfully deployed.
+<br /> But when I lunch a java application (from Eclipse) I have been not validated against sler.keystore (I placed in the work dir of Eclipse). The following error has been got :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+com.sun.xml.internal.ws.client.ClientTransportException: HTTP transport error: javax.net.ssl.SSLHandshakeException:
+sun.security.validator.ValidatorException: PKIX path building failed: 
+sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at com.sun.xml.internal.ws.transport.http.client.HttpClientTransport.getOutput(Unknown Source)
+	at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.process(Unknown Source)
+	at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.processRequest(Unknown Source)
+	at com.sun.xml.internal.ws.transport.DeferredTransportPipe.processRequest(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.__doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber._doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.runSync(Unknown Source)
+	at com.sun.xml.internal.ws.client.Stub.process(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SEIStub.doProcess(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SEIStub.invoke(Unknown Source)
+	at $Proxy29.secretInfo(Unknown Source)
+	at SecurityClient.main(SecurityClient.java:36)
+Caused by: javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: PKIX path building failed:
+sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.fatal(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.ClientHandshaker.serverCertificate(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.ClientHandshaker.processMessage(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Handshaker.processLoop(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Handshaker.process_record(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.performInitialHandshake(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.startHandshake(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.startHandshake(Unknown Source)
+	at sun.net.www.protocol.https.HttpsClient.afterConnect(Unknown Source)
+	at sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.http.HttpURLConnection.getOutputStream(Unknown Source)
+	at sun.net.www.protocol.https.HttpsURLConnectionImpl.getOutputStream(Unknown Source)
+	... 15 more
+Caused by: sun.security.validator.ValidatorException: PKIX path building failed: 
+sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at sun.security.validator.PKIXValidator.doBuild(Unknown Source)
+	at sun.security.validator.PKIXValidator.engineValidate(Unknown Source)
+	at sun.security.validator.Validator.validate(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.X509TrustManagerImpl.validate(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.X509TrustManagerImpl.checkServerTrusted(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.X509TrustManagerImpl.checkServerTrusted(Unknown Source)
+	... 27 more
+Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+	at sun.security.provider.certpath.SunCertPathBuilder.engineBuild(Unknown Source)
+	at java.security.cert.CertPathBuilder.build(Unknown Source)
+	... 33 more
+</textarea>
+<br /> 
+<br /> So,it's not validated.
+<br /> Can I however programmatic specified keystore and truststore in my client class, and then certificates received from server, to be validated against it??? That would be solution , and the good one. So, how can I perform such a task?
+<br /> Thanks</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ulf Dittmer, Marshal<br />
+  on <span class="lastPostTime">Jul 27, 2009 09:00:38</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">It can't find a class called "and"? Are you sure there isn't a typo or something when you enter the command? Or maybe in some config file?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Goran Markovic, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 27, 2009 09:22:42</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">No. I typed what I said. But I am quite sure, that that is wrong. I don't think I should type :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+java -Djavax.net.ssl.trustStore=E:/Documents and Settings/Boban/.keystore -D . . . . . 
+</textarea>
+<br /> It really doesn't sound correct.
+<br /> But why I can perform programmatic something like this :
+<br /> [code]
+<br /> 
+<br /> import java.util.logging.Logger;
+<br /> import javax.xml.ws.BindingProvider;
+<br /> import java.util.*;
+<br /> import securityC.*;
+<br /> import javax.xml.ws.handler.MessageContext;
+<br /> 
+<br /> public class SecurityClient {
+<br />     private static Logger logger =Logger.getLogger("SecurityClient");
+<br /> private static final String endpoint = "https://localhost:8443/slersec/sler";
+<br /> 
+<br /> 	public static void main(String[] args) {
+<br /> try{
+<br /> 		SlerSecurityService service = new SlerSecurityService();
+<br /> 		SlerSecurity port = service.getSlerSecurityPort();
+<br /> 		/*
+<br /> 		Properties props = new Properties();
+<br /> 		props.put("javax.net.ssl.trustStore", System.getProperty ("user.home"));
+<br /> 		props.put("javax.net.ssl.trustStorePassword", "changeot");
+<br /> 		props.put("javax.net.ssl.keyStore", System.getProperty ("user.home"));
+<br /> 		props.put("javax.net.ssl.keyStorePassword", "changeit");
+<br /> 		Map&lt;String, Object&gt; req_ctx = ((BindingProvider) port).getRequestContext();
+<br />                 req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
+<br /> 
+<br /> 
+<br /> 	        // Place the username/password in the HTTP request headers,
+<br /> 	        // which a non-Java client can do as well.
+<br /> 	        Map&lt;String, List&gt;&lt;String&gt;&gt; hdr = new HashMap&lt;String, List&gt;&lt;String&gt;&gt;();
+<br /> 	        hdr.put(&quot;username&quot;, Collections.singletonList(&quot;afrodom&quot;));
+<br /> 	        hdr.put(&quot;password&quot;, Collections.singletonList(&quot;slobodan&quot;));
+<br /> 	        req_ctx.put(MessageContext.HTTP_REQUEST_HEADERS, hdr);
+<br /> 
+<br /> 		logger.info(&quot;Invoking secret key . . . &quot;);
+<br /> 		logger.info(&quot;The answer is : \n &quot;+ port.secretInfo(&quot;love&quot;));
+<br /> 		logger.info(&quot;check user validation . . . : &quot;);
+<br /> }catch (Exception e){
+<br /> 	e.printStackTrace();
+<br /> }
+<br /> 	}
+<br /> }
+<br /> 
+<br /> Should I also pay attention on self-created .keystore file in user home dir. on client side, or sler.keystore on server side? How would you solve this problem?
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ulf Dittmer, Marshal<br />
+  on <span class="lastPostTime">Jul 27, 2009 09:35:16</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote class="uncited">
+			<div>No. I typed what I said. But I am quite sure, that that is wrong. I don't think I should type :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+java -Djavax.net.ssl.trustStore=E:/Documents and Settings/Boban/.keystore -D . . . . . 
+</textarea></div>
+		</blockquote>
+<br /> That's where the "and" is coming from. If the path has spaces, then you need to enclose it in double quotes.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Goran Markovic, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 27, 2009 09:52:13</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Well, you have a right. But now, the second exception has been raised :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+C:\&gt;java -Djavax.net.ssl.trustStore=&quot;E:/Documents and Settings/Boban/.keystore&quot; -Djavax.net.ssl.trustStorePassword=changeit -Djava
+x.net.ssl.keyStore=&quot;E:/Documents and Settings/Boban/.keystore&quot; -Djavax.net.ssl.keyStorePassword=changeit SecurityClient
+Jul 27, 2009 5:50:31 PM SecurityClient main
+INFO: Invoking secret key . . .
+com.sun.xml.internal.ws.client.ClientTransportException: HTTP transport error: javax.net.ssl.SSLHandshakeException: java.security.
+cert.CertificateException: No name matching localhost found
+        at com.sun.xml.internal.ws.transport.http.client.HttpClientTransport.getOutput(Unknown Source)
+        at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.process(Unknown Source)
+        at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.processRequest(Unknown Source)
+        at com.sun.xml.internal.ws.transport.DeferredTransportPipe.processRequest(Unknown Source)
+        at com.sun.xml.internal.ws.api.pipe.Fiber.__doRun(Unknown Source)
+        at com.sun.xml.internal.ws.api.pipe.Fiber._doRun(Unknown Source)
+        at com.sun.xml.internal.ws.api.pipe.Fiber.doRun(Unknown Source)
+        at com.sun.xml.internal.ws.api.pipe.Fiber.runSync(Unknown Source)
+        at com.sun.xml.internal.ws.client.Stub.process(Unknown Source)
+        at com.sun.xml.internal.ws.client.sei.SEIStub.doProcess(Unknown Source)
+        at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+        at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+        at com.sun.xml.internal.ws.client.sei.SEIStub.invoke(Unknown Source)
+        at $Proxy29.secretInfo(Unknown Source)
+        at SecurityClient.main(SecurityClient.java:19)
+Caused by: javax.net.ssl.SSLHandshakeException: java.security.cert.CertificateException: No name matching localhost found
+        at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.SSLSocketImpl.fatal(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.ClientHandshaker.serverCertificate(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.ClientHandshaker.processMessage(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.Handshaker.processLoop(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.Handshaker.process_record(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.SSLSocketImpl.performInitialHandshake(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.SSLSocketImpl.startHandshake(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.SSLSocketImpl.startHandshake(Unknown Source)
+        at sun.net.www.protocol.https.HttpsClient.afterConnect(Unknown Source)
+        at sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(Unknown Source)
+        at sun.net.www.protocol.http.HttpURLConnection.getOutputStream(Unknown Source)
+        at sun.net.www.protocol.https.HttpsURLConnectionImpl.getOutputStream(Unknown Source)
+        ... 15 more
+Caused by: java.security.cert.CertificateException: No name matching localhost found
+        at sun.security.util.HostnameChecker.matchDNS(Unknown Source)
+        at sun.security.util.HostnameChecker.match(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.X509TrustManagerImpl.checkIdentity(Unknown Source)
+        at com.sun.net.ssl.internal.ssl.X509TrustManagerImpl.checkServerTrusted(Unknown Source)
+        ... 27 more
+</textarea>
+<br /> What would go wrong now???</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Goran Markovic, Ranch Hand<br />
+  on <span class="lastPostTime">Jul 28, 2009 11:15:21</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi 
+<br /> I made a plenty of googling, but I couldn't find an answer.
+<br /> This is my Client class. When I use an ordinary protocol, it works fine but when I change to secured, it says throws prevoous exception. Can I somehow, set system property which will pointing at 'localhost' as my ip?
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+
+
+import java.util.logging.Logger;
+import javax.xml.ws.BindingProvider;
+import java.util.*;
+import securityC.*;
+import javax.xml.ws.handler.MessageContext;
+
+public class SecurityClient {
+    private static Logger logger =Logger.getLogger("SecurityClient");
+    private static final String endpoint = "https://localhost:8443/slersec/sler";
+    //private static final String endpoint = "http://localhost:8080/slersec/sler";
+	public static void main(String[] args) {
+try{
+		SlerSecurityService service = new SlerSecurityService();
+		SlerSecurity port = service.getSlerSecurityPort();
+
+		System.setProperty("javax.net.ssl.trustStore", "E:/Documents and Settings/Boban/.keystore");
+		System.setProperty("javax.net.ssl.trustStorePassword","changeit");
+		System.setProperty("javax.net.ssl.keyStore", "E:/Documents and Settings/Boban/.keystore"); 
+		System.setProperty("javax.net.ssl.keyStorePassword","changeit");
+
+		 Map&lt;String, Object&gt; req_ctx = ((BindingProvider) port).getRequestContext();
+	        req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
+	        req_ctx.put(BindingProvider.USERNAME_PROPERTY, "afrodom");
+	        req_ctx.put(BindingProvider.PASSWORD_PROPERTY, "slobodan");
+
+		logger.info("Invoking secret key . . . ");
+		logger.info("The answer is : \n "+ port.secretInfo("someKey"));
+		logger.info("check user validation . . . : ");
+		logger.info(port.checkUser());
+}catch (Exception e){
+	e.printStackTrace();
+}
+	}
+}
+
+</textarea>
+<br /> 
+<br /> I just cannot figure out...</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Goran Markovic, Ranch Hand<br />
+  on <span class="lastPostTime">Aug 01, 2009 10:02:04</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Help, Help, Help <img src="http://cache-www.coderanch.com/images/smilies/3b63d1616c5dfcf29f8a7a031aaa7cad.gif" />
+<br /> Does anyone know what is the wrong? I just cannot resolve the problem. I configure the clinet but the same exception had raised again, and again. I have just simply follow the example from "java Web Service:Up and Running", but I cannot find out what is problem.
+<br /> The exception :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+Aug 1, 2009 5:57:07 PM SecurityClient main
+INFO: Invoking secret key . . . 
+com.sun.xml.internal.ws.client.ClientTransportException: HTTP transport error: javax.net.ssl.SSLHandshakeException: java.security.cert.CertificateException: No name matching localhost found
+	at com.sun.xml.internal.ws.transport.http.client.HttpClientTransport.getOutput(Unknown Source)
+	at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.process(Unknown Source)
+	at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.processRequest(Unknown Source)
+	at com.sun.xml.internal.ws.transport.DeferredTransportPipe.processRequest(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.__doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber._doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.runSync(Unknown Source)
+	at com.sun.xml.internal.ws.client.Stub.process(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SEIStub.doProcess(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SEIStub.invoke(Unknown Source)
+	at $Proxy29.secretInfo(Unknown Source)
+	at SecurityClient.main(SecurityClient.java:40)
+Caused by: javax.net.ssl.SSLHandshakeException: java.security.cert.CertificateException: No name matching localhost found
+	at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.fatal(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.ClientHandshaker.serverCertificate(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.ClientHandshaker.processMessage(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Handshaker.processLoop(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Handshaker.process_record(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.performInitialHandshake(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.startHandshake(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.startHandshake(Unknown Source)
+	at sun.net.www.protocol.https.HttpsClient.afterConnect(Unknown Source)
+	at sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.http.HttpURLConnection.getOutputStream(Unknown Source)
+	at sun.net.www.protocol.https.HttpsURLConnectionImpl.getOutputStream(Unknown Source)
+	... 15 more
+Caused by: java.security.cert.CertificateException: No name matching localhost found
+	at sun.security.util.HostnameChecker.matchDNS(Unknown Source)
+	at sun.security.util.HostnameChecker.match(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.X509TrustManagerImpl.checkIdentity(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.X509TrustManagerImpl.checkServerTrusted(Unknown Source)
+	... 27 more
+</textarea>
+<br /> 
+<br /> raise, continuously. I have read <a class="snap_shots" href="http://java.boot.by/scdjws5-guide/ch08s03.html" target="_new" rel="nofollow">Mikalai Zaikin's Study Guide</a>, and add some properties more, as suggested :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+
+
+import java.util.logging.Logger;
+import javax.xml.ws.BindingProvider;
+import java.util.*;
+import securityC.*;
+import javax.xml.ws.handler.MessageContext;
+import java.security.*;
+public class SecurityClient {
+    private static Logger logger =Logger.getLogger("SecurityClient");
+    private static final String endpoint = "https://localhost:8443/slersec/sler";
+	public static void main(String[] args) {
+try{
+		SlerSecurityService service = new SlerSecurityService();
+		SlerSecurity port = service.getSlerSecurityPort();
+
+	    //AUTHENTICATION/AUTHORISATION, AGAINST DATABASE 
+		System.setProperty("javax.net.ssl.keyStore", "E:/Documents and Settings/Boban/.keystore"); 
+		System.setProperty("javax.net.ssl.keyStorePassword","changeit");
+	    System.setProperty("javax.net.ssl.keyStoreType", "JKS");
+
+		System.setProperty("javax.net.ssl.trustStore", "E:/Documents and Settings/Boban/.keystore");
+		System.setProperty("javax.net.ssl.trustStorePassword","changeit");
+		System.setProperty("java.protocol.handler.pkgs", "com.sun.net.ssl.internal.www.protocol");
+		Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+
+		 Map&lt;String, Object&gt; req_ctx = ((BindingProvider) port).getRequestContext();
+	    req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
+	     req_ctx.put(BindingProvider.USERNAME_PROPERTY, "afrodom");
+	     req_ctx.put(BindingProvider.PASSWORD_PROPERTY, "slobodan");
+	        // Place the username/password in the HTTP request headers,
+	        // which a non-Java client can do as well.
+	       Map&lt;String, List&gt;&lt;String&gt;&gt; hdr = new HashMap&lt;String, List&gt;&lt;String&gt;&gt;();
+	        hdr.put(&quot;username&quot;, Collections.singletonList(&quot;afrodom&quot;));
+	        hdr.put(&quot;password&quot;, Collections.singletonList(&quot;slobodan&quot;));
+	        req_ctx.put(MessageContext.HTTP_REQUEST_HEADERS, hdr);
+
+		logger.info(&quot;Invoking secret key . . . &quot;);
+		logger.info(&quot;The answer is : \n &quot;+ port.secretInfo(&quot;love&quot;));
+		logger.info(&quot;check user validation . . . : &quot;);
+		logger.info(port.checkUser());
+}catch (Exception e){
+	e.printStackTrace();
+}
+	}
+}
+
+</textarea>
+<br />  but then, the second (contradictory) exception has been thrown :
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+Aug 1, 2009 6:01:09 PM SecurityClient main
+INFO: Invoking secret key . . . 
+com.sun.xml.internal.ws.client.ClientTransportException: HTTP transport error: java.io.IOException: HTTPS hostname wrong:  should be &lt;localhost&gt;
+	at com.sun.xml.internal.ws.transport.http.client.HttpClientTransport.getOutput(Unknown Source)
+	at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.process(Unknown Source)
+	at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.processRequest(Unknown Source)
+	at com.sun.xml.internal.ws.transport.DeferredTransportPipe.processRequest(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.__doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber._doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.runSync(Unknown Source)
+	at com.sun.xml.internal.ws.client.Stub.process(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SEIStub.doProcess(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SEIStub.invoke(Unknown Source)
+	at $Proxy29.secretInfo(Unknown Source)
+	at SecurityClient.main(SecurityClient.java:39)
+Caused by: java.io.IOException: HTTPS hostname wrong:  should be &lt;localhost&gt;
+	at sun.net.www.protocol.https.HttpsClient.checkURLSpoofing(Unknown Source)
+	at sun.net.www.protocol.https.HttpsClient.afterConnect(Unknown Source)
+	at sun.net.www.protocol.https.AbstractDelegateHttpsURLConnection.connect(Unknown Source)
+	at sun.net.www.protocol.http.HttpURLConnection.getOutputStream(Unknown Source)
+	at com.sun.net.ssl.internal.www.protocol.https.HttpsURLConnectionOldImpl.getOutputStream(Unknown Source)
+	... 15 more
+
+</textarea>
+<br /> 
+<br /> Now, it says the host name SHOULD be localhost (and IT is) ?!
+<br /> So what should I do??? Thanks... A LoT
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ivan Krizsan, Bartender<br />
+  on <span class="lastPostTime">Aug 02, 2009 18:59:11</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi!
+<br /> Include this code snippet on the client side. See the comment in the code below for explanation! 
+<br />   <textarea name="code" class="java" cols="60" rows="10">
+    static 
+    { 
+        /* 
+         * Java by default verifies that the certificate CN (Common Name) is 
+         * the same as host name in the URL. If the CN in the certificate is 
+         * not the same as the host name, your web service client fails. 
+         * This piece of code allows for using localhost as host name 
+         * with a certificate in which the CN does not match. 
+         * This is meant to be a workaround while developing the web 
+         * service and clients and SHOULD be removed in the production 
+         * version. 
+         */ 
+        HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() 
+        { 
+            public boolean verify(String hostname, SSLSession session) 
+            { 
+                if (hostname.equals("localhost")) 
+                { 
+                    return true; 
+                } 
+                return false; 
+            } 
+        }); 
+    } </textarea>
+<br /> Best wishes!</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Goran Markovic, Ranch Hand<br />
+  on <span class="lastPostTime">Aug 03, 2009 03:04:40</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi Ivan.Thanks for your efforts, but the issue isn't resolved <img src="http://cache-www.coderanch.com/images/smilies/8eb205fcc69b104dc7dacc0c97694f63.gif" border="0">.
+<br /> When i add the static code you have suggested, I get the following exception on client side :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+Aug 3, 2009 11:00:02 AM SecurityClient main
+INFO: Invoking secret key . . . 
+javax.xml.ws.WebServiceException: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate
+	at com.sun.xml.internal.ws.transport.http.client.HttpClientTransport.readResponseCodeAndMessage(Unknown Source)
+	at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.process(Unknown Source)
+	at com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.processRequest(Unknown Source)
+	at com.sun.xml.internal.ws.transport.DeferredTransportPipe.processRequest(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.__doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber._doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.doRun(Unknown Source)
+	at com.sun.xml.internal.ws.api.pipe.Fiber.runSync(Unknown Source)
+	at com.sun.xml.internal.ws.client.Stub.process(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SEIStub.doProcess(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SyncMethodHandler.invoke(Unknown Source)
+	at com.sun.xml.internal.ws.client.sei.SEIStub.invoke(Unknown Source)
+	at $Proxy29.secretInfo(Unknown Source)
+	at SecurityClient.main(SecurityClient.java:68)
+Caused by: javax.net.ssl.SSLHandshakeException: Received fatal alert: bad_certificate
+	at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.recvAlert(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readDataRecord(Unknown Source)
+	at com.sun.net.ssl.internal.ssl.AppInputStream.read(Unknown Source)
+	at java.io.BufferedInputStream.fill(Unknown Source)
+	at java.io.BufferedInputStream.read1(Unknown Source)
+	at java.io.BufferedInputStream.read(Unknown Source)
+	at sun.net.www.http.HttpClient.parseHTTPHeader(Unknown Source)
+	at sun.net.www.http.HttpClient.parseHTTP(Unknown Source)
+	at sun.net.www.http.HttpClient.parseHTTP(Unknown Source)
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(Unknown Source)
+	at java.net.HttpURLConnection.getResponseCode(Unknown Source)
+	at sun.net.www.protocol.https.HttpsURLConnectionImpl.getResponseCode(Unknown Source)
+	... 15 more
+</textarea>
+<br /> 
+<br /> AND it is probably caused by exception thrown from Tomcat :
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+INFO: SSL Error getting client Certs
+javax.net.ssl.SSLHandshakeException: null cert chain
+	at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Alerts.java:174)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.fatal(SSLSocketImpl.java:1611)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Handshaker.java:187)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Handshaker.java:177)
+	at com.sun.net.ssl.internal.ssl.ServerHandshaker.clientCertificate(ServerHandshaker.java:1206)
+	at com.sun.net.ssl.internal.ssl.ServerHandshaker.processMessage(ServerHandshaker.java:148)
+	at com.sun.net.ssl.internal.ssl.Handshaker.processLoop(Handshaker.java:516)
+	at com.sun.net.ssl.internal.ssl.Handshaker.process_record(Handshaker.java:454)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(SSLSocketImpl.java:884)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readDataRecord(SSLSocketImpl.java:746)
+	at com.sun.net.ssl.internal.ssl.AppInputStream.read(AppInputStream.java:75)
+	at java.io.InputStream.read(InputStream.java:85)
+	at org.apache.tomcat.util.net.jsse.JSSE14Support.synchronousHandshake(JSSE14Support.java:88)
+	at org.apache.tomcat.util.net.jsse.JSSE14Support.handShake(JSSE14Support.java:67)
+	at org.apache.tomcat.util.net.jsse.JSSESupport.getPeerCertificateChain(JSSESupport.java:121)
+	at org.apache.coyote.http11.Http11Processor.action(Http11Processor.java:1132)
+	at org.apache.coyote.Request.action(Request.java:349)
+	at org.apache.catalina.authenticator.SSLAuthenticator.authenticate(SSLAuthenticator.java:138)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:491)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:117)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:108)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:174)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:875)
+	at org.apache.coyote.http11.Http11BaseProtocol$Http11ConnectionHandler.processConnection(Http11BaseProtocol.java:665)
+	at org.apache.tomcat.util.net.PoolTcpEndpoint.processSocket(PoolTcpEndpoint.java:528)
+	at org.apache.tomcat.util.net.LeaderFollowerWorkerThread.runIt(LeaderFollowerWorkerThread.java:81)
+	at org.apache.tomcat.util.threads.ThreadPool$ControlRunnable.run(ThreadPool.java:689)
+	at java.lang.Thread.run(Thread.java:619)
+Aug 3, 2009 11:00:04 AM org.apache.coyote.http11.Http11Processor action
+WARNING: Exception getting SSL attributes
+javax.net.ssl.SSLHandshakeException: null cert chain
+	at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Alerts.java:174)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.fatal(SSLSocketImpl.java:1611)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Handshaker.java:187)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Handshaker.java:177)
+	at com.sun.net.ssl.internal.ssl.ServerHandshaker.clientCertificate(ServerHandshaker.java:1206)
+	at com.sun.net.ssl.internal.ssl.ServerHandshaker.processMessage(ServerHandshaker.java:148)
+	at com.sun.net.ssl.internal.ssl.Handshaker.processLoop(Handshaker.java:516)
+	at com.sun.net.ssl.internal.ssl.Handshaker.process_record(Handshaker.java:454)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(SSLSocketImpl.java:884)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readDataRecord(SSLSocketImpl.java:746)
+	at com.sun.net.ssl.internal.ssl.AppInputStream.read(AppInputStream.java:75)
+	at java.io.InputStream.read(InputStream.java:85)
+	at org.apache.tomcat.util.net.jsse.JSSE14Support.synchronousHandshake(JSSE14Support.java:88)
+	at org.apache.tomcat.util.net.jsse.JSSE14Support.handShake(JSSE14Support.java:67)
+	at org.apache.tomcat.util.net.jsse.JSSESupport.getPeerCertificateChain(JSSESupport.java:121)
+	at org.apache.coyote.http11.Http11Processor.action(Http11Processor.java:1132)
+	at org.apache.coyote.Request.action(Request.java:349)
+	at org.apache.catalina.authenticator.SSLAuthenticator.authenticate(SSLAuthenticator.java:138)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:491)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:117)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:108)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:174)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:875)
+	at org.apache.coyote.http11.Http11BaseProtocol$Http11ConnectionHandler.processConnection(Http11BaseProtocol.java:665)
+	at org.apache.tomcat.util.net.PoolTcpEndpoint.processSocket(PoolTcpEndpoint.java:528)
+	at org.apache.tomcat.util.net.LeaderFollowerWorkerThread.runIt(LeaderFollowerWorkerThread.java:81)
+	at org.apache.tomcat.util.threads.ThreadPool$ControlRunnable.run(ThreadPool.java:689)
+	at java.lang.Thread.run(Thread.java:619)
+Aug 3, 2009 11:00:04 AM org.apache.tomcat.util.net.jsse.JSSE14Support synchronousHandshake
+INFO: SSL Error getting client Certs
+javax.net.ssl.SSLHandshakeException: null cert chain
+	at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Alerts.java:174)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.fatal(SSLSocketImpl.java:1611)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Handshaker.java:187)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Handshaker.java:177)
+	at com.sun.net.ssl.internal.ssl.ServerHandshaker.clientCertificate(ServerHandshaker.java:1206)
+	at com.sun.net.ssl.internal.ssl.ServerHandshaker.processMessage(ServerHandshaker.java:148)
+	at com.sun.net.ssl.internal.ssl.Handshaker.processLoop(Handshaker.java:516)
+	at com.sun.net.ssl.internal.ssl.Handshaker.process_record(Handshaker.java:454)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(SSLSocketImpl.java:884)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readDataRecord(SSLSocketImpl.java:746)
+	at com.sun.net.ssl.internal.ssl.AppInputStream.read(AppInputStream.java:75)
+	at java.io.InputStream.read(InputStream.java:85)
+	at org.apache.tomcat.util.net.jsse.JSSE14Support.synchronousHandshake(JSSE14Support.java:88)
+	at org.apache.tomcat.util.net.jsse.JSSE14Support.handShake(JSSE14Support.java:67)
+	at org.apache.tomcat.util.net.jsse.JSSESupport.getPeerCertificateChain(JSSESupport.java:121)
+	at org.apache.coyote.http11.Http11Processor.action(Http11Processor.java:1132)
+	at org.apache.coyote.Request.action(Request.java:349)
+	at org.apache.catalina.authenticator.SSLAuthenticator.authenticate(SSLAuthenticator.java:138)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:491)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:117)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:108)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:174)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:875)
+	at org.apache.coyote.http11.Http11BaseProtocol$Http11ConnectionHandler.processConnection(Http11BaseProtocol.java:665)
+	at org.apache.tomcat.util.net.PoolTcpEndpoint.processSocket(PoolTcpEndpoint.java:528)
+	at org.apache.tomcat.util.net.LeaderFollowerWorkerThread.runIt(LeaderFollowerWorkerThread.java:81)
+	at org.apache.tomcat.util.threads.ThreadPool$ControlRunnable.run(ThreadPool.java:689)
+	at java.lang.Thread.run(Thread.java:619)
+Aug 3, 2009 11:00:04 AM org.apache.coyote.http11.Http11Processor action
+WARNING: Exception getting SSL attributes
+javax.net.ssl.SSLHandshakeException: null cert chain
+	at com.sun.net.ssl.internal.ssl.Alerts.getSSLException(Alerts.java:174)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.fatal(SSLSocketImpl.java:1611)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Handshaker.java:187)
+	at com.sun.net.ssl.internal.ssl.Handshaker.fatalSE(Handshaker.java:177)
+	at com.sun.net.ssl.internal.ssl.ServerHandshaker.clientCertificate(ServerHandshaker.java:1206)
+	at com.sun.net.ssl.internal.ssl.ServerHandshaker.processMessage(ServerHandshaker.java:148)
+	at com.sun.net.ssl.internal.ssl.Handshaker.processLoop(Handshaker.java:516)
+	at com.sun.net.ssl.internal.ssl.Handshaker.process_record(Handshaker.java:454)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readRecord(SSLSocketImpl.java:884)
+	at com.sun.net.ssl.internal.ssl.SSLSocketImpl.readDataRecord(SSLSocketImpl.java:746)
+	at com.sun.net.ssl.internal.ssl.AppInputStream.read(AppInputStream.java:75)
+	at java.io.InputStream.read(InputStream.java:85)
+	at org.apache.tomcat.util.net.jsse.JSSE14Support.synchronousHandshake(JSSE14Support.java:88)
+	at org.apache.tomcat.util.net.jsse.JSSE14Support.handShake(JSSE14Support.java:67)
+	at org.apache.tomcat.util.net.jsse.JSSESupport.getPeerCertificateChain(JSSESupport.java:121)
+	at org.apache.coyote.http11.Http11Processor.action(Http11Processor.java:1132)
+	at org.apache.coyote.Request.action(Request.java:349)
+	at org.apache.catalina.authenticator.SSLAuthenticator.authenticate(SSLAuthenticator.java:138)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:491)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:117)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:108)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:174)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:875)
+	at org.apache.coyote.http11.Http11BaseProtocol$Http11ConnectionHandler.processConnection(Http11BaseProtocol.java:665)
+	at org.apache.tomcat.util.net.PoolTcpEndpoint.processSocket(PoolTcpEndpoint.java:528)
+	at org.apache.tomcat.util.net.LeaderFollowerWorkerThread.runIt(LeaderFollowerWorkerThread.java:81)
+	at org.apache.tomcat.util.threads.ThreadPool$ControlRunnable.run(ThreadPool.java:689)
+	at java.lang.Thread.run(Thread.java:619)
+
+</textarea>
+<br /> I am little confused, because I do not directly use HttpsURLConnection object, but Service (proxy) in my client code, and  as much as I see, it points to bad certificate, but there is no problem when I try to access the resource using browser. What could be problem?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ivan Krizsan, Bartender<br />
+  on <span class="lastPostTime">Aug 03, 2009 22:13:46</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi!
+<br /> It looks like your truststore and/or keystore is not set up properly.
+<br /> Check my SCDJWS study notes for a step-by-step guide on how to set up keystores and truststores for SSL and SSL with mututal authentication.
+<br /> Best wishes!</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/455870'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=51'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 17:19:36</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/51"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/455870/Web-Services/java/web-service-security?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

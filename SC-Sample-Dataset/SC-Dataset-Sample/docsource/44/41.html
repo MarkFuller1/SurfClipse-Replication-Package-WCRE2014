@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="es-ES"><head><meta charset="utf-8"><title>JTextPane mantiene lanzando BadLocation</title><meta name="keywords" content="java,swing,syntax-highlighting,jtextpane" />
+<meta name="description" content="Tengo un JTextField que contiene un JTextPane. El propósito de este JTextPane es resaltar las palabras al escribir ellos, algo a lo largo de las líneas del editor de texto del programador. Para logr" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="http://es.softuses.com/css1/style.css" rel="stylesheet"/>
+<style type="text/css">body {padding-top: 60px; padding-bottom: 40px;}li{margin-bottom:5px;}</style> 
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+</head><body><div class="navbar navbar-fixed-top"><div class="navbar-inner"><div class="container"><a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></a><a class="brand" href="http://es.softuses.com" title="assistance technique">assistance technique</a><div class="nav-collapse"><ul class="nav"><li><a href="/java" title="java">java</a></li><li><a href="/javascript" title="javascript">javascript</a></li><li><a href="/php" title="php">php</a></li><li><a href="/python" title="python">python</a></li><li><a href="/sql" title="sql">sql</a></li></ul><form class="navbar-search pull-right" action="http://www.google.es" id="cse-search-box"><input name="q" type="text" class="search-query" placeholder="Search" value=""><input type="hidden" name="cx" value="partner-pub-2178652203782738:6679186522" /><input type="hidden" name="ie" value="UTF-8" /><button type="submit" class="btn" type="submit" name="sa">Buscar</button></form><script type="text/javascript" src="http://www.google.es/coop/cse/brand?form=cse-search-box&amp;lang=es"></script></div></div></div></div><div class="container"><div id="textarea" style="width:880px;"><h2>JTextPane mantiene lanzando BadLocation</h2>
+<div>
+<div style="float:left;">
+    <div style="width:336px;height:280px;float:left; padding-right:10px;padding-bottom: 10px;">
+    <center><script type="text/javascript"><!--
+google_ad_client = "ca-pub-2178652203782738";
+/* es336 */
+google_ad_slot = "9572092267";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script></center></div>
+<p>Tengo un JTextField que contiene un JTextPane. El propósito de este JTextPane es resaltar las palabras al escribir ellos, algo a lo largo de las líneas del editor de texto del programador. Para lograr esto, ampliados de JTextPane, implementa la interfaz <strong>KeyListener</strong> y lo tenía configuración como <strong>oyente clave</strong> a sí mismo. El método que realiza algún trabajo importante es <strong>keyReleased</strong>. El problema es, que puedo destacar la primera palabra que escriba, pero después de eso, sigo recibiendo BadLocation, aunque el <strong>Inicio</strong> y el <strong>final</strong> se encuentran dentro de los límites del documento. Yo soy publicar algunos de mis fragmentos de código:</p>
+
+<pre><code>
+// this is my highlight method
+private void highlight(int start,int end) throws BadLocationException {
+      Document doc = getDocument();
+      Color c = Color.red;
+      String text = doc.getText(start,end);
+      StyleContext sc = StyleContext.getDefaultStyleContext();
+      AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
+      setCharacterAttributes(aset, true);
+      setSelectionStart(start);
+      setSelectionEnd(end);
+      replaceSelection(text);
+}
+
+//this is my keyReleased method
+public void keyReleased(KeyEvent arg0) {
+        char character = arg0.getKeyChar();
+        if(wordStarted) { // have I started typing a new word ?
+            if(character == ' ') { // end word
+                try {
+                    int dot = getCaret().getDot();
+                    highlight(wordStart, dot - 1);
+                    setCaretPosition(dot);
+                    wordStarted = false;
+                } catch (BadLocationException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        else {
+            if(Character.isLetter(character)) {
+                wordStarted = true;
+                wordStart = getCaret().getDot() -1;
+            }
+        }
+    }
+</code></pre>He intentado escribir en: <strong>public static</strong> pero sólo <strong>público</strong> es color rojo. Incluso he añadido algunas afirmaciones Console.println para la depuración, y ésta es la salida:<pre>
+Esto se genera después de la escritura pública
+iniciar param:0
+final param:6
+documento longitud: 7
+documento inicial: 0
+documento final: 8
+texto: público
+
+esto se genera después de escribir estática
+iniciar param:7
+final param:13
+documento longitud: 14
+documento inicial: 0
+documento final: 15
+texto: public static 
+javax.swing.text.BadLocationException: Invalid location
+        en javax.swing.text.GapContent.getChars(GapContent.java:189)
+        en javax.swing.text.GapContent.getString(GapContent.java:167)
+        en javax.swing.text.AbstractDocument.getText(AbstractDocument.java:774)
+        en ifirst.visual.CodePanel.highlight(CodePanel.java:49)
+        en ifirst.visual.CodePanel.keyReleased(CodePanel.java:82)
+        en java.awt.Component.processKeyEvent(Component.java:6069)
+        en javax.swing.JComponent.processKeyEvent(JComponent.Java:2810)
+        en java.awt.Component.processEvent(Component.java:5885)
+        en java.awt.Container.processEvent(Container.java:2105)
+        en java.awt.Component.dispatchEventImpl(Component.java:4469)
+        en java.awt.Container.dispatchEventImpl(Container.java:2163)
+        en java.awt.Component.dispatchEvent(Component.java:4295)
+        en java.awt.KeyboardFocusManager.redispatchEvent(KeyboardFocusManager.java:1881)
+        en java.awt.DefaultKeyboardFocusManager.dispatchKeyEvent(DefaultKeyboardFocusManager.java:742)
+        en java.awt.DefaultKeyboardFocusManager.preDispatchKeyEvent(DefaultKeyboardFocusManager.java:1007)
+        en java.awt.DefaultKeyboardFocusManager.typeAheadAssertions(DefaultKeyboardFocusManager.java:879)
+        en Java.awt.DefaultKeyboardFocusManager.dispatchEvent(DefaultKeyboardFocusManager.Java:706)
+        en java.awt.Component.dispatchEventImpl(Component.java:4339)
+        en java.awt.Container.dispatchEventImpl(Container.java:2163)
+        en java.awt.Window.dispatchEventImpl(Window.java:2478)
+        en java.awt.Component.dispatchEvent(Component.java:4295)
+        en java.awt.EventQueue.dispatchEvent(EventQueue.java:604)
+        en java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:275)
+        en java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:200)
+        en java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:190)
+        en java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:185)
+        en java.awt.EventDispatchThread.pumpEvents (EventDispatchThread.java:177)
+        en java.awt.EventDispatchThread.run(EventDispatchThread.java:138)
+</pre>
+
+<p>Estoy escribiendo este código para obtener un bloqueo de JTextPane. No estoy interesado en algo como <strong>JTextPane</strong>.</p><h5>répondre #1</h5><hr><div><p>Como has descubierto, el<a href="http://java.sun.com/javase/6/docs/api/javax/swing/text/Document.html#getText(int,%20int)" rel="nofollow" target="_blank">Document.getText()</a> tiene un comienzo y <em>longitud</em>, no un argumento inicial y <em>final</em> .  Pensé que daría una respuesta y un vínculo al JavaDoc para otros leer tu pregunta que no puede ser en los comentarios.</p>
+</div>  <ul class="nav nav-list"><li class="nav-header">Tabulación popular</li><li><a href="/206516"  title="Declaración final arraylist" class="post-tag">Declaración final arraylist</a></li><li><a href="/206511"  title="AtomicInteger es una buena solución para proporcionar un contador para la aplicación multiproceso." class="post-tag">AtomicInteger es una buena solución para proporcionar un contador para la aplicación multiproceso.</a></li><li><a href="/206509"  title="¿Cómo KVM (Kilo Virtual Machine) diferente de JVM (Java Virtual Machine)." class="post-tag">¿Cómo KVM (Kilo Virtual Machine) diferente de JVM (Java Virtual Machine).</a></li><li><a href="/206500"  title="Reutilizar Eclipse &#39; s Plugin Editor de manifiestos" class="post-tag">Reutilizar Eclipse &#39; s Plugin Editor de manifiestos</a></li><li><a href="/206496"  title="¿Cómo obtener la ruta de acceso a directorios de sistema especial usando Java" class="post-tag">¿Cómo obtener la ruta de acceso a directorios de sistema especial usando Java</a></li><li><a href="/206478"  title="Java Hashtable y serialización" class="post-tag">Java Hashtable y serialización</a></li><li><a href="/206450"  title="Mi Spring AOP no funciona" class="post-tag">Mi Spring AOP no funciona</a></li><li><a href="/206429"  title="¿Cómo extraer el servidor Host/IP de la CORBA IOR y NamingContextExt? [Java]" class="post-tag">¿Cómo extraer el servidor Host/IP de la CORBA IOR y NamingContextExt? [Java]</a></li><li><a href="/206406"  title="Java Swing: JInternalFrame: necesita una ventana de diálogo" class="post-tag">Java Swing: JInternalFrame: necesita una ventana de diálogo</a></li><li><a href="/206392"  title="Socket Java &#39; s app detener al azar" class="post-tag">Socket Java &#39; s app detener al azar</a></li></ul><div><center><!-- CDXN :direct1 (cdxndirect.com) : 728 x 90 Leader Board -->
+<IFRAME FRAMEBORDER=0 MARGINWIDTH=0 MARGINHEIGHT=0 SCROLLING=NO WIDTH=728 HEIGHT=90 SRC="http://opt.cdxndirectopt.com/i.php?zone=MTEwNXw3Mjh4OTA="></IFRAME>
+<!-- End of Ad Tag - CDXN :direct1 --></center></div>
+<hr> <h2>Tags lesen </h2><div><a class="post-tag" href="/java" title="java">java</a>&nbsp;<a class="post-tag" href="/swing" title="swing">swing</a>&nbsp;<a class="post-tag" href="/syntax-highlighting" title="syntax-highlighting">syntax-highlighting</a>&nbsp;<a class="post-tag" href="/jtextpane" title="jtextpane">jtextpane</a>&nbsp;</div>
+</div></div><br/><footer><p>&copy; es.softuses.com 2013</p></footer></div><script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="/scripts/prettify/prettify.js"></script><script type="text/javascript"> $(document).ready(function(){ $("pre").each(function(){ $(this).addClass("prettyprint"); }); prettyPrint();})</script><script src="http://es.softuses.com/js/bootstrap.js"></script><div style="display:none;"><script src="http://s19.cnzz.com/stat.php?id=5443373&web_id=5443373" language="JavaScript"></script></div></body></html>

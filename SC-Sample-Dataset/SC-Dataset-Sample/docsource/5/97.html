@@ -1,0 +1,1380 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- base_content.html -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Monitor PostgresSQL table - Splunk Community</title>
+        <meta name="description" content="I am trying to setup a monitor to tail a table in my Postgres DB. I have a TIMESTAMP column that I am specifying as the rising column. It does not seem to be pulling the data in.  I can query the DB just fine with the exception that the timestamp is formatted in epoch.  I have a directory monitor th..." />
+        <meta name="keywords" content="dbx,configuration" />
+        
+        <link rel="canonical" href="http://answers.splunk.com/answers/69643/monitor-postgressql-table" />
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="/answers/69643/monitor-postgressql-table?type=rss">
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        
+        <link rel="shortcut icon" href="/m/splunk/media/images/favicon.ico" />
+        <link href="/m/default/media/style/style.css" rel="stylesheet" type="text/css" />
+        
+        <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" />
+        <!--[if IE 6]>
+        <style type="text/css">
+        img, div, a { behavior: url(/m/default/media/iepngfix/iepngfix.htc) }
+        </style>
+        <![endif]-->
+        
+
+        <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+        <script type="text/javascript">
+        /*<![CDATA[*/
+            google.load("jquery", "1");
+            google.load("jqueryui", "1", {autoload:true});
+
+            var i18nLang = 'en';
+            var appUrl = 'http://answers.splunk.com/'
+            var scriptUrl = '/'
+            var osqaSkin = 'splunk';
+
+            var messages = {
+                username: '',
+                confirm: "Are you sure?",
+                yes: "Yes",
+                no: "No",
+                message: "Message:",
+                cancel: "Cancel",
+                close: "Close",
+                ok: "Ok",
+                matching_tags_url: "/matching_tags/",
+                word: "word",
+                words: "words",
+                character: "character",
+                characters: "characters"
+            }
+        /*]]>*/
+        </script>
+        <script type="text/javascript" src="/m/default/media/js/osqa.main.js"></script>
+        
+        
+            <link rel="stylesheet" type="text/css" href="/m/splunk/media/style/splunk.css?2"  media="screen" />
+<style>
+.tag-link-__app {
+display: none;
+}
+</style>
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+        
+        
+    <!--GooglePageMap
+    <PageMap>
+        <DataObject type="document">
+            <Attribute name="title">Monitor PostgresSQL table</Attribute>
+            <Attribute name="num_thumbs_up">0</Attribute>
+            <Attribute name="num_answers">1</Attribute>
+            <Attribute name="num_responses">1</Attribute>
+            <Attribute name="category_ids">[49,4177]</Attribute>
+            <Attribute name="question_id">69643</Attribute>
+            <Attribute name="times_viewed">442</Attribute>
+            <Attribute name="created_at">20121218</Attribute>
+            <Attribute name="open_discussion">true</Attribute>
+            <Attribute name="made_public_at">20121218</Attribute>
+            <Attribute name="publicly_indexed">false</Attribute>
+            <Attribute name="has_accepted_answer">false</Attribute>
+        </DataObject>
+    </PageMap>
+    -->
+
+    
+        
+        <script type='text/javascript' src='/m/default/media/js/osqa.question.js'></script>
+        <script type='text/javascript' src='/m/default/media/js/jquery.caret.js'></script>
+        <script type='text/javascript' src='/m/splunk/media/js/wmd/showdown.js'></script>
+        <script type='text/javascript' src='/m/default/media/js/wmd/wmd.js'></script>
+        <script type='text/javascript' src='/m/splunk/media/js/html_sanitizer.js'></script>
+        <link rel="stylesheet" type="text/css" href="/m/default/media/js/wmd/wmd.css" />
+
+        
+        <script type='text/javascript' src='/m/default/media/js/viewbox_min.js'></script>
+        <script type='text/javascript' src='/m/default/media/js/youtube.js'></script>
+        <link rel="stylesheet" type="text/css" href="/m/default/media/js/viewbox.css" />
+        
+        
+
+        <script type="text/javascript">
+        $().ready(function(){
+            $("#nav_questions").attr('className',"on");
+            var answer_sort_tab = "";
+
+            if (answer_sort_tab) {
+                $("#" + answer_sort_tab).attr('className',"on");
+            }
+
+            $('#editor').TextAreaResizer();
+
+            //toggle preview of editor
+            var display = true;
+            var txt = "[hide preview]";
+            $('#pre-collapse').text(txt);
+            $('#pre-collapse').bind('click', function(){
+                txt = display ? "[show preview]" : "[hide preview]";
+                display = !display;
+                $('#previewer').toggle();
+                $('#pre-collapse').text(txt);
+            });
+        });
+
+        function submitClicked(e, f) {
+            if(!(browserTester('chrome') || browserTester('safari'))) {
+                $("input.submit")[0].disabled=true;
+            }
+            window.removeEventListener('beforeunload', beforeUnload, true);
+            if (f) {
+                f.submit();
+            }
+        }
+
+        function beforeUnload(e) {
+
+            if($("textarea#editor")[0].value != "") {
+                return yourWorkWillBeLost(e);
+            }
+
+            var commentBoxes = $("textarea.commentBox");
+            for(var index = 0; index < commentBoxes.length; index++) {
+                if(commentBoxes[index].value != "") {
+                    return yourWorkWillBeLost(e);
+                }
+            }
+        }
+        window.addEventListener('beforeunload', beforeUnload, true);
+        </script>
+        <noscript>
+            <style>
+                .comment.not_top_scorer {
+                    display: block;
+                }
+                .comment-form-container {
+                    display: block;
+                }
+                .div.comment-tools {
+                    display: none;
+                }
+            </style>
+        </noscript>
+
+
+    <style type="text/css">
+    .socialShare ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        width: 250px;
+    }
+    .socialShare ul li {
+        list-style: none;
+        display: block;
+        margin: 0 0 0 4px;
+        padding: 0;
+        float: left;
+    }
+        #id_lang_container input
+    {
+        font-size:10px;
+    }
+    </style>
+
+    <script type="text/javascript" src="/m/splunk/media/js/jquery.raty.js"></script>
+    <script type="text/javascript" src="/m/splunk/media/js/scripts.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $('#question-tags').prepend('<span class="post-tag app-tag-link" rel="tag"><a href="http://apps.splunk.com/app/958" title="Splunk DB Connect"><img src="/m/splunk/media/images/icon_app.gif" alt="" /></a><a href="/apps/50803/related_questions/">Splunk DB Connect</a></span>');
+
+            // Create the focused answer animation
+            $('.focusedAnswer').css({backgroundColor: "#ffffcc"}).animate({
+                backgroundColor: "#ffffff"
+            }, 3000);
+
+        });
+
+        var confirm_reply_form;
+        var confirm_reply_event;
+
+        function askConfirmReplyOwnQuestion(event, form)
+        {
+            //var conf = confirm("OK to answer, cancel to comment");
+            confirm_reply_form = form;
+            confirm_reply_event = event;
+
+            var conf_dialog = $('<form id="id_confirm_reply">\
+    <style>\
+        #diy div {width:49%;}\
+        #diy div a {display:block; width:75px; margin:5px auto 10px; padding:10px; font-size:14px; font-weight:bold; color:#FFF; border-radius:5px;}\
+    </style>\
+    <div id="diy" style="width:430px; text-align:center; overflow:auto">\
+        <h3 style="margin-bottom:5px">Did you figure it out yourself?</h3>\
+        <p>Way to go! Posting the complete answer is a great way for the community to benefit from your gained knowledge. However, please refrain from using the Answer field as a discussion thread. Instead, we recommend you to leave a comment below your question or the appropriate answer. This helps to keep our site focused on answering questions.</p>\
+        <div style="float:left">\
+            <a style="background-color:#75A351" href="#" target="_blank" onclick="confirmReplyCallback(true);parent.$.fancybox.close();return false;">Answer</a>\
+            <p>I figured it out myself, submit my answering</p>\
+        </div>\
+        <div style="float:right">\
+            <a style="background-color:#777" href="#" target="_blank" onclick="confirmReplyCallback(false);parent.$.fancybox.close();return false;">Comment</a>\
+            <p>This is comment to my original questions, not an answer</p>\
+        </div>\
+    </div>\
+</form>');
+
+            $.fancybox({'content':conf_dialog.html(),'height':'200px','width':'150px','autoDimensions':false,'autoScale':false})
+
+        }
+
+        function confirmReplyCallback(conf)
+        {
+            if(conf)
+                submitClicked(confirm_reply_event,confirm_reply_form)
+            else
+            {
+                $("#comment-tools-69643").find(".add-comment-link")
+                var comment_form = $("#comment-69643-form");
+                
+                var text = $(confirm_reply_form).find("#editor").val();;
+
+                comment_form.find("[name='comment']").val(text);
+                comment_form.find(".comment-submit").click();
+
+            }
+        }
+
+        $(".comment-submit-locked").click(function  () {
+            alert("Posting new comments is temporarily disabled.");
+        });
+
+
+        
+        
+    </script>
+
+
+    <script type="text/javascript" src="/m/splunk/media/js/select2/select2.js"></script>
+        <link rel="stylesheet" type="text/css" href="/m/splunk/media/js/select2/select2.css" />
+
+        <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Splunk Community Search" />
+        
+    </head>
+    <body>
+        <div class="wrapper">
+        
+            <div id="custom_header">
+                <div id="splunkheader">
+
+<div id="splunktoolbar">
+<ul id="sites" class="inline">
+  <li><a href="http://www.splunk.com">Splunk.com</a></li>
+  <li><a href="http://docs.splunk.com">Documentation</a></li>
+  <li><a href="/apps">Splunkbase</a></li>
+  <li><a href="/">Answers</a></li>
+  <li><a href="http://wiki.splunk.com/">Wiki</a></li>
+  <li><a href="http://blogs.splunk.com">Blogs</a></li>
+  <li class="lastlist"><a href="http://dev.splunk.com">Developers</a></li>
+</ul>
+<p></p>
+</div> <!-- / toolbar -->
+
+<div id="masthead">
+  <!-- Logo -->
+  <div id="logoMantra"><a href="/" id="logo">&nbsp;</a></div>
+</div> <!-- / masthead -->
+
+</div>
+            </div>
+        
+        <!-- template header.html -->
+
+
+	<div id="roof">
+        <div style="float:left">
+        <a id="logo" href="/">
+            <img src="/m/splunk/media/images/logo_splunkanswers.png" title="back to home page" alt="Splunk Community logo"/>
+        </a>
+        </div>
+
+
+		<div id="top">
+		    <a href="/account/sso/signup/">Sign Up</a><a href="/account/sso/signin/">Login</a> <a href="/faq/" >FAQ</a> 
+		</div>
+
+    <div id="nav">
+        <a id="nav_home"  href="/">Home</a>
+        <a id="nav_questions"  class="on" href="/answers/">Answers</a>
+        <a id="nav_apps"  href="/apps/">Apps</a>
+
+        <a id="nav_users"  href="/users/">users</a>
+        <a id="nav_tags"  href="/tags/">tags</a>
+        <a id="nav_badges"  href="/badges/">badges</a>
+        <a id="nav_ask"  href="/ask/">ask a question</a>
+        <a id="nav_share"  href="http://apps.splunk.com/develop">upload an app</a>
+    </div>
+  </div>
+
+  <div class="clear"></div>
+
+	<div id="searchBar">
+    <form id="search-form" action="" method="get">
+        <div>
+            <input type="text" class="searchInput" autocomplete="off" value="" name="q" id="keywords" />
+            <input type="submit" name="Submit" value="Search" class="searchBtn" />
+        </div>
+    </form>
+	</div>
+    <div id="search-selector">
+        <p><strong>Refine your search:</strong></p>
+        <ul>
+            <li><input type="radio" name="search-selector" value="questions" checked="checked"/> Questions</li>
+            <li><input type="radio" name="search-selector" value="apps" /> Apps</li>
+            <li><input type="radio" name="search-selector" value="users" /> Users</li>
+            <li><input type="radio" name="search-selector" value="tags" /> Tags</li>
+        </ul>
+        <div class="search-submit"><button>Search</button></div>
+    </div>
+    <script src="/m/splunk/media/js/jquery.cookies.js"></script>
+    <script type="text/javascript">
+        var search_urls = {
+            all: {url: '/search/', text: 'Search Splunk Answers'},
+            home: {url: '/search/', text: 'Search Splunk Answers'},
+            apps: {url: '/apps/search/', text: 'Search Splunk Apps'},
+            questions: {url: '/search/', text: 'Search Splunk Answers'},
+            users: {url: '/users/', text: 'Search Users'},
+            tags: {url: '/tags/', text: 'Search Tags'}
+        };
+
+        
+            
+                var tab = 'questions';
+            
+        
+
+        $(function(){
+            var $i = $('.searchInput');
+            var it = '';
+            (function() {
+                var $decoder = $('<div></div>');
+                $decoder.html(it);
+                it = $decoder.text();
+            })();
+            var $search_selector = $('#search-selector');
+            var withFocus = false;
+
+            $i.focus(function() {
+                withFocus = true;
+                if ($i.val() == search_urls[tab].text) $i.val('');
+
+                var position = $('#keywords').offset();
+                var inputHeight = $('#keywords').outerHeight();
+                var inputWidth = $('#keywords').outerWidth();
+
+                $search_selector.css({
+                            top: (position.top + inputHeight + 3) + 'px',
+                            left: position.left + 'px',
+                            width: inputWidth + 'px'
+                        });
+
+                $search_selector.fadeIn('fast', function() {
+
+                });
+            });
+
+            function set_input_text() {
+                if (it) {
+                    $i.val(it);
+                } else {
+                    $i.val(search_urls[tab].text);
+                }
+            }
+
+            $i.blur(function() {
+                withFocus = false;
+                if (!$i.val().trim()) {
+                    set_input_text();
+                }
+            });
+
+            $search_selector.click(function(e) {
+                e.stopPropagation();
+            });
+
+            $('body').click(function() {
+                window.setTimeout(function() {
+                    if (!withFocus) {
+                        $search_selector.fadeOut('fast');
+                    }
+                }, 100);
+            });
+
+            $search_selector.find('input').change(function() {
+                var $selected = $(this);
+
+                if ($selected.attr('checked')) {
+                    if ($i.val() == search_urls[tab].text) {
+                        $i.val(search_urls[$(this).val()].text);
+                    }
+                    tab = $(this).val();
+                    $('#search-form').attr('action', search_urls[tab].url);
+                }
+            });
+
+            $search_selector.find('button').click(function() {
+                $('#search-form').submit();
+            });
+
+            $search_selector.find('input[value=' + tab + ']').attr('checked', 'checked');
+            $('#search-form').attr('action', search_urls[tab].url);
+
+            set_input_text();
+
+            $('body').append($search_selector);
+
+
+            var cookie_options = {path : '/', hoursToLive: 7*24};
+
+            // The md5 sum of the announcement bar content
+            var announcement_content = "6b6791dd1bf1049d7057e1736ac734f5";
+
+            // Announcement bar
+            var unix_time = Math.round((new Date()).getTime() / 1000);
+            var hide_older_than = 7 * 3600; // Hide announcements older than X hours
+
+            var cookie_first_show_time = $.cookies.get("announcement_first_show_time");
+
+            // Close announcements that are older than X days
+            if(cookie_first_show_time != null && (unix_time - parseInt(cookie_first_show_time)) > hide_older_than) {
+                $.cookies.set("announcement_closed", "closed", cookie_options);
+            }
+
+            var cookie_announcement_closed = $.cookies.get("announcement_closed") == "closed";
+            var cookie_latest_announcement = $.cookies.get('latest_announcement');
+            //console.log(cookie_announcement_closed);
+            //console.log(cookie_latest_announcement);
+
+            if (!cookie_announcement_closed || cookie_latest_announcement != announcement_content) {
+                $('#announcement').fadeIn(1000);
+
+                $.cookies.set("latest_announcement", announcement_content, cookie_options);
+                $.cookies.set("announcement_closed", "open", cookie_options);
+
+                // If that is the first show of the announcement - store the time
+                if (cookie_first_show_time == null || cookie_latest_announcement != announcement_content) {
+                    $.cookies.set("announcement_first_show_time", unix_time.toString(), cookie_options);
+                }
+            }
+
+            $('#announcement .closeBtn').click(function() {
+                $('#announcement').fadeOut(500);
+                $.cookies.set("announcement_closed", "closed", cookie_options);
+
+                var authenticated_or_unauthenticated = "unauthenticated";
+                var user_id = 0;
+
+                // var ga_event = pageTracker._trackEvent('Announcement-Bar', 'close', authenticated_or_unauthenticated, user_id);
+                _gaq.push(['_trackEvent', 'Announcement-Bar', 'close', authenticated_or_unauthenticated, user_id]);
+
+                //console.log(ga_event);
+            });
+
+            
+
+            function getURLParameter(name) {
+                return decodeURI(
+                        (new RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
+                );
+            }
+
+            
+        });
+    </script>
+    
+    
+<!-- added fancybox in base to show Karma Contest popup anywhere -->
+    <script type="text/javascript" src="/m/splunk/media/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+    <script type="text/javascript" src="/m/splunk/media/js/fancybox/jquery.easing-1.3.pack.js"></script>
+
+    <link rel="stylesheet" href="/m/splunk/media/js/fancybox/jquery.fancybox-1.3.4.css?nocache" type="text/css" media="screen" />
+
+
+
+    
+    <div id="announcement" style="display: none;">
+        <div class="noticeBannerWrapper">
+            <div class="noticeBannerInnerWrapper">
+                <div class="noticeBanner">New leaderboards are here! Check the <a href="/users">users tab</a> to see your Karma score and rank. Get ready for competition! <a href="http://docs.splunk.com/Documentation/Splunkbase/splunkbase/Answers/Abouttheleaderboards">Learn more »</a></div>
+                <div class="noticeBannerClose">
+                    <a href="javascript:void(0);" class="closeBtn"><img src="/m/splunk/media/images/close-btn.png" /></a>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    
+
+<!-- end template header.html -->
+
+        
+
+
+<script type="text/javascript" src="/m/splunk/media/js/cufon-yui.js"></script>
+<script type="text/javascript" src="/m/splunk/media/js/Myriad_Pro_300.font.js"></script>
+
+<script  type="text/javascript">
+
+//esta
+
+    Cufon.replace('.headMedals', { fontFamily: 'Myriad Pro' });
+    
+    
+        Cufon.replace('.headNormal', { fontFamily: 'Myriad Pro' });
+        Cufon.replace('.headQuestions', { fontFamily: 'Myriad Pro' });
+        Cufon.replace('.headUsers', { fontFamily: 'Myriad Pro' });
+        Cufon.replace('.headNormalTitle', { fontFamily: 'Myriad Pro' });
+    
+
+    Cufon.replace('.featuredAppsHeader', { fontFamily: 'Myriad Pro' });
+    Cufon.replace('.boxC h3', { fontFamily: 'Myriad Pro' });
+    Cufon.replace('#homepageLower h2', { fontFamily: 'Myriad Pro' });
+    Cufon.replace('.homeBannerText h2 a', { fontFamily: 'Myriad Pro' });
+
+
+</script>
+
+
+
+
+<div id="wrapper">
+    
+
+    <div id="room">
+        <div id="CALeft">
+            
+<div id="fb-root"></div>
+
+<div class="headNormal">
+    <h1><a href="/answers/69643/monitor-postgressql-table">Monitor PostgresSQL table</a></h1>
+</div>
+<div id="main-body" class="">
+    <div id="askform">
+            <table style="width:100%;" id="question-table" >
+                <tr>
+                    <td style="width:30px;vertical-align:top">
+                        <div class="vote-buttons">
+                            
+
+<a id="post-69643-upvote" title="This post is useful (click again to undo)"
+    class="ajax-command post-vote up "
+     href="/vote/69643/up/" rel="nofollow"> </a>
+<div id="post-69643-score" class="post-score"
+    title="current number of votes">
+    0
+</div>
+<a id="post-69643-downvote" title="This post is not useful (click again to undo)"
+    class="ajax-command post-vote down"
+     href="/vote/69643/down/" rel="nofollow"> </a>
+                            
+
+<a id="favorite-mark" title="mark/unmark this question as favorite (click again to cancel)"
+    class="ajax-command favorite-mark "
+    href="/mark_favorite/69643/" rel="nofollow"> </a>
+<div id="favorite-count" class="favorite-count">
+   
+</div>
+                            
+                        </div>
+                    </td>
+                    <td>
+                        <div id="item-right">
+                            <div class="question-body">
+                                <p>I am trying to setup a monitor to tail a table in my Postgres DB. I have a TIMESTAMP column that I am specifying as the rising column. It does not seem to be pulling the data in. </p>
+<p>I can query the DB just fine with the exception that the timestamp is formatted in epoch. </p>
+<p>I have a directory monitor that is working just fine. Can someone please give me a few pointers on how to get my table monitor working?</p>
+<p>Thank you,
+  j</p>
+                            </div>
+                            <div id="question-tags" class="tags-container tags">
+                                
+                                    <a href="/tags/dbx/" class="post-tag tag-link-dbx"
+                                        title="see questions tagged 'dbx'" rel="tag">dbx</a>
+                                
+                                    <a href="/tags/configuration/" class="post-tag tag-link-configuration"
+                                        title="see questions tagged 'configuration'" rel="tag">configuration</a>
+                                
+                                <div class="clearfix"></div>
+                            </div>
+                            <div id="question-controls" class="post-controls">    
+
+                                
+
+
+                                
+
+
+                                
+                            </div>
+                              
+                   
+                            <div class="post-update-info-container">
+                                    
+<div class='post-update-info post-update-info-user'>
+    <p style="line-height:12px;">
+        asked
+        <strong>18 Dec '12, 13:00</strong>
+    </p>
+    <img class="gravatar" width="32" height="32" src="https://secure.gravatar.com/avatar/b101c1a46113e756056c95a3fb4788f4?s=32&amp;d=identicon&amp;r=g" alt="jcrane's gravatar image" />
+    <p>
+        <a href="/users/157563/jcrane">jcrane</a>
+
+        
+        <br/>
+    <span class="score" title="31 karma">31</span><span title="2 Badges"><span class="bronze">&#9679;</span><span class="badgecount">2</span></span><br />
+    
+    <span title="Rate of the user's accepted answers" class="accept_rate">accept rate:</span>
+    <span title="jcrane has no accepted answers">0&#37;</span>
+    </p>
+</div>
+
+
+
+    <div class='post-update-info post-update-info-edited'>
+        <p style="line-height:12px;">
+            <a href="/revisions/69643/">
+                edited
+                <strong>18 Dec '12, 13:23</strong>
+            </a>
+        </p>
+        
+            <img class="gravatar" width="32" height="32" src="https://secure.gravatar.com/avatar/fdf593e4d680fddd80218cfcda24df00?s=32&amp;d=identicon&amp;r=g" alt="ChrisG's gravatar image" />
+            <p><a href="/users/97824/chrisg">ChrisG ♦</a><br/>
+            <span class="score" title="4050 karma"><span class="">4.0k</span></span><span title="4 Badges"><span class="silver">&#9679;</span><span class="badgecount">4</span></span><span title="6 Badges"><span class="bronze">&#9679;</span><span class="badgecount">6</span></span></p>
+        
+    </div>
+
+
+
+                            </div>
+                            
+
+
+
+
+<div class="comments-container" id="comments-container-69643">
+    
+</div>
+<div id="comment-tools-69643" class="comment-tools">
+    
+    
+</div>
+
+
+
+
+
+
+
+<div class="clear"></div>
+<div id="comment-69643-form-container" class="comment-form-container">
+    
+</div>
+<div class="clear"></div>
+
+
+
+                        </div>
+                        
+                    </td>
+                </tr>
+            </table>
+            
+            
+                <hr />
+		<div class="headQuestions">
+                    One Answer:
+                    </div>
+                <div class="tabBar">
+                    <a name="sort-top"></a>
+                    
+<div class="tabsA"><a href="/answers/69643/monitor-postgressql-table?sort=oldest" title="oldest answers will be shown first">oldest</a><a href="/answers/69643/monitor-postgressql-table?sort=newest" title="newest answers will be shown first">newest</a><a href="/answers/69643/monitor-postgressql-table?sort=votes" class="on" title="most voted answers will be shown first">most voted</a></div>
+
+                </div>
+                
+  
+                
+                    <a name="69770"></a>
+                    <div id="answer-container-69770" class="answer ">
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="width:30px;vertical-align:top">
+                                    <div class="vote-buttons">
+                                        
+
+<a id="post-69770-upvote" title="This post is useful (click again to undo)"
+    class="ajax-command post-vote up "
+     href="/vote/69770/up/" rel="nofollow"> </a>
+<div id="post-69770-score" class="post-score"
+    title="current number of votes">
+    0
+</div>
+<a id="post-69770-downvote" title="This post is not useful (click again to undo)"
+    class="ajax-command post-vote down"
+     href="/vote/69770/down/" rel="nofollow"> </a>
+                                        
+
+
+    
+
+
+
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="item-right">
+                                        <div class="answer-body">
+                                            <p>The timestamp being emitted in epoch format is actually intended behavior. </p>
+<p>Regarding your input not indexing your events: Can you please provide further information?</p>
+<ul>
+<li>The input configuration</li>
+<li>Any error messages you might spot in DB Connect's debug log. There is a saved search in the app called "Recent DB Connect errors" which can help you with that.</li>
+</ul>
+                                        </div>
+                                        <div class="answer-controls post-controls">
+                                            
+<span class="action-link"><a rel="nofollow" title="answer permanent link" class="ajax-command withprompt  copy" href="/answer_link/69770/">link</a></span>
+                                            
+
+                                        </div>
+                                        <div class="post-update-info-container">
+                                            
+<div class='post-update-info post-update-info-user'>
+    <p style="line-height:12px;">
+        answered
+        <strong>19 Dec '12, 12:17</strong>
+    </p>
+    <img class="gravatar" width="32" height="32" src="https://secure.gravatar.com/avatar/9a0f3e4ca1bc1f89e9f7a506c5741475?s=32&amp;d=identicon&amp;r=g" alt="ziegfried's gravatar image" />
+    <p>
+        <a href="/users/42/ziegfried">ziegfried ♦</a>
+
+        
+        <br/>
+    <span class="score" title="11021 karma"><span class="">11.0k</span></span><span title="1 Badges"><span class="badge1">&#9679;</span><span class="badgecount">1</span></span><span title="7 Badges"><span class="silver">&#9679;</span><span class="badgecount">7</span></span><span title="19 Badges"><span class="bronze">&#9679;</span><span class="badgecount">19</span></span><br />
+    
+    <span title="Rate of the user's accepted answers" class="accept_rate">accept rate:</span>
+    <span title="ziegfried has 222 accepted answers">52&#37;</span>
+    </p>
+</div>
+
+
+
+
+
+                                        </div>
+                                        
+
+
+
+
+<div class="comments-container" id="comments-container-69770">
+    
+        <a name="69802"></a>
+        <div class="comment not_top_scorer" id="comment-69802">
+            <div id="post-69802-score" class="comment-score"></div>
+            <div class="comment-text"><p>With your help I was able to see what looks like a memory issue. But I have no idea what to do with it. The table I have is large and I just want to start data from now forward.</p>
+<p>2012-12-19 15:27:16.031 monsch1:ERROR:Scheduler - Caught ExecutionException: java.util.concurrent.ExecutionException: java.lang.OutOfMemoryError: Java heap space
+java.util.concurrent.ExecutionException: java.lang.OutOfMemoryError: Java heap space</p>
+<p>2012-12-19 15:27:16.031 dbx4409:INFO:ExecutionContext - Execution finished in duration=24530 ms</p></div>
+            <div class="comment-info" id="comment-69802-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(19 Dec '12, 15:38)</span>
+                <a class="comment-user userinfo" href="/users/157563/jcrane">jcrane</a>
+                
+            </div>
+        </div>
+    
+        <a name="69805"></a>
+        <div class="comment not_top_scorer" id="comment-69805">
+            <div id="post-69805-score" class="comment-score"></div>
+            <div class="comment-text"><p>cat ./etc/apps/dbx/default/inputs.conf</p>
+<h1>Copyright (C) 2005-2012 Splunk Inc. All Rights Reserved.</h1>
+<h1>JBridge Server script</h1>
+<p>[script://$SPLUNK_HOME/etc/apps/dbx/bin/jbridge_server.py]
+index = _internal
+sourcetype = dbx_jbridge
+interval = 0
+disabled = true
+passAuth = admin
+[script://$SPLUNK_HOMEetcappsdbxbinjbridge_server.py]
+index = _internal
+sourcetype = dbx_jbridge
+interval = 0
+disabled = true
+passAuth = admin</p></div>
+            <div class="comment-info" id="comment-69805-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(19 Dec '12, 15:46)</span>
+                <a class="comment-user userinfo" href="/users/157563/jcrane">jcrane</a>
+                
+            </div>
+        </div>
+    
+        <a name="69806"></a>
+        <div class="comment not_top_scorer" id="comment-69806">
+            <div id="post-69806-score" class="comment-score"></div>
+            <div class="comment-text"><p>cat ./etc/apps/dbx/local/inputs.conf
+[script://$SPLUNK_HOME/etc/apps/dbx/bin/jbridge_server.py]
+disabled = 0</p>
+<p>[batch://$SPLUNK_HOME/var/spool/dbmon/*.dbmonevt]
+crcSalt = &lt;source&gt;
+disabled = 0
+move_policy = sinkhole
+sourcetype = dbmon:spool</p>
+<p>[dbmon-<a>tail://MyType/Events]</a>
+output.format = kv
+output.timestamp = 0
+table = events
+tail.rising.column = uploaded
+host = MyHost
+index = default
+interval = auto
+sourcetype = MyType
+disabled = 0</p></div>
+            <div class="comment-info" id="comment-69806-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(19 Dec '12, 15:48)</span>
+                <a class="comment-user userinfo" href="/users/157563/jcrane">jcrane</a>
+                
+            </div>
+        </div>
+    
+        <a name="69807"></a>
+        <div class="comment not_top_scorer" id="comment-69807">
+            <div id="post-69807-score" class="comment-score"></div>
+            <div class="comment-text"><p>You can configure the input to fetch new data from now on by specifying </p>
+<pre><code>tail.follow.only = true
+</code></pre>
+<p>in the <code>[dbmon-<a>tail://MyType/Events]</a></code> stanza in inputs.conf.</p></div>
+            <div class="comment-info" id="comment-69807-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(19 Dec '12, 15:56)</span>
+                <a class="comment-user userinfo" href="/users/42/ziegfried">ziegfried ♦</a>
+                
+            </div>
+        </div>
+    
+        <a name="69809"></a>
+        <div class="comment" id="comment-69809">
+            <div id="post-69809-score" class="comment-score"></div>
+            <div class="comment-text"><p>(After you changed the file, a restart is necessary in order for DB Connect to pick up the changes)</p></div>
+            <div class="comment-info" id="comment-69809-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(19 Dec '12, 15:57)</span>
+                <a class="comment-user userinfo" href="/users/42/ziegfried">ziegfried ♦</a>
+                
+            </div>
+        </div>
+    
+        <a name="69821"></a>
+        <div class="comment" id="comment-69821">
+            <div id="post-69821-score" class="comment-score"></div>
+            <div class="comment-text"><p>This still did not solve the monitor issue. Maybe I don't need it. I seem to be able to save queries and put the results in a dashboard. Should I just ignore doing a monitor on the DB tables?</p></div>
+            <div class="comment-info" id="comment-69821-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(19 Dec '12, 17:52)</span>
+                <a class="comment-user userinfo" href="/users/157563/jcrane">jcrane</a>
+                
+            </div>
+        </div>
+    
+        <a name="69822"></a>
+        <div class="comment" id="comment-69822">
+            <div id="post-69822-score" class="comment-score"></div>
+            <div class="comment-text"><p>Forgot to mention I am not seeing any log issues for the monitor.</p></div>
+            <div class="comment-info" id="comment-69822-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(19 Dec '12, 17:53)</span>
+                <a class="comment-user userinfo" href="/users/157563/jcrane">jcrane</a>
+                
+            </div>
+        </div>
+    
+        <a name="72124"></a>
+        <div class="comment" id="comment-72124">
+            <div id="post-72124-score" class="comment-score"></div>
+            <div class="comment-text"><p>You might want to try the database monitor again with the latest version. There was a potential problem with the postgres JDBC driver that is now being taken care of.</p></div>
+            <div class="comment-info" id="comment-72124-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(15 Jan, 20:03)</span>
+                <a class="comment-user userinfo" href="/users/42/ziegfried">ziegfried ♦</a>
+                
+            </div>
+        </div>
+    
+        <a name="75593"></a>
+        <div class="comment" id="comment-75593">
+            <div id="post-75593-score" class="comment-score"></div>
+            <div class="comment-text"><p>I did try to upgrade and it didn't seem to help the monitor. Actually it seems the change made the errors coming back from the DB less clear in Splunk. That is not a big deal the logs in the DB show exactly what happened to the query but it was worth noting.</p></div>
+            <div class="comment-info" id="comment-75593-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(12 Feb, 15:16)</span>
+                <a class="comment-user userinfo" href="/users/157563/jcrane">jcrane</a>
+                
+            </div>
+        </div>
+    
+</div>
+<div id="comment-tools-69770" class="comment-tools">
+    
+        <span class="comments-showing">
+            showing 5 of 9
+        </span>
+        <a href="#" class="show-all-comments-link">
+         show 4 more comments ▼</a>
+        
+        
+    
+</div>
+
+
+
+
+
+
+
+<div class="clear"></div>
+<div id="comment-69770-form-container" class="comment-form-container">
+    
+</div>
+<div class="clear"></div>
+
+
+
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                
+                <div class="paginator-container-left">
+                    
+                </div>
+            
+        <form id="fmanswer" action="/answers/69643/answer/" method="post"><div style='display:none;'><input type='hidden' id='csrfmiddlewaretoken' name='csrfmiddlewaretoken' value='72e8e250865519628770341b0ac71f53' /></div>
+            <div style='display:none'><input type='hidden' name='csrfmiddlewaretoken' value='72e8e250865519628770341b0ac71f53' /></div>
+            <div style="clear:both">
+            </div>
+            
+            
+                <div style="padding:10px 0 0 0;">
+                    <div class="headNormal">
+                        
+                            Post your answer
+                        
+                    </div>
+                </div>
+                
+
+                <div id="description" class="" >
+                    <div id="wmd-button-bar" class="wmd-panel"></div>
+                    <textarea rows="10" cols="40" name="text" id="editor"></textarea>
+                    <div class="preview-toggle">
+                        <table width="100%">
+                            <tr>
+                                <td>
+                                    <span id="pre-collapse" 
+                                        title="Toggle the real time Markdown editor preview">
+                                            toggle preview
+                                    </span>
+                                </td>
+                                <td style="text-align: right;" id="editor-metrics"></td>
+                                
+                            </tr>
+                        
+                        </table>  
+                    </div>
+                    
+                    <div id="previewer" class="wmd-preview"></div>
+                </div>
+
+	            
+	            <div class="question-captcha" style="float: left;">
+	            	
+	            	
+    <div id="recaptcha_field"></div>
+    <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+
+    <script type="text/javascript">
+         $(function(){
+             Recaptcha.create("6LflV8oSAAAAADNAkdse_RYNvzGa6LyxrYEAd8hf ", 'recaptcha_field', {
+             theme: "red"});
+         });
+    </script>
+
+
+	            </div>
+	            <div class="clear"></div>
+	            
+                
+                <p><span class="form-error"></span></p>
+                <input type="button"
+                    
+                        value="Login/Signup to Post Your Answer" 
+                    
+                    class="submit" style="float:left"
+                    
+                        onclick="submitClicked(event, this.form)"
+                    
+                    />
+            
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function  () {
+                      $(document).on("click","#previewer a",function(){
+                    var hrefval = $(this).attr("href");
+
+                    if(hrefval.substr(0,11).toLowerCase() == "javascript:")
+                        return false;
+                });
+
+    })
+</script>
+
+
+        </div>
+        <div id="CARight">
+            
+    <div class="socialShare">
+	    <ul>
+            <li style="width: 50px;" id="googlePlusShare"><g:plusone size="tall" callback="trackGPlusClick"></g:plusone></li>
+            <li style="width: 46px;" id="facebookShare"><div class="fb-like" data-send="false" data-layout="box_count" data-show-faces="false" data-font="arial"></div></li>
+            <li style="width: 55px;" id="twitterShare"><a href="https://twitter.com/share" class="twitter-share-button" data-count="vertical">Tweet</a></li>
+            <li style="width: 57px;" id="linkedInShare"><script type="IN/Share" data-counter="top" data-onSuccess="linkedInShareSuccess">></script></li>
+	    </ul>
+        <div class="clearfix"></div>
+    </div>
+
+    
+
+<div class="boxC" id="subscription_box">
+    <h3 class="subtitle">Follow this question</h3><strong class="email-subscription-heading">Email:</strong><p><a href="/account/signin/">Log In</a> to enable email subscriptions</p><strong style="clear: both;">RSS:</strong><p><a class="feed-icon" href="/answers/69643/monitor-postgressql-table?type=rss" title="subscribe to answers">
+                    Answers</a></p><p><a class="feed-icon"  href="/answers/69643/monitor-postgressql-table?type=rss&comments=yes" title="subscribe to answers + comments">
+                    Answers + Comments</a></p>
+</div>
+
+
+<div class="boxC" id="editor_side_bar">
+    <p class="subtitle darkred">Markdown Basics</p>
+    <ul class="list-item">
+        <li>
+            *italic* or _italic_
+        </li>
+        <li>
+			**bold** or __bold__
+        </li>
+        <li>
+            <b>link</b>:[text](http://url.com/ "Title")
+
+        </li>
+
+        <li>
+            <b>image</b>?![alt text](/path/img.jpg "Title")
+
+        </li>
+        <li>
+			numbered list:
+            1.  Foo
+            2.  Bar
+        </li>
+        <li>
+			to add a line break simply add two spaces to where you would like the new line to be.
+        </li>
+        <li>
+			basic HTML tags are also supported
+        </li>
+    </ul>
+    <p class='info-box-follow-up-links'>
+        <a href="/markdown_help/" target="_blank">learn more about Markdown </a>
+    </p>
+</div>
+
+
+
+
+
+<div id="sidebar-upper" class="boxC">
+    <div class="body">
+        <h4>Splunk Resources</h4>
+
+<ul>
+
+<li><a href="http://www.splunk.com/view/SP-CAAAAD4">Official documentation</a></li>
+     </div>
+</div>
+
+
+
+
+<div class="boxC">
+    <p>
+		Tags:
+    </p>
+    <p class="tags" >
+        
+        	<a href="/tags/configuration/"
+            class="tag-link-configuration"
+			title="see questions tagged 'configuration' using tags"
+			rel="tag">configuration</a> <span class="tag-number">&#215;395</span><br/>
+        
+        	<a href="/tags/dbx/"
+            class="tag-link-dbx"
+			title="see questions tagged 'dbx' using tags"
+			rel="tag">dbx</a> <span class="tag-number">&#215;53</span><br/>
+        
+        <div class="clearfix"></div>
+    </p>
+    <p>
+        Asked: <strong title="Dec. 18, 2012, 1 p.m.">18 Dec '12, 13:00</strong>
+    </p>
+    <p> 
+     	Seen: <strong>442 times</strong>
+    </p>
+    <p> 
+        Last updated: <strong title="Feb. 12, 2013, 3:16 p.m.">12 Feb, 15:16</strong>
+    </p>
+</div>
+
+
+
+
+
+<div class="boxC">
+    <h3 class="subtitle">Related questions</h3>
+    <div class="questions-related">
+
+        
+        <p>
+            <a href="/answers/68899/dbx-connection-to-postgressql-error-ssl-off">DBX connection to PostgresSQL Error-- SSL off</a>
+        </p>
+        
+        <p>
+            <a href="/answers/2060/splunk-ossec-intergration">Splunk &amp; Ossec intergration</a>
+        </p>
+        
+        <p>
+            <a href="/answers/70926/configuring-dbx-tail-input-on-very-large-table-70000000-rows">Configuring dbx tail input on very large table. (70,000,000+ rows)</a>
+        </p>
+        
+        <p>
+            <a href="/answers/88490/dbx-taildatabasemonitor-error">DBX TailDatabaseMonitor Error</a>
+        </p>
+        
+        <p>
+            <a href="/answers/71869/all-db-rows-get-input-as-one-event">All DB rows get input as one event</a>
+        </p>
+        
+        <p>
+            <a href="/answers/70146/dbx-parameter">DBX Parameter?</a>
+        </p>
+        
+        <p>
+            <a href="/answers/71120/dbx-missing-placeholder-for-condition">DBX - Missing placeholder for condition!</a>
+        </p>
+        
+        <p>
+            <a href="/answers/90935/dbx-tail-monitor-timestamping-oracle">DBX tail monitor timestamping Oracle</a>
+        </p>
+        
+        <p>
+            <a href="/answers/81856/dbx-tail-not-indexing-microsoft-sql-new-version-108">DBX Tail not indexing Microsoft SQL (new version 1.0.8)</a>
+        </p>
+        
+
+    </div>
+</div>
+
+
+
+        </div>
+        <div id="tail" style="clear:both;">
+            
+            
+        </div>
+    </div>
+    <div class="spacer3"></div>
+</div>
+
+        
+            
+            <div id="ground">
+                
+                    <div id="footerRight">
+ <a href="http://www.splunk.com/view/SP-CAAAAAG">Privacy Policy</a>
+ <span style="color: #666;">&nbsp;|&nbsp;</span>
+ <a href="http://www.splunk.com/view/SP-CAAAAAH">Terms of Use</a>
+ <span style="color: #666;">&nbsp;|&nbsp;</span>
+ <a href="mailto:support@splunk.com">Support</a>
+ </div>
+ <div id="footerLeft">
+ Copyright &copy; 2005-2013 <a href="http://www.splunk.com/company">Splunk Inc.</a> All rights reserved.
+ </div>
+
+<!-- Eloqua -->
+
+<SCRIPT TYPE='text/javascript' LANGUAGE='JavaScript' SRC='http://coverall.splunk.com/themes/splunk_com/scripts/js/elqNow/elqCfg.js'></SCRIPT>
+<SCRIPT TYPE='text/javascript' LANGUAGE='JavaScript' SRC='http://coverall.splunk.com/themes/splunk_com/scripts/js/elqNow/elqImg.js?5.24.11'></SCRIPT>
+
+<!-- GA -->
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-399680-1']);
+  _gaq.push(['_setDomainName', 'splunk.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); 
+    ga.type = 'text/javascript'; 
+    ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; 
+    s.parentNode.insertBefore(ga, s);
+
+  })();
+
+</script>
+
+<script type="text/javascript">
+    var pageTracker;
+
+
+function checkIfAnalyticsLoaded() {
+  if (window._gat && window._gat._getTracker) {
+    pageTracker = _gat._getTracker("UA-399680-1");
+  } else {
+    // Probably want to cap the total number of times you call this.
+    setTimeout('checkIfAnalyticsLoaded()', 500);
+  }
+}
+checkIfAnalyticsLoaded()
+
+</script>
+                
+            </div>
+            
+        
+        
+<!-- Social Media Javascript -->
+
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+
+<script>
+window.fbAsyncInit = function() {
+    FB.Event.subscribe('edge.create', function(href, widget) {
+        // pageTracker._trackEvent('Question', "share_fb", ""+69643);
+        _gaq.push(['_trackEvent', 'Question', "share_fb", ""+69643]);
+
+    });
+};
+
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/all.js#appId=290024254356364&xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
+
+<script src="https://platform.twitter.com/widgets.js" type="text/javascript"></script>
+
+<script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>
+
+<script>
+    function trackGPlusClick() {
+        // pageTracker._trackEvent('Question', "share_googleplus", ""+69643);
+        _gaq.push(['_trackEvent', 'Question', "share_googleplus", ""+69643]);
+
+    }
+
+    function linkedInShareSuccess() {
+        // pageTracker._trackEvent('Question', "share_linkedin", ""+69643);
+        _gaq.push(['_trackEvent', 'Question', "share_linkedin", ""+69643]);
+
+    }
+
+    twttr.ready(function (twttr) {
+        twttr.events.bind('tweet', function(event) {
+            console.log("tweet")
+            // pageTracker._trackEvent('Question', "share_twitter", ""+69643);
+        _gaq.push(['_trackEvent', 'Question', "share_twitter", ""+69643]);
+
+        });
+    });
+    
+</script>
+
+<!-- End Social Media Javascript -->
+
+        
+        </div>
+
+        <!-- Put all elements with fixed position here, IE6 fixed position fix: http://ryanfait.com/position-fixed-ie6/ -->
+        <div class="notify" style="display:none">
+            
+                
+            
+            <a id="close-notify" onclick="notify.close(true)">&#215;</a>
+        </div>
+    </body>
+</html>
+<!-- end template base_content.html -->

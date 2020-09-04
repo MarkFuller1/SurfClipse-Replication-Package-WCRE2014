@@ -1,0 +1,461 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>Exception in thread main java.util.NoSuchElementException (Beginning Java forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/600418/java/java/Exception-thread-main-java-util"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/600418/java/java/Exception-thread-main-java-util?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-33/java">Beginning Java</a>
+<div class="subject">Exception in thread "main" java.util.NoSuchElementException</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tor Ludgivsen, Greenhorn<br />
+  on <span class="lastPostTime">Dec 15, 2012 15:52:49</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hello, im new to this forum. And pretty new to java programming. I made this note system, so i have control over my notes at school. It will take in a name (philosophname) and store it in a .txt file named navn.txt and it also have a .txt file where i put in the notes in notat.txt.
+<br /> 
+<br /> my problem now is, when i add a new name i get this error. the name is stored in the file. and i can see the new name but i want to not get this error, so that i dont have to restart the program.
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">Exception in thread "main" java.util.NoSuchElementException
+	at java.util.Scanner.throwFor(Scanner.java:907)
+	at java.util.Scanner.next(Scanner.java:1530)
+	at java.util.Scanner.nextInt(Scanner.java:2160)
+	at java.util.Scanner.nextInt(Scanner.java:2119)
+	at NotSys.menyValg(index.java:215)
+	at NotSys.meny(index.java:209)
+	at NotSys.menyValg(index.java:217)
+	at NotSys.meny(index.java:209)
+	at NotSys.menyValg(index.java:219)
+	at NotSys.meny(index.java:209)
+	at index.main(index.java:7)</textarea>
+<br /> 
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10">
+import java.util.*;
+import java.io.*;
+
+class index {
+	public static void main(String[] args) {
+		NotSys s = new NotSys("navn.txt","notat.txt");
+		s.meny();
+	}
+}
+
+class Name {
+    String nkey;
+    String name;
+    String lastname;
+    HashMap &lt;String, Note&gt; mnote = new HashMap&lt;String, Note&gt;();
+    
+    Name(String nkey, String name, String lastname) {
+    	this.nkey = nkey;
+    	this.name = name;
+    	this.lastname = lastname;
+    }
+    
+    void addNote(String nkey, String note) {
+    	String kkey = nkey+"-"+note;
+    	Note n = mnote.get(kkey);
+    	if(n == null) {
+    		n = new Note(nkey, note);
+    		mnote.put(nkey, n);
+    	}
+    	else {
+    		n.oppdater(nkey, note);
+    	}
+    }
+    void notater(String nkey) {
+	    int ant = 0;
+	    String[] notater = new String[ant];
+	    for (String s : mnote.keySet()) {
+	        if (s.startsWith(nkey+";")) {
+	            Note n = mnote.get(s);
+	            for(int i = 0; i &lt; ant; i++) {
+	            	notater[i] = n.note;
+	            }
+                ant++;
+	        }
+	    }
+    }
+}
+
+class Note {
+    String nkey;
+    String note;
+    Note(String nkey, String note) {
+    	this.nkey = nkey;
+    	this.note = note;
+    }
+    
+    void oppdater(String nkey, String note) {
+    	if(nkey == null) {
+    		this.nkey = nkey;
+    		this.note = note;
+    	}
+    } 
+    
+}
+
+class addData {
+    HashMap &lt;String, Name&gt; mname = new HashMap &lt;String,Name&gt;();
+    File fil1 = new File("navn.txt");
+    File fil2 = new File("notat.txt");
+    void addName(){
+    	System.out.println();
+    	System.out.println("#### New name ####");
+    	try{
+    		FileWriter f = new FileWriter(fil1, true);
+    		Scanner sc = new Scanner(System.in);
+    		System.out.print("Name: ");
+    		String name = sc.next();
+    		System.out.print("Lastname: ");
+    		String lastname = sc.next();
+		    String nkey = name+"-"+lastname;
+		    f.write(nkey+";"+name+";"+lastname+"\n");	    
+		    f.close();
+		    sc.close();
+	    	mname.put(nkey, new Name(nkey, name, lastname));
+		}
+		catch (Exception e) {
+		    System.err.println("Error: "+e.getMessage());
+		}
+    }
+    
+    void addNote(){
+		try {
+			boolean ok = false;
+		    FileWriter f = new FileWriter(fil2, true);
+		    Scanner sc = new Scanner(System.in);
+		    System.out.print("Note: ");
+		    String note = sc.nextLine();
+		    System.out.print("Name-Lastname: ");
+		    String name = sc.next();
+			Iterator&lt;Name&gt; it = mname.values().iterator();
+			int a = mname.size();
+			String[] sortname = new String[a];
+			int t = 0;
+			while (it.hasNext()) {
+			    Name n = (Name) it.next();
+			    sortname[t] = n.nkey;
+			    t++;
+			}
+			java.util.Arrays.sort(sortname);
+			for(int j = 0; j &lt; t; j++) {
+			    Name n = (Name) mname.get(sortname[j]);
+			    if(name.equals(n.nkey)) {
+			    	ok = true;
+			    }
+			}
+			if(ok == true) {
+			    f.write(name+";"+note+"\n");
+			}
+			else if(ok == false) {
+		    	System.out.println("Names dont match!");			    	
+			}
+		    f.close();
+		    sc.close();
+		}
+		catch (Exception e) {
+		    System.err.println("Error: "+e.getMessage());
+		}
+    }
+}
+
+class NotSys {
+    HashMap &lt;String, Name&gt; mname = new HashMap &lt;String,Name&gt;();
+    File fil1;
+    File fil2;
+   
+    NotSys(String ffil1, String ffil2) {
+    	fil1 = new File(ffil1);
+    	fil2 = new File(ffil2);
+    	if(fil1.exists()) {
+    		try {
+    		    Scanner sc = new Scanner(fil1);
+    		    sc.useDelimiter("[;\n\r]");
+    		    while(sc.hasNext()) {
+    		    	//  key;name;lastname (key = name+"-"+lastname)
+    		    	// .txt Myname-Mylastname;Myname;Mylastname
+    		    	String nkey = sc.next();
+    		    	String name = sc.next();
+    		    	String lastname = sc.next();
+    		    	mname.put(nkey, new Name(nkey, name, lastname));
+    		    }
+    		    sc.close();
+    		}
+    		
+    		catch (Exception e) {
+    		    System.out.println("Error: "+e.getMessage());
+    		}
+    	}
+    	
+    	if(fil2.exists()) {
+    		try {
+    		    Scanner sc = new Scanner(fil2);
+    		    sc.useDelimiter("[;\n\r]");
+    		    while(sc.hasNext()) {
+    		    	// key;note
+    		    	//.txt Myname-Mylastname;Note text bla bla bla bla
+    		    	String nkey = sc.next();
+    		    	String note = sc.nextLine();
+    		    	Name name = mname.get(nkey);
+    		    	name.addNote(nkey, note);
+    		    	sc.close();
+    		    }
+    		}
+    		catch (Exception e) {
+    		    System.out.println("Error: "+e.getMessage());
+    		}
+    	}
+    }
+    
+    void pickName() {
+    	
+    }
+         
+    void allName() {
+		Iterator&lt;Name&gt; it = mname.values().iterator();
+		int a = mname.size();
+		String[] sortname = new String[a];
+		int t = 0;
+		while (it.hasNext()) {
+		    Name n = (Name) it.next();
+		    sortname[t] = n.nkey;
+		    t++;
+		}
+		java.util.Arrays.sort(sortname);
+		System.out.println("Name Lastname Key");
+		for(int j = 0; j &lt; t; j++) {
+		    Name n = (Name) mname.get(sortname[j]);
+		    System.out.println(n.name+" | "+n.lastname+" | "+n.nkey);
+		}
+    }
+
+    void meny() {
+		System.out.println("");
+		System.out.println("");
+		System.out.println("#### MENY ####");
+		System.out.println("(1) Add new name");
+		System.out.println("(2) Add new notes");
+		System.out.println("(3) Show all names");
+		System.out.println("(10) Exit");
+		menyValg();
+    }
+
+    void menyValg() {
+		addData a = new addData();
+		Scanner sc = new Scanner(System.in);
+		int valg = sc.nextInt();
+		switch (valg) {
+		case 1 : a.addName(); meny(); break;
+		case 2 : a.addNote(); meny(); break;
+		case 3 : allName(); meny(); break;
+		case 10 : break ;
+		default :
+		    System.out.println("Error: Pick a number 1-3 // 10 = Exit!");
+		    meny();
+		}
+		sc.close();
+    }
+}</textarea></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Avery Torres, Greenhorn<br />
+  on <span class="lastPostTime">Dec 15, 2012 18:16:24</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Take out all of your close System.in statements, ie "sc.close()" and "f.close()". Should work like a charm from there, also you might want to type check so that there is a catch in the menu if the user inputs a noninteger so that it doesn't just crash. </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tor Ludgivsen, Greenhorn<br />
+  on <span class="lastPostTime">Dec 16, 2012 12:43:57</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">omg, that easy o.O exactly why did that make that kind of error?
+<br /> and btw, i will need the "f.close()" orelse it wont store into the .txt file + i have learned on school always to close the file you write to when you open it and finished with it.
+<br /> 
+<br /> but a new "problem" happend now. i do not get the error, but when i write new name i have to Exit(opt 10 in meny) to update the allname list.
+<br /> 
+<br /> yes tnx, will work with the checks on the meny. </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Avery Torres, Greenhorn<br />
+  on <span class="lastPostTime">Dec 16, 2012 13:43:17</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I believe the whole problem is coming from wanting to read and write the same file without having ever saved it. There are many ways to get around this one may be using a <a class="snap_shots" href="http://tutorials.jenkov.com/java-io/randomaccessfile.html" target="_new" rel="nofollow">RandomAccessFile</a>.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tor Ludgivsen, Greenhorn<br />
+  on <span class="lastPostTime">Dec 16, 2012 17:09:05</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">exactly how do i split the context? 
+<br /> name;lastname;name-lastname
+<br /> with this randomaccessfile is it the same way to split the context? 
+<br /> <textarea name="code" class="java" cols="60" rows="10">    		    Scanner sc = new Scanner(fil1);
+    		    sc.useDelimiter("[;\n\r]");</textarea>
+<br /> because later on, the note text will look like
+<br /> 
+<br /> note;key
+<br /> here is the note bla bla bla;name-lastname</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/600418'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=33'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:46:23</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/33"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/600418/java/java/Exception-thread-main-java-util?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

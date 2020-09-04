@@ -1,0 +1,761 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta name="Robots">
+<title>Java学习之HashMap: 如何正确实现Map的entrySet()方法_Java语言_IT门户_开发界</title>
+<link rel="stylesheet" type="text/css" href="http://www.kaifajie.cn/images/touzijie/style.css">
+<link rel="stylesheet" type="text/css" href="http://www.kaifajie.cn/images/touzijie/cms.css">
+<link rel="stylesheet" type="text/css" href="http://www.kaifajie.cn/images/touzijie/qibomb_common.css">
+<link rel="shortcut icon" href="favicon.ico" />
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+<meta name="keywords" content="java,学习">
+<meta name="description" content="通过继承AbstractMap我们可以很容易实现自己的Map，我们只需要实现唯一的抽象的entrySet()方法。">
+<meta name="ujianVerification" content="3be33c8dd37b815c7f6bc3c5dc4fc813" />
+<meta name="chinaz-site-verification" content="081e7651-48c6-4c2f-a569-99321685eab1" />
+</head>
+<SCRIPT LANGUAGE="JavaScript">
+//屏蔽可忽略的js脚本错误
+function killErr(){
+	return true;
+}
+window.onerror=killErr;
+</SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript" src="http://www.kaifajie.cn/images/default/inc.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" src="http://www.kaifajie.cn/images/default/default.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" src="http://www.kaifajie.cn/images/default/swfobject.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" src="http://www.kaifajie.cn/images/default/jquery-1.2.6.min.js"></SCRIPT>
+<body ondblclick="">
+<div id="head_boxa" class="color_fff">
+	<div class="boxl">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+document.write('<span id="head_loginer"><img alt="内容加载中,请稍候..." src="http://www.kaifajie.cn/images/default/ico_loading3.gif"></span>');
+document.write('<div style="display:none;"><iframe src="http://www.kaifajie.cn/do/hack.php?hack=login&styletype=v7&iframeID=head_loginer" width=0 height=0></iframe></div>');
+//-->
+</SCRIPT>&nbsp;|&nbsp;<a href="http://www.kaifajie.cn/about.html">开发时代</a>&nbsp;|&nbsp;<a href="http://www.kaifajie.cn/web_yijian.html">意见反馈</a>
+	</div>
+	<div class="boxr">
+<form name="form1" method="post" action="http://www.kaifajie.cn/do/search.php" onsubmit="return cksearch();">
+	<select name="mid" id="searchselect">
+		<option value="">&nbsp;综 合</option>
+		<option value="0">&nbsp;文 章</option>
+	</select>
+	<span class="input"><input id="keyword_s" type="text" name="keyword" value="请输入关键字" size="40" onFocus="if(value==defaultValue){value='';this.style.color='#000'}" onBlur="if(!value){value=defaultValue;this.style.color='#999999'}" style="color:#999999"></span>
+	<span class="sub"><input id="buttom" type="submit" name="Submit" value="">
+</form>
+<script type="text/javascript">
+<!--
+function cksearch(){
+	if (document.getElementById("keyword_s").value=='')
+	{
+		alert('关键字不能为空!');
+		return false;
+	}
+}
+//-->
+</script>
+	</div>
+</div>
+<div id="head_logobox">
+	<div class="boxl" style="padding-bottom:5px;"><a href="http://www.kaifajie.cn/"><img src="http://www.kaifajie.cn/images/touzijie/logo.png" alt="开发界"/></a></div>
+	<div class="boxr"><script type="text/javascript">/*760*90，创建于2012-8-2*/ var cpro_id = 'u1008595';</script><script src="http://cpro.baidu.com/cpro/ui/c.js" type="text/javascript"></script></div>
+</div>
+<div id="my_Mainmenu">
+	<div class="head">
+		<span class="l_bg"></span>
+		<span class="hd2" id="chdheadt_1" onmouseover="chdhead(1);" style="cursor: hand;"><a href="http://www.kaifajie.cn/">首页</a></span> 
+		<span class="hd1" id="chdheadt_2" onmouseover="chdhead(2);" style="cursor: hand;"><a href="http://www.kaifajie.cn/yidong/">移动开发</a></span>
+		<span class="hd1" id="chdheadt_3" onmouseover="chdhead(3);" style="cursor: hand;"><a href="http://www.kaifajie.cn/kfjishu/">代码分享</a></span>
+		<span class="hd1" id="chdheadt_4" onmouseover="chdhead(4);" style="cursor: hand;"><a href="http://www.kaifajie.cn/kecheng/">IT笔记</a></span>
+		<span class="hd1" id="chdheadt_5" onmouseover="chdhead(5);" style="cursor: hand;"><a href="http://www.kaifajie.cn/wangluo/">网络技术</a></span>
+		<span class="hd1" id="chdheadt_6" onmouseover="chdhead(6);" style="cursor: hand;"><a href="http://www.kaifajie.cn/caozuoxitong/">操作系统</a></span>
+		<span class="hd1" id="chdheadt_7" onmouseover="chdhead(7);" style="cursor: hand;"><a href="http://www.kaifajie.cn/jiagou/">企业架构</a></span>
+		<span class="hd1" id="chdheadt_8" onmouseover="chdhead(8);" style="cursor: hand;"><a href="http://www.kaifajie.cn/shujuku/">数据库</a></span>
+		<span class="hd1" id="chdheadt_9" onmouseover="chdhead(9);" style="cursor: hand;"><a href="http://www.kaifajie.cn/hangye/">IT新闻</a></span>
+		<span class="hd1" id="chdheadt_10" onmouseover="chdhead(10);" style="cursor: hand;"><a href="http://www.kaifajie.cn/it-peixun/">IT培训</a></span>
+		<span class="hd1" id="chdheadt_11" onmouseover="chdhead(11);" style="cursor: hand;"><a href="http://www.kaifajie.cn/kaiyuan/">开源软件</a></span>
+		<span class="hd1" id="chdheadt_12" onmouseover="chdhead(12);" style="cursor: hand;"><a href="http://www.kaifajie.cn/kaoshi/">考试认证</a></span>
+		<span class="hd1" id="chdheadt_13" onmouseover="chdhead(13);" style="cursor: hand;"><a href="http://www.kaifajie.cn/daguofang/">大锅饭</a></span>
+		<span class="r_bg"></span>
+	</div> 
+	<div class="middel"> 
+		<div id="chdheadc_1">
+			
+		</div> 
+		<div id="chdheadc_2"  style="display: none;">
+			
+		</div> 
+		<div id="chdheadc_3"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_4"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_5"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_6"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_7"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_8"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_9"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_10"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_11"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_12"  style="display: none;">
+			
+		</div>
+		<div id="chdheadc_13"  style="display: none;">
+			
+		</div>
+      <SCRIPT LANGUAGE="JavaScript"> 
+<!-- 
+var chdhead_num=13 
+function chdhead(k){ 
+    for(var i=1;i<=chdhead_num ;i++ ) 
+    { 
+        if(i==k){ 
+            document.getElementById("chdheadc_"+i).style.display=''; 
+            document.getElementById("chdheadt_"+i).className='hd2'; 
+        }else{ 
+            document.getElementById("chdheadc_"+i).style.display='none'; 
+            document.getElementById("chdheadt_"+i).className='hd1'; 
+        } 
+    } 
+} 
+chdhead(1); 
+//--> 
+</SCRIPT> 
+	</div> 
+</div>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--//目的是为了做风格方便
+document.write('<div class="wrap">');
+//-->
+</SCRIPT>
+<!--
+--> 
+<link rel="stylesheet" type="text/css" href="http://www.kaifajie.cn/images/touzijie/list_ben/qibomb_list_ben.css">
+<SCRIPT LANGUAGE="JavaScript" src="http://www.kaifajie.cn/images/default/bencandy.js"></SCRIPT>
+<div id="nei_box">
+	<div class="boxl">
+		<div id="fname_guide"><a href="http://www.kaifajie.cn/">首页</a>  -&gt; <a  href='http://www.kaifajie.cn/kfjishu/' class='guide_menu'>IT信息技术</a> -&gt; <a  href='http://www.kaifajie.cn/javase/' class='guide_menu'>Java语言</a></div>
+		<div id="listbox" class="color_343434">
+			<div id="tit">Java学习之HashMap: 如何正确实现Map的entrySet()方法(六)</div>
+			<div id="tit_dow">
+				<span>2012-09-12 16:20:39</span>
+				<span> 来源:开发界</span>
+				<span>作者:admin</span>
+                <span>栏目：<a href="http://www.kaifajie.cn/javase/">Java语言</a></span>
+				<span>责任编辑:admin</span>
+			</div>
+<!--			
+<table id="tit_dow" width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td style="padding-top:10px;">
+<span><a editurl='http://www.kaifajie.cn/do/job.php?job=bencandy&fid=62&id=6456&&type=&act=do'>2012-09-12 16:20:39</a> </span>
+<span> 来源:<a href="" target="_blank">开发界</a></span>
+<span>作者:admin</span>
+<span>阅读：0</span>
+	</td>
+    <td width="160px;">
+!-- Baidu Button BEGIN --
+<div id="bdshare" class="bdshare_b" style="line-height: 12px;"><img src="http://bdimg.share.baidu.com/static/images/type-button-1.jpg" alt="百度分享"/></div>
+<script type="text/javascript" id="bdshare_js" data="type=button&amp;mini=1" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?t=" + new Date().getHours();
+</script>
+!-- Baidu Button END --
+	</td>
+  </tr>
+</table>
+-->
+			<div id="tit_dow_dow">
+				<span><a href="javascript:window.print();"><img src="http://www.kaifajie.cn/images/touzijie/list_ben/dayin.gif" alt="打印文章"/>打印文章</a></span>
+				<span><A href="javascript:javascript:window.external.AddFavorite('http://www.kaifajie.cn','开发界_IT门户_中国最权威的IT开发社区');"><img src="http://www.kaifajie.cn/images/touzijie/list_ben/shouc.gif" alt="加入开发界收藏"/>加入开发界收藏</a></span>
+			</div>
+			<div id="jianjie" class="size_12">[<b>导读</b>]通过继承AbstractMap我们可以很容易实现自己的Map，我们只需要实现唯一的抽象的entrySet()方法。</div>
+			
+			<div id="content" class="size_12"><div style="float:left;width:320px;"><script type="text/javascript">
+/*300*250*/
+var cpro_id = "u1008508";
+</script>
+<script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script>
+</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;{&nbsp;&nbsp;&nbsp;&nbsp;
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">return</font></strong></span><span><font color="#000000">&nbsp;newEntryIterator(); &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">public</font></strong></span><span><font color="#000000">&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">boolean</font></strong></span><span><font color="#000000">&nbsp;contains(Object&nbsp;o)&nbsp;{ &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">if</font></strong></span><span><font color="#000000">&nbsp;(!(o&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">instanceof</font></strong></span><span><font color="#000000">&nbsp;Map.Entry)) &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">return</font></strong></span><span><font color="#000000">&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">false</font></strong></span><span><font color="#000000">; &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map.Entry&lt;K,V&gt;&nbsp;e&nbsp;=&nbsp;(Map.Entry&lt;K,V&gt;)&nbsp;o; &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Entry&lt;K,V&gt;&nbsp;candidate&nbsp;=&nbsp;getEntry(e.getKey()); &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">return</font></strong></span><span><font color="#000000">&nbsp;candidate&nbsp;!=&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">null</font></strong></span><span><font color="#000000">&nbsp;&amp;&amp;&nbsp;candidate.equals(e); &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">public</font></strong></span><span><font color="#000000">&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">boolean</font></strong></span><span><font color="#000000">&nbsp;remove(Object&nbsp;o)&nbsp;{ &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">return</font></strong></span><span><font color="#000000">&nbsp;removeMapping(o)&nbsp;!=&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">null</font></strong></span><span><font color="#000000">; &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">public</font></strong></span><span><font color="#000000">&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">int</font></strong></span><span><font color="#000000">&nbsp;size()&nbsp;{ &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">return</font></strong></span><span><font color="#000000">&nbsp;size; &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">public</font></strong></span><span><font color="#000000">&nbsp;</font></span><span class="keyword"><strong><font color="#7f0055">void</font></strong></span><span><font color="#000000">&nbsp;clear()&nbsp;{ &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HashMap.</font></span><span class="keyword"><strong><font color="#7f0055">this</font></strong></span><span><font color="#000000">.clear(); &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;&nbsp;</font></span></p>
+</li>
+<li>
+	<p style="margin-left: 40px">
+		<span><font color="#000000">}&nbsp;&nbsp;</font></span></p>
+	<ol>
+	</ol>
+	<div>
+		&nbsp;</div>
+	<p style="margin-left: 40px">
+		&nbsp;</p>
+	<p style="margin-left: 40px">
+		&nbsp;</p>
+	<pre class="<a href=http://www.kaifajie.cn/kfjishu/ style=text-decoration:underline;font-size:14px;color:#F70968; target=_blank>java</a>" codeable_id="1676845" codeable_type="Blog" name="code" pre_index="2" source_url="http://410063005.iteye.com/blog/1676845" style="display: none" title="Java学习之HashMap: 如何正确实现Map的entrySet()方法">
+	public Set&lt;Map.Entry&lt;K,V&gt;&gt; entrySet() {
+	return entrySet0();
+    }
+
+    private Set&lt;Map.Entry&lt;K,V&gt;&gt; entrySet0() {
+        Set&lt;Map.Entry&lt;K,V&gt;&gt; es = entrySet;
+        return es != null ? es : (entrySet = new EntrySet());
+    }
+
+    private final class EntrySet extends AbstractSet&lt;Map.Entry&lt;K,V&gt;&gt; {
+        public Iterator&lt;Map.Entry&lt;K,V&gt;&gt; iterator() {
+            return newEntryIterator();
+        }
+        public boolean contains(Object o) {
+            if (!(o instanceof Map.Entry))
+                return false;
+            Map.Entry&lt;K,V&gt; e = (Map.Entry&lt;K,V&gt;) o;
+            Entry&lt;K,V&gt; candidate = getEntry(e.getKey());
+            return candidate != null &amp;&amp; candidate.equals(e);
+        }
+        public boolean remove(Object o) {
+            return removeMapping(o) != null;
+        }
+        public int size() {
+            return size;
+        }
+        public void clear() {
+            HashMap.this.clear();
+        }
+    }</pre>
+	<p style="margin-left: 40px">
+		&nbsp;EntrySet是HashMap的一个内部类，它继承自AbstractSet，必须需要实现iterator()和size()两个抽象方法。而HashMap的entrySet()不过是返回了EntrySet的一个实例。</p>
+	<p style="margin-left: 40px">
+		注意，与我们之前定义的SlowMap的entrySet()相比，这里的entrySet()实现中没有进行任何创建副本的操作。不难发现，remove()和clear()等方法，最终会调用到EntrySet所在的外部对象(即一个HashMap实例)的相关方法，从而实现<span style="color: #ff0000">对Map的修改应该会反映到这个Set，反过来对这个Set的修改也会反映到Map。</span>当然，除了直接在entrySet()方法返回的Set对象上直接进行操作，还可以获取这个Set的迭代器，通过迭代器来修改Map和对应的Set</p>
+</li>
+
+
+</div>
+			<table style="display:" width="100%" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td style="padding:20px 0px 20px 20px;"><div class="page"><a href="http://www.kaifajie.cn/javase/6456.html" title="首页">首页</A> <a href="http://www.kaifajie.cn/javase/6456-5.html" title="上一页">上一页</A>   <a href="http://www.kaifajie.cn/javase/6456-3.html" title="第3页">3</a> <a href="http://www.kaifajie.cn/javase/6456-4.html" title="第4页">4</a> <a href="http://www.kaifajie.cn/javase/6456-5.html" title="第5页">5</a> <a href='#'><font color=red>6</font></a> <a href="http://www.kaifajie.cn/javase/6456-7.html" title="第7页">7</a>  <a href="http://www.kaifajie.cn/javase/6456-7.html" title="下一页">下一页</A> <a href="http://www.kaifajie.cn/javase/6456-7.html" title="尾页">尾页</A> <a href='#'><font color=red>6</font>/7/7</a></div></td>
+				</tr>
+			</table>
+			<div id="keyword" class="size_12">标签：<A HREF='http://www.kaifajie.cn/do/tag.php?type=keyword&keyword=java' target=_blank>java</A> <A HREF='http://www.kaifajie.cn/do/tag.php?type=keyword&keyword=%D1%A7%CF%B0' target=_blank>学习</A></div>
+			<div id="fenxian">
+<!-- Baidu Button BEGIN -->
+    <div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare">
+        <span class="bds_more">分享到：</span>
+        <a class="bds_qzone"></a>
+        <a class="bds_tqq"></a>
+        <a class="bds_baidu"></a>
+        <a class="bds_tqq"></a>
+        <a class="bds_tqf"></a>
+        <a class="bds_douban"></a>
+        <a class="bds_msn"></a>
+        <a class="bds_tieba"></a>
+        <a class="bds_hx"></a>
+        <a class="bds_tfh"></a>
+        <a class="bds_ty"></a>
+        <a class="bds_sohu"></a>
+        <a class="bds_renren"></a>
+        <a class="bds_ifeng"></a>
+        <a class="bds_qq"></a>
+        <a class="bds_kaixin001"></a>
+        <a class="bds_tsina"></a>
+        <a class="bds_hi"></a>
+        <a class="bds_tsohu"></a>
+        <a class="bds_t163"></a>
+		<a class="shareCount"></a>
+		
+    </div>
+	
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=781798" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+</script>
+<!-- Baidu Button END -->
+			</div>
+
+			<div style="height:50px;line-height:50px;margin: 0 0 0 20px;font-size: 14px;"><a href="http://www.kaifajie.cn/javase/6471.html" onclick="">上一篇</a>：<a href="http://www.kaifajie.cn/javase/6471.html" onclick="" title="UserLog">UserLog</a>
+                <a href="http://www.kaifajie.cn/javase/6452.html" onclick="" style="margin: 0 0 0 20px;">下一篇</a>：<a href="http://www.kaifajie.cn/javase/6452.html" onclick="" title="计算一个无符号整数的二进制表示中1的个数">计算一个无符号整数的二进制表示..</a></div>
+			<div id="head_610 size_14" style="padding-left:30px;font-size:14px;">
+				<!-- UJian Button BEGIN -->
+                <div class="ujian-hook"></div>
+                 <script type="text/javascript" src="http://v1.ujian.cc/code/ujian.js?uid=1649215"></script>
+                <!-- UJian Button END -->
+			</div>			
+			<div class="head_610 size_14">
+				<span class="l_tit">您可能还喜欢</span>
+				<span class="r_more"></span>
+			</div>
+			<div class="list_610">
+
+<style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/10186.html" target="_blank" title='Java简易计算器：加减乘除，清零 '>Java简易计算器：加减乘除，清零 </a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">Java简易计算器：加减乘除，清零 
+<span class="color_555"><a href="http://www.kaifajie.cn/javase/10186.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/10083.html" target="_blank" title='一道面试题:怎么比较两个集合是否相等？ '>一道面试题:怎么比较两个集合是否相..</a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">一道面试题:怎么比较两个集合是否相等？ 
+<span class="color_555"><a href="http://www.kaifajie.cn/javase/10083.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/10040.html" target="_blank" title='关于JAVA中Arrays.asList使用时的一个注意点 '>关于JAVA中Arrays.asList使用时的一..</a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">Arrays是一个JAVA容器相关操作提供给我们的工具类，这个工具类中有这样一个方法Arrays.asList(),从这个方法的名字来看，就是把一组对象编程一个List的列表。下面我们先来看看JDK中Arrays.asList()<span class="color_555"><a href="http://www.kaifajie.cn/javase/10040.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/10039.html" target="_blank" title='用java处理事务 '>用java处理事务 </a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">用java处理事务 
+<span class="color_555"><a href="http://www.kaifajie.cn/javase/10039.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/9958.html" target="_blank" title='Java变量类型识别的3种方式 '>Java变量类型识别的3种方式 </a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">变量类型识别有3种方法：
+
+通过反射拿到变量的类型 
+instanceof关键字判断 
+通过java的多态(方法重载)来DIY类型识别 
+<span class="color_555"><a href="http://www.kaifajie.cn/javase/9958.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/9918.html" target="_blank" title='java中的继承 '>java中的继承 </a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">java中的继承 
+<span class="color_555"><a href="http://www.kaifajie.cn/javase/9918.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/9917.html" target="_blank" title='JDOM 创建 读取 修改 删除 XML文件 '>JDOM 创建 读取 修改 删除 XML文件 </a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">JDOM 创建 读取 修改 删除 XML文件 
+<span class="color_555"><a href="http://www.kaifajie.cn/javase/9917.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/9871.html" target="_blank" title='详细解析Java中抽象类和接口的区别 '>详细解析Java中抽象类和接口的区别 </a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">在Java语言中， abstract class 和interface 是支持抽象类定义的两种机制。正是由于这两种机制的存在，才赋予了Java强大的 面向对象能力。<span class="color_555"><a href="http://www.kaifajie.cn/javase/9871.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/9868.html" target="_blank" title='Java 也擅长轻松的并行编程！ '>Java 也擅长轻松的并行编程！ </a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">Java SE 7 提供的新分解/合并任务如何使编写并行程序变得更轻松？
+
+<span class="color_555"><a href="http://www.kaifajie.cn/javase/9868.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div><style>
+.pic_tit_650 .tit a {
+    font-weight:normal;
+}
+</style>
+<div class="pic_tit_650 bg_1 mbottom_10" style="width:610px;padding-top:10px;">
+	<div class="tit">
+		<span class="f_l">
+			<font>·<a href="http://www.kaifajie.cn/javase/9836.html" target="_blank" title='java的(PO,VO,TO,BO,DAO,POJO)解释 '>java的(PO,VO,TO,BO,DAO,POJO)解释 </a></font>
+			<font class="color_555 size_12" style="font-weight:normal;">Java语言</font>
+		</span>
+	</div>
+	<div class="pic_con">
+	<table width="620" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+			
+		<td><div class="con color_555">java的(PO,VO,TO,BO,DAO,POJO)解释 
+<span class="color_555"><a href="http://www.kaifajie.cn/javase/9836.html" target="_blank">[详细]</a></span></div></td>
+	  </tr>
+	</table>
+	</div>
+</div>
+
+			</div>
+			<div id="pinlun">
+     <!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" id="UYScript" src="http://v1.uyan.cc/js/iframe.js?UYUserId=1649215" async=""></script>
+<!-- UY END -->
+</div>
+			<div class="auto_height"></div>
+		</div>
+	</div>
+	<div class="boxr">
+		<div class="ad300"><script type="text/javascript">
+/*300*250*/
+var cpro_id = "u1008508";
+</script>
+<script src="http://cpro.baidustatic.com/cpro/ui/c.js" type="text/javascript"></script></div>
+		<div class="hd_300 mtop_10"> 
+			<div class="head">
+				<span class="hd2" id="chd10t_1" onclick="chd10(1);" style="cursor: hand;">今日最新资讯</span> 
+				<span class="hd1" id="chd10t_2" onclick="chd10(2);" style="cursor: hand;">最新推荐信息 
+</span>
+				<span class="r_more"></span>
+			</div> 
+			<div class="middle"> 
+				<div id="chd10c_1">
+					<div class="li_li"><font class="fbg1">1</font><span class="f_l"><A HREF="http://www.kaifajie.cn/hulian/10199.html" target='_blank'  style=";">新版12306网站明上线试运行 增..</a></span><span class="f_r">[12-05]</span></div><div class="li_li"><font class="fbg2">2</font><span class="f_l"><A HREF="http://www.kaifajie.cn/zhizao/10198.html" target='_blank'  style=";">英将发报告“积极评价”华为 解..</a></span><span class="f_r">[12-05]</span></div><div class="li_li"><font class="fbg3">3</font><span class="f_l"><A HREF="http://www.kaifajie.cn/qianrushi/10197.html" target='_blank'  style=";">三大利好因素提升苹果2014年业绩</a></span><span class="f_r">[12-05]</span></div><div class="li_li"><font class="fbg4">4</font><span class="f_l"><A HREF="http://www.kaifajie.cn/qianrushi/10195.html" target='_blank'  style=";">受4G牌照今日发放传闻刺激 国内..</a></span><span class="f_r">[12-05]</span></div><div class="li_li"><font class="fbg5">5</font><span class="f_l"><A HREF="http://www.kaifajie.cn/zhizao/10193.html" target='_blank'  style=";">欧盟委员会批准微软收购诺基亚..</a></span><span class="f_r">[12-05]</span></div><div class="li_li"><font class="fbg6">6</font><span class="f_l"><A HREF="http://www.kaifajie.cn/dianxin/10191.html" target='_blank'  style=";">4G的想象：移动视频行业将迎来..</a></span><span class="f_r">[12-05]</span></div><div class="li_li"><font class="fbg7">7</font><span class="f_l"><A HREF="http://www.kaifajie.cn/zhizao/10174.html" target='_blank'  style=";">传诺基亚将推两款四核Lumia新机..</a></span><span class="f_r">[06-19]</span></div><div class="li_li"><font class="fbg8">8</font><span class="f_l"><A HREF="http://www.kaifajie.cn/zhizao/10173.html" target='_blank'  style=";">苹果iPhone 5S零部件再曝光 或1..</a></span><span class="f_r">[06-19]</span></div><div class="li_li"><font class="fbg9">9</font><span class="f_l"><A HREF="http://www.kaifajie.cn/dianzi/10172.html" target='_blank'  style=";">电商价格战首日流量未见“井喷..</a></span><span class="f_r">[06-19]</span></div><div class="li_li"><font class="fbg10">10</font><span class="f_l"><A HREF="http://www.kaifajie.cn/jiaotong/10171.html" target='_blank'  style=";">电动车可以边开边充？据说沃尔..</a></span><span class="f_r">[06-18]</span></div>
+					<div class="auto_height"></div>
+				</div> 
+				<div id="chd10c_2">
+					<div class="li_li"><font class="fbg1">1</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/10186.html" target='_blank'  style=";">Java简易计算器：加减乘除，清零 </a></span><span class="f_r">[06-19]</span></div><div class="li_li"><font class="fbg2">2</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/10083.html" target='_blank'  style=";">一道面试题:怎么比较两个集合是否</a></span><span class="f_r">[05-15]</span></div><div class="li_li"><font class="fbg3">3</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/10040.html" target='_blank'  style=";">关于JAVA中Arrays.asList使用时的</a></span><span class="f_r">[03-15]</span></div><div class="li_li"><font class="fbg4">4</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/10039.html" target='_blank'  style=";">用java处理事务 </a></span><span class="f_r">[03-15]</span></div><div class="li_li"><font class="fbg5">5</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/9958.html" target='_blank'  style=";">Java变量类型识别的3种方式 </a></span><span class="f_r">[03-12]</span></div><div class="li_li"><font class="fbg6">6</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/9918.html" target='_blank'  style=";">java中的继承 </a></span><span class="f_r">[03-08]</span></div><div class="li_li"><font class="fbg7">7</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/9917.html" target='_blank'  style=";">JDOM 创建 读取 修改 删除 XML文件 </a></span><span class="f_r">[03-08]</span></div><div class="li_li"><font class="fbg8">8</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/9871.html" target='_blank'  style=";">详细解析Java中抽象类和接口的区别 </a></span><span class="f_r">[03-07]</span></div><div class="li_li"><font class="fbg9">9</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/9868.html" target='_blank'  style=";">Java 也擅长轻松的并行编程！ </a></span><span class="f_r">[03-07]</span></div><div class="li_li"><font class="fbg10">10</font><span class="f_l"><A HREF="http://www.kaifajie.cn/javase/9866.html" target='_blank'  style=";">java字符串转日期或日期转字符串 </a></span><span class="f_r">[03-07]</span></div>
+					<div class="auto_height"></div>
+				</div> 
+      <SCRIPT LANGUAGE="JavaScript"> 
+<!-- 
+var chd10_num=2 
+function chd10(k){ 
+    for(var i=1;i<=chd10_num ;i++ ) 
+    { 
+        if(i==k){ 
+            document.getElementById("chd10c_"+i).style.display=''; 
+            document.getElementById("chd10t_"+i).className='hd2'; 
+        }else{ 
+            document.getElementById("chd10c_"+i).style.display='none'; 
+            document.getElementById("chd10t_"+i).className='hd1'; 
+        } 
+    } 
+} 
+chd10(1); 
+//--> 
+</SCRIPT> 
+			</div> 
+		</div>
+		<div class="head300 mtop_10">
+			<span class="l_tit">考试认证</span>
+			<span class="r_more"><a href="http://www.kaifajie.cn/kaoshi/">更多</a></span>
+		</div>
+		<div class="list300 border_bottom">
+				<div class="li_box">
+					<div class="l_tit"><a href="http://www.kaifajie.cn/weiruan/">微软<br/>认证</a></div>
+					<div class="r_li bg1">
+						<div>·<A HREF="http://www.kaifajie.cn/weiruan/6376.html" target='_blank'  style=";">重要通知：2012年6月1日起中国大陆地..</a></div><div>·<A HREF="http://www.kaifajie.cn/weiruan/6375.html" target='_blank'  style=";">微软认证获澳大利亚技术移民认可 可享..</a></div><div>·<A HREF="http://www.kaifajie.cn/weiruan/6364.html" target='_blank'  style=";">微软MCSE认证系统工程师考试政策大全</a></div>
+					</div>
+				</div>
+				<div class="li_box">
+					<div class="l_tit"><a href="http://www.kaifajie.cn/sike/">思科<br/>认证</a></div>
+					<div class="r_li bg2">
+						<div>·<A HREF="http://www.kaifajie.cn/sike/6377.html" target='_blank'  style=";">CCIE实验室考场及对应考试项目表</a></div><div>·<A HREF="http://www.kaifajie.cn/sike/5276.html" target='_blank'  style=";">思科CCIE考试轻松通过技巧总结</a></div><div>·<A HREF="http://www.kaifajie.cn/sike/5275.html" target='_blank'  style=";">思科考试：Flow control的三种控制模..</a></div>
+					</div>
+				</div>
+				<div class="li_box">
+					<div class="l_tit"><a href="http://www.kaifajie.cn/huawei/">华为<br/>认证</a></div>
+					<div class="r_li bg3">
+						<div>·<A HREF="http://www.kaifajie.cn/huawei/4387.html" target='_blank'  style=";">华为认证讲师认证简要流程</a></div><div>·<A HREF="http://www.kaifajie.cn/huawei/945.html" target='_blank'  style=";">华为3com授权培训中心一览（中国区）</a></div><div>·<A HREF="http://www.kaifajie.cn/huawei/944.html" target='_blank'  style=";">2012年华为认证考试报名时间</a></div>
+					</div>
+				</div>
+				<div class="li_box">
+					<div class="l_tit"><a href="http://www.kaifajie.cn/oraclerenzheng/">Oracle<br/>认证</a></div>
+					<div class="r_li">
+						<div>·<A HREF="http://www.kaifajie.cn/linuxunix/5586.html" target='_blank'  style=";">Linux/unix认证考试102的必考点都有哪些</a></div><div>·<A HREF="http://www.kaifajie.cn/oraclerenzheng/5102.html" target='_blank'  style=";">Oracle顶级证书OCM认证考试费用和培训费</a></div><div>·<A HREF="http://www.kaifajie.cn/linuxunix/5040.html" target='_blank'  style=";">Linux系统修改的时间</a></div>
+					</div>
+				</div>
+			</div>
+		
+		<div class="ad300 mtop_10">
+			<script type="text/javascript">
+var sogou_ad_id=135999;
+var sogou_ad_height=250;
+var sogou_ad_width=300;
+</script>
+<script language='JavaScript' type='text/javascript' src='http://images.sohu.com/cs/jsfile/js/c.js'></script>
+
+		</div>
+
+		<div class="head300 mtop_10">
+			<span class="l_tit">开发技术</span>
+			<span class="r_more"><a href="http://www.kaifajie.cn/kfjishu/">更多</a></span>
+		</div>
+		<div class="list300 border_bottom">
+			<div class="pic_tit_298">
+	<div class="pic"><a HREF="http://www.kaifajie.cn/web2/10149.html" target='_blank'><img src="http://www.kaifajie.cn/upload_files/article/68/1_20130614090603_UVElQkQlRDglQ0QlQkMyMDEzMDYxNDA5MTI1NQ==.jpg"  alt="如何判断请求发送端是.."/></a></div>
+	<div class="tit size_14"><A HREF="http://www.kaifajie.cn/web2/10149.html" target='_blank' style=";">如何判断请求发送端是..</a></div>
+	<div class="con color_555">随着手持互联网设备不断的加入，平板、手机上网占..</div>
+	<div class="posttime color_555">发布时间：<a href="">[06-14]</a></div>
+</div><div class="li_li">·<A HREF="http://www.kaifajie.cn/python3/10187.html" target='_blank' style=";">python django | sqlite3 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/javase/10186.html" target='_blank' style=";">Java简易计算器：加减乘除，清零 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/php5/10185.html" target='_blank' style=";">PHP Serialize() & Unserialize() Issues </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/jscript/10184.html" target='_blank' style=";">关于js按需加载的依赖问题 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/jscript/10183.html" target='_blank' style=";">JavaScript声明函数的方式，以及各个方式的..</a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/cjiajia/10135.html" target='_blank' style=";">通过C++ 实现网络连接检测程序 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/php5/10134.html" target='_blank' style=";">分享php代码加密和解密原理 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/kaifa_qita/10123.html" target='_blank' style=";">MyBatis/Ibatis中#和$的区别</a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/kaifa_qita/10120.html" target='_blank' style=";">excel数据解析</a></div>
+		</div>
+		<div class="head300 mtop_10">
+			<span class="l_tit">移动开发</span>
+			<span class="r_more"><a href="http://www.kaifajie.cn/yidong/">更多</a></span>
+		</div>
+		<div class="list300 border_bottom">
+			<div class="pic_tit_298">
+	<div class="pic"><a HREF="http://www.kaifajie.cn/android/10182.html" target='_blank'><img src="http://www.kaifajie.cn/upload_files/article/3/1_20130619080607_UVElQkQlRDglQ0QlQkMyMDEzMDYxOTA4NDMwMA==.jpg"  alt="Android Service被关闭.."/></a></div>
+	<div class="tit size_14"><A HREF="http://www.kaifajie.cn/android/10182.html" target='_blank' style=";">Android Service被关闭..</a></div>
+	<div class="con color_555">AndroidService被关闭后自动重启,解决被异常kill服..</div>
+	<div class="posttime color_555">发布时间：<a href="">[06-19]</a></div>
+</div><div class="li_li">·<A HREF="http://www.kaifajie.cn/android/10181.html" target='_blank' style=";">Android 中OpenGL的使用 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/android/10166.html" target='_blank' style=";">Android 客户端连接本机服务器 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/yidong_qita/10164.html" target='_blank' style=";">service的跨应用调用AIDL</a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/android/10144.html" target='_blank' style=";">Android开发进阶之NIO非阻塞包(七) </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/ios/10143.html" target='_blank' style=";">IOS按钮拖动和点击 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/ios/10142.html" target='_blank' style=";">在ios中对gbk进行base64解码 </a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/android/10136.html" target='_blank' style=";">Android知识体系结构概览</a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/android/10119.html" target='_blank' style=";">android 中checkbox radiobutton文字间间距..</a></div><div class="li_li">·<A HREF="http://www.kaifajie.cn/android/10117.html" target='_blank' style=";">ubuntu android eclipse 链接设备（手机）看..</a></div>
+		</div>
+		<div class="ad300 mtop_10"><script type="text/javascript">
+var sogou_ad_id=135999;
+var sogou_ad_height=250;
+var sogou_ad_width=300;
+</script>
+<script language='JavaScript' type='text/javascript' src='http://images.sohu.com/cs/jsfile/js/c.js'></script>
+</div>
+	</div>
+	<div class="auto_height"></div>
+</div>
+<script type="text/javascript">/*120*270，创建于2012-8-7*/ var cpro_id = 'u1013738';</script><script src="http://cpro.baidu.com/cpro/ui/f.js" type="text/javascript"></script>
+
+<!--
+-->
+<SCRIPT LANGUAGE="JavaScript">
+<!--//目的是为了做风格方便
+document.write('</div>');
+//-->
+</SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+clickEdit.init();
+//-->
+</SCRIPT>
+
+<div class="my_foot"><p><a href="http://www.kaifajie.cn/about.html">关于开发界</a>  | <a href="http://www.kaifajie.cn/link.html">合作伙伴</a> | 联系我们 | <a href="http://www.kaifajie.cn/link.html">友情链接</a> | <a href="http://www.kaifajie.cn/copyright.html">版权声明</a> | <a href="http://www.kaifajie.cn/waibao.html">网站制作</a> |  <a href="http://www.kaifajie.cn/sitemap.html">网站地图</a> | <a href="#" onClick="window.external.AddFavorite('http://www.kaifajie.cn','开发界');">加入收藏</a> | <a onclick="this.style.behavior='url(#default#homepage)'; this.setHomePage('http://www.kaifajie.cn'); " href="#">设为首页</a></p>
+
+<p>Copyright@2012-2013  <a href="http://www.kaifajie.cn/">开发界</a> 京ICP备12027873号</a>
+
+</p>
+
+
+
+<!-- Baidu Button BEGIN -->
+
+<script type="text/javascript" id="bdshare_js" data="type=slide&img=2&uid=781798" ></script>
+
+<script type="text/javascript" id="bdshell_js"></script>
+
+<script type="text/javascript">
+
+	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+
+</script><!-- Baidu Button END --><script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fce95d47bde35647ad823413a9c7e6eb8' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript" src="http://tajs.qq.com/stats?sId=12788411" charset="UTF-8"></script><script language="javascript" type="text/javascript" src="http://js.users.51.la/12796447.js"></script>
+<noscript><a href="http://www.51.la/?12796447" target="_blank" rel='nofollow'><img alt="& # x6211;& # x8981;& # x5566;& # x514D;& # x8D39;& # x7EDF;& # x8BA1;" src="http://img.users.51.la/12796447.asp" style="border:none" alt="51啦"/></a></noscript></div>
+<!--
+java,学习
+-->
+</body>
+</html>

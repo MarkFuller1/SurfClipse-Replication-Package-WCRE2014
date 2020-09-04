@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>java - Where and when should I use the close() method to avoid IOException in ObjectInputStream? - Stack Overflow</title>
+    <link rel="shortcut icon" href="//cdn.sstatic.net/stackoverflow/img/favicon.ico">
+    <link rel="apple-touch-icon image_src" href="//cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+    <link rel="search" type="application/opensearchdescription+xml" title="Stack Overflow" href="/opensearch.xml">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:domain" content="stackoverflow.com"/>
+    <meta name="og:type" content="website" />
+    <meta name="og:image" content="http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon@2.png?v=fde65a5a78c6"/>
+    <meta name="og:title" content="Where and when should I use the close() method to avoid IOException in ObjectInputStream?" />
+    <meta name="og:description" content="I&#39;m trying to read an object from client program over tcp. As you can see in this line I created objectInput:
+
+ObjectInputStream objectInput = new ObjectInputStream(incoming.getInputStream());
+
+
+An..." />
+    <meta name="og:url" content="http://stackoverflow.com/questions/12914454/where-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp"/>
+    <link rel="canonical" href="http://stackoverflow.com/questions/12914454/where-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp" />
+
+    
+    
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="//cdn.sstatic.net/Js/stub.en.js?v=184c221cbfa3" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.sstatic.net/stackoverflow/all.css?v=1b6de4192b97">
+    
+    <link rel="alternate" type="application/atom+xml" title="Feed for question &#39;Where and when should I use the close() method to avoid IOException in ObjectInputStream?&#39;" href="/feeds/question/12914454">
+    <script type="text/javascript">
+        
+        StackExchange.ready(function () {
+            StackExchange.using("postValidation", function () {
+                StackExchange.postValidation.initOnBlurAndSubmit($('#post-form'), 2, 'answer');
+            });
+
+            
+            StackExchange.question.init({showAnswerHelp:true,totalCommentCount:1,shownCommentCount:1,highlightColor:'#F4A83D',backgroundColor:'#FFF',questionId:12914454});
+
+            styleCode();
+
+                StackExchange.realtime.subscribeToQuestion('1', '12914454');
+            
+                    });
+    </script>
+
+
+    <script type="text/javascript">
+        StackExchange.init({"locale":"en","stackAuthUrl":"https://stackauth.com","serverTime":1386976956,"styleCode":true,"enableUserHovercards":true,"site":{"name":"Stack Overflow","description":"Q&A for professional and enthusiast programmers","isNoticesTabEnabled":true,"recaptchaPublicKey":"6LdchgIAAAAAAJwGpIzRQSOFaO0pU6s44Xt8aTwc","nonAsciiTags":true,"enableSocialMediaInSharePopup":true},"user":{"fkey":"924444e9d656bd8bb28009690bceb305","isAnonymous":true}});
+        StackExchange.using.setCacheBreakers({"js/prettify-full.en.js":"e0bbd4760e83","js/moderator.en.js":"1a411fd265fe","js/full-anon.en.js":"f11ad0c721c5","js/full.en.js":"4281101ad6b6","js/wmd.en.js":"849f408083f3","js/third-party/jquery.autocomplete.min.js":"e5f01e97f7c3","js/third-party/jquery.autocomplete.min.en.js":"","js/mobile.en.js":"d1d834ef85d2","js/help.en.js":"d3cc74d8a93a","js/tageditor.en.js":"6d51a5f8d7f3","js/tageditornew.en.js":"111b781cf314","js/inline-tag-editing.en.js":"f951bd09dc69","js/revisions.en.js":"33fd38144303","js/review.en.js":"b44cee8b2b0b","js/tagsuggestions.en.js":"e4e7b952fcc7","js/post-validation.en.js":"c275fe37d674","js/explore-qlist.en.js":"73825bd006fc","js/events.en.js":"23bb11cfe220"});
+        StackExchange.using("gps", function() {
+             StackExchange.gps.init(true);
+        });
+        
+    </script>
+    
+        <script type="text/javascript">
+            StackExchange.ready(function () {
+                $('#nav-tour').click(function () {
+                    StackExchange.using("gps", function() {
+                        StackExchange.gps.track("aboutpage.click", { aboutclick_location: "headermain" }, true);
+                    });
+                });
+            });
+        </script>
+</head>
+<body class="question-page new-topbar">
+    <noscript><div id="noscript-padding"></div></noscript>
+    <div id="notify-container"></div>
+    <div id="overlay-header"></div>
+    <div id="custom-header"></div>
+<div class="topbar">
+    <div class="topbar-wrapper">
+        
+        <div class="js-topbar-dialog-corral">
+
+<div class="topbar-dialog siteSwitcher-dialog dno">
+    <div class="header">
+        <h3><a href="//stackexchange.com/sites">Explore our sites</a></h3>
+    </div>
+    <div class="modal-content">
+        <ul class="current-site">
+                <li>
+                        <a href="//stackoverflow.com" 
+       class="current-site-link site-link js-site-link js-gps-track"
+            data-gps-track="site_switcher.click({ item_type:3 })"
+>
+        <div class="site-icon favicon favicon-stackoverflow" title="Stack Overflow"></div>
+        Stack Overflow
+    </a>
+    <div class="related-links js-related-links">
+            <a href="http://chat.stackoverflow.com"     data-gps-track="site_switcher.click({ item_type:6 })"
+>chat</a>
+                    <a href="http://blog.stackexchange.com"     data-gps-track="site_switcher.click({ item_type:7 })"
+>blog</a>
+            </div>
+
+                </li>
+                <li class="related-site">
+                        <a href="//meta.stackoverflow.com" 
+       class="site-link js-site-link js-gps-track"
+            data-gps-track="site.switch({ target_site:4, item_type:3 });site_switcher.click({ item_type:4 })"
+>
+        <div class="site-icon favicon favicon-stackoverflowmeta" title="Meta Stack Overflow"></div>
+        Meta Stack Overflow
+    </a>
+
+                    
+                </li>
+                            <li class="related-site">
+                    <a class="site-link js-site-link" 
+                       href="//careers.stackoverflow.com" 
+                           data-gps-track="site_switcher.click({ item_type:9 })"
+>
+                        <div class="site-icon favicon favicon-careers" title="Stack Overflow Careers"></div>
+                        Careers 2.0
+                    </a>
+                </li>
+        </ul>
+        
+
+
+        
+            <div class="child-content"></div>
+
+    </div>
+</div>        </div>
+
+        <div class="network-items">
+            
+            <a href="//stackexchange.com" 
+               class="topbar-icon icon-site-switcher js-site-switcher-button js-gps-track"
+               data-gps-track="site_switcher.show"
+               data-child-content-url="/topbar/site-switcher/site-list"
+               data-on-class="icon-site-switcher-on"
+               title="A list of all 112 Stack Exchange sites">
+                <span class="hidden-text">Stack Exchange</span>
+            </a>
+            
+        </div>
+
+        <div class="topbar-links">
+            
+                <div class="links-container">
+                    <span class="topbar-menu-links">
+                        <a href="/users/login?returnurl=%2fquestions%2f12914454%2fwhere-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp" class="login-link">sign up</a>    
+                        <a href="/users/login?returnurl=%2fquestions%2f12914454%2fwhere-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp" class="login-link">log in</a>
+                        <a href="/tour">tour</a>
+                        <a href="/help">help</a>
+                            <a href="//careers.stackoverflow.com">careers 2.0</a>
+                    </span>
+                </div>
+
+			<div class="search-container">
+                <form id="search" action="/search" method="get" autocomplete="off">
+                    <input name="q" type="text" placeholder="search" value="" tabindex="1" autocomplete="off" maxlength="240" />
+                </form>
+			</div>
+            	
+        </div>      
+    </div> 
+</div>
+<script>
+    StackExchange.ready(function () {
+        //topbar.init();
+        StackExchange.topbar.init();
+    });
+</script>    <div class="container">
+        <div id="header" class=headeranon>
+            <br class="cbt">
+            <div id="hlogo">
+                <a href="/">
+                    Stack Overflow
+                </a>
+            </div>
+            <div id="hmenus">
+                <div class="nav mainnavs mainnavsanon">
+                    <ul>
+                            <li class="youarehere"><a id="nav-questions" href="/questions">Questions</a></li>
+                            <li><a id="nav-tags" href="/tags">Tags</a></li>
+                            <li><a id="nav-tour" href="/about">Tour</a></li>
+                            <li><a id="nav-users" href="/users">Users</a></li>
+                    </ul>
+                </div>
+                <div class="nav askquestion">
+                    <ul>
+                        <li>
+                            <a id="nav-askquestion"  href="/questions/ask">Ask Question</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+
+
+
+        <div id="content">
+            
+
+<div itemscope itemtype="http://schema.org/Article">
+	<link itemprop="image" href="//cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+			<!--googleoff: all-->
+<div id="herobox-mini">
+    <div id="hero-content">
+        <span id="controls">
+            <a href="/about" id="tell-me-more" class="button">Take the tour</a>
+            <span id="close"><a title="click to dismiss">&times;</a></span>
+        </span>
+        <div id="blurb">
+            Stack Overflow is a question and answer site for professional and enthusiast programmers. It&#39;s 100% free, no registration required.
+        </div>        
+    </div>
+    <script>
+        $('#tell-me-more').click(function () {
+            var clickSource = $("body").attr("class") + '-mini';
+            if ($("body").hasClass("questions-page")) {
+                clickSource = 'questionpagemini';
+            }
+            if ($("body").hasClass("home-page")) {
+                clickSource = 'homepagemini';
+            }
+
+            StackExchange.using("gps", function () {
+                StackExchange.gps.track("aboutpage.click", { aboutclick_location: clickSource } , true);
+            });
+        });
+        $('#herobox-mini #close').click(function () {
+            StackExchange.using("gps", function () {
+                StackExchange.gps.track("hero.action", { hero_action_type: "close" }, true);
+            });
+            $.cookie("hero", "none", { path: "/" });
+            var $hero = $("#herobox-mini");
+            $hero.slideUp('fast', function () { $hero.remove(); });
+            return false;
+        });
+    </script>
+</div>
+			<!--googleon: all-->
+			<div id="question-header">
+			<h1 itemprop="name"><a href="/questions/12914454/where-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp" class="question-hyperlink">Where and when should I use the close() method to avoid IOException in ObjectInputStream?</a></h1>
+		</div>
+			<div id="mainbar">
+
+			
+
+<div class="question" data-questionid="12914454"  id="question">
+    
+    <script type="text/javascript">
+                var ados = ados || {};ados.run = ados.run || [];
+                ados.run.push(function() { ados_add_placement(22,8277,"adzerk508429024",4).setZone(43) ; });                    
+            </script>
+            <div class="everyonelovesstackoverflow" id="adzerk508429024">
+            </div>    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="12914454">
+    <a class="vote-up-off" title="This question shows research effort; it is useful and clear">up vote</a>
+    <span class="vote-count-post ">0</span>
+    <a class="vote-down-off" title="This question does not show any research effort; it is unclear or not useful">down vote</a>
+    
+    <a class="star-off" href="#" title="This is a favorite question (click again to undo)">favorite</a>
+    <div class="favoritecount"><b></b></div>   
+
+</div>
+
+            </td>
+            
+<td class="postcell">
+<div>
+    <div class="post-text" itemprop="description">
+
+        <p>I'm trying to read an object from client program over tcp. As you can see in this line I created objectInput:</p>
+
+<pre><code>ObjectInputStream objectInput = new ObjectInputStream(incoming.getInputStream());
+</code></pre>
+
+<p>And then read my input from the other program. It used to work fine until i made minor changes to clean up the program. Personally Assume I added </p>
+
+<pre><code>objectInput.clsoe();
+</code></pre>
+
+<p>My question is, After reading the object should I close the objectInputStream or Keep remain without close? Should I close it straight away after using it or at the end of if block or at the end of program? What are the effect of the close? By the way I have read the close documentation.</p>
+
+<p>Here is the error:</p>
+
+<pre><code>java.io.EOFException
+    at java.io.ObjectInputStream$PeekInputStream.readFully(ObjectInputStream.java:2280)
+    at java.io.ObjectInputStream$BlockDataInputStream.readShort(ObjectInputStream.java:2749)
+    at java.io.ObjectInputStream.readStreamHeader(ObjectInputStream.java:779)
+    at java.io.ObjectInputStream.&lt;init&gt;(ObjectInputStream.java:279)
+    at Server.ClientWorker.run(MyCollectionServer.java:116)
+    at java.lang.Thread.run(Thread.java:680)
+</code></pre>
+
+<p>Here is my code:</p>
+
+<pre><code>    public static void main(String[] args) {
+        ServerSocket serverSocket = null;
+        try 
+        {
+            serverSocket = new ServerSocket(port);  
+        } 
+        catch (IOException e) 
+                {
+            e.printStackTrace();
+        }
+        while(true)
+        {   
+            ClientWorker w;
+            try
+            {   
+                w = new ClientWorker(serverSocket.accept());
+                Thread t = new Thread(w);
+                t.start();
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+                break;
+            }   
+        }
+    }
+}
+
+class ClientWorker implements Runnable
+{
+.....
+    private Socket incoming;
+    public ClientWorker(Socket incoming)
+    {
+        myList = new ArrayList&lt;PureAlbum&gt;();
+        loadList();
+        this.incoming = incoming;
+    }
+
+.....
+    public synchronized  void run()
+    {
+
+else if(request.compareTo("AddAlbum")==0)
+        {
+            try
+            {
+                ObjectInputStream objectInput = new ObjectInputStream(incoming.getInputStream()); //This is the line mentioned in the error
+                PureAlbum object = (PureAlbum) objectInput.readObject();
+
+
+                if(object instanceof CDAlbum)
+                {
+                    CDAlbum a = (CDAlbum) object;
+                    myList.add(a);
+                    System.out.println("Artist = " + a.getArtist());
+                }
+                else if(object instanceof Client.au.edu.uow.Collection.DVDAlbum)
+                {
+                    myList.add((DVDAlbum) object);              
+                }
+                else
+                {
+                    System.err.println("Warning : The object to add to database is unknown! "+ object.getClass() + "*");
+                    System.exit(0);
+                }
+
+
+            }
+            catch (UnknownHostException e) 
+            {
+                System.err.println("Can not read the host name");
+                e.printStackTrace();
+            } 
+            catch (IOException e) 
+            {
+                System.err.println("Can not read the FILE name"); //This exception has been called
+                e.printStackTrace(); 
+            }
+            catch (ClassNotFoundException e) 
+            {
+                e.printStackTrace();
+            }
+        }
+</code></pre>
+
+    </div>
+    <div class="post-taglist">
+        <a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a> <a href="/questions/tagged/sockets" class="post-tag" title="show questions tagged &#39;sockets&#39;" rel="tag">sockets</a> <a href="/questions/tagged/networking" class="post-tag" title="show questions tagged &#39;networking&#39;" rel="tag">networking</a> <a href="/questions/tagged/tcp" class="post-tag" title="show questions tagged &#39;tcp&#39;" rel="tag">tcp</a> <a href="/questions/tagged/objectinputstream" class="post-tag" title="show questions tagged &#39;objectinputstream&#39;" rel="tag">objectinputstream</a> 
+    </div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/q/12914454" title="short permalink to this question" class="short-link" id="link-post-12914454">share</a><span class="lsep">|</span><a href="/posts/12914454/edit" class="suggest-edit-post" title="">improve this question</a></div>        
+    </td>
+    <td align="right" class="post-signature">
+<div class="user-info user-hover">
+    <div class="user-action-time">
+        <a href="/posts/12914454/revisions" title="show all edits to this post">edited <span title="2012-11-20 10:41:41Z" class="relativetime">Nov 20 '12 at 10:41</span></a>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/667301/mike-pennington"><div><img src="https://www.gravatar.com/avatar/ce84c3fb1d8cbce03a2f03f0011f52d3?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/667301/mike-pennington">Mike Pennington</a><br>
+        <span class="reputation-score" title="reputation score 14011" dir="ltr">14k</span><span title="3 gold badges"><span class="badge1"></span><span class="badgecount">3</span></span><span title="38 silver badges"><span class="badge2"></span><span class="badgecount">38</span></span><span title="76 bronze badges"><span class="badge3"></span><span class="badgecount">76</span></span>
+    </div>
+</div>    </td>
+    <td class="post-signature owner">
+        <div class="user-info ">
+    <div class="user-action-time">
+        asked <span title="2012-10-16 12:13:12Z" class="relativetime">Oct 16 '12 at 12:13</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/1679519/bernard"><div><img src="https://www.gravatar.com/avatar/8d77edc347927e5a3f5cbe0051411fa7?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/1679519/bernard">Bernard</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">326</span><span title="1 gold badge"><span class="badge1"></span><span class="badgecount">1</span></span><span title="7 silver badges"><span class="badge2"></span><span class="badgecount">7</span></span><span title="19 bronze badges"><span class="badge3"></span><span class="badgecount">19</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</div>
+</td>
+        </tr>
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-12914454" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-17496172" class="comment">
+        <td class="comment-actions">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                                <span title="number of &#39;useful comment&#39; votes received" 
+                                        class="cool">2</span>   
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">If on Java 7, use Automatic Resource Management. If not, use a <code>finally</code> block to close.</span>
+	&ndash;&nbsp;
+		<a href="/users/1103872/marko-topolnik" 
+		   title="57903 reputation" 
+		   class="comment-user">Marko Topolnik</a>
+	<span class="comment-date" dir="ltr"><span title="2012-10-16 12:16:02Z" class="relativetime-clean">Oct 16 '12 at 12:16</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-12914454" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid answering questions in comments." 
+				>add comment</a>
+    </td>
+</tr>            </table>    
+</div>
+
+
+			<div id="answers">
+
+				<a name="tab-top"></a>
+				<div id="answers-header">
+					<div class="subheader answers-subheader">
+						<h2>
+								4 Answers
+						</h2>
+						<div>
+							<div id="tabs">
+        <a href="/questions/12914454/where-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp?answertab=active#tab-top" title="Answers with the latest activity first">active</a>
+        <a href="/questions/12914454/where-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp?answertab=oldest#tab-top" title="Answers in the order they were provided">oldest</a>
+        <a class="youarehere" href="/questions/12914454/where-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp?answertab=votes#tab-top" title="Answers with the highest score first">votes</a>
+</div>
+						</div>
+					</div>    
+				</div>    
+
+
+
+
+  
+<a name="12916153"></a>
+<div id="answer-12916153" class="answer accepted-answer" data-answerid="12916153" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="12916153">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">1</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+        <span class="vote-accepted-on load-accepted-answer-date" title="loading when this answer was accepted...">accepted</span>
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>This line of stack trace shows that the exception is occurring when you are initializing the <code>ObjectInputStream</code>, not when you are closing.</p>
+
+<pre><code>at java.io.ObjectInputStream.&lt;init&gt;(ObjectInputStream.java:279)
+</code></pre>
+
+<p>The most likely cause is that the remote client did not open an <code>ObjectOutputStream</code>.  It might have written some other kind of data, or it might have closed its output stream or simply exited.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/12916153" title="short permalink to this answer" class="short-link" id="link-post-12916153">share</a><span class="lsep">|</span><a href="/posts/12916153/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2012-10-16 13:47:28Z" class="relativetime">Oct 16 '12 at 13:47</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/139985/stephen-c"><div><img src="https://www.gravatar.com/avatar/147c5a9cc1feec049c50da791ac7d144?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/139985/stephen-c">Stephen C</a><br>
+        <span class="reputation-score" title="reputation score 220813" dir="ltr">221k</span><span title="10 gold badges"><span class="badge1"></span><span class="badgecount">10</span></span><span title="147 silver badges"><span class="badge2"></span><span class="badgecount">147</span></span><span title="389 bronze badges"><span class="badge3"></span><span class="badgecount">389</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-12916153" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-17517853" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Close. I think he is opening a new <code>ObjectInputStream</code> per message, and not finding the correct stream header, etc, as the peer didn&#39;t open a new corresponding <code>ObjectOutputStream</code>. It&#39;s the old use-the-same-streams-for-the-life-of-the-connection game.</span>
+	&ndash;&nbsp;
+		<a href="/users/207421/ejp" 
+		   title="86041 reputation" 
+		   class="comment-user">EJP</a>
+	<span class="comment-date" dir="ltr"><span title="2012-10-17 04:40:16Z" class="relativetime-clean">Oct 17 '12 at 4:40</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-17526174" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">@EJP - You may be right.</span>
+	&ndash;&nbsp;
+		<a href="/users/139985/stephen-c" 
+		   title="220813 reputation" 
+		   class="comment-user">Stephen C</a>
+	<span class="comment-date" dir="ltr"><span title="2012-10-17 10:51:17Z" class="relativetime-clean">Oct 17 '12 at 10:51</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-17644089" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">the problem was I was sending a message &quot;add&quot; to the server and after that sending the object to add to the database in the sever. and in object side first I read the &quot;add&quot; message which is cool but I read the object which haven&#39;t sent yet and to avoid this I added Thread.sleep(1000); to the client side after sending the message &quot;ADD&quot;....Anyway thanks for your reply</span>
+	&ndash;&nbsp;
+		<a href="/users/1679519/bernard" 
+		   title="326 reputation" 
+		   class="comment-user owner">Bernard</a>
+	<span class="comment-date" dir="ltr"><span title="2012-10-22 00:44:18Z" class="relativetime-clean">Oct 22 '12 at 0:44</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-12916153" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+<script type="text/javascript">
+                var ados = ados || {};ados.run = ados.run || [];
+                ados.run.push(function() { ados_add_placement(22,8277,"adzerk1277257844",4).setZone(44) ; });                    
+            </script>
+            <div class="everyonelovesstackoverflow" id="adzerk1277257844">
+            </div>
+  
+<a name="12914601"></a>
+<div id="answer-12914601" class="answer" data-answerid="12914601" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="12914601">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">2</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>Your code fragment is pretty long, so I will try to give you a general answer and it will hopefully help you.</p>
+
+<p>The typical patterns of usage of <code>stream.close()</code> prior to java 7 are:</p>
+
+<pre><code>InputStream in = null; 
+try {
+    InputStream in = .....; // create your input stream;
+    // use input stream
+} catch (IOException e) {
+    // do what you need here
+} finally {
+    if (in != null) {
+        in.close();
+    }
+}
+</code></pre>
+
+<p>or simply declare the method as <code>throws IOException</code> and then write:</p>
+
+<pre><code>InputStream in = null; 
+try {
+    InputStream in = .....; // create your input stream;
+    // use input stream
+} finally {
+    if (in != null) {
+        in.close();
+    }
+}
+</code></pre>
+
+<p>Pay atention that this example does not contain <code>catch</code> section. </p>
+
+<p>Starting from java 7 we can enjoy the new facilities of the language:</p>
+
+<pre><code>try (
+    InputStream in = .....; // create your input stream;
+) {
+    // use input stream
+}
+</code></pre>
+
+<p>You even do not have to call <code>close()</code> at all. All resources defined into header of try block that implement interface <code>Closable</code> will be closed automatically.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/12914601" title="short permalink to this answer" class="short-link" id="link-post-12914601">share</a><span class="lsep">|</span><a href="/posts/12914601/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info user-hover">
+    <div class="user-action-time">
+        answered <span title="2012-10-16 12:21:27Z" class="relativetime">Oct 16 '12 at 12:21</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/478399/alexr"><div><img src="https://www.gravatar.com/avatar/f6fd40a352ec0c6a6b1055d636541cbe?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/478399/alexr">AlexR</a><br>
+        <span class="reputation-score" title="reputation score 51079" dir="ltr">51.1k</span><span title="2 gold badges"><span class="badge1"></span><span class="badgecount">2</span></span><span title="24 silver badges"><span class="badge2"></span><span class="badgecount">24</span></span><span title="58 bronze badges"><span class="badge3"></span><span class="badgecount">58</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-12914601" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-17497137" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Thanks for your reply. it seems to me the error is not because of close. Because when it reaches to 
+ObjectInputStream objectInput = new ObjectInputStream(incoming.getInputStream());
+it gets the error.</span>
+	&ndash;&nbsp;
+		<a href="/users/1679519/bernard" 
+		   title="326 reputation" 
+		   class="comment-user owner">Bernard</a>
+	<span class="comment-date" dir="ltr"><span title="2012-10-16 12:48:20Z" class="relativetime-clean">Oct 16 '12 at 12:48</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-12914601" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="12914565"></a>
+<div id="answer-12914565" class="answer" data-answerid="12914565" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="12914565">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">1</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>You should close the Stream when you have completed your reading or writing.
+here in this case , you should close the InputStream when you have read the file completely and you no longer require to read file from stream.</p>
+
+<p>In Short , You should close the Stream when its work is over.
+It may be in the end of program or after if loop....depends on your use case.</p>
+
+<p>Hope this will help.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/12914565" title="short permalink to this answer" class="short-link" id="link-post-12914565">share</a><span class="lsep">|</span><a href="/posts/12914565/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2012-10-16 12:19:17Z" class="relativetime">Oct 16 '12 at 12:19</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/1158351/user1158351"><div><img src="https://www.gravatar.com/avatar/06288dded18d1b525738107e8d1347a6?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/1158351/user1158351">user1158351</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">132</span><span title="5 silver badges"><span class="badge2"></span><span class="badgecount">5</span></span><span title="18 bronze badges"><span class="badge3"></span><span class="badgecount">18</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-12914565" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-17497380" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Thanks for your comments</span>
+	&ndash;&nbsp;
+		<a href="/users/1679519/bernard" 
+		   title="326 reputation" 
+		   class="comment-user owner">Bernard</a>
+	<span class="comment-date" dir="ltr"><span title="2012-10-16 12:55:52Z" class="relativetime-clean">Oct 16 '12 at 12:55</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-12914565" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="20156685"></a>
+<div id="answer-20156685" class="answer" data-answerid="20156685" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="20156685">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">0</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>I am doing it this way (different example):</p>
+
+<pre><code>private void readFile() throws Exception {
+    FileInputStream fis = null;
+    ObjectInputStream ois = null;
+    Object aux = null;
+
+    try {
+
+        fis = new FileInputStream("lib.dat");
+        ois = new ObjectInputStream(fis);
+
+        do {
+            aux = ois.readObject();
+            if (aux instanceof MyObject)
+                this.myObjectInstance.add((MyObject) aux);
+        } while (true);
+
+    } catch (EOFException e) {
+        ois.close();
+    }
+}
+</code></pre>
+
+<p>This way I am sending any relevant "Error" Exception upstairs to be handled, and once the EndOfFileException is launched this is specifically captured to close the stream properly.</p>
+
+<p>The object has to be defined outside the Try block to be accessible from the Catch block.</p>
+
+<p>The close() method could as well throw an IOException and this can't be caught by our Try block, this would have to be passed by the generic "throw Exception" of readFile() method.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/20156685" title="short permalink to this answer" class="short-link" id="link-post-20156685">share</a><span class="lsep">|</span><a href="/posts/20156685/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2013-11-22 23:59:27Z" class="relativetime">Nov 22 at 23:59</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/2333967/davigueras"><div><img src="https://www.gravatar.com/avatar/bf5d8087b976a4323cfb5909b1829cac?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/2333967/davigueras">davigueras</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">10</span><span title="2 bronze badges"><span class="badge3"></span><span class="badgecount">2</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-20156685" class="comments dno" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+					    <tr><td></td><td></td></tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-20156685" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+									<a name='new-answer'></a>
+						<form id="post-form" action="/questions/12914454/answer/submit" method="post"  class="post-form">
+							<input type="hidden" id="post-id" value="12914454" />
+							<h2 class="space">Your Answer</h2>
+
+
+
+    
+
+<script type="text/javascript">
+    StackExchange.ready(function() {
+        initTagRenderer("".split(" "), "".split(" "));
+         
+        prepareEditor({
+            heartbeatType: 'answer',
+            bindNavPrevention: true,
+            postfix: "",
+            onDemand: true,
+            discardSelector: ".discard-answer"
+            ,immediatelyShowMarkdownHelp:true
+        });
+        
+
+    });  
+</script>
+
+
+<div id="post-editor" class="post-editor">
+
+    <div style="position: relative;">     
+        <div class="wmd-container">
+            <div id="wmd-button-bar" class="wmd-button-bar"></div>
+            <textarea id="wmd-input" class="wmd-input" name="post-text" cols="92" rows="15" tabindex="101" data-min-length=""></textarea>
+        </div>
+    </div>
+
+    <div class="fl" style="margin-top: 8px; height:24px;">&nbsp;</div>
+    <div id="draft-saved" class="draft-saved community-option fl" style="margin-top: 8px; height:24px; display:none;">draft saved</div>
+
+    <div id="draft-discarded" class="draft-discarded community-option fl" style="margin-top: 8px; height:24px; display:none;">draft discarded</div>
+
+
+
+    <div id="wmd-preview" class="wmd-preview"></div>
+    <div></div>
+    <div class="edit-block">
+        <input id="fkey" name="fkey" type="hidden" value="924444e9d656bd8bb28009690bceb305">
+        <input id="author" name="author" type="text">
+    </div>
+</div>
+							<div style="position: relative;">
+								
+            <div class="form-item dno new-post-login">
+        
+                <div class="new-login-form">
+                    <div class="new-login-left">
+                        <h3>Sign up or <a id="login-link" href="/users/login?returnurl=%2fquestions%2f12914454%2fwhere-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp%23new-answer">login</a></h3>
+                        <script type="text/javascript">
+                            StackExchange.ready(function () {
+                                StackExchange.helpers.onClickDraftSave('#login-link');
+                            });
+                        </script>
+                        <div class="preferred-login google-login">
+                            <p><span class="icon"></span><span>Sign up using Google</span></p>
+                        </div>
+                        <div class="preferred-login facebook-login">
+                            <p><span class="icon"></span><span>Sign up using Facebook</span></p>
+                        </div>
+                        <div class="preferred-login stackexchange-login">
+                            <p><span class="icon"></span><span>Sign up using Stack Exchange</span></p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="manual-openid" class="manual-openid" />
+                    <input type="hidden" name="use-facebook" class="use-facebook" value="false" />
+                    <input type="button" class="submit-openid" value="Submit" style="display:none" />
+                    <div class="new-login-right">
+                                <h3>Post as a guest</h3>
+    <div class="form-item">
+        <table>
+        <tr>
+                    <script type="text/javascript">
+                StackExchange.ready(function () {
+                    StackExchange.helpers.bindHelpOverlayEvents($('.vm input'));
+                });
+            </script>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="30" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but not shown</span>
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                StackExchange.ready(
+                    function () {
+                        StackExchange.openid.initPostLogin('.new-post-login', '%2fquestions%2f12914454%2fwhere-and-when-should-i-use-the-close-method-to-avoid-ioexception-in-objectinp%23new-answer');
+                    }
+                );
+            </script>
+            <noscript>
+                        <h3>Post as a guest</h3>
+    <div class="form-item">
+        <table>
+        <tr>
+                    <script type="text/javascript">
+                StackExchange.ready(function () {
+                    StackExchange.helpers.bindHelpOverlayEvents($('.vm input'));
+                });
+            </script>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="30" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but not shown</span>
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+
+            </noscript>
+							</div>
+           
+															<div class="form-submit cbt">
+									<input id="submit-button" type="submit" value="Post Your Answer" tabindex="110">
+									<a href="#" class="discard-answer dno">discard</a>
+
+<p class="privacy-policy-agreement">
+By posting your answer, you agree to the <a href='http://stackexchange.com/legal/privacy-policy' target='_blank'>privacy policy</a> and <a href='http://stackexchange.com/legal/terms-of-service' target='_blank'>terms of service</a>.</p>
+<input type="hidden" name="legalLinksShown" value="1" />								</div>
+						</form>
+
+
+
+						<h2 class="bottom-notice">
+Not the answer you&#39;re looking for?							Browse other questions tagged <a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a> <a href="/questions/tagged/sockets" class="post-tag" title="show questions tagged &#39;sockets&#39;" rel="tag">sockets</a> <a href="/questions/tagged/networking" class="post-tag" title="show questions tagged &#39;networking&#39;" rel="tag">networking</a> <a href="/questions/tagged/tcp" class="post-tag" title="show questions tagged &#39;tcp&#39;" rel="tag">tcp</a> <a href="/questions/tagged/objectinputstream" class="post-tag" title="show questions tagged &#39;objectinputstream&#39;" rel="tag">objectinputstream</a>  or <a href="/questions/ask">ask your own question</a>.						</h2>
+			</div>
+		</div>
+				<div id="sidebar" class="show-votes">
+							<div class="module question-stats">
+					<p class="label-key">tagged</p>
+					<div class="tagged"><a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">535841</span></span><br>
+<a href="/questions/tagged/sockets" class="post-tag" title="show questions tagged &#39;sockets&#39;" rel="tag">sockets</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">21565</span></span><br>
+<a href="/questions/tagged/networking" class="post-tag" title="show questions tagged &#39;networking&#39;" rel="tag">networking</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">14056</span></span><br>
+<a href="/questions/tagged/tcp" class="post-tag" title="show questions tagged &#39;tcp&#39;" rel="tag">tcp</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">7542</span></span><br>
+<a href="/questions/tagged/objectinputstream" class="post-tag" title="show questions tagged &#39;objectinputstream&#39;" rel="tag">objectinputstream</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">210</span></span><br>
+</div>
+					<table id="qinfo">
+						<tr>
+							<td>
+								<p class="label-key">asked</p>
+							</td>
+							<td style="padding-left: 10px">
+								<p class="label-key" title="2012-10-16 12:13:12Z"><b>1 year ago</b></p>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<p class="label-key">viewed</p>
+							</td>
+
+							<td style="padding-left: 10px">
+								<p class="label-key">
+									<b>372 times</b>
+								</p>
+							</td>
+						</tr>
+							<tr>
+								<td>
+									<p class="label-key">active</p>
+								</td>
+								<td style="padding-left: 10px">
+									<p class="label-key"><b><a href="?lastactivity" class="lastactivity-link" title="2013-11-22 23:59:27Z">20 days ago</a></b></p>
+								</td>
+							</tr>
+					</table>
+				</div>
+						
+			<script type="text/javascript">
+                var ados = ados || {};ados.run = ados.run || [];
+                ados.run.push(function() { ados_add_placement(22,8277,"adzerk283249315",17).setZone(45) ; });                    
+            </script>
+            <div class="everyonelovesstackoverflow" id="adzerk283249315">
+            </div>  
+    <div id="hireme">
+        <script type="text/javascript">
+window.careers_adurl="//careers.stackoverflow.com/gethired/js",window.careers_cssurl="//cdn-careers.sstatic.net/careers/gethired/sidebar.min.css?v=3c55a7a05afd",window.careers_leaderboardcssurl="//cdn-careers.sstatic.net/careers/gethired/ninja.min.css?v=78ccbfa5c59f",window.careers_companycssurl="//cdn-careers.sstatic.net/careers/gethired/company",window.careers_adselector="div.hireme, div#hireme",StackExchange.ready(function(){$.ajax({url:"//cdn-careers.sstatic.net/careers/gethired/loader.min.js?v=c151d0261983",dataType:"script",cache:!0})});        </script>
+    </div>
+			  
+    
+            
+
+				<div class="module sidebar-related">
+					<h4 id="h-related">Related</h4>
+					<div class="related" data-tracker="rq=1">
+						<div class="spacer">
+<a href="/q/1556184" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/1556184/java-socket-close-connection-and-objectinputstream" class="question-hyperlink">Java: Socket close connection and ObjectInputStream</a>
+</div>
+<div class="spacer">
+<a href="/q/3028543" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">3
+    </div>
+</a><a href="/questions/3028543/what-to-do-when-serversocket-throws-ioexception-and-keeping-server-running" class="question-hyperlink">What to do when ServerSocket throws IOException and keeping server running</a>
+</div>
+<div class="spacer">
+<a href="/q/7069744" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">0
+    </div>
+</a><a href="/questions/7069744/receive-eofexception-after-the-first-sockettimeoutexception" class="question-hyperlink">Receive EOFException after the first SocketTimeoutException</a>
+</div>
+<div class="spacer">
+<a href="/q/11148109" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/11148109/objectinputstream-wont-initialize-when-using-bufferedoutputstreams" class="question-hyperlink">ObjectInputStream won&#39;t initialize when using BufferedOutputStreams</a>
+</div>
+<div class="spacer">
+<a href="/q/14914027" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">2
+    </div>
+</a><a href="/questions/14914027/java-client-to-server-unknown-source" class="question-hyperlink">Java Client to Server Unknown Source</a>
+</div>
+<div class="spacer">
+<a href="/q/16629997" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">0
+    </div>
+</a><a href="/questions/16629997/objectinputstream-blocking-socket-external-ip-madness" class="question-hyperlink">ObjectInputStream Blocking socket external ip madness</a>
+</div>
+<div class="spacer">
+<a href="/q/16994291" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/16994291/ioexception-in-objectinputstream-in-java" class="question-hyperlink">IOException in ObjectInputStream in java</a>
+</div>
+<div class="spacer">
+<a href="/q/18510723" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/18510723/socket-closed-before-able-to-read-from-objectinputstreambufferedinputstreamsoc" class="question-hyperlink">Socket closed before able to read from ObjectInputStream(BufferedInputStream(Socket.getInputStream))</a>
+</div>
+<div class="spacer">
+<a href="/q/19253430" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/19253430/classnotfoundexception-on-the-server-when-reading-from-objectinputstream" class="question-hyperlink">ClassNotFoundException on the server when reading from ObjectInputStream</a>
+</div>
+<div class="spacer">
+<a href="/q/19623328" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/19623328/objectinputstream-being-initialised-causes-an-eofexception-of-the-type-ioexcepti" class="question-hyperlink">ObjectInputStream being initialised causes an EOFException of the type IOException</a>
+</div>
+
+					</div>
+				</div>
+		</div>
+	
+<div id="feed-link">
+    <div id="feed-link-text"><a href="/feeds/question/12914454" title="feed of this question and its answers"><span class="feed-icon"></span>question feed</a></div>
+</div>
+	<script type="text/javascript">
+StackExchange.ready(function(){$.get('/posts/12914454/ivc/c6bd');});
+</script>
+<noscript>
+    <div><img src="/posts/12914454/ivc/c6bd" class="dno" alt="" width="0" height="0"></div>
+</noscript><div style="display:none" id="prettify-lang">lang-java</div></div>
+
+
+        </div>
+    </div>
+    <div id="footer" class="categories">
+        <div class="footerwrap">
+            <div id="footer-menu">
+                <div class="top-footer-links">
+                        <a href="/about">about</a>
+                    <a href="/help">help</a>
+                        <a href="/help/badges">badges</a>
+                    <a href="http://blog.stackexchange.com?blb=1">blog</a>
+                        <a href="http://chat.stackoverflow.com">chat</a>
+                    <a href="http://data.stackexchange.com">data</a>
+                    <a href="http://stackexchange.com/legal">legal</a>
+                    <a href="http://stackexchange.com/legal/privacy-policy">privacy policy</a>
+                    <a href="http://stackexchange.com/about/hiring">jobs</a>
+                    <a href="http://engine.adzerk.net/r?e=eyJhdiI6NDE0LCJhdCI6MjAsImNtIjo5NTQsImNoIjoxMTc4LCJjciI6Mjc3NiwiZG0iOjQsImZjIjoyODYyLCJmbCI6Mjc1MSwibnciOjIyLCJydiI6MCwicHIiOjExNSwic3QiOjAsInVyIjoiaHR0cDovL3N0YWNrb3ZlcmZsb3cuY29tL2Fib3V0L2NvbnRhY3QiLCJyZSI6MX0&s=hRods5B22XvRBwWIwtIMekcyNF8">advertising info</a>
+
+                    <a onclick='StackExchange.switchMobile("on")'>mobile</a>
+                    <b><a href="/contact">contact us</a></b>
+                        <b><a href="http://meta.stackoverflow.com">feedback</a></b>
+                    
+                </div>
+                <div id="footer-sites">
+                    <table>
+    <tr>
+            <th colspan=3>
+                Technology
+            </th>
+            <th >
+                Life / Arts
+            </th>
+            <th >
+                Culture / Recreation
+            </th>
+            <th >
+                Science
+            </th>
+            <th >
+                Other
+            </th>
+    </tr>
+    <tr>
+            <td>
+                <ol>
+                        <li><a href="http://stackoverflow.com" title="professional and enthusiast programmers">Stack Overflow</a></li>
+                        <li><a href="http://serverfault.com" title="professional system and network administrators">Server Fault</a></li>
+                        <li><a href="http://superuser.com" title="computer enthusiasts and power users">Super User</a></li>
+                        <li><a href="http://webapps.stackexchange.com" title="power users of web applications">Web Applications</a></li>
+                        <li><a href="http://askubuntu.com" title="Ubuntu users and developers">Ask Ubuntu</a></li>
+                        <li><a href="http://webmasters.stackexchange.com" title="pro webmasters">Webmasters</a></li>
+                        <li><a href="http://gamedev.stackexchange.com" title="professional and independent game developers">Game Development</a></li>
+                        <li><a href="http://tex.stackexchange.com" title="users of TeX, LaTeX, ConTeXt, and related typesetting systems">TeX - LaTeX</a></li>
+                            </ol></td><td><ol>
+                        <li><a href="http://programmers.stackexchange.com" title="professional programmers interested in conceptual questions about software development">Programmers</a></li>
+                        <li><a href="http://unix.stackexchange.com" title="users of Linux, FreeBSD and other Un*x-like operating systems.">Unix &amp; Linux</a></li>
+                        <li><a href="http://apple.stackexchange.com" title="power users of Apple hardware and software">Ask Different (Apple)</a></li>
+                        <li><a href="http://wordpress.stackexchange.com" title="WordPress developers and administrators">WordPress Answers</a></li>
+                        <li><a href="http://gis.stackexchange.com" title="cartographers, geographers and GIS professionals">Geographic Information Systems</a></li>
+                        <li><a href="http://electronics.stackexchange.com" title="electronics and electrical engineering professionals, students, and enthusiasts">Electrical Engineering</a></li>
+                        <li><a href="http://android.stackexchange.com" title="enthusiasts and power users of the Android operating system">Android Enthusiasts</a></li>
+                        <li><a href="http://security.stackexchange.com" title="Information security professionals">Information Security</a></li>
+                            </ol></td><td><ol>
+                        <li><a href="http://dba.stackexchange.com" title="database professionals who wish to improve their database skills and learn from others in the community">Database Administrators</a></li>
+                        <li><a href="http://drupal.stackexchange.com" title="Drupal developers and administrators">Drupal Answers</a></li>
+                        <li><a href="http://sharepoint.stackexchange.com" title="SharePoint enthusiasts">SharePoint</a></li>
+                        <li><a href="http://ux.stackexchange.com" title="user experience researchers and experts">User Experience</a></li>
+                        <li><a href="http://mathematica.stackexchange.com" title="users of Mathematica">Mathematica</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#technology" class="more">
+                                more (14)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://photo.stackexchange.com" title="professional, enthusiast and amateur photographers">Photography</a></li>
+                        <li><a href="http://scifi.stackexchange.com" title="science fiction and fantasy enthusiasts">Science Fiction &amp; Fantasy</a></li>
+                        <li><a href="http://cooking.stackexchange.com" title="professional and amateur chefs">Seasoned Advice (cooking)</a></li>
+                        <li><a href="http://diy.stackexchange.com" title="contractors and serious DIYers">Home Improvement</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#lifearts" class="more">
+                                more (13)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://english.stackexchange.com" title="linguists, etymologists, and serious English language enthusiasts">English Language &amp; Usage</a></li>
+                        <li><a href="http://skeptics.stackexchange.com" title="scientific skepticism">Skeptics</a></li>
+                        <li><a href="http://judaism.stackexchange.com" title="those who base their lives on Jewish law and tradition and anyone interested in learning more">Mi Yodeya (Judaism)</a></li>
+                        <li><a href="http://travel.stackexchange.com" title="road warriors and seasoned travelers">Travel</a></li>
+                        <li><a href="http://christianity.stackexchange.com" title="committed Christians, experts in Christianity and those interested in learning more">Christianity</a></li>
+                        <li><a href="http://gaming.stackexchange.com" title="passionate videogamers on all platforms">Arqade (gaming)</a></li>
+                        <li><a href="http://bicycles.stackexchange.com" title="people who build and repair bicycles, people who train cycling, or commute on bicycles">Bicycles</a></li>
+                        <li><a href="http://rpg.stackexchange.com" title="gamemasters and players of tabletop, paper-and-pencil role-playing games">Role-playing Games</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#culturerecreation" class="more">
+                                more (21)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://math.stackexchange.com" title="people studying math at any level and professionals in related fields">Mathematics</a></li>
+                        <li><a href="http://stats.stackexchange.com" title="statisticians, data analysts, data miners and data visualization experts">Cross Validated (stats)</a></li>
+                        <li><a href="http://cstheory.stackexchange.com" title="theoretical computer scientists and researchers in related fields">Theoretical Computer Science</a></li>
+                        <li><a href="http://physics.stackexchange.com" title="active researchers, academics and students of physics">Physics</a></li>
+                        <li><a href="http://mathoverflow.net" title="professional mathematicians">MathOverflow</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#science" class="more">
+                                more (7)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://stackapps.com" title="apps, scripts, and development with the Stack Exchange API">Stack Apps</a></li>
+                        <li><a href="http://meta.stackoverflow.com" title="meta-discussion of the Stack Exchange family of Q&amp;A websites">Meta Stack Overflow</a></li>
+                        <li><a href="http://area51.stackexchange.com" title="proposing new sites in the Stack Exchange network">Area 51</a></li>
+                        <li><a href="http://careers.stackoverflow.com">Stack Overflow Careers</a></li>
+                    
+                </ol>
+            </td>
+    </tr>
+</table>
+                </div>
+            </div>
+
+            <div id="copyright">
+                site design / logo &#169; 2013 stack exchange inc; user contributions licensed under <a href="http://creativecommons.org/licenses/by-sa/3.0/" rel="license">cc-wiki</a> 
+ with <a href="http://blog.stackoverflow.com/2009/06/attribution-required/" rel="license">attribution required</a>
+            </div>
+            <div id="footer-flair">
+                <a href="http://creativecommons.org/licenses/by-sa/3.0/" class="cc-wiki-link"></a>
+            </div>
+            <div id="svnrev">
+                rev 2013.12.13.1229
+            </div>
+            
+        </div>
+    </div>
+    <noscript>
+        <div id="noscript-warning">Stack Overflow works best with JavaScript enabled<img src="http://pixel.quantserve.com/pixel/p-c1rF4kxgLUzNc.gif" alt="" class="dno"></div>
+    </noscript>
+<script type="text/javascript">var p = "http", d = "static"; if (document.location.protocol == "https:") { p += "s"; d = "engine"; } var z = document.createElement("script"); z.type = "text/javascript"; z.async = true; z.src = p + "://" + d + ".adzerk.net/ados.js"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(z, s);</script>
+<script type="text/javascript">
+    var ados = ados || {};
+    ados.run = ados.run || [];
+    ados.run.push(function () { ados_setKeywords('java,sockets,networking,tcp,objectinputstream');; ados_load(); });         
+</script>
+
+    <script type="text/javascript">var _gaq=_gaq||[];_gaq.push(['_setAccount','UA-5620270-1']);
+        _gaq.push(['_setCustomVar', 1, 'tags', '|java|sockets|networking|tcp|objectinputstream|']); 
+_gaq.push(['_trackPageview']);
+    var _qevents = _qevents || [];
+    var _comscore = _comscore || [];
+    (function () {
+        var ssl='https:'==document.location.protocol,
+            s=document.getElementsByTagName('script')[0],
+            ga=document.createElement('script');
+        ga.type='text/javascript';
+        ga.async=true;
+        ga.src=(ssl?'https://ssl':'http://www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(ga,s);
+        var sc=document.createElement('script');
+        sc.type='text/javascript';
+        sc.async=true;
+        sc.src=(ssl?'https://secure':'http://edge')+'.quantserve.com/quant.js';
+        s.parentNode.insertBefore(sc, s);
+        
+        var s = document.createElement("script"), el = document.getElementsByTagName("script")[0]; s.async = true;
+        s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+        el.parentNode.insertBefore(s, el);
+        
+    })();
+    _comscore.push({ c1: "2", c2: "17440561" });
+    _qevents.push({ qacct: "p-c1rF4kxgLUzNc" });
+    </script>
+            
+</body>
+</html>

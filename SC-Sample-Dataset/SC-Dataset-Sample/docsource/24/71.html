@@ -1,0 +1,216 @@
+<!-- MHonArc v2.3.3 -->
+<!--X-Subject: Re: java.rmi.NotBoundException (Ganymede) -->
+<!--X-From: Jonathan Abbey <jonabbey@arlut.utexas.edu> -->
+<!--X-Date: Tue, 13 Jul 1999 16:12:20 &#45;0500 (CDT) -->
+<!--X-Message-Id: 199907132111.QAA24745@csdsun1.arlut.utexas.edu -->
+<!--X-Content-Type: text/plain -->
+<!--X-Head-End-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML//EN">
+<HTML>
+<HEAD>
+<TITLE>Re: java.rmi.NotBoundException (Ganymede)</TITLE>
+<LINK REV="made" HREF="mailto:jonabbey@arlut.utexas.edu">
+</HEAD>
+<BODY bgcolor="#ffffff">
+<!--X-Body-Begin-->
+<!--X-User-Header-->
+<!--X-User-Header-End-->
+<!--X-TopPNI-->
+<FONT face="Arial, Helvetica">
+<small>
+[<A HREF="msg00145.html">Date Prev</A>][<A HREF="msg00147.html">Date Next</A>][<A HREF="msg00145.html">Thread Prev</A>][<A HREF="msg00147.html">Thread Next</A>][<A
+HREF="date.html#00146">Date Index</A>][<A
+HREF="thrd1.html#00146">Thread Index</A>]
+</small></font>
+
+<!--X-TopPNI-End-->
+<!--X-MsgBody-->
+<!--X-Subject-Header-Begin-->
+<table width ="100%">
+<tr bgcolor="#ffffcc">
+
+<td>
+<FONT face="Arial, Helvetica">
+<H1>Re: java.rmi.NotBoundException (Ganymede)</H1>
+</font>
+</td>
+</table>
+<!--X-Subject-Header-End-->
+<!--X-Head-of-Message-->
+<table border=0>
+<tbody>
+<tr>
+<td align="right" valign="top">
+<font face="Arial, Helvetica"><strong>
+<em>Date</em></strong>
+</font>
+</td>
+<td align="left">
+<font face="Arial, Helvetica"><strong>
+Tue, 13 Jul 1999 16:11:55 -0500 (CDT)</strong>
+</font>
+</td>
+</tr>
+
+<tr>
+<td align="right" valign="top">
+<font face="Arial, Helvetica"><strong>
+<em>From</em></strong>
+</font>
+</td>
+<td align="left">
+<font face="Arial, Helvetica"><strong>
+Jonathan Abbey &lt;<A HREF="mailto:jonabbey@arlut.utexas.edu">jonabbey@arlut.utexas.edu</A>&gt;</strong>
+</font>
+</td>
+</tr>
+
+</tbody>
+</table>
+<!--X-Head-of-Message-End-->
+<!--X-Head-Body-Sep-Begin-->
+<hr noshade>
+<!--X-Head-Body-Sep-End-->
+<!--X-Body-of-Message-->
+<PRE>
+&gt; From: "Tippe, Darrell" &lt;Darrell.Tippe@atcoitek.com&gt;
+&gt; To: "'jonabbey@arlut.utexas.edu'" &lt;jonabbey@arlut.utexas.edu&gt;
+&gt; Subject: Ganymede
+&gt; Date: Tue, 13 Jul 1999 11:47:04 -0600
+&gt; 
+&gt; Hi Jon, I am consultant for ATCO I-tek formally know as Canadian Utilities
+&gt; (CU).  We have Ganymede running on our infrastructure here and was setup by
+&gt; a person of the name Curtis King.  I am getting a error message when I try
+&gt; and run the Ganymede GUI.  Keep in mind that the GUI has been working well
+&gt; and just stopped on Friday July 13th.
+
+Friday, July 9th?
+
+&gt; The error message is as follows:
+&gt; RMI: Couldn't bind to server object java.rmi.NotBoundException:
+&gt; ganymede.server
+
+What this indicates is that the client was able to talk to the RMI
+registry on the machine running the Ganymede server, but that the
+RMI registry doesn't know about any 'ganymede.server' object, which
+is the name that the Ganymede server uses to register itself with
+RMI.
+
+I would expect to see this if the Ganymede server was killed, or if the RMI
+registry process was killed and restarted.
+
+You can also see this if you are running the RMI registry for Ganymede on a
+non-standard port and the client hasn't been configured to look on the actual
+port used for RMI, and winds up talking to an RMI registry process installed
+to service a different RMI server (Sun's SIMS mail server uses its own
+RMI registry process, which won't run properly on a system with Ganymede
+unless Ganymede is configured to use an alternate port for the RMI
+registry)..
+
+This sort of exception might also be thrown if the RMI registry was aware of a
+bound ganymede.server object, but for some reason the RMI registry and/or
+client believes that the class files for the server are not compatible with
+those included in the client's ganymede.jar file.
+
+&gt; I looked through you discussion list for similar error messages or bug
+&gt; reports found some rmi stuff but I do not think it is the same as what I
+&gt; have happening here.
+&gt; 
+&gt; Things tried thus far
+&gt; Server:  Restarted Ganymede server: NIS; inetd; named; anything that might
+&gt; be related to this error message.
+&gt; We ended up doing a reboot of this server and still did not work.
+
+That's very strange, then... rebooting the system and restarting the Ganymede
+server with runServer should have restarted both the RMI registry and the
+Ganymede server.  I would have to lean on having incompatible versions
+of the client and server then..
+
+I did release Ganymede 0.99.4 on Friday.. perhaps someone updated the server
+or client without updating both?  Note that the installClient process for
+0.99.4 no longer installs the web-access files as part of the client's
+directory structure, so if you installed 0.99.4 on top of an earlier client
+install directory, the html directory would not have been updated, and would
+still have the old version of the client jar files in place.
+
+&gt; Client trying to run the GUI on:
+&gt; Restarted the same process as above.  The only difference is that we have
+&gt; yet to reboot the server.  Chances are that after the reboot everything will
+&gt; go back in order and work again.  But I would like to understand why this
+&gt; happened.  
+&gt; 
+&gt; One thing I read about is that the rmiregistry and the ganymede server are
+&gt; not in sync, but when I restart the ganymede server they should sync up
+&gt; correctly.
+&gt; 
+&gt; Could you point me in the right direction and shed some insight to this
+&gt; problem.
+&gt; 
+&gt; Thank you for your time on this matter.
+&gt; 
+&gt; Take care
+&gt; 	Darrell
+
+-------------------------------------------------------------------------------
+Jonathan Abbey 				              jonabbey@arlut.utexas.edu
+Applied Research Laboratories                 The University of Texas at Austin
+Ganymede, a free NIS/DNS management system    <A  HREF="http://www.arlut.utexas.edu/gash2">http://www.arlut.utexas.edu/gash2</A>
+
+----------------------------------------------------------------------------
+To make changes to your subscription to the ganymede mailing list, send
+mail to majordomo@arlut.utexas.edu.
+
+To unsubcribe, include the line
+
+unsubscribe ganymede
+
+in the body of your mail message
+
+Visit the Ganymede web page at <A  HREF="http://www.arlut.utexas.edu/gash2">http://www.arlut.utexas.edu/gash2</A>
+
+----------------------------------------------------------------------------
+
+</PRE>
+
+<!--X-Body-of-Message-End-->
+<!--X-MsgBody-End-->
+<!--X-Follow-Ups-->
+<hr noshade>
+<!--X-Follow-Ups-End-->
+<!--X-References-->
+<!--X-References-End-->
+<!--X-BotPNI-->
+<FONT face="Arial, Helvetica">
+<small>
+<UL>
+<LI>Prev by Date:
+<STRONG><A HREF="msg00145.html">Re: Ganymede and DNS</A></STRONG>
+</LI>
+<LI>Next by Date:
+<STRONG><A HREF="msg00147.html">RE: java.rmi.NotBoundException (Ganymede)</A></STRONG>
+</LI>
+
+<LI>Prev by thread:
+<STRONG><A HREF="msg00145.html">Re: Ganymede and DNS</A></STRONG>
+</LI>
+<LI>Next by thread:
+<STRONG><A HREF="msg00147.html">RE: java.rmi.NotBoundException (Ganymede)</A></STRONG>
+</LI>
+
+<LI>Index(es):
+<UL>
+<LI><A HREF="date.html#00146">
+<STRONG>Main</STRONG></A></LI>
+<LI><A HREF="thrd1.html#00146">
+<STRONG>Thread</STRONG></A></LI>
+</UL>
+</LI>
+</UL>
+</small>
+</font>
+
+<!--X-BotPNI-End-->
+<!--X-User-Footer-->
+<!--X-User-Footer-End-->
+</BODY>
+</HTML>

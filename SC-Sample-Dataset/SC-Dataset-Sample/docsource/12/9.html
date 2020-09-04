@@ -1,0 +1,1723 @@
+
+
+
+<!DOCTYPE html>
+<html>
+  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# githubog: http://ogp.me/ns/fb/githubog#">
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=10">
+        <title>guides/articles/language/concurrency_and_parallelism.md at master · clojuredocs/guides · GitHub</title>
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub" />
+    <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-114.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-144.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144.png" />
+    <link rel="logo" type="image/svg" href="https://github-media-downloads.s3.amazonaws.com/github-logo.svg" />
+    <meta property="og:image" content="https://github.global.ssl.fastly.net/images/modules/logos_page/Octocat.png">
+    <meta name="hostname" content="github-fe133-cp1-prd.iad.github.net">
+    <meta name="ruby" content="ruby 1.9.3p194-tcs-github-tcmalloc (e1c0c3f392) [x86_64-linux]">
+    <link rel="assets" href="https://github.global.ssl.fastly.net/">
+    <link rel="conduit-xhr" href="https://ghconduit.com:25035/">
+    <link rel="xhr-socket" href="/_sockets" />
+    
+
+
+    <meta name="msapplication-TileImage" content="/windows-tile.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="selected-link" value="repo_source" data-pjax-transient />
+    <meta content="collector.githubapp.com" name="octolytics-host" /><meta content="collector-cdn.github.com" name="octolytics-script-host" /><meta content="github" name="octolytics-app-id" /><meta content="80E93F25:6DA7:6E2F38:52AB9A4F" name="octolytics-dimension-request_id" />
+    
+
+    
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <meta content="authenticity_token" name="csrf-param" />
+<meta content="RZNVVbPEG8a+uNC9e01dsp7qtqT6+mozQ4j3g4HitK4=" name="csrf-token" />
+
+    <link href="https://github.global.ssl.fastly.net/assets/github-57e7b076c45ea1a1a64bba5ee473eecb65fe9d7b.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="https://github.global.ssl.fastly.net/assets/github2-739ae94074bd58ea5f487331d9a79836678e5db7.css" media="all" rel="stylesheet" type="text/css" />
+    
+
+    
+
+      <script src="https://github.global.ssl.fastly.net/assets/frameworks-5970f5a0a3dcc441d5f7ff74326ffd59bbe9388e.js" type="text/javascript"></script>
+      <script src="https://github.global.ssl.fastly.net/assets/github-44188494b76ae62bb834f936309193eec69b2810.js" type="text/javascript"></script>
+      
+      <meta http-equiv="x-pjax-version" content="673481c1299373d170ad7f3d60ff3fc1">
+
+        <link data-pjax-transient rel='permalink' href='/clojuredocs/guides/blob/3d830b6fd71f93cfbaf0741c0d6ca9dce52868c1/articles/language/concurrency_and_parallelism.md'>
+  <meta property="og:title" content="guides"/>
+  <meta property="og:type" content="githubog:gitrepository"/>
+  <meta property="og:url" content="https://github.com/clojuredocs/guides"/>
+  <meta property="og:image" content="https://github.global.ssl.fastly.net/images/gravatars/gravatar-user-420.png"/>
+  <meta property="og:site_name" content="GitHub"/>
+  <meta property="og:description" content="Documentation guides and tutorials for Clojure. Various authors."/>
+
+  <meta name="description" content="Documentation guides and tutorials for Clojure. Various authors." />
+
+  <meta content="2488708" name="octolytics-dimension-user_id" /><meta content="clojuredocs" name="octolytics-dimension-user_login" /><meta content="6080673" name="octolytics-dimension-repository_id" /><meta content="clojuredocs/guides" name="octolytics-dimension-repository_nwo" /><meta content="true" name="octolytics-dimension-repository_public" /><meta content="false" name="octolytics-dimension-repository_is_fork" /><meta content="6080673" name="octolytics-dimension-repository_network_root_id" /><meta content="clojuredocs/guides" name="octolytics-dimension-repository_network_root_nwo" />
+  <link href="https://github.com/clojuredocs/guides/commits/master.atom" rel="alternate" title="Recent Commits to guides:master" type="application/atom+xml" />
+
+  </head>
+
+
+  <body class="logged_out  env-production  vis-public page-blob">
+    <div class="wrapper">
+      
+      
+      
+      
+
+
+      
+      <div class="header header-logged-out">
+  <div class="container clearfix">
+
+    <a class="header-logo-wordmark" href="https://github.com/">
+      <span class="mega-octicon octicon-logo-github"></span>
+    </a>
+
+    <div class="header-actions">
+        <a class="button primary" href="/join">Sign up</a>
+      <a class="button signin" href="/login?return_to=%2Fclojuredocs%2Fguides%2Fblob%2Fmaster%2Farticles%2Flanguage%2Fconcurrency_and_parallelism.md">Sign in</a>
+    </div>
+
+    <div class="command-bar js-command-bar  in-repository">
+
+      <ul class="top-nav">
+          <li class="explore"><a href="/explore">Explore</a></li>
+        <li class="features"><a href="/features">Features</a></li>
+          <li class="enterprise"><a href="https://enterprise.github.com/">Enterprise</a></li>
+          <li class="blog"><a href="/blog">Blog</a></li>
+      </ul>
+        <form accept-charset="UTF-8" action="/search" class="command-bar-form" id="top_search_form" method="get">
+
+<input type="text" data-hotkey="/ s" name="q" id="js-command-bar-field" placeholder="Search or type a command" tabindex="1" autocapitalize="off"
+    
+    
+      data-repo="clojuredocs/guides"
+      data-branch="master"
+      data-sha="78a1b94834b7ffb3929e85122a3e9b5dd773dbba"
+  >
+
+    <input type="hidden" name="nwo" value="clojuredocs/guides" />
+
+    <div class="select-menu js-menu-container js-select-menu search-context-select-menu">
+      <span class="minibutton select-menu-button js-menu-target">
+        <span class="js-select-button">This repository</span>
+      </span>
+
+      <div class="select-menu-modal-holder js-menu-content js-navigation-container">
+        <div class="select-menu-modal">
+
+          <div class="select-menu-item js-navigation-item js-this-repository-navigation-item selected">
+            <span class="select-menu-item-icon octicon octicon-check"></span>
+            <input type="radio" class="js-search-this-repository" name="search_target" value="repository" checked="checked" />
+            <div class="select-menu-item-text js-select-button-text">This repository</div>
+          </div> <!-- /.select-menu-item -->
+
+          <div class="select-menu-item js-navigation-item js-all-repositories-navigation-item">
+            <span class="select-menu-item-icon octicon octicon-check"></span>
+            <input type="radio" name="search_target" value="global" />
+            <div class="select-menu-item-text js-select-button-text">All repositories</div>
+          </div> <!-- /.select-menu-item -->
+
+        </div>
+      </div>
+    </div>
+
+  <span class="octicon help tooltipped downwards" title="Show command bar help">
+    <span class="octicon octicon-question"></span>
+  </span>
+
+
+  <input type="hidden" name="ref" value="cmdform">
+
+</form>
+    </div>
+
+  </div>
+</div>
+
+
+      
+
+
+          <div class="site" itemscope itemtype="http://schema.org/WebPage">
+    
+    <div class="pagehead repohead instapaper_ignore readability-menu">
+      <div class="container">
+        
+
+<ul class="pagehead-actions">
+
+
+  <li>
+    <a href="/login?return_to=%2Fclojuredocs%2Fguides"
+    class="minibutton with-count js-toggler-target star-button tooltipped upwards"
+    title="You must be signed in to use this feature" rel="nofollow">
+    <span class="octicon octicon-star"></span>Star
+  </a>
+
+    <a class="social-count js-social-count" href="/clojuredocs/guides/stargazers">
+      137
+    </a>
+
+  </li>
+
+    <li>
+      <a href="/login?return_to=%2Fclojuredocs%2Fguides"
+        class="minibutton with-count js-toggler-target fork-button tooltipped upwards"
+        title="You must be signed in to fork a repository" rel="nofollow">
+        <span class="octicon octicon-git-branch"></span>Fork
+      </a>
+      <a href="/clojuredocs/guides/network" class="social-count">
+        84
+      </a>
+    </li>
+</ul>
+
+        <h1 itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="entry-title public">
+          <span class="repo-label"><span>public</span></span>
+          <span class="mega-octicon octicon-repo"></span>
+          <span class="author">
+            <a href="/clojuredocs" class="url fn" itemprop="url" rel="author"><span itemprop="title">clojuredocs</span></a>
+          </span>
+          <span class="repohead-name-divider">/</span>
+          <strong><a href="/clojuredocs/guides" class="js-current-repository js-repo-home-link">guides</a></strong>
+
+          <span class="page-context-loader">
+            <img alt="Octocat-spinner-32" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+          </span>
+
+        </h1>
+      </div><!-- /.container -->
+    </div><!-- /.repohead -->
+
+    <div class="container">
+
+      <div class="repository-with-sidebar repo-container  ">
+
+        <div class="repository-sidebar">
+            
+
+<div class="sunken-menu vertical-right repo-nav js-repo-nav js-repository-container-pjax js-octicon-loaders">
+  <div class="sunken-menu-contents">
+    <ul class="sunken-menu-group">
+      <li class="tooltipped leftwards" title="Code">
+        <a href="/clojuredocs/guides" aria-label="Code" class="selected js-selected-navigation-item sunken-menu-item" data-gotokey="c" data-pjax="true" data-selected-links="repo_source repo_downloads repo_commits repo_tags repo_branches /clojuredocs/guides">
+          <span class="octicon octicon-code"></span> <span class="full-word">Code</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+        <li class="tooltipped leftwards" title="Issues">
+          <a href="/clojuredocs/guides/issues" aria-label="Issues" class="js-selected-navigation-item sunken-menu-item js-disable-pjax" data-gotokey="i" data-selected-links="repo_issues /clojuredocs/guides/issues">
+            <span class="octicon octicon-issue-opened"></span> <span class="full-word">Issues</span>
+            <span class='counter'>13</span>
+            <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>        </li>
+
+      <li class="tooltipped leftwards" title="Pull Requests">
+        <a href="/clojuredocs/guides/pulls" aria-label="Pull Requests" class="js-selected-navigation-item sunken-menu-item js-disable-pjax" data-gotokey="p" data-selected-links="repo_pulls /clojuredocs/guides/pulls">
+            <span class="octicon octicon-git-pull-request"></span> <span class="full-word">Pull Requests</span>
+            <span class='counter'>1</span>
+            <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+
+    </ul>
+    <div class="sunken-menu-separator"></div>
+    <ul class="sunken-menu-group">
+
+      <li class="tooltipped leftwards" title="Pulse">
+        <a href="/clojuredocs/guides/pulse" aria-label="Pulse" class="js-selected-navigation-item sunken-menu-item" data-pjax="true" data-selected-links="pulse /clojuredocs/guides/pulse">
+          <span class="octicon octicon-pulse"></span> <span class="full-word">Pulse</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+      <li class="tooltipped leftwards" title="Graphs">
+        <a href="/clojuredocs/guides/graphs" aria-label="Graphs" class="js-selected-navigation-item sunken-menu-item" data-pjax="true" data-selected-links="repo_graphs repo_contributors /clojuredocs/guides/graphs">
+          <span class="octicon octicon-graph"></span> <span class="full-word">Graphs</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+      <li class="tooltipped leftwards" title="Network">
+        <a href="/clojuredocs/guides/network" aria-label="Network" class="js-selected-navigation-item sunken-menu-item js-disable-pjax" data-selected-links="repo_network /clojuredocs/guides/network">
+          <span class="octicon octicon-git-branch"></span> <span class="full-word">Network</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+    </ul>
+
+
+  </div>
+</div>
+
+            <div class="only-with-full-nav">
+              
+
+  
+
+<div class="clone-url open"
+  data-protocol-type="http"
+  data-url="/users/set_protocol?protocol_selector=http&amp;protocol_type=clone">
+  <h3><strong>HTTPS</strong> clone URL</h3>
+  <div class="clone-url-box">
+    <input type="text" class="clone js-url-field"
+           value="https://github.com/clojuredocs/guides.git" readonly="readonly">
+
+    <span class="js-zeroclipboard url-box-clippy minibutton zeroclipboard-button" data-clipboard-text="https://github.com/clojuredocs/guides.git" data-copied-hint="copied!" title="copy to clipboard"><span class="octicon octicon-clippy"></span></span>
+  </div>
+</div>
+
+  
+
+<div class="clone-url "
+  data-protocol-type="subversion"
+  data-url="/users/set_protocol?protocol_selector=subversion&amp;protocol_type=clone">
+  <h3><strong>Subversion</strong> checkout URL</h3>
+  <div class="clone-url-box">
+    <input type="text" class="clone js-url-field"
+           value="https://github.com/clojuredocs/guides" readonly="readonly">
+
+    <span class="js-zeroclipboard url-box-clippy minibutton zeroclipboard-button" data-clipboard-text="https://github.com/clojuredocs/guides" data-copied-hint="copied!" title="copy to clipboard"><span class="octicon octicon-clippy"></span></span>
+  </div>
+</div>
+
+
+<p class="clone-options">You can clone with
+      <a href="#" class="js-clone-selector" data-protocol="http">HTTPS</a>,
+      or <a href="#" class="js-clone-selector" data-protocol="subversion">Subversion</a>.
+  <span class="octicon help tooltipped upwards" title="Get help on which URL is right for you.">
+    <a href="https://help.github.com/articles/which-remote-url-should-i-use">
+    <span class="octicon octicon-question"></span>
+    </a>
+  </span>
+</p>
+
+
+
+              <a href="/clojuredocs/guides/archive/master.zip"
+                 class="minibutton sidebar-button"
+                 title="Download this repository as a zip file"
+                 rel="nofollow">
+                <span class="octicon octicon-cloud-download"></span>
+                Download ZIP
+              </a>
+            </div>
+        </div><!-- /.repository-sidebar -->
+
+        <div id="js-repo-pjax-container" class="repository-content context-loader-container" data-pjax-container>
+          
+
+
+<!-- blob contrib key: blob_contributors:v21:b8d6fb9bfd86b0727423e3d0bee5630b -->
+
+<p title="This is a placeholder element" class="js-history-link-replace hidden"></p>
+
+<a href="/clojuredocs/guides/find/master" data-pjax data-hotkey="t" class="js-show-file-finder" style="display:none">Show File Finder</a>
+
+<div class="file-navigation">
+  
+
+<div class="select-menu js-menu-container js-select-menu" >
+  <span class="minibutton select-menu-button js-menu-target" data-hotkey="w"
+    data-master-branch="master"
+    data-ref="master"
+    role="button" aria-label="Switch branches or tags" tabindex="0">
+    <span class="octicon octicon-git-branch"></span>
+    <i>branch:</i>
+    <span class="js-select-button">master</span>
+  </span>
+
+  <div class="select-menu-modal-holder js-menu-content js-navigation-container" data-pjax>
+
+    <div class="select-menu-modal">
+      <div class="select-menu-header">
+        <span class="select-menu-title">Switch branches/tags</span>
+        <span class="octicon octicon-remove-close js-menu-close"></span>
+      </div> <!-- /.select-menu-header -->
+
+      <div class="select-menu-filters">
+        <div class="select-menu-text-filter">
+          <input type="text" aria-label="Filter branches/tags" id="context-commitish-filter-field" class="js-filterable-field js-navigation-enable" placeholder="Filter branches/tags">
+        </div>
+        <div class="select-menu-tabs">
+          <ul>
+            <li class="select-menu-tab">
+              <a href="#" data-tab-filter="branches" class="js-select-menu-tab">Branches</a>
+            </li>
+            <li class="select-menu-tab">
+              <a href="#" data-tab-filter="tags" class="js-select-menu-tab">Tags</a>
+            </li>
+          </ul>
+        </div><!-- /.select-menu-tabs -->
+      </div><!-- /.select-menu-filters -->
+
+      <div class="select-menu-list select-menu-tab-bucket js-select-menu-tab-bucket" data-tab-filter="branches">
+
+        <div data-filterable-for="context-commitish-filter-field" data-filterable-type="substring">
+
+
+            <div class="select-menu-item js-navigation-item ">
+              <span class="select-menu-item-icon octicon octicon-check"></span>
+              <a href="/clojuredocs/guides/blob/emacs-trim/articles/language/concurrency_and_parallelism.md"
+                 data-name="emacs-trim"
+                 data-skip-pjax="true"
+                 rel="nofollow"
+                 class="js-navigation-open select-menu-item-text js-select-button-text css-truncate-target"
+                 title="emacs-trim">emacs-trim</a>
+            </div> <!-- /.select-menu-item -->
+            <div class="select-menu-item js-navigation-item selected">
+              <span class="select-menu-item-icon octicon octicon-check"></span>
+              <a href="/clojuredocs/guides/blob/master/articles/language/concurrency_and_parallelism.md"
+                 data-name="master"
+                 data-skip-pjax="true"
+                 rel="nofollow"
+                 class="js-navigation-open select-menu-item-text js-select-button-text css-truncate-target"
+                 title="master">master</a>
+            </div> <!-- /.select-menu-item -->
+        </div>
+
+          <div class="select-menu-no-results">Nothing to show</div>
+      </div> <!-- /.select-menu-list -->
+
+      <div class="select-menu-list select-menu-tab-bucket js-select-menu-tab-bucket" data-tab-filter="tags">
+        <div data-filterable-for="context-commitish-filter-field" data-filterable-type="substring">
+
+
+        </div>
+
+        <div class="select-menu-no-results">Nothing to show</div>
+      </div> <!-- /.select-menu-list -->
+
+    </div> <!-- /.select-menu-modal -->
+  </div> <!-- /.select-menu-modal-holder -->
+</div> <!-- /.select-menu -->
+
+  <div class="breadcrumb">
+    <span class='repo-root js-repo-root'><span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/clojuredocs/guides" data-branch="master" data-direction="back" data-pjax="true" itemscope="url"><span itemprop="title">guides</span></a></span></span><span class="separator"> / </span><span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/clojuredocs/guides/tree/master/articles" data-branch="master" data-direction="back" data-pjax="true" itemscope="url"><span itemprop="title">articles</span></a></span><span class="separator"> / </span><span itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb"><a href="/clojuredocs/guides/tree/master/articles/language" data-branch="master" data-direction="back" data-pjax="true" itemscope="url"><span itemprop="title">language</span></a></span><span class="separator"> / </span><strong class="final-path">concurrency_and_parallelism.md</strong> <span class="js-zeroclipboard minibutton zeroclipboard-button" data-clipboard-text="articles/language/concurrency_and_parallelism.md" data-copied-hint="copied!" title="copy to clipboard"><span class="octicon octicon-clippy"></span></span>
+  </div>
+</div>
+
+
+  <div class="commit commit-loader file-history-tease js-deferred-content" data-url="/clojuredocs/guides/contributors/master/articles/language/concurrency_and_parallelism.md">
+    Fetching contributors…
+
+    <div class="participation">
+      <p class="loader-loading"><img alt="Octocat-spinner-32-eaf2f5" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32-EAF2F5.gif" width="16" /></p>
+      <p class="loader-error">Cannot retrieve contributors at this time</p>
+    </div>
+  </div>
+
+<div id="files" class="bubble">
+  <div class="file">
+    <div class="meta">
+      <div class="info">
+        <span class="icon"><b class="octicon octicon-file-text"></b></span>
+        <span class="mode" title="File Mode">file</span>
+          <span>1240 lines (936 sloc)</span>
+        <span>44.19 kb</span>
+      </div>
+      <div class="actions">
+        <div class="button-group">
+              <a class="minibutton disabled tooltipped leftwards" href="#"
+                 title="You must be signed in to make or propose changes">Edit</a>
+          <a href="/clojuredocs/guides/raw/master/articles/language/concurrency_and_parallelism.md" class="button minibutton " id="raw-url">Raw</a>
+            <a href="/clojuredocs/guides/blame/master/articles/language/concurrency_and_parallelism.md" class="button minibutton ">Blame</a>
+          <a href="/clojuredocs/guides/commits/master/articles/language/concurrency_and_parallelism.md" class="button minibutton " rel="nofollow">History</a>
+        </div><!-- /.button-group -->
+          <a class="minibutton danger disabled empty-icon tooltipped leftwards" href="#"
+             title="You must be signed in and on a branch to make or propose changes">
+          Delete
+        </a>
+      </div><!-- /.actions -->
+
+    </div>
+      
+  <div id="readme" class="blob instapaper_body">
+    <article class="markdown-body entry-content" itemprop="mainContentOfPage"><table data-table-type="yaml-metadata">
+<thead><tr>
+<th>title</th>
+
+  <th>layout</th>
+  </tr></thead>
+<tbody><tr>
+<td><div>Concurrency and Parallelism in Clojure</div></td>
+
+  <td><div>article</div></td>
+  </tr></tbody>
+</table><p>This guide covers:</p>
+
+<ul>
+<li>Clojure's identity/value separation</li>
+<li>Clojure reference types and their concurrency semantics: atoms, refs, agents, vars</li>
+<li>Dereferencing</li>
+<li>Delays, futures and promises</li>
+<li>Watches and validators</li>
+<li>How to use java.util.concurrent from Clojure</li>
+<li>Other approaches to concurrency available on the JVM</li>
+<li>Other topics related to concurrency</li>
+</ul><p>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a>
+(including images &amp; stylesheets). The source is available <a href="https://github.com/clojuredocs/guides">on Github</a>.</p>
+
+<h2>
+<a name="what-version-of-clojure-does-this-guide-cover" class="anchor" href="#what-version-of-clojure-does-this-guide-cover"><span class="octicon octicon-link"></span></a>What Version of Clojure Does This Guide Cover?</h2>
+
+<p>This guide covers Clojure 1.5.</p>
+
+<h2>
+<a name="before-you-read-this-guide" class="anchor" href="#before-you-read-this-guide"><span class="octicon octicon-link"></span></a>Before You Read This Guide</h2>
+
+<p>This is one of the most hardcore guides of the entire Clojure documentation
+project. It describes concepts that are simple but may seem foreign at first.
+These concepts are some of the key points of Clojure
+design. Understanding them may take some time for folks without
+a concurrent programming background. Don't let this learning curve
+discourage you.</p>
+
+<p>If some parts are not clear, please ask for clarification <a href="https://groups.google.com/forum/?fromgroups#!forum/clojure">on the
+mailing
+list</a> or
+<a href="https://github.com/clojuredocs/guides/issues">file an issue</a> on GitHub.
+We will work hard on making this guide easy to follow with edits and
+images to illustrate the concepts.</p>
+
+<h2>
+<a name="introduction-and-terminology" class="anchor" href="#introduction-and-terminology"><span class="octicon octicon-link"></span></a>Introduction and Terminology</h2>
+
+<p>Before we get to the Clojure features related to concurrency, lets lay a foundation and briefly
+cover some terminology.</p>
+
+<table>
+<thead><tr>
+<th>Term</th>
+      <th>Definition This Guide Uses</th>
+    </tr></thead>
+<tbody>
+<tr>
+<td>Concurrency</td>
+      <td>When multiple threads are making progress, whether it is via time-slicing or parallelism</td>
+    </tr>
+<tr>
+<td>Parallelism</td>
+      <td>A condition that arises when at least two threads are executing simultaneously, e.g., on multiple cores or CPUs.</td>
+    </tr>
+<tr>
+<td>Shared State</td>
+      <td>When multiple threads of execution need to mutate (modify) one or more pieces of program state (e.g., variables, identities)</td>
+    </tr>
+<tr>
+<td>Mutable Data Structures</td>
+      <td>Data structures that, when changed, are updated "in place"</td>
+    </tr>
+<tr>
+<td>Immutable Data Structures</td>
+      <td>Data structures that, when changed, produce new data structures (copies), possibly with optimizations such as internal structural sharing</td>
+    </tr>
+<tr>
+<td>Concurrency Hazards</td>
+      <td>Conditions that occur in concurrent programs that prevent program from being correct (behaving the way its authors intended).</td>
+    </tr>
+<tr>
+<td>Shared Mutable State</td>
+      <td>When shared state is made of mutable data structures. A ripe ground for concurrency hazards.</td>
+    </tr>
+</tbody>
+</table><p>There are many concurrency hazards, some of the most common and well known are:</p>
+
+<table>
+<thead><tr>
+<th>Concurrency Hazard</th>
+      <th>Brief Description</th>
+    </tr></thead>
+<tbody>
+<tr>
+<td>Race Condition</td>
+      <td>A condition when the outcome is dependent on timing or relative ordering of events</td>
+    </tr>
+<tr>
+<td>Deadlock</td>
+      <td>When two or more threads are waiting on each other to finish or release a shared resource, thus waiting forever and not making any progress</td>
+    </tr>
+<tr>
+<td>Livelock</td>
+      <td>When two or more threads are technically performing computation but not doing any useful work (not making progress), for example,
+          because they endlessly pass a piece of data to each other but never actually process it</td>
+    </tr>
+<tr>
+<td>Starvation</td>
+      <td>When a thread is not given regular access to a shared resource and cannot make progress.</td>
+    </tr>
+</tbody>
+</table><p>These hazards are not exclusive to threads and can happen with OS
+processes, runtime processes and any other executaion processes. They
+are also not specific to a particular runtime or VM (e.g., the JVM) or
+programming language. Admittedly, some languages make it significantly
+easier to write correct, safe concurrent programs, but none are
+completely immune to concurrency hazards. More often than not,
+concurrency hazards are algorithmic problems, languages just encourage
+or discourage certain practices and techniques.</p>
+
+<p><em>Thread-safe</em> code is code that is always executed correctly and does
+not suffer from concurrency hazards even when executed concurrently
+from multiple threads.</p>
+
+<h2>
+<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
+
+<p>One of Clojure design goals was to make concurrent programming
+easier. The thinking is that as modern CPUs add more and more cores
+and the number of CPUs is increasing as well, the biggest contributor
+to application throughput will come from making use of those
+resources.</p>
+
+<p>The key design decision was making Clojure data structures immutable
+(persistent) and separating the concepts of <em>identity</em> and
+<em>value</em>. The importance of immutability cannot be over-emphasized:
+immutable values can be safely shared between threads, eliminate many
+concurrency hazards, and ultimately make it easier for developers to
+reason about their programs.</p>
+
+<p>However, a language that only has immutable data structures and no way
+to change (mutate) program state is not very useful. The
+identity/value separation makes state mutations (e.g., incrementing a
+counter or adding an element to a list) possible in ways that
+have known guarantees with respect to concurrency. This separation largely
+eliminates the need for explicit use of locks, which is possible in Clojure
+but typically not necessary.</p>
+
+<p>To put it another way: "changing variables" in Clojure happens
+differently from many other languages; in ways that are predictable
+from the concurrency perspective and which eliminate many concurrency hazards.</p>
+
+<p>Next lets take a closer look to the identity/value separation.</p>
+
+<h2>
+<a name="identityvalue-separation-on-state-and-identity" class="anchor" href="#identityvalue-separation-on-state-and-identity"><span class="octicon octicon-link"></span></a>Identity/Value Separation ("on State and Identity")</h2>
+
+<p>In Clojure, <em>values</em> are immutable. They never change. For example, a number is a value.
+A map <code>{:language "Clojure"}</code> is a value. A vector with 3 elements is a value.</p>
+
+<p>When you attempt to modify a value (a data structure), a new value is produced instead. These
+are known as <em>persistent data structures</em> (the word "persistent" has nothing to do with
+storing data on disk).</p>
+
+<p>An <em>identity</em> is a named entity (e.g., a list of active chat group
+members or a counter) that changes over time and at any given moment references a value.
+For example, the current value of a counter may be <code>42</code>. After incrementing it, the value
+is <code>43</code> but it is still the same counter --- the same identity. This is different from, say, Java
+or Ruby, where variables serve as identities that (typically) point to a mutable value
+and which are modified in place.</p>
+
+<p><em>TBD: add images to illustrate these concepts</em></p>
+
+<p>Identities in Clojure can be of several types, known as <em>reference types</em>.</p>
+
+<h2>
+<a name="clojure-reference-types" class="anchor" href="#clojure-reference-types"><span class="octicon octicon-link"></span></a>Clojure Reference Types</h2>
+
+<h3>
+<a name="overview-1" class="anchor" href="#overview-1"><span class="octicon octicon-link"></span></a>Overview</h3>
+
+<p>In Clojure's world view, concurrent operations can be roughly
+classified as coordinated or uncoordinated, and synchronous or
+asynchronous. Different reference types in Clojure have their own
+concurrency semantics and cover different kind of operations:</p>
+
+<table>
+<thead><tr>
+<th></th>
+      <th>Coordinated</th>
+      <th>Uncoordinated</th>
+    </tr></thead>
+<tbody>
+<tr>
+<td>Synchronous</td>
+      <td><a href="#refs">Refs</a></td>
+      <td><a href="/clojuredocs/guides/blob/master/articles/language">Atoms</a></td>
+    </tr>
+<tr>
+<td>Asynchronous</td>
+      <td>—</td>
+      <td><a href="#agents">Agents</a></td>
+    </tr>
+</tbody>
+</table><dl>
+<dt>Coordinated</dt>
+  <dd>An operation that depends on cooperation from other operations (possibly, other operations at least do not interfere with it)
+      in order to produce correct results. For example, a banking operation that involves more than one account.
+   </dd>
+
+  <dt>Uncoordinated</dt>
+  <dd>An operation that does not affect other operations in any way. For example, when downloading 100 Web pages concurrently,
+      each operation does not affect the others.
+  </dd>
+
+  <dt>Synchronous</dt>
+  <dd>When the caller's thread waits, blocks, or sleeps until it has access to a given resource or context.</dd>
+
+  <dt>Asynchronous</dt>
+  <dd>Operations that can be started or scheduled without blocking the caller's thread.</dd>
+</dl><p>One more reference type, <a href="#vars">vars</a>, supports dynamic scoping and thread-local storage.</p>
+
+<h3>
+<a name="atoms" class="anchor" href="#atoms"><span class="octicon octicon-link"></span></a>Atoms</h3>
+
+<p>Atoms are references that change atomically (changes become immediately visible to all threads,
+changes are guaranteed to be synchronized by the JVM). If you come from a Java background,
+atoms are basically atomic references from <code>java.util.concurrent</code> with a functional twist
+to them. Atoms are identities that implement synchronous, uncoordinated, atomic updates.</p>
+
+<p>Lets jump right in and demonstrate how atoms work using an example. We know that Clojure data
+structures are immutable by default. Adding an element to a collection really produces a new
+collection. In such case, how does one keep a shared list (say, of active connections to a server
+or recently crawled URLs) and mutate it in a thread-safe manner? We will demonstrate how to
+accomplish this with an atom.</p>
+
+<p>To create an atom, use the <code>clojure.core/atom</code> function. Its argument will serve as the atom's
+initial value:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">currently-connected</span> <span class="p">(</span><span class="nf">atom</span> <span class="p">[]))</span>
+</pre></div>
+
+<p>The line above makes the atom <code>currently-connected</code> an empty vector. To access an atom's value, use
+<code>clojure.core/deref</code> or the <code>@atom</code> reader form:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">currently-connected</span> <span class="p">(</span><span class="nf">atom</span> <span class="p">[]))</span>
+
+<span class="o">@</span><span class="nv">currently-connected</span>
+<span class="c1">;; ⇒ []</span>
+<span class="p">(</span><span class="nb">deref </span><span class="nv">currently-connected</span><span class="p">)</span>
+<span class="c1">;; ⇒ []</span>
+<span class="nv">currently-connected</span>
+<span class="c1">;; ⇒ #&lt;Atom@614b6b5d: []&gt;</span>
+</pre></div>
+
+<p>As the returned values demonstrate, the atom itself is a reference. To
+access its current value, you <em>dereference</em> it. Dereferencing will be
+covered in more detail later in this guide. For now, it is sufficient
+to say that dereferencing returns the current value of an atom. (Other
+Clojure reference types as well as a few specialized data structures
+can be dereferenced as well.)</p>
+
+<p>Locals can be atoms, too:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">xs</span> <span class="p">(</span><span class="nf">atom</span> <span class="p">[])]</span>
+  <span class="o">@</span><span class="nv">xs</span><span class="p">)</span>
+<span class="c1">;; ⇒ []</span>
+</pre></div>
+
+<p>Now to the most interesting part: adding elements to the collection.</p>
+
+<p>To mutate an atom, we can use <code>clojure.core/swap!</code>.</p>
+
+<p><code>swap!</code> takes an atom, a function and optionally some other args, swaps the current value of the atom to be the return value of calling the function with the current value of the atom and the args:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nf">swap!</span> <span class="nv">currently-connected</span> <span class="nb">conj </span><span class="s">"chatty-joe"</span><span class="p">)</span>
+<span class="c1">;; ⇒ ["chatty-joe"]</span>
+<span class="nv">currently-connected</span>
+<span class="c1">;; ⇒ #&lt;Atom@614b6b5d: ["chatty-joe"]&gt;</span>
+<span class="o">@</span><span class="nv">currently-connected</span>
+<span class="c1">;; ⇒ ["chatty-joe"]</span>
+</pre></div>
+
+<p>To demonstrate this graphically, initial atom state looks like this:</p>
+
+<p><a href="/clojuredocs/guides/blob/master/assets/images/language/concurrency_and_parallelism/atom_state1.png" target="_blank"><img src="/clojuredocs/guides/raw/master/articles/language//assets/images/language/concurrency_and_parallelism/atom_state1.png" alt="Atom state 1" style="max-width:100%;"></a></p>
+
+<p>and then we mutated it with <code>swap!</code>:</p>
+
+<p><a href="/clojuredocs/guides/blob/master/assets/images/language/concurrency_and_parallelism/atom_state2.png" target="_blank"><img src="/clojuredocs/guides/raw/master/articles/language//assets/images/language/concurrency_and_parallelism/atom_state2.png" alt="Atom state 2" style="max-width:100%;"></a></p>
+
+<p>For the readers familiar with the atomic types from the <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/package-summary.html">java.util.concurrent.atomic</a> package,
+this should sound very familiar. The only difference is that instead of setting a value, atoms are mutated
+with a function. This is both because Clojure is a functional language and because with this approach,
+<code>clojure.core/swap!</code> can <em>retry the operation</em> safely. This implies that the function you provide to
+<code>swap!</code> is <em>pure</em> (has no side effects).</p>
+
+<p>Occasionally you will need to mutate the value of an atom the same way you would with atomic references in Java:
+by setting them to a specific value. This is what <code>clojure.core/reset!</code> does. It takes an atom and the new value:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="o">@</span><span class="nv">currently-connected</span>
+<span class="c1">;; ⇒ ["chatty-joe"]</span>
+<span class="p">(</span><span class="nf">reset!</span> <span class="nv">currently-connected</span> <span class="p">[])</span>
+<span class="c1">;; ⇒ []</span>
+<span class="o">@</span><span class="nv">currently-connected</span>
+<span class="c1">;; ⇒ []</span>
+</pre></div>
+
+<p><code>reset!</code> may be useful in test suites to reset an atom's state between test executions, but it should be
+used sparingly in your implementation code. Consider using <code>swap!</code> first.</p>
+
+<p><em>TBD: demonstrate retries under high update rates</em></p>
+
+<h4>
+<a name="summary-and-use-cases" class="anchor" href="#summary-and-use-cases"><span class="octicon octicon-link"></span></a>Summary and Use Cases</h4>
+
+<p>Atoms is the most commonly used concurrent feature in Clojure. It covers many cases and lets developers
+avoid explicit locking. Atoms cover a lot of use cases and are very fast. It's fair to say that
+when you need uncoordinated reference types (e.g., not Software Transactional Memory), the rule of
+thumb is, "start with an atom, then see".</p>
+
+<p>It is not uncommon to initialize an atom in a local and then return it from the function and share
+a piece of state with other functions and/or threads.</p>
+
+<h3>
+<a name="agents" class="anchor" href="#agents"><span class="octicon octicon-link"></span></a>Agents</h3>
+
+<p>Agents are references that are updated asynchronously: updates happen at a later, unknown point
+in time, in a thread pool. Agents are identities that implement uncoordinated, asynchronous updates.</p>
+
+<p>A small but useful example of using an agent is as a counter. For
+example, suppose we want to track how often page downloads in a Web
+crawler respond with 40x and 50x status codes. The simplest version
+can look like this:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">errors-counter</span> <span class="p">(</span><span class="nb">agent </span><span class="mi">0</span><span class="p">))</span>
+<span class="c1">;; ⇒ #'user/errors-counter</span>
+<span class="nv">errors-counter</span>
+<span class="c1">;; ⇒ #&lt;Agent@6a6287b2: 0&gt;</span>
+<span class="o">@</span><span class="nv">errors-counter</span>
+<span class="c1">;; ⇒ 0</span>
+<span class="p">(</span><span class="nb">deref </span><span class="nv">errors-counter</span><span class="p">)</span>
+<span class="c1">;; ⇒ 0</span>
+</pre></div>
+
+<p>One can immediately make several observations: just like atoms, agents are references. To get
+the current value of an agent, we need to <em>dereference</em> it using <code>clojure.core/deref</code> or
+the <code>@agent</code> reader macro.</p>
+
+<p>To mutate an agent, we use <code>clojure.core/send</code> and <code>clojure.core/send-off</code>:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="o">@</span><span class="nv">errors-counter</span>
+<span class="c1">;; ⇒ 0</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nv">inc</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;Agent@6a6287b2: 0&gt;</span>
+<span class="o">@</span><span class="nv">errors-counter</span>
+<span class="c1">;; ⇒ 1</span>
+
+<span class="c1">;; 10 is an additional parameter. The + function will be invoked as `(+ @errors-counter 10)`.</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nb">+ </span><span class="mi">10</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;Agent@6a6287b2: 1&gt;</span>
+<span class="o">@</span><span class="nv">errors-counter</span>
+<span class="c1">;; ⇒ 11</span>
+</pre></div>
+
+<p><code>send</code> and <code>send-off</code> are largely similar. The difference is in how they are implemented. <code>send</code> uses a
+fixed-size thread pool so using blocking operations with it won't yield good throughput. <code>send-off</code>
+uses a growing thread-pool so blocking operations is not a problem for it as long as there are resources
+available to the JVM to create and run all the threads. On a 4-8 GB machine with 4 cores and stock
+OS settings you can expect up to a couple of thousand I/O-bound threads to work without running
+the system out of kernel resources.</p>
+
+<h4>
+<a name="using-custom-executors-with-agents" class="anchor" href="#using-custom-executors-with-agents"><span class="octicon octicon-link"></span></a>Using Custom Executors With Agents</h4>
+
+<p>Agents can be used (and abused) for arbitrary code execution in a thread pool. Because the default
+thread pool Clojure maintains will not be a good fit for all use cases, Clojure 1.5 introduced
+a function that lets you control what thread pool (executor) is used by <code>clojure.core/send</code>:
+<code>clojure.core/set-agent-send-executor!</code>.</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nb">import </span><span class="nv">java.util.concurrent.Executors</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">set-agent-send-executor!</span> <span class="p">(</span><span class="nf">Executors/newFixedThreadPool</span> <span class="mi">32</span><span class="p">))</span>
+<span class="c1">;; clojure.core/send now will use the fixed size thread pool with 32 threads</span>
+</pre></div>
+
+<p>The default thread pool size is <code>number of available CPU cores + 2</code>.</p>
+
+<p><code>clojure.core/set-agent-send-off-executor!</code> is a similar function that controls what
+thread pool <code>clojure.core/send-off</code> will use.</p>
+
+<p>Finally, another new function in 1.5 is <code>clojure.core/send-via</code> which is like `` but lets you specify
+an executor to be used on a case-by-case basis:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nb">import </span><span class="nv">java.util.concurrent.Executors</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">def </span><span class="nv">custom-pool</span> <span class="p">(</span><span class="nf">Executors/newFixedThreadPool</span> <span class="mi">32</span><span class="p">))</span>
+<span class="c1">;; just like clojure.core/send but will use custom-pool instead</span>
+<span class="c1">;; of an internally maintained one</span>
+<span class="p">(</span><span class="nf">send-via</span> <span class="nv">custom-pool</span> <span class="nv">stream-agent</span> <span class="nv">inc</span><span class="p">)</span>
+</pre></div>
+
+<h3>
+<a name="agents-and-software-transactional-memory" class="anchor" href="#agents-and-software-transactional-memory"><span class="octicon octicon-link"></span></a>Agents and Software Transactional Memory</h3>
+
+<p>We haven't introduced refs and the concept of Software Transactional Memory yet. It will be covered later in this
+guide. Here it's sufficient to mention that agents are STM-aware and can be safely used inside transactions.</p>
+
+<h3>
+<a name="agents-and-error-handling" class="anchor" href="#agents-and-error-handling"><span class="octicon octicon-link"></span></a>Agents and Error Handling</h3>
+
+<p>Functions that modify an agent's state will not always return successfully in the real world. Sometimes they
+will fail. For example:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="o">@</span><span class="nv">errors-counter</span>
+<span class="c1">;; ⇒ 11</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nb">/ </span><span class="mi">0</span><span class="p">)</span>
+<span class="c1">;; Evaluation aborted.</span>
+<span class="c1">;; ⇒ nil</span>
+</pre></div>
+
+<p>This puts the agent into the <em>failed</em> state. Failed agents will re-raise the exception that caused them
+to fail every time their state changed is attempted:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nb">/ </span><span class="mi">0</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;Agent@6a6287b2: 10&gt;</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nv">inc</span><span class="p">)</span>
+<span class="c1">;; Evaluation aborted.</span>
+</pre></div>
+
+<p>To access the exception that occured during the agent's state mutation, use <code>clojure.core/agent-error</code>:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nb">/ </span><span class="mi">0</span><span class="p">)</span>
+<span class="c1">;; Evaluation aborted.</span>
+<span class="c1">;; ⇒ nil</span>
+<span class="p">(</span><span class="nf">agent-error</span> <span class="nv">errors-counter</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;ArithmeticException java.lang.ArithmeticException: Divide by zero&gt;</span>
+</pre></div>
+
+<p>It returns an exception. Agents can be restarted with <code>clojure.core/restart-agent</code> that takes an agent
+and a new initial value:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nf">restart-agent</span> <span class="nv">errors-counter</span> <span class="mi">0</span><span class="p">)</span>
+<span class="c1">;; ⇒ 0</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nb">+ </span><span class="mi">10</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;Agent@6a6287b2: 0&gt;</span>
+<span class="o">@</span><span class="nv">errors-counter</span>
+<span class="c1">;; ⇒ 10</span>
+</pre></div>
+
+<p>If you'd prefer an agent to ignore exceptions instead of going into the <em>failure mode</em>, <code>clojure.core/agent</code>
+takes an option that controls this behavior: <code>:error-mode</code>. Because completely ignoring errors is rarely a good
+idea, when the error mode is set to <code>:continue</code> you must also pass an error handler function:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">errors-counter</span> <span class="p">(</span><span class="nb">agent </span><span class="mi">0</span>
+                           <span class="ss">:error-mode</span>    <span class="ss">:continue</span>
+                           <span class="ss">:error-handler</span> <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">failed-agent</span> <span class="o">^</span><span class="nv">Exception</span> <span class="nv">exception</span><span class="p">]</span>
+                                            <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">.getMessage</span> <span class="nv">exception</span><span class="p">)))))</span>
+<span class="c1">;; ⇒ #'user/errors-counter</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nv">inc</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;Agent@5620e147: 1&gt;</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nv">inc</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;Agent@5620e147: 2&gt;</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nb">/ </span><span class="mi">0</span><span class="p">)</span>
+<span class="c1">;; output: "Divide by zero"</span>
+<span class="c1">;; ⇒ #&lt;Agent@5620e147: 2&gt;</span>
+<span class="p">(</span><span class="nb">send </span><span class="nv">errors-counter</span> <span class="nv">inc</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;Agent@5620e147: 3&gt;</span>
+<span class="o">@</span><span class="nv">errors-counter</span>
+<span class="c1">;; ⇒ 3</span>
+</pre></div>
+
+<p>The handler function takes two arguments: an agent and the exception that occured.</p>
+
+<h4>
+<a name="summary-and-use-cases-1" class="anchor" href="#summary-and-use-cases-1"><span class="octicon octicon-link"></span></a>Summary and Use Cases</h4>
+
+<p>Agents are asynchronously updated references. They can be used for anything that does
+not require strict consistency for reads:</p>
+
+<ul>
+<li>Counters (e.g. message rates in event processing)</li>
+<li>Collections (e.g. recently processed events)</li>
+</ul><p>Agents can be used for offloading arbitrary computations to a thread pool, however,
+only starting with Clojure 1.5 they can provide the same flexiblity as JDK executors
+(thread pools).</p>
+
+<h3>
+<a name="refs" class="anchor" href="#refs"><span class="octicon octicon-link"></span></a>Refs</h3>
+
+<p>Refs are the only <em>coordinated</em> reference type Clojure has. They help ensure that multiple
+identities can be modified concurrently within a <em><a href="/clojuredocs/guides/blob/master/articles/language/glossary.html#transaction">transaction</a></em>:</p>
+
+<ul>
+<li>Either all refs are modified or none are</li>
+<li>No race conditions between involved refs</li>
+<li>No possibility of deadlocks between involved refs</li>
+</ul><p>Refs provide ACI of <a href="http://en.wikipedia.org/wiki/ACID">ACID</a>. Refs
+are backed by Clojure's implementation of <a href="/clojuredocs/guides/blob/master/articles/language/glossary.html#stm"><em>software transactional
+memory</em> (STM)</a>.</p>
+
+<p>To instantiate a ref, use the <code>clojure.core/ref</code> function:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">account-a</span> <span class="p">(</span><span class="nb">ref </span><span class="mi">0</span><span class="p">))</span>
+<span class="c1">;; ⇒ #'user/account-a</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">account-b</span> <span class="p">(</span><span class="nb">ref </span><span class="mi">0</span><span class="p">))</span>
+<span class="c1">;; ⇒ #'user/account-b</span>
+</pre></div>
+
+<p>Like atoms and agents covered earlier, to get the current value of a ref, use <code>clojure.core/deref</code> or the "<code>@</code>"
+reader macro:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nb">deref </span><span class="nv">account-a</span><span class="p">)</span>
+<span class="c1">;; ⇒ 0</span>
+<span class="o">@</span><span class="nv">account-b</span>
+<span class="c1">;; ⇒ 0</span>
+</pre></div>
+
+<p>Refs are for coordinated concurrent operations and so it does not make much sense to use a single ref
+(in that case, an atom would be sufficient). Refs are modified in a transaction in the <code>clojure.core/dosync</code>
+body.</p>
+
+<p><code>clojure.core/dosync</code> starts a transaction, performs all modifications and commits changes. If a concurrently
+running transaction modifies a ref in the current transaction before the current transaction commits,
+the current transaction will be <em>retried</em> to make sure that the most recent value of the modified
+ref is used.</p>
+
+<p><em>TBD: a picture that visualizes retries and serializability.</em></p>
+
+<h4>
+<a name="alter" class="anchor" href="#alter"><span class="octicon octicon-link"></span></a>alter</h4>
+
+<p>Refs are modified using <code>clojure.core/alter</code> which is very similar to
+<code>clojure.core/swap!</code> in the arguments it takes: a ref, a function that
+takes an old value and returns a new value of the ref, and any number
+of optional arguments to pass to the function.</p>
+
+<p>In the following example, two refs are initialized at 1000,
+representing two bank accounts.  Then 100 units are transferred from
+one account to the other, atomically:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">account-a</span> <span class="p">(</span><span class="nb">ref </span><span class="mi">1000</span><span class="p">))</span>
+<span class="c1">;; ⇒ #'user/account-a</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">account-b</span> <span class="p">(</span><span class="nb">ref </span><span class="mi">1000</span><span class="p">))</span>
+<span class="c1">;; ⇒ #'user/account-b</span>
+
+<span class="p">(</span><span class="nf">dosync</span>
+  <span class="c1">;; will be executed as (+ @account-a 100)</span>
+  <span class="p">(</span><span class="nb">alter </span><span class="nv">account-a</span> <span class="nb">+ </span><span class="mi">100</span><span class="p">)</span>
+  <span class="c1">;; will be executed as (- @account-b 100)</span>
+  <span class="p">(</span><span class="nb">alter </span><span class="nv">account-b</span> <span class="nb">- </span><span class="mi">100</span><span class="p">))</span>
+<span class="c1">;; ⇒ 900</span>
+<span class="o">@</span><span class="nv">account-a</span>
+<span class="c1">;; ⇒ 1100</span>
+<span class="o">@</span><span class="nv">account-b</span>
+<span class="c1">;; ⇒ 900</span>
+</pre></div>
+
+<h4>
+<a name="conflicts-and-retries" class="anchor" href="#conflicts-and-retries"><span class="octicon octicon-link"></span></a>Conflicts and Retries</h4>
+
+<p><em>TBD: explain transaction conflicts, demonstrate transaction retries</em></p>
+
+<h4>
+<a name="commute" class="anchor" href="#commute"><span class="octicon octicon-link"></span></a>commute</h4>
+
+<p>With a high number of concurrently running transactions, retries
+overhead can become noticeable.  Some modifications, however, can be
+applied in any order. Clojure's STM implementation acknowledges this
+fact and provides an alternative way to modify refs:
+<code>clojure.core/commute</code>. <code>commute</code> must only be used for operations
+that <a href="http://mathforum.org/dr.math/faq/faq.property.glossary.html#commutative">commute in the mathematical
+sense</a>:
+the order can be changed without affecting the result. For example,
+addition is commutative (1 + 10 produces the same result as 10 + 1)
+but substraction is not (1 − 10 does not equal 10 − 1).</p>
+
+<p><code>clojure.core/commute</code> has the same signature as <code>clojure.core/alter</code>:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="o">@</span><span class="nv">account-a</span>
+<span class="c1">;; ⇒ 1100</span>
+<span class="o">@</span><span class="nv">account-b</span>
+<span class="c1">;; ⇒ 900</span>
+<span class="p">(</span><span class="nf">dosync</span>
+  <span class="p">(</span><span class="nb">commute </span><span class="nv">account-a</span> <span class="nb">+ </span><span class="mi">300</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">commute </span><span class="nv">account-b</span> <span class="nb">+ </span><span class="mi">300</span><span class="p">))</span>
+<span class="c1">;; ⇒ 1200</span>
+<span class="o">@</span><span class="nv">account-a</span>
+<span class="c1">;; ⇒ 1400</span>
+<span class="o">@</span><span class="nv">account-b</span>
+<span class="c1">;; ⇒ 1200</span>
+</pre></div>
+
+<p>Note that a change made to a ref by <code>commute</code> will never cause a transaction
+to retry. <code>commute</code> does not cause <em>transaction conflicts</em>.</p>
+
+<h4>
+<a name="using-refs-with-clojure-data-structures" class="anchor" href="#using-refs-with-clojure-data-structures"><span class="octicon octicon-link"></span></a>Using Refs With Clojure Data Structures</h4>
+
+<p><em>TBD: demonstrate more complex changes, e.g., to game characters</em></p>
+
+<h4>
+<a name="limitations-of-refs" class="anchor" href="#limitations-of-refs"><span class="octicon octicon-link"></span></a>Limitations of Refs</h4>
+
+<p>Software transactional memory is a powerful but highly specialized tool. Because transactions can be retried,
+you must only use pure functions with STM. I/O operations cannot be undone by the runtime and very often are
+not <a href="/clojuredocs/guides/blob/master/articles/language/glossary.html#idempotent">idempotent</a>.</p>
+
+<p>Structuring your application code as <em>pure core</em> and <em>edge code</em> that interacts with the user or other
+services (performing I/O operations and other side-effects) helps with this. In that case, the pure core
+can use STM without issues.</p>
+
+<p>For example, in a Web or network server, incoming requests are the edge code: they do I/O. The pure core
+is then called to modify server state, do any calculations necessary, return a result that is returned
+back to the client by the edge code:</p>
+
+<p><em>TBD: a picture to demonstrate</em></p>
+
+<p>Unlike some other languages and runtimes (for example, Haskell), Clojure <em>will not prevent you from
+doing I/O in transactions</em>. It is left as a matter of discipline on the programmer's part. It does provide
+a helper function, though: <code>clojure.core/io!</code> will raise an exception if there is an STM transaction
+running and has no effect otherwise.</p>
+
+<p>First, an example with pure code:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nf">io!</span>
+  <span class="c1">;; pure code, clojure.core/io! has no effect</span>
+  <span class="p">(</span><span class="nb">reduce + </span><span class="p">(</span><span class="nb">range </span><span class="mi">0</span> <span class="mi">100</span><span class="p">)))</span>
+<span class="c1">;; ⇒ 4950</span>
+</pre></div>
+
+<p>And an example that invokes functions that are guarded with <code>clojure.core/io!</code> in an STM
+transaction:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="kd">defn </span><span class="nv">render-results</span>
+  <span class="s">"Prints results to the standard output"</span>
+  <span class="p">[]</span>
+  <span class="p">(</span><span class="nf">io!</span>
+    <span class="p">(</span><span class="nb">println </span><span class="s">"Results:"</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">comment </span><span class="nv">...</span><span class="p">)))</span>
+<span class="c1">;; ⇒ #'user/render-results</span>
+<span class="p">(</span><span class="nf">dosync</span>
+  <span class="p">(</span><span class="nb">alter </span><span class="nv">account-a</span> <span class="nb">+ </span><span class="mi">100</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">alter </span><span class="nv">account-b</span> <span class="nb">- </span><span class="mi">100</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">render-results</span><span class="p">))</span>
+<span class="c1">;; throws java.lang.IllegalStateException, "I/O in transaction!"</span>
+</pre></div>
+
+<h4>
+<a name="summary-and-use-cases-2" class="anchor" href="#summary-and-use-cases-2"><span class="octicon octicon-link"></span></a>Summary and Use Cases</h4>
+
+<p><em>TBD</em></p>
+
+<h3>
+<a name="vars" class="anchor" href="#vars"><span class="octicon octicon-link"></span></a>Vars</h3>
+
+<p>Vars are the reference type you are already familiar with. You define them via the <code>def</code> special form:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">url</span> <span class="s">"http://en.wikipedia.org/wiki/Margarita"</span><span class="p">)</span>
+</pre></div>
+
+<p>Functions defined via <code>defn</code> are also stored in vars. Vars can be dynamically scoped. They have
+<em>root bindings</em> that are initially visible to all threads. When defining a var
+with <code>def</code>, you define a var that only has root binding, so its value will be the same no matter
+what thread you use it from:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">url</span> <span class="s">"http://en.wikipedia.org/wiki/Margarita"</span><span class="p">)</span>
+<span class="c1">;; ⇒ #'user/url</span>
+<span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                   <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"url is %s"</span> <span class="nv">url</span><span class="p">)))))</span>
+<span class="c1">;; outputs "url is http://en.wikipedia.org/wiki/Margarita"</span>
+<span class="c1">;; ⇒ nil</span>
+<span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                   <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"url is %s"</span> <span class="nv">url</span><span class="p">)))))</span>
+<span class="c1">;; outputs "url is http://en.wikipedia.org/wiki/Margarita"</span>
+<span class="c1">;; ⇒ nil</span>
+</pre></div>
+
+<h4>
+<a name="dynamic-scoping-and-thread-local-bindings" class="anchor" href="#dynamic-scoping-and-thread-local-bindings"><span class="octicon octicon-link"></span></a>Dynamic Scoping and Thread-local Bindings</h4>
+
+<p>To temporarily change var value, we need to make the var dynamic by adding <code>:dynamic true</code> to its
+metadata and then use <code>clojure.core/binding</code>:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="o">^</span><span class="ss">:dynamic</span> <span class="nv">*url*</span> <span class="s">"http://en.wikipedia.org/wiki/Margarita"</span><span class="p">)</span>
+<span class="c1">;; ⇒ #'user/*url*</span>
+<span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Margarita"</span>
+
+<span class="p">(</span><span class="nb">binding </span><span class="p">[</span><span class="nv">*url*</span> <span class="s">"http://en.wikipedia.org/wiki/Cointreau"</span><span class="p">]</span>
+  <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">)))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Cointreau"</span>
+<span class="c1">;; ⇒ nil</span>
+</pre></div>
+
+<p>Note that, by convention, vars which are supposed to or may be dynamically scoped are named with leading
+and trailing asterisks <code>*</code> (often referred to as "earmuffs").</p>
+
+<p>In the example above, <code>binding</code> temporarily changed the var's current value to a different URL. But that happened only
+in the same thread as the var was originally defined in. What makes vars interesting from the concurrency
+point of view is that their bindings can be <em>thread-local</em> (yes, if you are familiar with thread-local variables
+in Java or Ruby, it is very similar and serves largely the same purpose). To demonstrate, let's change
+the example to spin up 3 threads and alter the var's value from them:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="o">^</span><span class="ss">:dynamic</span> <span class="nv">*url*</span> <span class="s">"http://en.wikipedia.org/wiki/Margarita"</span><span class="p">)</span>
+<span class="c1">;; ⇒ #'user/*url*</span>
+<span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Margarita"</span>
+<span class="c1">;; ⇒ nil</span>
+<span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+          <span class="p">(</span><span class="nb">binding </span><span class="p">[</span><span class="nv">*url*</span> <span class="s">"http://en.wikipedia.org/wiki/Cointreau"</span><span class="p">]</span>
+            <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">))))))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Cointreau"</span>
+<span class="c1">;; ⇒ nil</span>
+<span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                   <span class="p">(</span><span class="nb">binding </span><span class="p">[</span><span class="nv">*url*</span> <span class="s">"http://en.wikipedia.org/wiki/Guignolet"</span><span class="p">]</span>
+                     <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">))))))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Guignolet"</span>
+<span class="c1">;; ⇒ nil</span>
+<span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                   <span class="p">(</span><span class="nb">binding </span><span class="p">[</span><span class="nv">*url*</span> <span class="s">"http://en.wikipedia.org/wiki/Apéritif"</span><span class="p">]</span>
+                     <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">))))))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Apéritif"</span>
+<span class="c1">;; ⇒ nil</span>
+<span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Margarita"</span>
+<span class="c1">;; ⇒ nil</span>
+</pre></div>
+
+<p>As you can see, var scoping in different threads did not modify the var's value in the thread it was
+originally defined in (its <em>root binding</em>). In real-world cases, for example, it means that a multi-threaded
+Web crawler can store some crawling state specific to a particular thread in a var and not
+modify its initial (global) value.</p>
+
+<h4>
+<a name="how-to-alter-var-root" class="anchor" href="#how-to-alter-var-root"><span class="octicon octicon-link"></span></a>How to Alter Var Root</h4>
+
+<p>Sometimes, however, modifying the root binding is necessary. This is done via <code>clojure.core/alter-var-root</code>
+which takes a var (not its value) and a function that takes the old var value and returns a new one:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="nv">*url*</span>
+<span class="c1">;; ⇒ "http://en.wikipedia.org/wiki/Margarita"</span>
+<span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                   <span class="p">(</span><span class="nf">alter-var-root</span> <span class="p">(</span><span class="k">var </span><span class="nv">user/*url*</span><span class="p">)</span> <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">_</span><span class="p">]</span> <span class="s">"http://en.wikipedia.org/wiki/Apéritif"</span><span class="p">))</span>
+                   <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">)))))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Apéritif"</span>
+<span class="c1">;; ⇒ nil</span>
+<span class="nv">*url*</span>
+<span class="c1">;; ⇒ "http://en.wikipedia.org/wiki/Apéritif"</span>
+</pre></div>
+
+<p><code>clojure.core/var</code> is used to locate the var (<code>user/*url*</code> in our example executed in the REPL). Note that it
+finds the var itself (the reference, the "box"), not its value (what the var evalutes to).</p>
+
+<p>In the example above the function we use to alter var root ignores the current value and simply returns a
+predefined string:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">_</span><span class="p">]</span> <span class="s">"http://en.wikipedia.org/wiki/Apéritif"</span><span class="p">)</span>
+</pre></div>
+
+<p>Such functions are common enough for <code>clojure.core</code> to provide a convenience higher-order function called
+<code>clojure.core/constantly</code>. It takes a value and returns a function that, when executed, ignores all its parameters
+and returns that value. So, the function above would be more idiomatically written as</p>
+
+<div class="highlight highlight-clojure"><pre><span class="nv">*url*</span>
+<span class="c1">;; ⇒ "http://en.wikipedia.org/wiki/Margarita"</span>
+<span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                   <span class="p">(</span><span class="nf">alter-var-root</span> <span class="p">(</span><span class="k">var </span><span class="nv">user/*url*</span><span class="p">)</span> <span class="p">(</span><span class="nb">constantly </span><span class="s">"http://en.wikipedia.org/wiki/Apéritif"</span><span class="p">))</span>
+                   <span class="p">(</span><span class="nb">println </span><span class="p">(</span><span class="nf">format</span> <span class="s">"*url* is now %s"</span> <span class="nv">*url*</span><span class="p">)))))</span>
+<span class="c1">;; outputs "*url* is now http://en.wikipedia.org/wiki/Apéritif"</span>
+<span class="c1">;; ⇒ nil</span>
+<span class="nv">*url*</span>
+<span class="c1">;; ⇒ "http://en.wikipedia.org/wiki/Apéritif"</span>
+</pre></div>
+
+<p>When is <code>alter-var-root</code> used in real world scenarios? Some Clojure data store and API clients stores active connection
+in a var, so initial connection requires root binding modification.</p>
+
+<h4>
+<a name="summary-and-use-cases-3" class="anchor" href="#summary-and-use-cases-3"><span class="octicon octicon-link"></span></a>Summary and Use Cases</h4>
+
+<p>To summarize: vars can have dynamic scope. They have a root binding and can have thread-local bindings as well.
+As such, vars are good for storing pieces of program state that vary between threads but cannot
+be stored in a function local. <code>alter-var-root</code> is used to alter root binding of a var. It is done
+the functional way: by providing a function that takes the old var value and returns a new one.</p>
+
+<p>To alter var root to a specific known value, use <code>clojure.core/constantly</code>.</p>
+
+<h2>
+<a name="dereferencing" class="anchor" href="#dereferencing"><span class="octicon octicon-link"></span></a>Dereferencing</h2>
+
+<p>Earlier sections demonstrated the concept of <em>dereferencing</em>. Dereferencing means retrieving the current
+value of a reference (an atom, an agent, a ref, etc). To dereference a Clojure reference, use
+<code>clojure.core/deref</code> or the <code>@reference</code> reader macro:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">xs</span> <span class="p">(</span><span class="nf">atom</span> <span class="p">[])]</span>
+  <span class="o">@</span><span class="nv">xs</span><span class="p">)</span>
+<span class="c1">;; ⇒ []</span>
+</pre></div>
+
+<p>Besides atoms, agents, and refs, Clojure has several other concurrency-oriented data structures
+that can be dereferenced: delays, futures, and promises. They will be covered later in this
+guide.</p>
+
+<h3>
+<a name="dereferencing-support-for-data-types-implemented-in-java" class="anchor" href="#dereferencing-support-for-data-types-implemented-in-java"><span class="octicon octicon-link"></span></a>Dereferencing Support For Data Types Implemented In Java</h3>
+
+<p>It is possible to make custom data types implemented in Java support dereferencing by
+making them implement the <code>clojure.lang.</code> interface:</p>
+
+<div class="highlight highlight-java"><pre><span class="kn">package</span> <span class="n">clojure</span><span class="o">.</span><span class="na">lang</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">IDeref</span><span class="o">{</span>
+  <span class="n">Object</span> <span class="nf">deref</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>This can be done to make data types implemented in Java look and feel more like built-in
+Clojure data types, or make it possible to pass said types to a function that expects
+its arguments to be dereferenceable.</p>
+
+<h2>
+<a name="delays" class="anchor" href="#delays"><span class="octicon octicon-link"></span></a>Delays</h2>
+
+<p>In Clojure, a <em>delay</em> is a data structure that is evaluated the first time it is dereferenced.
+Subsequent dereferencing will use the cached value. Delays are instantiated with the <code>clojure.core/delay</code>
+function.</p>
+
+<p>In the following example a delay is used to calculate a timestamp that is later used
+as a cached value:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">d</span> <span class="p">(</span><span class="nf">delay</span> <span class="p">(</span><span class="nf">System/currentTimeMillis</span><span class="p">)))</span>
+<span class="c1">;; ⇒ #'user/d</span>
+<span class="nv">d</span>
+<span class="c1">;; ⇒ #&lt;Delay@21ed22af: :pending&gt;</span>
+<span class="c1">;; dereferencing causes the value to be realized, it happens only once</span>
+<span class="o">@</span><span class="nv">d</span>
+<span class="c1">;; ⇒ 1350997814621</span>
+<span class="o">@</span><span class="nv">d</span>
+<span class="c1">;; ⇒ 1350997814621</span>
+<span class="o">@</span><span class="nv">d</span>
+<span class="c1">;; ⇒ 1350997814621</span>
+</pre></div>
+
+<p><code>clojure.core/realized?</code> can be used to check whether a delay instance has been realized
+or not:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">d</span> <span class="p">(</span><span class="nf">delay</span> <span class="p">(</span><span class="nf">System/currentTimeMillis</span><span class="p">)))</span>
+<span class="c1">;; ⇒ #'user/d</span>
+<span class="p">(</span><span class="nf">realized?</span> <span class="nv">d</span><span class="p">)</span>
+<span class="c1">;; ⇒ false</span>
+<span class="o">@</span><span class="nv">d</span>
+<span class="c1">;; ⇒ 1350997967984</span>
+<span class="p">(</span><span class="nf">realized?</span> <span class="nv">d</span><span class="p">)</span>
+<span class="c1">;; ⇒ true</span>
+</pre></div>
+
+<h2>
+<a name="futures" class="anchor" href="#futures"><span class="octicon octicon-link"></span></a>Futures</h2>
+
+<p>A Clojure future evaluates a piece of code in another thread. To instantiate a future,
+use <code>clojure.core/future</code>. The <code>future</code> function will return immediately (it never blocks
+the current thread). To obtain the result of computation, dereference the future:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">ft</span> <span class="p">(</span><span class="nf">future</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">)))</span>
+<span class="c1">;; ⇒ #'user/ft</span>
+<span class="nv">ft</span>
+<span class="c1">;; ⇒ #&lt;core$future_call$reify__6110@effa25e: 21&gt;</span>
+<span class="o">@</span><span class="nv">ft</span>
+<span class="c1">;; ⇒ 21</span>
+</pre></div>
+
+<p>Dereferencing a future blocks the current thread. Because some operations may take
+a very long time or get blocked forever, futures support a timeout specified
+when you dereference them:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="c1">;; will block the current thread for 10 seconds, returns :completed</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">ft</span> <span class="p">(</span><span class="nf">future</span> <span class="p">(</span><span class="nf">Thread/sleep</span> <span class="mi">10000</span><span class="p">)</span> <span class="ss">:completed</span><span class="p">))</span>
+<span class="c1">;; ⇒ #'user/ft</span>
+<span class="p">(</span><span class="nb">deref </span><span class="nv">ft</span> <span class="mi">2000</span> <span class="ss">:timed-out</span><span class="p">)</span>
+<span class="c1">;; ⇒ :timed-out</span>
+</pre></div>
+
+<p>Subsequent access to futures using <code>deref</code> will use the cached value, just like it
+does for delays.</p>
+
+<p>Just like delays, it is possible to check whether a future is realized or not
+with <code>clojure.core/realized?</code>:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">def </span><span class="nv">ft</span> <span class="p">(</span><span class="nf">future</span> <span class="p">(</span><span class="nb">reduce + </span><span class="p">(</span><span class="nb">range </span><span class="mi">0</span> <span class="mi">10000</span><span class="p">))))</span>
+<span class="c1">;; ⇒ #'user/ft</span>
+<span class="p">(</span><span class="nf">realized?</span> <span class="nv">ft</span><span class="p">)</span>
+<span class="c1">;; ⇒ true</span>
+<span class="o">@</span><span class="nv">ft</span>
+<span class="c1">;; ⇒ 49995000</span>
+</pre></div>
+
+<p>Clojure futures are evaluated in a fixed size thread pool that is also used by agents
+(updated via <code>clojure.core/send</code>). This works well in many cases but may result in
+throughput lower than expected in applications that heavily use agents and futures at the same time.</p>
+
+<p>Finally, Clojure futures implement <code>java.util.concurrent.Future</code> and can be used with Java APIs
+that accept them.</p>
+
+<h2>
+<a name="promises" class="anchor" href="#promises"><span class="octicon octicon-link"></span></a>Promises</h2>
+
+<p>Promises are yet another take on asynchronously realized values. They are similar to futures in
+certain ways:</p>
+
+<ul>
+<li>Can be dereferenced with a timeout</li>
+<li>Caches the realized value</li>
+<li>Supported by <code>clojure.core/realized?</code>
+</li>
+</ul><p>However, promises are realized not by evaluating a piece of code but by calling <code>clojure.core/deliver</code>
+on a promise along with a value:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="c1">;; promises have no code body (no code to evaluate)</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">p</span> <span class="p">(</span><span class="nf">promise</span><span class="p">))</span>
+<span class="c1">;; ⇒ #'user/p</span>
+<span class="nv">p</span>
+<span class="c1">;; ⇒ #&lt;core$promise$reify__6153@306a0a21: :pending&gt;</span>
+<span class="p">(</span><span class="nf">realized?</span> <span class="nv">p</span><span class="p">)</span>
+<span class="c1">;; ⇒ false</span>
+
+<span class="c1">;; delivering a promise makes it realized</span>
+<span class="p">(</span><span class="nf">deliver</span> <span class="nv">p</span> <span class="p">{</span><span class="ss">:result</span> <span class="mi">42</span><span class="p">})</span>
+<span class="c1">;; ⇒ #&lt;core$promise$reify__6153@306a0a21: {:result 42}&gt;</span>
+<span class="p">(</span><span class="nf">realized?</span> <span class="nv">p</span><span class="p">)</span>
+<span class="c1">;; ⇒ true</span>
+<span class="o">@</span><span class="nv">p</span>
+<span class="c1">;; ⇒ {:result 42}</span>
+</pre></div>
+
+<p>Promises combine many of the benefits of callback-oriented asynchronous programming
+and the simpler blocking function calls model provided by dereferencing.</p>
+
+<h2>
+<a name="watches-and-validators" class="anchor" href="#watches-and-validators"><span class="octicon octicon-link"></span></a>Watches and Validators</h2>
+
+<p><em>TBD</em></p>
+
+<h2>
+<a name="using-intrinsic-locks-synchronized-in-clojure" class="anchor" href="#using-intrinsic-locks-synchronized-in-clojure"><span class="octicon octicon-link"></span></a>Using Intrinsic Locks ("synchronized") in Clojure</h2>
+
+<h3>
+<a name="explicit-locking" class="anchor" href="#explicit-locking"><span class="octicon octicon-link"></span></a>Explicit Locking</h3>
+
+<p>Every object on the JVM has an <em>intrinsic lock</em> (also referred to as <em>monitor lock</em>
+or simply <em>monitor</em>). By convention, a thread that needs to modify a field of a
+mutable object has to acquire the object's intrinsic lock and then release it.
+As long as a thread owns an intrinsic lock, no other thread can acquire the same lock.</p>
+
+<p>In Clojure, explicit synchronization like this is rarely necessary but may be
+needed for interoperability with Java code. When you need to execute a piece
+of code while holding an intrinsic lock of a mutable object, use
+the <code>clojure.core/locking</code> macro:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">l</span> <span class="p">(</span><span class="nf">java.util.ArrayList.</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nb">locking </span><span class="nv">l</span>
+    <span class="p">(</span><span class="nf">.add</span> <span class="nv">l</span> <span class="mi">10</span><span class="p">))</span>
+  <span class="nv">l</span><span class="p">)</span>
+<span class="c1">;; ⇒ #&lt;ArrayList [10]&gt;</span>
+</pre></div>
+
+<p>Note that for immutable Clojure data structures, explicit locking is effectively
+not necessary.</p>
+
+<h3>
+<a name="synchronization-on-clojure-record-fields" class="anchor" href="#synchronization-on-clojure-record-fields"><span class="octicon octicon-link"></span></a>Synchronization on Clojure Record Fields</h3>
+
+<p><em>TBD</em></p>
+
+<h2>
+<a name="reducers-clojure-15" class="anchor" href="#reducers-clojure-15"><span class="octicon octicon-link"></span></a>Reducers (Clojure 1.5+)</h2>
+
+<p><em>TBD</em></p>
+
+<h2>
+<a name="javautilconcurrent" class="anchor" href="#javautilconcurrent"><span class="octicon octicon-link"></span></a>java.util.concurrent</h2>
+
+<h3>
+<a name="overview-2" class="anchor" href="#overview-2"><span class="octicon octicon-link"></span></a>Overview</h3>
+
+<p><code>java.util.concurrent</code> (sometimes abbreviated as <code>j.u.c.</code>) is a group of
+<em>concurrency utilities</em> in the JDK. Originally introduced in JDK 5 in 2004,
+they are developed and maintained by some of the experts in concurrency.
+<code>j.u.c.</code> is a mature library that has been heavily battle tested for
+almost a decade.</p>
+
+<p>While Clojure provides a whole toolbelt of concurrency features of its own,
+in certain cases the best solution is to use an existing <code>j.u.c.</code> class
+or even build a new abstraction on top of <code>j.u.c.</code> building blocks.</p>
+
+<p><code>j.u.c.</code> consists of multiple parts that cover common concurrent programming
+patterns and use cases: from thread pools (a.k.a. <em>executors</em>) to synchronization
+classes, to atomic variables, to concurrent collections, to the Fork/Join
+framework.</p>
+
+<h3>
+<a name="executors-thread-pools" class="anchor" href="#executors-thread-pools"><span class="octicon octicon-link"></span></a>Executors (Thread Pools)</h3>
+
+<h4>
+<a name="overview-3" class="anchor" href="#overview-3"><span class="octicon octicon-link"></span></a>Overview</h4>
+
+<p>The Executor interface standardizes invocation, scheduling, execution, and control of asynchronous tasks.
+Those tasks can be executed in the calling thread, in newly created threads, or (mostly typically)
+in a thread pool. Thread pools also can have different implementations: for example,
+be fixed size or growing dynamically, using different error handling strategies and so on.</p>
+
+<p>Executors are most often instantiates using static methods of the <code>java.util.concurrent.Executors</code> class. To submit an operation to the pool, use the <code>ExecutorService#submit</code> method.</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nb">import </span><span class="o">'</span><span class="p">[</span><span class="nv">java.util.concurrent</span> <span class="nv">Executors</span> <span class="nv">ExecutorService</span> <span class="nv">Callable</span><span class="p">])</span>
+
+<span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="o">^</span><span class="nv">ExecutorService</span> <span class="nv">pool</span> <span class="p">(</span><span class="nf">Executors/newFixedThreadPool</span> <span class="mi">16</span><span class="p">)</span>
+      <span class="o">^</span><span class="nv">Callable</span> <span class="nv">clbl</span>        <span class="p">(</span><span class="nb">cast </span><span class="nv">Callable</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                                             <span class="p">(</span><span class="nb">reduce + </span><span class="p">(</span><span class="nb">range </span><span class="mi">0</span> <span class="mi">10000</span><span class="p">))))]</span>
+  <span class="p">(</span><span class="nf">.submit</span> <span class="nv">pool</span> <span class="nv">clbl</span><span class="p">))</span>
+<span class="c1">;; ⇒ #&lt;FutureTask java.util.concurrent.FutureTask@19ca276f&gt;</span>
+</pre></div>
+
+<p>In the example above, we create a new fixed size thread pool with 16 threads
+and submit a Clojure function for execution. Clojure functions <a href="/clojuredocs/guides/blob/master/articles/language/interop.html#clojure_functions_implement_runnable_and_callable">implement Runnable and Callable</a>
+interfaces and can be submitted for execution, however, because <code>ExecutorService#submit</code>
+is an overloaded method, to avoid reflection warnings, we cast the function
+to <code>java.util.concurrent.Callable</code>.</p>
+
+<h4>
+<a name="javautilconcurrentfuture" class="anchor" href="#javautilconcurrentfuture"><span class="octicon octicon-link"></span></a>java.util.concurrent.Future</h4>
+
+<p><code>Executor#submit</code> will return an instance of <code>java.util.concurrent.Future</code>. It is much like Clojure
+futures but cannot be dereferenced. To get the result, use the <code>j.u.c.Future#get</code> method:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nb">import </span><span class="o">'</span><span class="p">[</span><span class="nv">java.util.concurrent</span> <span class="nv">Executors</span> <span class="nv">ExecutorService</span> <span class="nv">Callable</span><span class="p">])</span>
+
+<span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="o">^</span><span class="nv">ExecutorService</span> <span class="nv">pool</span> <span class="p">(</span><span class="nf">Executors/newFixedThreadPool</span> <span class="mi">16</span><span class="p">)</span>
+      <span class="o">^</span><span class="nv">Callable</span> <span class="nv">clbl</span>        <span class="p">(</span><span class="nb">cast </span><span class="nv">Callable</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                                             <span class="p">(</span><span class="nb">reduce + </span><span class="p">(</span><span class="nb">range </span><span class="mi">0</span> <span class="mi">10000</span><span class="p">))))</span>
+      <span class="nv">task</span>                  <span class="p">(</span><span class="nf">.submit</span> <span class="nv">pool</span> <span class="nv">clbl</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nf">.get</span> <span class="nv">task</span><span class="p">))</span>
+<span class="c1">;; ⇒ 49995000</span>
+</pre></div>
+
+<h4>
+<a name="scheduled-executors" class="anchor" href="#scheduled-executors"><span class="octicon octicon-link"></span></a>Scheduled Executors</h4>
+
+<p><em>TBD</em></p>
+
+<h3>
+<a name="countdown-latches" class="anchor" href="#countdown-latches"><span class="octicon octicon-link"></span></a>Countdown Latches</h3>
+
+<p><em>Countdown latch</em> is a thread synchronization data structure. More specifically, it handles
+on group of concurrent workflows: "block the current thread until N other threads are
+done with their work". For example, "make a POST request to N URLs and continue when all N operations
+succeeded or failed".</p>
+
+<p>Countdown latches are instances of <code>java.util.concurrent.CountDownLatch</code> and instantiated with
+a positive integer:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="nb">import </span><span class="nv">java.util.concurrent.CountDownLatch</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">CountDownLatch.</span> <span class="nv">n</span><span class="p">)</span>
+</pre></div>
+
+<p>When the <code>CountDownLatch#await</code> method is executed, the calling thread blocks until the counter
+gets to 0. Invoking the <code>CountDownLatch#countDown</code> method decreases the counter by 1. Count down
+operations, of course, are supposed to be performed in other threads.</p>
+
+<p>An example to demonstrate:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">cnt</span>   <span class="p">(</span><span class="nf">atom</span> <span class="p">[])</span>
+      <span class="nv">n</span>     <span class="mi">5</span>
+      <span class="nv">latch</span> <span class="p">(</span><span class="nf">java.util.concurrent.CountDownLatch.</span> <span class="nv">n</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nb">doseq </span><span class="p">[</span><span class="nv">i</span> <span class="p">(</span><span class="nb">range </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)]</span>
+    <span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                       <span class="p">(</span><span class="nf">swap!</span> <span class="nv">cnt</span> <span class="nb">conj </span><span class="nv">i</span><span class="p">)</span>
+                       <span class="p">(</span><span class="nf">.countDown</span> <span class="nv">latch</span><span class="p">)))))</span>
+  <span class="p">(</span><span class="nf">.await</span> <span class="nv">latch</span><span class="p">)</span>
+  <span class="o">@</span><span class="nv">cnt</span><span class="p">)</span>
+<span class="c1">;; note the ordering: starting N threads in parallel leads to</span>
+<span class="c1">;; non-deterministic thread interleaving</span>
+<span class="c1">;; ⇒ [0 1 2 4 3]</span>
+</pre></div>
+
+<p>In the example above, we start multiple threads and block the current thread until all other
+threads are done. In this example, those other threads simply add an integer to a vector
+stored in an atom. More realistic scenarios will contact external services, the file system,
+perform some computation and so on.</p>
+
+<p>Because when threads are executed concurrently (or in parallel), the order of their execution is not
+guaranteed, we see 4 being added to the vector before 3 in the result.</p>
+
+<p>Countdown latches are commonly used with initial value of 1 to "block and wait until this operation in
+a different thread is done".</p>
+
+<h3>
+<a name="concurrent-collections" class="anchor" href="#concurrent-collections"><span class="octicon octicon-link"></span></a>Concurrent Collections</h3>
+
+<p>Most of the Java collections are mutable and were not designed for concurrency. <code>java.util.concurrent</code> includes a number of collections that
+are thread safe and can be used for passing data structures between threads.</p>
+
+<h3>
+<a name="atomic-variables" class="anchor" href="#atomic-variables"><span class="octicon octicon-link"></span></a>Atomic Variables</h3>
+
+<p>The <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/package-summary.html">java.util.concurrent.atomic</a> package provides
+a number of data structures that support lock-free thread-safe programming on a single variable (identity). They support
+conditional atomic update operation (<em>compared-and-swap</em> aka <em>CAS</em>).</p>
+
+<p>Some of the more popular atomic types in the <code>j.u.c.atomic</code> package are <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicBoolean.html">AtomicBoolean</a>,
+<a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicLong.html">AtomicLong</a> and <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicReference.html">AtomicReference</a>.</p>
+
+<p>Atomic references are pretty well covered in Clojure with atoms but ocassionally may be used by
+other libraries. An example to demonstrate how to use an atomic long for a thread-safe counter:</p>
+
+<div class="highlight highlight-clojure"><pre><span class="p">(</span><span class="k">let </span><span class="p">[</span><span class="nv">l</span> <span class="p">(</span><span class="nf">AtomicLong.</span><span class="p">)]</span>
+  <span class="p">(</span><span class="nb">dotimes </span><span class="p">[</span><span class="nv">i</span> <span class="mi">50</span><span class="p">]</span>
+    <span class="p">(</span><span class="nf">.start</span> <span class="p">(</span><span class="nf">Thread.</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span>
+                       <span class="p">(</span><span class="nf">.incrementAndGet</span> <span class="nv">l</span><span class="p">)))))</span>
+  <span class="p">(</span><span class="nf">.get</span> <span class="nv">l</span><span class="p">))</span>
+<span class="c1">;; ⇒ 49</span>
+</pre></div>
+
+<h3>
+<a name="forkjoin-framework" class="anchor" href="#forkjoin-framework"><span class="octicon octicon-link"></span></a>Fork/Join Framework</h3>
+
+<p><em>TBD</em></p>
+
+<h2>
+<a name="other-approaches-to-concurrency" class="anchor" href="#other-approaches-to-concurrency"><span class="octicon octicon-link"></span></a>Other Approaches to Concurrency</h2>
+
+<p>There are also other approaches to concurrency that neither Clojure nor Java cover. The growing
+adoption of <em>message passing</em> concurrency (the <a href="http://en.wikipedia.org/wiki/Actor_model">Actor model</a> and <a href="http://en.wikipedia.org/wiki/Communicating_Sequential_Processes">CSP</a>)
+lead to the creation of several JVM-based frameworks for message passing. Some of the most popular ones
+include:</p>
+
+<ul>
+<li><a href="http://akka.io">Akka</a></li>
+<li><a href="http://code.google.com/p/jetlang/">Jetlang</a></li>
+<li><a href="http://lmax-exchange.github.com/disruptor/">LMAX Disruptor</a></li>
+</ul><p>Akka's Java API can be used from Clojure either directly or via a library called <a href="https://github.com/gaverhae/okku">Okku</a>.</p>
+
+<p>In LMAX Disruptor, event instances passed around are assumed to be mutable, so the framework is of limited use with Clojure.</p>
+
+<h2>
+<a name="runtime-parallelism" class="anchor" href="#runtime-parallelism"><span class="octicon octicon-link"></span></a>Runtime Parallelism</h2>
+
+<p>Clojure was designed to be a hosted language. Its primary target, the
+JVM, provides runtime parallelism support.  JVM threads map 1:1 to
+kernel threads. Those will be executed in parallel given that enough
+cores are available for OS scheduler to use.</p>
+
+<p>In Clojure, many concurrency features are built on top of JVM threads
+and thus benefit from runtime parallelism if the program is running on
+a multi-core machine.</p>
+
+<h2>
+<a name="books" class="anchor" href="#books"><span class="octicon octicon-link"></span></a>Books</h2>
+
+<p>Concurrency is a broad topic and it would be silly to think that we
+can cover it well in just one guide.  To get a better understanding of
+the subject, one can refer to a few excellent books:</p>
+
+<ul>
+<li>
+<a href="http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601">Java Concurrency in Practice</a> by Brian Goetz et al. is a true classic.</li>
+<li>
+<a href="http://pragprog.com/book/vspcon/programming-concurrency-on-the-jvm">Programming Concurrency on the JVM</a> demonstrates a range of concurrency features in several JVM languages.</li>
+</ul><h2>
+<a name="wrapping-up" class="anchor" href="#wrapping-up"><span class="octicon octicon-link"></span></a>Wrapping Up</h2>
+
+<p>One of Clojure design goals was to make concurrent programming easier.</p>
+
+<p>The key design decision was making Clojure data structures immutable
+(persistent) and separating the concepts of <em>identity</em> (references)
+and <em>value</em>. Immutable values eliminate many concurrency hazards, and
+ultimately make it easier for developers to reason about their
+programs.</p>
+
+<p>Atoms are arguably the most commonly used reference type when working
+with concurrency (vars are used much more often but not for their
+concurrency semantics). Software Transactional Memory is a more
+specialized feature and has certain limitations (e.g., I/O operations
+must not be performed inside transactions). Finally, agents, futures,
+and promises provide an array of tools for working with asynchronous
+operations.</p>
+
+<p>Concurrency is a hard fundamental problem. There is no single "best"
+solution or approach to it. On the JVM, Clojure offers several
+concurrency-related features of its own but also provides easy access
+to the <code>java.util.concurrent</code> primitives and libraries such as
+<a href="http://akka.io/">Akka</a> or
+<a href="http://code.google.com/p/jetlang/">Jetlang</a>.</p>
+
+<h2>
+<a name="contributors" class="anchor" href="#contributors"><span class="octicon octicon-link"></span></a>Contributors</h2>
+
+<p>Michael Klishin <a href="mailto:michael@defprotocol.org">michael@defprotocol.org</a>, 2012 (original author)</p></article>
+  </div>
+
+  </div>
+</div>
+
+<a href="#jump-to-line" rel="facebox[.linejump]" data-hotkey="l" class="js-jump-to-line" style="display:none">Jump to Line</a>
+<div id="jump-to-line" style="display:none">
+  <form accept-charset="UTF-8" class="js-jump-to-line-form">
+    <input class="linejump-input js-jump-to-line-field" type="text" placeholder="Jump to line&hellip;" autofocus>
+    <button type="submit" class="button">Go</button>
+  </form>
+</div>
+
+        </div>
+
+      </div><!-- /.repo-container -->
+      <div class="modal-backdrop"></div>
+    </div><!-- /.container -->
+  </div><!-- /.site -->
+
+
+    </div><!-- /.wrapper -->
+
+      <div class="container">
+  <div class="site-footer">
+    <ul class="site-footer-links right">
+      <li><a href="https://status.github.com/">Status</a></li>
+      <li><a href="http://developer.github.com">API</a></li>
+      <li><a href="http://training.github.com">Training</a></li>
+      <li><a href="http://shop.github.com">Shop</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="/about">About</a></li>
+
+    </ul>
+
+    <a href="/">
+      <span class="mega-octicon octicon-mark-github"></span>
+    </a>
+
+    <ul class="site-footer-links">
+      <li>&copy; 2013 <span title="0.20905s from github-fe133-cp1-prd.iad.github.net">GitHub</span>, Inc.</li>
+        <li><a href="/site/terms">Terms</a></li>
+        <li><a href="/site/privacy">Privacy</a></li>
+        <li><a href="/security">Security</a></li>
+        <li><a href="/contact">Contact</a></li>
+    </ul>
+  </div><!-- /.site-footer -->
+</div><!-- /.container -->
+
+
+    <div class="fullscreen-overlay js-fullscreen-overlay" id="fullscreen_overlay">
+  <div class="fullscreen-container js-fullscreen-container">
+    <div class="textarea-wrap">
+      <textarea name="fullscreen-contents" id="fullscreen-contents" class="js-fullscreen-contents" placeholder="" data-suggester="fullscreen_suggester"></textarea>
+          <div class="suggester-container">
+              <div class="suggester fullscreen-suggester js-navigation-container" id="fullscreen_suggester"
+                 data-url="/clojuredocs/guides/suggestions/commit">
+              </div>
+          </div>
+    </div>
+  </div>
+  <div class="fullscreen-sidebar">
+    <a href="#" class="exit-fullscreen js-exit-fullscreen tooltipped leftwards" title="Exit Zen Mode">
+      <span class="mega-octicon octicon-screen-normal"></span>
+    </a>
+    <a href="#" class="theme-switcher js-theme-switcher tooltipped leftwards"
+      title="Switch themes">
+      <span class="octicon octicon-color-mode"></span>
+    </a>
+  </div>
+</div>
+
+
+
+    <div id="ajax-error-message" class="flash flash-error">
+      <span class="octicon octicon-alert"></span>
+      <a href="#" class="octicon octicon-remove-close close ajax-error-dismiss"></a>
+      Something went wrong with that request. Please try again.
+    </div>
+
+  </body>
+</html>
+

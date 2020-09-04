@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Re: spark 0.8</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>spark-user mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/spark-user" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/spark-user/201310.mbox/%3cCANx3uAhmxe-WD7XbptoThbWiqN6V8Ss-dQM7fHfW+Lef-kGq7g@mail.gmail.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/spark-user/201310.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/spark-user/201310.mbox/%3cCANGvG8pcaFHkOBes7vCq+sZ3w2JA2nSf+N1U4r7=AMLhaQUZHg@mail.gmail.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/spark-user/201310.mbox/%3cCANx3uAhmxe-WD7XbptoThbWiqN6V8Ss-dQM7fHfW+Lef-kGq7g@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/spark-user/201310.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/spark-user/201310.mbox/%3c1C3DB7A6-B40E-48FD-8C3C-4B340B89DE35@gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/spark-user/201310.mbox/%3cCANx3uAhmxe-WD7XbptoThbWiqN6V8Ss-dQM7fHfW+Lef-kGq7g@mail.gmail.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/spark-user/201310.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/spark-user/201310.mbox/%3cCANGvG8pcaFHkOBes7vCq+sZ3w2JA2nSf+N1U4r7=AMLhaQUZHg@mail.gmail.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/spark-user/201310.mbox/%3cCANx3uAhmxe-WD7XbptoThbWiqN6V8Ss-dQM7fHfW+Lef-kGq7g@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/spark-user/201310.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/spark-user/201310.mbox/%3c1C3DB7A6-B40E-48FD-8C3C-4B340B89DE35@gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">Koert Kuipers &lt;ko...@tresata.com&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Re: spark 0.8</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Fri, 18 Oct 2013 15:23:31 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+ok this has nothing to do with hadoop access. even a simple program that
+uses sc.parallelize blows up in this way.
+
+so spark-shell works well on the same machine i launch this from.
+
+if i launch a simple program without using kryo for serializer and closure
+serialize i get a different error. see below.
+at this point it seems to me i have some issue with task serialization???
+
+
+
+13/10/18 11:20:37 INFO StandaloneExecutorBackend: Got assigned task 0
+13/10/18 11:20:37 INFO StandaloneExecutorBackend: Got assigned task 1
+13/10/18 11:20:37 INFO Executor: Running task ID 1
+13/10/18 11:20:37 INFO Executor: Running task ID 0
+13/10/18 11:20:37 INFO Executor: Fetching
+http://192.168.3.171:41629/jars/simple-project_2.9.3-1.0.jar with timestamp
+1382109635095
+13/10/18 11:20:37 INFO Utils: Fetching
+http://192.168.3.171:41629/jars/simple-project_2.9.3-1.0.jar to
+/tmp/fetchFileTemp378181753997570700.tmp
+13/10/18 11:20:37 INFO Executor: Adding
+file:/var/lib/spark/app-20131018112035-0014/1/./simple-project_2.9.3-1.0.jar
+to class loader
+13/10/18 11:20:37 INFO Executor: caught throwable with stacktrace
+java.io.StreamCorruptedException: invalid type code: 00
+    at
+java.io.ObjectInputStream$BlockDataInputStream.readBlockHeader(ObjectInputStream.java:2467)
+    at
+java.io.ObjectInputStream$BlockDataInputStream.refill(ObjectInputStream.java:2502)
+    at
+java.io.ObjectInputStream$BlockDataInputStream.read(ObjectInputStream.java:2661)
+    at
+java.io.ObjectInputStream$BlockDataInputStream.read(ObjectInputStream.java:2583)
+    at java.io.DataInputStream.readFully(DataInputStream.java:178)
+    at java.io.DataInputStream.readLong(DataInputStream.java:399)
+    at
+java.io.ObjectInputStream$BlockDataInputStream.readLong(ObjectInputStream.java:2803)
+    at java.io.ObjectInputStream.readLong(ObjectInputStream.java:958)
+    at
+org.apache.spark.rdd.ParallelCollectionPartition.readObject(ParallelCollectionRDD.scala:72)
+    at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+    at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+    at java.lang.reflect.Method.invoke(Method.java:597)
+    at
+java.io.ObjectStreamClass.invokeReadObject(ObjectStreamClass.java:969)
+    at java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1852)
+    at
+java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1756)
+    at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1326)
+    at java.io.ObjectInputStream.readObject(ObjectInputStream.java:348)
+    at
+org.apache.spark.scheduler.ResultTask.readExternal(ResultTask.scala:135)
+    at
+java.io.ObjectInputStream.readExternalData(ObjectInputStream.java:1795)
+    at
+java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1754)
+    at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1326)
+    at java.io.ObjectInputStream.readObject(ObjectInputStream.java:348)
+    at
+org.apache.spark.serializer.JavaDeserializationStream.readObject(JavaSerializer.scala:39)
+    at
+org.apache.spark.serializer.JavaSerializerInstance.deserialize(JavaSerializer.scala:61)
+    at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:153)
+    at
+java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)
+    at
+java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)
+    at java.lang.Thread.run(Thread.java:662)
+
+
+
+On Fri, Oct 18, 2013 at 10:59 AM, Koert Kuipers &lt;koert@tresata.com&gt; wrote:
+
+&gt; i created a tiny sbt project as described here:
+&gt; apache.org/docs/latest/quick-start.html#a-standalone-app-in-scala&lt;http://spark.incubator.apache.org/docs/latest/quick-start.html#a-standalone-app-in-scala&gt;
+&gt;
+&gt; it has the correct dependencies: spark-core and the correct hadoop-client
+&gt; for my platform. i tried both the generic spark-core dependency and
+&gt; spark-core dependency compiled against my platform. it runs fine in local
+&gt; mode, but when i switch to the cluster i still always get the following
+&gt; exceptions on tasks:
+&gt;
+&gt; 13/10/18 10:25:53 ERROR Executor: Uncaught exception in thread
+&gt; Thread[pool-5-thread-1,5,main]
+&gt;
+&gt; java.lang.NullPointerException
+&gt;     at
+&gt; org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:187)
+&gt;     at
+&gt; java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)
+&gt;     at
+&gt; java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)
+&gt;     at java.lang.Thread.run(Thread.java:662)
+&gt;
+&gt; after adding some additional debugging to Executor i see the cause is this:
+&gt; 13/10/18 10:54:47 INFO Executor: caught throwable with stacktrace
+&gt; java.lang.NullPointerException
+&gt;     at
+&gt; org.apache.spark.executor.Executor$TaskRunner$$anonfun$run$2.apply(Executor.scala:155)
+&gt;     at
+&gt; org.apache.spark.executor.Executor$TaskRunner$$anonfun$run$2.apply(Executor.scala:155)
+&gt;     at org.apache.spark.Logging$class.logInfo(Logging.scala:48)
+&gt;     at org.apache.spark.executor.Executor.logInfo(Executor.scala:36)
+&gt;     at
+&gt; org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:155)
+&gt;
+&gt;     at
+&gt; java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)
+&gt;     at
+&gt; java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)
+&gt;     at java.lang.Thread.run(Thread.java:662)
+&gt;
+&gt; so it seems the offending line is:
+&gt; logInfo("Its epoch is " + task.epoch)
+&gt;
+&gt; i am guessing accessing epoch on the task is throwing the NPE. any ideas?
+&gt;
+&gt;
+&gt;
+&gt; On Thu, Oct 17, 2013 at 8:12 PM, Koert Kuipers &lt;koert@tresata.com&gt; wrote:
+&gt;
+&gt;&gt; sorry one more related question:
+&gt;&gt; i compile against a spark build for hadoop 1.0.4, but the actual
+&gt;&gt; installed version of spark is build against cdh4.3.0-mr1. this also used to
+&gt;&gt; work, and i prefer to do this so i compile against a generic spark build.
+&gt;&gt; could this be the issue?
+&gt;&gt;
+&gt;&gt;
+&gt;&gt; On Thu, Oct 17, 2013 at 8:06 PM, Koert Kuipers &lt;koert@tresata.com&gt; wrote:
+&gt;&gt;
+&gt;&gt;&gt; i have my spark and hadoop related dependencies as "provided" for my
+&gt;&gt;&gt; spark job. this used to work with previous versions. are these now supposed
+&gt;&gt;&gt; to be compile/runtime/default dependencies?
+&gt;&gt;&gt;
+&gt;&gt;&gt;
+&gt;&gt;&gt; On Thu, Oct 17, 2013 at 8:04 PM, Koert Kuipers &lt;koert@tresata.com&gt;wrote:
+&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; yes i did that and i can see the correct jars sitting in lib_managed
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt; On Thu, Oct 17, 2013 at 7:56 PM, Matei Zaharia &lt;matei.zaharia@gmail.com
+&gt;&gt;&gt;&gt; &gt; wrote:
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt; Koert, did you link your Spark job to the right version of HDFS as
+&gt;&gt;&gt;&gt;&gt; well? In Spark 0.8, you have to add a Maven dependency on "hadoop-client"
+&gt;&gt;&gt;&gt;&gt; for your version of Hadoop. See
+&gt;&gt;&gt;&gt;&gt; http://spark.incubator.apache.org/docs/latest/quick-start.html#a-standalone-app-in-scala
+for
+&gt;&gt;&gt;&gt;&gt; example.
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt; Matei
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt; On Oct 17, 2013, at 4:38 PM, Koert Kuipers &lt;koert@tresata.com&gt;
+wrote:
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt; i got the job a little further along by also setting this:
+&gt;&gt;&gt;&gt;&gt; System.setProperty("spark.closure.serializer",
+&gt;&gt;&gt;&gt;&gt; "org.apache.spark.serializer.KryoSerializer")
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt; not sure why i need to... but anyhow, now my workers start and then
+&gt;&gt;&gt;&gt;&gt; they blow up on this:
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt; 13/10/17 19:22:57 ERROR Executor: Uncaught exception in thread
+&gt;&gt;&gt;&gt;&gt; Thread[pool-5-thread-1,5,main]
+&gt;&gt;&gt;&gt;&gt; java.lang.NullPointerException
+&gt;&gt;&gt;&gt;&gt;     at
+&gt;&gt;&gt;&gt;&gt; org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:187)
+&gt;&gt;&gt;&gt;&gt;     at
+&gt;&gt;&gt;&gt;&gt; java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)
+&gt;&gt;&gt;&gt;&gt;     at
+&gt;&gt;&gt;&gt;&gt; java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)
+&gt;&gt;&gt;&gt;&gt;     at java.lang.Thread.run(Thread.java:662)
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt; which is:
+&gt;&gt;&gt;&gt;&gt;  val metrics = attemptedTask.flatMap(t =&gt; t.metrics)
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt; On Thu, Oct 17, 2013 at 7:30 PM, dachuan &lt;hdc1112@gmail.com&gt; wrote:
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt; thanks, Mark.
+&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt; On Thu, Oct 17, 2013 at 6:36 PM, Mark Hamstra &lt;
+&gt;&gt;&gt;&gt;&gt;&gt; mark@clearstorydata.com&gt; wrote:
+&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; SNAPSHOTs are not fixed versions, but are floating names associated
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; with whatever is the most recent code.  So, Spark 0.8.0 is the
+current
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; released version of Spark, which is exactly the same today as
+it was
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; yesterday, and will be the same thing forever.  Spark 0.8.1-SNAPSHOT
+is
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; whatever is currently in branch-0.8.  It changes every time new
+code is
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; committed to that branch (which should be just bug fixes and
+the few
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; additional features that we wanted to get into 0.8.0, but that
+didn't quite
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; make it.)  Not too long from now there will be a release of Spark
+0.8.1, at
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; which time the SNAPSHOT will got to 0.8.2 and 0.8.1 will be forever
+frozen.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;  Meanwhile, the wild new development is taking place on the master
+branch,
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; and whatever is currently in that branch becomes 0.9.0-SNAPSHOT.
+ This
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; could be quite different from day to day, and there are no guarantees
+that
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; things won't be broken in 0.9.0-SNAPSHOT.  Several months from
+now there
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; will be a release of Spark 0.9.0 (unless the decision is made
+to bump the
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; version to 1.0.0), at which point the SNAPSHOT goes to 0.9.1
+and the whole
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; process advances to the next phase of development.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; The short answer is that releases are stable, SNAPSHOTs are not,
+and
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; SNAPSHOTs that aren't on maintenance branches can break things.
+ You make
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; your choice of which to use and pay the consequences.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; On Thu, Oct 17, 2013 at 3:18 PM, dachuan &lt;hdc1112@gmail.com&gt;
+wrote:
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; yeah, I mean 0.9.0-SNAPSHOT. I use git clone and that's what
+I
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; got.. what's the difference? I mean SNAPSHOT and non-SNAPSHOT.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; On Thu, Oct 17, 2013 at 6:15 PM, Mark Hamstra &lt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; mark@clearstorydata.com&gt; wrote:
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Of course, you mean 0.9.0-SNAPSHOT.  There is no Spark
+0.9.0, and
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; won't be for several months.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; On Thu, Oct 17, 2013 at 3:11 PM, dachuan &lt;hdc1112@gmail.com&gt;wrote:
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; I'm sorry if this doesn't answer your question directly,
+but I
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; have tried spark 0.9.0 and hdfs 1.0.4 just now, it
+works..
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; On Thu, Oct 17, 2013 at 6:05 PM, Koert Kuipers &lt;koert@tresata.com
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; &gt; wrote:
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; after upgrading from spark 0.7 to spark 0.8 i
+can no longer
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; access any files on HDFS.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;  i see the error below. any ideas?
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; i am running spark standalone on a cluster that
+also has
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; CDH4.3.0 and rebuild spark accordingly. the jars
+in lib_managed look good
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; to me.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; i noticed similar errors in the mailing list
+but found no
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; suggested solutions.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; thanks! koert
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 13/10/17 17:43:23 ERROR Executor: Exception in
+task ID 0
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; java.io.EOFException
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream$BlockDataInputStream.readFully(ObjectInputStream.java:2703)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readFully(ObjectInputStream.java:1008)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.hadoop.io.DataOutputBuffer$Buffer.write(DataOutputBuffer.java:68)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.hadoop.io.DataOutputBuffer.write(DataOutputBuffer.java:106)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.hadoop.io.UTF8.readChars(UTF8.java:258)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.hadoop.io.UTF8.readString(UTF8.java:250)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.hadoop.mapred.FileSplit.readFields(FileSplit.java:87)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.hadoop.io.ObjectWritable.readObject(ObjectWritable.java:280)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.hadoop.io.ObjectWritable.readFields(ObjectWritable.java:75)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.spark.SerializableWritable.readObject(SerializableWritable.scala:39)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native
+Method)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.lang.reflect.Method.invoke(Method.java:597)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectStreamClass.invokeReadObject(ObjectStreamClass.java:969)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1852)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1756)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1326)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:1950)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:1874)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1756)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1326)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:348)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.spark.scheduler.ResultTask.readExternal(ResultTask.scala:135)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readExternalData(ObjectInputStream.java:1795)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:1754)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1326)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.io.ObjectInputStream.readObject(ObjectInputStream.java:348)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.spark.serializer.JavaDeserializationStream.readObject(JavaSerializer.scala:39)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.spark.serializer.JavaSerializerInstance.deserialize(JavaSerializer.scala:61)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:153)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:895)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:918)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 	at java.lang.Thread.run(Thread.java:662)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; --
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Dachuan Huang
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Cellphone: 614-390-7234
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 2015 Neil Avenue
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Ohio State University
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Columbus, Ohio
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; U.S.A.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 43210
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; --
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Dachuan Huang
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Cellphone: 614-390-7234
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 2015 Neil Avenue
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Ohio State University
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; Columbus, Ohio
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; U.S.A.
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 43210
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;&gt; --
+&gt;&gt;&gt;&gt;&gt;&gt; Dachuan Huang
+&gt;&gt;&gt;&gt;&gt;&gt; Cellphone: 614-390-7234
+&gt;&gt;&gt;&gt;&gt;&gt; 2015 Neil Avenue
+&gt;&gt;&gt;&gt;&gt;&gt; Ohio State University
+&gt;&gt;&gt;&gt;&gt;&gt; Columbus, Ohio
+&gt;&gt;&gt;&gt;&gt;&gt; U.S.A.
+&gt;&gt;&gt;&gt;&gt;&gt; 43210
+&gt;&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;&gt;
+&gt;&gt;&gt;
+&gt;&gt;
+&gt;
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li>Unnamed multipart/alternative (inline, None, 0 bytes)</li>
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/spark-user/201310.mbox/raw/%3cCANx3uAi+3+erxTPdi8S=TC9JXWTngNgeX9=z3892V69YpwQzRw@mail.gmail.com%3e/1">Unnamed text/plain</a> (inline, None, 14633 bytes)</li>
+</ul>
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/spark-user/201310.mbox/raw/%3cCANx3uAi+3+erxTPdi8S=TC9JXWTngNgeX9=z3892V69YpwQzRw@mail.gmail.com%3e/2">Unnamed text/html</a> (inline, Quoted Printable, 20780 bytes)</li>
+</ul>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/spark-user/201310.mbox/raw/%3cCANx3uAi+3+erxTPdi8S=TC9JXWTngNgeX9=z3892V69YpwQzRw@mail.gmail.com%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=7" />
+<title>String和StringBuffer之性能讲解 - 我�?JAVA-JAVA基础知识 - 我�?JAVA</title>
+<meta name="keywords" content="String,StringBuffer,性能">
+<meta name="description" content="�?��?��?�对象一旦创建之�?�就�?能�?被改�?�，�?��?�对象则�?�以在创建之�?�被改�?�。String对象是�?��?��?�对象，StringBuffer对象则是�?��?�对象。为获得...">
+<link href="http://www.wyjava.com/statics/css/reset.css" rel="stylesheet" type="text/css" />
+<link href="http://www.wyjava.com/statics/css/default_blue.css" rel="stylesheet" type="text/css" />
+<link href="http://www.wyjava.com/statics/js/ckeditor/contents.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="http://www.wyjava.com/statics/js/jquery.min.js"></script>
+<script type="text/javascript" src="http://www.wyjava.com/statics/js/jquery.sgallery.js"></script>
+<script type="text/javascript" src="http://www.wyjava.com/statics/js/search_common.js"></script>
+</head>
+<body>
+<div class="body-top">
+    <div class="content">
+        		<div id="announ">
+                 <ul>
+                                       <li><a href="http://www.wyjava.com/html/2012/news_0131/1.html">诺基亚N950�?鲜：MeeGo PR1.2新特性抢先看</a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/xtmh_0131/3.html">360手机�?�士</a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/news_0131/3.html">微软：Windows Phone 8�?��?行所有WP7应用</a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/news_0131/4.html">�?��?黄牛 苹果香港官网执行摇�?�购买iPhone</a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/wrox_0131/5.html">JAVA版彩色扭曲验�?�?</a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/wrox_0131/5.html">JAVA版彩色扭曲验�?�?</a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/news_0201/20.html">国产4G�?�临�?�好�?�?�座尴尬：�?能商用�??失良机</a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/database_oracle_0210/94.html">教你用toad导入excel报表到oracle图文教程</a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/aspnet_silverlight_0210/100.html">Silverlight教程之界�?�布局 </a></li>
+                                            <li><a href="http://www.wyjava.com/html/2012/hibernate_0220/316.html">在Hibernate中�?置连接表</a></li>
+                                       </ul>
+            </div>
+     	 <script type="text/javascript">
+$(function(){
+	startmarquee('announ',22,1,500,3000);
+})
+</script>
+            <div class="login lh24 blue"><a href="http://www.wyjava.com/index.php?m=content&c=rss&siteid=1" class="rss ib">rss</a><span class="rt"><script type="text/javascript">document.write('<iframe src="http://www.wyjava.com/index.php?m=member&c=index&a=mini&forward='+encodeURIComponent(location.href)+'&siteid=1" allowTransparency="true"  width="500" height="24" frameborder="0" scrolling="no"></iframe>')</script></span></div>
+    </div>
+</div>
+<div class="header">
+	<div class="logo"><a href="http://www.wyjava.com/"><img src="http://www.wyjava.com/statics/images/v9/logo.jpg" /></a></div>
+
+    <div class="search">
+    	<div class="tab" id="search">
+																<a href="javascript:;" onclick="setmodel(1, $(this));" style="outline:medium none;" hidefocus="true"  class="on" >新闻</a><span> | </span>										<a href="javascript:;" onclick="setmodel(3, $(this));" style="outline:medium none;" hidefocus="true" >图片</a><span> | </span>										<a href="javascript:;" onclick="setmodel(2, $(this));" style="outline:medium none;" hidefocus="true" >下载</a><span> | </span>										<a href="javascript:;" onclick="setmodel(52, $(this));" style="outline:medium none;" hidefocus="true" >专题</a>								</div>
+
+        <div class="bd">
+            <form action="http://www.wyjava.com/index.php" method="get" target="_blank">
+				<input type="hidden" name="m" value="search"/>
+				<input type="hidden" name="c" value="index"/>
+				<input type="hidden" name="a" value="init"/>
+				<input type="hidden" name="typeid" value="1" id="typeid"/>
+				<input type="hidden" name="siteid" value="1" id="siteid"/>
+                <input type="text" class="text" name="q" id="q"/><input type="submit" value="�?� 索" class="button" />
+            </form>
+        </div>
+    </div>
+
+    <div class="banner"><iframe id="baiduframe" marginwidth="0" marginheight="0" scrolling="no"
+  framespacing="0" vspace="0" hspace="0" frameborder="0" width="460" height="60" 
+  src="http://unstat.baidu.com/bdun.bsc?tn=wuya627_pg&cv=0&cid=1239555&csid=106&bgcr=ffffff&urlcr=0000ff&tbsz=230&sropls=1,2,3,4,5,6,7,9,10&defid=2&kwgp=0">
+</iframe></div>
+    <div class="bk3"></div>
+    <div class="nav-bar">
+    	<map>
+    	        	<ul class="nav-site">
+			<li><a href="http://www.wyjava.com"><span>首页</span></a></li>
+						<li class="line">|</li>
+			<li><a href="http://www.wyjava.com/html/news/"><span>IT新闻</span></a></li>
+						<li class="line">|</li>
+			<li><a href="http://www.wyjava.com/html/java/"><span>JAVA知识解剖</span></a></li>
+						<li class="line">|</li>
+			<li><a href="http://www.wyjava.com/html/aspnet/"><span>.NET专区</span></a></li>
+						<li class="line">|</li>
+			<li><a href="http://www.wyjava.com/html/database/"><span>数�?�库应用</span></a></li>
+						<li class="line">|</li>
+			<li><a href="http://www.wyjava.com/html/web/"><span>WEB�?端开�?�</span></a></li>
+						<li class="line">|</li>
+			<li><a href="http://www.wyjava.com/html/technology/"><span>IT技术四�?�院</span></a></li>
+						<li class="line">|</li>
+			<li><a href="http://www.wyjava.com/html/android/"><span>安�?�应用专区</span></a></li>
+						<li class="line">|</li>
+			<li><a href="http://www.wyjava.com/html/down/"><span>资�?共享</span></a></li>
+			            </ul>
+        		        </map>
+    </div>
+	    <div class="subnav">
+								<a href="http://www.wyjava.com/html/java/java_source/">JAVA开�?和高级应用</a><span> | </span>
+						<a href="http://www.wyjava.com/html/java/java_j2ee/">J2EE�?��?业开�?�技术</a><span> | </span>
+						<a href="http://www.wyjava.com/html/java/java_j2me/">J2ME与移动开�?�技术</a><span> | </span>
+						<a href="http://www.wyjava.com/html/java/java_server/">应用�?务器与IDE工具</a><span> | </span>
+			            	<a href="http://www.wyjava.com/index.php?m=content&c=search&catid=19">�?�索</a>    </div>
+	</div><div class="main">
+	<div class="col-left">
+    	<div class="crumbs"><a href="http://www.wyjava.com">首页</a><span> > </span><a href="http://www.wyjava.com/html/java/">JAVA知识解剖</a> > <a href="http://www.wyjava.com/html/java/java_source/">JAVA开�?和高级应用</a> > <a href="http://www.wyjava.com/html/java/java_source/java_basic/">JAVA基础知识</a> >  正文</div>
+        <div id="Article">
+        	<h1>String和StringBuffer之性能讲解<br />
+<span>2012-02-29 11:01:51&nbsp;&nbsp;&nbsp;�?��?：&nbsp;&nbsp;&nbsp;评论：<a href="#comment_iframe" id="comment">0</a> 点击：</span><span id="hits"></span></h1>
+			<div class="summary" >�?��?��?�对象一旦创建之�?�就�?能�?被改�?�，�?��?�对象则�?�以在创建之�?�被改�?�。String对象是�?��?��?�对象，StringBuffer对象则是�?��?�对象。为获得...</div>			<div class="content">
+							<br />
+滞留字符串的优化作用<br />
+　　�?�一个字符串对象被�?�?地创建是�?必�?的，String.intern ()方法�?�以�?��?这�?情况。下图说明了String.intern()方法是如何工作的，String.intern()方法检查字符串对象的存在性，如果需�?的字符串对象已�?存在，那么它会将引用指�?�已�?存在的字符串对象而�?是�?新创建一个。下图�??绘了使用了intern()方法的字符串字�?��?和字符串对象的创建情况。<br />
+<br />
+string_creating_with_intern() method<br />
+下�?�的例程帮助大家了解String.intern()方法的�?�?性。<span style="display: none">&nbsp;</span><br />
+<blockquote>
+	<ol class="dp-j">
+	<li class="alt"><span><span>StringTest2.java &nbsp;</span></span></li>
+	<li><span>&nbsp;</span></li>
+	<li class="alt"><span class="keyword">package</span><span>&nbsp;com.performance.string; &nbsp;</span></li>
+	<li><span class="comment">//&nbsp;This&nbsp;class&nbsp;shows&nbsp;the&nbsp;use&nbsp;of&nbsp;intern()&nbsp;method&nbsp;to&nbsp;improve&nbsp;performance </span><span>&nbsp;</span></li>
+	<li class="alt"><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;StringTest2&nbsp;{ &nbsp;</span></li>
+	<li><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;main(String[]&nbsp;args){ &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="comment">//&nbsp;create&nbsp;String&nbsp;references&nbsp;like&nbsp;s1,s2,s3...so&nbsp;on.. </span><span>&nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;variables[]&nbsp;=&nbsp;</span><span class="keyword">new</span><span>&nbsp;String[</span><span class="number">50000</span><span>]; &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">for</span><span>(&nbsp;</span><span class="keyword">int</span><span>&nbsp;i=</span><span class="number">0</span><span>;i&lt;variables.length;i++){ &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;variables[i]&nbsp;=&nbsp;</span><span class="string">&quot;s&quot;</span><span>+i; &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="comment">//&nbsp;create&nbsp;String&nbsp;literals </span><span>&nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">long</span><span>&nbsp;startTime0&nbsp;=&nbsp;System.currentTimeMillis(); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">for</span><span>(</span><span class="keyword">int</span><span>&nbsp;i=</span><span class="number">0</span><span>;i&lt;variables.length;i++){ &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;variables[i]&nbsp;=&nbsp;</span><span class="string">&quot;hello&quot;</span><span>; &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">long</span><span>&nbsp;endTime0&nbsp;=&nbsp;System.currentTimeMillis(); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(</span><span class="string">&quot;Time&nbsp;taken&nbsp;for&nbsp;creation&nbsp;of&nbsp;String&nbsp;literals&nbsp;:&nbsp;&quot;</span><span>&nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;(endTime0&nbsp;-&nbsp;startTime0)&nbsp;+&nbsp;</span><span class="string">&quot;&nbsp;milli&nbsp;seconds&quot;</span><span>&nbsp;); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="comment">//&nbsp;create&nbsp;String&nbsp;objects&nbsp;using&nbsp;&#39;new&#39;&nbsp;keyword&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span>&nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">long</span><span>&nbsp;startTime1&nbsp;=&nbsp;System.currentTimeMillis(); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">for</span><span>(</span><span class="keyword">int</span><span>&nbsp;i=</span><span class="number">0</span><span>;i&lt;variables.length;i++){ &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;variables[i]&nbsp;=&nbsp;</span><span class="keyword">new</span><span>&nbsp;String(</span><span class="string">&quot;hello&quot;</span><span>); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">long</span><span>&nbsp;endTime1&nbsp;=&nbsp;System.currentTimeMillis(); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(</span><span class="string">&quot;Time&nbsp;taken&nbsp;for&nbsp;creation&nbsp;of&nbsp;String&nbsp;objects&nbsp;with&nbsp;&#39;new&#39;&nbsp;key&nbsp;word&nbsp;:&nbsp;&quot;</span><span>&nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;(endTime1&nbsp;-&nbsp;startTime1)+</span><span class="string">&quot;&nbsp;milli&nbsp;seconds&quot;</span><span>); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="comment">//&nbsp;intern&nbsp;String&nbsp;objects&nbsp;with&nbsp;intern()&nbsp;method&nbsp;&nbsp;&nbsp; </span><span>&nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">long</span><span>&nbsp;startTime2&nbsp;=&nbsp;System.currentTimeMillis(); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">for</span><span>(</span><span class="keyword">int</span><span>&nbsp;i=</span><span class="number">0</span><span>;i&lt;variables.length;i++){ &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;variables[i]&nbsp;=&nbsp;</span><span class="keyword">new</span><span>&nbsp;String(</span><span class="string">&quot;hello&quot;</span><span>); &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;variables[i]&nbsp;=&nbsp;variables[i].intern(); &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="keyword">long</span><span>&nbsp;endTime2&nbsp;=&nbsp;System.currentTimeMillis(); &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(</span><span class="string">&quot;Time&nbsp;taken&nbsp;for&nbsp;creation&nbsp;of&nbsp;String&nbsp;objects&nbsp;with&nbsp;intern():&nbsp;&quot;</span><span>&nbsp;</span></li>
+	<li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;(endTime2&nbsp;-&nbsp;startTime2)+</span><span class="string">&quot;&nbsp;milli&nbsp;seconds&quot;</span><span>); &nbsp;</span></li>
+	<li class="alt"><span>&nbsp;&nbsp;&nbsp;&nbsp;} &nbsp;</span></li>
+	<li><span>}&nbsp;</span></li>
+	</ol>
+</blockquote>
+<br />
+这是上�?�那段代�?的输出结果：<br />
+<blockquote>
+	<ol class="dp-c">
+	<li class="alt"><span><span>Time&nbsp;taken&nbsp;</span><span class="keyword">for</span><span>&nbsp;creation&nbsp;of&nbsp;String&nbsp;literals&nbsp;:&nbsp;0&nbsp;milli&nbsp;seconds &nbsp;</span></span></li>
+	<li><span>Time&nbsp;taken&nbsp;</span><span class="keyword">for</span><span>&nbsp;creation&nbsp;of&nbsp;String&nbsp;objects&nbsp;</span><span class="keyword">with</span><span>&nbsp;</span><span class="string">&#39;new&#39;</span><span>&nbsp;key&nbsp;word&nbsp;:&nbsp;160&nbsp;milli&nbsp;seconds &nbsp;</span></li>
+	<li class="alt"><span>Time&nbsp;taken&nbsp;</span><span class="keyword">for</span><span>&nbsp;creation&nbsp;of&nbsp;String&nbsp;objects&nbsp;</span><span class="keyword">with</span><span>&nbsp;intern():&nbsp;60&nbsp;milli&nbsp;seconds&nbsp;</span></li>
+	</ol>
+</blockquote>
+<br />
+				<!--内容关�?�投票-->
+				                
+						</div>
+			<div id="pages" class="text-c"><a class="a1" href="http://www.wyjava.com/html/2012/java_basic_0229/386_2.html">上一页</a> <a href="http://www.wyjava.com/html/2012/java_basic_0229/386.html">1</a> <a href="http://www.wyjava.com/html/2012/java_basic_0229/386_2.html">2</a> <span>3</span> <a href="http://www.wyjava.com/html/2012/java_basic_0229/386_4.html">4</a> <a href="http://www.wyjava.com/html/2012/java_basic_0229/386_5.html">5</a> <a href="http://www.wyjava.com/html/2012/java_basic_0229/386_6.html">6</a> <a class="a1" href="http://www.wyjava.com/html/2012/java_basic_0229/386_4.html">下一页</a></div>
+
+
+
+
+
+            <p style="margin-bottom:10px">
+            <strong>相关热�?�?�索：</strong><a href="http://www.wyjava.com/index.php?m=content&c=tag&catid=19&tag=String" class="blue">String</a> 	<a href="http://www.wyjava.com/index.php?m=content&c=tag&catid=19&tag=StringBuffer" class="blue">StringBuffer</a> 	<a href="http://www.wyjava.com/index.php?m=content&c=tag&catid=19&tag=%E6%80%A7%E8%83%BD" class="blue">性能</a> 	            </p>
+            <p class="f14">
+                <strong>上一篇：</strong><a href="http://www.wyjava.com/html/2012/java_basic_0229/385.html">Java�?算符优先级�?�考图表</a><br />
+                <strong>下一篇：</strong><a href="javascript:alert('最�?�一页');">最�?�一页</a>
+            </p>
+                                        <div class="related">
+                    <h5 class="blue">延伸阅读：</h5>
+                    <ul class="list blue lh24 f14">
+                                                    <li>·<a href="http://www.wyjava.com/html/2012/java_basic_0213/135.html" target="_blank">最简�?�的char[]与String互转</a><span>(2012-02-13)</span></li>
+                                                    <li>·<a href="http://www.wyjava.com/html/2012/java_basic_0219/281.html" target="_blank">Java�?学者都必须�?�解的六大问题</a><span>(2012-02-19)</span></li>
+                                                    <li>·<a href="http://www.wyjava.com/html/2012/java_basic_0229/384.html" target="_blank">String,StringBuffer,StringBuilder区别</a><span>(2012-02-29)</span></li>
+                                            </ul>
+                </div>
+                                  <div class="bk15"></div>
+            <script type="text/javascript" src="http://www.wyjava.com/index.php?m=mood&c=index&a=init&id=19-386-1"></script>      </div>
+      <div class="Article-Tool">
+          分享到：
+		  <img src="http://v.t.qq.com/share/images/s/weiboicon16.png" style="padding-bottom:3px;" onclick="postToWb();" class="cu" title="分享到腾讯微�?�"/><script type="text/javascript">
+	function postToWb(){
+		var _t = encodeURI(document.title);
+		var _url = encodeURIComponent(document.location);
+		var _appkey = encodeURI("cba3558104094dbaa4148d8caa436a0b");
+		var _pic = encodeURI('');
+		var _site = '';
+		var _u = 'http://v.t.qq.com/share/share.php?url='+_url+'&appkey='+_appkey+'&site='+_site+'&pic='+_pic+'&title='+_t;
+		window.open( _u,'', 'width=700, height=680, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, location=yes, resizable=no, status=no' );
+	}
+</script>
+          <script type="text/javascript">document.write('<a href="http://v.t.sina.com.cn/share/share.php?url='+encodeURIComponent(location.href)+'&appkey=3172366919&title='+encodeURIComponent('String和StringBuffer之性能讲解')+'" title="分享到新浪微�?�" class="t1" target="_blank">&nbsp;</a>');</script>
+		  <script type="text/javascript">document.write('<a href="http://www.douban.com/recommend/?url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent('String和StringBuffer之性能讲解')+'" title="分享到豆瓣" class="t2" target="_blank">&nbsp;</a>');</script>
+		  <script type="text/javascript">document.write('<a href="http://share.renren.com/share/buttonshare.do?link='+encodeURIComponent(location.href)+'&title='+encodeURIComponent('String和StringBuffer之性能讲解')+'" title="分享到人人" class="t3" target="_blank">&nbsp;</a>');</script>
+		  <script type="text/javascript">document.write('<a href="http://www.kaixin001.com/repaste/share.php?rtitle='+encodeURIComponent('String和StringBuffer之性能讲解')+'&rurl='+encodeURIComponent(location.href)+'&rcontent=" title="分享到开心网" class="t4" target="_blank">&nbsp;</a>');</script>
+		  <script type="text/javascript">document.write('<a href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url='+encodeURIComponent(location.href)+'" title="分享到QQ空间" class="t5" target="_blank">&nbsp;</a>');</script>
+      
+	  <span id='favorite'>
+		<a href="javascript:;" onclick="add_favorite('String和StringBuffer之性能讲解');" class="t6">收�?</a>
+	  </span>
+
+	  </div>
+      <div class="bk10"></div>
+            <iframe src="http://www.wyjava.com/index.php?m=comment&c=index&a=init&commentid=content_19-386-1&iframe=1" width="100%" height="100%" id="comment_iframe" frameborder="0" scrolling="no"></iframe>
+      <div class="box">
+        		<h5>评论排行</h5>
+				             	<ul class="content list blue f14 row-2">
+				                	<li>·<a href="http://www.wyjava.com/html/2012/xtmh_0131/3.html" target="_blank">360手机�?�士</a><span>(1)</span></li>
+					                </ul>
+				        </div>
+          </div>
+    <div class="col-auto">
+        <div class="box">
+            <h5 class="title-2">频�?�总排行</h5>
+            <ul class="content digg">
+												<li><a href="http://www.wyjava.com/html/2012/java_basic_0203/23.html" target="_blank" title="教你如何创建多级文件夹">教你如何创建多级文</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/java_basic_0213/126.html" target="_blank" title="Hashtable与HashMap和LinkedHashMap的�?作实例">Hashtable与HashMap</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/java_basic_0213/132.html" target="_blank" title="JAVA实现文件内容追加">JAVA实现文件内容追加</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/java_basic_0213/133.html" target="_blank" title="用ResultSet读�?�datetime类型�?�?�的效果使用�?能的类型">用ResultSet读�?�dat</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/java_basic_0213/135.html" target="_blank" title="最简�?�的char[]与String互转">最简�?�的char[]与St</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/java_basic_0213/128.html" target="_blank" title="教你解决javax.naming.NamingException: cannot create resource instance 错误">教你解决javax.nami</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/java_basic_0213/134.html" target="_blank" title="JAVA中给字符串添加""这两个字符">JAVA中给字符串添加</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/javabasic_0131/10.html" target="_blank" title="jdk和jre的区别">jdk和jre的区别</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/java_basic_0213/130.html" target="_blank" title="java.lang.ArithmeticException: / by zero 错误讲解">java.lang.Arithmet</a></li>
+									<li><a href="http://www.wyjava.com/html/2012/java_basic_0217/271.html" target="_blank" title="Java基本的程�?设计结构">Java基本的程�?设计</a></li>
+							            </ul>
+        </div>
+        <div class="bk10"></div>
+        <div class="box">
+            <h5 class="title-2">频�?�本月排行</h5>
+            <ul class="content rank">
+											<li><span>26</span><a href="http://www.wyjava.com/html/2012/java_basic_0203/23.html" style=""  class="title" title="教你如何创建多级文件夹">教你如何创建多级文件夹</a></li>
+								<li><span>26</span><a href="http://www.wyjava.com/html/2012/java_basic_0213/126.html" style=""  class="title" title="Hashtable与HashMap和LinkedHashMap的�?作实例">Hashtable与HashMap和LinkedHashMap的�?作实例</a></li>
+								<li><span>22</span><a href="http://www.wyjava.com/html/2012/java_basic_0213/132.html" style=""  class="title" title="JAVA实现文件内容追加">JAVA实现文件内容追加</a></li>
+								<li><span>17</span><a href="http://www.wyjava.com/html/2012/java_basic_0213/133.html" style=""  class="title" title="用ResultSet读�?�datetime类型�?�?�的效果使用�?能的类型">用ResultSet读�?�datetime类型�?�?�的...</a></li>
+								<li><span>11</span><a href="http://www.wyjava.com/html/2012/java_basic_0213/135.html" style=""  class="title" title="最简�?�的char[]与String互转">最简�?�的char[]与String互转</a></li>
+								<li><span>11</span><a href="http://www.wyjava.com/html/2012/java_basic_0213/128.html" style=""  class="title" title="教你解决javax.naming.NamingException: cannot create resource instance 错误">教你解决javax.naming.NamingExcepti...</a></li>
+								<li><span>9</span><a href="http://www.wyjava.com/html/2012/java_basic_0213/134.html" style=""  class="title" title="JAVA中给字符串添加""这两个字符">JAVA中给字符串添加""这两个字符</a></li>
+								<li><span>8</span><a href="http://www.wyjava.com/html/2012/java_basic_0213/130.html" style=""  class="title" title="java.lang.ArithmeticException: / by zero 错误讲解">java.lang.ArithmeticException: / by zero 错误讲解</a></li>
+								<li><span>7</span><a href="http://www.wyjava.com/html/2012/javabasic_0131/10.html" style=""  class="title" title="jdk和jre的区别">jdk和jre的区别</a></li>
+								<li><span>6</span><a href="http://www.wyjava.com/html/2012/java_basic_0217/271.html" style=""  class="title" title="Java基本的程�?设计结构">Java基本的程�?设计结构</a></li>
+							            </ul>
+        </div>
+<br/>
+<script type="text/javascript">
+alimama_pid="mm_11846126_1466417_9695401";
+alimama_titlecolor="0000FF";
+alimama_descolor ="000000";
+alimama_bgcolor="FFFFFF";
+alimama_bordercolor="E6E6E6";
+alimama_linkcolor="008000";
+alimama_bottomcolor="FFFFFF";
+alimama_anglesize="0";
+alimama_bgpic="0";
+alimama_icon="0";
+alimama_sizecode="34";
+alimama_width=250;
+alimama_height=250;
+alimama_type=2;
+</script>
+<script src="http://a.alimama.cn/inf.js" type="text/javascript"></script>
+    </div>
+</div>
+
+<script type="text/javascript">
+<!--
+	function show_ajax(obj) {
+		var keywords = $(obj).text();
+		var offset = $(obj).offset();
+		var jsonitem = '';
+		$.getJSON("http://www.wyjava.com/index.php?m=content&c=index&a=json_list&type=keyword&modelid=1&id=386&keywords="+encodeURIComponent(keywords),
+				function(data){
+				var j = 1;
+				var string = "<div class='point key-float'><div style='position:relative'><div class='arro'></div>";
+				string += "<a href='JavaScript:;' onclick='$(this).parent().parent().remove();' hidefocus='true' class='close'><span>关闭</span></a><div class='contents f12'>";
+				if(data!=0) {
+				  $.each(data, function(i,item){
+					j = i+1;
+					jsonitem += "<a href='"+item.url+"' target='_blank'>"+j+"�?"+item.title+"</a><BR>";
+					
+				  });
+					string += jsonitem;
+				} else {
+					string += '没有找到相关的信�?��?';
+				}
+					string += "</div><span class='o1'></span><span class='o2'></span><span class='o3'></span><span class='o4'></span></div></div>";		
+					$(obj).after(string);
+					$('.key-float').mouseover(
+						function (){
+							$(this).siblings().css({"z-index":0})
+							$(this).css({"z-index":1001});
+						}
+					)
+					$(obj).next().css({ "left": +offset.left-100, "top": +offset.top+$(obj).height()+12});
+				});
+	}
+
+	function add_favorite(title) {
+		$.getJSON('http://www.wyjava.com/api.php?op=add_favorite&title='+encodeURIComponent(title)+'&url='+encodeURIComponent(location.href)+'&'+Math.random()+'&callback=?', function(data){
+			if(data.status==1)	{
+				$("#favorite").html('收�?�?功');
+			} else {
+				alert('请登录');
+			}
+		});
+	}
+
+$(function(){
+  $('#Article .content img').LoadImage(true, 660, 660,'http://www.wyjava.com/statics/images/s_nopic.gif');    
+})
+//-->
+</script>
+
+<script language="JavaScript" src="http://www.wyjava.com/api.php?op=count&id=386&modelid=1"></script>
+<div class="footer">
+<p class="info">
+<a href="http://www.wyjava.com/html/about/aboutus/" target="_blank">关于我们</a> |  
+<a href="http://www.wyjava.com/html/about/contactus/" target="_blank">�?�系方�?</a> |  
+<a href="http://www.wyjava.com/index.php?m=content&c=index&a=lists&catid=4" target="_blank">版�?�声明</a> |  
+<a href="http://www.wyjava.com/html/about/hr/" target="_blank">招�?�信�?�</a> |  
+<a href="http://www.wyjava.com/index.php?m=link" target="_blank">�?�情链接</a>
+<br/>
+<a href="http://www.wyjava.com">我�?JAVA</a> (<a href="http://www.miitbeian.gov.cn" target="_blank"> 湘ICP备08101358�?�</a> )
+<br />
+Powered by <strong><a href="http://www.phpcms.cn" target="_blank">PHPCMS</a></strong> <em>V9.1.13</em> &copy; 2011 <img src="http://www.wyjava.com/statics/images/copyright.gif"/><script src='http://pw.cnzz.com/c.php?id=80857541&l=2' language='JavaScript' charset='gb2312'></script></p>
+</div>
+<script type="text/javascript">
+$(function(){
+	$(".picbig").each(function(i){
+		var cur = $(this).find('.img-wrap').eq(0);
+		var w = cur.width();
+		var h = cur.height();
+	   $(this).find('.img-wrap img').LoadImage(true, w, h,'http://www.wyjava.com/statics/images/msg_img/loading.gif');
+	});
+})
+</script>
+</body>
+</html>

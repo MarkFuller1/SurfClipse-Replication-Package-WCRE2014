@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Re: Port already in use 1099</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>servicemix-users mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/servicemix-users" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/servicemix-users/200801.mbox/%3c14878846.post@talk.nabble.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/servicemix-users/200801.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/servicemix-users/200801.mbox/%3c2C0CEFA3C214C641B1742BD4C66692BE8E1574@EXCHANGE01.META_MUC_NT%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/servicemix-users/200801.mbox/%3c478DF1B8.5070201@gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/servicemix-users/200801.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/servicemix-users/200801.mbox/%3c14879799.post@talk.nabble.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/servicemix-users/200801.mbox/%3c14878846.post@talk.nabble.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/servicemix-users/200801.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/servicemix-users/200801.mbox/%3c2C0CEFA3C214C641B1742BD4C66692BE8E1574@EXCHANGE01.META_MUC_NT%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/servicemix-users/200801.mbox/%3c478DF1B8.5070201@gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/servicemix-users/200801.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/servicemix-users/200801.mbox/%3c14879799.post@talk.nabble.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">Willem Jiang &lt;willem.ji...@gmail.com&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Re: Port already in use 1099</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Wed, 16 Jan 2008 12:18:53 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+Here is the code which take from the CXF managment to show how to avoid 
+the 1099 Port already in use Exception.
+
+      if (serviceUrl.indexOf("localhost") &gt; -1
+            &amp;&amp; url.getProtocol().compareToIgnoreCase("rmi") == 0) {
+            try {
+                int port = getURLLocalHostPort(serviceUrl);
+                try {
+                    LocateRegistry.createRegistry(port);
+                } catch (Exception ex) {
+                    // the registry may had been created
+                    LocateRegistry.getRegistry(port);
+                }
+              
+            } catch (Exception ex) {
+                LOG.log(Level.SEVERE, "CREATE_REGISTRY_FAULT_MSG", new 
+Object[]{ex});
+            }
+        }
+
+Willem.
+
+Willem Jiang wrote:
+&gt; Hi Martina
+&gt;
+&gt; 1099 is the default rmi registry listen port. When you run more than 
+&gt; on instance , only one rmi registry can start rightly.
+&gt;
+&gt; Maybe we need to change the activemq's jmx server looking up code to 
+&gt; connector the already start up registry if the registry is created.
+&gt;
+&gt; Willem.
+&gt;
+&gt;
+&gt; martymusk wrote:
+&gt;&gt; Hy,
+&gt;&gt; I'm working with ws-notification example (instance1, instance2, 
+&gt;&gt; instance3).
+&gt;&gt; I'm working with eclipse.
+&gt;&gt; When instance 1 run, it work fine, but when I run instance 2, the 
+&gt;&gt; following
+&gt;&gt; error occurs:
+&gt;&gt;
+&gt;&gt;
+&gt;&gt; DEBUG - ManagementContext              - Failed to create local registry
+&gt;&gt; java.rmi.server.ExportException: Port already in use: 1099; nested 
+&gt;&gt; exception
+&gt;&gt; is:     java.net.BindException: Address already in use
+&gt;&gt;     at sun.rmi.transport.tcp.TCPTransport.listen(TCPTransport.java:249)
+&gt;&gt;     at 
+&gt;&gt; sun.rmi.transport.tcp.TCPTransport.exportObject(TCPTransport.java:184)
+&gt;&gt;     at 
+&gt;&gt; sun.rmi.transport.tcp.TCPEndpoint.exportObject(TCPEndpoint.java:382)
+&gt;&gt;     at sun.rmi.transport.LiveRef.exportObject(LiveRef.java:116)
+&gt;&gt;     at 
+&gt;&gt; sun.rmi.server.UnicastServerRef.exportObject(UnicastServerRef.java:180)
+&gt;&gt;     at sun.rmi.registry.RegistryImpl.setup(RegistryImpl.java:92)
+&gt;&gt;     at sun.rmi.registry.RegistryImpl.&lt;init&gt;(RegistryImpl.java:78)
+&gt;&gt;     at 
+&gt;&gt; java.rmi.registry.LocateRegistry.createRegistry(LocateRegistry.java:186)
+&gt;&gt;     at
+&gt;&gt; org.apache.activemq.broker.jmx.ManagementContext.createConnector(ManagementContext.java:382)
+
+&gt;&gt;
+&gt;&gt;     at
+&gt;&gt; org.apache.activemq.broker.jmx.ManagementContext.findMBeanServer(ManagementContext.java:301)
+
+&gt;&gt;
+&gt;&gt;     at
+&gt;&gt; org.apache.activemq.broker.jmx.ManagementContext.getMBeanServer(ManagementContext.java:154)
+
+&gt;&gt;
+&gt;&gt;
+&gt;&gt;
+&gt;&gt; Why this?
+&gt;&gt; Can somebody help me, please!
+&gt;&gt;
+&gt;&gt; Thank you very much!
+&gt;&gt;
+&gt;&gt; Martina
+&gt;&gt;   
+&gt;
+&gt;
+
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/servicemix-users/200801.mbox/raw/%3c478DF62D.9090101@gmail.com%3e/">Unnamed text/plain</a> (inline, 7-Bit, 2569 bytes)</li>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/servicemix-users/200801.mbox/raw/%3c478DF62D.9090101@gmail.com%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

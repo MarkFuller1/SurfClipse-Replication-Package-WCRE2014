@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<title>Hive: multi-insert and parallel execution problem | Sinking In</title>
+<link rel="profile" href="http://gmpg.org/xfn/11" />
+<link rel="pingback" href="http://www.sinking.in/blog/xmlrpc.php" />
+<!--[if lt IE 9]>
+<script src="http://www.sinking.in/blog/wp-content/themes/f2/js/html5.js" type="text/javascript"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="Sinking In &raquo; Feed" href="http://www.sinking.in/blog/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Sinking In &raquo; Comments Feed" href="http://www.sinking.in/blog/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Sinking In &raquo; Hive: multi-insert and parallel execution problem Comments Feed" href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/feed/" />
+<link rel='stylesheet' id='wp-syntax-css-css'  href='http://www.sinking.in/blog/wp-content/plugins/wp-syntax/css/wp-syntax.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='webfonts-css'  href='http://fonts.googleapis.com/css?family=Bitter:700|Gudea:400,700,400italic' type='text/css' media='all' />
+<link rel='stylesheet' id='style-css'  href='http://www.sinking.in/blog/wp-content/themes/f2/style.css?ver=2.2.1' type='text/css' media='screen, projection' />
+<link rel='stylesheet' id='print-css'  href='http://www.sinking.in/blog/wp-content/themes/f2/print.css?ver=2.2.1' type='text/css' media='print' />
+<!--[if lt IE 9]>
+<link rel='stylesheet' id='ie-style-css'  href='http://www.sinking.in/blog/wp-content/themes/f2/ie.css?ver=2.2.1' type='text/css' media='screen, projection' />
+<![endif]-->
+<!--[if lt IE 8]>
+<link rel='stylesheet' id='ie7-style-css'  href='http://www.sinking.in/blog/wp-content/themes/f2/ie7.css?ver=2.2.1' type='text/css' media='screen, projection' />
+<![endif]-->
+<script type='text/javascript' src='http://www.sinking.in/blog/wp-includes/js/jquery/jquery.js?ver=1.10.2'></script>
+<script type='text/javascript' src='http://www.sinking.in/blog/wp-includes/js/jquery/jquery-migrate.min.js?ver=1.2.1'></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.sinking.in/blog/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.sinking.in/blog/wp-includes/wlwmanifest.xml" /> 
+<link rel='prev' title='Hive UDFs in views' href='http://www.sinking.in/blog/hive-udfs-in-views/' />
+<link rel='next' title='Point-free baby-steps in Haskell' href='http://www.sinking.in/blog/point-free-baby-steps-in-haskell/' />
+<meta name="generator" content="WordPress 3.7.1" />
+<link rel='canonical' href='http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/' />
+<link rel='shortlink' href='http://www.sinking.in/blog/?p=442' />
+<!-- Customized F2 styles -->
+<style type="text/css">
+.entry-content h1,
+.entry-content h2,
+.entry-content h3,
+.entry-content h4,
+.entry-content h5,
+.entry-content h6 {
+  font-family: "Bitter", serif;
+}</style>
+</head>
+
+<body class="single single-post postid-442 single-format-standard one-sidebar-right medium-sidebar large-font-sidebar larger-font-content">
+<div id="page" class="hfeed site">
+		<header id="masthead" class="site-header" role="banner">
+		<hgroup>
+			<h1 class="site-title"><a href="http://www.sinking.in/blog/" title="Sinking In" rel="home">Sinking In</a></h1>
+			<h2 class="site-description">Probably overthinking it&#8230;</h2>
+					</hgroup>
+
+				<nav role="navigation" class="site-navigation main-navigation">
+			<h1 class="assistive-text">Menu</h1>
+			<div class="assistive-text skip-link"><a href="#content" title="Skip to content">Skip to content</a></div>
+
+			<div class="menu"><ul><li class="page_item page-item-5"><a href="http://www.sinking.in/blog/about/">About</a></li></ul></div>
+		</nav><!-- .site-navigation .main-navigation -->
+			
+		
+	</header><!-- #masthead .site-header -->
+
+	<div id="main" class="site-main">
+		<div id="primary" class="content-area">
+			<div id="content" class="site-content" role="main">
+
+			
+				
+<article id="post-442" class="post-442 post type-post status-publish format-standard hentry category-programming tag-database tag-hive">
+	<header class="entry-header">
+		<h1 class="entry-title">Hive: multi-insert and parallel execution problem</h1>
+
+		<div class="entry-meta">
+			Posted by <span class="author vcard"><a class="url fn n" href="http://www.sinking.in/blog/author/mick/" title="View all posts by Mick" rel="author">Mick</a></span> on <a href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/" title="" rel="bookmark"><time class="entry-date" datetime="2013-02-28T22:55:01+00:00">28 February 2013, 10:55 pm</time></a>		</div><!-- .entry-meta -->
+	</header><!-- .entry-header -->
+
+	<div class="entry-content">
+				<p>I&#8217;ve been having trouble with Hive after I added a <code>SELECT</code> clause to a multi-insert and started seeing <code>java.lang.InterruptedException</code>s. What follows is the smallest example I&#8217;ve been able to put together to demonstrate<br />
+the problem. It fails most of the time, but will just occasionally run without problem.</p>
+<p>The query is:</p>
+
+<div class="wp_syntax"><table><tr><td class="code"><pre class="sql" style="font-family:monospace;"><span style="color: #993333; font-weight: bold;">FROM</span> <span style="color: #66cc66;">&#40;</span>
+  <span style="color: #993333; font-weight: bold;">SELECT</span> a<span style="color: #66cc66;">,</span> b
+    <span style="color: #993333; font-weight: bold;">FROM</span> input_a
+    <span style="color: #993333; font-weight: bold;">JOIN</span> input_b <span style="color: #993333; font-weight: bold;">ON</span> input_a<span style="color: #66cc66;">.</span><span style="color: #993333; font-weight: bold;">KEY</span> <span style="color: #66cc66;">=</span> input_b<span style="color: #66cc66;">.</span><span style="color: #993333; font-weight: bold;">KEY</span>
+<span style="color: #66cc66;">&#41;</span> <span style="color: #993333; font-weight: bold;">INPUT</span>
+<span style="color: #993333; font-weight: bold;">INSERT</span> OVERWRITE <span style="color: #993333; font-weight: bold;">TABLE</span> output_a
+<span style="color: #993333; font-weight: bold;">SELECT</span> <span style="color: #993333; font-weight: bold;">DISTINCT</span> a
+<span style="color: #993333; font-weight: bold;">INSERT</span> OVERWRITE <span style="color: #993333; font-weight: bold;">TABLE</span> output_b
+<span style="color: #993333; font-weight: bold;">SELECT</span> <span style="color: #993333; font-weight: bold;">DISTINCT</span> b;</pre></td></tr></table></div>
+
+<p>and the error from the hive CLI client is: <span id="more-442"></span></p>
+<pre>
+java.io.IOException: java.lang.InterruptedException
+	at org.apache.hadoop.ipc.Client.call(Client.java:1204)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:202)
+	at $Proxy15.mkdirs(Unknown Source)
+	at sun.reflect.GeneratedMethodAccessor76.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:164)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:83)
+	at $Proxy15.mkdirs(Unknown Source)
+	at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB.mkdirs(ClientNamenodeProtocolTranslatorPB.java:425)
+	at org.apache.hadoop.hdfs.DFSClient.primitiveMkdir(DFSClient.java:2108)
+	at org.apache.hadoop.hdfs.DFSClient.mkdirs(DFSClient.java:2079)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.mkdirs(DistributedFileSystem.java:543)
+	at org.apache.hadoop.fs.FileSystem.mkdirs(FileSystem.java:1867)
+	at org.apache.hadoop.hive.ql.exec.ExecDriver.createTmpDirs(ExecDriver.java:221)
+	at org.apache.hadoop.hive.ql.exec.ExecDriver.execute(ExecDriver.java:444)
+	at org.apache.hadoop.hive.ql.exec.MapRedTask.execute(MapRedTask.java:136)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:138)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:57)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.run(TaskRunner.java:47)
+Caused by: java.lang.InterruptedException
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1279)
+	at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:218)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:83)
+	at org.apache.hadoop.ipc.Client$Connection.sendParam(Client.java:913)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1198)
+	... 19 more
+Job Submission failed with exception 'java.io.IOException(java.lang.InterruptedException)'
+</pre>
+<p>after which I&#8217;m dumped back at the console.</p>
+<p>The input and output tables are as follows:</p>
+
+<div class="wp_syntax"><table><tr><td class="code"><pre class="sql" style="font-family:monospace;"><span style="color: #993333; font-weight: bold;">CREATE</span> EXTERNAL <span style="color: #993333; font-weight: bold;">TABLE</span> input_a<span style="color: #66cc66;">&#40;</span>a <span style="color: #993333; font-weight: bold;">INT</span><span style="color: #66cc66;">,</span> <span style="color: #993333; font-weight: bold;">KEY</span> <span style="color: #993333; font-weight: bold;">INT</span><span style="color: #66cc66;">&#41;</span>
+<span style="color: #993333; font-weight: bold;">ROW</span> FORMAT DELIMITED
+STORED <span style="color: #993333; font-weight: bold;">AS</span> TEXTFILE
+LOCATION <span style="color: #ff0000;">'/user/vagrant/multi-insert-input-a'</span>;
+&nbsp;
+<span style="color: #993333; font-weight: bold;">CREATE</span> EXTERNAL <span style="color: #993333; font-weight: bold;">TABLE</span> input_b<span style="color: #66cc66;">&#40;</span>b <span style="color: #993333; font-weight: bold;">INT</span><span style="color: #66cc66;">,</span> <span style="color: #993333; font-weight: bold;">KEY</span> <span style="color: #993333; font-weight: bold;">INT</span><span style="color: #66cc66;">&#41;</span>
+<span style="color: #993333; font-weight: bold;">ROW</span> FORMAT DELIMITED
+STORED <span style="color: #993333; font-weight: bold;">AS</span> TEXTFILE
+LOCATION <span style="color: #ff0000;">'/user/vagrant/multi-insert-input-b'</span>;
+&nbsp;
+hive<span style="color: #66cc66;">&gt;</span> <span style="color: #993333; font-weight: bold;">SELECT</span> <span style="color: #66cc66;">*</span> <span style="color: #993333; font-weight: bold;">FROM</span> input_a;
+OK
+<span style="color: #cc66cc;">10</span>  <span style="color: #cc66cc;">1</span>
+<span style="color: #cc66cc;">20</span>  <span style="color: #cc66cc;">2</span>
+<span style="color: #cc66cc;">30</span>  <span style="color: #cc66cc;">3</span>
+<span style="color: #cc66cc;">40</span>  <span style="color: #cc66cc;">4</span>
+<span style="color: #cc66cc;">50</span>  <span style="color: #cc66cc;">5</span>
+<span style="color: #993333; font-weight: bold;">TIME</span> taken: <span style="color: #cc66cc;">4.043</span> seconds
+hive<span style="color: #66cc66;">&gt;</span> <span style="color: #993333; font-weight: bold;">SELECT</span> <span style="color: #66cc66;">*</span> <span style="color: #993333; font-weight: bold;">FROM</span> input_b;
+OK
+<span style="color: #cc66cc;">100</span> <span style="color: #cc66cc;">1</span>
+<span style="color: #cc66cc;">200</span> <span style="color: #cc66cc;">2</span>
+<span style="color: #cc66cc;">300</span> <span style="color: #cc66cc;">3</span>
+<span style="color: #cc66cc;">400</span> <span style="color: #cc66cc;">4</span>
+<span style="color: #cc66cc;">500</span> <span style="color: #cc66cc;">5</span>
+<span style="color: #993333; font-weight: bold;">TIME</span> taken: <span style="color: #cc66cc;">0.142</span> seconds
+&nbsp;
+<span style="color: #993333; font-weight: bold;">CREATE</span> <span style="color: #993333; font-weight: bold;">TABLE</span> output_a<span style="color: #66cc66;">&#40;</span>a <span style="color: #993333; font-weight: bold;">INT</span><span style="color: #66cc66;">&#41;</span>;
+<span style="color: #993333; font-weight: bold;">CREATE</span> <span style="color: #993333; font-weight: bold;">TABLE</span> output_b<span style="color: #66cc66;">&#40;</span>b <span style="color: #993333; font-weight: bold;">INT</span><span style="color: #66cc66;">&#41;</span>;</pre></td></tr></table></div>
+
+<p>I discovered this problem when I took an existing multi-table insert statement that had several <code>INSERT</code> clauses, but only one of which used the <code>DISTINCT</code> option, and added a new clause which used <code>DISTINCT</code>. Notice that the issue occurs just after attempting to start jobs 2 and 3 in parallel. If I stop the jobs running in parallel things work fine. One obvious way to do this is by setting <code>hive.exec.parallel</code> to <code>false</code>. If the query is made simpler, e.g. by removing the <code>DISTINCT</code> option from either <code>INSERT</code>, then there are only 2 jobs required and, since the second depends on the first, they don&#8217;t run in parallel, so no problem. I think this explains why the addition of the extra clause caused my problem.</p>
+<p>Searching around the web I find similar, though not identical, errors in <a href="http://mail-archives.apache.org/mod_mbox/hive-user/201010.mbox/%3CAANLkTi=MFi4wtvXPOPOLpsu1Q=WzG1CWWZKuL4rtkZe_@mail.gmail.com%3E">this unanswered hive-user mailing list post</a> and <a href="http://d.hatena.ne.jp/wyukawa/20120403/1333451617">this blog</a> (which is far beyond my Japanese reading skills). With help from Google translate I think the author of that blog suggests the problem only presents itself when a small number of nodes is used, and I&#8217;m running in pseudo-distributed mode. The problem also seems like it might be related to <a href="https://issues.apache.org/jira/browse/HADOOP-6762">issue HADOOP-6762</a>, which was recently fixed in development versions. Can anyone confirm my problem is a symptom of that issue? I&#8217;m using Cloudera CDH4, and I noticed in the discussion of HADOOP-6762 that someone suggests a fix for the same problem has been in the CDH distribution for some time.</p>
+<p>I&#8217;m off to try and get help on the CDH Users group. I&#8217;ll update if there&#8217;s any progress.</p>
+<p>For reference, I&#8217;m running <code>hive_0.10.0+67-1.cdh4.2.0.p0.10~squeeze-cdh4.2.0_all.deb</code> in pseudo-distributed mode with MR1, all inside a VirtualBox VM running Debian squeeze amd64. Here&#8217;s the full output from the hive CLI tool:</p>
+<pre>
+hive> FROM (
+    >   SELECT a, b
+    >     FROM input_a
+    >     JOIN input_b ON input_a.key = input_b.key
+    > ) input
+    > INSERT OVERWRITE TABLE output_a
+    > SELECT DISTINCT a
+    > INSERT OVERWRITE TABLE output_b
+    > SELECT DISTINCT b;
+Total MapReduce jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapred.reduce.tasks=<number>
+Starting Job = job_201302281640_0094, Tracking URL = http://localhost:50030/jobdetails.jsp?jobid=job_201302281640_0094
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_201302281640_0094
+Hadoop job information for Stage-2: number of mappers: 2; number of reducers: 1
+2013-02-28 22:00:11,242 Stage-2 map = 0%,  reduce = 0%
+2013-02-28 22:00:17,286 Stage-2 map = 100%,  reduce = 0%, Cumulative CPU 2.21 sec
+2013-02-28 22:00:18,294 Stage-2 map = 100%,  reduce = 0%, Cumulative CPU 2.21 sec
+2013-02-28 22:00:19,305 Stage-2 map = 100%,  reduce = 0%, Cumulative CPU 2.21 sec
+2013-02-28 22:00:20,314 Stage-2 map = 100%,  reduce = 0%, Cumulative CPU 2.21 sec
+2013-02-28 22:00:21,327 Stage-2 map = 100%,  reduce = 100%, Cumulative CPU 4.45 sec
+2013-02-28 22:00:22,336 Stage-2 map = 100%,  reduce = 100%, Cumulative CPU 4.45 sec
+2013-02-28 22:00:23,356 Stage-2 map = 100%,  reduce = 100%, Cumulative CPU 4.45 sec
+2013-02-28 22:00:24,372 Stage-2 map = 100%,  reduce = 100%, Cumulative CPU 4.45 sec
+MapReduce Total cumulative CPU time: 4 seconds 450 msec
+Ended Job = job_201302281640_0094
+Launching Job 2 out of 3
+Launching Job 3 out of 3
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapred.reduce.tasks=<number>
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapred.reduce.tasks=<number>
+java.io.IOException: java.lang.InterruptedException
+	at org.apache.hadoop.ipc.Client.call(Client.java:1204)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Invoker.invoke(ProtobufRpcEngine.java:202)
+	at $Proxy15.mkdirs(Unknown Source)
+	at sun.reflect.GeneratedMethodAccessor76.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invokeMethod(RetryInvocationHandler.java:164)
+	at org.apache.hadoop.io.retry.RetryInvocationHandler.invoke(RetryInvocationHandler.java:83)
+	at $Proxy15.mkdirs(Unknown Source)
+	at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolTranslatorPB.mkdirs(ClientNamenodeProtocolTranslatorPB.java:425)
+	at org.apache.hadoop.hdfs.DFSClient.primitiveMkdir(DFSClient.java:2108)
+	at org.apache.hadoop.hdfs.DFSClient.mkdirs(DFSClient.java:2079)
+	at org.apache.hadoop.hdfs.DistributedFileSystem.mkdirs(DistributedFileSystem.java:543)
+	at org.apache.hadoop.fs.FileSystem.mkdirs(FileSystem.java:1867)
+	at org.apache.hadoop.hive.ql.exec.ExecDriver.createTmpDirs(ExecDriver.java:221)
+	at org.apache.hadoop.hive.ql.exec.ExecDriver.execute(ExecDriver.java:444)
+	at org.apache.hadoop.hive.ql.exec.MapRedTask.execute(MapRedTask.java:136)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:138)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:57)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.run(TaskRunner.java:47)
+Caused by: java.lang.InterruptedException
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1279)
+	at java.util.concurrent.FutureTask$Sync.innerGet(FutureTask.java:218)
+	at java.util.concurrent.FutureTask.get(FutureTask.java:83)
+	at org.apache.hadoop.ipc.Client$Connection.sendParam(Client.java:913)
+	at org.apache.hadoop.ipc.Client.call(Client.java:1198)
+	... 19 more
+Job Submission failed with exception 'java.io.IOException(java.lang.InterruptedException)'
+Starting Job = job_201302281640_0095, Tracking URL = http://localhost:50030/jobdetails.jsp?jobid=job_201302281640_0095
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_201302281640_0095
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.MapRedTask
+</pre>
+			</div><!-- .entry-content -->
+
+	<footer class="entry-meta">
+								<span class="cat-links">
+				Filed under&nbsp;<a href="http://www.sinking.in/blog/category/programming/" title="View all posts in Programming" rel="category tag">Programming</a>			</span>
+			
+						<span class="sep"> | </span>
+			<span class="tag-links">
+				Tagged&nbsp;<a href="http://www.sinking.in/blog/tag/database/" rel="tag">Database</a>, <a href="http://www.sinking.in/blog/tag/hive/" rel="tag">Hive</a>			</span>
+					
+				<span class="sep"> | </span>
+		<span class="comments-link"><a href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/#comments" title="Comment on Hive: multi-insert and parallel execution problem">5 Comments</a></span>
+				<span class="sep"> | </span>
+		<span class="permalink"><a href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/" rel="bookmark" title="Permanent Link to Hive: multi-insert and parallel execution problem">Permalink</a></span>
+			</footer><!-- .entry-meta -->
+
+</article><!-- #post-442 -->
+
+
+				
+
+	<div id="comments" class="comments-area">
+
+	
+			<h2 class="comments-title">5 Comments</h2>
+
+		
+		<ol class="commentlist">
+				<li class="comment even thread-even depth-1" id="li-comment-1194">
+		<article id="comment-1194" class="comment">
+			<footer>
+				<div class="comment-author vcard">
+					<img alt='' src='http://0.gravatar.com/avatar/0c252021be24fb2a839cb1bb6ffa947c?s=40&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D40&amp;r=G' class='avatar avatar-40 photo' height='40' width='40' />					<cite class="fn">Jie Wang</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/comment-page-1/#comment-1194"><time datetime="2013-03-25T00:22:25+00:00">
+					March 25, 2013 at 12:22 am					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>Hey! How did you solve this problem?</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin odd alt thread-odd thread-alt depth-1" id="li-comment-1267">
+		<article id="comment-1267" class="comment">
+			<footer>
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/1e95d29ad5ae6a5bcdbc6fe243b7b751?s=40&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D40&amp;r=G' class='avatar avatar-40 photo' height='40' width='40' />					<cite class="fn">Mick</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/comment-page-1/#comment-1267"><time datetime="2013-04-02T17:25:45+00:00">
+					April 2, 2013 at 5:25 pm					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>I haven&#8217;t yet. I&#8217;ve had no response from the CDH Users group. My next idea was to see if I could reproduce on a vanilla Hive install, and if so approach a Hive user group for help. In the meantime we&#8217;re working round the problem by turning off parallel execution when running the affected query.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin even thread-even depth-1" id="li-comment-1679">
+		<article id="comment-1679" class="comment">
+			<footer>
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/1e95d29ad5ae6a5bcdbc6fe243b7b751?s=40&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D40&amp;r=G' class='avatar avatar-40 photo' height='40' width='40' />					<cite class="fn">Mick</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/comment-page-1/#comment-1679"><time datetime="2013-05-18T15:45:45+00:00">
+					May 18, 2013 at 3:45 pm					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>Today I planned to try to reproduce on vanilla Hive, but discovered someone else has since hit the same problem: <a href="https://issues.apache.org/jira/browse/HIVE-4436" rel="nofollow">issue HIVE-4436</a>. I&#8217;ve confirmed that <a href="https://issues.apache.org/jira/secure/attachment/12582228/HIVE-4436.patch" rel="nofollow">the included patch</a> applied against CDH 4.1.2&#8242;s version of hive fixes the symptom in our environment. (Yes, we were using 4.2.0, but have since moved back to 4.1.2)</p>
+<p>Hopefully that bug will soon be fixed and an upgrade will solve our problems.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-4540">
+		<article id="comment-4540" class="comment">
+			<footer>
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/532bea4473f3b6149e70db3bc452642d?s=40&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D40&amp;r=G' class='avatar avatar-40 photo' height='40' width='40' />					<cite class="fn">Raju</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/comment-page-1/#comment-4540"><time datetime="2013-11-17T17:39:46+00:00">
+					November 17, 2013 at 5:39 pm					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>Hi mick </p>
+<p>Have you fixed this issue , if so please reply me<br />
+I&#8217;m using apache hadoop 1.1.2 apache hive 0.11<br />
+In hadoop 1.1.2 patch for bug 6762 not available . It&#8217;s available from 2.0 versions</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment byuser comment-author-admin even thread-even depth-1" id="li-comment-4562">
+		<article id="comment-4562" class="comment">
+			<footer>
+				<div class="comment-author vcard">
+					<img alt='' src='http://1.gravatar.com/avatar/1e95d29ad5ae6a5bcdbc6fe243b7b751?s=40&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D40&amp;r=G' class='avatar avatar-40 photo' height='40' width='40' />					<cite class="fn">Mick</cite>				</div><!-- .comment-author .vcard -->
+				
+				<div class="comment-meta commentmetadata">
+					<a href="http://www.sinking.in/blog/hive-multi-insert-and-parallel-execution-problem/comment-page-1/#comment-4562"><time datetime="2013-11-18T17:52:01+00:00">
+					November 18, 2013 at 5:52 pm					</time></a>
+									</div><!-- .comment-meta .commentmetadata -->
+			</footer>
+
+			<div class="comment-content"><p>Hi Raju,</p>
+<p>The patch on <a href="https://issues.apache.org/jira/browse/HIVE-4436" rel="nofollow">issue HIVE-4436</a> (not 6762) fixed it for us, but we were using a different version of Hadoop from you. I hadn&#8217;t noticed before that the title for HIVE-4436 says the problem is for Hadoop-2. I saw the same error on MR1 in CDH4.1.2, which I think means version 0.20.x of Hadoop, so I guess the problem affects more versions. I think your options are to try an upgrade to Hive 0.12.0, which includes the relevant patch, or to disable hive.stats.autogather, which is the suggested workaround in HIVE-4436. (Or to apply the patch to some other version of Hive, but that seems to be more effort and more risk than just upgrading to 0.12.0.)</p>
+<p>I hope that helps.</p>
+</div>
+
+			<div class="reply">
+							</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+		</ol><!-- .commentlist -->
+
+		
+	
+	
+									<div id="respond" class="comment-respond">
+				<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="/blog/hive-multi-insert-and-parallel-execution-problem/#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://www.sinking.in/blog/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+																			<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p>							<p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" aria-required='true' /></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="text" value="" size="30" aria-required='true' /></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30" /></p>
+												<p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment" />
+							<input type='hidden' name='comment_post_ID' value='442' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+						</p>
+						<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="39d675d13f" /></p>					</form>
+							</div><!-- #respond -->
+			
+</div><!-- #comments .comments-area -->
+
+					<nav role="navigation" id="nav-below" class="site-navigation post-navigation">
+		<h1 class="assistive-text">Post navigation</h1>
+
+	
+		<div class="nav-previous"><a href="http://www.sinking.in/blog/hive-udfs-in-views/" rel="prev"><span class="meta-nav">&laquo;</span> Hive UDFs in views</a></div>		<div class="nav-next"><a href="http://www.sinking.in/blog/point-free-baby-steps-in-haskell/" rel="next">Point-free baby-steps in Haskell <span class="meta-nav">&raquo;</span></a></div>
+	
+	</nav><!-- #nav-below -->
+	
+
+			
+			</div><!-- #content .site-content -->
+		</div><!-- #primary .content-area -->
+
+	<div id="secondary" class="widget-area">
+					<div id="sidebar-1" class="sidebar" role="complementary">
+								
+					<aside id="search" class="widget widget_search">
+							<form method="get" id="searchform" action="http://www.sinking.in/blog/" role="search">
+		<label for="s" class="assistive-text">Search</label>
+		<input type="text" class="field" name="s" value="" id="s" placeholder="Search &hellip;" />
+		<input type="submit" class="submit" name="submit" id="searchsubmit" value="Search" />
+	</form>
+					</aside>
+
+					<aside id="archives" class="widget">
+						<h1 class="widget-title">Archives</h1>
+						<ul>
+								<li><a href='http://www.sinking.in/blog/2013/12/'>December 2013</a></li>
+	<li><a href='http://www.sinking.in/blog/2013/11/'>November 2013</a></li>
+	<li><a href='http://www.sinking.in/blog/2013/09/'>September 2013</a></li>
+	<li><a href='http://www.sinking.in/blog/2013/04/'>April 2013</a></li>
+	<li><a href='http://www.sinking.in/blog/2013/03/'>March 2013</a></li>
+	<li><a href='http://www.sinking.in/blog/2013/02/'>February 2013</a></li>
+	<li><a href='http://www.sinking.in/blog/2012/11/'>November 2012</a></li>
+	<li><a href='http://www.sinking.in/blog/2012/09/'>September 2012</a></li>
+	<li><a href='http://www.sinking.in/blog/2012/07/'>July 2012</a></li>
+	<li><a href='http://www.sinking.in/blog/2012/02/'>February 2012</a></li>
+	<li><a href='http://www.sinking.in/blog/2008/08/'>August 2008</a></li>
+						</ul>
+					</aside>
+
+					<aside id="meta" class="widget">
+						<h1 class="widget-title">Meta</h1>
+						<ul>
+														<li><a href="http://www.sinking.in/blog/wp-login.php">Log in</a></li>
+													</ul>
+					</aside>
+
+							</div><!-- #sidebar-right -->
+		
+			</div>
+
+	</div><!-- #main .site-main -->
+
+	<footer id="colophon" class="site-footer" role="contentinfo">
+		<div class="site-info">
+			<div>&copy; 2013 Sinking In</div>		</div>
+					<div class="f2-credits">
+								<a href="http://wordpress.org/" title="A Semantic Personal Publishing Platform" rel="generator">Powered by WordPress</a>
+				<span class="sep"> | </span>
+				<a href="http://srinig.com/wordpress/themes/f2/">Theme F2.</a>
+			</div><!-- .f2-credits -->
+			</footer><!-- #colophon .site-footer -->
+</div><!-- #page .hfeed .site -->
+
+<script type='text/javascript' src='http://www.sinking.in/blog/wp-content/themes/f2/js/jquery.fitvids.min.js?ver=2.2.1'></script>
+<script type='text/javascript' src='http://www.sinking.in/blog/wp-content/themes/f2/js/small-menu.js?ver=2.2.1'></script>
+
+</body>
+</html>

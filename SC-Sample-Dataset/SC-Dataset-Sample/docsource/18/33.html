@@ -1,0 +1,510 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Our second hybrid application - EJB as OSGi Service | Java.net</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" href="/sites/default/files/java_adaptive_favicon_2.png" type="image/x-icon" />
+<meta name="description" content="Java.net is the source for Java Technology Collaboration." />
+<meta name="keywords" content="java,java.net,java technology collaboration,java collaboration,javafx,glassfiish,embedded,netbeans,Java Enterprise" />
+<link rel="canonical" href="http://weblogs.java.net/blog/ss141213/archive/2009/06/accessing_an_ej.html" />
+<meta name="revisit-after" content="1 day" />
+  <link type="text/css" rel="stylesheet" media="all" href="/sites/default/files/css/css_9bd32f06570cc98c5ed8d62edbfbab41.css" />
+  <style type="text/css">#container{width:100%;}.two-sidebars .content-inner{margin-left:240px; margin-right:240px;}.sidebar-first .content-inner{margin-left:240px; margin-right:0;}.sidebar-last .content-inner{margin-right:240px; margin-left:0;}#sidebar-first{width:240px;margin-left:-100%;}#sidebar-last{width:240px;margin-left:-240px;}</style>    <!--[if lte IE 6]><style type="text/css" media="all">@import "/sites/all/themes/java_adaptive/css/ie6.css";</style><![endif]-->
+    <!--[if IE 7]><style type="text/css" media="all">@import "/sites/all/themes/java_adaptive/css/ie7.css";</style><![endif]-->
+    <!--[if IE 8]><style type="text/css" media="all">@import "/sites/all/themes/java_adaptive/css/ie8.css";</style><![endif]-->
+
+</head>
+<body class="not-front not-logged-in article-type-blog two-sidebars section-blog page-node-242458">
+  <div id="container">
+
+    <div id="skip-nav" class="element-invisible">
+      <!-- To adjust the display of the skip link see the Advanced theme settings (General settings), and never use display:none! -->
+      <a href="#main-content">Skip to main content</a>
+    </div>
+
+        
+    
+          <div id="leaderboard"><div id="block-block-31"  class="block">
+  <div class="block-inner">
+
+    
+    <div class="content"><a href="https://java.net/people/login?original_uri=http://weblogs.java.net/blog/ss141213/archive/2009/06/accessing_an_ej.html">Login</a><a href="https://java.net/people/new">Join Now</a><a href="https://java.net/projects/help/pages/Home" class="last">Help</a></div>
+
+    
+  </div>
+</div> <!-- /block -->
+</div> <!-- /leaderboard -->
+    
+    <div id="header" class="clearfix">
+
+              <div id="branding">
+
+                                    <div class="logo-site-name"><strong>
+                <span id="logo"><a href="/" rel="home"><img src="/sites/all/themes/java_adaptive/images/logo.png" alt="Java.net logo" title="Home page"/></a></span>                              </strong></div> <!-- /logo/site name -->
+                      
+                      <div id="site-slogan">The Source for Java Technology Collaboration</div> <!-- /slogan -->
+          
+        </div> <!-- /branding -->
+      
+              <div id="search-box" class="hide-label">
+        <!-- default search disabled  -->
+          <form action="/search/node" method="post" id="search-theme-form">
+            <div id="search">
+            <!-- Filter search by content type -->
+              <input type="hidden" value="search_form" id="edit-search-form" name="form_id" />
+              <div style="margin-left: -10px;" class="checks">
+                <span><input type="checkbox" name="type[forum]" id="edit-forums" value="forum" /> <span class="label">Forums</span></span>
+                <span><input type="checkbox" name="type[blog]" id="edit-blogs" value="blog" /> <span class="label">Blogs</span></span>
+                <span><input type="checkbox" name="projects" id="edit-projects" value="project" /> <span class="label">Projects</span></span>
+                <span><input type="checkbox" name="people" id="edit-people" value="people" /> <span class="label">People</span></span>
+              </div>
+            <!-- Search text field and submit -->
+              <input type="text" class="form-text" id="edit-search-theme-form-1" value="Search All" size="15" onclick="this.value = ''" onblur="if (!this.value) this.value = ''" name="keys" />
+              <input type="submit" value="" name="op" title="Search" class="form-submit" alt="Search" />
+              <!-- <input type="hidden" value="fafb2ebc13908d6fef5ac9cb0ec6a49b" name="form_token" /> -->
+            </div>
+          </form>
+        </div> <!-- /search box -->
+      
+      
+    </div> <!-- /header -->
+
+    
+          <div id="primary" class="nav">
+        <div id="primary-inner">
+        <h2 class="element-invisible">Main Menu</h2>
+        <ul class="primary-links clearfix"><li class="menu-8209"><a href="/" title="Return to the java.net homepage">Home</a></li>
+<li class="menu-8210"><a href="/projects" title="View the projects hosted on java.net">Projects</a></li>
+<li class="menu-8211"><a href="/forums" title="Participate in the java.net forums">Forums</a></li>
+<li class="menu-8240"><a href="https://java.net/people" title="View all the people involved with java.net">People</a></li>
+<li class="menu-8241"><a href="/jugs/java-user-groups" title="Get involved in your local Java User Group (JUG)">Java User Groups</a></li>
+<li class="menu-19124"><a href="/community/jcp" title="Get involved with the Java Community Process!">JCP</a></li>
+</ul>
+        </div>
+      </div> <!-- /primary link menu -->
+        
+    
+    
+    
+    
+    <div id="columns"><div class="columns-inner clearfix">
+
+      <div id="content-column"><div class="content-inner">
+
+        
+                  <div id="content-top"><div id="block-block-20"  class="block">
+  <div class="block-inner">
+
+    
+    <div class="content"><div id="blog-author-top"><table><tr><td><div id="blog-author-body"><img align="left" src="/images/people/sanjeeb_sahoo.jpg" border="0" /></div></td><td valign="top"><h2><a href="/blogs/ss141213"> Sahoo</a></h2><div id="blog-nav-links"><a href="/blog/ss141213/archive/2009/06/developing_hybr.html">Developing Hybrid (OSGi + Java EE) applications in GlassFish</a> | <a href="/blogs/ss141213">Main</a> | <a href="/blog/ss141213/archive/2009/07/btrace_is_now_i.html">btrace is now integrated in GlassFish v3</a></div></td></tr></table><div id="blog-author-feedlink2"><a href="/blog/111589/feed"><img src="/misc/feed.png" border="0" /></a></div></div><div style="clear:both"></div><div style="border-bottom: 4px #eee solid;">&nbsp;</div></div>
+
+    
+  </div>
+</div> <!-- /block -->
+</div> <!-- /content-top -->
+        
+        <div id="main-content">
+
+                      <div id="main-content-header">
+              <h1 id="page-title">Our second hybrid application - EJB as OSGi Service</h1>
+                          </div>
+          
+          
+          <div id="content">
+          <div class="article">
+
+    <div id="blog-submitted">Posted by <a href="/blog/ss141213">ss141213</a> on June 16, 2009 at 1:02 AM PDT</div> 
+  
+    <p><a href="http://weblogs.java.net/blog/ss141213/archive/2009/06/developing_hybr.html">Last time</a>, we talked about our first hybrid (Java EE + OSGi) application where we discussed not only about development of hybrid applications including kind of maven plugins to use, deployment steps, etc., but also about the lifecycle of OSGi bundle and Java EE artifacts. Now, it's time for our second hybrid application which demonstrates an EJB as an OSGi service. </p>
+<p><strong><u>Set up</strong></u><br />
+1. Download <a href="http://download.java.net/glassfish/v3/nightly/latest-glassfish.zip">the latest nightly build of GlassFish v3</a>, install and start glassfish: </p>
+<pre>java -jar glassfishv3/glassfish/modules/glassfish.jar</pre><p>
+2. Start embedded JavaDB by running </p>
+<pre>glassfishv3/glassfish/bin/asadmin start-database</pre><p>
+3. Download "OSGi web container" bundle from <a href="http://download.java.net/maven/glassfish/org/glassfish/web/osgi-web-container/3.0-SNAPSHOT/osgi-web-container-3.0-SNAPSHOT.jar">here</a> and install it by copying it:</p>
+<pre>cp osgi-web-container-3.0-SNAPSHOT.jar glassfishv3/glassfish/domains/domain1/autodeploy-bundles/</pre><p>
+<u><strong>Sample Application</strong></u><br />
+You can <strong>download</strong> the complete sample from <a href="http://weblogs.java.net/blog/ss141213/examples/hybridapp2/hybridapp2.zip">here</a>. Unzip it. Let's look at the UML diagrams below. The first one is a package diagram showing dependencies, the second one shows the components of the system and the third one shows that they are all deployed in the same node.<br />
+<img alt="uml.jpg" src="http://weblogs.java.net/blog/ss141213/examples/hybridapp2/uml.jpg" width="598" height="529" /><br />
+As you can see, we have <em>three</em> modules and the source code organization reflects that as well. Let's briefly go over the modules:<br />
+<u>1. common</u><br />
+This is just an OSGi bundle. It <strong>exports</strong> <em>sahoo.hybridapp.example2</em> package which contains a single interface called <em>UserAuthService</em>.</p>
+<p><u>2. service</u><br />
+This is a web application bundle, i.e., a <strong>hybrid application</strong> containing both OSGi and Java EE artifact. It <strong>imports</strong> <em>sahoo.hybridapp.example2</em> package. It has following components:<br />
+2a. <a href="http://weblogs.java.net/blog/ss141213/examples/hybridapp2/service/UserAuthServiceEJB.java">UserAuthServiceEJB</a> This is a Singleton EJB designated to be initialized at startup. It is annotated like this:</p>
+<pre>@Singleton
+@Startup
+public class UserAuthServiceEJB implements UserAuthService</pre><p>
+Please refer to EJB 3.1 spec for more information on these annotations.<br />
+UserAuthServiceEJB has a static variable called </p>
+<pre>static volatile UserAuthService selfRef;</pre><p>which is initialized by an ejb reference in the postConstruct() method of the EJB:</p>
+<pre>    
+    @PostConstruct
+    public void postConstruct() {
+        selfRef = sessionContext.getBusinessObject(UserAuthService.class);
+        System.out.println("UserAuthServiceEJB.postConstruct: " + selfRef);
+    }</pre><p>
+2b. <a href="http://weblogs.java.net/blog/ss141213/examples/hybridapp2/service/Activator.java">Activator</a> - This is an OSGi bundle activator which looks up a data source in JNDI, ceates a table there and then registers the EJB reference (selfRef) in OSGi service registry under the service interface sahoo.hybridapp.example2.UserAuthService. For simplicity, we have not used any service properties here. </p>
+<p><u>3. client</u><br />
+This is just an OSGi bundle. It imports <em>sahoo.hybridapp.example2</em> package. It has an <a href="http://weblogs.java.net/blog/ss141213/examples/hybridapp2/client/Activator.java">activator</a> which waits for UserAuthService to be available and then invokes it. Look carefully at the activator code and see how it uses <strong>ServiceTracker</strong> to be notified of service availability. When it sees the service, it invokes it. All this is accomplished in these few lines:</p>
+<pre>
+    private class UserAuthServiceTracker extends ServiceTracker {
+        UserAuthServiceTracker() {
+            super(bctx, UserAuthService.class.getName(), null);
+        }
+
+        @Override
+        public Object addingService(ServiceReference reference)
+        {
+            UserAuthService service = (UserAuthService)context.getService(reference);
+            service.register("f..", "b..");
+            return service;
+        }
+        
+    }</pre><p>
+<u><strong>Build and Test</u></strong><br />
+1. If you don't want to build, then the final artifacts are in target dir, else simply run </p>
+<pre>mvn clean install</pre><p> in hybridapp2 directory.</p>
+<p>2. To deploy, simply copy the artifacts like this (please note, because of a bug as described last time), while copying the <strong>.war</strong> file, give it a <strong>.jar</strong> extension as a work around. </p>
+<pre>cp common/target/hybridapp2-common.jar glassfish/domains/domain1/autodeploy-bundles/
+cp client/target/hybridapp2-client.jar glassfish/domains/domain1/autodeploy-bundles/
+cp service/target/hybridapp2-service.war glassfish/domains/domain1/autodeploy-bundles/hybridapp2-service.jar</pre><p>
+Since deployment order is immaterial, you can copy them in any order. </p>
+<p><u><strong>Benefits of EJB as OSGi service</strong></u><br />
+1. An OSGi service is able to take advantage of Java EE container services like declarative transaction, declarative security, resource pooling, etc.</p>
+<p>2. Local client views of an EJB are accessible from <strong>other</strong> applications collocated in the same JVM. Please note, since Java EE can not assume a module management system is in place, it takes a safer route of isolated class space for application classes. This does not have to be the case when we are using hybrid applications. We can safely cross application boundaries and call local EJBs.</p>
+<p>3. Better modularity of application: as shown here, the app has been broken into three independent deployment units. Once they are deployed, they can be managed (e.g., patched) separately. </p>
+<p>4. Deployment order is a thing of past. OSGi takes care of class loading dependencies and then application can take advantage of facilities like Service Tracking to build very dynamic application. As shown in this example:</p>
+<pre>if client bundle comes up before service bundle, then it simply waits for the service to be available.</pre><p>You can observe this by removing hybridapp2-service.jar from autodeploy-bundles/ and copy it back.I hope you find this example useful. Let us know what you want to hear. As always, your feedback is very welcome. Please visit <a href="http://blogs.sun.com/theaquarium/">The Aquarium</a> to know the latest news about GlassFish. If you have questions about how to use this feature, please use our <a href="http://forums.java.net/jive/forum.jspa?forumID=56&amp;start=0">forum</a>.</p>
+<p>Thank you,<br />
+Sahoo.</p>
+    <div class="taxonomy"><span class="label" style="font-weight: bold; margin-right: 0.5em; float: left;">Related Topics &gt;&gt;</span>
+        <ul class="links inline"><li class="taxonomy_term_97"><a href="/blog-community/java-enterprise" rel="tag" title="">Java Enterprise</a></li>
+</ul>
+    </div>
+      <div class="node-links"><span class="label" style="font-weight: bold; margin-right: 0.5em; float: left;">Blog Links &gt;&gt;</span>
+  <ul class="links inline"><li class="comment_forbidden"><span><a href="/user/login?destination=comment%2Freply%2F242458%23comment-form">Login</a> or <a href="/user/register?destination=comment%2Freply%2F242458%23comment-form">register</a> to post comments</span></li>
+<li class="print_html"><a href="/print/242458" title="Display a printer-friendly version of this page." class="print-page" rel="nofollow">Printer-friendly version</a></li>
+<li class="blog_usernames_blog"><a href="/blogs/ss141213" title="Read ss141213&#039;s latest blog entries.">ss141213&#039;s blog</a></li>
+<li class="statistics_counter"><span>9228 reads</span></li>
+</ul>
+  </div>
+  
+</div> <!-- /article -->
+  <div id="comments">
+          <h2 id="comments-title">
+        Comments      </h2>
+        <a id="comment-806591"></a>
+<div class="comment">
+
+      <h3>
+      <a href="/blog/ss141213/archive/2009/06/accessing_an_ej.html#comment-806591" class="active">That´s great. I like de idea</a>                </h3>
+  
+  
+      <p class="submitted">by <em class="author">kundo100</em> - <em class="time">2010-11-07 18:42</em></p>
+  
+  <p></p><p>That&acute;s great. I like de idea of combining OSGi with J2EE.<br />
+I wonder if I could access to an hybrid EJB from a non OSGi war application that is running in the same server.<br />
+As far as I understand the EJB from de example above is in OSGi context ... so I don&acute;t know if this is possible.<br />
+I&acute;ve been able to create an hybrid WAB and an Hybrid EJB but ...<br />
+My intention is to be able to work with OSGi and to use BlazeDS to develop Adobe Flex applications.<br />
+So I tried to convert the BlazeDS war file to a hybrid BlazeDS WAB, but I faced the problem that BlazeDS seems to not been supported.<br />
+It seems that OSGi run an embeded glassfish that does not support it.<br />
+The error is:<br />
+org.apache.catalina.LifecycleException: java.lang.IllegalArgumentException: javax.servlet.ServletException: com.sun.enterprise.container.common.spi.util.InjectionException: Error creating managed object for class flex.messaging.HttpFlexSession<br />
+        at org.apache.catalina.core.StandardContext.start(StandardContext.java:5159)<br />
+        at com.sun.enterprise.web.WebModule.start(WebModule.java:499)<br />
+        at org.apache.catalina.core.ContainerBase.addChildInternal(ContainerBase.java:928)<br />
+        at org.apache.catalina.core.ContainerBase.addChild(ContainerBase.java:912)<br />
+        at org.apache.catalina.core.StandardHost.addChild(StandardHost.java:694)<br />
+        at com.sun.enterprise.web.WebContainer.loadWebModule(WebContainer.java:1933)<br />
+        at com.sun.enterprise.web.WebContainer.loadWebModule(WebContainer.java:1605)<br />
+        at com.sun.enterprise.web.WebApplication.start(WebApplication.java:90)<br />
+        at org.glassfish.internal.data.EngineRef.start(EngineRef.java:126)<br />
+        at org.glassfish.internal.data.ModuleInfo.start(ModuleInfo.java:241)<br />
+        at org.glassfish.internal.data.ApplicationInfo.start(ApplicationInfo.java:236)<br />
+        at com.sun.enterprise.v3.server.ApplicationLifecycle.deploy(ApplicationLifecycle.java:339)<br />
+        at org.glassfish.kernel.embedded.EmbeddedDeployerImpl.deploy(EmbeddedDeployerImpl.java:214) </p>
+<p>Perhaps, in the future BlazeDS will be supported in embeded mode ... but, for now, I was thinking if I have another option.<br />
+For example, to make an hybrid EJB and then access it from the non OSGi BlazeDS war application.<br />
+Is this posible? Do you think I should think on another options?<br />
+Thanks!</p>
+
+  
+  <ul class="links"><li class="comment_forbidden"><span><a href="/user/login?destination=comment%2Freply%2F242458%23comment-form">Login</a> or <a href="/user/register?destination=comment%2Freply%2F242458%23comment-form">register</a> to post comments</span></li>
+</ul>
+
+</div> <!-- /comment -->
+<a id="comment-12270"></a>
+<div class="comment">
+
+      <h3>
+      <a href="/blog/ss141213/archive/2009/06/accessing_an_ej.html#comment-12270" class="active">Thanks Sahoo,
+
+I was looking</a>                </h3>
+  
+  
+      <p class="submitted">by <em class="author">mohamedelshami</em> - <em class="time">2010-02-02 08:27</em></p>
+  
+  Thanks Sahoo,
+
+I was looking for that combination of OSGi and EJB where I wanted to have each EJB providing a new service to be deployed at runtime and make it self available to a client EJB. When I ran into runtime redeployment limitations with the standard EAR/EJB-JAR, I thought OSGi would help. According to your example it seems that the EJB as OSGi service is possible only with Singleton where registration happens on static initialisation at the startup time. I wonder how same architecture would be possible with other types of session beans.
+
+BR,
+Mohamed
+  
+  <ul class="links"><li class="comment_forbidden"><span><a href="/user/login?destination=comment%2Freply%2F242458%23comment-form">Login</a> or <a href="/user/register?destination=comment%2Freply%2F242458%23comment-form">register</a> to post comments</span></li>
+</ul>
+
+</div> <!-- /comment -->
+<div class="indented"><a id="comment-12334"></a>
+<div class="comment">
+
+      <h3>
+      <a href="/blog/ss141213/archive/2009/06/accessing_an_ej.html#comment-12334" class="active">EJB as OSGi service</a>                </h3>
+  
+  
+      <p class="submitted">by <em class="author">ss141213</em> - <em class="time">2010-02-03 20:09</em></p>
+  
+  <p>It's being worked on. See <a href="https://glassfish.dev.java.net/issues/show_bug.cgi?id=11374" title="https://glassfish.dev.java.net/issues/show_bug.cgi?id=11374">https://glassfish.dev.java.net/issues/show_bug.cgi?id=11374</a></p>
+
+  
+  <ul class="links"><li class="comment_forbidden"><span><a href="/user/login?destination=comment%2Freply%2F242458%23comment-form">Login</a> or <a href="/user/register?destination=comment%2Freply%2F242458%23comment-form">register</a> to post comments</span></li>
+</ul>
+
+</div> <!-- /comment -->
+</div><a id="comment-11840"></a>
+<div class="comment">
+
+      <h3>
+      <a href="/blog/ss141213/archive/2009/06/accessing_an_ej.html#comment-11840" class="active">Doesn&#039;t work :(</a>                </h3>
+  
+  
+      <p class="submitted">by <em class="author">pjurak</em> - <em class="time">2010-01-14 01:13</em></p>
+  
+  Hi,
+I tried this on installed Glassfish V3 (GlassFish v3 (build 74.2)) and this simple lookup doesn't work. I made only bundle activator and tried to lookup datasource and got weird exceptions below. Is it a bug or am I doing it wrong? Thanks in advance.
+
+<code>
+SEVERE: RAR6035 : Resource adapter start failed : {0}
+javax.validation.ValidationException: Unable to find a default provider
+  ... 
+<br />
+SEVERE: RAR8061: failed to load resource-adapter-config or RA [ __ds_jdbc_ra ], com.sun.appserv.connectors.internal.api.ConnectorRuntimeException: Failed to start resource adapter : Unable to find a default provider
+<br />
+SEVERE: RAR8060: Unable to lookup pool [ DerbyPool ], javax.naming.NamingException: Lookup failed for '__SYSTEM/pools/DerbyPool' in SerialContext  [Root exception is javax.naming.NameNotFoundException: pools]
+<br />
+SEVERE: RAR6017 : Failed to get connection pool object via JNDI lookup : DerbyPool
+<br />
+SEVERE: com.sun.appserv.connectors.internal.api.ConnectorRuntimeException: rardeployment.jndi_lookup_failed
+...
+<br />
+Caused by: javax.naming.NamingException: Lookup failed for '__SYSTEM/pools/DerbyPool' in SerialContext  [Root exception is javax.naming.NameNotFoundException: pools]
+<br />
+Caused by: javax.naming.NameNotFoundException: pools
+<br />
+SEVERE: javax.naming.NamingException: Lookup failed for 'jdbc/__default' in SerialContext  [Root exception is javax.naming.NamingException: Unable to lookup resource : jdbc/__default [Root exception is com.sun.appserv.connectors.internal.api.ConnectorRuntimeException: rardeployment.jndi_lookup_failed]]
+<br />  
+Caused by: javax.naming.NamingException: Unable to lookup resource : jdbc/__default [Root exception is com.sun.appserv.connectors.internal.api.ConnectorRuntimeException: rardeployment.jndi_lookup_failed]
+<br />
+Caused by: com.sun.appserv.connectors.internal.api.ConnectorRuntimeException: rardeployment.jndi_lookup_failed
+<br />
+Caused by: javax.naming.NamingException: Lookup failed for '__SYSTEM/pools/DerbyPool' in SerialContext  [Root exception is javax.naming.NameNotFoundException: pools]
+<br />
+Caused by: javax.naming.NameNotFoundException: pools
+</code>
+  
+  <ul class="links"><li class="comment_forbidden"><span><a href="/user/login?destination=comment%2Freply%2F242458%23comment-form">Login</a> or <a href="/user/register?destination=comment%2Freply%2F242458%23comment-form">register</a> to post comments</span></li>
+</ul>
+
+</div> <!-- /comment -->
+<div class="indented"><a id="comment-11844"></a>
+<div class="comment">
+
+      <h3>
+      <a href="/blog/ss141213/archive/2009/06/accessing_an_ej.html#comment-11844" class="active">You came across a bug</a>                </h3>
+  
+  
+      <p class="submitted">by <em class="author">ss141213</em> - <em class="time">2010-01-14 04:37</em></p>
+  
+  <p>See <a href="https://glassfish.dev.java.net/issues/show_bug.cgi?id=11436" title="https://glassfish.dev.java.net/issues/show_bug.cgi?id=11436">https://glassfish.dev.java.net/issues/show_bug.cgi?id=11436</a></p>
+<p>In future, please try to use our forum.</p>
+
+  
+  <ul class="links"><li class="comment_forbidden"><span><a href="/user/login?destination=comment%2Freply%2F242458%23comment-form">Login</a> or <a href="/user/register?destination=comment%2Freply%2F242458%23comment-form">register</a> to post comments</span></li>
+</ul>
+
+</div> <!-- /comment -->
+</div><a id="comment-11207"></a>
+<div class="comment">
+
+      <h3>
+      <a href="/blog/ss141213/archive/2009/06/accessing_an_ej.html#comment-11207" class="active">session context is always null?</a>                </h3>
+  
+  
+      <p class="submitted">by <em class="author">iwudh8u</em> - <em class="time">2009-11-17 09:36</em></p>
+  
+  Hi Sahoo,
+
+Thanks for the great post! In the above example, is the session context in the services module always null?
+
+Thanks,
+J
+  
+  <ul class="links"><li class="comment_forbidden"><span><a href="/user/login?destination=comment%2Freply%2F242458%23comment-form">Login</a> or <a href="/user/register?destination=comment%2Freply%2F242458%23comment-form">register</a> to post comments</span></li>
+</ul>
+
+</div> <!-- /comment -->
+<div class="indented"><a id="comment-11237"></a>
+<div class="comment">
+
+      <h3>
+      <a href="/blog/ss141213/archive/2009/06/accessing_an_ej.html#comment-11237" class="active">Why do you say session context is null?</a>                </h3>
+  
+  
+      <p class="submitted">by <em class="author">ss141213</em> - <em class="time">2009-11-18 21:22</em></p>
+  
+  <p>Why do you say session context is null? Can you elaborate? Were it null, we would have got NullPointerException while trying to use it, won't we? Please provide more information.</p>
+<p>Thanks,<br />
+Sahoo</p>
+
+  
+  <ul class="links"><li class="comment_forbidden"><span><a href="/user/login?destination=comment%2Freply%2F242458%23comment-form">Login</a> or <a href="/user/register?destination=comment%2Freply%2F242458%23comment-form">register</a> to post comments</span></li>
+</ul>
+
+</div> <!-- /comment -->
+</div>  </div>
+ <!-- /comment-wrapper -->
+          </div>
+
+        </div> <!-- /main-content -->
+
+          <!--  Begin SiteCatalyst code  -->
+  <script language="JavaScript" src="/images/s_code_remote.js"></script>
+  <!--  End SiteCatalyst code  -->
+      </div></div> <!-- /content-column -->
+
+              <div id="sidebar-first" class="sidebar"><div id="block-menu-menu-get-involved"  class="block">
+  <div class="block-inner">
+
+          <h2>Get Involved</h2>
+    
+    <div class="content"><ul class="menu">
+ <li class="leaf first"><a href="/about-javanet" title="About java.net">About Java.net</a></li>
+<li class="leaf"><a href="http://java.net/projects/adoptajsr/pages/Home" title="Adopt">Adopt a JSR</a></li>
+<li class="leaf"><a href="/create-project" title="Create a Project">Create a Project</a></li>
+<li class="leaf last"><a href="/javanet-linking-instructions" title="Link an offiste project">Link an Offsite Project</a></li>
+ </ul>
+</div>
+
+    
+  </div>
+</div> <!-- /block -->
+<div id="block-menu-menu-get-informed"  class="block">
+  <div class="block-inner">
+
+          <h2>Get Informed</h2>
+    
+    <div class="content"><ul class="menu">
+ <li class="leaf first"><a href="/articles" title="">Articles</a></li>
+<li class="leaf"><a href="/blogfront" title="">Blogs</a></li>
+<li class="leaf"><a href="/events" title="">Events</a></li>
+<li class="leaf"><a href="http://www.oracle.com/technetwork/java/javamagazine/index.html?origref=http://java.net/projects/java-magazine" title="Subscribe to Java Magazine">Java Magazine</a></li>
+<li class="leaf last"><a href="http://education.oracle.com/pls/web_prod-plq-dad/ou_product_category.getFamilyPage?p_family_id=48&amp;intcmp=WWOU11042412MPP012C010" title="Java Training and Certification at Oracle University">Oracle University</a></li>
+ </ul>
+</div>
+
+    
+  </div>
+</div> <!-- /block -->
+</div> <!-- /sidebar-first -->
+      
+              <div id="sidebar-last" class="sidebar"><div id="block-block-22"  class="block">
+  <div class="block-inner">
+
+          <h2>Recent Entries</h2>
+    
+    <div class="content"><a href="/blog/ss141213/archive/2012/02/23/getting-verbose-class-loading-output-glassfish">Getting verbose class loading output in GlassFish</a><br><br><a href="/blog/ss141213/archive/2011/11/03/lazy-loading-classes-not-working">Lazy loading of classes not working</a><br><br><a href="/blog/ss141213/archive/2010/04/22/osgijmsmdb-example">OSGi/JMS/MDB Example</a><br><br></div>
+
+    
+  </div>
+</div> <!-- /block -->
+<div id="block-block-19"  class="block">
+  <div class="block-inner">
+
+          <h2>Archives</h2>
+    
+    <div class="content"><a href="/blogarchive/ss141213/201202">February 2012</a><br><a href="/blogarchive/ss141213/201111">November 2011</a><br><a href="/blogarchive/ss141213/201004">April 2010</a><br><a href="/blogarchive/ss141213/201003">March 2010</a><br><a href="/blogarchive/ss141213/201002">February 2010</a><br><a href="/blogarchive/ss141213/200910">October 2009</a><br><a href="/blogarchive/ss141213/200909">September 2009</a><br><a href="/blogarchive/ss141213/200907">July 2009</a><br><a href="/blogarchive/ss141213/200906">June 2009</a><br><a href="/blogarchive/ss141213/200905">May 2009</a><br><a href="/blogarchive/ss141213/200902">February 2009</a><br><a href="/blogarchive/ss141213/200805">May 2008</a><br><a href="/blogarchive/ss141213/200804">April 2008</a><br><a href="/blogarchive/ss141213/200801">January 2008</a><br><a href="/blogarchive/ss141213/200711">November 2007</a><br><a href="/blogarchive/ss141213/200611">November 2006</a><br><a href="/blogarchive/ss141213/200610">October 2006</a><br><a href="/blogarchive/ss141213/200607">July 2006</a><br><a href="/blogarchive/ss141213/200605">May 2006</a><br><a href="/blogarchive/ss141213/200603">March 2006</a><br><a href="/blogarchive/ss141213/200601">January 2006</a><br><a href="/blogarchive/ss141213/200512">December 2005</a><br></div>
+
+    
+  </div>
+</div> <!-- /block -->
+</div> <!-- /sidebar-last -->
+      
+    </div></div> <!-- /columns -->
+
+          <div id="tertiary-content"><div id="block-menu-menu-footer-menu"  class="block">
+  <div class="block-inner">
+
+    
+    <div class="content"><ul class="menu">
+ <li class="leaf first"><a href="/contact" title="">Feedback</a></li>
+<li class="leaf"><a href="/javanet-faq" title="">FAQ</a></li>
+<li class="leaf"><a href="/javanet-web-site-terms-use" title="">Terms of Use</a></li>
+<li class="leaf"><a href="http://www.oracle.com/us/legal/privacy/index.html" title="">Privacy</a></li>
+<li class="leaf last"><a href="http://www.oracle.com/us/legal/third-party-trademarks/index.html" title="">Trademarks</a></li>
+ </ul>
+</div>
+
+    
+  </div>
+</div> <!-- /block -->
+</div> <!-- /tertiary-content -->
+    
+          <div id="footer">
+
+                  <div id="footer-region"><div id="block-block-27"  class="block">
+  <div class="block-inner">
+
+    
+    <div class="content"><div style="width: 59%; float: left;">
+<p>Your use of this web site or any of its content or software indicates your agreement to be bound by these <a href="/javanet-web-site-terms-use">Terms of Participation</a>.</p>
+<p>Copyright © 2013, Oracle and/or its affiliates. All rights reserved. Oracle and Java are registered trademarks of Oracle and/or its affiliates. Other names may be trademarks of their respective owners.</p>
+</div>
+
+<div style="width: 39%; float: left; text-align: right;">
+<div style="float: right;"><a href="http://www.oracle.com"><img src="/sites/all/themes/java_adaptive/images/oracle.png"></a><a href="http://kenai.com"><img src="/sites/all/themes/java_adaptive/images/kenai.png"></a><a href="http://www.cognisync.com"><img src="/sites/all/themes/java_adaptive/images/cognisync.png"></a><br />
+<div class="powered-by">Powered by Oracle, Project Kenai and Cognisync</div></div>
+</div></div>
+
+    
+  </div>
+</div> <!-- /block -->
+</div> <!-- /footer-region -->
+        
+        
+        
+      </div> <!-- /footer -->
+    
+
+  </div> <!-- /container -->
+  <script type="text/javascript" src="/sites/default/files/js/js_8562075b5b292012d20abb6b65c917bc.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+jQuery.extend(Drupal.settings, { "basePath": "/", "datetweaks": { "use_dropdown": true }, "fivestar": { "titleUser": "Your rating: ", "titleAverage": "Average: ", "feedbackSavingVote": "Saving your vote...", "feedbackVoteSaved": "Your vote has been saved.", "feedbackDeletingVote": "Deleting your vote...", "feedbackVoteDeleted": "Your vote has been deleted." }, "lightbox2": { "rtl": 0, "file_path": "/(\\w\\w/)sites/default/files", "default_image": "/sites/all/modules/lightbox2/images/brokenimage.jpg", "border_size": 0, "font_color": "000", "box_color": "fff", "top_position": "", "overlay_opacity": "0.8", "overlay_color": "000", "disable_close_click": 1, "resize_sequence": 0, "resize_speed": 400, "fade_in_speed": 400, "slide_down_speed": 600, "use_alt_layout": 1, "disable_resize": 0, "disable_zoom": 0, "force_show_nav": 0, "show_caption": 1, "loop_items": 0, "node_link_text": "View Image Details", "node_link_target": 0, "image_count": "Image !current of !total", "video_count": "Video !current of !total", "page_count": "Page !current of !total", "lite_press_x_close": "press \x3ca href=\"#\" onclick=\"hideLightbox(); return FALSE;\"\x3e\x3ckbd\x3ex\x3c/kbd\x3e\x3c/a\x3e to close", "download_link_text": "", "enable_login": false, "enable_contact": false, "keys_close": "c x 27", "keys_previous": "p 37", "keys_next": "n 39", "keys_zoom": "z", "keys_play_pause": "32", "display_image_size": "original", "image_node_sizes": "()", "trigger_lightbox_classes": "", "trigger_lightbox_group_classes": "", "trigger_slideshow_classes": "", "trigger_lightframe_classes": "", "trigger_lightframe_group_classes": "", "custom_class_handler": 0, "custom_trigger_classes": "", "disable_for_gallery_lists": true, "disable_for_acidfree_gallery_lists": true, "enable_acidfree_videos": true, "slideshow_interval": 5000, "slideshow_automatic_start": true, "slideshow_automatic_exit": true, "show_play_pause": true, "pause_on_next_click": false, "pause_on_previous_click": true, "loop_slides": false, "iframe_width": 900, "iframe_height": 700, "iframe_border": 1, "enable_video": 0 }, "prettify": { "linenums": false, "match": ".content", "nocode": "no-code", "custom": [  ], "markup": { "code": true, "pre": true, "precode": true } }, "extlink": { "extTarget": "_blank", "extClass": 0, "extSubdomains": 1, "extExclude": "", "extInclude": "", "extAlert": 0, "extAlertText": "This link will take you to an external web site. We are not responsible for their content.", "mailtoClass": 0 }, "custom_search": { "form_target": "_self", "solr": 0 } });
+//--><!]]>
+</script>
+    <!--  Begin SiteCatalyst code  -->
+<script language="JavaScript">
+<!--
+var s_channel="other";
+//--></script>
+<!--  End SiteCatalyst code  -->
+  <script type="text/javascript">
+<!--//--><![CDATA[//><!--
+var _paq = _paq || [];(function(){var u=(("https:" == document.location.protocol) ? "" : "http://piwik.cognihosting.com/");_paq.push(["setSiteId", "1"]);_paq.push(["setTrackerUrl", u+"piwik.php"]);_paq.push(["setDoNotTrack", 1]);_paq.push(["setCookieDomain", ".java.net"]);_paq.push(["trackPageView"]);_paq.push(["enableLinkTracking"]);var d=document,g=d.createElement("script"),s=d.getElementsByTagName("script")[0];g.type="text/javascript";g.defer=true;g.async=true;g.src=u+"piwik.js";s.parentNode.insertBefore(g,s);})();
+//--><!]]>
+</script>
+</body>
+</html>

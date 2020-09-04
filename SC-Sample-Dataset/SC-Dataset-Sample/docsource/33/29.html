@@ -1,0 +1,266 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>java.rmi.server.ExportException: Port already in use: 10344; (Beginning Java forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/556642/java/java/java-rmi-server-ExportException-Port"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/556642/java/java/java-rmi-server-ExportException-Port?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-33/java">Beginning Java</a>
+<div class="subject">java.rmi.server.ExportException: Port already in use: 10344;</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: R Dom, Greenhorn<br />
+  on <span class="lastPostTime">Oct 24, 2011 02:12:28</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I am implementing RMI. Here is the code
+<br /> <textarea name="code" class="java" cols="60" rows="10">package broker;
+
+import java.rmi.RMISecurityManager;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+
+import broker.remoteInterface.Broker;
+
+
+public class LinkageBroker extends UnicastRemoteObject implements Broker {
+	
+	private static final long serialVersionUID = -3313926048051558722L;
+	private static final int port = 10344;
+
+	public LinkageBroker()throws Exception{
+		super(port, new BrokerSSLClientSocketFactory(),new BrokerSSLServerSocketFactory());		
+	}
+
+	@Override
+	public String sayHello() throws Exception {
+		// TODO Auto-generated method stub
+		return "Hello from LinkageBroker";
+	}
+
+	public static void main(String args[]){
+	 /* if(args == null || args.length != 1){
+		  System.err.println( "Usage: java LinkageBroker [port number]" );
+	      System.exit( 1 );
+	  }
+	  int port = Integer.parseInt( args[0] );*/
+	  // Create and RMI security manager
+	  if (System.getSecurityManager() == null) {
+		    System.setSecurityManager(new RMISecurityManager());
+	  }	
+	  try {
+		Registry registry = LocateRegistry.createRegistry(port,new BrokerSSLClientSocketFactory(),
+				new BrokerSSLServerSocketFactory());
+		LinkageBroker linkageBroker = new LinkageBroker();
+		registry.bind("Broker", linkageBroker);
+		System.out.println("Broker bound in registry..listening on port 10344");
+	 } catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	 }
+	  
+  }
+}
+</textarea>
+<br /> 
+<br /> when i run the program it throws following exception always.. no matter what port i am using. I am using windows. I have tried with several different ports but none worked. 
+<br /> When I comment out the super() line in constructor.. the program runs successfully but then it doesnt make sense to comment out that code as client is going to use that port to access the UnicastRemoteObject.
+<br /> I have checked no other services are running on port. 
+<br /> 
+<br /> Exception- 
+<br /> java.rmi.server.ExportException: Port already in use: 10344; nested exception is
+<br /> :
+<br />         java.net.BindException: Address already in use: JVM_Bind
+<br />         at sun.rmi.transport.tcp.TCPTransport.listen(Unknown Source)
+<br />         at sun.rmi.transport.tcp.TCPTransport.exportObject(Unknown Source)
+<br />         at sun.rmi.transport.tcp.TCPEndpoint.exportObject(Unknown Source)
+<br />         at sun.rmi.transport.LiveRef.exportObject(Unknown Source)
+<br />         at sun.rmi.server.UnicastServerRef.exportObject(Unknown Source)
+<br />         at java.rmi.server.UnicastRemoteObject.exportObject(Unknown Source)
+<br />         at java.rmi.server.UnicastRemoteObject.exportObject(Unknown Source)
+<br />         at java.rmi.server.UnicastRemoteObject.&lt;init&gt;(Unknown Source)
+<br />         at broker.LinkageBroker.&lt;init&gt;(LinkageBroker.java:17)
+<br />         at broker.LinkageBroker.main(LinkageBroker.java:41)
+<br /> Caused by: java.net.BindException: Address already in use: JVM_Bind
+<br /> 
+<br /> Anyone has idea whats going wrong here.?
+<br /> Thanks
+<br /> Ron</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ove Lindström, Ranch Hand<br />
+  on <span class="lastPostTime">Oct 24, 2011 03:03:24</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">You are using the same port twice.
+<br /> 
+<br /> First you use it in line 37 to start your Registry.
+<br /> Then you use the same port in your LinkageBroker.
+<br /> 
+<br /> Is it reall the way is should be?
+<br /> 
+<br /> What happens if you use different ports on the Registry and the Broker?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: R Dom, Greenhorn<br />
+  on <span class="lastPostTime">Oct 24, 2011 04:02:43</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Thanks for the reply.
+<br /> 
+<br /> The client will communicate using port 10344. So for the registry lookup port has to be 10344 and to access the export object we would have to use same port again. Isnt that how it should work ?
+<br /> 
+<br /> Am I wrong here somewhere? </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: John Jai, Bartender<br />
+  on <span class="lastPostTime">Oct 24, 2011 04:15:40</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Yes. For registry use 1099 which is default</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/556642'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=33'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 17:02:22</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/33"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/556642/java/java/java-rmi-server-ExportException-Port?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Re: HCatalog in Hive 0.11</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>hive-user mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/hive-user" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/hive-user/201310.mbox/%3cCAJt9WnjZMZVN8aA39BmBfBY1td8sS1j3oFAGwj-UhxE9w5fZ+A@mail.gmail.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/hive-user/201310.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/hive-user/201310.mbox/%3cCAHEx3F82-o3qwrx7o4sEiocWMvih-8o9JLNqUZ6DVjgace3F8Q@mail.gmail.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/hive-user/201310.mbox/%3c524AFEAE.2030305@gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/hive-user/201310.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/hive-user/201310.mbox/%3cCAEP=L+f6=UeYEA3Pn-jUA-c8-XZzvL8_bqk1EBDa4Y3JaDn68Q@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/hive-user/201310.mbox/%3cCAJt9WnjZMZVN8aA39BmBfBY1td8sS1j3oFAGwj-UhxE9w5fZ+A@mail.gmail.com%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/hive-user/201310.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/hive-user/201310.mbox/%3cCAHEx3F82-o3qwrx7o4sEiocWMvih-8o9JLNqUZ6DVjgace3F8Q@mail.gmail.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/hive-user/201310.mbox/%3c524AFEAE.2030305@gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/hive-user/201310.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/hive-user/201310.mbox/%3cCAEP=L+f6=UeYEA3Pn-jUA-c8-XZzvL8_bqk1EBDa4Y3JaDn68Q@mail.gmail.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">Sushanth Sowmyan &lt;khorg...@gmail.com&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Re: HCatalog in Hive 0.11</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Thu, 03 Oct 2013 19:42:01 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+Hi,
+
+The error you're getting seems to be from this piece of code in the metastore:
+
+==
+4182   String metastorePort = System.getenv("METASTORE_PORT");
+4183   if (metastorePort != null) {
+4184     port = Integer.parseInt(metastorePort);
+4185   }
+==
+
+Basically, for whatever reason, in your environment, you have a
+METASTORE_PORT that is specified, but not something that is being
+recognized as a number. Could you please check your config to see what
+the value of METASTORE_PORT winds up being?
+
+
+On Tue, Oct 1, 2013 at 9:56 AM, Tomás Fernández Pena &lt;tf.pena@gmail.com&gt; wrote:
+&gt; Hi
+&gt;
+&gt; I've just downloaded the tarball of hive 0.11. I'm trying to run the
+&gt; hcat_server.sh, put I got an error:
+&gt;
+&gt; $ ./hcat_server.sh start
+&gt; Started metastore server init, testing if initialized correctly...
+&gt; Metastore startup failed, see
+&gt; /home/ec2-user/hive-0.11.0-bin/hcatalog/sbin/../var/log/hcat.err
+&gt;
+&gt; $ cat  /var/log/hcat.err
+&gt; Exception in thread "main" java.lang.NumberFormatException: For input
+&gt; string: ""
+&gt;     at
+&gt; java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+&gt;     at java.lang.Integer.parseInt(Integer.java:504)
+&gt;     at java.lang.Integer.parseInt(Integer.java:527)
+&gt;     at
+&gt; org.apache.hadoop.hive.metastore.HiveMetaStore$HiveMetastoreCli.parse(HiveMetaStore.java:4184)
+&gt;     at
+&gt; org.apache.hadoop.hive.metastore.HiveMetaStore.main(HiveMetaStore.java:4195)
+&gt;     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+&gt;     at
+&gt; sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+&gt;     at
+&gt; sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+&gt;     at java.lang.reflect.Method.invoke(Method.java:606)
+&gt;     at org.apache.hadoop.util.RunJar.main(RunJar.java:160)
+&gt;
+&gt; Any idea?
+&gt;
+&gt; Regards.
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/hive-user/201310.mbox/raw/%3cCAPNSvC5CPrNKm08JwD8VL_hGprc_xZ+sk6b6wKohQrMY5y4tbA@mail.gmail.com%3e/">Unnamed text/plain</a> (inline, Quoted Printable, 1828 bytes)</li>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/hive-user/201310.mbox/raw/%3cCAPNSvC5CPrNKm08JwD8VL_hGprc_xZ+sk6b6wKohQrMY5y4tbA@mail.gmail.com%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

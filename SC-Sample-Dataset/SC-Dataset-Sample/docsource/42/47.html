@@ -1,0 +1,1601 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Index Out of Bound Exception</title>
+<meta content="" name="description">
+<meta content="" name="keywords">
+
+<style type="text/css">
+<!--
+@import url("/d2/css/default.css?v=6");
+-->
+</style>
+
+
+<style type="text/css">
+label.error { width: 250px; color: red; display: block; float: left; padding-left: 10px; }
+</style>
+
+
+
+<script src="/d2/function/ddmenu.js" type="text/javascript"></script>
+<link href="/d1/prettify/prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="/d1/prettify/prettify.js"></script>
+
+<script src="/d2/jquery/jquery-1.10.2-min.js"></script>
+<script src="/d2/jquery/jquery.validate.1.7.js"></script>
+<script src="/d2/jquery/jquery.form.v2.43.js"></script>
+
+
+<link href="/d2/jquery-ui-1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+<script src="/d2/jquery-ui-1.10.3/js/jquery-ui-1.10.3.custom.js"></script>
+
+
+
+<script type="text/javascript"> 
+       $(document).ready(function() { 
+		  $("#commentForm").validate({ 
+	       rules: { 
+          name: "required",subject: "required",captchavalue: "required", 
+          email: { 
+          required: false, 
+          email: true 
+		   
+        }, 
+        url: { 
+	          url: false 
+        },comment: { 
+          required: true 
+	        } 
+	        }, 
+	        messages: { 
+	          comment: "Please enter a comment." 
+	        }
+		 }); 
+			var options = { 
+				success: showResponse,  // post-submit callback
+				beforeSubmit: beforeSubmit // pre-submit callback
+			}; 
+			$('#commentForm').ajaxForm(options);
+        }); 
+
+
+	function showResponse(responseText, statusText){ // post-submit callback
+			if(responseText=="Yes"){
+				$('#commentForm').clearForm();
+				//document.getElementById("divStatus").innerHTML = responseText;//Remove loading image
+				alert("Thanks for your posting your comment! We are reviewing your comment.");
+			}else{
+				//$("#captchavalue").value="";
+				alert("Captcha validation error! Please enter the correct value.");
+				$("#captchavalue").focus();
+
+			}	
+			
+			document.getElementById("divStatus").innerHTML = "";
+
+	}
+
+	function beforeSubmit(){ // post-submit callback
+		document.getElementById("divStatus").innerHTML = "<img src=\"/d2/images/loading.gif\">";
+
+	}
+
+
+
+    </script> 
+
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-6980313-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+
+
+	<style type="text/css">
+		/*
+		body{
+			font-family:Arial, Helvetica, sans-serif;
+			margin:10px;
+		}
+		.wrapper{
+			position:relative;
+			font-family:Arial, Helvetica, sans-serif;
+			padding-top:90px;
+			padding-left:50px;
+			width:80%;
+			margin:auto
+		}
+		.wrapper .text{
+			font-family:Arial, Helvetica, sans-serif;
+			padding-top:50px;
+		}
+		.wrapper h1{
+			font-family:Arial, Helvetica, sans-serif;
+			font-size:26px;
+		}
+		
+		
+		.longText{
+			margin-top:20px;
+			width:600px;
+			font:18px/24px Arial, Helvetica, sans-serif;
+			color:gray;
+		}
+		*/
+
+		/*
+		span.btn{
+			padding:10px;
+			display:inline-block;
+			cursor:pointer;
+			font:12px/14px Arial, Helvetica, sans-serif;
+			color:#aaa;
+			background-color:#eee;
+			-moz-border-radius:10px;
+			-webkit-border-radius:10px;
+			-moz-box-shadow:#999 2px 0px 3px;
+			-webkit-box-shadow:#999 2px 0px 3px;
+		}
+		span.btn:hover{
+			background-color:#000;
+		}
+		*/
+
+		/*
+
+		input{
+			padding:10px;
+			border:none;
+			-moz-box-shadow:#999 2px 0px 3px;
+			-webkit-box-shadow:#999 2px 0px 3px;
+		}
+		*/
+			/*
+									custom style for extruder
+									*/
+
+		.extruder.left.a .flap{
+			font-size:18px;
+			color:white;
+			top:0;
+			padding:10px 0 10px 10px;
+			background:#772B14;
+			width:30px;
+			position:absolute;
+			right:0;
+			-moz-border-radius:0 10px 10px 0;
+			-webkit-border-top-right-radius:10px;
+			-webkit-border-bottom-right-radius:10px;
+			-moz-box-shadow:#666 2px 0px 3px;
+			-webkit-box-shadow:#666 2px 0px 3px;
+		}
+
+		.extruder.left.a .content{
+			border-right:3px solid #772B14;
+			background:rgba(255,255,255,.95);
+		}
+
+		.extruder.top .optionsPanel .panelVoice a:hover{
+			color:#fff;
+			background: url("/d2/leftmenu/elements/black_op_30.png");
+			border-bottom:1px solid #000;
+		}
+		.extruder.top .optionsPanel .panelVoice a{
+			border-bottom:1px solid #000;
+		}
+
+		.extruder.left.a .flap .flapLabel{
+			background:#772B14;
+		}
+
+		/*
+		.extruder.top{
+			margin-left:-200px;
+		}
+		*/
+
+	</style>
+
+
+
+
+	<link href="/d2/leftmenu/css/mbExtruder.css" media="all" rel="stylesheet" type="text/css">
+	
+	<script type="text/javascript" src="/d2/leftmenu/inc/jquery.hoverIntent.min.js"></script>
+	<script type="text/javascript" src="/d2/leftmenu/inc/jquery.mb.flipText.js"></script>
+	<script type="text/javascript" src="/d2/leftmenu/inc/mbExtruder.js"></script>
+	<script type="text/javascript">
+
+		$(function(){
+
+
+
+
+			$("#extruderLeft").buildMbExtruder({
+				position:"left",
+				width:250,
+				extruderOpacity:.8,
+				
+				hidePanelsOnClose:false,
+				accordionPanels:false,
+				onExtOpen:function(){},
+				onExtContentLoad:function(){$("#extruderLeft").openPanel();},
+				onExtClose:function(){}
+			});
+
+
+
+			$.fn.changeLabel=function(text){
+				$(this).find(".flapLabel").html(text);
+				$(this).find(".flapLabel").mbFlipText();
+			};
+
+		});
+
+	</script>
+
+
+</head>
+<body  onload="prettyPrint()">
+<div class="wrapper">
+
+
+
+<!-- Place this tag in your head or just before your close body tag -->
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+
+
+
+	<div class="header">
+		<div class="logo"><a href="/"><img src="/d2/images/logo.gif" alt="" /></a></div>
+		<div class="rightHeader">
+			<div class="topLink">
+			<a href="/latest.shtml">Latest Tutorials</a>|
+			<a href="/answers/questions/">Questions and Answers</a>|<a href="/answers/askquestions/askquestion.html">Ask Questions?</a>|<a href="/sitemap/sitemap.shtml">Site Map</a>
+			
+			<br clear="all" />
+			<div class="headerAd">
+			<script type="text/javascript"><!--
+   e9 = new Object();
+   e9.size = "728x90,468x60";
+   e9.noAd = 1;
+//--></script>
+
+<script type="text/javascript" src="http://tags.expo9.exponential.com/tags/RoseIndianet/ROS/tags.js"></script>
+
+			</div>
+		</div>
+	</div><br clear="all" />
+
+
+
+	<div id="navigationtop" class="navigationBar" >
+		<div class="navigationBarLeft">&nbsp;</div>
+
+		<div  class="navigation" >
+			<ul id="ddmenu" >
+				<li class="top"><a href="/index.shtml" class="top_link"><span>Home</span></a></li>
+				<li class="top"><a href="/java/" class="top_link"><span class="down">Java</span></a>
+					<ul class="sub">
+						<li><a href="/java/">Core Java</a></li>
+						<li><a href="/java/jdk6/index.shtml">Java SE 6</a></li>
+						<li><a href="/java/Advanced-Java-Tutorials.shtml">Advanced Java</a></li>
+						<li><a href="/jsp/">JSP</a></li>
+						<li><a href="/servlets/">Servlets</a></li>
+						<li><a href="/jdbc/">JDBC</a></li>
+						<li><a href="/ejb/">EJB</a></li>
+						<li><a href="/webservices/">Web Services</a></li>
+						<li><a href="/j2me/">J2ME</a></li>
+						<li><a href="/jstl/introduction.shtml">JSTL</a></li>
+					</ul>
+				</li>
+				<li class="top"><a href="/frameworks/" class="top_link"><span class="down">Frameworks</span></a>
+					<ul class="sub">
+						<li><a href="/hibernate/">Hibernate</a></li>
+						<li><a href="/struts/">Struts 1.x</a></li>
+						<li><a href="/struts/struts2/">Struts 2</a></li>
+						<li><a href="/jsf/">JSF</a></li>
+						<li><a href="/javafx/">JavaFX</a></li>
+						<li><a href="/ajax/">Ajax</a></li>
+						<li><a href="/spring/">Spring 2.5</a></li>
+						<li><a href="/tutorial/spring/spring3/index.html">Spring 3</a></li>
+						<li><a href="/dojo/">DOJO</a></li>
+						<li><a href="/tutorials/ibatis/">iBatis</a></li>
+						<li><a href="/flex/">Flex 3</a></li>
+						<li><a href="/tutorial/flex/flex4/index.html">Flex 4</a></li>
+					</ul>
+				</li>
+				<li class="top"><a href="/databases/" class="top_link"><span class="down">Database</span></a>
+					<ul class="sub">
+						<li><a href="/sql/">SQL</a></li>
+						<li><a href="/mysql/">MySQL</a></li>
+					</ul>
+				</li>
+				<li class="top"><a href="/technology/"class="top_link"><span class="down">Technology</span></a>
+					<ul class="sub">
+						<li><a href="/technology/gps/">GPS</a></li>
+						<li><a href="/technology/wimax/">WiMaX</a></li>
+						<li><a href="/voip/">VoIP</a></li>
+						<li><a href="/technology/wifi/">WiFi</a></li>
+						<li><a href="/technology/hsdpa/">HSDPA</a></li>
+						<li><a href="/wap/index.shtml">WAP</a></li>
+						<li><a href="/eai/">EAI</a></li>
+					</ul>
+				</li>
+				<li class="top"><a href="/webdevelopment/"class="top_link"><span class="down">Web Development</span></a>
+					<ul class="sub">
+						<li><a href="/html/">HTML</a></li>
+						<li><a href="/javascript/">Java Script</a></li>
+					</ul>
+				</li>
+				<li class="top"><a href="/testtools/"class="top_link"><span class="down">Build/Test Tools</span></a>
+					<ul class="sub">
+						<li><a href="/testingtools/DbUnit/">DBUNIT</a></li>
+						<li><a href="/tutorials/ant/">ANT</a></li>
+						<li><a href="/maven2/">Maven</a></li>
+						<li><a href="/junit/">JUNIT</a></li>
+						<li><a href="/jmeter/">Jmeter</a></li>
+					</ul>
+				</li>
+				<li class="top"><a href="/servers/"class="top_link"><span class="down">Servers</span></a>
+					<ul class="sub">
+						<li><a href="/servers/application-servers-for-java.shtml">Servers for Java</a></li>
+						<li><a href="/web-application-server/tomcat/index.shtml">Tomcat</a></li>
+						<li><a href="/servers/apachegeronimo/">Apache Geronimo</a></li>
+						<li><a href="/jboss/index.shtml">Jboss</a></li>
+					</ul>
+				</li>
+				<li class="top"><a href="/php/"class="top_link"><span class="down">PHP</span></a>
+					<ul class="sub">
+						<li><a href="/php/">PHP Tutorial</a></li>
+						<li><a href="/php/starting-php.shtml">Starting PHP</a></li>
+						<li><a href="/tutorial/php/phpdatabase/">PHP MySQL</a></li>
+						<li><a href="/tutorial/php/zendframework/index.html">Zend FrameWork</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+
+		
+
+		<div class="navigationBarRight">&nbsp;</div>
+	</div><br clear="all" />
+
+<p>&nbsp;</p>
+
+
+  <script type="text/javascript">
+
+		$(function() {
+            var offset1 = $("#navigationtop").offset();
+
+            var topPadding1 = 0;
+			
+            $(window).scroll(function() {
+
+				if ($(window).scrollTop() > offset1.top + 600) {
+                    $("#navigationtop").stop().animate({
+                        marginTop: $(window).scrollTop() - offset1.top + topPadding1
+                    });
+                }else{
+
+
+					$("#navigationtop").stop().animate({
+                        marginTop: 0
+                    }, 0);
+				}
+
+            });
+			
+        });
+	
+    </script>
+
+
+
+
+	<div class="page">
+		<div class="bredcrum">
+			<a href="/">Home</a>
+			
+				
+							<a href="/java/index.shtml">Java</a>
+				
+							<a href="/java/java-exception/index.shtml">Java-exception</a>
+				
+				Index Out of Bound Exception
+		</div>
+		
+		<div class="bredcrumquestions"><b>Questions:</b><a href="/answers/askquestions/askquestion.html">Ask</a>|<a href="/answers/questions/">Latest</a></div>
+		<br clear="all" />
+
+		
+		<div class="leftSecPage">
+
+
+<style>
+
+.leftFloatMenu ul { list-style: none; }
+.leftFloatMenu ul li a { display: block; margin-bottom:2.5px; border-bottom: 1px dotted #ccc; font-weight:normal; padding: 0 0 0 4px; color: black; font-size: 13px;text-decoration:none; }
+.leftFloatMenu ul li a:hover { background: #f1f1f1; color: #D10026; }
+.leftFloatMenu ul li:last-child a { border: none; }
+
+.leftFloatMenu ul li a.current {  color: #D10026; font-weight:bold;}
+.leftFloatMenu { background: #EBEBEB; padding: 2px; margin: 0 0 20px 0;  overflow: hidden;}
+
+.leftFloatMenu ul,li { 
+        margin:0;
+        padding:0; 
+}
+
+.leftFloatMenu li.heading 
+{
+	background:#CD0023 !important;
+	border:1px solid #4b4b4a !important;
+	color:white;
+}
+
+</style>
+
+
+  <script type="text/javascript">
+        $(function() {
+            var offset = $("#sidebar").offset();
+            var topPadding = 40;
+            $(window).scroll(function() {
+                if ($(window).scrollTop() > offset.top) {
+                    $("#sidebar").stop().animate({
+                        marginTop: $(window).scrollTop() - offset.top + topPadding
+                    });
+                } else {
+                    $("#sidebar").stop().animate({
+                        marginTop: 0
+                    });
+                };
+            });
+        });
+    </script>
+		
+
+
+
+		<div id="sidebar" class="leftFloatMenu">
+			<div class="list-wrap">
+
+			<h2><span style="color:#D10026">Top Tutorials</span></h2>
+
+			<ul>		
+				<li class="heading"><b>Java</b></li>
+				<li>
+					<a href="/java/index.shtml">Java Home</a>
+				</li>
+				<li>
+					<a href="/java/How-to-Get-Started-with-Java.shtml">Getting Started</a>
+				</li>
+				<li>
+					<a href="/java/beginners/index.shtml">Beginners Tutorial</a>
+				</li>
+
+				<li>
+					<a href="/java/learn-java-in-a-day/index.shtml">Learn Java in a day</a>
+				</li>
+				<li>
+					<a href="/java/master-java/index.shtml">Master Java In A Week</a>
+				</li>
+				<li>
+					<a href="/java/training/index.shtml">Java Training Video</a>
+				</li>
+
+				<li class="heading"><b>Hibernate</b></li>
+				<li>
+					<a href="/hibernate/index.shtml">Hibernate Home</a>
+				</li>
+				<li>
+					<a href="/hibernate/hibernate4/Hibernate-4-Tutorial.shtml">Hibernate 4</a>
+				</li>
+				<li>
+					<a href="/hibernate/hibernate4/index.shtml">Hibernate Examples</a>
+				</li>
+				
+				<li class="heading"><b>Spring Framework</b></li>
+				<li>
+					<a href="/spring/index.shtml">Spring Home</a>
+				</li>
+				<li>
+					<a href="/spring/spring3/spring-3-hello-world.shtml">Spring Hello World</a>
+				</li>
+				<li>
+					<a href="/tutorial/spring/spring3/Spring-MVC-Tutorials.html">Spring MVC Tutorials</a>
+				</li>
+
+				
+				<li class="heading"><b>Struts 2</b></li>
+				<li>
+					<a href="/struts/index.shtml">Struts 2 Home</a>
+				</li>
+
+				<li>
+					<a href="/struts/struts2.3.15.1/architecture-of-Struts-2-framework.shtml">Architecture of Struts 2</a>
+				</li>
+				<li>
+					<a href="/struts/struts2.3.15.1/how-Struts-2-framework-works.shtml">How Struts 2 Framework works?</a>
+				</li>
+				<li>
+					<a href="/struts/struts2.3.15.1/Struts-2-Hello-World-example-in-eclipse.shtml">Struts 2 Hello World Example</a>
+				</li>
+				<li>
+					<a href="/struts/struts2/struts-2-features.shtml">Struts 2 Features</a>
+				</li>
+				<li>
+					<a href="/struts/struts/struts2.2.1/">Struts 2 Tutorial</a>
+				</li>
+				<li>
+					<a href="/struts/struts2.3.15.1/index.shtml">Struts version 2.3.15.1</a>
+				</li>
+
+
+				<li class="heading"><b>JPA</b></li>
+				<li>
+					<a href="/jpa/index.shtml">JPA Home</a>
+				</li>
+
+				<li>
+					<a href="/jpa/eclipsejpaexamples/index.shtml">JPA Examples</a>
+				</li>
+				<li>
+					<a href="/jpa/jpacrud/index.shtml">JPA Crud</a>
+				</li>
+				<li>
+					<a href="/jpa/eclipsejpaexamples/jparelationship/index.shtml">JPA Relationship</a>
+				</li>
+
+
+
+				<li class="heading"><b>jQuery</b></li>
+				<li>
+					<a href="/ajax/jquery/index.shtml">jQuery Home</a>
+				</li>
+
+				<li>
+					<a href="/ajax/jquery/whatisjquery.shtml">Introduction to jQuery</a>
+				</li>
+				<li>
+					<a href="/ajax/jquery/jQueryFeatures.shtml">jQuery Features</a>
+				</li>
+				<li>
+					<a href="/ajax/jquery/jquery-hello-world.shtml">jQuery Hello World</a>
+				</li>
+
+
+			</ul>
+			</div>
+			</div>
+			
+			
+			
+			<br />
+		</div>
+		
+		<div class="middleSecPage">
+
+
+			<div class="innerpageSearch">
+				<div class="innerpageSearchLeft">&nbsp;</div>
+				<div class="innerpageSearchMiddle">
+
+					<form action="http://www.roseindia.net/customsearch/search.shtml" id="cse-search-box">
+						<input type="hidden" name="cx" value="partner-pub-0714075272818912:351fen-pwln" />
+						<input type="hidden" name="cof" value="FORID:10" />
+						<input type="text" class="innerpageSearchinputtxt" name="q" />
+						<input type="submit" name="sa" value="Search" class="innerpageSearchinputbtn" />
+					</form>
+					<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=cse-search-box&amp;lang=en"></script>
+
+				</div>
+				<div class="innerpageSearchRight">&nbsp;</div>
+			</div><br clear="all" />
+
+
+		
+
+		
+			
+
+				<div class="pageTopicSec">
+				
+			
+							
+							<div style="float:left;">
+							<img src="/java/images/index-out-bound.gif">
+							</div>
+							
+					
+
+					<div style="float:left;width:478px;">
+						
+						<div style="float:right;width:120px; height:64px;background-color:#FFFFFF; margin:0px;padding:0px; border-radius:3px;">						
+							<a href="https://plus.google.com/share?url=http://www.roseindia.net/java/java-exception/index-out-bound-exception.shtml" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" style="font-size:9px;color:blue"><img  src="https://www.gstatic.com/images/icons/gplus-64.png" width="12" height="12" alt="Share on Google+"/>Share on Google+</a>
+							
+
+							<!-- Place this tag where you want the +1 button to render. -->
+							<div class="g-plusone" data-size="medium" ></div>
+
+							<!-- Place this tag after the last +1 button tag. -->
+							<script type="text/javascript">
+							  (function() {
+								var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+								po.src = 'https://apis.google.com/js/plusone.js';
+								var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+							  })();
+							</script>
+
+
+						</div>
+						
+
+						<h1>Index Out of Bound Exception</h1>
+
+
+
+
+
+
+					</div>
+
+				</div>
+
+			
+
+			<div class="topoicdetails">
+			
+				<div class="topoicTitle">
+				<script type="text/javascript"><!--
+google_ad_client = "pub-0714075272818912";
+/* 468x15, created 10/26/10 */
+google_ad_slot = "0714811900";
+google_ad_width = 468;
+google_ad_height = 15;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>			
+				</div>
+			
+				<div class="topicDetailsShow">
+					<div class="topicDetailsAdRight">
+					
+					<div style="width:355px;height:310px;">
+<fieldset style="border:1px solid white;">
+<legend style="color:#D1D0CE;font-size:11px;">Advertisement</legend>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0714075272818912";
+/* 336x280, created 10/26/10 */
+google_ad_slot = "9725061927";
+google_ad_width = 336;
+google_ad_height = 280;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+</fieldset>
+</div>
+					
+					</div>
+<!-- google_ad_section_start -->
+					<b>Index Out of Bound Exception  are the Unchecked Exception that occurs at run-time errors. This arises because of  invalid parameter passed to a method in a code.</b><br />
+
+
+					
+      <h1 align="left"><font >Index Out of Bound Exception</font></h1>
+	  
+ 
+ 
+      <p align="center">
+      <a href="null-pointerexception.shtml"><img src="/images/previous.gif" border="0"></a>&nbsp;&nbsp;
+      &nbsp;<a href="index.shtml"><img src="/images/bt_home.gif" border="0"></a>&nbsp;
+      <a href="exceptionjava.shtml"><img src="/images/next.gif" border="0"></a></p>
+
+<p>Index Out of Bound Exception&nbsp; are the Unchecked Exception that occurs at
+run-time errors. This arises because of&nbsp; invalid parameter passed to a
+method in a code. The java Compiler does not check the error during the
+compilation of a program. Index Out of Bound Exception Occurs&nbsp; when a
+programmer try to access an element of beyond the storage capacity of the
+index.&nbsp;</p>
+<p>Index Out of Bound Exception are further classified into two types-</p>
+<p>1.Array Index Out of Bound Exception-These are the exception arises when a
+programmer tries to access an element beyond the capacity of&nbsp; index of the array. This
+exception are seen at run-time rather than the compile time. This causes the
+program to crash at run-time.Inorder to overcome this problem, you write the
+exceptional -handler that process the program. Now place the code in try block
+that cause exception in program. If exception arises in try block, you pass the
+control to the specific catch block preceding try block If there is no catch block, the
+program will terminated.</p>
+<b><font FACE="Times New Roman">
+<p ALIGN="LEFT">How to Handle Array Out of Bound Exception</p>
+</font></b><font FACE="Times New Roman">
+<p ALIGN="LEFT">The below example define a class 'Example', that shows&nbsp;
+out-of-bounds exception<b>&nbsp;</b></font><font FACE="Times New Roman"> when
+you attempt to access an&nbsp; element of array with an illegal subscript. . To
+avoid this condition, you can write an exception handler that</font> <font FACE="Times New Roman">processes
+the exception and keeps your program running. Place the code that cause the
+exception in the try block. If there is an&nbsp; exception&nbsp; in the try
+block, transfer the control to the catch block. If there is no catch block the
+program will terminate.</p>
+
+
+</font>
+<table border="0" cellpadding="0" cellspacing="0" width="60%" bgcolor="#FFFFCC">
+  <tr>
+    <td width="100%"><br>
+      &nbsp; public class Example
+      <p>&nbsp;&nbsp; {<br>
+      &nbsp;
+      public static void main( String args [] )<br>
+      &nbsp;&nbsp; {<br>
+      &nbsp;&nbsp;
+      int value;<br>
+      &nbsp;&nbsp;
+      try</p>
+      <p>&nbsp; {<br>
+      &nbsp;
+      int array[] = { 6, 16, 26,36,46,56,66,76 };<br>
+      &nbsp;
+      int index = 8;<br>
+      &nbsp;
+      value = array[ index ];<br>
+      &nbsp;
+      System.out.println("Execution does not reach here if there is a invalid index.");&nbsp;&nbsp;</p>
+      <p><br>
+      &nbsp; }<br>
+      <br>
+      &nbsp;&nbsp;
+      catch( ArrayIndexOutOfBoundsException e )&nbsp;</p>
+      <p>&nbsp; {&nbsp;<br>
+      &nbsp;&nbsp;
+      System.out.println( "Valid indexes are 0, 1,2,3, 4,5,6 or 7&quot; );<br>
+      </p>
+      <p>&nbsp; }<br>
+      &nbsp;&nbsp;
+      System.out.println( "End of program" );</p>
+      <p><br>
+      &nbsp;&nbsp; }</p>
+      <p><br>
+      &nbsp;&nbsp; }<br>
+    </td>
+  </tr>
+</table>
+<p>Output on the Command Prompt.</p>
+<table border="0" cellpadding="0" cellspacing="0" width="32%" bgcolor="#FFFFCC">
+  <tr>
+    <td width="100%">C:\saurabh&gt;javac Example.java<br>
+      <br>
+      C:\saurabh>java Example<br>
+      Valid indexes are 0, 1,2,3,4,5,6 or 7<br>
+      End of program<br>
+    </td>
+  </tr>
+</table>
+<p>2.String Index Out of Bound Exception- The String Index Out of Bound
+Exception is a subclass of Index out of Bound Exception. This exception is
+thrown when&nbsp; a <tt class="literal">String</tt>&nbsp; object detects an
+index&nbsp; out-of-range index. Usually, An string object occurs out-of-range ,
+when the index is less than zero, or greater than or equal to the length of the
+string.</p>
+<h2><font size="3">How to declare String Index Out of Bound Exception</font></h2>
+<p><a class="TITLE" name="ch12-REFSECT3-AUTOID.550">public String Index Out of
+Bound Exception()</a></p>
+<p>The above Constructor creates an string Index Out of Bounds Exception with no
+message associated with it.&nbsp;</p>
+<p>public String Index Out of Bound Exception(int index)</p>
+<p>The above&nbsp; Constructor creates an <tt class="literal">StringIndexOutOfBoundsException</tt>&nbsp;
+class with an argument indicates the illegal index associated with it.</p>
+<p><b>Inherited Method</b></p>
+<p><b>Some of&nbsp; the Inherited Method</b></p>
+
+        <table border="1" cellpadding="0" cellspacing="0" width="63%" bgcolor="#FFFFCC">
+          <tr>
+            <td width="33%" align="center"><b>
+Method&nbsp;</b></td>
+            <td width="33%" align="center"><b>
+Inherited
+Method</b></td>
+            <td width="34%" align="center"><b>
+Inherited
+Form</b></td>
+          </tr>
+          <tr>
+            <td width="33%" align="center">fillinStackTrace(&nbsp; )</td>
+            <td width="33%" align="center">
+Throwable&nbsp;&nbsp; Finalize (
+)</td>
+            <td width="34%" align="center">
+Object</td>
+          </tr>
+          <tr>
+            <td width="33%" align="center">get
+Class&nbsp;</td>
+            <td width="33%" align="center">
+Object&nbsp; get Localized
+Message</td>
+            <td width="34%" align="center">
+Throwable</td>
+          </tr>
+          <tr>
+            <td width="33%" align="center">get
+message</td>
+            <td width="33%" align="center">
+Throwable&nbsp; Hashcode</td>
+            <td width="34%" align="center">&nbsp;Object</td>
+          </tr>
+          <tr>
+            <td width="33%" align="center">print stack trace (
+)</td>
+            <td width="33%" align="center">&nbsp;Throwable print stack trace (
+)</td>
+            <td width="34%" align="center">
+Throwable</td>
+          </tr>
+        </table>
+
+      
+
+
+
+
+				
+					
+
+					<div class="AdsBottom336X280">
+					<div style="width:350px;height:310px;">
+<fieldset style="border:1px solid white;">
+<legend style="color:#D1D0CE;font-size:11px;">Advertisement</legend>
+
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-0714075272818912";
+/* bottom-300x250-1 */
+google_ad_slot = "4132951724";
+google_ad_width = 300;
+google_ad_height = 250;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+</fieldset>
+</div>
+					</div>
+
+
+					
+
+<!-- google_ad_section_end -->
+
+
+
+
+					<div class="topicNavigationsBlack">
+						<a href="/java/java-exception/null-pointerexception.shtml">&laquo;Previous</a>
+						<a href="/java/java-exception/index-out-bound-exception.shtml">Index</a>
+						<a href="/java/java-exception/exceptionjava.shtml">Next&raquo;</a>
+					</div><br clear="all" />
+
+<div style="width:520px;">
+Follow us on  <a href="https://twitter.com/RoseIndiaNet">Twitter</a>, or add us on <a href="https://www.facebook.com/roseindiaofficial">Facebook</a> or <a href="https://plus.google.com/+roseindia/posts">Google Plus</a> to keep you updated with the recent trends of Java and other open source platforms.
+						<a  rel="author" href="https://plus.google.com/114616202653097923965?rel=author" target="_blank">Connect Me on Google+</a>
+						
+						</div><br clear="all" />
+
+						<span class="pageTopicpostsinfo">Posted on: October 22, 2008  </span>
+					
+
+						<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+							<div id="fb-root"></div>
+							<script>(function(d, s, id) {
+							  var js, fjs = d.getElementsByTagName(s)[0];
+							  if (d.getElementById(id)) return;
+							  js = d.createElement(s); js.id = id;
+							  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+							  fjs.parentNode.insertBefore(js, fjs);
+							}(document, 'script', 'facebook-jssdk'));</script>
+
+							<table widht="700" border="0" >
+							<tr>
+							<td>
+							<div class="fb-like" data-href="http://www.roseindia.net/java/java-exception/index-out-bound-exception.shtml" data-send="true" data-layout="button_count" data-width="90" data-show-faces="false" font=""></div>
+							</td>
+							<td>													
+							<div class="twitter"><a href="http://twitter.com/share" class="twitter-share-button" data-text="What&#8217;s Happening to Facebook &#8220;Share&#8221;?" data-url="http://www.roseindia.net/java/java-exception/index-out-bound-exception.shtml" data-count="horizontal" data-via="involver">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script></div>
+							</td>
+
+
+							<td>
+						    <div class="linkedIn"><script type="text/javascript" src="http://platform.linkedin.com/in.js"></script><script type="in/share" data-url="http://www.roseindia.net/java/java-exception/index-out-bound-exception.shtml" data-counter="right"></script></div>
+							</td>
+							<td>
+							<g:plusone size="medium" href="http://www.roseindia.net/java/java-exception/index-out-bound-exception.shtml"></g:plusone>
+							</td>
+							
+
+							</tr>
+							</table>
+						
+					
+
+<table width="600" border="0">
+
+
+<tr>
+
+<td>
+
+
+<!-- Place this tag where you want the badge to render. -->
+<div class="g-plus" data-href="//plus.google.com/101872424683743167179" data-rel="publisher"></div>
+
+<!-- Place this tag after the last badge tag. -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+
+</td>
+
+<td valign="top">
+<p>Recommend the tutorial</p>
+<!-- Place this tag where you want the +1 button to render -->
+<g:plusone></g:plusone>
+</td>
+
+<td>
+<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.facebook.com%2Fpages%2FRoseIndianet%2F157862977599407&amp;layout=standard&amp;show_faces=true&amp;width=158&amp;action=like&amp;colorscheme=light&amp;height=110" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:158px; height:110px;" allowTransparency="true"></iframe>
+
+</td>
+
+</tr>
+</table>
+
+<iframe src="//www.facebook.com/plugins/likebox.php?href=http%3A%2F%2Fwww.facebook.com%2Froseindiaofficial&amp;width=600&amp;height=300&amp;colorscheme=light&amp;show_faces=true&amp;header=true&amp;stream=false&amp;show_border=true&amp;appId=550147861717233" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:600px; height:300px;" allowTransparency="true"></iframe>
+
+
+
+ 
+
+	
+
+
+
+<div style="width:600px;">
+
+	<style>
+
+		.ui-tabs .ui-tabs-panel {
+			background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+			border-width: 0;
+			display: block;
+			padding: 10px 1px 2px 1px;
+		}
+
+	#tabs-2,#tabs-3,#tabs-4{
+		text-align:left;
+		background:white;
+	}
+	#tabs-3{
+		text-align:left;
+	}
+
+	.categorylinks {
+		PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN: 5px auto 10px 18px; PADDING-TOP: 0px
+	}
+	.categorylinks LI {
+		PADDING-BOTTOM: 1px
+	}
+	.categorylinks LI A {
+		PADDING-RIGHT: 1px; DISPLAY: block; PADDING-LEFT: 0px; FONT-WEIGHT: normal; FONT-SIZE: 12px; PADDING-BOTTOM: 0px; MARGIN-LEFT: -1px; 
+		/*COLOR: #003366; */
+		COLOR: #D10026;
+		PADDING-TOP: 0px; BORDER-BOTTOM: #ececec 1px solid; TEXT-DECORATION: none
+	}
+	.categorylinks A:visited {
+		/*COLOR: #003366;*/
+		COLOR: grey;
+	}
+	.categorylinks A:hover {
+		BACKGROUND: #FFEBDD; COLOR: #003366; TEXT-DECORATION: none
+	}
+
+
+	</style>
+
+
+
+		<!-- Tabs -->
+		<div id="tabstutorials">
+			<ul>
+				<li><a href="#tabs-1">Popular</a></li>
+				<li><a href="#tabs-2">Latest</a></li>
+				<li><a href="#tabs-3">Frameworks</a></li>
+				<li><a href="#tabs-4">Categories</a></li>
+			</ul>
+			<div id="tabs-1">
+			
+				<a href="/hibernate/index.shtml"><img src="/d2/tutorialsimages/mostpopular/Hibernate.gif" border="0" title="Hibernate"></a>
+				<a href="/struts/index.shtml"><img src="/d2/tutorialsimages/mostpopular/Struts-2.gif" border="0" title="Struts 2"></a>
+				<a href="/spring/index.shtml"><img src="/d2/tutorialsimages/mostpopular/Spring.gif" border="0" title="Spring"></a>
+				<a href="/java/index.shtml"><img src="/d2/tutorialsimages/mostpopular/Java.gif" border="0" title="Java"></a>
+				<a href="/ajax/jquery/index.shtml"><img src="/d2/tutorialsimages/mostpopular/jQuery.gif" border="0" title="jQuery"></a>
+				<a href="/html/index.shtml"><img src="/d2/tutorialsimages/mostpopular/html.gif" border="0" title="HTML"></a>
+				<a href="/ajax/index.shtml"><img src="/d2/tutorialsimages/mostpopular/ajax.gif" border="0" title="Ajax"></a>
+				<a href="/jpa/index.shtml"><img src="/d2/tutorialsimages/mostpopular/jpa.gif" border="0" title="JPA"></a>
+				<a href="/jsp/index.shtml"><img src="/d2/tutorialsimages/mostpopular/jsp.gif" border="0" title="JSP"></a>
+
+				<a href="/php/index.shtml"><img src="/d2/tutorialsimages/mostpopular/php.gif" border="0" title="PHP"></a>
+				<a href="/technology/index.shtml"><img src="/d2/tutorialsimages/mostpopular/Technology.gif" border="0" title="Technology"></a>
+				<a href="/jsf/index.shtml"><img src="/d2/tutorialsimages/mostpopular/jsf.gif" border="0" title="JSF"></a>
+
+
+				
+
+				
+				
+			</div>
+
+			<div id="tabs-2">
+
+
+
+        		<ul class="categorylinks">
+
+
+		
+
+
+				<li><a href="/java/javafile/sample-java-program-for-beginners.shtml">Sample Java program for beginners</a></li>
+
+				
+				<li><a href="/java/javafile/programming-in-java-for-beginners.shtml">Programming in Java for beginners</a></li>
+
+				
+				<li><a href="/java/javafile/java-introduction.shtml">Java Introduction</a></li>
+
+				
+				<li><a href="/java/beginners/Java-examples-for-beginners-compare-numbers.shtml">Java examples for beginners</a></li>
+
+				
+				<li><a href="/answers/viewqa/Java-Beginners/31164-How-to-learn-programming-free-.html">How to learn programming free?</a></li>
+
+				
+				<li><a href="/answers/viewqa/Java-Beginners/31163-Java-programming-for-beginners-video-tutorials.html">Java programming for beginners video tutorials</a></li>
+
+				
+				<li><a href="/java/beginners/java-exercises-for-beginners.shtml">Java Exercises for Beginners</a></li>
+
+				
+				<li><a href="/answers/viewqa/Java-Beginners/31162-How-a-beginner-can-start-Java-Programming-.html">How a beginner can start Java Programming?</a></li>
+
+				
+				<li><a href="/answers/viewqa/Java-Beginners/31161-Tutorial-for-Java-beginners.html">Tutorial for Java beginners</a></li>
+
+				
+				<li><a href="/sql/sqldate/php-where-clause-example-to-fetch-records.shtml">PHP WHERE clause example to fetch records from Database Table</a></li>
+
+				
+
+
+
+        		</ul>
+				<span>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/latest.shtml" >More...</a></span>
+				
+			</div>
+
+			<div id="tabs-3">
+        		 <ul class="categorylinks">
+
+						<li><a href="/hibernate/">Hibernate</a></li>
+						<li><a href="/struts/">Struts 1.x</a></li>
+						<li><a href="/struts/struts2/">Struts 2</a></li>
+						<li><a href="/jsf/">JSF</a></li>
+						<li><a href="/javafx/">JavaFX</a></li>
+						<li><a href="/ajax/">Ajax</a></li>
+
+						<li><a href="/spring/">Spring 2.5</a></li>
+						<li><a href="/tutorial/spring/spring3/index.html">Spring 3</a></li>
+						<li><a href="/dojo/">DOJO</a></li>
+						<li><a href="/tutorials/ibatis/">iBatis</a></li>
+						<li><a href="/flex/">Flex 3</a></li>
+						<li><a href="/tutorial/flex/flex4/index.html">Flex 4</a></li>
+
+        		 </ul>
+			</div>
+
+			<div id="tabs-4">
+
+        		 <ul  class="categorylinks">
+						<li><a href="http://www.roseindia.net/programming-tutorial/Hibernate-Tutorials">Hibernate Framework<span class="counttopic">(&nbsp;1057&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/Struts-Tutorials">Struts Framework<span class="counttopic">(&nbsp;836&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/springframework">Spring Framework<span class="counttopic">(&nbsp;567&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/xml">XML<span class="counttopic">(&nbsp;196&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/Ajax">Ajax<span class="counttopic">(&nbsp;528&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/JavaScript/JavaScript-Tutorial">JavaScript<span class="counttopic">(&nbsp;109&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/core-java">Java<span class="counttopic">(&nbsp;1806&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/Web-Services-Tutorials">Web Services<span class="counttopic">(&nbsp;71&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/Database-Tutorials">Database<span class="counttopic">(&nbsp;145&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/technology">Technology<span class="counttopic">(&nbsp;90&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/Web-Development">Web Development<span class="counttopic">(&nbsp;503&nbsp;)</span></a></li>
+						<li><a href="http://www.roseindia.net/programming-tutorial/PHP">PHP<span class="counttopic">(&nbsp;406&nbsp;)</span></a></li>
+        		 </ul>
+
+			</div>
+
+		</div>
+
+<script type="text/javascript">
+		// Tabs
+		$('#tabstutorials').tabs();
+
+</script>
+
+</div>
+
+
+<div class="postcommentshow_tutorial">
+	<div class="postcomment_tutorial">
+		<p><a href="/answers/askquestions/askquestion.html"><b>Ask Questions?</b></a>  &nbsp;&nbsp;&nbsp;<b><a href="/discussion/22290-Index-Out-of-Bound-Exception.html">Discuss: Index Out of Bound Exception</a> &nbsp; 
+		
+		<a href="/tutorialhelp/allcomments/145323"><b>View All Comments</b></a>
+		
+		
+		</b>
+		<br /><br /><b>Post your Comment</b>
+
+		</p><br />
+		<form id="commentForm" name="commentForm" action="/discussion/savecomments.html" method="post">
+		
+		<input type="hidden" name="articleid" value="22290"/>
+		<input type="hidden" name="commentOrder" value="1"/>
+		<input type="hidden" name="commentLevel" value="1"/>
+		
+		
+
+		<span class="writelvltxt_tutorial">Your Name (<span style="color:red">*</span>) :</span>
+		<input type="text" class="writefrmtxt_tutorial" id="name"  name="name" /><br clear="all" />
+		<div class="label.error" id="errmsg"></div>
+
+		<span class="writelvltxt_tutorial">Your Email :</span>
+		<input type="text" class="writefrmtxt_tutorial"  id="email"  name="email" /><br clear="all" />
+		
+		<span class="writelvltxt_tutorial">Subject (<span style="color:red">*</span>):</span>
+
+		<input type="text" class="writefrmtxt_tutorial"  id="subject"  name="subject" /><br clear="all" />
+		
+		<span class="writelvltxt_tutorial">Your Comment (<span style="color:red">*</span>):</span>
+		<textarea class="writefrmtxt_tutorial" rows="8"  id="comment"  name="comment"  ></textarea><br clear="all" />
+		
+		<span class="writelvltxt_tutorial">&nbsp;</span>
+		<img src="/Captcha.jpg" border="0" id="siimage" name="siimage"> 
+		
+		<a href="#" title="Refresh Image" onclick="document.getElementById('siimage').src = '/Captcha.jpg?sid=' + Math.random(); return false"><img src="/d2/images/refresh.gif" alt="Reload Image" border="0" onclick="this.blur()" align="bottom" /></a> 
+		
+		<br clear="all" />
+		<span class="writelvltxt_tutorial">&nbsp;</span>
+
+		<input type="text" class="writefrmtxtCaptcha_tutorial"  id="captchavalue"  name="captchavalue" /><br clear="all" />
+		<span class="writelvltxt_tutorial">&nbsp;</span>
+		<div name="divStatus" id="divStatus"></div>
+		<input type="submit" class="writefrmbtn_tutorial" value="submit" />
+		</form>
+	</div>
+</div>
+
+
+
+
+					<div class="topicpostcomment">
+						<div class="topicCommentTitle">Comments </div>
+					
+		
+						<div class="topicpostcommentShow">
+							<div class="topicpostcommentLeft"><img src="/d2/images/commentuser.gif" /></div>
+							<div class="topicpostcommentRight">
+								<b>sunil</b><br />
+								June 1, 2012<br />
+								interfaces
+								<br>
+								<hr />
+								How to use the interfaces in abstract class in details?
+							</div>
+						</div>
+		
+						<div class="topicpostcommentShow">
+							<div class="topicpostcommentLeft"><img src="/d2/images/commentuser.gif" /></div>
+							<div class="topicpostcommentRight">
+								<b>mahesha</b><br />
+								June 16, 2012<br />
+								String index out of range
+								<br>
+								<hr />
+								When I run java enabled application software, I am not getting numerical values in the grid table. 
+
+I get the following error message: 
+
+STRING INDEX OUT OF RANGE: 15
+
+How to fix this problem
+							</div>
+						</div>
+		
+						<div class="topicpostcommentShow">
+							<div class="topicpostcommentLeft"><img src="/d2/images/commentuser.gif" /></div>
+							<div class="topicpostcommentRight">
+								<b>RUSHIT PARIKH</b><br />
+								August 25, 2012<br />
+								java code shows error
+								<br>
+								<hr />
+								public class HELLOWORLDAPP {
+     public static void main(String args[]) {
+        // TODO code application logic here
+         int a,b,c;
+         
+          System.out.println(&quot;Enter a:&quot;);
+          a=Integer.parseInt(args[0]);
+          System.out.println(&quot;Enter b:&quot;);
+          b=Integer.parseInt(args[1]);
+          c=a+b;
+          System.out.println(c);
+          
+          
+    }
+
+I have type the above code in netbeans ide. But i am receiving error as
+
+Exception in thread &quot;main&quot; java.lang.ArrayIndexOutOfBoundsException: 0
+	
+							</div>
+						</div>
+		
+						
+						
+
+						
+					</div>
+
+					
+				</div>
+			</div>
+		</div>
+
+		
+
+		
+<div class="rightSecPage">
+			<div class="rightSecPagebox">
+				
+			
+
+		<div class="rightbigcolumn_ads_nobackground">
+			
+		
+	<!-- ValueClick Media 300x250 Medium Rectangle CODE for Programming Tutorials -->
+	<script language="javascript" src="http://media.fastclick.net/w/get.media?sid=53719&m=6&tp=8&d=j&t=n"></script> <noscript><a href="http://media.fastclick.net/w/click.here?sid=53719&m=6&c=1" target="_blank"> <img src="http://media.fastclick.net/w/get.media?sid=53719&m=6&tp=8&d=s&c=1" width=300 height=250 border=1></a></noscript> <!-- ValueClick Media 300x250 Medium Rectangle CODE for Programming Tutorials -->
+
+
+
+
+		</div>
+
+			<div class="rightSecAds">
+			
+
+		<script type="text/javascript"><!--
+google_ad_client = "pub-0714075272818912";
+/* 160x600, created 4/7/11Questions-Ads13-120x160 */
+google_ad_slot = "5639908007";
+google_ad_width = 160;
+google_ad_height = 600;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+		
+			
+			</div>
+
+
+
+		<div class="rightbigcolumn_ads_nobackground">
+			
+
+		<script type="text/javascript"><!--
+	e9 = new Object();
+    e9.size = "336x280,300x250,300x600";
+    e9.noAd = 1;
+//--></script>
+<script type="text/javascript" src="http://tags.expo9.exponential.com/tags/RoseIndianet/ROS/tags.js"></script>
+
+
+
+		</div>
+
+			<div class="rightSecPagetitle">Programming Tutorials</div>
+			<div class="rightmenucategories">
+			    <ul>
+	                <li><a href="/programming-tutorial/" target="_blank">Tutorials Directory</a></li>
+					<li><a href="/programming-tutorial/android/" target="_blank">Android Tutorials</a></li>
+                    <li><a href="/java/master-java/index.shtml" target="_blank">Core Java</a></li>
+                    <li><a href="/programming-tutorial/JSP-Tutorials/" target="_blank">JSP Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Servlets-Tutorials/" target="_blank">Servlets Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Database-Tutorials/" target="_blank">Database Tutorials</a></li>
+                    <li><a href="/programming-tutorial/JDBC-Tutorials/" target="_blank">JDBC Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Struts-Tutorials/" target="_blank">Struts Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Hibernate-Tutorials/" target="_blank">Hibernate Tutorials</a></li>
+                    <li><a href="/programming-tutorial/springframework/" target="_blank">Spring Framework</a></li>
+                    <li><a href="/programming-tutorial/JPA/" target="_blank">JPA Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Enterprise-Java/jsf/" target="_blank">JSF Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Enterprise-Java/" target="_blank">Enterprise Java</a></li>
+                    <li><a href="/programming-tutorial/Enterprise-Java/JEE-Technology/" target="_blank">JEE Technologies</a></li>
+                    <li><a href="/programming-tutorial/J2ME-Tutorials/" target="_blank">J2ME Tutorials</a></li>
+                    <li><a href="/programming-tutorial/xml/" target="_blank">XML Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Web-Services-Tutorials/" target="_blank">Web Services Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Web-Development" target="_blank">Web Development</a></li>
+                    <li><a href="/programming-tutorial/PHP/" target="_blank">PHP Tutorial  Tutorials</a></li>
+                    <li><a href="/programming-tutorial/Web-Gaphics-Designing/" target="_blank">Web Graphics Designing</a></li>
+                    <li><a href="/programming-tutorial/technology/" target="_blank">Technology Tutorials</a></li>
+                    <li><a href="/programming-tutorial/technology/cloudcomputing/" target="_blank">Cloud Computing</a></li>
+                    <li><a href="/programming-tutorial/technology/vehicle-tracking/" target="_blank">Vehicle Tracking Technology</a></li>
+                    <li><a href="/programming-tutorial/tutorials/" target="_blank">Software Technology Tutorial</a></li>
+                    <li><a href="/programming-tutorial/Enterprise-Java/jsf/jsf-tutorials-examples/" target="_blank">JSF Tutorials & Examples</a></li>
+                    <li><a href="/management/softwareprojectmanagement/index.html"  target="_blank">Software Project Management</a></li>
+                    <li><a href="/programming-tutorial/programmingquestions/"  target="_blank">Programming Questions</a></li>
+                    <li><a href="/maven2/index.shtml"  target="_blank">Maven2 Tutorial</a></li>
+					<li><a href="/programming-tutorial/JavaScript/"  target="_blank">JavaScript</a></li>
+					<li><a href="/programming-tutorial/careers/"  target="_blank">Careers Guide</a></li>
+
+
+
+
+
+					<li>
+					<a href="/programming-tutorial/" style="color:#D10026">  >>><b>More Tutorials...</b></a></li>
+
+				</ul>
+				</div>
+				
+
+
+
+
+
+
+			</div>
+			
+		</div>
+	</div>
+
+
+
+</div>
+
+
+
+
+
+</div>
+<div class="footer">
+	<div class="footerShow">
+		<span class="footerh1">Services</span>
+		<div class="footerLink">
+			<ul><a href="/services/software/index.shtml">Software Solutions</a><br />
+				<li><a href="/services/software/jsf-development.shtml">JSF Development</a></li>
+				<li><a href="/services/outsourcing/">Outsourcing</a></li>
+				<li><a href="/services/erp/erp.shtml">ERP</a></li>
+				<li><a href="/services/m-commerce/mobile-commerce.shtml">M-Commerce</a></li>
+				<li><a href="/services/flexdevelopment/flex-development-company-india.shtml">Flex Development</a></li>
+			</ul>
+			<ul><a href="/services/webdevelopement/web-developement-services.shtml">Website Development</a><br />
+				<li><a href="/services/webdesigning/">Web Designing</a></li>
+				<li><a href="/services/webdesigning/Website-Redesigning.shtml">Web Redesigning</a></li>
+				<li><a href="/services/webdevelopement/web-developement-services.shtml">Web Development</a></li>
+				<li><a href="/services/webdesigning/webdesigning.shtml#WebandGraphicDesign">Logo Design</a></li>
+				<li><a href="/services/webdesigning/Web-Designing-Cost.shtml">Web Design Packages</a></li>		
+				<li><a href="/services/webdevelopement/domain-registration.shtml">Domain Registration</a></li>
+			</ul>
+			<ul><a href="/services/webpromotion/Website-Promotion-Services.shtml">Web Promotion Services</a><br />
+				<li><a href="/services/seo/seo.shtml">SEO Services</a></li>
+				<li><a href="/webpromotion/searchengineoptimization.shtml">Search Eng. Optimization</a></li>		
+				<li><a href="/webpromotion/websubmission.shtml">Search Eng. Submission</a></li>
+				<li><a href="/webpromotion/search_engine_optimization_tips.shtml">SEO Tips</a></li>
+				<li><a href="/services/webpromotion/Website-Promotion-Services.shtml">SEO Portfolio</a></li>
+				<li><a href="/services/webpromotion/webpromotionplan.shtml">Web Promotion Plans</a></li>
+			</ul>
+			<ul><a href="/services/articles/writing/index.shtml">Content Development</a><br />
+				<li><a href="/services/articles/writing/index.shtml">Content Development</a></li>
+				<li><a href="/services/articles/writing/article-writing/index.shtml">Article Writing</a></li>
+				<li><a href="/services/articles/writing/Blog-Writing/index.shtml">Blog Writing</a></li>
+				<li><a href="/services/articles/writing/News-Articles/index.shtml">News Writing</a></li>
+				<li><a href="/services/articles/writing/SEO-Copywriting/index.shtml">SEO Copywriting</a></li>		
+				<li><a href="/services/technicaldocument/technicaldocumentation.shtml">Technical Documentation </a></li>
+				<li><a href="/services/articles/articlemarketing/articlemarketing.shtml">Article Marketing</a></li>
+			</ul>
+			<ul><a href="/services/webhosting/index.shtml">Web Hosting Services</a><br />
+				<li><a href="/webhosting/aspdotnethosting.shtml">ASP.NET Hosting</a></li>
+				<li><a href="/webhosting/UnixWebHosting.shtml">Unix Hosting</a></li>
+				<li><a href="/webhosting/ecommercewebhosting.shtml">E-Commerce Hosting</a></li>
+				<li><a href="/webhosting/WindowsWebHosting.shtml">Windows Hosting</a></li>
+				<li><a href="/services/webhosting/hosting-plan.shtml">Hosting Plan</a></li>
+			</ul>
+			<ul><a href="/services/ecomerce/services/ECommerce-Solutions-Services.shtml">E-Commerce Solutions</a><br />
+				<li><a href="/services/crm/CRM-solutions.shtml">CRM</a></li>
+			</ul>
+		</div>
+		<br clear="all" />
+		<a href="/">Home</a>
+		
+		<a href="/sitemap/privacypolicy.shtml">Privacy Policy</a><br />
+		&copy; All Rights are Reserved for Rose India 
+	</div>
+
+</div>
+
+
+<div id="extruderLeft" class="a {title:'Related Tutorials', url:'/d2/leftmenu/parts/extruderLeft.html'}" style="">
+
+
+								
+
+			<div id="example-two">
+			
+			<div class="list-wrap">
+			    <ul>
+			<li><h2><span style="color:#D10026">Java-exception Tutorials</span></h2></li>
+			
+				
+
+					
+                    <li><a href="/java/java-exception/unhandled-exception-in-thread.shtml">Unhandled Exception in Thread</a></li>
+
+					
+                    <li><a href="/java/java-exception/userdefined-exception.shtml">User Defined Exception In Java</a></li>
+
+					
+                    <li><a href="/java/java-exception/java-finally-exception.shtml">Finally in java</a></li>
+
+					
+                    <li><a href="/java/java-exception/exception-handling-in-java.shtml">Exception handling in java</a></li>
+
+					
+                    <li><a href="/java/java-exception/integer-exception.shtml">Integer exception in java</a></li>
+
+					
+                    <li><a href="/java/java-exception/finally-exception.shtml">Example to show Finally exception in java</a></li>
+
+					
+                    <li><a href="/java/java-exception/enumeration-exception.shtml">Example to show Enumeration exception in java</a></li>
+
+					
+                    <li><a href="/java/java-exception/double-exception.shtml">Example to show double exception in java</a></li>
+
+					
+                    <li><a href="/java/java-exception/create-interface.shtml">Example to create Interface in java</a></li>
+
+					
+                    <li><a href="/java/java-exception/simple-date-format-exception.shtml">Simple Date Format Exception</a></li>
+
+					
+                    <li><a href="/java/java-exception/java-exception-thread.shtml">Java Exception Thread</a></li>
+
+					
+                    <li><a href="/java/java-exception/lists-java-exception.shtml">List of Java Exception</a></li>
+
+					
+                    <li><a href="/java/java-exception/java-parseint-exception.shtml">Java Parse int Exception</a></li>
+
+					
+                    <li><a href="/java/java-exception/serializable-exception.shtml">Serializable Exception</a></li>
+
+					
+                    <li><a href="/java/java-exception/java-assertion.shtml">Java Assertion</a></li>
+
+					
+					
+					
+
+					<li>
+					<a href="/alltutorials/java/java-exception/" style="color:#D10026">  >>><b>More Tutorials in this section...</b></a></li>
+
+					<li>
+
+				</ul>
+				</div>
+				</div>
+ 				   
+
+</div>
+
+
+<script type="text/javascript">
+
+$(window).scroll(function(){
+	if($(document).scrollTop()>=$(document).height()/4)$("#IGsocialslide").show("slow");
+	else $("#IGsocialslide").hide("slow");});
+	
+	function closeIGsocialslide(){
+	
+	$('#IGsocialslide').remove();$.ajax({type:"POST",url:"/facebookpage.php"});}
+</script>   
+
+<style type='text/css'>
+
+	#IGsocialslide{  
+	    background:black url(/d2/images/bottomsharebox.gif) left top repeat-x;  border-radius:9px;  -moz-border-radius:8px;  -webkit-border-radius:8px;  -moz-box-shadow:inset 0 0 4px #333;  -webkit-box-shadow:inset 0 0 4px #333;  box-shadow:inner 0 0 3px #333;  padding:12px 14px 12px 14px;  width:300px;  position:fixed;  bottom:13px;  left:2px;  display:none;  z-index:3;  height:80px;background-color:#EDEFF4;
+	}  
+</style>
+
+<div style="display: none;" id="IGsocialslide"> 
+
+<a style="position:absolute;top:14px;right:10px;color:#D8C9C9;font-size:20px;NBTfont-weight:bold;" href="javascript:void(0);" onclick="return closeIGsocialslide();">X</a> <span style="font-family: Tekton Pro; font-size: 20px; margin: 10px 0; text-shadow: 1px 1px 0 #868686;color:#F8F0F0;">Connect us for udpates!</span><br />   
+
+<div style="float:left; margin:5px;">
+	<iframe src="//www.facebook.com/plugins/like.php?href=https%3A%2F%2Fwww.facebook.com%2Froseindiaofficial&send=false&layout=button_count&width=80&show_faces=false&action=like&colorscheme=light&font=arial&height=21" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:90px; height:20px;" allowtransparency="true"></iframe>
+</div>  
+
+<div style="float:left; margin:5px;">
+	<a href="https://twitter.com/RoseIndiaNet" class="twitter-follow-button" data-show-count="true" data-size="small" data-show-screen-name="false">Follow</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</div>
+
+
+<div style="float:left; margin:5px;">
+		<a href="https://plus.google.com/share?url=http://www.roseindia.net/java/java-exception/index-out-bound-exception.shtml" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;" style="font-size:12px;color:blue"><img  src="https://www.gstatic.com/images/icons/gplus-64.png" width="15" height="15" alt="Share on Google+"/>Share on Google+</a>
+</div>
+
+<div style="float:left; margin:5px;">
+
+		<!-- Place this tag where you want the +1 button to render. -->
+		<div class="g-plusone" data-size="medium" style="float:left; margin:15px;" ></div>
+
+		<!-- Place this tag after the last +1 button tag. -->
+		<script type="text/javascript">
+		  (function() {
+			var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+			po.src = 'https://apis.google.com/js/plusone.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+		  })();
+		</script>
+</div>
+
+
+
+
+</div>   
+
+<div class='clear'></div>
+</div>
+<div class='clear'></div>
+
+
+</body>
+</html>

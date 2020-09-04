@@ -1,0 +1,796 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-us" xml:lang="en-us">
+<head>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta http-equiv="content-language" content="en-us" />
+<meta http-equiv="content-style-type" content="text/css" />
+<meta http-equiv="imagetoolbar" content="no" />
+<meta name="resource-type" content="document" />
+<meta name="distribution" content="global" />
+<meta name="copyright" content="2000, 2002, 2005, 2007 phpBB Group" />
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+
+<title>View topic - Failed install on mac air book intel con osx 10.5  &bull; GeoGebra User Forum</title>
+
+<link rel="alternate" type="application/atom+xml" title="Feed - GeoGebra User Forum" href="http://www.geogebra.org/forum/feed.php" /><link rel="alternate" type="application/atom+xml" title="Feed - New Topics" href="http://www.geogebra.org/forum/feed.php?mode=topics" /><link rel="alternate" type="application/atom+xml" title="Feed - Active Topics" href="http://www.geogebra.org/forum/feed.php?mode=topics_active" /><link rel="alternate" type="application/atom+xml" title="Feed - Forum - English: GeoGebra 5 Beta (with 3D &amp; Python)" href="http://www.geogebra.org/forum/feed.php?f=52" /><link rel="alternate" type="application/atom+xml" title="Feed - Topic - Failed install on mac air book intel con osx 10.5" href="http://www.geogebra.org/forum/feed.php?f=52&amp;t=22747" />
+
+<link rel="stylesheet" href="/css/general.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/css/forum.css" type="text/css" media="screen" />
+
+<!--[if IE 6]>
+<link rel="stylesheet" href="/css/ie6.css" type="text/css" />
+<![endif]-->
+
+<link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico" />
+
+<script type="text/javascript">
+// <![CDATA[
+
+
+function bm_entry() {
+
+  document.body.className += ' thumbnails-processed';
+  /**
+   * Turns a relative URL into an absolute one.
+   *
+   * Code taken from http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
+   */
+  var escapeHTML = function (s) {
+    return s.split('&').join('&amp;').split('<').join('&lt;').split('"').join('&quot;');
+  }
+  var qualifyURL = function(url) {
+    var el = document.createElement('div');
+    el.innerHTML= '<a href="' + escapeHTML(url) + '">x</a>';
+    return el.firstChild.href;
+  }
+
+  var fixURL = function(url) {
+    // Remove the session ID for anonymous users.
+    url = url.replace(/&sid=[^&;]+/, '');
+    return url;
+  }
+
+  var serviceUrl = function(url, outputType) {
+    var SERVICE = 'http://www.typo.co.il/~mooffie/ggb/thumb.php';
+    return SERVICE + '?url=' + escape(url) + '&output_type=' + outputType;
+  }
+
+  /**
+   * Creates the IMG and IFRAME tags and inserts them into the document.
+   */
+  var addDom = function(url, parent, downloadUrl) {
+
+    var iframe = document.createElement('IFRAME');
+    iframe.style.minWidth = '300px';
+    iframe.width = '50%';
+    iframe.height = '300';
+    iframe.src = serviceUrl(url, 'html');
+    iframe.style.display = 'none';
+
+    var link = document.createElement('span');
+    if (downloadUrl) {
+      link.innerHTML= '<a href="' + escapeHTML(downloadUrl) + '">[download]</a>';
+    }
+    link.style.display = 'none';
+
+    var img = document.createElement('IMG');
+    img.alt = 'Loading ...';
+    img.border = '1';
+    img.onload = function() {
+      // If the image is tiny, enlarge to 300px. If it's huge, shrink to 600px.
+      var currentSize = Math.max(this.width, this.height);
+      var newSize     = Math.min(Math.max(currentSize, 300), 600);
+      var ratio = newSize / currentSize;
+      // "if only a width or a height is specified, the image will be scaled automatically and retain its aspect ratio."
+      this.width *= ratio;
+      iframe.style.display = 'inline-block';
+      link.style.display = 'inline';
+    };
+    img.src = serviceUrl(url, 'png');
+
+    // GeogebraTube.org has an image at the background that gets on top of our iframe.
+    parent.style.backgroundImage = 'none';
+    // The following is to prevent cut in pages like https://sites.google.com/site/ggbgv11/home/geogebra-files
+    parent.style.overflow = 'auto';
+
+    parent.appendChild(img);
+    parent.appendChild(iframe);
+    parent.appendChild(link);
+  }
+
+  /**
+   * Finds a container in which to inject our DOM.
+   */
+  function findContainer(elt) {
+    while (elt && elt.tagName && !/^(td|div|p)$/i.test(elt.tagName)) {
+      elt = elt.parentNode;
+    }
+    // As last resort, take <body>.
+    return (elt && elt.tagName) ? elt : document.body;
+  }
+
+  /**
+   * Reads a <param> value of an applet.
+   */
+  var getAppletParam = function(elt, name) {
+    for (var list = elt.getElementsByTagName('param'), i = 0; i < list.length; i++) {
+      var param = list[i];
+      if (param.getAttribute('name') == name) {
+        return param.getAttribute('value');
+      }
+    }
+    return null;
+  }
+
+  var s = '';
+  var counter = 0;
+
+  //
+  // Handle links.
+  //
+  // Originally, links we checked only in pages contianing 'viewtopic' in their
+  // URL, to prevent abuse. Perhaps in the future we'll want to re-introduce
+  // some anti-abuse measure.
+  for (var list = document.getElementsByTagName('a'), i = 0; i < list.length; i++) {
+    var a = list[i];
+    if (/\.gg[bt]/i.test(a.href + a.innerHTML)) {
+      counter++;
+      // According to http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48250443 , the 'href' property is an *absolute* URI.
+      s += "\n" + fixURL(a.href);
+      addDom(fixURL(a.href), findContainer(a));
+    }
+  }
+
+}
+
+function popup(url, width, height, name)
+{
+	if (!name)
+	{
+		name = '_popup';
+	}
+
+	window.open(url.replace(/&amp;/g, '&'), name, 'height=' + height + ',resizable=yes,scrollbars=yes,width=' + width);
+	return false;
+}
+
+function jumpto()
+{
+	var page = prompt('Enter the page number you wish to go to:', '1');
+	var perpage = '';
+	var base_url = '';
+
+	if (page !== null && !isNaN(page) && page > 0)
+	{
+		document.location.href = base_url.replace(/&amp;/g, '&') + '&start=' + ((page - 1) * perpage);
+	}
+}
+
+/**
+* Find a member
+*/
+function find_username(url)
+{
+	popup(url, 760, 570, '_usersearch');
+	return false;
+}
+
+/**
+* Mark/unmark checklist
+* id = ID of parent container, name = name prefix, state = state [true/false]
+*/
+function marklist(id, name, state)
+{
+	var parent = document.getElementById(id);
+	if (!parent)
+	{
+		eval('parent = document.' + id);
+	}
+
+	if (!parent)
+	{
+		return;
+	}
+
+	var rb = parent.getElementsByTagName('input');
+	
+	for (var r = 0; r < rb.length; r++)
+	{
+		if (rb[r].name.substr(0, name.length) == name)
+		{
+			rb[r].checked = state;
+		}
+	}
+}
+
+
+
+// code by http://4umi.com/web/javascript/array.php
+Array.prototype.indexOf = function( v, b, s ) {
+	for(var i = +b || 0, l = this.length; i < l; i++ ) {
+		if(this[i]===v || s && this[i]==v ) {
+			return i;
+		}
+	}
+	return -1;
+};
+
+function toggleApplet(appletid, version, linkTag) {
+	var appletTag = document.getElementById('applet_'+appletid);
+	var appletObjTag = document.getElementById('appletobj_'+appletid);
+	var code = "geogebra.GeoGebraApplet3D";
+	var codebase = "http://www.geogebra.org/webstart/"+version+"/";
+	if (version != "5.0") {
+	    codebase += "unsigned/";
+	    code = "geogebra.GeoGebraApplet";
+	    }
+	var diffVersions = codebase != appletObjTag.getAttribute("codebase");
+	var diffVersions2 = code != appletObjTag.getAttribute("code");
+	
+	if(appletTag.style.display == "none") {
+		if(diffVersions || diffVersions2) {
+			appletObjTag.setAttribute("codebase", codebase);
+			appletObjTag.setAttribute("code", code);
+		}		
+		appletTag.style.display = "block"; 
+	} else {
+		appletTag.style.display = "none"; 
+	}
+}
+
+var categories = new Array();
+
+function toggleCategory(id) 
+{
+	id = ""+id;
+	var tbody = document.getElementById("forumlist");
+	var rows = tbody.childNodes;
+	
+	var hide = categories.indexOf(id) == -1;
+	if(hide) {
+		categories.push(id);
+	} else {
+		categories.splice(categories.indexOf(id), 1);
+	}
+	
+	var button = document.getElementById("toggle-category-"+id);
+	if(button) {
+		if(hide) {
+			button.style.backgroundPosition = "0 0";
+		} else {
+			button.style.backgroundPosition = "0 -24px";
+		}
+	}
+	
+	for(var i = 0; i < rows.length; ++i) {
+		if(rows[i].className == "parent-"+id) {	
+			if(hide) {	
+				rows[i].style.display = "none";
+			} else {
+				rows[i].style.display = "";
+			}
+		}
+	}
+	
+	var date = new Date();
+	date.setDate(date.getDate()+365);
+	
+	document.cookie = "hiddencats="+categories.join(',')+";expires="+date.toUTCString();
+}
+
+function toggleCategoriesOnLoad() {
+	// retrieve cookie with hidden categories
+	var cookies = document.cookie.split(';');
+	var cookie = null;
+	
+	for(var i = 0; i < cookies.length; ++i) {
+		if(cookies[i].indexOf("hiddencats=") == 0) {
+			cookie = cookies[i].substring("hiddencats=".length, cookies[i].length);
+		}
+	}
+	
+	if(cookie != null && cookie != "") {
+		categories = cookie.split(',');
+	}
+	
+	// change arrows
+	for(var i = 0; i < categories.length; ++i) {
+		var button = document.getElementById("toggle-category-"+categories[i]);
+		if(button) {
+			button.style.backgroundPosition = "0 0";
+		}
+	}
+	
+	// hide forums
+	var tbody = document.getElementById("forumlist");
+	
+	if(tbody == null) { // not on startpage
+		return;
+	}
+	
+	var rows = tbody.childNodes;
+	
+	for(var i = 0; i < rows.length; ++i) {
+		if(!rows[i].className)
+			continue;
+		
+		if(rows[i].className.indexOf("parent-") == 0)  {
+			var id = rows[i].className.substring("parent-".length, rows[i].className.length);
+			
+			if(categories.indexOf(id) != -1) {
+				rows[i].style.display = "none";
+			}
+		}
+	}
+}
+
+window.onload = toggleCategoriesOnLoad;
+// ]]>
+</script>
+
+</head>
+<body class="ltr">
+
+<div id="main">
+<h1 id="wrapheader"><a href="/cms">GeoGebra User Forum<span></span></a></h1>
+
+
+<ul class="menu" id="mainmenu">
+	<li id="current" >
+		<a href="http://www.geogebra.org/cms/en">About</a>
+	</li>
+	<li >
+		<a href="http://www.geogebra.org/cms/en/download">Download</a>
+	</li>
+	<li >
+		<a href="http://wiki.geogebra.org/en/">Help</a>
+	</li>
+	<li >
+		<a href="http://www.geogebratube.org?lang=en">Materials</a>
+	</li>
+	<li class="active">
+		<a href="http://www.geogebra.org/cms/en/community-info">Community</a>
+	</li>
+</ul>
+
+
+<ul class="menu" id="submenu">
+	
+	<li><a href="./ucp.php?mode=login&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/geogebra/theme/images/icon_mini_login.gif" width="12" height="13" alt="*" />Login</a></li><li><a href="./ucp.php?mode=register&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/geogebra/theme/images/icon_mini_register.gif" width="12" height="13" alt="*" />Register</a></li>
+		
+	
+	<li><a href="./faq.php?sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/geogebra/theme/images/icon_mini_faq.gif" width="12" height="13" alt="*" />FAQ</a></li>
+	<li><a href="./search.php?sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/geogebra/theme/images/icon_mini_search.gif" width="12" height="13" alt="*" />Search</a></li>
+</ul>
+
+
+
+<a name="top"></a>
+<div id="breadcrumbs">
+	<a href="./index.php?sid=a7fa281e37d2c38130cb8e55d394b268">GeoGebra User Forum</a> - <a href="./viewforum.php?f=49&amp;sid=a7fa281e37d2c38130cb8e55d394b268">Beta Tests</a> - <a href="./viewforum.php?f=52&amp;sid=a7fa281e37d2c38130cb8e55d394b268">English: GeoGebra 5 Beta (with 3D &amp; Python)</a>
+</div>
+
+<div id="content">
+
+<p id="metabar">
+	<span style="float: left; text-align: left;">
+		Last visit was: <br />
+		
+		<a href="./search.php?search_id=unanswered&amp;sid=a7fa281e37d2c38130cb8e55d394b268">View unanswered posts</a> | <a href="./search.php?search_id=active_topics&amp;sid=a7fa281e37d2c38130cb8e55d394b268">View active topics</a>
+		
+	</span>
+	
+	<span style="float: right; text-align: right;">
+		It is currently Sat Dec 14, 2013 12:42 am [All times are UTC + 1 hour ]<br />
+		
+	</span>
+</p>
+
+<br style="clear: both;" />
+
+<div id="pageheader">
+	<h2><a class="titles" href="./viewtopic.php?f=52&amp;t=22747&amp;sid=a7fa281e37d2c38130cb8e55d394b268">Failed install on mac air book intel con osx 10.5</a></h2>
+
+
+</div>
+
+<div id="pagecontent">
+
+	<table width="100%" cellspacing="1">
+	<tr>
+		<td align="left" valign="middle" nowrap="nowrap">
+		<a href="./posting.php?mode=post&amp;f=52&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/subsilver2/imageset/en_us/button_topic_new.gif" alt="Post new topic" title="Post new topic" /></a>&nbsp;<a href="./posting.php?mode=reply&amp;f=52&amp;t=22747&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/subsilver2/imageset/en_us/button_topic_reply.gif" alt="Reply to topic" title="Reply to topic" /></a>
+		</td>
+		
+			<td class="gen" valign="middle" nowrap="nowrap">&nbsp;Page <strong>1</strong> of <strong>1</strong><br /></td>
+			<td class="gensmall" nowrap="nowrap">&nbsp;[ 2 posts ]&nbsp;</td>
+			<td class="gensmall" width="100%" align="right" nowrap="nowrap"></td>
+		
+	</tr>
+	</table>
+
+	<table class="tablebg" width="100%" cellspacing="1">
+	<tr>
+		<td class="cat">
+			<table width="100%" cellspacing="0">
+			<tr>
+				<td class="nav" nowrap="nowrap">&nbsp;
+				
+<a href="./posting.php?mode=like&amp;f=52&amp;t=22747"><span style="color:yellow">+1</span></a> |
+					<a href="./viewtopic.php?f=52&amp;t=22747&amp;sid=a7fa281e37d2c38130cb8e55d394b268&amp;view=print" title="Print view">Print view</a>
+				</td>
+				<td class="nav" align="right" nowrap="nowrap"><a href="./viewtopic.php?f=52&amp;t=22747&amp;view=previous&amp;sid=a7fa281e37d2c38130cb8e55d394b268">Previous topic</a> | <a href="./viewtopic.php?f=52&amp;t=22747&amp;view=next&amp;sid=a7fa281e37d2c38130cb8e55d394b268">Next topic</a>&nbsp;</td>
+			</tr>
+			</table>
+		</td>
+	</tr>
+
+	</table>
+
+
+	<table class="tablebg" width="100%" cellspacing="1">
+	
+		<tr>
+			<th>Author</th>
+			<th>Message</th>
+		</tr>
+	<tr class="row1">
+
+			<td align="center" valign="middle">
+				<a name="p75302"></a>
+				<b class="postauthor" style="color: #FF33FF">mathmum</b>
+			</td>
+			<td width="100%" height="25">
+				<table width="100%" cellspacing="0">
+				<tr>
+				
+					<td class="gensmall" width="100%"><div style="float: left;">&nbsp;<b>Post subject:</b> Failed install on mac air book intel con osx 10.5</div><div style="float: right;"><a href="./viewtopic.php?p=75302&amp;sid=a7fa281e37d2c38130cb8e55d394b268#p75302"><img src="./styles/subsilver2/imageset/icon_post_target.gif" width="12" height="9" alt="Post" title="Post" /></a><b>Posted:</b> Mon Aug 01, 2011 8:21 am&nbsp;</div></td>
+				</tr>
+				</table>
+			</td>
+		</tr>
+		
+		<tr class="row1">
+
+			<td valign="top" class="profile">
+				<table cellspacing="4" align="center" width="150">
+			
+				<tr>
+					<td><img src="./styles/subsilver2/imageset/en_us/icon_user_offline.gif" alt="Offline" title="Offline" /></td>
+				</tr>
+			
+				<tr>
+					<td><img src="./download/file.php?avatar=3582_1348738705.png" width="64" height="64" alt="User avatar" /></td>
+				</tr>
+			
+				</table>
+
+				<span class="postdetails">
+					<br /><b>Joined:</b> Mon Dec 24, 2007 12:05 pm<br /><b>Posts:</b> 1971<br /><b>Location:</b> World (Wide Web) - IT
+				</span>
+
+			</td>
+			<td valign="top">
+				<table width="100%" cellspacing="5">
+				<tr>
+					<td>
+					
+
+						<div class="postbody">Since I'm not a Mac-expert, I don't know what to suggest to this Italian user:<br />(impossible to run the application)<br /><div class="quotetitle"><b>Quote:</b></div><div class="quotecontent">Grazie: ho seguito il link suggerito, ma non esegue l'applicazione; il messaggio è il seguente:<br />java.net.MalformedURLException: unknown protocol: socket<br />at java.net.URL.&lt;init&gt;(URL.java:573)<br />at java.net.URL.&lt;init&gt;(URL.java:463)<br />at java.net.URL.&lt;init&gt;(URL.java:412)<br />at java.net.URI.toURL(URI.java:1081)<br />at com.sun.deploy.net.proxy.DeployProxySelector.connectFailed(DeployProxySelector.java:208)<br />at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:451)<br />at java.net.Socket.connect(Socket.java:529)<br />at java.net.Socket.connect(Socket.java:477)<br />at sun.net.NetworkClient.doConnect(NetworkClient.java:163)<br />at sun.net.www.http.HttpClient.openServer(HttpClient.java:388)<br />at sun.net.www.http.HttpClient.openServer(HttpClient.java:523)<br />at sun.net.www.http.HttpClient.&lt;init&gt;(HttpClient.java:231)<br />at sun.net.www.http.HttpClient.New(HttpClient.java:304)<br />at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:967)<br />at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:926)<br />at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:837)<br />at com.sun.deploy.net.BasicHttpRequest.doRequest(BasicHttpRequest.java:185)<br />at com.sun.deploy.net.BasicHttpRequest.doGetRequestEX(BasicHttpRequest.java:63)<br />at com.sun.deploy.net.DownloadEngine.actionDownload(DownloadEngine.java:1150)<br />at com.sun.deploy.net.DownloadEngine.getCacheEntry(DownloadEngine.java:1525)<br />at com.sun.deploy.net.DownloadEngine.getCacheEntry(DownloadEngine.java:1503)<br />at com.sun.deploy.net.DownloadEngine.getResourceCacheEntry(DownloadEngine.java:1609)<br />at com.sun.deploy.net.DownloadEngine.getResourceCacheEntry(DownloadEngine.java:1534)<br />at com.sun.deploy.net.DownloadEngine.getResource(DownloadEngine.java:217)<br />at com.sun.deploy.net.DownloadEngine.getResource(DownloadEngine.java:201)<br />at com.sun.javaws.Launcher.updateFinalLaunchDesc(Launcher.java:477)<br />at com.sun.javaws.Launcher.prepareToLaunch(Launcher.java:256)<br />at com.sun.javaws.Launcher.prepareToLaunch(Launcher.java:207)<br />at com.sun.javaws.Launcher.launch(Launcher.java:124)<br />at com.sun.javaws.Main.launchApp(Main.java:446)<br />at com.sun.javaws.Main.continueInSecureThread(Main.java:278)<br />at com.sun.javaws.Main$1.run(Main.java:116)<br />at java.lang.Thread.run(Thread.java:655)<br /><br />Credo di avere impostato correttamente il proxy, inoltre ho provato da due cennessioni internet diverse, ma ottengo sempre lo stesso risultato. Usando questa stessa rete ho scaricato e installato altri programmi senza problemi.</div> <br /><br />She says the proxy setup is fine, and she tried two different internet connections, but gets always the same results.<br />I pass the ball to you.<br />Ciao,<br />S.</div>
+
+					
+
+						<table width="100%" cellspacing="0">
+						<tr valign="middle">
+							<td class="gensmall" align="right">
+							
+							</td>
+						</tr>
+						</table>
+					</td>
+				</tr>
+				</table>
+			</td>
+		</tr>
+
+		<tr class="row1">
+
+			<td style="text-align: center"><small><a href="#wrapheader">Top</a></small></td>
+			<td><div class="gensmall" style="float: left;">&nbsp;<a href="./memberlist.php?mode=viewprofile&amp;u=3582&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/subsilver2/imageset/en_us/icon_user_profile.gif" alt="Profile" title="Profile" /></a> &nbsp;</div> <div class="gensmall" style="float: right;">&nbsp;</div></td>
+	
+		</tr>
+
+	<tr>
+		<td class="spacer" colspan="2" height="1"><img src="images/spacer.gif" alt="" width="1" height="1" /></td>
+	</tr>
+	</table>
+
+	<table class="tablebg" width="100%" cellspacing="1">
+	<tr class="row2">
+
+			<td align="center" valign="middle">
+				<a name="p75368"></a>
+				<b class="postauthor">daniela.maurizio</b>
+			</td>
+			<td width="100%" height="25">
+				<table width="100%" cellspacing="0">
+				<tr>
+				
+					<td class="gensmall" width="100%"><div style="float: left;">&nbsp;<b>Post subject:</b> Re: Failed install on mac air book intel con osx 10.5</div><div style="float: right;"><a href="./viewtopic.php?p=75368&amp;sid=a7fa281e37d2c38130cb8e55d394b268#p75368"><img src="./styles/subsilver2/imageset/icon_post_target.gif" width="12" height="9" alt="Post" title="Post" /></a><b>Posted:</b> Mon Aug 01, 2011 11:15 pm&nbsp;</div></td>
+				</tr>
+				</table>
+			</td>
+		</tr>
+		
+		<tr class="row2">
+
+			<td valign="top" class="profile">
+				<table cellspacing="4" align="center" width="150">
+			
+				<tr>
+					<td><img src="./styles/subsilver2/imageset/en_us/icon_user_offline.gif" alt="Offline" title="Offline" /></td>
+				</tr>
+			
+				</table>
+
+				<span class="postdetails">
+					<br /><b>Joined:</b> Thu Jul 28, 2011 12:21 pm<br /><b>Posts:</b> 4
+				</span>
+
+			</td>
+			<td valign="top">
+				<table width="100%" cellspacing="5">
+				<tr>
+					<td>
+					
+
+						<div class="postbody">Found the problem; in Java Preferences it was written to use the system preferences for Network and in network preferences I had a manual proxy. So I declared a manual proxy in java preferences too and it worked.<br />Thanks<br />daniela</div>
+
+					
+
+						<table width="100%" cellspacing="0">
+						<tr valign="middle">
+							<td class="gensmall" align="right">
+							
+							</td>
+						</tr>
+						</table>
+					</td>
+				</tr>
+				</table>
+			</td>
+		</tr>
+
+		<tr class="row2">
+
+			<td style="text-align: center"><small><a href="#wrapheader">Top</a></small></td>
+			<td><div class="gensmall" style="float: left;">&nbsp;<a href="./memberlist.php?mode=viewprofile&amp;u=20340&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/subsilver2/imageset/en_us/icon_user_profile.gif" alt="Profile" title="Profile" /></a> &nbsp;</div> <div class="gensmall" style="float: right;">&nbsp;</div></td>
+	
+		</tr>
+
+	<tr>
+		<td class="spacer" colspan="2" height="1"><img src="images/spacer.gif" alt="" width="1" height="1" /></td>
+	</tr>
+	</table>
+
+	<table width="100%" cellspacing="1" class="tablebg">
+	<tr align="center">
+		<td class="cat"><form name="viewtopic" method="post" action="./viewtopic.php?f=52&amp;t=22747&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><span class="gensmall">Display posts from previous:</span> <select name="st" id="st"><option value="0" selected="selected">All posts</option><option value="1">1 day</option><option value="7">7 days</option><option value="14">2 weeks</option><option value="30">1 month</option><option value="90">3 months</option><option value="180">6 months</option><option value="365">1 year</option></select>&nbsp;<span class="gensmall">Sort by</span> <select name="sk" id="sk"><option value="a">Author</option><option value="t" selected="selected">Post time</option><option value="s">Subject</option></select> <select name="sd" id="sd"><option value="a" selected="selected">Ascending</option><option value="d">Descending</option></select>&nbsp;<input class="btnlite" type="submit" value="Go" name="sort" /></form></td>
+	</tr>
+	</table>
+	
+
+	<table width="100%" cellspacing="1">
+	<tr>
+		<td align="left" valign="middle" nowrap="nowrap">
+		<a href="./posting.php?mode=post&amp;f=52&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/subsilver2/imageset/en_us/button_topic_new.gif" alt="Post new topic" title="Post new topic" /></a>&nbsp;<a href="./posting.php?mode=reply&amp;f=52&amp;t=22747&amp;sid=a7fa281e37d2c38130cb8e55d394b268"><img src="./styles/subsilver2/imageset/en_us/button_topic_reply.gif" alt="Reply to topic" title="Reply to topic" /></a>
+		</td>
+		
+			<td class="gen" valign="middle" nowrap="nowrap">&nbsp;Page <strong>1</strong> of <strong>1</strong><br /></td>
+			<td class="gensmall" nowrap="nowrap">&nbsp;[ 2 posts ]&nbsp;</td>
+			<td class="gensmall" width="100%" align="right" nowrap="nowrap"></td>
+		
+	</tr>
+	</table>
+
+</div>
+
+
+	<br clear="all" />
+
+	<table class="tablebg" width="100%" cellspacing="1">
+	<tr>
+		<td class="cat"><h4>Who is online</h4></td>
+	</tr>
+	<tr>
+		<td class="row1"><p class="gensmall">Users browsing this forum: No registered users and 2 guests</p></td>
+	</tr>
+	</table>
+
+
+<table width="100%" cellspacing="1">
+<tr>
+	<td width="40%" valign="top" nowrap="nowrap" align="left"></td>
+	<td align="right" valign="top" nowrap="nowrap"><span class="gensmall">You <strong>cannot</strong> post new topics in this forum<br />You <strong>cannot</strong> reply to topics in this forum<br />You <strong>cannot</strong> edit your posts in this forum<br />You <strong>cannot</strong> delete your posts in this forum<br />You <strong>cannot</strong> post attachments in this forum<br /></span></td>
+</tr>
+</table>
+
+<br clear="all" />
+
+<table width="100%" cellspacing="0">
+<tr>
+	<td><form method="post" name="search" action="./search.php?sid=a7fa281e37d2c38130cb8e55d394b268"><span class="gensmall">Search for:</span> <input class="post" type="text" name="keywords" size="20" /> <input class="btnlite" type="submit" value="Go" /></form></td>
+	<td align="right">
+	<form method="post" name="jumpbox" action="./viewforum.php?sid=a7fa281e37d2c38130cb8e55d394b268" onsubmit="if(document.jumpbox.f.value == -1){return false;}">
+
+	<table cellspacing="0" cellpadding="0" border="0">
+	<tr>
+		<td nowrap="nowrap"><span class="gensmall">Jump to:</span>&nbsp;<select name="f" onchange="if(this.options[this.selectedIndex].value != -1){ document.forms['jumpbox'].submit() }">
+
+		
+			<option value="-1">Select a forum</option>
+		<option value="-1">------------------</option>
+			<option value="25">English speaking users</option>
+		
+			<option value="71">&nbsp; &nbsp;GeoGebra Tablet Apps</option>
+		
+			<option value="62">&nbsp; &nbsp;Using GeoGebra (beginners)</option>
+		
+			<option value="2">&nbsp; &nbsp;Using GeoGebra</option>
+		
+			<option value="20">&nbsp; &nbsp;Technological Questions</option>
+		
+			<option value="26">German speaking users</option>
+		
+			<option value="1">&nbsp; &nbsp;Bedienung von GeoGebra</option>
+		
+			<option value="5">&nbsp; &nbsp;Technische Fragen</option>
+		
+			<option value="27">French speaking users/Utilisateurs francophones</option>
+		
+			<option value="63">&nbsp; &nbsp;Soutien scolaire</option>
+		
+			<option value="72">&nbsp; &nbsp;GeoGebra 4.4 (GIAC)</option>
+		
+			<option value="57">&nbsp; &nbsp;&nbsp; &nbsp;Français Version 4.2 (avec CAS)</option>
+		
+			<option value="50">&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;Français Version 4</option>
+		
+			<option value="54">&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;scripts</option>
+		
+			<option value="58">&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;GeoGebraTube</option>
+		
+			<option value="60">&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;Sciences Physiques</option>
+		
+			<option value="53">&nbsp; &nbsp;Français Version 5 beta (avec 3D  et Python)</option>
+		
+			<option value="67">&nbsp; &nbsp;Eventuelles erreurs</option>
+		
+			<option value="28">International users</option>
+		
+			<option value="41">&nbsp; &nbsp;Arabic</option>
+		
+			<option value="18">&nbsp; &nbsp;Català</option>
+		
+			<option value="38">&nbsp; &nbsp;Croatian</option>
+		
+			<option value="24">&nbsp; &nbsp;Chinese</option>
+		
+			<option value="43">&nbsp; &nbsp;Czech</option>
+		
+			<option value="61">&nbsp; &nbsp;Danish</option>
+		
+			<option value="21">&nbsp; &nbsp;Dutch</option>
+		
+			<option value="11">&nbsp; &nbsp;Español</option>
+		
+			<option value="68">&nbsp; &nbsp;Estonian</option>
+		
+			<option value="33">&nbsp; &nbsp;Finnish</option>
+		
+			<option value="64">&nbsp; &nbsp;Greek</option>
+		
+			<option value="51">&nbsp; &nbsp;Hungarian</option>
+		
+			<option value="10">&nbsp; &nbsp;Italiano</option>
+		
+			<option value="73">&nbsp; &nbsp;Japanese</option>
+		
+			<option value="40">&nbsp; &nbsp;Korean</option>
+		
+			<option value="69">&nbsp; &nbsp;Mongolian</option>
+		
+			<option value="17">&nbsp; &nbsp;Norsk</option>
+		
+			<option value="23">&nbsp; &nbsp;Persian</option>
+		
+			<option value="31">&nbsp; &nbsp;Polish</option>
+		
+			<option value="19">&nbsp; &nbsp;Português</option>
+		
+			<option value="45">&nbsp; &nbsp;Romanian</option>
+		
+			<option value="36">&nbsp; &nbsp;Slovenian</option>
+		
+			<option value="39">&nbsp; &nbsp;Turkish</option>
+		
+			<option value="37">&nbsp; &nbsp;Vietnamese</option>
+		
+			<option value="29">Features, Bugs, Pre-Release</option>
+		
+			<option value="13">&nbsp; &nbsp;English: Feature Requests</option>
+		
+			<option value="44">&nbsp; &nbsp;&nbsp; &nbsp;Website Feedback</option>
+		
+			<option value="8">&nbsp; &nbsp;English: Bug Reports</option>
+		
+			<option value="56">&nbsp; &nbsp;English: GeoGebraTube</option>
+		
+			<option value="49">Beta Tests</option>
+		
+			<option value="52" selected="selected">&nbsp; &nbsp;English: GeoGebra 5 Beta (with 3D &amp; Python)</option>
+		
+			<option value="65">&nbsp; &nbsp;&nbsp; &nbsp;about Python</option>
+		
+			<option value="48">&nbsp; &nbsp;English: GeoGebraWeb (Application &amp; Applets)</option>
+		
+			<option value="55">&nbsp; &nbsp;Translations</option>
+		
+			<option value="30">Archive</option>
+		
+			<option value="9">&nbsp; &nbsp;German: Anregungen und Wünsche</option>
+		
+			<option value="12">&nbsp; &nbsp;German: Fehlerberichte</option>
+		
+			<option value="16">&nbsp; &nbsp;Français (Archives)</option>
+		
+			<option value="3">&nbsp; &nbsp;&nbsp; &nbsp;Français Version 3.2</option>
+		
+			<option value="22">&nbsp; &nbsp;English: GeoGebra 4.2 (Archived)</option>
+		
+			<option value="70">&nbsp; &nbsp;English: GeoGebra 4.4 (Archived)</option>
+		
+
+		</select>&nbsp;<input class="btnlite" type="submit" value="Go" /></td>
+	</tr>
+	</table>
+
+	</form>
+</td>
+</tr>
+</table>
+
+</div>
+</div>
+
+<div id="footer">
+	
+	<span class="copyright">Powered by <a href="http://www.phpbb.com/">phpBB</a> &copy; 2000, 2002, 2005, 2007 phpBB Group
+	</span>
+	<br /><small>{ ASACP_CREDITS }</small>
+</div>
+
+<!-- Google Analytics (Start) -->
+<script type="text/javascript">
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-1780044-1']);
+_gaq.push(['_setDomainName', 'geogebra.org']);
+_gaq.push(['_setAllowLinker', true]);
+_gaq.push(['_trackPageview']);
+
+(function() {
+var ga = document.createElement('script'); ga.type = 'text/javascript';
+ga.async = true;
+ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+var s = document.getElementsByTagName('script')[0];
+s.parentNode.insertBefore(ga, s);
+})();
+
+</script>
+<!-- Google Analytics (End) -->
+
+</body>
+</html>

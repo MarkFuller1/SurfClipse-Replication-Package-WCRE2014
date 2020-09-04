@@ -1,0 +1,197 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>java.net.ConnectException: Connection refused: connect (Sockets and Internet Protocols forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/207207/sockets/java/java-net-ConnectException-Connection-refused"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/207207/sockets/java/java-net-ConnectException-Connection-refused?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-8/sockets">Sockets and Internet Protocols</a>
+<div class="subject">java.net.ConnectException: Connection refused: connect</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ananth Venugopal, Greenhorn<br />
+  on <span class="lastPostTime">Nov 20, 2006 22:32:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Hi all,<br />  <br /> I'm trying to connect to a web page and fetch its contents and print the contents on to the console.<br />  <br /> Here's the code that i've used:<br /> <textarea name="code" class="java" cols="60" rows="10">  
+public void getContent() throws IOException{
+URL url = new URL(this.url);
+HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+[B]InputStream inputStream = connection.getInputStream();// Getting Error Here...[/B]
+byte[] buffer = new byte[1024];
+int i = 0; 
+StringBuffer contents = new StringBuffer();
+
+while ((i = inputStream.read(buffer,i,1023)) &gt; 0) {
+contents.append(new String(buffer));
+}
+System.out.println(contents.toString());
+}
+ 
+</textarea><br />  <br /> But I'm getting the following Exception Stack Trace:<br />  <br /> <textarea name="code" class="java" cols="60" rows="10">    
+java.net.ConnectException: Connection refused: connect
+at java.net.PlainSocketImpl.socketConnect(Native Method)
+at java.net.PlainSocketImpl.doConnect(PlainSocketImpl.java:333)
+at java.net.PlainSocketImpl.connectToAddress(PlainSocketImpl.java:195)
+at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:182)
+at java.net.Socket.connect(Socket.java:507)
+at java.net.Socket.connect(Socket.java:457)
+at sun.net.NetworkClient.doConnect(NetworkClient.java:157)
+at sun.net.www.http.HttpClient.openServer(HttpClient.java:365)
+at sun.net.www.http.HttpClient.openServer(HttpClient.java:477)
+at sun.net.www.http.HttpClient.&lt;init&gt;(HttpClient.java:214)
+at sun.net.www.http.HttpClient.New(HttpClient.java:287)
+at sun.net.www.http.HttpClient.New(HttpClient.java:299)
+at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:784)
+at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:736)
+at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:661)
+at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:905)
+at sample.UrlRetriever.getContent(UrlRetriever.java:35)
+at sample.UrlRetriever.main(UrlRetriever.java:48)
+ 
+</textarea><br />  <br /> <b>Can anyone suggest me how to get rid of this error. <br /> Or is there any other method by which i can do the same.</b><br />  <br />  <br /> Thanks in Advance.<br />  <br /> <b>-Ananth</b><br /> [ November 20, 2006: Message edited by: Ananth Venugopal ]<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Martin Simons, Ranch Hand<br />
+  on <span class="lastPostTime">Nov 20, 2006 23:40:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Connection refused normally means there was nothing listening on the port you tried to connect to, or possibly, that you tried to connect with the wrong protocol (i.e. http where https was required).  Check your url and whether you should maybe be using HttpsUrlConnection rather than HttpUrlConnection.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Sushil Sharma, Greenhorn<br />
+  on <span class="lastPostTime">Nov 22, 2006 18:56:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Ananth,<br /> Your program has 2 issues: unable to connect to URL, and incorrect logic to read data into a buffer. I have modified your program and tested with localhost.<br /> Note: use of Reader to read data directly as char instead of byte<br />  <br /> public void getContent() throws IOException<br /> {<br />   URL url = new URL(this.url);<br />   HttpURLConnection connection = (HttpURLConnection) url.openConnection();<br />   InputStream inputStream = connection.getInputStream();<br />  <br />   // use a Reader to read stream as char instead of byte<br />   BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));<br />  <br />   char[] chbuff = new char[1024];<br />   StringBuffer contents = new StringBuffer();<br />         <br />   // start number of read bytes from a small number<br />   int rd_nchars = 32;<br />   int total = 0;<br />  <br />   // note: for loop is no<br />   for (int i = 0, off = 0; rd_nchars &gt; 0 <img src="http://cache-www.coderanch.com/images/smilies/8a80c6485cd926be453217d59a84a888.gif" />  {<br />     int len = in.read(chbuff, off, rd_nchars);<br />     total += len;<br />     <br />     System.out.println(len + ", " + off + ", " + total);<br />  <br />     if (len &lt;= 0) {<br />        System.out.println("done");<br />     }<br />     off += len;<br />             <br />     rd_nchars = chbuff.length - off;<br />             <br />     // not enough space left in chbuff<br />     if (rd_nchars &lt;= 0) {<br />        System.out.println("done.. reached end of buffer");<br />     }            <br />   }<br />         <br />   System.out.println("Total chars read: " + total);<br />         <br />   contents.append(chbuff, 0, total);<br />         <br />   System.out.println(contents.toString());<br /> }</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/207207'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=8'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 17:03:19</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/8"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/207207/sockets/java/java-net-ConnectException-Connection-refused?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

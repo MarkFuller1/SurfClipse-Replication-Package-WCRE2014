@@ -1,0 +1,1475 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- base_content.html -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Exception matching - Splunk Community</title>
+        <meta name="description" content="Hi  i&#39;m currently using following regex to match different types of exception. (?i:[^.]+.)*(?P&amp;lt;test&amp;gt;[a-zA-Z]+Exception) sample log 06 Sep 2013 18:59:59,924 [WebContainer : 4] ERROR - Remote Exception while updating CSA Details java.rmi.ServerException: RemoteException occurred in server thread..." />
+        <meta name="keywords" content="regex,regexp,search,exception" />
+        
+        <link rel="canonical" href="http://answers.splunk.com/answers/111475/exception-matching" />
+        <link rel="alternate" type="application/rss+xml" title="RSS" href="/answers/111475/exception-matching?type=rss">
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        
+        <link rel="shortcut icon" href="/m/splunk/media/images/favicon.ico" />
+        <link href="/m/default/media/style/style.css" rel="stylesheet" type="text/css" />
+        
+        <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css" />
+        <!--[if IE 6]>
+        <style type="text/css">
+        img, div, a { behavior: url(/m/default/media/iepngfix/iepngfix.htc) }
+        </style>
+        <![endif]-->
+        
+
+        <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+        <script type="text/javascript">
+        /*<![CDATA[*/
+            google.load("jquery", "1");
+            google.load("jqueryui", "1", {autoload:true});
+
+            var i18nLang = 'en';
+            var appUrl = 'http://answers.splunk.com/'
+            var scriptUrl = '/'
+            var osqaSkin = 'splunk';
+
+            var messages = {
+                username: '',
+                confirm: "Are you sure?",
+                yes: "Yes",
+                no: "No",
+                message: "Message:",
+                cancel: "Cancel",
+                close: "Close",
+                ok: "Ok",
+                matching_tags_url: "/matching_tags/",
+                word: "word",
+                words: "words",
+                character: "character",
+                characters: "characters"
+            }
+        /*]]>*/
+        </script>
+        <script type="text/javascript" src="/m/default/media/js/osqa.main.js"></script>
+        
+        
+            <link rel="stylesheet" type="text/css" href="/m/splunk/media/style/splunk.css?2"  media="screen" />
+<style>
+.tag-link-__app {
+display: none;
+}
+</style>
+
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+        
+        
+    <!--GooglePageMap
+    <PageMap>
+        <DataObject type="document">
+            <Attribute name="title">Exception matching</Attribute>
+            <Attribute name="num_thumbs_up">0</Attribute>
+            <Attribute name="num_answers">2</Attribute>
+            <Attribute name="num_responses">2</Attribute>
+            <Attribute name="category_ids">[31,21,1546,1175]</Attribute>
+            <Attribute name="question_id">111475</Attribute>
+            <Attribute name="times_viewed">197</Attribute>
+            <Attribute name="created_at">20131118</Attribute>
+            <Attribute name="open_discussion">true</Attribute>
+            <Attribute name="made_public_at">20131118</Attribute>
+            <Attribute name="publicly_indexed">false</Attribute>
+            <Attribute name="has_accepted_answer">false</Attribute>
+        </DataObject>
+    </PageMap>
+    -->
+
+    
+        
+        <script type='text/javascript' src='/m/default/media/js/osqa.question.js'></script>
+        <script type='text/javascript' src='/m/default/media/js/jquery.caret.js'></script>
+        <script type='text/javascript' src='/m/splunk/media/js/wmd/showdown.js'></script>
+        <script type='text/javascript' src='/m/default/media/js/wmd/wmd.js'></script>
+        <script type='text/javascript' src='/m/splunk/media/js/html_sanitizer.js'></script>
+        <link rel="stylesheet" type="text/css" href="/m/default/media/js/wmd/wmd.css" />
+
+        
+        <script type='text/javascript' src='/m/default/media/js/viewbox_min.js'></script>
+        <script type='text/javascript' src='/m/default/media/js/youtube.js'></script>
+        <link rel="stylesheet" type="text/css" href="/m/default/media/js/viewbox.css" />
+        
+        
+
+        <script type="text/javascript">
+        $().ready(function(){
+            $("#nav_questions").attr('className',"on");
+            var answer_sort_tab = "";
+
+            if (answer_sort_tab) {
+                $("#" + answer_sort_tab).attr('className',"on");
+            }
+
+            $('#editor').TextAreaResizer();
+
+            //toggle preview of editor
+            var display = true;
+            var txt = "[hide preview]";
+            $('#pre-collapse').text(txt);
+            $('#pre-collapse').bind('click', function(){
+                txt = display ? "[show preview]" : "[hide preview]";
+                display = !display;
+                $('#previewer').toggle();
+                $('#pre-collapse').text(txt);
+            });
+        });
+
+        function submitClicked(e, f) {
+            if(!(browserTester('chrome') || browserTester('safari'))) {
+                $("input.submit")[0].disabled=true;
+            }
+            window.removeEventListener('beforeunload', beforeUnload, true);
+            if (f) {
+                f.submit();
+            }
+        }
+
+        function beforeUnload(e) {
+
+            if($("textarea#editor")[0].value != "") {
+                return yourWorkWillBeLost(e);
+            }
+
+            var commentBoxes = $("textarea.commentBox");
+            for(var index = 0; index < commentBoxes.length; index++) {
+                if(commentBoxes[index].value != "") {
+                    return yourWorkWillBeLost(e);
+                }
+            }
+        }
+        window.addEventListener('beforeunload', beforeUnload, true);
+        </script>
+        <noscript>
+            <style>
+                .comment.not_top_scorer {
+                    display: block;
+                }
+                .comment-form-container {
+                    display: block;
+                }
+                .div.comment-tools {
+                    display: none;
+                }
+            </style>
+        </noscript>
+
+
+    <style type="text/css">
+    .socialShare ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        width: 250px;
+    }
+    .socialShare ul li {
+        list-style: none;
+        display: block;
+        margin: 0 0 0 4px;
+        padding: 0;
+        float: left;
+    }
+        #id_lang_container input
+    {
+        font-size:10px;
+    }
+    </style>
+
+    <script type="text/javascript" src="/m/splunk/media/js/jquery.raty.js"></script>
+    <script type="text/javascript" src="/m/splunk/media/js/scripts.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $('#question-tags').prepend('');
+
+            // Create the focused answer animation
+            $('.focusedAnswer').css({backgroundColor: "#ffffcc"}).animate({
+                backgroundColor: "#ffffff"
+            }, 3000);
+
+        });
+
+        var confirm_reply_form;
+        var confirm_reply_event;
+
+        function askConfirmReplyOwnQuestion(event, form)
+        {
+            //var conf = confirm("OK to answer, cancel to comment");
+            confirm_reply_form = form;
+            confirm_reply_event = event;
+
+            var conf_dialog = $('<form id="id_confirm_reply">\
+    <style>\
+        #diy div {width:49%;}\
+        #diy div a {display:block; width:75px; margin:5px auto 10px; padding:10px; font-size:14px; font-weight:bold; color:#FFF; border-radius:5px;}\
+    </style>\
+    <div id="diy" style="width:430px; text-align:center; overflow:auto">\
+        <h3 style="margin-bottom:5px">Did you figure it out yourself?</h3>\
+        <p>Way to go! Posting the complete answer is a great way for the community to benefit from your gained knowledge. However, please refrain from using the Answer field as a discussion thread. Instead, we recommend you to leave a comment below your question or the appropriate answer. This helps to keep our site focused on answering questions.</p>\
+        <div style="float:left">\
+            <a style="background-color:#75A351" href="#" target="_blank" onclick="confirmReplyCallback(true);parent.$.fancybox.close();return false;">Answer</a>\
+            <p>I figured it out myself, submit my answering</p>\
+        </div>\
+        <div style="float:right">\
+            <a style="background-color:#777" href="#" target="_blank" onclick="confirmReplyCallback(false);parent.$.fancybox.close();return false;">Comment</a>\
+            <p>This is comment to my original questions, not an answer</p>\
+        </div>\
+    </div>\
+</form>');
+
+            $.fancybox({'content':conf_dialog.html(),'height':'200px','width':'150px','autoDimensions':false,'autoScale':false})
+
+        }
+
+        function confirmReplyCallback(conf)
+        {
+            if(conf)
+                submitClicked(confirm_reply_event,confirm_reply_form)
+            else
+            {
+                $("#comment-tools-111475").find(".add-comment-link")
+                var comment_form = $("#comment-111475-form");
+                
+                var text = $(confirm_reply_form).find("#editor").val();;
+
+                comment_form.find("[name='comment']").val(text);
+                comment_form.find(".comment-submit").click();
+
+            }
+        }
+
+        $(".comment-submit-locked").click(function  () {
+            alert("Posting new comments is temporarily disabled.");
+        });
+
+
+        
+        
+    </script>
+
+
+    <script type="text/javascript" src="/m/splunk/media/js/select2/select2.js"></script>
+        <link rel="stylesheet" type="text/css" href="/m/splunk/media/js/select2/select2.css" />
+
+        <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Splunk Community Search" />
+        
+    </head>
+    <body>
+        <div class="wrapper">
+        
+            <div id="custom_header">
+                <div id="splunkheader">
+
+<div id="splunktoolbar">
+<ul id="sites" class="inline">
+  <li><a href="http://www.splunk.com">Splunk.com</a></li>
+  <li><a href="http://docs.splunk.com">Documentation</a></li>
+  <li><a href="/apps">Splunkbase</a></li>
+  <li><a href="/">Answers</a></li>
+  <li><a href="http://wiki.splunk.com/">Wiki</a></li>
+  <li><a href="http://blogs.splunk.com">Blogs</a></li>
+  <li class="lastlist"><a href="http://dev.splunk.com">Developers</a></li>
+</ul>
+<p></p>
+</div> <!-- / toolbar -->
+
+<div id="masthead">
+  <!-- Logo -->
+  <div id="logoMantra"><a href="/" id="logo">&nbsp;</a></div>
+</div> <!-- / masthead -->
+
+</div>
+            </div>
+        
+        <!-- template header.html -->
+
+
+	<div id="roof">
+        <div style="float:left">
+        <a id="logo" href="/">
+            <img src="/m/splunk/media/images/logo_splunkanswers.png" title="back to home page" alt="Splunk Community logo"/>
+        </a>
+        </div>
+
+
+		<div id="top">
+		    <a href="/account/sso/signup/">Sign Up</a><a href="/account/sso/signin/">Login</a> <a href="/faq/" >FAQ</a> 
+		</div>
+
+    <div id="nav">
+        <a id="nav_home"  href="/">Home</a>
+        <a id="nav_questions"  class="on" href="/answers/">Answers</a>
+        <a id="nav_apps"  href="/apps/">Apps</a>
+
+        <a id="nav_users"  href="/users/">users</a>
+        <a id="nav_tags"  href="/tags/">tags</a>
+        <a id="nav_badges"  href="/badges/">badges</a>
+        <a id="nav_ask"  href="/ask/">ask a question</a>
+        <a id="nav_share"  href="http://apps.splunk.com/develop">upload an app</a>
+    </div>
+  </div>
+
+  <div class="clear"></div>
+
+	<div id="searchBar">
+    <form id="search-form" action="" method="get">
+        <div>
+            <input type="text" class="searchInput" autocomplete="off" value="" name="q" id="keywords" />
+            <input type="submit" name="Submit" value="Search" class="searchBtn" />
+        </div>
+    </form>
+	</div>
+    <div id="search-selector">
+        <p><strong>Refine your search:</strong></p>
+        <ul>
+            <li><input type="radio" name="search-selector" value="questions" checked="checked"/> Questions</li>
+            <li><input type="radio" name="search-selector" value="apps" /> Apps</li>
+            <li><input type="radio" name="search-selector" value="users" /> Users</li>
+            <li><input type="radio" name="search-selector" value="tags" /> Tags</li>
+        </ul>
+        <div class="search-submit"><button>Search</button></div>
+    </div>
+    <script src="/m/splunk/media/js/jquery.cookies.js"></script>
+    <script type="text/javascript">
+        var search_urls = {
+            all: {url: '/search/', text: 'Search Splunk Answers'},
+            home: {url: '/search/', text: 'Search Splunk Answers'},
+            apps: {url: '/apps/search/', text: 'Search Splunk Apps'},
+            questions: {url: '/search/', text: 'Search Splunk Answers'},
+            users: {url: '/users/', text: 'Search Users'},
+            tags: {url: '/tags/', text: 'Search Tags'}
+        };
+
+        
+            
+                var tab = 'questions';
+            
+        
+
+        $(function(){
+            var $i = $('.searchInput');
+            var it = '';
+            (function() {
+                var $decoder = $('<div></div>');
+                $decoder.html(it);
+                it = $decoder.text();
+            })();
+            var $search_selector = $('#search-selector');
+            var withFocus = false;
+
+            $i.focus(function() {
+                withFocus = true;
+                if ($i.val() == search_urls[tab].text) $i.val('');
+
+                var position = $('#keywords').offset();
+                var inputHeight = $('#keywords').outerHeight();
+                var inputWidth = $('#keywords').outerWidth();
+
+                $search_selector.css({
+                            top: (position.top + inputHeight + 3) + 'px',
+                            left: position.left + 'px',
+                            width: inputWidth + 'px'
+                        });
+
+                $search_selector.fadeIn('fast', function() {
+
+                });
+            });
+
+            function set_input_text() {
+                if (it) {
+                    $i.val(it);
+                } else {
+                    $i.val(search_urls[tab].text);
+                }
+            }
+
+            $i.blur(function() {
+                withFocus = false;
+                if (!$i.val().trim()) {
+                    set_input_text();
+                }
+            });
+
+            $search_selector.click(function(e) {
+                e.stopPropagation();
+            });
+
+            $('body').click(function() {
+                window.setTimeout(function() {
+                    if (!withFocus) {
+                        $search_selector.fadeOut('fast');
+                    }
+                }, 100);
+            });
+
+            $search_selector.find('input').change(function() {
+                var $selected = $(this);
+
+                if ($selected.attr('checked')) {
+                    if ($i.val() == search_urls[tab].text) {
+                        $i.val(search_urls[$(this).val()].text);
+                    }
+                    tab = $(this).val();
+                    $('#search-form').attr('action', search_urls[tab].url);
+                }
+            });
+
+            $search_selector.find('button').click(function() {
+                $('#search-form').submit();
+            });
+
+            $search_selector.find('input[value=' + tab + ']').attr('checked', 'checked');
+            $('#search-form').attr('action', search_urls[tab].url);
+
+            set_input_text();
+
+            $('body').append($search_selector);
+
+
+            var cookie_options = {path : '/', hoursToLive: 7*24};
+
+            // The md5 sum of the announcement bar content
+            var announcement_content = "6b6791dd1bf1049d7057e1736ac734f5";
+
+            // Announcement bar
+            var unix_time = Math.round((new Date()).getTime() / 1000);
+            var hide_older_than = 7 * 3600; // Hide announcements older than X hours
+
+            var cookie_first_show_time = $.cookies.get("announcement_first_show_time");
+
+            // Close announcements that are older than X days
+            if(cookie_first_show_time != null && (unix_time - parseInt(cookie_first_show_time)) > hide_older_than) {
+                $.cookies.set("announcement_closed", "closed", cookie_options);
+            }
+
+            var cookie_announcement_closed = $.cookies.get("announcement_closed") == "closed";
+            var cookie_latest_announcement = $.cookies.get('latest_announcement');
+            //console.log(cookie_announcement_closed);
+            //console.log(cookie_latest_announcement);
+
+            if (!cookie_announcement_closed || cookie_latest_announcement != announcement_content) {
+                $('#announcement').fadeIn(1000);
+
+                $.cookies.set("latest_announcement", announcement_content, cookie_options);
+                $.cookies.set("announcement_closed", "open", cookie_options);
+
+                // If that is the first show of the announcement - store the time
+                if (cookie_first_show_time == null || cookie_latest_announcement != announcement_content) {
+                    $.cookies.set("announcement_first_show_time", unix_time.toString(), cookie_options);
+                }
+            }
+
+            $('#announcement .closeBtn').click(function() {
+                $('#announcement').fadeOut(500);
+                $.cookies.set("announcement_closed", "closed", cookie_options);
+
+                var authenticated_or_unauthenticated = "unauthenticated";
+                var user_id = 0;
+
+                // var ga_event = pageTracker._trackEvent('Announcement-Bar', 'close', authenticated_or_unauthenticated, user_id);
+                _gaq.push(['_trackEvent', 'Announcement-Bar', 'close', authenticated_or_unauthenticated, user_id]);
+
+                //console.log(ga_event);
+            });
+
+            
+
+            function getURLParameter(name) {
+                return decodeURI(
+                        (new RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
+                );
+            }
+
+            
+        });
+    </script>
+    
+    
+<!-- added fancybox in base to show Karma Contest popup anywhere -->
+    <script type="text/javascript" src="/m/splunk/media/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+    <script type="text/javascript" src="/m/splunk/media/js/fancybox/jquery.easing-1.3.pack.js"></script>
+
+    <link rel="stylesheet" href="/m/splunk/media/js/fancybox/jquery.fancybox-1.3.4.css?nocache" type="text/css" media="screen" />
+
+
+
+    
+    <div id="announcement" style="display: none;">
+        <div class="noticeBannerWrapper">
+            <div class="noticeBannerInnerWrapper">
+                <div class="noticeBanner">New leaderboards are here! Check the <a href="/users">users tab</a> to see your Karma score and rank. Get ready for competition! <a href="http://docs.splunk.com/Documentation/Splunkbase/splunkbase/Answers/Abouttheleaderboards">Learn more »</a></div>
+                <div class="noticeBannerClose">
+                    <a href="javascript:void(0);" class="closeBtn"><img src="/m/splunk/media/images/close-btn.png" /></a>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+    
+
+<!-- end template header.html -->
+
+        
+
+
+<script type="text/javascript" src="/m/splunk/media/js/cufon-yui.js"></script>
+<script type="text/javascript" src="/m/splunk/media/js/Myriad_Pro_300.font.js"></script>
+
+<script  type="text/javascript">
+
+//esta
+
+    Cufon.replace('.headMedals', { fontFamily: 'Myriad Pro' });
+    
+    
+        Cufon.replace('.headNormal', { fontFamily: 'Myriad Pro' });
+        Cufon.replace('.headQuestions', { fontFamily: 'Myriad Pro' });
+        Cufon.replace('.headUsers', { fontFamily: 'Myriad Pro' });
+        Cufon.replace('.headNormalTitle', { fontFamily: 'Myriad Pro' });
+    
+
+    Cufon.replace('.featuredAppsHeader', { fontFamily: 'Myriad Pro' });
+    Cufon.replace('.boxC h3', { fontFamily: 'Myriad Pro' });
+    Cufon.replace('#homepageLower h2', { fontFamily: 'Myriad Pro' });
+    Cufon.replace('.homeBannerText h2 a', { fontFamily: 'Myriad Pro' });
+
+
+</script>
+
+
+
+
+<div id="wrapper">
+    
+
+    <div id="room">
+        <div id="CALeft">
+            
+<div id="fb-root"></div>
+
+<div class="headNormal">
+    <h1><a href="/answers/111475/exception-matching">Exception matching</a></h1>
+</div>
+<div id="main-body" class="">
+    <div id="askform">
+            <table style="width:100%;" id="question-table" >
+                <tr>
+                    <td style="width:30px;vertical-align:top">
+                        <div class="vote-buttons">
+                            
+
+<a id="post-111475-upvote" title="This post is useful (click again to undo)"
+    class="ajax-command post-vote up "
+     href="/vote/111475/up/" rel="nofollow"> </a>
+<div id="post-111475-score" class="post-score"
+    title="current number of votes">
+    0
+</div>
+<a id="post-111475-downvote" title="This post is not useful (click again to undo)"
+    class="ajax-command post-vote down"
+     href="/vote/111475/down/" rel="nofollow"> </a>
+                            
+
+<a id="favorite-mark" title="mark/unmark this question as favorite (click again to cancel)"
+    class="ajax-command favorite-mark "
+    href="/mark_favorite/111475/" rel="nofollow"> </a>
+<div id="favorite-count" class="favorite-count">
+   
+</div>
+                            
+                        </div>
+                    </td>
+                    <td>
+                        <div id="item-right">
+                            <div class="question-body">
+                                <p>Hi 
+i'm currently using following regex to match different types of exception.</p>
+<p><strong>(?i:[^.]+.)*(?P&lt;test&gt;[a-zA-Z]+Exception)</strong></p>
+<p>sample log</p>
+<p>06 Sep 2013 18:59:59,924 [WebContainer : 4] ERROR - Remote Exception while updating CSA Details</p>
+<p>java.rmi.ServerException: RemoteException occurred in server thread; nested exception is: 
+java.rmi.RemoteException: ; nested exception is: 
+    <strong>org.springframework.jdbc.UncategorizedSQLException:</strong>    CallableStatementCallb
+``ack; uncategorized <strong>SQLException</strong> for SQL [{call
+ PX_CO_AC_AGREEMENT_MASTER_PG.spt_update(?, ?, ?, ?, ?, ?)}]; SQL state [72000]; error code </p>
+<p>[20002]; ORA-20002: Record has been modified since last retrieved - Resubmit transaction for </p>
+<p>parameter(s)   p_acag_agreement_id_in  values of which are =&gt; 1463755</p>
+<p>ORA-06512: at "ACCOUNT_OWNER.PX_CO_AC_AGREEMENT_MASTER_PG", line 91</p>
+<p>ORA-06510: PL/SQL: unhandled user-defined exception</p>
+<p>ORA-06512: at line 1</p>
+<p>; nested exception is java.sql.SQLException: ORA-20002: Record has been modified since last </p>
+<p>retrieved - Resubmit transaction for parameter(s)   p_acag_agreement_id_in  values of which are </p>
+<p>=&gt; 1463755
+ORA-06512: at "ACCOUNT_OWNER.PX_CO_AC_AGREEMENT_MASTER_PG", line 91</p>
+<p>ORA-06510: PL/SQL: unhandled user-defined exception</p>
+<p>ORA-06512: at line 1</p>
+<p>the regex is matching SQLException(Bold) but i need match UncategorizedSQLException(Bold) once from the above log entry.</p>
+<p>i tried like even like this (?i:[^.]+.)*(?P[a-zA-Z]+Exception|UncategorizedSQLException)but it was not successfull.</p>
+<p>Any help on this.</p>
+                            </div>
+                            <div id="question-tags" class="tags-container tags">
+                                
+                                    <a href="/tags/regex/" class="post-tag tag-link-regex"
+                                        title="see questions tagged 'regex'" rel="tag">regex</a>
+                                
+                                    <a href="/tags/regexp/" class="post-tag tag-link-regexp"
+                                        title="see questions tagged 'regexp'" rel="tag">regexp</a>
+                                
+                                    <a href="/tags/search/" class="post-tag tag-link-search"
+                                        title="see questions tagged 'search'" rel="tag">search</a>
+                                
+                                    <a href="/tags/exception/" class="post-tag tag-link-exception"
+                                        title="see questions tagged 'exception'" rel="tag">exception</a>
+                                
+                                <div class="clearfix"></div>
+                            </div>
+                            <div id="question-controls" class="post-controls">    
+
+                                
+
+
+                                
+
+
+                                
+                            </div>
+                              
+                   
+                            <div class="post-update-info-container">
+                                    
+<div class='post-update-info post-update-info-user'>
+    <p style="line-height:12px;">
+        asked
+        <strong>18 Nov, 04:16</strong>
+    </p>
+    <img class="gravatar" width="32" height="32" src="https://secure.gravatar.com/avatar/17e533f56f8d2def2578f06be9b3e94b?s=32&amp;d=identicon&amp;r=g" alt="prad18's gravatar image" />
+    <p>
+        <a href="/users/186452/prad18">prad18</a>
+
+        
+        <br/>
+    <span class="score" title="21 karma">21</span><span title="3 Badges"><span class="bronze">&#9679;</span><span class="badgecount">3</span></span><br />
+    
+    <span title="Rate of the user's accepted answers" class="accept_rate">accept rate:</span>
+    <span title="prad18 has no accepted answers">0&#37;</span>
+    </p>
+</div>
+
+
+
+
+
+                            </div>
+                            
+
+
+
+
+<div class="comments-container" id="comments-container-111475">
+    
+</div>
+<div id="comment-tools-111475" class="comment-tools">
+    
+    
+</div>
+
+
+
+
+
+
+
+<div class="clear"></div>
+<div id="comment-111475-form-container" class="comment-form-container">
+    
+</div>
+<div class="clear"></div>
+
+
+
+                        </div>
+                        
+                    </td>
+                </tr>
+            </table>
+            
+            
+                <hr />
+		<div class="headQuestions">
+                    2 Answers:
+                    </div>
+                <div class="tabBar">
+                    <a name="sort-top"></a>
+                    
+<div class="tabsA"><a href="/answers/111475/exception-matching?sort=oldest" title="oldest answers will be shown first">oldest</a><a href="/answers/111475/exception-matching?sort=newest" title="newest answers will be shown first">newest</a><a href="/answers/111475/exception-matching?sort=votes" class="on" title="most voted answers will be shown first">most voted</a></div>
+
+                </div>
+                
+  
+                
+                    <a name="111478"></a>
+                    <div id="answer-container-111478" class="answer ">
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="width:30px;vertical-align:top">
+                                    <div class="vote-buttons">
+                                        
+
+<a id="post-111478-upvote" title="This post is useful (click again to undo)"
+    class="ajax-command post-vote up "
+     href="/vote/111478/up/" rel="nofollow"> </a>
+<div id="post-111478-score" class="post-score"
+    title="current number of votes">
+    2
+</div>
+<a id="post-111478-downvote" title="This post is not useful (click again to undo)"
+    class="ajax-command post-vote down"
+     href="/vote/111478/down/" rel="nofollow"> </a>
+                                        
+
+
+    
+
+
+
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="item-right">
+                                        <div class="answer-body">
+                                            <p>Hi prad18</p>
+<p>quick one would be like this:</p>
+<pre><code> (?&lt;test&gt;(\sSQL|(\w+\.){3}\w+SQL)+Exception)
+</code></pre>
+<p>this matches <strong>org.springframework.jdbc.UncategorizedSQLException</strong> and <strong>SQLException</strong> 
+You can test your regex by using this nice <a href="http://gskinner.com/RegExr/">online regex tester</a></p>
+<p>hope this helps ...</p>
+<p>cheers, MuS</p>
+                                        </div>
+                                        <div class="answer-controls post-controls">
+                                            
+<span class="action-link"><a rel="nofollow" title="answer permanent link" class="ajax-command withprompt  copy" href="/answer_link/111478/">link</a></span>
+                                            
+
+                                        </div>
+                                        <div class="post-update-info-container">
+                                            
+<div class='post-update-info post-update-info-user'>
+    <p style="line-height:12px;">
+        answered
+        <strong>18 Nov, 04:56</strong>
+    </p>
+    <img class="gravatar" width="32" height="32" src="https://secure.gravatar.com/avatar/26c0349bffce61b852466e3a7b030486?s=32&amp;d=identicon&amp;r=g" alt="MuS's gravatar image" />
+    <p>
+        <a href="/users/2122/mus">MuS</a>
+
+        
+        <br/>
+    <span class="score" title="6379 karma"><span class="">6.4k</span></span><span title="2 Badges"><span class="badge1">&#9679;</span><span class="badgecount">2</span></span><span title="5 Badges"><span class="silver">&#9679;</span><span class="badgecount">5</span></span><span title="16 Badges"><span class="bronze">&#9679;</span><span class="badgecount">16</span></span><br />
+    
+    <span title="Rate of the user's accepted answers" class="accept_rate">accept rate:</span>
+    <span title="MuS has 65 accepted answers">20&#37;</span>
+    </p>
+</div>
+
+
+
+
+
+                                        </div>
+                                        
+
+
+
+
+<div class="comments-container" id="comments-container-111478">
+    
+        <a name="111589"></a>
+        <div class="comment" id="comment-111589">
+            <div id="post-111589-score" class="comment-score"></div>
+            <div class="comment-text"><p>It is matching only org.springframework.jdbc.UncategorizedSQLException, SQLException these</p>
+<p>But actually I need to match following 
+An Error has occured for com.marsh.csa.exception.NoClientInfoFound:--&gt;NoClientInfoFound
+handleException():com.marsh.framework.core.exception.MarshException:--&gt;MarshException 
+Found Exception, class:java.lang.NullPointerException--&gt;NullPointerException
+org.springframework.dao.DataAccessResourceFailureException--&gt;DataAccessResourceFailureException
+org.springframework.jdbc.UncategorizedSQLException--&gt;UncategorizedSQLException</p>
+<p>Just last words not entire package name.</p></div>
+            <div class="comment-info" id="comment-111589-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(18 Nov, 22:09)</span>
+                <a class="comment-user userinfo" href="/users/186452/prad18">prad18</a>
+                
+            </div>
+        </div>
+    
+        <a name="111839"></a>
+        <div class="comment" id="comment-111839">
+            <div id="post-111839-score" class="comment-score">1</div>
+            <div class="comment-text"><p>well that was what you requested in first place ;)
+To match the last word in any of the above provided errors you could use something like this:</p>
+<p><code>((\w+\.){2,6})(?&lt;test&gt;\w+\b)</code></p>
+<p>cheers</p></div>
+            <div class="comment-info" id="comment-111839-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(20 Nov, 01:07)</span>
+                <a class="comment-user userinfo" href="/users/2122/mus">MuS</a>
+                
+            </div>
+        </div>
+    
+        <a name="112411"></a>
+        <div class="comment" id="comment-112411">
+            <div id="post-112411-score" class="comment-score"></div>
+            <div class="comment-text"><p>Hi MuS,
+((w+.){2,6})(?&lt;test&gt;w+b) is not matching any of the above error's last word. :(</p></div>
+            <div class="comment-info" id="comment-112411-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(24 Nov, 21:22)</span>
+                <a class="comment-user userinfo" href="/users/186452/prad18">prad18</a>
+                
+            </div>
+        </div>
+    
+        <a name="112445"></a>
+        <div class="comment" id="comment-112445">
+            <div id="post-112445-score" class="comment-score"></div>
+            <div class="comment-text"><p>Hi sure it does, you must include <code>\</code> like this
+<code>((\w+\.){2,6})(?&lt;test&gt;\w+\b)</code>
+it will create new fields called test</p></div>
+            <div class="comment-info" id="comment-112445-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(25 Nov, 01:52)</span>
+                <a class="comment-user userinfo" href="/users/2122/mus">MuS</a>
+                
+            </div>
+        </div>
+    
+        <a name="112823"></a>
+        <div class="comment" id="comment-112823">
+            <div id="post-112823-score" class="comment-score"></div>
+            <div class="comment-text"><p>while posting comments slashes are being removed. I made typo with rex command that's why it was not working then i added assetion like ((w+.){2,6})(?&lt;test&gt;w+b)(?&lt;=Exception|NoClientInfoFound|DataAccessResourceFailureException) and it matched all exceptions.</p>
+<p>Thanks a lot for help MuS</p></div>
+            <div class="comment-info" id="comment-112823-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(27 Nov, 01:21)</span>
+                <a class="comment-user userinfo" href="/users/186452/prad18">prad18</a>
+                
+            </div>
+        </div>
+    
+</div>
+<div id="comment-tools-111478" class="comment-tools">
+    
+    
+</div>
+
+
+
+
+
+
+
+<div class="clear"></div>
+<div id="comment-111478-form-container" class="comment-form-container">
+    
+</div>
+<div class="clear"></div>
+
+
+
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                
+                    <a name="111863"></a>
+                    <div id="answer-container-111863" class="answer ">
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="width:30px;vertical-align:top">
+                                    <div class="vote-buttons">
+                                        
+
+<a id="post-111863-upvote" title="This post is useful (click again to undo)"
+    class="ajax-command post-vote up "
+     href="/vote/111863/up/" rel="nofollow"> </a>
+<div id="post-111863-score" class="post-score"
+    title="current number of votes">
+    1
+</div>
+<a id="post-111863-downvote" title="This post is not useful (click again to undo)"
+    class="ajax-command post-vote down"
+     href="/vote/111863/down/" rel="nofollow"> </a>
+                                        
+
+
+    
+
+
+
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="item-right">
+                                        <div class="answer-body">
+                                            <p>As suggested in <a href="/users/2122/mus">@MuS</a> answer, try the different values in a regex tester (you could also use the built-in one in Splunk Web).</p>
+<p>I think you need to consider some other things, though:</p>
+<ul>
+<li>What are you going to use this for? In your example log, you are extracting two values from the same log event. One is the actual exception name and one is part of the exception message (<code>... ack; uncategorized SQLException for SQL ...</code>). Additionally, the values are not the first exceptions mentioned in the event.</li>
+<li>Do you only want actual exceptions? In that case, consider that some exceptions might not be <em>called</em> <code>Exception</code>. You might need to detect exceptions based on position, or by filtering your results to only events that should mention exceptions.</li>
+<li>Some exceptions might have the same class names, but different fully-qualified names (e.g. <code>com.foo.framework.net.http.NotFoundException</code> and <code>org.bar.gofish.hand.NotFoundException</code>). If you're doing statistics based on these extractions, that could give you bad results.</li>
+</ul>
+                                        </div>
+                                        <div class="answer-controls post-controls">
+                                            
+<span class="action-link"><a rel="nofollow" title="answer permanent link" class="ajax-command withprompt  copy" href="/answer_link/111863/">link</a></span>
+                                            
+
+                                        </div>
+                                        <div class="post-update-info-container">
+                                            
+<div class='post-update-info post-update-info-user'>
+    <p style="line-height:12px;">
+        answered
+        <strong>20 Nov, 04:54</strong>
+    </p>
+    <img class="gravatar" width="32" height="32" src="https://secure.gravatar.com/avatar/53015bd8231dd61f1da5402ba303490f?s=32&amp;d=identicon&amp;r=g" alt="laserval's gravatar image" />
+    <p>
+        <a href="/users/143667/laserval">laserval</a>
+
+        
+        <br/>
+    <span class="score" title="119 karma">119</span><span title="3 Badges"><span class="bronze">&#9679;</span><span class="badgecount">3</span></span><br />
+    
+    <span title="Rate of the user's accepted answers" class="accept_rate">accept rate:</span>
+    <span title="laserval has 2 accepted answers">50&#37;</span>
+    </p>
+</div>
+
+
+
+
+
+                                        </div>
+                                        
+
+
+
+
+<div class="comments-container" id="comments-container-111863">
+    
+        <a name="112414"></a>
+        <div class="comment" id="comment-112414">
+            <div id="post-112414-score" class="comment-score"></div>
+            <div class="comment-text"><p>hi laserval,
+I need to extract one exception from each event and show the count in the form of chat.
+The above example log is one event in which initially I extracted java.rmi.ServerException-&gt; "Server exception" but now I've to match org.springframework.jdbc.UncategorizedSQLException -&gt;  "UncategorizedSQLException" instead of Server exception.</p>
+<p>Yeah last point is valid one there could be different fully-qualified names. Any suggestion on how to tackle this problem.</p></div>
+            <div class="comment-info" id="comment-112414-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(24 Nov, 21:29)</span>
+                <a class="comment-user userinfo" href="/users/186452/prad18">prad18</a>
+                
+            </div>
+        </div>
+    
+        <a name="112627"></a>
+        <div class="comment" id="comment-112627">
+            <div id="post-112627-score" class="comment-score"></div>
+            <div class="comment-text"><blockquote>
+<p>I need to extract one exception from each event and show the count in the form of chat.
+The above example log is one event in which initially I extracted java.rmi.ServerException-&gt; "Server exception"</p>
+</blockquote>
+<p>You could have an extraction that creates a multivalue field. Then you could filter out <code>ServerException</code> and other generic ones when doing the stats and chart, so your chart can include any new exceptions that turn up.</p>
+<blockquote>
+<p>Any suggestion on how to tackle this problem.</p>
+</blockquote>
+
+<p>Extract the whole name, then categorize afterwards, e.g. <code>stats count(eval(match(exception, "SQL"))) as SQLExceptions</code>.</p></div>
+            <div class="comment-info" id="comment-112627-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(26 Nov, 01:23)</span>
+                <a class="comment-user userinfo" href="/users/143667/laserval">laserval</a>
+                
+            </div>
+        </div>
+    
+        <a name="112824"></a>
+        <div class="comment" id="comment-112824">
+            <div id="post-112824-score" class="comment-score"></div>
+            <div class="comment-text"><blockquote>
+<p>You could have an extraction that creates a multivalue field.</p>
+</blockquote>
+
+<p>How can i do this, any example or doc?</p></div>
+            <div class="comment-info" id="comment-112824-info">
+                
+                
+                
+                
+                    
+
+                <span class="comment-age">(27 Nov, 01:25)</span>
+                <a class="comment-user userinfo" href="/users/186452/prad18">prad18</a>
+                
+            </div>
+        </div>
+    
+</div>
+<div id="comment-tools-111863" class="comment-tools">
+    
+    
+</div>
+
+
+
+
+
+
+
+<div class="clear"></div>
+<div id="comment-111863-form-container" class="comment-form-container">
+    
+</div>
+<div class="clear"></div>
+
+
+
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                
+                <div class="paginator-container-left">
+                    
+                </div>
+            
+        <form id="fmanswer" action="/answers/111475/answer/" method="post"><div style='display:none;'><input type='hidden' id='csrfmiddlewaretoken' name='csrfmiddlewaretoken' value='2b2aafe37ab06b30863b33d6719fec77' /></div>
+            <div style='display:none'><input type='hidden' name='csrfmiddlewaretoken' value='2b2aafe37ab06b30863b33d6719fec77' /></div>
+            <div style="clear:both">
+            </div>
+            
+            
+                <div style="padding:10px 0 0 0;">
+                    <div class="headNormal">
+                        
+                            Post your answer
+                        
+                    </div>
+                </div>
+                
+
+                <div id="description" class="" >
+                    <div id="wmd-button-bar" class="wmd-panel"></div>
+                    <textarea rows="10" cols="40" name="text" id="editor"></textarea>
+                    <div class="preview-toggle">
+                        <table width="100%">
+                            <tr>
+                                <td>
+                                    <span id="pre-collapse" 
+                                        title="Toggle the real time Markdown editor preview">
+                                            toggle preview
+                                    </span>
+                                </td>
+                                <td style="text-align: right;" id="editor-metrics"></td>
+                                
+                            </tr>
+                        
+                        </table>  
+                    </div>
+                    
+                    <div id="previewer" class="wmd-preview"></div>
+                </div>
+
+	            
+	            <div class="question-captcha" style="float: left;">
+	            	
+	            	
+    <div id="recaptcha_field"></div>
+    <script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+
+    <script type="text/javascript">
+         $(function(){
+             Recaptcha.create("6LflV8oSAAAAADNAkdse_RYNvzGa6LyxrYEAd8hf ", 'recaptcha_field', {
+             theme: "red"});
+         });
+    </script>
+
+
+	            </div>
+	            <div class="clear"></div>
+	            
+                
+                <p><span class="form-error"></span></p>
+                <input type="button"
+                    
+                        value="Login/Signup to Post Your Answer" 
+                    
+                    class="submit" style="float:left"
+                    
+                        onclick="submitClicked(event, this.form)"
+                    
+                    />
+            
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function  () {
+                      $(document).on("click","#previewer a",function(){
+                    var hrefval = $(this).attr("href");
+
+                    if(hrefval.substr(0,11).toLowerCase() == "javascript:")
+                        return false;
+                });
+
+    })
+</script>
+
+
+        </div>
+        <div id="CARight">
+            
+    <div class="socialShare">
+	    <ul>
+            <li style="width: 50px;" id="googlePlusShare"><g:plusone size="tall" callback="trackGPlusClick"></g:plusone></li>
+            <li style="width: 46px;" id="facebookShare"><div class="fb-like" data-send="false" data-layout="box_count" data-show-faces="false" data-font="arial"></div></li>
+            <li style="width: 55px;" id="twitterShare"><a href="https://twitter.com/share" class="twitter-share-button" data-count="vertical">Tweet</a></li>
+            <li style="width: 57px;" id="linkedInShare"><script type="IN/Share" data-counter="top" data-onSuccess="linkedInShareSuccess">></script></li>
+	    </ul>
+        <div class="clearfix"></div>
+    </div>
+
+    
+
+<div class="boxC" id="subscription_box">
+    <h3 class="subtitle">Follow this question</h3><strong class="email-subscription-heading">Email:</strong><p><a href="/account/signin/">Log In</a> to enable email subscriptions</p><strong style="clear: both;">RSS:</strong><p><a class="feed-icon" href="/answers/111475/exception-matching?type=rss" title="subscribe to answers">
+                    Answers</a></p><p><a class="feed-icon"  href="/answers/111475/exception-matching?type=rss&comments=yes" title="subscribe to answers + comments">
+                    Answers + Comments</a></p>
+</div>
+
+
+<div class="boxC" id="editor_side_bar">
+    <p class="subtitle darkred">Markdown Basics</p>
+    <ul class="list-item">
+        <li>
+            *italic* or _italic_
+        </li>
+        <li>
+			**bold** or __bold__
+        </li>
+        <li>
+            <b>link</b>:[text](http://url.com/ "Title")
+
+        </li>
+
+        <li>
+            <b>image</b>?![alt text](/path/img.jpg "Title")
+
+        </li>
+        <li>
+			numbered list:
+            1.  Foo
+            2.  Bar
+        </li>
+        <li>
+			to add a line break simply add two spaces to where you would like the new line to be.
+        </li>
+        <li>
+			basic HTML tags are also supported
+        </li>
+    </ul>
+    <p class='info-box-follow-up-links'>
+        <a href="/markdown_help/" target="_blank">learn more about Markdown </a>
+    </p>
+</div>
+
+
+
+
+
+<div id="sidebar-upper" class="boxC">
+    <div class="body">
+        <h4>Splunk Resources</h4>
+
+<ul>
+
+<li><a href="http://www.splunk.com/view/SP-CAAAAD4">Official documentation</a></li>
+     </div>
+</div>
+
+
+
+
+<div class="boxC">
+    <p>
+		Tags:
+    </p>
+    <p class="tags" >
+        
+        	<a href="/tags/search/"
+            class="tag-link-search"
+			title="see questions tagged 'search' using tags"
+			rel="tag">search</a> <span class="tag-number">&#215;2,102</span><br/>
+        
+        	<a href="/tags/regex/"
+            class="tag-link-regex"
+			title="see questions tagged 'regex' using tags"
+			rel="tag">regex</a> <span class="tag-number">&#215;637</span><br/>
+        
+        	<a href="/tags/regexp/"
+            class="tag-link-regexp"
+			title="see questions tagged 'regexp' using tags"
+			rel="tag">regexp</a> <span class="tag-number">&#215;16</span><br/>
+        
+        	<a href="/tags/exception/"
+            class="tag-link-exception"
+			title="see questions tagged 'exception' using tags"
+			rel="tag">exception</a> <span class="tag-number">&#215;14</span><br/>
+        
+        <div class="clearfix"></div>
+    </p>
+    <p>
+        Asked: <strong title="Nov. 18, 2013, 4:16 a.m.">18 Nov, 04:16</strong>
+    </p>
+    <p> 
+     	Seen: <strong>197 times</strong>
+    </p>
+    <p> 
+        Last updated: <strong title="Nov. 27, 2013, 1:26 a.m.">27 Nov, 01:26</strong>
+    </p>
+</div>
+
+
+
+
+
+<div class="boxC">
+    <h3 class="subtitle">Related questions</h3>
+    <div class="questions-related">
+
+        
+        <p>
+            <a href="/answers/107565/matching-different-types-of-exception">matching different types of exception</a>
+        </p>
+        
+        <p>
+            <a href="/answers/80684/a-tabular-report-on-list-of-unique-exceptions-and-of-occurrences">A tabular report on list of unique exceptions and # of occurrences</a>
+        </p>
+        
+        <p>
+            <a href="/answers/77101/extracting-selected-hosts-with-regex-regex-hosts-with-exceptions">Extracting selected hosts with regex / Regex hosts with exceptions</a>
+        </p>
+        
+        <p>
+            <a href="/answers/58546/how-to-do-newline-splitting-for-a-single-event">How to do newline splitting for a single event</a>
+        </p>
+        
+        <p>
+            <a href="/answers/53951/exception-while-importing-data">Exception while importing data</a>
+        </p>
+        
+        <p>
+            <a href="/answers/107731/need-to-filter-out-those-error-which-occur-due-to-a-particular-deployment-for-that-sourcetype">need to filter out those error which occur due to a particular deployment for that sourcetype.</a>
+        </p>
+        
+        <p>
+            <a href="/answers/51153/managing-exceptions-from-within-splunk">Managing exceptions from within splunk</a>
+        </p>
+        
+        <p>
+            <a href="/answers/108623/stats-for-exception-reporting">Stats for exception reporting</a>
+        </p>
+        
+        <p>
+            <a href="/answers/104861/exception-when-running-a-search-in-hunk">Exception when running a search in Hunk</a>
+        </p>
+        
+
+    </div>
+</div>
+
+
+
+        </div>
+        <div id="tail" style="clear:both;">
+            
+            
+        </div>
+    </div>
+    <div class="spacer3"></div>
+</div>
+
+        
+            
+            <div id="ground">
+                
+                    <div id="footerRight">
+ <a href="http://www.splunk.com/view/SP-CAAAAAG">Privacy Policy</a>
+ <span style="color: #666;">&nbsp;|&nbsp;</span>
+ <a href="http://www.splunk.com/view/SP-CAAAAAH">Terms of Use</a>
+ <span style="color: #666;">&nbsp;|&nbsp;</span>
+ <a href="mailto:support@splunk.com">Support</a>
+ </div>
+ <div id="footerLeft">
+ Copyright &copy; 2005-2013 <a href="http://www.splunk.com/company">Splunk Inc.</a> All rights reserved.
+ </div>
+
+<!-- Eloqua -->
+
+<SCRIPT TYPE='text/javascript' LANGUAGE='JavaScript' SRC='http://coverall.splunk.com/themes/splunk_com/scripts/js/elqNow/elqCfg.js'></SCRIPT>
+<SCRIPT TYPE='text/javascript' LANGUAGE='JavaScript' SRC='http://coverall.splunk.com/themes/splunk_com/scripts/js/elqNow/elqImg.js?5.24.11'></SCRIPT>
+
+<!-- GA -->
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-399680-1']);
+  _gaq.push(['_setDomainName', 'splunk.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); 
+    ga.type = 'text/javascript'; 
+    ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; 
+    s.parentNode.insertBefore(ga, s);
+
+  })();
+
+</script>
+
+<script type="text/javascript">
+    var pageTracker;
+
+
+function checkIfAnalyticsLoaded() {
+  if (window._gat && window._gat._getTracker) {
+    pageTracker = _gat._getTracker("UA-399680-1");
+  } else {
+    // Probably want to cap the total number of times you call this.
+    setTimeout('checkIfAnalyticsLoaded()', 500);
+  }
+}
+checkIfAnalyticsLoaded()
+
+</script>
+                
+            </div>
+            
+        
+        
+<!-- Social Media Javascript -->
+
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+
+<script>
+window.fbAsyncInit = function() {
+    FB.Event.subscribe('edge.create', function(href, widget) {
+        // pageTracker._trackEvent('Question', "share_fb", ""+111475);
+        _gaq.push(['_trackEvent', 'Question', "share_fb", ""+111475]);
+
+    });
+};
+
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement(s); js.id = id;
+    js.src = "https://connect.facebook.net/en_US/all.js#appId=290024254356364&xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
+
+<script src="https://platform.twitter.com/widgets.js" type="text/javascript"></script>
+
+<script src="http://platform.linkedin.com/in.js" type="text/javascript"></script>
+
+<script>
+    function trackGPlusClick() {
+        // pageTracker._trackEvent('Question', "share_googleplus", ""+111475);
+        _gaq.push(['_trackEvent', 'Question', "share_googleplus", ""+111475]);
+
+    }
+
+    function linkedInShareSuccess() {
+        // pageTracker._trackEvent('Question', "share_linkedin", ""+111475);
+        _gaq.push(['_trackEvent', 'Question', "share_linkedin", ""+111475]);
+
+    }
+
+    twttr.ready(function (twttr) {
+        twttr.events.bind('tweet', function(event) {
+            console.log("tweet")
+            // pageTracker._trackEvent('Question', "share_twitter", ""+111475);
+        _gaq.push(['_trackEvent', 'Question', "share_twitter", ""+111475]);
+
+        });
+    });
+    
+</script>
+
+<!-- End Social Media Javascript -->
+
+        
+        </div>
+
+        <!-- Put all elements with fixed position here, IE6 fixed position fix: http://ryanfait.com/position-fixed-ie6/ -->
+        <div class="notify" style="display:none">
+            
+                
+            
+            <a id="close-notify" onclick="notify.close(true)">&#215;</a>
+        </div>
+    </body>
+</html>
+<!-- end template base_content.html -->

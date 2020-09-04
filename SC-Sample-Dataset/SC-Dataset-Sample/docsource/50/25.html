@@ -1,0 +1,2750 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en-US-x-Hixie"><head><title>HTML 5</title><style type="text/css">
+   .note { color: green; background: transparent; }
+   .example { font-style: italic; }
+   .idl { color: black; background: silver; }
+   .XXX { color: red; background: transparent; }
+   .warning { color: yellow; background: maroon; }
+   .bad { color: gray; }
+   .bad.XXX { color: red; }
+  </style><link href="http://www.w3.org/StyleSheets/TR/%57%33%43-WD" rel="stylesheet" type="text/css"><!-- ZZZ ED vs WD --><link href="interactive-elements.html" title="4.11 Interactive elements" rel="prev">
+  <link href="Overview.html#contents" title="Table of contents" rel="index">
+  <link href="offline.html" title="5.8 Offline Web applications" rel="next">
+  </head><body><div class="head">
+   <p><a href="http://www.w3.org/"><img alt="W3C" height="48" src="http://www.w3.org/Icons/w3c_home" width="72"></a></p>
+   <h1>HTML 5</h1>
+   <h2 class="no-num no-toc" id="a-vocabulary-and-associated-apis-for-html-and-xhtml">A vocabulary and associated APIs for HTML and XHTML</h2>
+   </div><div>
+   <a href="interactive-elements.html">&#8592; 4.11 Interactive elements</a> &#8211;
+   <a href="Overview.html#contents">Table of contents</a> &#8211;
+   <a href="offline.html">5.8 Offline Web applications &#8594;</a>
+  </div>
+
+  <h2 id="browsers"><span class="secno">5 </span>Web browsers</h2><p>This section describes features that apply most directly to Web
+  browsers. Having said that, unless specified elsewhere, the
+  requirements defined in this section <em>do</em> apply to all user
+  agents, whether they are Web browsers or not.</p><h3 id="windows"><span class="secno">5.1 </span>Browsing contexts</h3><p>A <dfn id="browsing-context">browsing context</dfn> is an environment in which
+  <code>Document</code> objects are presented to the user. At any
+  time, one <code>Document</code> is designated the <dfn id="active-document">active
+  document</dfn>. The collection of <code>Document</code>s is the
+  <a href="#browsing-context">browsing context</a>'s <a href="history.html#session-history">session history</a>.</p><p>Each <a href="#browsing-context">browsing context</a> has a corresponding
+  <code><a href="#windowproxy">WindowProxy</a></code> object.</p><p>Each <code>Document</code> has a collection of one or more <a href="#view" title="view">views</a>.</p><p>A <dfn id="view">view</dfn> is a user agent interface tied to a particular
+  media used for the presentation of a particular
+  <code>Document</code> object in some media. A view may be
+  interactive. Each view is represented by an
+  <code>AbstractView</code> object. <a href="references.html#references">[DOM2VIEWS]</a></p><p>The main <a href="#view">view</a> through which a user primarily
+  interacts with a user agent is the <dfn id="default-view">default view</dfn>. The
+  <code>AbstractView</code> object that represents this view must also
+  implement the <code><a href="#window">Window</a></code> interface, and is referred to as
+  the <code>Document</code>'s <code><a href="#window">Window</a></code> object.</p><p class="note">The <a href="#default-view">default view</a> of a
+  <code>Document</code> is given by the <code title="">defaultView</code> attribute on the <code>Document</code>
+  object's <code>DocumentView</code> interface. <a href="references.html#references">[DOM3VIEWS]</a></p><p class="note">The <code title="">document</code> attribute of an
+  <code>AbstractView</code> object representing a <a href="#view">view</a>
+  gives the view's corresponding <code>Document</code> object. <a href="references.html#references">[DOM2VIEWS]</a></p><p class="note">Events that use the <code>UIEvent</code> interface
+  are related to a specific <a href="#view">view</a> (the view in which the
+  event happened); the <code>AbstractView</code> of that view is given
+  in the event object's <code title="">view</code> attribute. <a href="references.html#references">[DOM3EVENTS]</a></p><p class="note">A typical Web browser has one obvious
+  <a href="#view">view</a> per <code>Document</code>: the browser's window
+  (screen media). This is typically the <a href="#default-view">default view</a>. If
+  a page is printed, however, a second view becomes evident, that of
+  the print media. The two views always share the same underlying
+  <code>Document</code> object, but they have a different presentation
+  of that object. A speech browser might have a different
+  <a href="#default-view">default view</a>, using the speech media.</p><p class="note">A <code>Document</code> does not necessarily have a
+  <a href="#browsing-context">browsing context</a> associated with it. In particular,
+  data mining tools are likely to never instantiate browsing
+  contexts.</p><hr><p>A <a href="#browsing-context">browsing context</a> can have a <dfn id="creator-browsing-context">creator browsing
+  context</dfn>, the <a href="#browsing-context">browsing context</a> that was
+  responsible for its creation. Unless otherwise specified, a
+  <a href="#browsing-context">browsing context</a> has no <a href="#creator-browsing-context">creator browsing
+  context</a>.</p><p>If a <a href="#browsing-context">browsing context</a> <var title="">A</var> has a
+  <a href="#creator-browsing-context">creator browsing context</a>, then the
+  <code>Document</code> that was the <a href="#active-document">active document</a> of
+  that <a href="#creator-browsing-context">creator browsing context</a> at the time <var title="">A</var> was created is the <dfn id="creator-document">creator
+  <code>Document</code></dfn>.</p><p>When a <a href="#browsing-context">browsing context</a> is first created, it must be
+  created with a single <code>Document</code> in its session history,
+  whose <a href="dom.html#the-document-s-address" title="the document's address">address</a> is
+  <code><a href="infrastructure.html#about:blank">about:blank</a></code>, which is marked as being an <a href="dom.html#html-documents" title="HTML documents">HTML document</a>, and whose <a href="dom.html#document-s-character-encoding" title="document's character encoding">character encoding</a> is
+  UTF-8. The <code>Document</code> must have a single child
+  <code><a href="semantics.html#the-html-element">html</a></code> node, which itself has a single child
+  <code><a href="semantics.html#the-body-element">body</a></code> node. If the <a href="#browsing-context">browsing context</a> is
+  created specifically to be immediately navigated, then that initial
+  navigation will have <a href="history.html#replacement-enabled">replacement enabled</a>.</p><p id="about-blank-origin">The <a href="#origin-0">origin</a> of the
+  <code><a href="infrastructure.html#about:blank">about:blank</a></code> <code>Document</code> is set when the
+  <code>Document</code> is created. If the new <a href="#browsing-context">browsing
+  context</a> has a <a href="#creator-browsing-context">creator browsing context</a>, then the
+  <a href="#origin-0">origin</a> of the <code><a href="infrastructure.html#about:blank">about:blank</a></code>
+  <code>Document</code> is the <a href="#origin-0">origin</a> of the
+  <a href="#creator-document">creator <code>Document</code></a>. Otherwise, the
+  <a href="#origin-0">origin</a> of the <code><a href="infrastructure.html#about:blank">about:blank</a></code>
+  <code>Document</code> is a globally unique identifier assigned when
+  the new <a href="#browsing-context">browsing context</a> is created.</p><h4 id="nested-browsing-contexts"><span class="secno">5.1.1 </span>Nested browsing contexts</h4><p>Certain elements (for example, <code><a href="embedded-content-0.html#the-iframe-element">iframe</a></code> elements) can
+  instantiate further <a href="#browsing-context" title="browsing context">browsing
+  contexts</a>. These are called <dfn id="nested-browsing-context" title="nested browsing
+  context">nested browsing contexts</dfn>. If a browsing context <var title="">P</var> has an element <var title="">E</var> in one of its
+  <code>Document</code>s <var title="">D</var> that nests another
+  browsing context <var title="">C</var> inside it, then <var title="">P</var> is said to be the <dfn id="parent-browsing-context">parent browsing
+  context</dfn> of <var title="">C</var>, <var title="">C</var> is
+  said to be a <dfn id="child-browsing-context">child browsing context</dfn> of <var title="">P</var>, <var title="">C</var> is said to be <dfn id="browsing-context-nested-through" title="browsing context nested through">nested through</dfn> <var title="">D</var>, and <var title="">E</var> is said to be the
+  <dfn id="browsing-context-container">browsing context container</dfn> of <var title="">C</var>.</p><p>A browsing context <var title="">A</var> is said to be an
+  ancestor of a browsing context <var title="">B</var> if there exists
+  a browsing context <var title="">A'</var> that is a <a href="#child-browsing-context">child
+  browsing context</a> of <var title="">A</var> and that is itself
+  an ancestor of <var title="">B</var>, or if there is a browsing
+  context <var title="">P</var> that is a <a href="#child-browsing-context">child browsing
+  context</a> of <var title="">A</var> and that is the <a href="#parent-browsing-context">parent
+  browsing context</a> of <var title="">B</var>.</p><p>The browsing context with no <a href="#parent-browsing-context">parent browsing context</a>
+  is the <dfn id="top-level-browsing-context">top-level browsing context</dfn> of all the browsing
+  contexts <a href="#nested-browsing-context" title="nested browsing context">nested</a> within
+  it (either directly or indirectly through other nested browsing
+  contexts).</p><p>The transitive closure of <a href="#parent-browsing-context" title="parent browsing
+  context">parent browsing contexts</a> for a <a href="#nested-browsing-context">nested browsing
+  context</a> gives the list of <dfn id="ancestor-browsing-context" title="ancestor browsing
+  context">ancestor browsing contexts</dfn>.</p><p>A <code>Document</code> is said to be <dfn id="fully-active">fully active</dfn>
+  when it is the <a href="#active-document">active document</a> of its <a href="#browsing-context">browsing
+  context</a>, and either its browsing context is a <a href="#top-level-browsing-context">top-level
+  browsing context</a>, or the <code>Document</code> <a href="#browsing-context-nested-through" title="browsing context nested through">through which</a> that
+  browsing context is <a href="#nested-browsing-context" title="nested browsing
+  context">nested</a> is itself <a href="#fully-active">fully active</a>.</p><p>Because they are nested through an element, <a href="#child-browsing-context" title="child
+  browsing context">child browsing contexts</a> are always tied to
+  a specific <code>Document</code> in their <a href="#parent-browsing-context">parent browsing
+  context</a>. User agents must not allow the user to interact with
+  <a href="#child-browsing-context" title="child browsing context">child browsing contexts</a>
+  of elements that are in <code>Document</code>s that are not
+  themselves <a href="#fully-active">fully active</a>.</p><p>A <a href="#nested-browsing-context">nested browsing context</a> can have a <a href="embedded-content-0.html#seamless-browsing-context-flag">seamless
+  browsing context flag</a> set, if it is embedded through an
+  <code><a href="embedded-content-0.html#the-iframe-element">iframe</a></code> element with a <code title="attr-iframe-seamless"><a href="embedded-content-0.html#attr-iframe-seamless">seamless</a></code> attribute.</p><h5 id="navigating-nested-browsing-contexts-in-the-dom"><span class="secno">5.1.1.1 </span>Navigating nested browsing contexts in the DOM</h5><p>The <dfn id="dom-top" title="dom-top"><code>top</code></dfn> DOM attribute on
+  the <code><a href="#window">Window</a></code> object of a <code>Document</code> in a
+  <a href="#browsing-context">browsing context</a> <var title="">b</var> must return the
+  <code><a href="#windowproxy">WindowProxy</a></code> object of its <a href="#top-level-browsing-context">top-level browsing
+  context</a> (which would be its own <code><a href="#windowproxy">WindowProxy</a></code>
+  object if it was a <a href="#top-level-browsing-context">top-level browsing context</a>
+  itself).</p><p>The <dfn id="dom-parent" title="dom-parent"><code>parent</code></dfn> DOM
+  attribute on the <code><a href="#window">Window</a></code> object of a
+  <code>Document</code> in a <a href="#browsing-context">browsing context</a> <var title="">b</var> must return the <code><a href="#windowproxy">WindowProxy</a></code> object of
+  the <a href="#parent-browsing-context">parent browsing context</a>, if there is one (i.e. if
+  <var title="">b</var> is a <a href="#child-browsing-context">child browsing context</a>), or
+  the <code><a href="#windowproxy">WindowProxy</a></code> object of the <a href="#browsing-context">browsing
+  context</a> <var title="">b</var> itself, otherwise (i.e. if it
+  is a <a href="#top-level-browsing-context">top-level browsing context</a>).</p><p>The <dfn id="dom-frameelement" title="dom-frameElement"><code>frameElement</code></dfn>
+  DOM attribute on the <code><a href="#window">Window</a></code> object of a
+  <code>Document</code> <var title="">d</var>, on getting, must run
+  the following algorithm:</p><ol><li><p>If <var title="">d</var> is not a <code>Document</code> in a
+   <a href="#child-browsing-context">child browsing context</a>, return null and abort these
+   steps.</p></li>
+
+   <li><p>If the <a href="#parent-browsing-context">parent browsing context</a>'s <a href="#active-document">active
+   document</a> does not have the <span>same</span> <a href="#effective-script-origin">effective
+   script origin</a> as the script that is accessing the <code title="dom-frameElement"><a href="#dom-frameelement">frameElement</a></code> attribute, then throw
+   a <code><a href="infrastructure.html#security_err">SECURITY_ERR</a></code> exception.</p></li>
+
+   <li><p>Otherwise, return the <a href="#browsing-context-container">browsing context
+   container</a> for <var title="">b</var>.</p></li>
+
+  </ol><h4 id="auxiliary-browsing-contexts"><span class="secno">5.1.2 </span>Auxiliary browsing contexts</h4><p>It is possible to create new browsing contexts that are related
+  to a <span>top level browsing context</span> without being nested
+  through an element. Such browsing contexts are called <dfn id="auxiliary-browsing-context" title="auxiliary browsing context">auxiliary browsing
+  contexts</dfn>. Auxiliary browsing contexts are always <a href="#top-level-browsing-context" title="top-level browsing context">top-level browsing
+  contexts</a>.</p><p>An <a href="#auxiliary-browsing-context">auxiliary browsing context</a> has an <dfn id="opener-browsing-context">opener
+  browsing context</dfn>, which is the <a href="#browsing-context">browsing context</a>
+  from which the <a href="#auxiliary-browsing-context">auxiliary browsing context</a> was created,
+  and it has a <dfn id="furthest-ancestor-browsing-context">furthest ancestor browsing context</dfn>, which is
+  the <a href="#top-level-browsing-context">top-level browsing context</a> of the <a href="#opener-browsing-context">opener
+  browsing context</a> when the <a href="#auxiliary-browsing-context">auxiliary browsing
+  context</a> was created.</p><h5 id="navigating-auxiliary-browsing-contexts-in-the-dom"><span class="secno">5.1.2.1 </span>Navigating auxiliary browsing contexts in the DOM</h5><p>The <dfn id="dom-opener" title="dom-opener"><code>opener</code></dfn> DOM
+  attribute on the <code><a href="#window">Window</a></code> object must return the
+  <code><a href="#windowproxy">WindowProxy</a></code> object of the <a href="#browsing-context">browsing context</a>
+  from which the current <a href="#browsing-context">browsing context</a> was created
+  (its <a href="#opener-browsing-context">opener browsing context</a>), if there is one and it
+  is still available.</p><h4 id="secondary-browsing-contexts"><span class="secno">5.1.3 </span>Secondary browsing contexts</h4><p>User agents may support <dfn id="secondary-browsing-context" title="secondary browsing
+  context">secondary browsing contexts</dfn>, which are <a href="#browsing-context" title="browsing context">browsing contexts</a> that form part of
+  the user agent's interface, apart from the main content area.</p><h4 id="security-1"><span class="secno">5.1.4 </span>Security</h4><p>A <a href="#browsing-context">browsing context</a> <var title="">A</var> is
+  <dfn id="allowed-to-navigate">allowed to navigate</dfn> a second <a href="#browsing-context">browsing
+  context</a> <var title="">B</var> if one of the following
+  conditions is true:</p><ul><li>Either the <a href="#origin-0">origin</a> of the <a href="#active-document">active
+   document</a> of <var title="">A</var> is the <a href="#same-origin" title="same
+   origin">same</a> as the <a href="#origin-0">origin</a> of the <a href="#active-document">active
+   document</a> of <var title="">B</var>, or</li>
+
+   <li>The browsing context <var title="">A</var> is a <a href="#nested-browsing-context">nested
+   browsing context</a> and its <a href="#top-level-browsing-context">top-level browsing
+   context</a> is <var title="">B</var>, or</li>
+
+   <li>The browsing context <var title="">B</var> is an
+   <a href="#auxiliary-browsing-context">auxiliary browsing context</a> and <var title="">A</var>
+   is <a href="#allowed-to-navigate">allowed to navigate</a> <var title="">B</var>'s
+   <a href="#opener-browsing-context">opener browsing context</a>, or</li>
+
+   <li>The browsing context <var title="">B</var> is not a
+   <a href="#top-level-browsing-context">top-level browsing context</a>, but there exists an
+   <a href="#ancestor-browsing-context">ancestor browsing context</a> of <var title="">B</var>
+   whose <a href="#active-document">active document</a> has the <a href="#same-origin" title="same
+   origin">same</a> <a href="#origin-0">origin</a> as the <a href="#active-document">active
+   document</a> of <var title="">A</var> (possibly in fact being
+   <var title="">A</var> itself).</li>
+
+  </ul><h4 id="groupings-of-browsing-contexts"><span class="secno">5.1.5 </span>Groupings of browsing contexts</h4><p>Each <a href="#browsing-context">browsing context</a> is defined as having a list of
+  zero or more <dfn id="directly-reachable-browsing-contexts">directly reachable browsing contexts</dfn>. These
+  are:</p><ul><li>All the <a href="#browsing-context">browsing context</a>'s <a href="#child-browsing-context" title="child
+   browsing context">child browsing contexts</a>.</li>
+
+   <li>The <a href="#browsing-context">browsing context</a>'s <a href="#parent-browsing-context">parent browsing
+   context</a>.</li>
+
+   <li>All the <a href="#browsing-context" title="browsing context">browsing contexts</a>
+   that have the <a href="#browsing-context">browsing context</a> as their <a href="#opener-browsing-context">opener
+   browsing context</a>.</li>
+
+   <li>The <a href="#browsing-context">browsing context</a>'s <a href="#opener-browsing-context">opener browsing
+   context</a>.</li>
+
+  </ul><p>The transitive closure of all the <a href="#browsing-context" title="browsing
+  context">browsing contexts</a> that are <a href="#directly-reachable-browsing-contexts">directly reachable
+  browsing contexts</a> forms a <dfn id="unit-of-related-browsing-contexts">unit of related browsing
+  contexts</dfn>.</p><p>Each <a href="#unit-of-related-browsing-contexts">unit of related browsing contexts</a> is then
+  further divided into the smallest number of groups such that every
+  member of each group has an <a href="#effective-script-origin">effective script origin</a>
+  that, through appropriate manipulation of the <code title="dom-document-domain"><a href="#dom-document-domain">document.domain</a></code> attribute, could
+  be made to be the same as other members of the group, but could not
+  be made the same as members of any other group. Each such group is a
+  <dfn id="unit-of-related-similar-origin-browsing-contexts">unit of related similar-origin browsing contexts</dfn>.</p><p>Each <a href="#unit-of-related-similar-origin-browsing-contexts">unit of related similar-origin browsing
+  contexts</a> can have a <dfn id="first-script">first script</dfn> which is used to
+  obtain, amongst other things, the <a href="#script-s-base-url">script's base URL</a> to
+  <a href="infrastructure.html#resolve-a-url" title="resolve a url">resolve</a> relative <a href="infrastructure.html#url" title="URL">URLs</a> used in scripts running in that <a href="#unit-of-related-similar-origin-browsing-contexts">unit
+  of related similar-origin browsing contexts</a>. Initially there
+  is no <a href="#first-script">first script</a>.</p><h4 id="browsing-context-names"><span class="secno">5.1.6 </span>Browsing context names</h4><p>Browsing contexts can have a <dfn id="browsing-context-name">browsing context name</dfn>. By
+  default, a browsing context has no name (its name is not set).</p><p>A <dfn id="valid-browsing-context-name">valid browsing context name</dfn> is any string with at
+  least one character that does not start with a U+005F LOW LINE
+  character. (Names starting with an underscore are reserved for
+  special keywords.)</p><p>A <dfn id="valid-browsing-context-name-or-keyword">valid browsing context name or keyword</dfn> is any string
+  that is either a <a href="#valid-browsing-context-name">valid browsing context name</a> or that is
+  an <a href="infrastructure.html#ascii-case-insensitive">ASCII case-insensitive</a> match for one of: <code title="">_blank</code>, <code title="">_self</code>, <code title="">_parent</code>, or <code title="">_top</code>.</p><p><dfn id="the-rules-for-choosing-a-browsing-context-given-a-browsing-context-name">The rules for choosing a browsing context given a browsing
+  context name</dfn> are as follows. The rules assume that they are
+  being applied in the context of a <a href="#browsing-context">browsing context</a>.</p><ol><li><p>If the given browsing context name is the empty string or
+   <code title="">_self</code>, then the chosen browsing context must
+   be the current one.</p></li>
+
+   <li><p>If the given browsing context name is <code title="">_parent</code>, then the chosen browsing context must be
+   the <a href="#parent-browsing-context"><em>parent</em> browsing context</a> of the current
+   one, unless there isn't one, in which case the chosen browsing
+   context must be the current browsing context.</p></li>
+
+   <li><p>If the given browsing context name is <code title="">_top</code>, then the chosen browsing context must be the
+   most <a href="#top-level-browsing-context">top-level browsing context</a> of the current
+   one.</p></li>
+
+   <li>
+
+    <p>If the given browsing context name is not <code title="">_blank</code> and there exists a browsing context whose
+    <a href="#browsing-context-name" title="browsing context name">name</a> is the same as the
+    given browsing context name, and the current browsing context is
+    <a href="#allowed-to-navigate">allowed to navigate</a> that browsing context, and the
+    user agent determines that the two browsing contexts are related
+    enough that it is ok if they reach each other, then that browsing
+    context must be the chosen one. If there are multiple matching
+    browsing contexts, the user agent should select one in some
+    arbitrary consistent manner, such as the most recently opened,
+    most recently focused, or more closely related.</p>
+
+   </li>
+
+   <li>
+
+    <p>Otherwise, a new browsing context is being requested, and what
+    happens depends on the user agent's configuration and/or
+    abilities:</p>
+
+    <dl><dt id="sandboxWindowOpen">If the current browsing context has
+     the <a href="embedded-content-0.html#sandboxed-navigation-browsing-context-flag">sandboxed navigation browsing context flag</a>
+     set.</dt>
+
+     <dd>The user agent may offer to create a new <a href="#top-level-browsing-context">top-level
+     browsing context</a> or reuse an existing <a href="#top-level-browsing-context">top-level
+     browsing context</a>. If the user picks one of those options,
+     then the designated browsing context must be the chosen one (the
+     browsing context's name isn't set to the given browsing context
+     name). Otherwise (if the user agent doesn't offer the option to
+     the user, or if the user declines to allow a browsing context to
+     be used) there must not be a chosen browsing context.</dd>
+
+     <dt id="noopener">If the user agent has been configured such that
+     in this instance it will create a new browsing context, and the
+     browsing context is being requested as part of <a href="structured-client-side-storage.html#following-hyperlinks" title="following hyperlinks">following a hyperlink</a> whose
+     <a href="structured-client-side-storage.html#linkTypes">link types</a> include the <code title="rel-noreferrer"><a href="structured-client-side-storage.html#link-type-noreferrer">noreferrer</a></code> keyword</dt>
+
+     <dd>A new <a href="#top-level-browsing-context">top-level browsing context</a> must be
+     created. If the given browsing context name is not <code title="">_blank</code>, then the new top-level browsing context's
+     name must be the given browsing context name (otherwise, it has
+     no name). The chosen browsing context must be this new browsing
+     context. If it is immediately <a href="history.html#navigate" title="navigate">navigated</a>, then the navigation will be
+     done with <a href="history.html#replacement-enabled">replacement enabled</a>.</dd>
+
+     <dt>If the user agent has been configured such that in this
+     instance it will create a new browsing context, and the <code title="rel-noreferrer"><a href="structured-client-side-storage.html#link-type-noreferrer">noreferrer</a></code> keyword doesn't
+     apply</dt>
+
+     <dd>A new <a href="#auxiliary-browsing-context">auxiliary browsing context</a> must be
+     created, with the <a href="#opener-browsing-context">opener browsing context</a> being the
+     current one. If the given browsing context name is not <code title="">_blank</code>, then the new auxiliary browsing context's
+     name must be the given browsing context name (otherwise, it has
+     no name). The chosen browsing context must be this new browsing
+     context. If it is immediately <a href="history.html#navigate" title="navigate">navigated</a>, then the navigation will be
+     done with <a href="history.html#replacement-enabled">replacement enabled</a>.</dd>
+
+     <dt>If the user agent has been configured such that in this
+     instance it will reuse the current browsing context</dt>
+
+     <dd>The chosen browsing context is the current browsing
+     context.</dd>
+
+     <dt>If the user agent has been configured such that in this
+     instance it will not find a browsing context</dt>
+
+     <dd>There must not be a chosen browsing context.</dd>
+
+    </dl><p>User agent implementors are encouraged to provide a way for
+    users to configure the user agent to always reuse the current
+    browsing context.</p>
+
+   </li>
+
+  </ol><h3 id="the-windowproxy-object"><span class="secno">5.2 </span>The <code><a href="#windowproxy">WindowProxy</a></code> object</h3><p>As mentioned earlier, each <a href="#browsing-context">browsing context</a> has a
+  <dfn id="windowproxy">WindowProxy</dfn> object. This object is unusual in that it
+  must proxy all operations to the <code><a href="#window">Window</a></code> object of the
+  <a href="#browsing-context">browsing context</a>'s <a href="#active-document">active document</a>. It is
+  thus indistinguishable from that <code><a href="#window">Window</a></code> object in every
+  way, except that it is not equal to it.</p><h3 id="the-window-object"><span class="secno">5.3 </span>The <code><a href="#window">Window</a></code> object</h3><pre class="idl">[<a href="#dom-window-item" title="dom-window-item">IndexGetter</a>, <a href="#dom-window-nameditem" title="dom-window-namedItem">NameGetter</a>=OverrideBuiltins]
+interface <dfn id="window">Window</dfn> {
+  // the current browsing context
+  readonly attribute <a href="#windowproxy">WindowProxy</a> <a href="#dom-window" title="dom-window">window</a>;
+  readonly attribute <a href="#windowproxy">WindowProxy</a> <a href="#dom-self" title="dom-self">self</a>;
+           attribute DOMString <a href="#dom-name" title="dom-name">name</a>;
+  [PutForwards=href] readonly attribute <a href="history.html#location">Location</a> <a href="history.html#dom-document-location" title="dom-document-location">location</a>;
+  readonly attribute <a href="history.html#history-1">History</a> <a href="history.html#dom-history" title="dom-history">history</a>;
+  readonly attribute <a href="editing.html#undomanager">UndoManager</a> <a href="editing.html#dom-undomanager" title="dom-undoManager">undoManager</a>;
+  <a href="editing.html#selection-0">Selection</a> <a href="editing.html#dom-getselection" title="dom-getSelection">getSelection</a>();
+  [Replaceable] readonly attribute <a href="#barprop">BarProp</a> <a href="#dom-window-locationbar" title="dom-window-locationbar">locationbar</a>;
+  [Replaceable] readonly attribute <a href="#barprop">BarProp</a> <a href="#dom-window-menubar" title="dom-window-menubar">menubar</a>;
+  [Replaceable] readonly attribute <a href="#barprop">BarProp</a> <a href="#dom-window-personalbar" title="dom-window-personalbar">personalbar</a>;
+  [Replaceable] readonly attribute <a href="#barprop">BarProp</a> <a href="#dom-window-scrollbars" title="dom-window-scrollbars">scrollbars</a>;
+  [Replaceable] readonly attribute <a href="#barprop">BarProp</a> <a href="#dom-window-statusbar" title="dom-window-statusbar">statusbar</a>;
+  [Replaceable] readonly attribute <a href="#barprop">BarProp</a> <a href="#dom-window-toolbar" title="dom-window-toolbar">toolbar</a>;<!--
+  [Replaceable] readonly attribute <span>BarProp</span> <span title="dom-window-directories">directories</span>; // legacy (Gecko-only) -->
+  void <a href="#dom-window-close" title="dom-window-close">close</a>();
+  void <a href="editing.html#dom-window-focus" title="dom-window-focus">focus</a>();
+  void <a href="editing.html#dom-window-blur" title="dom-window-blur">blur</a>();
+
+  // other browsing contexts
+  readonly attribute <a href="#windowproxy">WindowProxy</a> <a href="#dom-frames" title="dom-frames">frames</a>;
+  readonly attribute unsigned long <a href="#dom-length" title="dom-length">length</a>;
+  readonly attribute <a href="#windowproxy">WindowProxy</a> <a href="#dom-top" title="dom-top">top</a>;
+  [Replaceable] readonly attribute <a href="#windowproxy">WindowProxy</a> <a href="#dom-opener" title="dom-opener">opener</a>;
+  readonly attribute <a href="#windowproxy">WindowProxy</a> <a href="#dom-parent" title="dom-parent">parent</a>;
+  readonly attribute <span>Element</span> <a href="#dom-frameelement" title="dom-frameElement">frameElement</a>;
+  <a href="#windowproxy">WindowProxy</a> <a href="#dom-open" title="dom-open">open</a>([Optional] in DOMString url, [Optional] in DOMString target, [Optional] in DOMString features, [Optional] in DOMString replace);
+
+  // the user agent
+  readonly attribute <a href="#navigator">Navigator</a> <a href="#dom-navigator" title="dom-navigator">navigator</a>; <!-- XXX IE6 also has window.clientInformation pointing to this same object -->
+  readonly attribute <a href="structured-client-side-storage.html#storage-0">Storage</a> <a href="structured-client-side-storage.html#dom-localstorage" title="dom-localStorage">localStorage</a>;
+  readonly attribute <a href="structured-client-side-storage.html#storage-0">Storage</a> <a href="structured-client-side-storage.html#dom-sessionstorage" title="dom-sessionStorage">sessionStorage</a>;
+  <a href="structured-client-side-storage.html#database">Database</a> <a href="structured-client-side-storage.html#dom-opendatabase" title="dom-opendatabase">openDatabase</a>(in DOMString name, in DOMString version, in DOMString displayName, in unsigned long estimatedSize);
+  readonly attribute <a href="offline.html#applicationcache">ApplicationCache</a> <a href="offline.html#dom-applicationcache" title="dom-applicationCache">applicationCache</a>;
+
+  // user prompts
+  void <a href="#dom-alert" title="dom-alert">alert</a>(in DOMString message);
+  boolean <a href="#dom-confirm" title="dom-confirm">confirm</a>(in DOMString message);
+  DOMString <a href="#dom-prompt" title="dom-prompt">prompt</a>(in DOMString message, [Optional] in DOMString default);
+  void <a href="#dom-print" title="dom-print">print</a>();
+  any <a href="#dom-showmodaldialog" title="dom-showModalDialog">showModalDialog</a>(in DOMString url, [Optional] in any argument<!--, [Optional] in DOMString features-->);<!-- XXX-NOTIFY
+  void <span title="dom-showNotification">showNotification</span>(in DOMString title, in DOMString subtitle, in DOMString description, [Optional] in VoidCallback onclick);-->
+
+  // <a href="comms.html#crossDocumentMessages">cross-document messaging</a>
+  void <a href="comms.html#dom-window-postmessage-2" title="dom-window-postMessage-2">postMessage</a>(in any message, in DOMString targetOrigin);
+  void <a href="comms.html#dom-window-postmessage-3" title="dom-window-postMessage-3">postMessage</a>(in any message, in <a href="comms.html#messageport">MessagePort</a> messagePort, in DOMString targetOrigin);
+
+  // <a href="#event-handler-dom-attributes">event handler DOM attributes</a>
+           attribute <a href="#function">Function</a> <a href="#handler-onabort" title="handler-onabort">onabort</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onbeforeunload" title="handler-window-onbeforeunload">onbeforeunload</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onblur" title="handler-onblur">onblur</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onchange" title="handler-onchange">onchange</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onclick" title="handler-onclick">onclick</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-oncontextmenu" title="handler-oncontextmenu">oncontextmenu</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-ondblclick" title="handler-ondblclick">ondblclick</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-ondrag" title="handler-ondrag">ondrag</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-ondragend" title="handler-ondragend">ondragend</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-ondragenter" title="handler-ondragenter">ondragenter</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-ondragleave" title="handler-ondragleave">ondragleave</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-ondragover" title="handler-ondragover">ondragover</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-ondragstart" title="handler-ondragstart">ondragstart</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-ondrop" title="handler-ondrop">ondrop</a>;
+           attribute any     <!--      --> <a href="#handler-window-onerror" title="handler-window-onerror">onerror</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onfocus" title="handler-onfocus">onfocus</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onhashchange" title="handler-window-onhashchange">onhashchange</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onkeydown" title="handler-onkeydown">onkeydown</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onkeypress" title="handler-onkeypress">onkeypress</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onkeyup" title="handler-onkeyup">onkeyup</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onload" title="handler-window-onload">onload</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onmessage" title="handler-window-onmessage">onmessage</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onmousedown" title="handler-onmousedown">onmousedown</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onmousemove" title="handler-onmousemove">onmousemove</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onmouseout" title="handler-onmouseout">onmouseout</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onmouseover" title="handler-onmouseover">onmouseover</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onmouseup" title="handler-onmouseup">onmouseup</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onmousewheel" title="handler-onmousewheel">onmousewheel</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-ononline" title="handler-window-ononline">ononline</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onoffline" title="handler-window-onoffline">onoffline</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onpopstate" title="handler-window-onpopstate">onpopstate</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onresize" title="handler-window-onresize">onresize</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onscroll" title="handler-onscroll">onscroll</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onselect" title="handler-onselect">onselect</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onstorage" title="handler-window-onstorage">onstorage</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-onsubmit" title="handler-onsubmit">onsubmit</a>;
+           attribute <a href="#function">Function</a> <a href="#handler-window-onunload" title="handler-window-onunload">onunload</a>;
+};</pre><!-- XXX http://msdn.microsoft.com/workshop/author/dhtml/reference/objects/obj_window.asp
+          http://www.mozilla.org/docs/dom/domref/dom_window_ref.html
+          http://lxr.mozilla.org/mozilla/source/dom/public/idl/base/nsIDOMWindow.idl - scrollBy, etc
+          http://lxr.mozilla.org/mozilla/source/dom/public/idl/base/nsIDOMWindowInternal.idl - DOM level 0
+   --><p>The <code><a href="#window">Window</a></code> object must also implement the
+  <code>EventTarget</code> interface.</p><p>The <dfn id="dom-window" title="dom-window"><code>window</code></dfn>, <dfn id="dom-frames" title="dom-frames"><code>frames</code></dfn>, and <dfn id="dom-self" title="dom-self"><code>self</code></dfn> DOM attributes must all
+  return the <code><a href="#window">Window</a></code> object's <a href="#browsing-context">browsing
+  context</a>'s <code><a href="#windowproxy">WindowProxy</a></code> object.</p><h4 id="security-2"><span class="secno">5.3.1 </span>Security</h4><p>User agents must raise a <code><a href="infrastructure.html#security_err">SECURITY_ERR</a></code> exception
+  whenever any of the members of a <code><a href="#window">Window</a></code> object are
+  accessed by scripts whose <a href="#effective-script-origin">effective script origin</a> is
+  not the same as the <code><a href="#window">Window</a></code> object's
+  <code>Document</code>'s <a href="#effective-script-origin">effective script origin</a>, with
+  the following exceptions:</p><ul><li>The <code title="dom-location"><a href="history.html#dom-location">location</a></code> object
+
+   </li><li>The <code title="dom-window-postMessage-2"><a href="comms.html#dom-window-postmessage-2">postMessage()</a></code>
+   method with two arguments
+
+   </li><li>The <code title="dom-window-postMessage-3"><a href="comms.html#dom-window-postmessage-3">postMessage()</a></code>
+   method with three arguments
+
+   </li><li>The <code title="dom-frames"><a href="#dom-frames">frames</a></code> attribute
+
+   </li><li>The <a href="#dynamic-nested-browsing-context-properties">dynamic nested browsing context properties</a>
+
+  </li></ul><p>User agents must not allow scripts to override the <code title="dom-location"><a href="history.html#dom-location">location</a></code> object's setter.</p><h4 id="apis-for-creating-and-navigating-browsing-contexts-by-name"><span class="secno">5.3.2 </span>APIs for creating and navigating browsing contexts by name</h4><p>The <dfn id="dom-open" title="dom-open"><code>open()</code></dfn> method on
+  <code><a href="#window">Window</a></code> objects provides a mechanism for <a href="history.html#navigate" title="navigate">navigating</a> an existing <a href="#browsing-context">browsing
+  context</a> or opening and navigating an <a href="#auxiliary-browsing-context">auxiliary browsing
+  context</a>.</p><p>The method has four arguments, though they are all optional.</p><p>The first argument, <var title="">url</var>, must be a
+  <a href="infrastructure.html#valid-url">valid URL</a> for a page to load in the browsing
+  context. If no arguments are provided, or if the first argument is
+  the empty string, then the <var title="">url</var> argument defaults
+  to "<code><a href="infrastructure.html#about:blank">about:blank</a></code>". The argument must be <a href="infrastructure.html#resolve-a-url" title="resolve a url">resolved</a> to an <a href="infrastructure.html#absolute-url">absolute
+  URL</a> (or an error), relative to the <a href="#first-script">first
+  script</a>'s <a href="#script-s-base-url" title="script's base URL">base URL</a>,
+  when the method is invoked.</p><p>The second argument, <var title="">target</var>, specifies the
+  <a href="#browsing-context-name" title="browsing context name">name</a> of the browsing
+  context that is to be navigated. It must be a <a href="#valid-browsing-context-name-or-keyword">valid browsing
+  context name or keyword</a>. If fewer than two arguments are
+  provided, then the <var title="">name</var> argument defaults to the
+  value "<code>_blank</code>".</p><p>The third argument, <var title="">features</var>, has no effect
+  and is supported for historical reasons only.</p><p>The fourth argument, <var title="">replace</var>, specifies
+  whether or not the new page will <a href="history.html#replacement-enabled" title="replacement
+  enabled">replace</a> the page currently loaded in the browsing
+  context, when <var title="">target</var> identifies an existing
+  browsing context (as opposed to leaving the current page in the
+  browsing context's <a href="history.html#session-history">session history</a>). When three or
+  fewer arguments are provided, <var title="">replace</var> defaults
+  to false.</p><p>When the method is invoked, the user agent must first select a
+  <a href="#browsing-context">browsing context</a> to navigate by applying <a href="#the-rules-for-choosing-a-browsing-context-given-a-browsing-context-name">the
+  rules for choosing a browsing context given a browsing context
+  name</a> using the <var title="">target</var> argument as the
+  name and the <a href="#browsing-context">browsing context</a> of the script as the
+  context in which the algorithm is executed, unless the user has
+  indicated a preference, in which case the browsing context to
+  navigate may instead be the one indicated by the user.</p><p class="example">For example, suppose there is a user agent that
+  supports control-clicking a link to open it in a new tab. If a user
+  clicks in that user agent on an element whose <code title="handler-onclick"><a href="#handler-onclick">onclick</a></code> handler uses the <code title="dom-open"><a href="#dom-open">window.open()</a></code> API to open a page in an
+  iframe, but, while doing so, holds the control key down, the user
+  agent could override the selection of the target browsing context to
+  instead target a new tab.</p><p>Then, the user agent must <a href="history.html#navigate">navigate</a> the selected
+  <a href="#browsing-context">browsing context</a> to the <a href="infrastructure.html#absolute-url">absolute URL</a> (or
+  error) obtained from <a href="infrastructure.html#resolve-a-url" title="resolve a url">resolving</a>
+  <var title="">url</var> earlier. If the <var title="">replace</var>
+  is true, then <a href="history.html#replacement-enabled" title="replacement enabled">replacement must be
+  enabled</a>; otherwise, it must not be enabled unless the
+  <a href="#browsing-context">browsing context</a> was just created as part of the
+  <a href="#the-rules-for-choosing-a-browsing-context-given-a-browsing-context-name">the rules for choosing a browsing context given a browsing
+  context name</a>. The navigation must be done with the <a href="#script-s-browsing-context" title="script's browsing context">browsing context</a> of the
+  <a href="#concept-script" title="concept-script">script</a> that invoked the method
+  as the <a href="history.html#source-browsing-context">source browsing context</a>.</p><p>The method must return the <code><a href="#windowproxy">WindowProxy</a></code> object of the
+  <a href="#browsing-context">browsing context</a> that was navigated, or null if no
+  browsing context was navigated.</p><hr><p>The <dfn id="dom-name" title="dom-name"><code>name</code></dfn> attribute of
+  the <code><a href="#window">Window</a></code> object must, on getting, return the current
+  name of the <a href="#browsing-context">browsing context</a>, and, on setting, set the
+  name of the <a href="#browsing-context">browsing context</a> to the new value.</p><p class="note">The name <a href="history.html#resetBCName">gets reset</a> when
+  the browsing context is navigated to another domain.</p><hr><p>The <dfn id="dom-window-close" title="dom-window-close"><code>close()</code></dfn>
+  method on <code><a href="#window">Window</a></code> objects should, if the corresponding
+  <a href="#browsing-context">browsing context</a> <var title="">A</var> is an
+  <a href="#auxiliary-browsing-context">auxiliary browsing context</a> that was created by a script
+  (as opposed to by an action of the user), and if the <a href="#script-s-browsing-context" title="script's browsing context">browsing context</a> of the
+  <a href="#concept-script" title="concept-script">script</a> that invokes the method
+  is <a href="#allowed-to-navigate">allowed to navigate</a> the <a href="#browsing-context">browsing
+  context</a> <var title="">A</var>, close the <a href="#browsing-context">browsing
+  context</a> <var title="">A</var> (and may <a href="#a-browsing-context-is-discarded" title="a
+  browsing context is discarded">discard</a> it too).</p><h4 id="accessing-other-browsing-contexts"><span class="secno">5.3.3 </span>Accessing other browsing contexts</h4><p>The <dfn id="dom-length" title="dom-length"><code>length</code></dfn> DOM
+  attribute on the <code><a href="#window">Window</a></code> interface must return the
+  number of <a href="#child-browsing-context" title="child browsing context">child browsing
+  contexts</a> of the <code>Document</code>.</p><p>The <span>indices of the supported indexed properties</span> on
+  the <code><a href="#window">Window</a></code> object at any instant are the numbers in the
+  range 0 .. <span><var title="">n</var>-1</span>, where <var title="">n</var> is the number of <a href="#child-browsing-context" title="child browsing
+  context">child browsing contexts</a> of the
+  <code>Document</code>. If <var title="">n</var> is zero then there
+  are no <span>supported indexed properties</span>.</p><p>When a <code><a href="#window">Window</a></code> object is <dfn id="dom-window-item" title="dom-window-item">indexed to retrieve an indexed
+  property</dfn> <var title="">index</var>, the value returned must be
+  the <var title="">index</var>th <a href="#child-browsing-context">child browsing context</a>
+  of the <code>Document</code>, sorted in the <a href="infrastructure.html#tree-order">tree order</a>
+  of the elements nesting those <a href="#browsing-context" title="browsing
+  context">browsing contexts</a>.</p><p>These properties are the <dfn id="dynamic-nested-browsing-context-properties">dynamic nested browsing context
+  properties</dfn>.</p><h4 id="garbage-collection-and-browsing-contexts"><span class="secno">5.3.4 </span>Garbage collection and browsing contexts</h4><p>A <a href="#browsing-context">browsing context</a> has a strong reference to each of
+  its <code>Document</code>s and its <code>WindowProxt</code> object,
+  and the user agent itself has a strong reference to its <a href="#top-level-browsing-context" title="top-level browsing context">top-level browsing
+  contexts</a>.</p><p>A <code>Document</code> has a strong reference to each of its
+  <a href="#view" title="view">views</a> and their <code>AbstractView</code>
+  objects.</p><p>When a <a href="#browsing-context">browsing context</a> is to <dfn id="discard-a-document">discard a
+  <code>Document</code></dfn>, that means that it is to lose the
+  strong reference from the <code>Document</code>'s <a href="#browsing-context">browsing
+  context</a> to the <code>Document</code>.</p><p class="note">The <a href="#browsing-context">browsing context</a>'s <a href="#default-view">default
+  view</a>'s <code><a href="#window">Window</a></code> object <a href="infrastructure.html#implied-strong-reference" title="implied strong
+  reference">has a strong reference of its own</a> to its
+  <code>Document</code> object.</p><p>When <dfn id="a-browsing-context-is-discarded">a <em><span>browsing context</span></em> is
+  discarded</dfn>, the strong reference from the user agent itself to
+  the <a href="#browsing-context">browsing context</a> must be severed, and all the
+  <code>Document</code> objects for all the entries in the
+  <a href="#browsing-context">browsing context</a>'s session history must be <a href="#discard-a-document" title="discard a document">discarded</a> as well.</p><p>User agents may <a href="#a-browsing-context-is-discarded" title="a browsing context is
+  discarded">discard</a> <a href="#top-level-browsing-context" title="top-level browsing
+  context">top-level browsing contexts</a> at any time (typically,
+  in response to user requests, e.g. when a user closes a window
+  containing one or more <a href="#top-level-browsing-context" title="top-level browsing
+  context">top-level browsing contexts</a>). Other <a href="#browsing-context" title="browsing context">browsing contexts</a> must be discarded
+  once their <code><a href="#windowproxy">WindowProxy</a></code> object is eligible for garbage
+  collection.</p><h4 id="named-access-on-the-window-object"><span class="secno">5.3.5 </span>Named access on the <code><a href="#window">Window</a></code> object</h4><p>The <code><a href="#window">Window</a></code> interface <span title="support named
+  properties">supports named properties</span>. The <span>names of the
+  supported named properties</span> at any moment consist of:</p><ul><li>The value of the <code title="">name</code> content attribute
+   for all <code><a href="text-level-semantics.html#the-a-element">a</a></code>, <code><a href="obsolete-features.html#the-applet-element">applet</a></code>, <code><a href="the-canvas-element.html#the-area-element">area</a></code>,
+   <code><a href="embedded-content-0.html#the-embed-element">embed</a></code>, <code>frame</code>, <code>frameset</code>,
+   <code><a href="forms.html#the-form-element">form</a></code>, <code><a href="embedded-content-0.html#the-iframe-element">iframe</a></code>, <code><a href="embedded-content-0.html#the-img-element">img</a></code>, and
+   <code><a href="embedded-content-0.html#the-object-element">object</a></code> elements in the <a href="#active-document">active document</a>
+   that have a <code title="">name</code> content attribute, and,</li>
+
+   <li>The value of the <code title="attr-id"><a href="dom.html#the-id-attribute">id</a></code> content
+   attribute of any <a href="infrastructure.html#html-elements" title="HTML elements">HTML element</a> in
+   the <a href="#active-document">active document</a> with an <code title="attr-id"><a href="dom.html#the-id-attribute">id</a></code> content attribute.</li>
+
+  </ul><p>When <dfn id="dom-window-nameditem" title="dom-window-namedItem">the <code>Window</code>
+  object is indexed for property retrieval</dfn> using a name <var title="">name</var>, then the user agent must return the value
+  obtained using the following steps:</p><ol><li>
+
+    <p>Let <var title="">elements</var> be the list of <a href="#dom-window-nameditem-filter" title="dom-window-namedItem-filter">named elements</a> with the
+    name <var title="">name</var> in the <a href="#active-document">active document</a>.
+
+    </p><p class="note">There will be at least one such element, by
+    definition.<!-- (If there wasn't, then this algorithm wouldn't
+    have been invoked by WebIDL.) --></p>
+
+   </li>
+
+   <li>
+
+    <p>If <var title="">elements</var> contains an <code><a href="embedded-content-0.html#the-iframe-element">iframe</a></code>
+    element, then return the <code><a href="#windowproxy">WindowProxy</a></code> object of the
+    <a href="#nested-browsing-context">nested browsing context</a> represented by the first such
+    <code><a href="embedded-content-0.html#the-iframe-element">iframe</a></code> element in <a href="infrastructure.html#tree-order">tree order</a>, and abort
+    these steps.</p>
+
+   </li>
+
+   <li>
+
+    <p>Otherwise, if <var title="">elements</var> has only one
+    element, return that element and abort these steps.</p>
+
+   </li>
+
+   <li>
+
+    <p>Otherwise return an <code><a href="infrastructure.html#htmlcollection-0">HTMLCollection</a></code> rooted at the
+    <code>Document</code> node, whose filter matches only <a href="#dom-window-nameditem-filter" title="dom-window-namedItem-filter">named elements</a> with
+    the name <var title="">name</var>.</p> <!-- the same one each time
+    is returned, because of the rule under collections -->
+
+   </li>
+
+  </ol><p><dfn id="dom-window-nameditem-filter" title="dom-window-nameditem-filter">Named elements</dfn>
+  with the name <var title="">name</var>, for the purposes of the
+  above algorithm, are those that are either:</p><ul><li><code><a href="text-level-semantics.html#the-a-element">a</a></code>, <code><a href="obsolete-features.html#the-applet-element">applet</a></code>, <code><a href="the-canvas-element.html#the-area-element">area</a></code>,
+   <code><a href="embedded-content-0.html#the-embed-element">embed</a></code>, <code><a href="forms.html#the-form-element">form</a></code>, <code>frame</code>,
+   <code>frameset</code>, <code><a href="embedded-content-0.html#the-iframe-element">iframe</a></code>, <code><a href="embedded-content-0.html#the-img-element">img</a></code>, or
+   <code><a href="embedded-content-0.html#the-object-element">object</a></code> elements that have a <code title="attr-name">name</code> content attribute whose value is <var title="">name</var>, or</li>
+
+   <li><a href="infrastructure.html#html-elements">HTML elements</a> elements that have an <code title="attr-id"><a href="dom.html#the-id-attribute">id</a></code> content attribute whose value is <var title="">name</var>.</li>
+
+  </ul><h4 id="browser-interface-elements"><span class="secno">5.3.6 </span>Browser interface elements</h4><p>To allow Web pages to integrate with Web browsers, certain Web
+  browser interface elements are exposed in a limited way to scripts
+  in Web pages.</p><p>Each interface element is represented by a <code><a href="#barprop">BarProp</a></code>
+  object:</p><pre class="idl">interface <dfn id="barprop">BarProp</dfn> {
+           attribute boolean <a href="#dom-barprop-visible" title="dom-BarProp-visible">visible</a>;
+};</pre><p>The <dfn id="dom-barprop-visible" title="dom-BarProp-visible">visible</dfn> attribute, on
+  getting, must return either true or a value determined by the user
+  agent to most accurately represent the visibility state of the user
+  interface element that the object represents, as described below. On
+  setting, the new value must be discarded.</p><p>The following <code><a href="#barprop">BarProp</a></code> objects exist for each
+  <code>Document</code> object in a <a href="#browsing-context">browsing
+  context</a>. Some of the user interface elements represented by
+  these objects might have no equivalent in some user agents; for
+  those user agents, unless otherwise specified, the object must act
+  as if it was present and visible (i.e. its <code title="dom-BarProp-visible"><a href="#dom-barprop-visible">visible</a></code> attribute must return
+  true).</p><dl><dt><dfn id="the-location-bar-barprop-object">The location bar <code>BarProp</code> object</dfn></dt>
+
+   <dd>Represents the user interface element that contains a control
+   that displays the <a href="infrastructure.html#url">URL</a> of the <a href="#active-document">active
+   document</a>, or some similar interface concept.</dd>
+
+   <dt><dfn id="the-menu-bar-barprop-object">The menu bar <code>BarProp</code> object</dfn></dt>
+
+   <dd>Represents the user interface element that contains a list of
+   commands in menu form, or some similar interface concept.</dd>
+
+   <dt><dfn id="the-personal-bar-barprop-object">The personal bar <code>BarProp</code> object</dfn></dt>
+
+   <dd>Represents the user interface element that contains links to
+   the user's favorite pages, or some similar interface concept.</dd>
+
+   <dt><dfn id="the-scrollbar-barprop-object">The scrollbar <code>BarProp</code> object</dfn></dt>
+
+   <dd>Represents the user interface element that contains a scrolling
+   mechanism, or some similar interface concept.</dd>
+
+   <dt><dfn id="the-status-bar-barprop-object">The status bar <code>BarProp</code> object</dfn></dt>
+
+   <dd>Represents a user interface element found immediately below or
+   after the document, as appropriate for the <a href="#default-view">default
+   view</a>'s media. If the user agent has no such user interface
+   element, then the object may act as if the corresponding user
+   interface element was absent (i.e. its <code title="dom-BarProp-visible"><a href="#dom-barprop-visible">visible</a></code> attribute may return
+   false).</dd>
+
+   <dt><dfn id="the-tool-bar-barprop-object">The tool bar <code>BarProp</code> object</dfn></dt>
+
+   <dd>Represents the user interface element found immediately above
+   or before the document, as appropriate for the <a href="#default-view">default
+   view</a>'s media. If the user agent has no such user interface
+   element, then the object may act as if the corresponding user
+   interface element was absent (i.e. its <code title="dom-BarProp-visible"><a href="#dom-barprop-visible">visible</a></code> attribute may return
+   false).</dd>
+
+  </dl><p>The <dfn id="dom-window-locationbar" title="dom-window-locationbar"><code>locationbar</code></dfn>
+  attribute must return <a href="#the-location-bar-barprop-object">the location bar <code>BarProp</code>
+  object</a>.</p><p>The <dfn id="dom-window-menubar" title="dom-window-menubar"><code>menubar</code></dfn>
+  attribute must return <a href="#the-menu-bar-barprop-object">the menu bar <code>BarProp</code>
+  object</a>.</p><p>The <dfn id="dom-window-personalbar" title="dom-window-personalbar"><code>personalbar</code></dfn>
+  attribute must return <a href="#the-personal-bar-barprop-object">the personal bar <code>BarProp</code>
+  object</a>.</p><p>The <dfn id="dom-window-scrollbars" title="dom-window-scrollbars"><code>scrollbars</code></dfn>
+  attribute must return <a href="#the-scrollbar-barprop-object">the scrollbar <code>BarProp</code>
+  object</a>.</p><p>The <dfn id="dom-window-statusbar" title="dom-window-statusbar"><code>statusbar</code></dfn> attribute
+  must return <a href="#the-status-bar-barprop-object">the status bar <code>BarProp</code>
+  object</a>.</p><p>The <dfn id="dom-window-toolbar" title="dom-window-toolbar"><code>toolbar</code></dfn>
+  attribute must return <a href="#the-tool-bar-barprop-object">the tool bar <code>BarProp</code>
+  object</a>.</p><!--
+  <p>For legacy reasons, the <dfn
+  title="dom-window-directories"><code>directories</code></dfn>
+  attribute must also return <span>the personal bar
+  <code>BarProp</code> object</span>.</p>
+--><h3 id="origin"><span class="secno">5.4 </span>Origin</h3><!-- Hallowed are the Ori --><p>The <dfn id="origin-0">origin</dfn> of a resource and the <dfn id="effective-script-origin">effective script
+  origin</dfn> of a resource are both either opaque identifiers or
+  tuples consisting of a scheme component, a host component, a port
+  component, and optionally extra data.</p><p class="note">The extra data could include the certificate of the
+  site when using encrypted connections, to ensure that if the site's
+  secure certificate changes, the origin is considered to change as
+  well.</p><p>These characteristics are defined as follows:</p><dl><dt>For URLs</dt>
+
+   <dd>
+
+    <p>The <a href="#origin-0">origin</a> and <a href="#effective-script-origin">effective script
+    origin</a> of the <a href="infrastructure.html#url">URL</a> is whatever is returned by
+    the following algorithm:</p>
+
+    <ol><li><p>Let <var title="">url</var> be the <a href="infrastructure.html#url">URL</a> for
+     which the <a href="#origin-0">origin</a> is being determined.</p></li>
+
+     <li><p><a href="infrastructure.html#parse-a-url" title="parse a url">Parse</a> <var title="">url</var>.</p></li>
+
+     <li><p>If <var title="">url</var> does not use a server-based
+     naming authority, or if parsing <var title="">url</var> failed,
+     or if <var title="">url</var> is not an <a href="infrastructure.html#absolute-url">absolute
+     URL</a>, then return a new globally unique
+     identifier.</p></li>
+
+     <li><p>Let <var title="">scheme</var> be the <a href="infrastructure.html#url-scheme" title="url-scheme">&lt;scheme&gt;</a> component of <var title="">url</var>, <a href="infrastructure.html#converted-to-lowercase">converted to lowercase</a>.</p></li>
+
+     <li><p>If the UA doesn't support the protocol given by <var title="">scheme</var>, then return a new globally unique
+     identifier.</p></li>
+
+     <li><p>If <var title="">scheme</var> is "<code title="">file</code>", then the user agent may return a
+     UA-specific value.</p></li>
+
+     <li><p>Let <var title="">host</var> be the <a href="infrastructure.html#url-host" title="url-host">&lt;host&gt;</a> component of <var title="">url</var>.</p></li>
+
+     <li>
+
+      <p>Apply the IDNA ToASCII algorithm to <var title="">host</var>,
+      with both the AllowUnassigned and UseSTD3ASCIIRules flags
+      set. Let <var title="">host</var> be the result of the ToASCII
+      algorithm.</p>
+
+      <p>If ToASCII fails to convert one of the components of the
+      string, e.g. because it is too long or because it contains
+      invalid characters, then return a new globally unique
+      identifier. <a href="references.html#references">[RFC3490]</a></p>
+
+     </li>
+
+     <li><p>Let <var title="">host</var> be the result of converting
+     <var title="">host</var> <a href="infrastructure.html#converted-to-lowercase" title="converted to lowercase">to
+     lowercase</a>.</p></li>
+
+     <li><p>If there is no <a href="infrastructure.html#url-port" title="url-port">&lt;port&gt;</a>
+     component, then let <var title="">port</var> be the default port
+     for the protocol given by <var title="">scheme</var>. Otherwise,
+     let <var title="">port</var> be the <a href="infrastructure.html#url-port" title="url-port">&lt;port&gt;</a> component of <var title="">url</var>.</p></li>
+
+     <li><p>Return the tuple (<var title="">scheme</var>, <var title="">host</var>, <var title="">port</var>).</p></li>
+
+    </ol><p>In addition, if the <a href="infrastructure.html#url">URL</a> is in fact associated with
+    a <code>Document</code> object that was created by parsing the
+    resource obtained from fetching <a href="infrastructure.html#url">URL</a>, and this was
+    done over a secure connection, then the server's secure
+    certificate may be added to the origin as additional data.</p>
+
+   </dd>
+
+   <dt>For scripts</dt>
+
+   <dd>
+
+    <p>The <a href="#origin-0">origin</a> and <a href="#effective-script-origin">effective script
+    origin</a> of a script are determined from another resource,
+    called the <i>owner</i>:</p>
+
+    <dl class="switch"><dt>If a script is in a <code><a href="semantics.html#script">script</a></code> element</dt>
+
+     <dd>The owner is the <code>Document</code> to which the
+     <code><a href="semantics.html#script">script</a></code> element belongs.</dd>
+
+
+     <dt>If a script is in an <a href="#event-handler-content-attributes" title="event handler content
+     attributes">event handler content attribute</a></dt>
+
+     <dd>The owner is the <code>Document</code> to which the
+     attribute node belongs.</dd>
+
+
+     <dt>If a script is a function or other code reference created by
+     another script</dt>
+
+     <dd>The owner is the script that created it.</dd>
+
+
+     <dt>If a script is a <a href="#javascript-protocol" title="javascript protocol"><code title="">javascript:</code> URL</a> that was returned as the
+     location of an HTTP redirect (<a href="infrastructure.html#concept-http-equivalent-codes" title="concept-http-equivalent-codes">or equivalent</a> in
+     other protocols)</dt>
+
+     <dd>The owner is the <a href="infrastructure.html#url">URL</a> that redirected to the
+     <a href="#javascript-protocol" title="javascript protocol"><code title="">javascript:</code> URL</a>.</dd>
+
+
+     <dt>If a script is a <a href="#javascript-protocol" title="javascript protocol"><code title="">javascript:</code> URL</a> in an attribute</dt>
+
+     <dd>The owner is the <code>Document</code> of the element on
+     which the attribute is found.</dd>
+
+
+     <dt>If a script is a <a href="#javascript-protocol" title="javascript protocol"><code title="">javascript:</code> URL</a> in a style sheet</dt>
+
+     <dd>The owner is the <a href="infrastructure.html#url">URL</a> of the style sheet.</dd>
+
+
+     <dt>If a script is a <a href="#javascript-protocol" title="javascript protocol"><code title="">javascript:</code> URL</a> to which a <a href="#browsing-context">browsing
+     context</a> is being <a href="history.html#navigate" title="navigate">navigated</a>,
+     the URL having been provided by the user (e.g. by using a
+     <i>bookmarklet</i>)</dt>
+
+     <dd>The owner is the <code>Document</code> of the <a href="#browsing-context">browsing
+     context</a>'s <a href="#active-document">active document</a>.</dd>
+
+
+     <dt>If a script is a <a href="#javascript-protocol" title="javascript protocol"><code title="">javascript:</code> URL</a> to which a <a href="#browsing-context">browsing
+     context</a> is being <a href="history.html#navigate" title="navigate">navigated</a>,
+     the URL having been declared in markup</dt>
+
+     <dd>The owner is the <code>Document</code> of the element
+     (e.g. an <code><a href="text-level-semantics.html#the-a-element">a</a></code> or <code><a href="the-canvas-element.html#the-area-element">area</a></code> element) that
+     declared the URL.</dd>
+
+
+     <dt>If a script is a <a href="#javascript-protocol" title="javascript protocol"><code title="">javascript:</code> URL</a> to which a <a href="#browsing-context">browsing
+     context</a> is being <a href="history.html#navigate" title="navigate">navigated</a>,
+     the URL having been provided by script</dt>
+
+     <dd>The owner is the script that provided the URL.</dd>
+
+    </dl><p>The <a href="#origin-0">origin</a> of the script is then equal to the
+    <a href="#origin-0">origin</a> of the owner, and the <a href="#effective-script-origin">effective script
+    origin</a> of the script is equal to the <a href="#effective-script-origin">effective script
+    origin</a> of the owner.</p>
+
+   </dd>
+
+   <dt>For <code>Document</code> objects and images</dt>
+
+   <dd>
+
+    <dl class="switch"><dt id="sandboxOrigin">If a <code>Document</code> is in a
+     <a href="#browsing-context">browsing context</a> whose <a href="embedded-content-0.html#sandboxed-origin-browsing-context-flag">sandboxed origin
+     browsing context flag</a> is set</dt>
+
+     <dd>The <a href="#origin-0">origin</a> is a globally unique identifier
+     assigned when the <code>Document</code> is created.</dd>
+
+
+     <dt>If a <code>Document</code> or image was returned by the
+     <code>XMLHttpRequest</code> API</dt>
+
+     <dd>The <a href="#origin-0">origin</a> and <a href="#effective-script-origin">effective script
+     origin</a> are equal to the <a href="#origin-0">origin</a> and
+     <a href="#effective-script-origin">effective script origin</a> of the <code>Document</code>
+     object of the <code><a href="#window">Window</a></code> object from which the
+     <code>XMLHttpRequest</code> constructor was invoked. (That is,
+     they track the <code>Document</code> to which the
+     <code>XMLHttpRequest</code> object's <a href="http://dev.w3.org/2006/webapi/XMLHttpRequest-2/Overview.html#document-pointer"><code>Document</code>
+     pointer</a> pointed when it was created.) <a href="references.html#references">[XHR]</a></dd>
+
+
+     <dt>If a <code>Document</code> or image was generated from a
+     <a href="#javascript-protocol" title="javascript protocol"><code>javascript:</code>
+     URL</a></dt>
+
+     <dd>The <a href="#origin-0">origin</a> is equal to the <a href="#origin-0">origin</a>
+     of the script of that <a href="#javascript-protocol" title="javascript
+     protocol"><code>javascript:</code> URL</a>.</dd>
+
+
+     <dt>If a <code>Document</code> or image was served over the
+     network and has an address that uses a URL scheme with a
+     server-based naming authority</dt>
+
+     <dd>The <a href="#origin-0">origin</a> is the <a href="#origin-0">origin</a> of the
+     <a href="dom.html#the-document-s-address" title="the document's address">address</a> of the
+     <code>Document</code> or the <a href="infrastructure.html#url">URL</a> of the image, as
+     appropriate.</dd>
+
+
+     <dt>If a <code>Document</code> or image was generated from a
+     <code title="">data:</code> URL that was returned as the location
+     of an HTTP redirect (<a href="infrastructure.html#concept-http-equivalent-codes" title="concept-http-equivalent-codes">or equivalent</a> in
+     other protocols)</dt>
+
+     <dd>The <a href="#origin-0">origin</a> is the <a href="#origin-0">origin</a> of the
+     <a href="infrastructure.html#url">URL</a> that redirected to the <code title="">data:</code> URL.</dd>
+
+
+     <dt>If a <code>Document</code> or image was generated from a
+     <code title="">data:</code> URL found in another
+     <code>Document</code> or in a script</dt>
+
+     <dd>The <a href="#origin-0">origin</a> is the <a href="#origin-0">origin</a> of the
+     <code>Document</code> or script in which the <code title="">data:</code> URL was found.</dd>
+
+
+     <dt>If a <code>Document</code> has the <a href="dom.html#the-document-s-address" title="the
+     document's address">address</a>
+     "<code><a href="infrastructure.html#about:blank">about:blank</a></code>"</dt>
+
+     <dd>The <a href="#origin-0">origin</a> of the <code>Document</code> is <a href="#about-blank-origin">the <span>origin</span> it was
+     assigned when its browsing context was created</a>.</dd>
+
+
+     <dt>If a <code>Document</code> or image was obtained in some
+     other manner (e.g. a <code title="">data:</code> URL typed in by
+     the user, a <code>Document</code> created using the <code title="">createDocument()</code> API, a <code title="">data:</code> URL returned as the location of an HTTP
+     redirect, etc)</dt>
+
+     <dd>The <a href="#origin-0">origin</a> is a globally unique identifier
+     assigned when the <code>Document</code> or image is created.</dd>
+
+    </dl><p>When a <code>Document</code> is created, unless stated
+    otherwise above, its <a href="#effective-script-origin">effective script origin</a> is
+    initialized to the <a href="#origin-0">origin</a> of the
+    <code>Document</code>. However, the <code title="dom-document-domain"><a href="#dom-document-domain">document.domain</a></code> attribute can
+    be used to change it.</p>
+
+   </dd>
+
+  </dl><p>The <dfn id="unicode-serialization-of-an-origin">Unicode serialization of an origin</dfn> is the string
+  obtained by applying the following algorithm to the given
+  <a href="#origin-0">origin</a>:</p><ol><li><p>If the <a href="#origin-0">origin</a> in question is not a
+   scheme/host/port tuple, then return the literal string "<code title="">null</code>" and abort these steps.</p></li>
+
+   <li><p>Otherwise, let <var title="">result</var> be the scheme part
+   of the <a href="#origin-0">origin</a> tuple.</p></li>
+
+   <li><p>Append the string "<code title="">://</code>" to <var title="">result</var>.</p></li>
+
+   <li><p>Apply the IDNA ToUnicode algorithm to each component of the
+   host part of the <a href="#origin-0">origin</a> tuple, and append the results
+   &#8212; each component, in the same order, separated by U+002E FULL
+   STOP characters (".") &#8212; to <var title="">result</var>.</p></li>
+
+   <li><p>If the port part of the <a href="#origin-0">origin</a> tuple gives a port
+   that is different from the default port for the protocol given by
+   the scheme part of the <a href="#origin-0">origin</a> tuple, then append a
+   U+003A COLON character (":") and the given port, in base ten, to
+   <var title="">result</var>.</p></li>
+
+   <li><p>Return <var title="">result</var>.</p></li>
+
+  </ol><p>The <dfn id="ascii-serialization-of-an-origin">ASCII serialization of an origin</dfn> is the string
+  obtained by applying the following algorithm to the given
+  <a href="#origin-0">origin</a>:</p><ol><li><p>If the <a href="#origin-0">origin</a> in question is not a
+   scheme/host/port tuple, then return the literal string "<code title="">null</code>" and abort these steps.</p></li>
+
+   <li><p>Otherwise, let <var title="">result</var> be the scheme part
+   of the <a href="#origin-0">origin</a> tuple.</p></li>
+
+   <li><p>Append the string "<code title="">://</code>" to <var title="">result</var>.</p></li>
+
+   <li>
+
+    <p>Apply the IDNA ToASCII algorithm the host part of the
+    <a href="#origin-0">origin</a> tuple, with both the AllowUnassigned and
+    UseSTD3ASCIIRules flags set, and append the results <var title="">result</var>.</p>
+
+    <p>If ToASCII fails to convert one of the components of the
+    string, e.g. because it is too long or because it contains invalid
+    characters, then return the empty string and abort these steps. <a href="references.html#references">[RFC3490]</a></p>
+
+   </li>
+
+   <li><p>If the port part of the <a href="#origin-0">origin</a> tuple gives a port
+   that is different from the default port for the protocol given by
+   the scheme part of the <a href="#origin-0">origin</a> tuple, then append a
+   U+003A COLON character (":") and the given port, in base ten, to
+   <var title="">result</var>.</p></li>
+
+   <li><p>Return <var title="">result</var>.</p></li>
+
+  </ol><p>Two <a href="#origin-0" title="origin">origins</a> are said to be the
+  <dfn id="same-origin">same origin</dfn> if the following algorithm returns true:</p><ol><li><p>Let <var title="">A</var> be the first <a href="#origin-0">origin</a>
+   being compared, and <var title="">B</var> be the second
+   <a href="#origin-0">origin</a> being compared.</p></li>
+
+   <li><p>If <var title="">A</var> and <var title="">B</var> are both
+   opaque identifiers, and their value is equal, then return
+   true.</p></li>
+
+   <li><p>Otherwise, if either <var title="">A</var> or <var title="">B</var> or both are opaque identifiers, return
+   false.</p></li>
+
+   <li><p>If <var title="">A</var> and <var title="">B</var> have
+   scheme components that are not identical, return false.</p></li>
+
+   <li><p>If <var title="">A</var> and <var title="">B</var> have host
+   components that are not identical, return false.</p></li>
+
+   <li><p>If <var title="">A</var> and <var title="">B</var> have port
+   components that are not identical, return false.</p></li>
+
+   <li><p>If either <var title="">A</var> or <var title="">B</var>
+   have additional data, but that data is not identical for both,
+   return false.</p></li>
+
+   <li><p>Return true.</p></li>
+
+  </ol><h4 id="relaxing-the-same-origin-restriction"><span class="secno">5.4.1 </span>Relaxing the same-origin restriction</h4><p>The <dfn id="dom-document-domain" title="dom-document-domain"><code>domain</code></dfn>
+  attribute on <code>Document</code> objects must be initialized to
+  <a href="#the-document-s-domain">the document's domain</a>, if it has one, and the empty
+  string otherwise. On getting, the attribute must return its current
+  value, unless the document was created by
+  <code>XMLHttpRequest</code>, in which case it must throw an
+  <code><a href="infrastructure.html#invalid_access_err">INVALID_ACCESS_ERR</a></code> exception. On setting, the user
+  agent must run the following algorithm:</p><ol><li>
+
+    <p>If the document was created by <code>XMLHttpRequest</code>,
+    throw an <code><a href="infrastructure.html#invalid_access_err">INVALID_ACCESS_ERR</a></code> exception and abort these
+    steps.</p>
+
+   </li>
+
+   <li>
+
+    <p>Apply the IDNA ToASCII algorithm to the new value, with both
+    the AllowUnassigned and UseSTD3ASCIIRules flags set. Let <var title="">new value</var> be the result of the ToASCII
+    algorithm.</p>
+
+    <p>If ToASCII fails to convert one of the components of the
+    string, e.g. because it is too long or because it contains invalid
+    characters, then throw a <code><a href="infrastructure.html#security_err">SECURITY_ERR</a></code> exception and abort
+    these steps. <a href="references.html#references">[RFC3490]</a></p>
+
+   </li>
+
+   <li>
+
+    <p>If <var title="">new value</var> is not exactly equal to the
+    current value of the <code title="dom-document-domain"><a href="#dom-document-domain">document.domain</a></code> attribute, then
+    run these substeps:</p>
+
+    <ol><li>
+
+      <p>If the current value is an IP address, throw a <code><a href="infrastructure.html#security_err">SECURITY_ERR</a></code>
+      exception and abort these steps.</p>
+
+     </li>
+
+     <li>
+
+      <p>If <var title="">new value</var>, prefixed by a U+002E FULL
+      STOP ("."), does not exactly match the end of the current value,
+      throw a <code><a href="infrastructure.html#security_err">SECURITY_ERR</a></code> exception and abort these
+      steps.</p>
+
+     </li>
+
+     <li>
+
+      <p>If <var title="">new value</var> matches a suffix in the
+      Public Suffix List, or, if <var title="">new value</var>,
+      prefixed by a U+002E FULL STOP ("."), matches the end of a
+      suffix in the Public Suffix List, then throw a
+      <code><a href="infrastructure.html#security_err">SECURITY_ERR</a></code> exception and abort these steps. <a href="references.html#references">[PSL]</a></p> <!-- [PSL]
+      http://publicsuffix.org/ -->
+
+      <p>Suffixes must be compared after applying the IDNA ToASCII
+      algorithm to them, with both the AllowUnassigned and
+      UseSTD3ASCIIRules flags set, in an <a href="infrastructure.html#ascii-case-insensitive">ASCII
+      case-insensitive</a> manner. <a href="references.html#references">[RFC3490]</a></p>
+
+     </li>
+
+    </ol></li>
+
+   <li>
+
+    <p>Set the attribute's value to <var title="">new value</var>.</p>
+
+   </li>
+
+   <li>
+
+    <p>Set the host part of the <a href="#effective-script-origin">effective script origin</a>
+    tuple of the <code>Document</code> to <var title="">new
+    value</var>.</p>
+
+   </li>
+
+   <li>
+
+    <p>Set the port part of the <a href="#effective-script-origin">effective script origin</a>
+    tuple of the <code>Document</code> to "manual override" (a value
+    that, for the purposes of <a href="#same-origin" title="same origin">comparing
+    origins</a>, is identical to "manual override" but not
+    identical to any other value).</p>
+
+   </li>
+
+  </ol><p>The <dfn id="the-document-s-domain" title="the document's domain">domain</dfn> of a
+  <code>Document</code> is the host part of the document's
+  <a href="#origin-0">origin</a>, if that is a scheme/host/port tuple. If it
+  isn't, then the document does not have a domain.</p><p class="note">The <code title="dom-document-domain"><a href="#dom-document-domain">domain</a></code>
+  attribute is used to enable pages on different hosts of a domain to
+  access each others' DOMs.</p><h3 id="scripting"><span class="secno">5.5 </span>Scripting</h3><h4 id="introduction-0"><span class="secno">5.5.1 </span>Introduction</h4><p>Various mechanisms can cause author-provided executable code to
+  run in the context of a document. These mechanisms include, but are
+  probably not limited to:</p><ul><li>Processing of <code><a href="semantics.html#script">script</a></code> elements.</li>
+
+   <li>Processing of inline <code title="javascript
+   protocol"><a href="#javascript-protocol">javascript:</a></code> URLs (e.g. the <code title="attr-img-src"><a href="embedded-content-0.html#attr-img-src">src</a></code> attribute of <code><a href="embedded-content-0.html#the-img-element">img</a></code>
+   elements, or an <code title="">@import</code> rule in a CSS
+   <code><a href="semantics.html#the-style-element">style</a></code> element block).</li>
+
+   <li>Event handlers, whether registered through the DOM using <code title="">addEventListener()</code>, by explicit <a href="#event-handler-content-attributes">event handler
+   content attributes</a>, by <a href="#event-handler-dom-attributes">event handler DOM
+   attributes</a>, or otherwise.</li>
+
+   <li>Processing of technologies like XBL or SVG that have their own
+   scripting features.</li>
+
+  </ul><h4 id="enabling-and-disabling-scripting"><span class="secno">5.5.2 </span>Enabling and disabling scripting</h4><p><dfn id="concept-bc-script" title="concept-bc-script">Scripting is enabled</dfn> in a
+  <em><a href="#browsing-context">browsing context</a></em> when all of the
+  following conditions are true:</p><ul><li>The user agent supports scripting.</li>
+
+   <li>The user has not disabled scripting for this <a href="#browsing-context">browsing
+   context</a> at this time. (User agents may provide users with
+   the option to disable scripting globally, or in a finer-grained
+   manner, e.g. on a per-origin basis.)</li>
+
+   <li id="sandboxScriptBlocked">The <a href="#browsing-context">browsing context</a>
+   does not have the <a href="embedded-content-0.html#sandboxed-scripts-browsing-context-flag">sandboxed scripts browsing context
+   flag</a> set.</li>
+
+  </ul><p><dfn id="concept-bc-noscript" title="concept-bc-noscript">Scripting is disabled</dfn> in a
+  <a href="#browsing-context">browsing context</a> when any of the above conditions are
+  false (i.e. when scripting is not <a href="#concept-bc-script" title="concept-bc-script">enabled</a>).</p><hr><p><dfn id="concept-n-script" title="concept-n-script">Scripting is enabled</dfn> for a
+  <em>node</em> if the <code>Document</code> object of the node (the
+  node itself, if it is itself a <code>Document</code> object) has an
+  associated <a href="#browsing-context">browsing context</a>, and <a href="#concept-bc-script" title="concept-bc-script">scripting is enabled</a> in that
+  <a href="#browsing-context">browsing context</a>.</p><p><dfn id="concept-n-noscript" title="concept-n-noscript">Scripting is disabled</dfn> for a
+  node if there is no such <a href="#browsing-context">browsing context</a>, or if <a href="#concept-bc-noscript" title="concept-bc-noscript">scripting is disabled</a> in that
+  <a href="#browsing-context">browsing context</a>.</p><!-- SCRIPT EXEC (marks areas related to creation of scripts) --><h4 id="processing-model-1"><span class="secno">5.5.3 </span>Processing model</h4><h5 id="definitions-0"><span class="secno">5.5.3.1 </span>Definitions</h5><p>A <dfn id="concept-script" title="concept-script">script</dfn> has:</p><dl><dt>A <dfn id="script-execution-environment">script execution environment</dfn></dt>
+
+   <dd>
+
+    <p>The characteristics of the script execution environment depend
+    on the language, and are not defined by this specification.</p>
+
+    <p class="example">In JavaScript, the script execution environment
+    consists of the interpreter, the stack of <i>execution
+    contexts</i>, the <i>global code</i> and <i>function code</i> and
+    the Function objects resulting, and so forth.</p>
+
+   </dd>
+
+   <dt>A <dfn id="list-of-code-entry-points">list of code entry-points</dfn></dt>
+
+   <dd>
+
+    <p>Each code entry-point represents a block of executable code
+    that the script exposes to other scripts and to the user
+    agent.</p>
+
+    <p class="example">Each Function object in a JavaScript
+    <a href="#script-execution-environment">script execution environment</a> has a corresponding code
+    entry-point, for instance.</p>
+
+    <p>The main program code of the script, if any, is the
+    <dfn id="initial-code-entry-point"><i>initial code entry-point</i></dfn>. Typically, the code
+    corresponding to this entry-point is executed immediately after
+    the script is parsed.</p>
+
+    <p class="example">In JavaScript, this corresponds to the
+    execution context of the global code.</p>
+
+   </dd>
+
+   <dt>A relationship with the <dfn id="script-s-global-object">script's global object</dfn></dt>
+
+   <dd>
+
+    <p>An object that provides the APIs that the code can use.</p>
+
+    <p class="example">This is typically a <code><a href="#window">Window</a></code>
+    object. In JavaScript, this corresponds to the <i>global
+    object</i>.</p>
+
+    <p class="note">When a <a href="#script-s-global-object">script's global object</a> is an
+    empty object, it can't do anything that interacts with the
+    environment.</p>
+
+   </dd>
+
+   <dt>A relationship with the <dfn id="script-s-browsing-context">script's browsing context</dfn></dt>
+
+   <dd>
+
+    <p>A <a href="#browsing-context">browsing context</a> that is assigned responsibility
+    for actions taken by the script.</p>
+
+    <p class="example">When a script creates and <a href="history.html#navigate" title="navigate">navigates</a> a new <a href="#top-level-browsing-context">top-level browsing
+    context</a>, the <code title="dom-opener"><a href="#dom-opener">opener</a></code>
+    attribute of the new <a href="#browsing-context">browsing context</a>'s
+    <code><a href="#window">Window</a></code> object will be set to the <a href="#script-s-browsing-context">script's
+    browsing context</a>'s <code><a href="#window">Window</a></code> object.</p>
+
+   </dd>
+
+   <dt>A <dfn id="script-s-character-encoding" title="script's character encoding">character encoding</dfn></dt>
+
+   <dd>
+
+    <p>A character encoding, set when the script is created, used to
+    encode URLs.  <span id="sce-not-copy">If the character encoding is
+    set from another source, e.g. a <a href="dom.html#document-s-character-encoding">document's character
+    encoding</a>, then the <a href="#script-s-character-encoding">script's character encoding</a>
+    must follow the source, so that if the source's changes, so does
+    the script's.</span></p>
+
+   </dd>
+
+   <dt>A <dfn id="script-s-base-url" title="script's base URL">base URL</dfn></dt>
+
+   <dd>
+
+    <p>A <a href="infrastructure.html#url">URL</a>, set when the script is created, used to
+    resolve relative URLs. <span id="sbu-not-copy">If the base URL is
+    set from another source, e.g. a <a href="infrastructure.html#document-base-url">document base URL</a>,
+    then the <a href="#script-s-base-url">script's base URL</a> must follow the source, so
+    that if the source's changes, so does the script's.</span></p>
+
+   </dd>
+
+  </dl><h5 id="calling-scripts"><span class="secno">5.5.3.2 </span>Calling scripts</h5><p>When a user agent is to <dfn id="jump-to-a-code-entry-point">jump to a code entry-point</dfn> for
+  a <a href="#concept-script" title="concept-script">script</a>, for example to invoke
+  an event listener defined in that <a href="#concept-script" title="concept-script">script</a>, the user agent must run the
+  following steps:</p><ol><li><p>If the <a href="#script-s-global-object">script's global object</a> is a
+   <code><a href="#window">Window</a></code> object whose <code>Document</code> object is
+   not <a href="#fully-active">fully active</a>, then abort these steps without doing
+   anything. The callback is not fired.</p>
+
+   </li><li><p>Set the <a href="#first-script">first script</a> to be the <a href="#concept-script" title="concept-script">script</a> being invoked.</p></li>
+
+   <li><p>Make the <a href="#script-execution-environment" title="script execution environment">script
+   execution environment</a> for the <a href="#concept-script" title="concept-script">script</a> execute the code for the given
+   code entry-point.</p></li>
+
+   <li><p>Set the <a href="#first-script">first script</a> back to whatever it was
+   when this algorithm started.</p></li>
+
+  </ol><p>This algorithm is not invoked by one script calling another.</p><h5 id="creating-scripts"><span class="secno">5.5.3.3 </span>Creating scripts</h5><p>When the specification says that a <a href="#concept-script" title="concept-script">script</a> is to be <dfn id="create-a-script" title="create a
+  script">created</dfn>, given some script source, its scripting
+  language, a global object, a browsing context, a character encoding,
+  and a base URL, the user agent must run the following steps:</p><ol><li><p>Set up a <a href="#script-execution-environment">script execution environment</a> as
+   appropriate for the scripting language.</p></li>
+
+   <li><p>Parse/compile/initialize the source of the script using the
+   <a href="#script-execution-environment">script execution environment</a>, as appropriate for the
+   scripting language, and thus obtain the <a href="#list-of-code-entry-points">list of code
+   entry-points</a> for the script. If the semantics of the
+   scripting language and the given source code are such that there is
+   executable code to be immediately run, then the <i><a href="#initial-code-entry-point">initial code
+   entry-point</a></i> is the entry-point for that code.</p></li>
+
+   <li><p>Set up the <a href="#script-s-global-object">script's global object</a>, the
+   <a href="#script-s-browsing-context">script's browsing context</a>, the <a href="#script-s-character-encoding">script's
+   character encoding</a>, and the <a href="#script-s-base-url">script's base URL</a>
+   from the settings passed to this algorithm.</p></li>
+
+   <li><p><a href="#jump-to-a-code-entry-point" title="jump to a code entry-point">Jump</a> to the
+   <a href="#concept-script" title="concept-script">script</a>'s <i><a href="#initial-code-entry-point">initial code
+   entry-point</a></i>.</p></li>
+
+  </ol><hr><p>When the user agent is to <dfn id="create-an-impotent-script">create an impotent script</dfn>,
+  given some script source, its scripting language, and a browsing
+  context, the user agent must <a href="#create-a-script">create a script</a>, using the
+  given script source and scripting language, using a new empty object
+  as the global object, and using the given browsing context as the
+  browsing context. The character encoding and base URL for the
+  resulting <a href="#concept-script" title="concept-script">script</a> are not
+  important as no APIs are exposed to the script.</p><hr><p>When the specification says that a <a href="#concept-script" title="concept-script">script</a> is to be <dfn id="create-a-script-from-a-node" title="create a
+  script from a node">created from a node</dfn> <var title="">node</var>, given some script source and its scripting
+  language, the user agent must <a href="#create-a-script">create a script</a>, using
+  the given script source and scripting language, and using <a href="#the-script-settings-determined-from-the-node">the
+  script settings determined from the node</a> <var title="">node</var>.</p><p><dfn id="the-script-settings-determined-from-the-node">The script settings determined from the node</dfn> <var title="">node</var> are computed as follows:</p><ol><li><p>Let <var title="">document</var> be the
+   <code>Document</code> of <var title="">node</var> (or <var title="">node</var> itself if it is a
+   <code>Document</code>).</p></li>
+
+   <li><p>The browsing context is the <a href="#browsing-context">browsing context</a> of
+   <var title="">document</var>.</p>
+
+   </li><li><p>The global object is the <code><a href="#window">Window</a></code> object of
+   <var title="">document</var>.</p></li>
+
+   <li><p>The character encoding is the <a href="dom.html#document-s-character-encoding" title="document's
+   character encoding">character encoding</a> of <var title="">document</var>. (<a href="#sce-not-copy">This is a
+   reference, not a copy</a>.)</p></li>
+
+   <li><p>The base URL is the <a href="infrastructure.html#document-base-url" title="document base URL">base
+   URL</a> of <var title="">document</var>. (<a href="#sbu-not-copy">This is a reference, not a copy</a>.)</p></li>
+
+  </ol><h5 id="killing-scripts"><span class="secno">5.5.3.4 </span>Killing scripts</h5><p>User agents may impose resource limitations on scripts, for
+  example CPU quotas, memory limits, total execution time limits, or
+  bandwidth limitations. When a script exceeds a limit, the user agent
+  may either throw a <code><a href="infrastructure.html#quota_exceeded_err">QUOTA_EXCEEDED_ERR</a></code> exception, abort
+  the script without an exception, prompt the user, or throttle script
+  execution.</p><div class="example">
+
+   <p>For example, the following script never terminates. A user agent
+   could, after waiting for a few seconds, prompt the user to either
+   terminate the script or let it continue.</p>
+
+   <pre>&lt;script&gt;
+ while (true) { /* loop */ }
+&lt;/script&gt;</pre>
+
+  </div><p>User agents are encouraged to allow users to disable scripting
+  whenever the user is prompted either by a script (e.g. using the
+  <code title="dom-alert"><a href="#dom-alert">window.alert()</a></code> API) or because of a
+  script's actions (e.g. because it has exceeded a time limit).</p><p>If scripting is disabled while a script is executing, the script
+  should be terminated immediately.</p><h4 id="event-loops"><span class="secno">5.5.4 </span>Event loops</h4><p>To coordinate events, user interaction, scripts, rendering,
+  networking, and so forth, user agents must use <dfn id="event-loop" title="event
+  loop">event loops</dfn> as described in this section.</p><p>There must be at least one <a href="#event-loop">event loop</a> per user
+  agent, and at most one <a href="#event-loop">event loop</a> per <a href="#unit-of-related-similar-origin-browsing-contexts">unit of
+  related similar-origin browsing contexts</a>.</p><p>An <a href="#event-loop">event loop</a> always has at least one <a href="#browsing-context">browsing
+  context</a>. If an <a href="#event-loop">event loop</a>'s <a href="#browsing-context" title="browsing context">browsing contexts</a> all go away, then
+  the <a href="#event-loop">event loop</a> goes away as well. A <a href="#browsing-context">browsing
+  context</a> always has an <a href="#event-loop">event loop</a> coordinating
+  its activities.</p><p class="note">Other specifications can define new kinds of event
+  loops that aren't associated with browsing contexts.</p><p>An <a href="#event-loop">event loop</a> has one or more <dfn id="task-queue" title="task
+  queue">task queues</dfn>. A <a href="#task-queue">task queue</a> is an ordered
+  list of <dfn id="concept-task" title="concept-task">tasks</dfn>, which can be:</p><dl><dt>Events</dt>
+
+   <dd>
+
+    <p>Asynchronously dispatching an <code>Event</code> object at a
+    particular <code>EventTarget</code> object is a task.</p>
+
+    <p class="note">Not all events are dispatched using the <a href="#task-queue">task
+    queue</a>, many are dispatched synchronously during other
+    tasks.</p>
+
+   </dd>
+
+
+   <dt>Parsing</dt>
+
+   <dd><p>The <a href="parsing.html#html-parser">HTML parser</a> tokenising a single byte, and
+   then processing any resulting tokens, is a task.</p></dd>
+
+
+   <dt>Callbacks</dt>
+
+   <dd><p>Calling a callback asynchronously is a task.</p></dd>
+
+
+   <dt>Using a resource</dt>
+
+   <dd><p>When an algorithm <a href="infrastructure.html#fetch" title="fetch">fetches</a> a
+   resource, if the fetching occurs asynchronously then the processing
+   of the resource once some or all of the resource is available is a
+   task.</p></dd>
+
+
+   <dt>Reacting to DOM manipulation</dt>
+
+   <dd><p>Some elements have tasks that trigger in response to DOM
+   manipulation, e.g. when that element is <a href="infrastructure.html#insert-an-element-into-a-document" title="insert an
+   element into a document">inserted into the document</a>.</p>
+
+  </dd></dl><p>Each <a href="#concept-task" title="concept-task">task</a> is associated with a
+  <code>Document</code>; if the task was queued in the context of an
+  element, then it is the element's <code>Document</code>; if the task
+  was queued in the context of a <a href="#browsing-context">browsing context</a>, then
+  it is the <a href="#browsing-context">browsing context</a>'s <a href="#active-document">active
+  document</a> at the time the task was queued; if the task was
+  queued by or for a <a href="#concept-script" title="concept-script">script</a> then
+  the document is the script's <a href="#script-s-browsing-context">script's browsing
+  context</a>'s <a href="#active-document">active document</a> at the time the task
+  was queued.</p><p>When a user agent is to <dfn id="queue-a-task">queue a task</dfn>, it must add the
+  given task to one of the <a href="#task-queue" title="task queue">task queues</a>
+  of the relevant <a href="#event-loop">event loop</a>. All the tasks from one
+  particular <dfn id="task-source">task source</dfn> (e.g. the callbacks generated by
+  timers, the events dispatched for mouse movements, the tasks queued
+  for the parser) must always be added to the same <a href="#task-queue">task
+  queue</a>, but tasks from different <a href="#task-source" title="task
+  source">task sources</a> may be placed in different <a href="#task-queue" title="task queue">task queues</a>.</p><p class="example">For example, a user agent could have one
+  <a href="#task-queue">task queue</a> for mouse and key events (the <a href="#user-interaction-task-source">user
+  interaction task source</a>), and another for everything
+  else. The user agent could then give keyboard and mouse events
+  preference over other tasks three quarters of the time, keeping the
+  interface responsive but not starving other task queues, and never
+  processing events from any one <a href="#task-source">task source</a> out of
+  order.</p><p>An <a href="#event-loop">event loop</a> must continually run through the
+  following steps for as long as it exists:</p><ol><li><p>Run the oldest task on one of the <a href="#event-loop">event loop</a>'s
+   <a href="#task-queue" title="task queue">task queues</a>, ignoring tasks whose
+   associated <code>Document</code>s are not <a href="#fully-active">fully
+   active</a>. The user agent may pick any <a href="#task-queue">task
+   queue</a>.</p></li>
+
+   <li><p>Remove that task from its <a href="#task-queue">task queue</a>.</p></li>
+
+   <li><p>If necessary, update the rendering or user interface of any
+   <code>Document</code> or <a href="#browsing-context">browsing context</a> to reflect
+   the current state.</p></li>
+
+   <li><p>Return to the first step of the <a href="#event-loop">event
+   loop</a>.</p></li>
+
+  </ol><h5 id="generic-task-sources"><span class="secno">5.5.4.1 </span>Generic task sources</h5><p>The following <a href="#task-source" title="task source">task sources</a> are
+  used by a number of mostly unrelated features in this and other
+  specifications.</p><dl><dt>The <dfn id="dom-manipulation-task-source">DOM manipulation task source</dfn></dt>
+
+   <dd>
+
+    <p>This <a href="#task-source">task source</a> is used for features that react
+    to DOM manipulations, such as things that happen asynchronously
+    when an element is <a href="infrastructure.html#insert-an-element-into-a-document" title="insert an element into a
+    document">inserted into the document</a>.</p>
+
+    <p>Asynchronous mutation events must be dispatched using <a href="#concept-task" title="concept-task">tasks</a> <a href="#queue-a-task" title="queue a
+    task">queued</a> with the <a href="#dom-manipulation-task-source">DOM manipulation task
+    source</a>. <a href="references.html#references">[DOMEVENTS]</a></p>
+
+   </dd>
+
+   <dt>The <dfn id="user-interaction-task-source">user interaction task source</dfn></dt>
+
+   <dd>
+
+    <p>This <a href="#task-source">task source</a> is used for features that react
+    to user interaction, for example keyboard or mouse input.</p>
+
+    <p>Asynchronous events sent in response to user input (e.g. <span title="event-click">click</span> events) must be dispatched using
+    <a href="#concept-task" title="concept-task">tasks</a> <a href="#queue-a-task" title="queue a
+    task">queued</a> with the <a href="#user-interaction-task-source">user interaction task
+    source</a>. <a href="references.html#references">[DOMEVENTS]</a></p>
+
+   </dd>
+
+   <dt>The <dfn id="networking-task-source">networking task source</dfn></dt>
+
+   <dd>
+
+    <p>This <a href="#task-source">task source</a> is used for features that trigger
+    in response to network activity.</p>
+
+    <!-- XHR should use this -->
+
+   </dd>
+
+  </dl><!-- SCRIPT EXEC --><h4 id="javascript-protocol"><span class="secno">5.5.5 </span><dfn title="javascript protocol">The <code title="">javascript:</code> protocol</dfn></h4><p>When a <a href="infrastructure.html#url">URL</a> using the <code title="">javascript:</code> protocol is <dfn id="concept-js-deref" title="concept-js-deref">dereferenced</dfn>, the user agent must run
+  the following steps:</p><ol><li><p>Let the script source be the string obtained using the
+   content retrieval operation defined for <code title="">javascript:</code> URLs. <a href="references.html#references">[JSURL]</a></p></li>
+
+<!--
+JSURL: http://ietfreport.isoc.org/all-ids/draft-hoehrmann-javascript-scheme-00.txt and
+       http://www.websitedev.de/ietf/draft-hoehrmann-javascript-scheme-00.txt should be as stable as it gets,
+       http://ietfreport.isoc.org/idref/draft-hoehrmann-javascript-scheme/ for the latest version
+-->
+
+   <li>
+
+    <p>Use the appropriate step from the following list:</p>
+
+    <dl><dt>If a <a href="#browsing-context">browsing context</a> is being <a href="history.html#navigate" title="navigate">navigated</a> to a <code>javascript:</code>
+     URL, and the <a href="#active-document">active document</a> of that browsing
+     context has the <a href="#same-origin">same origin</a> as the script given by
+     that URL</dt>
+
+     <dd>
+
+      <!-- http://www.hixie.ch/tests/adhoc/html/navigation/javascript-url/ -->
+
+      <p>Let <var title="">address</var> be the <a href="dom.html#the-document-s-address" title="the
+      document's address">address</a> of the <a href="#active-document">active
+      document</a> of the <a href="#browsing-context">browsing context</a> being
+      navigated.</p>
+
+      <p>If <var title="">address</var> is <code><a href="infrastructure.html#about:blank">about:blank</a></code>,
+      and the <a href="#browsing-context">browsing context</a> being navigated has a
+      <a href="#creator-browsing-context">creator browsing context</a>, then let <var title="">address</var> be the <a href="dom.html#the-document-s-address" title="the document's
+      address">address</a> of the <a href="#creator-document">creator
+      <code>Document</code></a> instead.</p>
+
+      <p><a href="#create-a-script-from-a-node" title="create a script from a node">Create a
+      script</a> from the <code>Document</code> node of the
+      <a href="#active-document">active document</a>, using the aforementioned script
+      source, and assuming the scripting language is JavaScript.</p>
+
+      <p>Let <var title="">result</var> be the return value of the
+      <i><a href="#initial-code-entry-point">initial code entry-point</a></i> of this <a href="#concept-script" title="concept-script">script</a>. If an exception was
+      raised, let <var title="">result</var> be void instead.</p>
+
+      <p>When it comes time to <a href="history.html#set-the-document-s-address">set the document's address</a>
+      in the <a href="history.html#navigate" title="navigate">navigation algorithm</a>, use
+      <var title="">address</var> as the <a href="history.html#override-url">override
+      URL</a>.</p>
+
+     </dd>
+
+     <dt>If the <code>Document</code> object of the element,
+     attribute, or style sheet from which the <code>javascript:</code>
+     URL was reached has an associated <a href="#browsing-context">browsing
+     context</a></dt>
+
+     <dd>
+
+      <p><a href="#create-an-impotent-script">Create an impotent script</a> using the
+      aforementioned script source, with the scripting language set to
+      JavaScript, and with the <code>Document</code>'s object's
+      <a href="#browsing-context">browsing context</a> as the browsing context.</p>
+
+      <p>Let <var title="">result</var> be the return value of the
+      <i><a href="#initial-code-entry-point">initial code entry-point</a></i> of this <a href="#concept-script" title="concept-script">script</a>. If an exception was
+      raised, let <var title="">result</var> be void instead.</p>
+
+     </dd>
+
+     <dt>Otherwise</dt>
+
+     <dd>
+
+      <p>Let <var title="">result</var> be void.</p>
+
+     </dd>
+
+    </dl></li>
+
+   <li>
+
+    <p>If the result of executing the script is void (there is no
+    return value), then the URL must be treated in a manner equivalent
+    to an HTTP resource with an HTTP 204 No Content response.</p>
+
+    <p>Otherwise, the URL must be treated in a manner equivalent to an
+    HTTP resource with a 200 OK response whose <a href="infrastructure.html#content-type-0" title="Content-Type">Content-Type metadata</a> is <code title="">text/html</code> and whose response body is the return
+    value converted to a string value.</p>
+
+    <p class="note">Certain contexts, in particular <code><a href="embedded-content-0.html#the-img-element">img</a></code>
+    elements, ignore the <a href="infrastructure.html#content-type-0" title="Content-Type">Content-Type
+    metadata</a>.</p>
+
+   </li>
+
+  </ol><div class="example">
+
+   <p>So for example a <code title="">javascript:</code> URL for a
+   <code title="attr-img-src"><a href="embedded-content-0.html#attr-img-src">src</a></code> attribute of an
+   <code><a href="embedded-content-0.html#the-img-element">img</a></code> element would be evaluated in the context of an
+   empty object as soon as the attribute is set; it would then be
+   sniffed to determine the image type and decoded as an image.</p>
+
+   <p>A <code title="">javascript:</code> URL in an <code title="attr-a-href">href</code> attribute of an <code><a href="text-level-semantics.html#the-a-element">a</a></code>
+   element would only be evaluated when the link was <a href="structured-client-side-storage.html#following-hyperlinks" title="following hyperlinks">followed</a>.</p>
+
+   <p>The <code title="attr-iframe-src"><a href="embedded-content-0.html#attr-iframe-src">src</a></code> attribute of an
+   <code><a href="embedded-content-0.html#the-iframe-element">iframe</a></code> element would be evaluated in the context of
+   the <code><a href="embedded-content-0.html#the-iframe-element">iframe</a></code>'s own <a href="#browsing-context">browsing context</a>; once
+   evaluated, its return value (if it was not void) would replace that
+   <a href="#browsing-context">browsing context</a>'s document, thus changing the
+   variables visible in that <a href="#browsing-context">browsing context</a>.</p>
+
+  </div><p class="note">The rules for <a href="#create-a-script" title="create a script">creating
+  a script</a> include making the script not execute (and just
+  return void) in certain cases, e.g. in a sandbox or when the user
+  has disabled scripting altogether.</p><h4 id="events"><span class="secno">5.5.6 </span>Events</h4><h5 id="event-handler-attributes"><span class="secno">5.5.6.1 </span>Event handler attributes</h5><!--test: <a href="http://software.hixie.ch/utilities/js/live-dom-viewer/?%3C!DOCTYPE%20html%3E%0A...%3Cscript%3E%0Aw(a%3Ddocument.implementation.createDocument(null%2C%20null%2C%20null))%3B%0Aw(a.appendChild(a.createElementNS('http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml'%2C%20'html')))%3B%0Aw(b%3Da.firstChild.appendChild(a.createElementNS('http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml'%2C%20'body')))%3B%0Aw(b.test%20%3D%20w)%3B%0Aw(b.setAttribute('onclick'%2C%20'test(%22fire%3A%20%22%20%2B%20event)'))%3B%0Aw(b.onclick)%3B%0Aw(e%3Da.createEvent('Event'))%3B%0Aw(e.initEvent('click'%2C%20false%2C%20false))%3B%0Aw(b.dispatchEvent(e))%3B%0A%3C%2Fscript%3E">test</a>--><p>Many objects can have <dfn id="event-handler-attributes-0">event handler attributes</dfn>
+  specified. These act as bubbling event listeners for the element on
+  which they are specified.</p><p>An <a href="#event-handler-attributes-0" title="event handler attributes">event handler
+  attribute</a>, unless otherwise specified, can either have the
+  value null or be set to a <code><a href="#function">Function</a></code> object. Initially,
+  unless otherwise specified, an event handler attribute must be set
+  to null.</p><p class="note">Some event handler attributes allow other values and
+  have other initial values, in particular the <code title="handler-window-onerror"><a href="#handler-window-onerror">onerror</a></code> event handler
+  attribute on the <code><a href="#window">Window</a></code> object.</p><p>Event handler attributes are exposed in one or two ways.</p><p>The first way, common to all event handler attributes, is as an
+  <a href="#event-handler-dom-attributes" title="event handler DOM attributes">event handler DOM
+  attribute</a>.</p><p>The second way is as an <a href="#event-handler-content-attributes" title="event handler content
+  attributes">event handler content attribute</a>. Event handlers on
+  <a href="infrastructure.html#html-elements">HTML elements</a> and some of the event handlers on
+  <code><a href="#window">Window</a></code> objects are exposed in this way.</p><hr><p><dfn id="event-handler-dom-attributes">Event handler DOM attributes</dfn>, on setting, must set the
+  corresponding event handler attribute to their new value, and on
+  getting, must return whatever the current value of the corresponding
+  event handler attribute is (possibly null).</p><p class="note">Certain event handler DOM attributes have additional
+  requirements, in particular the <code title="handler-MessagePort-onmessage"><a href="comms.html#handler-messageport-onmessage">onmessage</a></code> attribute of
+  <code><a href="comms.html#messageport">MessagePort</a></code> objects.</p><hr><p><dfn id="event-handler-content-attributes">Event handler content attributes</dfn>, when specified, must
+  contain valid ECMAScript code matching the ECMAScript <code title="">FunctionBody</code> production. <a href="references.html#references">[ECMA262]</a></p><!-- SCRIPT EXEC --><p>When an event handler content attribute is set, if the element is
+  owned by a <code>Document</code> that is in a <a href="#browsing-context">browsing
+  context</a>, the user agent must run the following steps to
+  create a <a href="#concept-script" title="concept-script">script</a> after setting
+  the content attribute to its new value:</p><ol><li><p>Set up a <a href="#script-execution-environment">script execution environment</a> for
+   JavaScript.</p></li>
+
+   <li>
+
+    <p>Using this script execution environment, interpret the
+    attribute's new value as the body of an anonymous function, with
+    the function's arguments set as follows:</p>
+
+    <dl class="switch"><dt>If the attribute is the <code title="handler-window-onerror"><a href="#handler-window-onerror">onerror</a></code> attribute of the
+     <code><a href="#window">Window</a></code> object</dt>
+
+     <dd>Let the function have three arguments, named <code title="">event</code>, <code title="">source</code>, and <code title="">fileno</code>.</dd>
+
+     <dt>Otherwise</dt>
+
+     <dd>Let the function have a single argument called <code title="">event</code>.</dd>
+
+    </dl><p>Link the new function's scope chain from the activation object
+    of the handler, to the element's object, to the element's
+    <a href="forms.html#form-owner">form owner</a>, if it has one, to the element's
+    <code>Document</code> object, to the <code><a href="#window">Window</a></code> object of
+    that <code>Document</code>. Set the function's <code>this</code>
+    parameter to the <code>Element</code> object representing the
+    element. Let this function be the only entry in the script's
+    <a href="#list-of-code-entry-points">list of code entry-points</a>.</p>
+
+    <p class="note">See ECMA262 Edition 3, sections 10.1.6 and 10.2.3,
+    for more details on activation objects. <a href="references.html#references">[ECMA262]</a></p>
+
+   </li>
+
+   <li><p>If the previous steps failed to compile the script, then set
+   the corresponding event handler attribute to null and abort these
+   steps.</p></li>
+
+   <li><p>Set up the <a href="#script-s-global-object">script's global object</a>, the
+   <a href="#script-s-browsing-context">script's browsing context</a>, the <a href="#script-s-character-encoding">script's
+   character encoding</a>, and the <a href="#script-s-base-url">script's base URL</a>
+   from <a href="#the-script-settings-determined-from-the-node">the script settings determined from the node</a> on
+   which the attribute is being set.</p></li>
+
+   <li><p>Set the corresponding event handler attribute to the
+   aforementioned function.</p></li>
+
+  </ol><p class="note">When an event handler content attribute is set on an
+  element owned by a <code>Document</code> that is not in a
+  <a href="#browsing-context">browsing context</a>, the corresponding event handler
+  attribute is not changed.</p><p class="note">Removing an event handler content attribute does not
+  reset the corresponding event handler attribute.</p><!-- http://software.hixie.ch/utilities/js/live-dom-viewer/?%3C!DOCTYPE%20html%3E%0A...%3Cbody%20onload%3D%22w(%27pass%27)%22%3E%0A%3Cscript%3Edocument.body.removeAttribute(%27onload%27)%3B%3C%2Fscript%3E --><p class="XXX">How do we allow non-JS event handlers?</p><hr><p>All event handler attributes on an element, whether set to null
+  or to a <code><a href="#function">Function</a></code> object<!-- or to anything else, in the
+  case of 'onerror' -->, must be registered as event listeners on the
+  element, as if the <code title="dom-EventTarget-addEventListenerNS">addEventListenerNS()</code>
+  method on the <code>Element</code> object's <code>EventTarget</code>
+  interface had been invoked when the event handler attribute's
+  element or object was created, with the event type (<var title="dom-event-type">type</var> argument) equal to the type
+  described for the event handler attribute in the list above, the
+  namespace (<var title="dom-event-namespaceURI">namespaceURI</var>
+  argument) set to null, the listener set to be a target and bubbling
+  phase listener (<var title="dom-event-useCapture">useCapture</var>
+  argument set to false), the event group set to the default group
+  (<var title="dom-event-evtGroup">evtGroup</var> argument set to
+  null), and the event listener itself (<var title="dom-event-listener">listener</var> argument) set to do
+  nothing while the event handler attribute's value is not a
+  <code><a href="#function">Function</a></code> object, and set to invoke the <code title="dom-function-call"><a href="#dom-function-call">call()</a></code> callback of the
+  <code><a href="#function">Function</a></code> object associated with the event handler
+  attribute otherwise.</p><p class="note">The <var title="dom-event-listener">listener</var>
+  argument is emphatically <em>not</em> the event handler attribute
+  itself.</p><p>When an event handler attribute's <code><a href="#function">Function</a></code> objectw
+  is invoked, its <code title="dom-function-call"><a href="#dom-function-call">call()</a></code>
+  callback must be invoked with one argument, set to the
+  <code>Event</code> object of the event in question.</p><p>The handler's return value must then be processed as follows:</p><dl class="switch"><dt>If the event type is <code class="event-mouseover">mouseover</code></dt>
+
+   <dd><p>If the return value is a boolean with the value true, then
+   the event must be canceled.</p></dd>
+
+   <dt>If the event object is a <code><a href="history.html#beforeunloadevent">BeforeUnloadEvent</a></code> object</dt>
+
+   <dd><p>If the return value is a string, and the event object's
+   <code title="dom-BeforeUnloadEvent-returnValue"><a href="history.html#dom-beforeunloadevent-returnvalue">returnValue</a></code>
+   attribute's value is the empty string, then set the <code title="dom-BeforeUnloadEvent-returnValue"><a href="history.html#dom-beforeunloadevent-returnvalue">returnValue</a></code>
+   attribute's value to the return value.</p></dd>
+
+   <dt>Otherwise</dt>
+
+   <dd><p>If the return value is a boolean with the value false, then
+   the event must be canceled.</p></dd>
+
+  </dl><!-- IE actually uncancels the event if the function returns true --><hr><p>The <code><a href="#function">Function</a></code> interface represents a function in the
+  scripting language being used. It is represented in IDL as
+  follows:</p><pre class="idl">[Callback=FunctionOnly, NoInterfaceObject]
+interface <dfn id="function">Function</dfn> {
+  any <a href="#dom-function-call" title="dom-function-call">call</a>([Variadic] in any arguments);
+};</pre><p>The <dfn id="dom-function-call" title="dom-function-call"><code>call(...)</code></dfn>
+  method is the object's callback.</p><p class="note">In JavaScript, any <code title="">Function</code>
+  object implements this interface.</p><h5 id="event-handler-attributes-on-elements-and-on-window-objects"><span class="secno">5.5.6.2 </span>Event handler attributes on elements and on <code><a href="#window">Window</a></code> objects</h5><p>The following are the event handler attributes that must be
+  supported by all <a href="infrastructure.html#html-elements">HTML elements</a>, as both content
+  attributes and DOM attributes, and on <code><a href="#window">Window</a></code> objects,
+  as DOM attributes:</p><dl><dt><dfn id="handler-onabort" title="handler-onabort"><code>onabort</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever an <code title="event-abort"><a href="video.html#event-abort">abort</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+<!--
+   <dt><dfn title="handler-onbeforecopy"><code>onbeforecopy</code></dfn></dt> --><!-- widely used --><!--
+
+   <dd><p>Must be invoked whenever a <code
+   title="event-beforecopy">beforecopy</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+-->
+
+   <dt><dfn id="handler-onblur" title="handler-onblur"><code>onblur</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-blur">blur</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onchange" title="handler-onchange"><code>onchange</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-change">change</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onclick" title="handler-onclick"><code>onclick</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-click">click</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-oncontextmenu" title="handler-oncontextmenu"><code>oncontextmenu</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-contextmenu">contextmenu</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+<!--
+   <dt><dfn title="handler-oncopy"><code>oncopy</code></dfn></dt> --><!-- widely used --><!--
+
+   <dd><p>Must be invoked whenever a <code
+   title="event-copy">copy</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+-->
+
+   <dt><dfn id="handler-ondblclick" title="handler-ondblclick"><code>ondblclick</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-dblclick">dblclick</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-ondrag" title="handler-ondrag"><code>ondrag</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-drag"><a href="editing.html#event-drag">drag</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-ondragend" title="handler-ondragend"><code>ondragend</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-dragend"><a href="editing.html#event-dragend">dragend</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-ondragenter" title="handler-ondragenter"><code>ondragenter</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-dragenter"><a href="editing.html#event-dragenter">dragenter</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-ondragleave" title="handler-ondragleave"><code>ondragleave</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-dragleave"><a href="editing.html#event-dragleave">dragleave</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-ondragover" title="handler-ondragover"><code>ondragover</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-dragover"><a href="editing.html#event-dragover">dragover</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-ondragstart" title="handler-ondragstart"><code>ondragstart</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-dragstart"><a href="editing.html#event-dragstart">dragstart</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-ondrop" title="handler-ondrop"><code>ondrop</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-drop"><a href="editing.html#event-drop">drop</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onfocus" title="handler-onfocus"><code>onfocus</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-focus">focus</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onkeydown" title="handler-onkeydown"><code>onkeydown</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-keydown">keydown</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onkeypress" title="handler-onkeypress"><code>onkeypress</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-keypress">keypress</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onkeyup" title="handler-onkeyup"><code>onkeyup</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-keyup">keyup</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onmousedown" title="handler-onmousedown"><code>onmousedown</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-mousedown">mousedown</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onmousemove" title="handler-onmousemove"><code>onmousemove</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-mousemove">mousemove</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onmouseout" title="handler-onmouseout"><code>onmouseout</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-mouseout">mouseout</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onmouseover" title="handler-onmouseover"><code>onmouseover</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-mouseover">mouseover</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onmouseup" title="handler-onmouseup"><code>onmouseup</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-mouseup">mouseup</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+   <dt><dfn id="handler-onmousewheel" title="handler-onmousewheel"><code>onmousewheel</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-mousewheel">mousewheel</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+<!--
+   <dt><dfn title="handler-onpaste"><code>onpaste</code></dfn></dt> --><!-- widely used --><!--
+
+   <dd><p>Must be invoked whenever a <code
+   title="event-paste">paste</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+-->
+
+   <dt><dfn id="handler-onscroll" title="handler-onscroll"><code>onscroll</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-scroll">scroll</code> event is targeted at or bubbles
+   through the element or object.</p></dd> <!-- XXX should define when it fires -->
+
+   <dt><dfn id="handler-onselect" title="handler-onselect"><code>onselect</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-select"><a href="interactive-elements.html#event-select">select</a></code> event is targeted at or bubbles
+   through the element or object.</p></dd> <!-- XXX should define when it fires -->
+
+<!--XXX
+   <dt><dfn title="handler-onselectstart"><code>onselectstart</code></dfn></dt> --><!-- widely used --><!--
+
+   <dd><p>Must be invoked whenever a <code
+   title="event-selectstart">selectstart</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+--> <!-- XXX should define when it fires -->
+
+   <dt><dfn id="handler-onsubmit" title="handler-onsubmit"><code>onsubmit</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-submit">submit</code> event is targeted at or bubbles
+   through the element or object.</p></dd>
+
+  </dl><hr><p>The following are the event handler attributes that must be
+  supported by all <a href="infrastructure.html#html-elements">HTML elements</a> other than
+  <code><a href="semantics.html#the-body-element">body</a></code>, as both content attributes and DOM
+  attributes:</p><dl><dt><dfn id="handler-onerror" title="handler-onerror"><code>onerror</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-error"><a href="video.html#event-error">error</a></code> event is targeted at or bubbles
+   through the element.</p></dd>
+
+   <dt><dfn id="handler-onload" title="handler-onload"><code>onload</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-load"><a href="video.html#event-load">load</a></code> event is targeted at or bubbles
+   through the element.</p></dd>
+
+   <dt><dfn id="handler-onmessage" title="handler-onmessage"><code>onmessage</code></dfn></dt> <!-- new for <eventsource> -->
+
+   <dd><p>Must be invoked whenever a <code title="event-message"><a href="comms.html#event-message">message</a></code> event is targeted at or bubbles
+   through the element.</p></dd>
+
+  </dl><hr><p>The following are the event handler attributes that must be
+  supported by <code><a href="#window">Window</a></code> objects, as DOM attributes on the
+  <code><a href="#window">Window</a></code> object, and with corresponding content
+  attributes and DOM attributes exposed on the <code><a href="semantics.html#the-body-element">body</a></code>
+  element:</p><dl><dt><dfn id="handler-window-onbeforeunload" title="handler-window-onbeforeunload"><code>onbeforeunload</code></dfn></dt>
+
+   <dd><p>Must be invoked whenever a <code title="event-beforeunload">beforeunload</code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+   <dt><dfn id="handler-window-onerror" title="handler-window-onerror"><code>onerror</code></dfn></dt>
+
+   <dd>
+
+    <p>Must be invoked whenever an <code title="event-error"><a href="video.html#event-error">error</a></code> event is targeted at or bubbles
+    through the object.</p>
+
+    <p>Unlike other event handler attributes, the <code title="handler-window-onerror"><a href="#handler-window-onerror">onerror</a></code> event handler attribute can
+    have any value. The initial value of <code title="handler-window-onerror"><a href="#handler-window-onerror">onerror</a></code> must be
+    <code>undefined</code>.</p>
+
+    <p class="note">The <code title="handler-window-onerror"><a href="#handler-window-onerror">onerror</a></code>
+    handler is also used for <a href="#runtime-script-errors">reporting script errors</a>.</p>
+
+   </dd>
+
+   <dt><dfn id="handler-window-onhashchange" title="handler-window-onhashchange"><code>onhashchange</code></dfn></dt> <!-- new -->
+
+   <dd><p>Must be invoked whenever a <code title="event-hashchange">hashchange</code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+   <dt><dfn id="handler-window-onload" title="handler-window-onload"><code>onload</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-load"><a href="video.html#event-load">load</a></code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+   <dt><dfn id="handler-window-onmessage" title="handler-window-onmessage"><code>onmessage</code></dfn></dt> <!-- new for postMessage -->
+
+   <dd><p>Must be invoked whenever a <code title="event-message"><a href="comms.html#event-message">message</a></code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+   <dt><dfn id="handler-window-onoffline" title="handler-window-onoffline"><code>onoffline</code></dfn></dt> <!-- new -->
+
+   <dd><p>Must be invoked whenever a <code title="event-offline"><a href="offline.html#event-offline">offline</a></code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+   <dt><dfn id="handler-window-ononline" title="handler-window-ononline"><code>ononline</code></dfn></dt> <!-- new -->
+
+   <dd><p>Must be invoked whenever a <code title="event-online"><a href="offline.html#event-online">online</a></code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+   <dt><dfn id="handler-window-onpopstate" title="handler-window-onpopstate"><code>onpopstate</code></dfn></dt> <!-- new -->
+
+   <dd><p>Must be invoked whenever a <code title="event-popstate"><a href="history.html#event-popstate">popstate</a></code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+   <dt><dfn id="handler-window-onresize" title="handler-window-onresize"><code>onresize</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever a <code title="event-resize">resize</code> event is targeted at or bubbles
+   through the object.</p></dd> <!-- XXX should define when it fires -->
+
+   <dt><dfn id="handler-window-onstorage" title="handler-window-onstorage"><code>onstorage</code></dfn></dt> <!-- new -->
+
+   <dd><p>Must be invoked whenever a <code title="event-storage"><a href="structured-client-side-storage.html#event-storage">storage</a></code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+   <dt><dfn id="handler-window-onunload" title="handler-window-onunload"><code>onunload</code></dfn></dt> <!-- widely used -->
+
+   <dd><p>Must be invoked whenever an <code title="event-unload">unload</code> event is targeted at or bubbles
+   through the object.</p></dd>
+
+  </dl><h5 id="event-firing"><span class="secno">5.5.6.3 </span>Event firing</h5><p class="XXX">maybe this should be moved higher up
+  (terminology? conformance? DOM?) Also, the whole terminology thing
+  should be changed so that we don't define any specific events here,
+  we only define 'simple event', 'progress event', 'mouse event', 'key
+  event', and the like, and have the actual dispatch use those generic
+  terms when firing events.</p><p>Certain operations and methods are defined as firing events on
+  elements. For example, the <code title="dom-click"><a href="editing.html#dom-click">click()</a></code>
+  method on the <code><a href="dom.html#htmlelement">HTMLElement</a></code> interface is defined as
+  firing a <code title="event-click">click</code> event on the
+  element.  <a href="references.html#references">[DOM3EVENTS]</a></p><p><dfn id="fire-a-click-event" title="fire a click event">Firing a <code title="event-click">click</code> event</dfn> means that a <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-click"><code>click</code></a>
+  event with no
+  namespace, which bubbles and is cancelable, and which uses the
+  <code>MouseEvent</code> interface, must be dispatched at the given
+  target. The event object must have its <code title="">screenX</code>, <code title="">screenY</code>, <code title="">clientX</code>, <code title="">clientY</code>, and <code title="">button</code> attributes set to 0, its <code title="">ctrlKey</code>, <code title="">shiftKey</code>, <code title="">altKey</code>, and <code title="">metaKey</code> attributes
+  set according to the current state of the key input device, if any
+  (false for any keys that are not available), its <code title="">detail</code> attribute set to 1, and its <code title="">relatedTarget</code> attribute set to null. The <code title="">getModifierState()</code> method on the object must return
+  values appropriately describing the state of the key input device at
+  the time the event is created.</p><p><dfn id="fire-a-contextmenu-event" title="fire a contextmenu event">Firing a <code title="event-contextmenu">contextmenu</code> event</dfn> means that
+  a <code title="event-contextmenu">contextmenu</code> event with no
+  namespace, which bubbles and is cancelable, and which uses the
+  <code>Event</code> interface, must be dispatched at the given
+  target.</p><p><dfn id="fire-a-simple-event" title="fire a simple event">Firing a simple event called
+  <var title="">e</var></dfn> means that an event with the name <var title="">e</var>, with no namespace, which does not bubble but is
+  cancelable (unless otherwise stated), and which uses the
+  <code>Event</code> interface, must be dispatched at the given
+  target.</p><p><dfn id="fire-a-show-event" title="fire a show event">Firing a <code title="event-show">show</code> event</dfn> means <a href="#fire-a-simple-event" title="fire a
+  simple event">firing a simple event called <code title="event-show">show</code></a>. <span class="XXX">Actually this should fire an event that has
+  modifier information (shift/ctrl etc), as well as having a pointer
+  to the node on which the menu was fired, and with which the menu was
+  associated (which could be an ancestor of the former).</span></p><p><dfn id="fire-a-load-event" title="fire a load event">Firing a <code title="event-load">load</code> event</dfn> means <a href="#fire-a-simple-event" title="fire a
+  simple event">firing a simple event called <code title="event-load">load</code></a>. <!--<dfn title="fire a
+  DOMContentLoaded event">Firing a <code
+  title="event-DOMContentLoaded">DOMContentLoaded</code> event</dfn>
+  means <span title="fire a simple event">firing a simple event called
+  <code
+  title="event-DOMContentLoaded">DOMContentLoaded</code></span>.-->
+  <dfn id="fire-an-error-event" title="fire an error event">Firing an <code title="event-error">error</code> event</dfn> means <a href="#fire-a-simple-event" title="fire
+  a simple event">firing a simple event called <code title="event-error">error</code></a>.</p><!-- XXX need to define the dispatching of DOMActivate --><p class="XXX"><dfn id="fire-a-progress-event" title="fire a progress event">Firing a
+  progress event called <var title="">e</var></dfn> means something
+  that hasn't yet been defined, in the <a href="references.html#references">[PROGRESS]</a> spec.</p><p>The default action of these event is to do nothing unless
+  otherwise stated.</p><p class="XXX">If you dispatch a custom "click" event at an
+  element that would normally have default actions, should they get
+  triggered? If so, we need to go through the entire spec and make
+  sure that any default actions are defined in terms of <em>any</em>
+  event of the right type on that element, not those that are
+  dispatched in expected ways.</p><h5 id="events-and-the-window-object"><span class="secno">5.5.6.4 </span>Events and the <code><a href="#window">Window</a></code> object</h5><p>When an event is dispatched at a DOM node in a
+  <code>Document</code> in a <a href="#browsing-context">browsing context</a>, if the
+  event is not a <code title="event-load"><a href="video.html#event-load">load</a></code> event, the user
+  agent must also dispatch the event to the <code><a href="#window">Window</a></code>, as
+  follows:</p><ol><li>In the capture phase, the event must be dispatched to the
+   <code><a href="#window">Window</a></code> object before being dispatched to any of the
+   nodes.</li>
+
+   <li>In the bubble phase, the event must be dispatched to the
+   <code><a href="#window">Window</a></code> object at the end of the phase, unless bubbling
+   has been prevented.</li>
+
+  </ol><h5 id="runtime-script-errors"><span class="secno">5.5.6.5 </span>Runtime script errors</h5><p><em>This section only applies to user agents that support
+  scripting in general and ECMAScript in particular.</em></p><p>Whenever a runtime script error occurs in one of the scripts
+  associated with a <code>Document</code>, the user agent must
+  <a href="#report-the-error">report the error</a> using the <code title="handler-window-onerror"><a href="#handler-window-onerror">onerror</a></code> <a href="#event-handler-attributes-0" title="event
+  handler attributes">event handler attribute</a> of the
+  <a href="#script-s-global-object">script's global object</a>. If the error is still <i title="">not handled</i> after this, then the error should be
+  reported to the user.</p><hr><p>When the user agent is required to <dfn id="report-the-error" title="report the
+  error">report an error</dfn> <var title="">error</var> using the
+  event handler attribute <var title="">onerror</var>, it must run
+  these steps, after which the error is either <i title="">handled</i>
+  or <i title="">not handled</i>:</p><dl class="switch"><dt>If the value of <var title="">onerror</var> is a
+   <code><a href="#function">Function</a></code></dt>
+
+   <dd>
+
+    <p>The function must be invoked with three arguments. The three
+    arguments passed to the function are all <code>DOMString</code>s;
+    the first must give the message that the UA is considering
+    reporting, the second must give the <a href="infrastructure.html#absolute-url">absolute URL</a> of
+    the resource in which the error occurred, and the third must give
+    the line number in that resource on which the error occurred.</p>
+
+    <p>If the function returns false, then the error is <i title="">handled</i>. Otherwise, the error is <i title="">not
+    handled</i>.</p>
+
+    <p>Any exceptions thrown or errors caused by this function must be
+    reported to the user immediately after the error that the function
+    was called for, without using the <a href="#report-the-error" title="report the
+    error">report an error</a> algorithm again.</p>
+
+   </dd>
+
+   <dt>If the value is <code>null</code></dt>
+
+   <dd>
+
+    <p>The error is <i title="">handled</i>.</p>
+
+   </dd>
+
+   <dt>If the value is anything else</dt>
+
+   <dd>
+
+    <p>The error is <i title="">not handled</i>.</p>
+
+   </dd>
+
+  </dl><h3 id="user-prompts"><span class="secno">5.6 </span>User prompts</h3><h4 id="simple-dialogs"><span class="secno">5.6.1 </span>Simple dialogs</h4><p>The <dfn id="dom-alert" title="dom-alert"><code>alert(<var title="">message</var>)</code></dfn> method, when invoked, must show
+  the given <var title="">message</var> to the user. The user agent
+  may make the method wait for the user to acknowledge the message
+  before returning; if so, the user agent must <a href="infrastructure.html#pause">pause</a>
+  while the method is waiting.</p><p>The <dfn id="dom-confirm" title="dom-confirm"><code>confirm(<var title="">message</var>)</code></dfn> method, when invoked, must show
+  the given <var title="">message</var> to the user, and ask the user
+  to respond with a positive or negative response. The user agent must
+  then <a href="infrastructure.html#pause">pause</a> as the method waits for the user's
+  response. If the user responds positively, the method must return
+  true, and if the user responds negatively, the method must return
+  false.</p><p>The <dfn id="dom-prompt" title="dom-prompt"><code>prompt(<var title="">message</var>, <var title="">default</var>)</code></dfn>
+  method, when invoked, must show the given <var title="">message</var> to the user, and ask the user to either
+  respond with a string value or abort. The user agent must then
+  <a href="infrastructure.html#pause">pause</a> as the method waits for the user's
+  response. The second argument is optional. If the second argument
+  (<var title="">default</var>) is present, then the response must be
+  defaulted to the value given by <var title="">default</var>. If the
+  user aborts, then the method must return null; otherwise, the method
+  must return the string that the user responded with.</p><h4 id="printing"><span class="secno">5.6.2 </span>Printing</h4><p>The <dfn id="dom-print" title="dom-print"><code>print()</code></dfn> method,
+  when invoked, must run the <a href="#printing-steps">printing steps</a>.</p><p>User agents should also run the <a href="#printing-steps">printing steps</a>
+  whenever the user asks for the opportunity to <a href="rendering.html#obtain-a-physical-form">obtain a
+  physical form</a> (e.g. printed copy), or the representation of a
+  physical form (e.g. PDF copy), of a document.</p><p>The <dfn id="printing-steps">printing steps</dfn> are as follows:</p><ol><li>
+
+    <p>The user agent may display a message to the user and/or may
+    abort these steps.</p>
+
+    <p class="example">For instance, a kiosk browser could silently
+    ignore any invocations of the <code title="dom-print"><a href="#dom-print">print()</a></code> method.</p>
+
+    <p class="example">For instance, a browser on a mobile device
+    could detect that there are no printers in the vicinity and
+    display a message saying so before continuing to offer a "save to
+    PDF" option.</p>
+
+   </li>
+
+   <li>
+
+    <p>The user agent must <a href="#fire-a-simple-event">fire a simple event</a> called
+    <code title="event-beforeprint">beforeprint</code> at the
+    <code><a href="#window">Window</a></code> object of the <code>Document</code> that is
+    being printed, as well as any <a href="#nested-browsing-context" title="nested browsing
+    context">nested browsing contexts</a> in it.</p>
+
+    <p class="example">The <code title="event-beforeprint">beforeprint</code> event can be used
+    to annotate the printed copy, for instance adding the time at
+    which the document was printed.</p>
+   
+   </li>
+
+   <li>
+
+    <p>The user agent should offer the user the opportunity to
+    <a href="rendering.html#obtain-a-physical-form">obtain a physical form</a> (or the representation of a
+    physical form) of the document. The user agent may wait for the
+    user to either accept or decline before returning; if so, the user
+    agent must <a href="infrastructure.html#pause">pause</a> while the method is waiting. Even if
+    the user agent doesn't wait at this point, the user agent must use
+    the state of the relevant documents as they are at this point in
+    the algorithm if and when it eventually creates the alternate
+    form.</p>
+
+   </li>
+
+   <li>
+
+    <p>The user agent must <a href="#fire-a-simple-event">fire a simple event</a> called
+    <code title="event-afterprint">afterprint</code> at the
+    <code><a href="#window">Window</a></code> object of the <code>Document</code> that is
+    being printed, as well as any <a href="#nested-browsing-context" title="nested browsing
+    context">nested browsing contexts</a> in it.</p>
+
+    <p class="example">The <code title="event-afterprint">afterprint</code> event can be used
+    to revert annotations added in the earlier event, as well as
+    showing post-printing UI. For instance, if a page is walking the
+    user through the steps of applying for a home loan, the script
+    could automatically advance to the next step after having printed
+    a form or other.</p>
+
+   </li>
+
+  </ol><h4 id="dialogs-implemented-using-separate-documents"><span class="secno">5.6.3 </span>Dialogs implemented using separate documents</h4><p>The <dfn id="dom-showmodaldialog" title="dom-showModalDialog"><code>showModalDialog(<var title="">url</var>, <var title="">argument</var><!--, <var
+  title="">features</var>-->)</code></dfn> method, when invoked, must
+  cause the user agent to run the following steps:</p><ol><li>
+
+    <p><a href="infrastructure.html#resolve-a-url" title="resolve a url">Resolve</a> <var title="">url</var> relative to the <a href="#first-script">first script</a>'s
+    <a href="#script-s-base-url" title="script's base URL">base URL</a>.</p>
+
+    <p>If this fails, then throw a <code><a href="infrastructure.html#syntax_err">SYNTAX_ERR</a></code> exception
+    and abort these steps.</p>
+
+   </li><li>
+
+    <p>If the user agent is configured such that this invocation of
+    <code title="dom-showModalDialog"><a href="#dom-showmodaldialog">showModalDialog()</a></code> is
+    somehow disabled, then the method returns the empty string; abort
+    these steps.</p>
+
+    <p class="note">User agents are expected to disable this method in
+    certain cases to avoid user annoyance (e.g. as part of their popup
+    blocker feature). For instance, a user agent could require that a
+    site be white-listed before enabling this method, or the user
+    agent could be configured to only allow one modal dialog at a
+    time.</p>
+
+   </li>
+
+   <li>
+
+    <p>Let <var title="">the list of background browsing
+    contexts</var> be a list of all the browsing contexts that:</p>
+
+    <ul><li>are part of the same <a href="#unit-of-related-browsing-contexts">unit of related browsing
+     contexts</a> as the browsing context of the
+     <code><a href="#window">Window</a></code> object on which the <code title="dom-showModalDialog"><a href="#dom-showmodaldialog">showModalDialog()</a></code> method was
+     called, and that</li>
+
+     <li>have an <a href="#active-document">active document</a> whose
+     <a href="#origin-0">origin</a> is the <a href="#same-origin" title="same origin">same</a>
+     as the <a href="#origin-0">origin</a> of the <a href="#concept-script" title="concept-script">script</a> that called the <code title="dom-showModalDialog"><a href="#dom-showmodaldialog">showModalDialog()</a></code> method at
+     the time the method was called,</li> <!-- Note that changing
+     document.domain to talk to another domain doesn't make you able
+     to block that domain -->
+
+    </ul><p>...as well as any browsing contexts that are nested inside any
+    of the browsing contexts matching those conditions.</p>
+
+   </li>
+
+   <li>
+
+    <p>Disable the user interface for all the browsing contexts in
+    <var title="">the list of background browsing contexts</var>. This
+    should prevent the user from navigating those browsing contexts,
+    causing events to to be sent to those browsing context, or editing
+    any content in those browsing contexts. However, it does not
+    prevent those browsing contexts from receiving events from sources
+    other than the user, from running scripts, from running
+    animations, and so forth.</p>
+
+   </li>
+
+   <li>
+
+    <p>Create a new <a href="#auxiliary-browsing-context">auxiliary browsing context</a>, with the
+    <a href="#opener-browsing-context">opener browsing context</a> being the browsing context of
+    the <code><a href="#window">Window</a></code> object on which the <code title="dom-showModalDialog"><a href="#dom-showmodaldialog">showModalDialog()</a></code> method was
+    called. The new auxiliary browsing context has no name.</p>
+
+    <p class="note">This <a href="#browsing-context">browsing context</a>'s
+    <code>Document</code>s' <code><a href="#window">Window</a></code> objects all implement
+    the <code><a href="#windowmodal">WindowModal</a></code> interface.</p>
+
+   </li>
+
+   <li>
+
+    <p>Let the <a href="#dialog-arguments">dialog arguments</a> of the new browsing
+    context be set to the value of <var title="">argument</var>, or
+    the 'undefined' value if the argument was omitted.</p>
+
+   </li>
+
+   <li>
+
+    <p>Let the <a href="#dialog-arguments-origin">dialog arguments' origin</a> be the
+    <a href="#origin-0">origin</a> of the <a href="#concept-script" title="concept-script">script</a> that called the <code title="dom-showModalDialog"><a href="#dom-showmodaldialog">showModalDialog()</a></code> method.</p>
+
+   </li>
+
+   <li>
+
+    <p><a href="history.html#navigate">Navigate</a> the new <a href="#browsing-context">browsing context</a> to
+    the <a href="infrastructure.html#absolute-url">absolute URL</a> that resulted from <a href="infrastructure.html#resolve-a-url" title="resolve a url">resolving</a> <var title="">url</var>
+    earlier, with <a href="history.html#replacement-enabled">replacement enabled</a>, and with the <a href="#script-s-browsing-context" title="script's browsing context">browsing context</a> of the
+    <a href="#concept-script" title="concept-script">script</a> that invoked the method
+    as the <a href="history.html#source-browsing-context">source browsing context</a>.</p>
+
+   </li>
+
+   <li>
+
+    <p>Wait for the browsing context to be closed. (The user agent
+    must allow the user to indicate that the browsing context is to be
+    closed.)</p>
+
+   </li>
+
+   <li>
+
+    <p>Reenable the user interface for all the browsing contexts in
+    <var title="">the list of background browsing contexts</var>.</p>
+
+   </li>
+
+   <li>
+
+    <p>Return the <a href="#auxiliary-browsing-context">auxiliary browsing context</a>'s
+    <a href="#return-value">return value</a>.</p>
+
+   </li>
+
+  </ol><p>The <code><a href="#window">Window</a></code> objects of <code>Document</code>s hosted
+  by <a href="#browsing-context" title="browsing context">browsing contexts</a> created
+  by the above algorithm must all implement the
+  <code><a href="#windowmodal">WindowModal</a></code> interface:</p><p class="XXX">Really I want the Window object to just gain these
+  attributes, as if they were on the Window prototype. That's the XXX
+  below.</p><pre class="idl">[NoInterfaceObject, ImplementedOn=<a href="#window">Window</a>, XXX] interface <dfn id="windowmodal">WindowModal</dfn> {
+  readonly attribute any <a href="#dom-windowmodal-dialogarguments" title="dom-WindowModal-dialogArguments">dialogArguments</a>;
+           attribute DOMString <a href="#dom-windowmodal-returnvalue" title="dom-WindowModal-returnValue">returnValue</a>;
+};</pre><p>Such browsing contexts have associated <dfn id="dialog-arguments">dialog
+  arguments</dfn>, which are stored along with the <dfn id="dialog-arguments-origin">dialog
+  arguments' origin</dfn>. These values are set by the <code title="dom-showModalDialog"><a href="#dom-showmodaldialog">showModalDialog()</a></code> method in the
+  algorithm above, when the browsing context is created, based on the
+  arguments provided to the method.</p><p>The <dfn id="dom-windowmodal-dialogarguments" title="dom-WindowModal-dialogArguments"><code>dialogArguments</code></dfn>
+  DOM attribute, on getting, must check whether its browsing context's
+  <a href="#active-document">active document</a>'s <a href="#origin-0">origin</a> is the <a href="#same-origin" title="same origin">same</a> as the <a href="#dialog-arguments-origin">dialog arguments'
+  origin</a>. If it is, then the browsing context's <a href="#dialog-arguments">dialog
+  arguments</a> must be returned unchanged. Otherwise, if the
+  <a href="#dialog-arguments">dialog arguments</a> are an object, then the empty string
+  must be returned, and if the <a href="#dialog-arguments">dialog arguments</a> are not
+  an object, then the stringification of the <a href="#dialog-arguments">dialog
+  arguments</a> must be returned.
+
+  </p><p>These browsing contexts also have an associated <dfn id="return-value">return
+  value</dfn>. The <a href="#return-value">return value</a> of a browsing context
+  must be initialized to the empty string when the browsing context is
+  created.</p><p>The <dfn id="dom-windowmodal-returnvalue" title="dom-WindowModal-returnValue"><code>returnValue</code></dfn>
+  DOM attribute, on getting, must return the <a href="#return-value">return value</a>
+  of its browsing context, and on setting, must set the <a href="#return-value">return
+  value</a> to the given new value.</p><p class="note">The <code title="dom-window-close"><a href="#dom-window-close">window.close()</a></code> method can be used to
+  close the browsing context.</p><!-- XXX-NOTIFY
+  <h4>Notifications</h4>
+
+<!- - v2 feature requests:
+
+   - ability to snooze a notification so it comes again later
+      - shouldn't be on all messages, only those for which it makes
+        sense
+      - possibly just provide a new argument that takes an array of
+        (label, callback) tuples so that sites can implement this
+        themselves
+      - full HTML notifications
+
+  - ->
+
+  <p>Notifications are short, transient messages that bring the user's
+  attention to new information, or remind the user of scheduled
+  events.</p>
+
+  <p>Since notifications can be annoying if abused, this specification
+  defines a mechanism that scopes notifications to a site's existing
+  rendering area unless the user explicitly indicates that the site
+  can be trusted.</p>
+
+  <p>To this end, each <span>origin</span> can be flagged as being a
+  <dfn>trusted notification source</dfn>. By default origins should
+  not be flagged as such, but user agents may allow users to whitelist
+  origins or groups of origins as being <span title="trusted
+  notification source">trusted notification sources</span>. Only
+  origins flagged as trusted in this way are allowed to show
+  notification UI outside of their tab.</p>
+
+  <p class="example">For example, a user agent could allow a user to
+  mark all subdomains and ports of example.org as trusted
+  notification sources. Then, mail.example.org and
+  calendar.example.org would both be able to show notifications,
+  without the user having to flag them individually.</p>
+
+  <p>The <dfn title="dom-showNotification"><code>showNotification(<var
+  title="">title</var>, <var title="">subtitle</var>, <var
+  title="">description</var>, <var
+  title="">onclick</var>)</code></dfn> method, when invoked, must
+  cause the user agent to show a notification.</p>
+
+  <p id="sandboxNotifications">If the method was invoked from a <span
+  title="concept-script">script</span> whose <span title="script's
+  browsing context">browsing context</span> has the <span>sandboxed
+  annoyances browsing context flag</span> set, then the notification
+  must be shown within that <span>browsing context</span>. The
+  notification is said to be a <dfn>sandboxed notification</dfn>.</p>
+
+  <p>Otherwise, if the <span>origin</span> of the <span
+  title="script's browsing context">browsing context</span> of the
+  <span title="concept-script">script</span> that invoked the method
+  is <em>not</em> flagged as being a <span>trusted notification
+  source</span>, then the notification should be rendered within the
+  <span>top-level browsing context</span> of the <span>script's
+  browsing context</span>. The notification is said to be a
+  <dfn>normal notification</dfn>. User agents should provide a way to
+  set the origin's <span>trusted notification source</span> flag from
+  the notification, so that the user can benefit from notifications
+  even when the user agent is not the active application.</p>
+
+  <p>Otherwise, the <span>origin</span> is flagged as a <span>trusted
+  notification source</span>, and the notification should be shown
+  using the platform conventions for system-wide notifications. The
+  notification is said to be a <dfn>trusted notification</dfn>. User
+  agents may provide a way to unset the origin's <span>trusted
+  notification source</span> flag from within the notification, so as
+  to allow users to easily disable notifications from sites that abuse
+  the privilege.</p>
+
+  <div class="example">
+
+   <p>For example, if a site contains a gadget of a mail application
+   in a sandboxed <code>iframe</code> and that frame triggers a
+   notification upon the receipt of a new e-mail message, that
+   notification would be displayed on top of the gadget only.</p>
+
+   <p>However, if the user then goes to the main site of that mail
+   application, the notification would be displayed over the entire
+   rendering area of the tab for the site.</p>
+
+   <p>The notification, in this case, would have a button on it to let
+   the user indicate that he trusts the site. If the user clicked this
+   button, the next notification would use the system-wide
+   notification system, appearing even if the tab for the mail
+   application was buried deep inside a minimised window.</p>
+
+  </div>
+
+  <div class="example">
+
+   <p>The style of notifications varies from platform to platform. On
+   some, it is typically displayed as a "toast" window that slides in
+   from the bottom right corner. In others, notifications are shown as
+   semi-transparent white-on-grey overlays centered over the
+   screen. Other schemes could include simulated ticker tapes, and
+   speech-synthesis playback.</p>
+
+  </div>
+
+  <p>When a <span>normal notification</span> (but not a
+  <span>sandboxed notification</span>) is shown, the user agent may
+  bring the user's attention to the <span>top-level browsing
+  context</span> of the <span title="script's browsing
+  context">browsing context</span> of the <span
+  title="concept-script">script</span> that invoked the method, if
+  that would be useful; but user agents should not use system-wide
+  notification mechanisms to do so.</p>
+
+  <p>When a <span>trusted notification</span> is shown, the user agent
+  should bring the user's attention to the notification and the <span
+  title="script's browsing context">browsing context</span> of the
+  <span title="concept-script">script</span> that invoked the method,
+  as per the platform conventions for attracting the user's attention
+  to applications.</p>
+
+  <div class="example">
+
+   <p>In the case of <span title="normal notification">normal
+   notifications</span>, typically the only attention-grabbing device
+   that would be employed would be something like flashing the tab's
+   caption, or making it bold, or some such.</p>
+
+   <p>In addition, in the case of a <span>trusted notification</span>,
+   the entire window could flash, or the browser's application icon
+   could bounce or flash briefly, or a short sound effect could be
+   played.</p>
+
+  </div>
+
+  <p>Notifications should include the following content:</p>
+
+  <ul>
+
+   <li>The <var title="">title</var>, <var title="">subtitle</var>,
+   and <var title="">description</var> strings passed to the
+   method. They may be truncated or abbreviated if necessary.</li>
+
+   <li>The <span title="meta-application-name">application
+   name</span>, if available, or else the <span
+   title="dom-document-title">document title</span>, of the
+   <span>active document</span> of the <span title="script's browsing
+   context">browsing context</span> of the <span
+   title="concept-script">script</span> that invoked the method.</li>
+
+   <li>An icon chosen from the <span title="external resource
+   link">external resource links</span> of type <code
+   title="rel-icon">icon</code>, if any are available.</li>
+
+  </ul>
+
+  <p>If a new notification from one <span>browsing context</span> has
+  <var title="">title</var>, <var title="">subtitle</var>, and <var
+  title="">description</var> strings that are identical to the <var
+  title="">title</var>, <var title="">subtitle</var>, and <var
+  title="">description</var> strings of an already-active notification
+  from the same <span>browsing context</span> or another <span
+  title="browsing context">browsing context</span> with the same
+  <span>origin</span>, the user agent should not display the new
+  notification, but should instead add an indicator to the
+  already-active notification that another identical notification
+  would otherwise have been shown.</p>
+
+  <div class="example">
+
+   <p>For instance, if a user has his mail application open in three
+   windows, and thus the same "New Mail" notification is fired three
+   times each time a mail is received, instead of displaying three
+   identical notifications each time, the user agent could just show
+   one, with the title "New Mail x3".</p>
+
+  </div>
+
+  <p>Notifications should have a lifetime based on the platform
+  conventions for notifications. However, the lifetime of a
+  notification should not begin until the user has had the opportunity
+  to see it, so if a notification is spawned for a <span>browsing
+  context</span> that is hidden, it should be shown for its complete
+  lifetime once the user brings that <span>browsing context</span>
+  into view.</p>
+
+  <p>User agents should support multiple notifications at once.</p>
+
+  <p>User agents should support user interaction with notifications,
+  if and as appropriate given the platform conventions. If a user
+  activates a notification, and the <var title="">onclick</var>
+  callback argument was present and is not null, then the <span
+  title="script's browsing context">browsing context</span> of the
+  <span title="concept-script">script</span> of the function given by
+  <var title="">onclick</var> should be brought to the user's
+  attention, and the <var title="">onclick</var> callback should then
+  be invoked.</p>
+
+--><h3 id="system-state-and-capabilities"><span class="secno">5.7 </span>System state and capabilities</h3><p>The <dfn id="dom-navigator" title="dom-navigator"><code>navigator</code></dfn>
+  attribute of the <code><a href="#window">Window</a></code> interface must return an
+  instance of the <code><a href="#navigator">Navigator</a></code> interface, which represents
+  the identity and state of the user agent (the client), and allows
+  Web pages to register themselves as potential protocol and content
+  handlers:</p><pre class="idl">interface <dfn id="navigator">Navigator</dfn> {
+  // objects implementing this interface also implement the interfaces given below
+};
+
+[NoInterfaceObject, ImplementedOn=<a href="#navigator">Navigator</a>] interface <dfn id="navigatorid">NavigatorID</dfn> {<!--
+  readonly attribute DOMString <span title="dom-navigator-appCodeName">appCodeName</span>;-->
+  readonly attribute DOMString <a href="#dom-navigator-appname" title="dom-navigator-appName">appName</a>;
+  readonly attribute DOMString <a href="#dom-navigator-appversion" title="dom-navigator-appVersion">appVersion</a>;
+  readonly attribute DOMString <a href="#dom-navigator-platform" title="dom-navigator-platform">platform</a>;
+  readonly attribute DOMString <a href="#dom-navigator-useragent" title="dom-navigator-userAgent">userAgent</a>;
+};
+
+[NoInterfaceObject, ImplementedOn=<a href="#navigator">Navigator</a>] interface <dfn id="navigatoronline">NavigatorOnLine</dfn> {
+  readonly attribute boolean <a href="offline.html#dom-navigator-online" title="dom-navigator-onLine">onLine</a>;
+};
+
+[NoInterfaceObject, ImplementedOn=<a href="#navigator">Navigator</a>] interface <dfn id="navigatorabilities">NavigatorAbilities</dfn> {
+  // content handler registration
+  void <a href="#dom-navigator-registerprotocolhandler" title="dom-navigator-registerProtocolHandler">registerProtocolHandler</a>(in DOMString protocol, in DOMString url, in DOMString title);
+  void <a href="#dom-navigator-registercontenthandler" title="dom-navigator-registerContentHandler">registerContentHandler</a>(in DOMString mimeType, in DOMString url, in DOMString title);
+<!--  XXX cookieEnabled geolocator javaEnabled mozIsLocallyAvailable preference
+  readonly attribute <span>MimeTypeArray</span> <span title="dom-navigator-mimeTypes">mimeTypes</span>;
+  readonly attribute <span>PluginArray</span> <span title="dom-navigator-plugins">plugins</span>;
+  (the latter is used in a <video> element demo now)
+-->};</pre><p>Objects implementing the <code><a href="#navigator">Navigator</a></code> interface must
+  also implement the <a href="#navigatorid">NavigatorID</a>,
+  <a href="#navigatoronline">NavigatorOnLine</a>, and
+  <a href="#navigatorabilities">NavigatorAbilities</a> interfaces. (These
+  interfaces are defined separately so that other specifications can
+  re-use parts of the <code><a href="#navigator">Navigator</a></code> interface.)</p><!-- XXX also, see window.external.AddSearchProvider() and similar DOM APIs from IE --><!-- XXX also, could expose languages:
+   <dt><dfn title="dom-navigator-browserLanguage"><code>browserLanguage</code></dfn></dt> <!- - Opera and IE only - ->
+   <dd><p>Must return either null or a language code representing the language the browser uses in its interface.</p></dd>
+   <dt><dfn title="dom-navigator-userLanguage"><code>userLanguage</code></dfn></dt> <!- - Opera and IE only - ->
+   <dt><dfn title="dom-navigator-language"><code>language</code></dfn></dt> <!- - Opera, Safari, and Mozilla only - ->
+   <dd><p>Must return either null or a language code representing the user's preferred language.</p></dd>
+   --><h4 id="client-identification"><span class="secno">5.7.1 </span>Client identification</h4><p>In certain cases, despite the best efforts of the entire
+  industry, Web browsers have bugs and limitations that Web authors
+  are forced to work around.</p><p>This section defines a collection of attributes that can be used
+  to determine, from script, the kind of user agent in use, in order
+  to work around these issues.</p><p>Client detection should always be limited to detecting known
+  current versions; future versions and unknown versions should always
+  be assumed to be fully compliant.</p><dl><!-- redundant
+   <dt><dfn title="dom-navigator-appCodeName"><code>appCodeName</code></dfn></dt>
+   <dd><p>Must return the string "<code title="">Mozilla</code>".</p></dd>
+   --><!-- appMinorVersion: IE only. In IE8b1, returns " Beta" (with the space) --><dt><dfn id="dom-navigator-appname" title="dom-navigator-appName"><code>appName</code></dfn></dt>
+   <dd><p>Must return either the string "<code title="">Netscape</code>" or the full name of the browser, e.g. "<code title="">Mellblom Browsernator</code>".</p></dd>
+
+   <dt><dfn id="dom-navigator-appversion" title="dom-navigator-appVersion"><code>appVersion</code></dfn></dt>
+   <dd><p>Must return either the string "<code title="">4.0</code>" or a string representing the version of the browser in detail, e.g. "<code title="">1.0 (VMS; en-US) Mellblomenator/9000</code>".</p></dd>
+
+   <!-- buildID: Mozilla only -->
+
+   <!-- oscpu: Mozilla only -->
+
+   <dt><dfn id="dom-navigator-platform" title="dom-navigator-platform"><code>platform</code></dfn></dt>
+   <dd><p>Must return either the empty string or a string representing the platform on which the browser is executing, e.g. "<code title="">MacIntel</code>", "<code title="">Win32</code>", "<code title="">FreeBSD i386</code>", "<code title="">WebTV OS</code>".</p></dd>
+
+   <!-- product: Mozilla and Safari only; always returns "Gecko" -->
+
+   <!-- productSub: Mozilla and Safari only; returns same as buildID in Mozilla, and returns the fixed string "20030107" in Safari -->
+
+   <!-- securityPolicy: Mozilla only; always returns "" -->
+
+   <!-- taintEnabled(): Opera, IE and Mozilla have this function as one that always returns false -->
+
+   <dt><dfn id="dom-navigator-useragent" title="dom-navigator-userAgent"><code>userAgent</code></dfn></dt>
+   <dd><p>Must return the string used for the value of the "<code title="">User-Agent</code>" header in HTTP requests, or the empty string if no such header is ever sent.</p></dd>
+
+   <!-- vendor: Mozilla and Safari only; always returns "" in Mozilla, and returns the fixed string "Apple Computer, Inc." in Safari -->
+
+   <!-- vendorSub: Mozilla and Safari only; always returns "" -->
+
+  </dl><h4 id="custom-handlers"><span class="secno">5.7.2 </span>Custom protocol and content handlers</h4><p>The <dfn id="dom-navigator-registerprotocolhandler" title="dom-navigator-registerProtocolHandler"><code>registerProtocolHandler()</code></dfn>
+  method allows Web sites to register themselves as possible handlers
+  for particular protocols. For example, an online fax service could
+  register itself as a handler of the <code>fax:</code> protocol (<a href="references.html#references">[RFC2806]</a>), so that if the user clicks on
+  such a link, he is given the opportunity to use that Web
+  site. Analogously, the <dfn id="dom-navigator-registercontenthandler" title="dom-navigator-registerContentHandler"><code>registerContentHandler()</code></dfn>
+  method allows Web sites to register themselves as possible handlers
+  for content in a particular MIME type. For example, the same online
+  fax service could register itself as a handler for
+  <code>image/g3fax</code> files (<a href="references.html#references">[RFC1494]</a>), so that if the user has no
+  native application capable of handling G3 Facsimile byte streams,
+  his Web browser can instead suggest he use that site to view the
+  image.</p><p>User agents may, within the constraints described in this
+  section, do whatever they like when the methods are called. A UA
+  could, for instance, prompt the user and offer the user the
+  opportunity to add the site to a shortlist of handlers, or make the
+  handlers his default, or cancel the request. UAs could provide such
+  a UI through modal UI or through a non-modal transient notification
+  interface. UAs could also simply silently collect the information,
+  providing it only when relevant to the user.</p><p>There is <a href="#sample-handler-impl">an example of how these
+  methods could be presented to the user</a> below.</p><p>The arguments to the methods have the following meanings and
+  corresponding implementaion requirements:</p><dl><dt><var title="">protocol</var> (<code title="dom-navigator-registerProtocolHandler"><a href="#dom-navigator-registerprotocolhandler">registerProtocolHandler()</a></code> only)</dt>
+
+   <dd>
+
+    <p>A scheme, such as <code>ftp</code> or <code>fax</code>. The
+    scheme must be compared in an <a href="infrastructure.html#ascii-case-insensitive">ASCII case-insensitive</a>
+    manner by user agents for the purposes of comparing with the
+    scheme part of URLs that they consider against the list of
+    registered handlers.</p>
+
+    <p>The <var title="">protocol</var> value, if it contains a colon
+    (as in "<code>ftp:</code>"), will never match anything, since
+    schemes don't contain colons.</p>
+
+   </dd>
+
+   <dt><var title="">mimeType</var> (<code title="dom-navigator-registerContentHandler"><a href="#dom-navigator-registercontenthandler">registerContentHandler()</a></code> only)</dt>
+
+   <dd>
+
+    <p>A MIME type, such as <code>model/vrml</code> or
+    <code>text/richtext</code>. The MIME type must be compared in an
+    <a href="infrastructure.html#ascii-case-insensitive">ASCII case-insensitive</a> manner by user agents for the
+    purposes of comparing with MIME types of documents that they
+    consider against the list of registered handlers.</p>
+
+    <p>User agents must compare the given values only to the MIME
+    type/subtype parts of content types, not to the complete type
+    including parameters. Thus, if <var title="">mimeType</var> values
+    passed to this method include characters such as commas or
+    whitespace, or include MIME parameters, then the handler being
+    registered will never be used.</p>
+
+   </dd>
+
+
+   <dt><var title="">url</var></dt>
+
+   <dd>
+
+    <p>The <a href="infrastructure.html#url">URL</a> of the page that will handle the
+    requests.</p>
+
+    <p>When the user agent uses this URL, it must replace the first
+    occurrence of the exact literal string "<code title="">%s</code>"
+    with an escaped version of the <a href="infrastructure.html#absolute-url">absolute URL</a> of the
+    content in question (as defined below), then <a href="infrastructure.html#resolve-a-url" title="resolve
+    a url">resolve</a> the resulting URL, relative to the <a href="#script-s-base-url" title="script's base URL">base URL</a> of the <a href="#first-script">first
+    script</a> at the time the <code title="dom-navigator-registerContentHandler"><a href="#dom-navigator-registercontenthandler">registerContentHandler()</a></code>
+    or <code title="dom-navigator-registerProtocolHandler"><a href="#dom-navigator-registerprotocolhandler">registerProtocolHandler()</a></code>
+    methods were invoked, and then <a href="infrastructure.html#fetch">fetch</a> the resulting
+    URL using the GET method (<a href="infrastructure.html#concept-http-equivalent-get" title="concept-http-equivalent-get">or equivalent</a> for
+    non-HTTP URLs).</p>
+
+    <p>To get the escaped version of the <a href="infrastructure.html#absolute-url">absolute URL</a> of
+    the content in question, the user agent must replace every
+    character in that <a href="infrastructure.html#absolute-url">absolute URL</a> that doesn't match the
+    &lt;query&gt; production defined in RFC 3986 by the
+    percent-encoded form of that character. <a href="references.html#references">[RFC3986]</a></p>
+
+    <div class="example">
+
+     <p>If the user had visited a site at <code title="">http://example.com/</code> that made the following
+     call:</p>
+
+     <pre>navigator.registerContentHandler('application/x-soup', 'soup?url=%s', 'SoupWeb&#8482;')</pre>
+
+     <p>...and then, much later, while visiting <code title="">http://www.example.net/</code>, clicked on a link such
+     as:</p>
+
+     <pre>&lt;a href="chickenk&#239;wi.soup"&gt;Download our Chicken Kiwi soup!&lt;/a&gt;</pre>
+
+     <p>...then, assuming this <code>chickenk&#239;wi.soup</code> file
+     was served with the MIME type <code>application/x-soup</code>,
+     the UA might navigate to the following URL:</p>
+
+     <pre>http://example.com/soup?url=http://www.example.net/chickenk%C3%AFwi.soup</pre>
+
+     <p>This site could then fetch the <code>chickenk&#239;wi.soup</code>
+     file and do whatever it is that it does with soup (synthesize it
+     and ship it to the user, or whatever).</p>
+
+    </div>
+
+   </dd>
+
+   <dt><var title="">title</var></dt>
+
+   <dd>
+
+    <p>A descriptive title of the handler, which the UA might use to
+    remind the user what the site in question is.</p>
+
+   </dd>
+
+  </dl><p>User agents should raise <code><a href="infrastructure.html#security_err">SECURITY_ERR</a></code> exceptions if
+  the methods are called with <var title="">protocol</var> or <var title="">mimeType</var> values that the UA deems to be
+  "privileged". For example, a site attempting to register a handler
+  for <code>http</code> URLs or <code>text/html</code> content in a
+  Web browser would likely cause an exception to be raised.</p><p>User agents must raise a <code><a href="infrastructure.html#syntax_err">SYNTAX_ERR</a></code> exception if the
+  <var title="">url</var> argument passed to one of these methods does
+  not contain the exact literal string "<code>%s</code>", or if <a href="infrastructure.html#resolve-a-url" title="resolve a url">resolving</a> the <var title="">url</var>
+  argument with the first occurance of the string "<code title="">%s</code>" removed, relative to the <a href="#first-script">first
+  script</a>'s <a href="#script-s-base-url" title="script's base URL">base URL</a>, is
+  not successful.</p><p>User agents must not raise any other exceptions (other than
+  binding-specific exceptions, such as for an incorrect number of
+  arguments in an ECMAScript implementation).</p><p>This section does not define how the pages registered by these
+  methods are used, beyond the requirements on how to process the <var title="">url</var> value (see above). To some extent, the <a href="history.html#navigate" title="navigate">processing model for navigating across
+  documents</a> defines some cases where these methods are
+  relevant, but in general UAs may use this information wherever they
+  would otherwise consider handing content to native plugins or helper
+  applications.</p><p>UAs must not use registered content handlers to handle content
+  that was returned as part of a non-GET transaction (or rather, as
+  part of any non-idempotent transaction), as the remote site would
+  not be able to fetch the same data.</p><h5 id="security-and-privacy"><span class="secno">5.7.2.1 </span>Security and privacy</h5><p>These mechanisms can introduce a number of concerns, in
+  particular privacy concerns.</p><p><strong>Hijacking all Web usage.</strong> User agents should not
+  allow protocols that are key to its normal operation, such as
+  <code>http</code> or <code>https</code>, to be rerouted through
+  third-party sites. This would allow a user's activities to be
+  trivially tracked, and would allow user information, even in secure
+  connections, to be collected.</p><p><strong>Hijacking defaults.</strong> It is strongly recommended
+  that user agents do not automatically change any defaults, as this
+  could lead the user to send data to remote hosts that the user is
+  not expecting. New handlers registering themselves should never
+  automatically cause those sites to be used.</p><p><strong>Registration spamming.</strong> User agents should
+  consider the possibility that a site will attempt to register a
+  large number of handlers, possibly from multiple domains (e.g. by
+  redirecting through a series of pages each on a different domain,
+  and each registering a handler for <code>video/mpeg</code> &#8212;
+  analogous practices abusing other Web browser features have been
+  used by pornography Web sites for many years). User agents should
+  gracefully handle such hostile attempts, protecting the user.</p><p><strong>Misleading titles.</strong> User agents should not rely
+  wholly on the <var title="">title</var> argument to the methods when
+  presenting the registered handlers to the user, since sites could
+  easily lie. For example, a site <code>hostile.example.net</code>
+  could claim that it was registering the "Cuddly Bear Happy Content
+  Handler". User agents should therefore use the handler's domain in
+  any UI along with any title.</p><p><strong>Hostile handler metadata.</strong> User agents should
+  protect against typical attacks against strings embedded in their
+  interface, for example ensuring that markup or escape characters in
+  such strings are not executed, that null bytes are properly handled,
+  that over-long strings do not cause crashes or buffer overruns, and
+  so forth.</p><p><strong>Leaking Intranet URLs.</strong> The mechanism described
+  in this section can result in secret Intranet URLs being leaked, in
+  the following manner:</p><ol><li>The user registers a third-party content handler as the default
+   handler for a content type.</li>
+
+   <li>The user then browses his corporate Intranet site and accesses
+   a document that uses that content type.</li>
+
+   <li>The user agent contacts the third party and hands the third
+   party the URL to the Intranet content.</li>
+
+  </ol><p>No actual confidential file data is leaked in this manner, but
+  the URLs themselves could contain confidential information. For
+  example, the URL could be
+  <code>http://www.corp.example.com/upcoming-aquisitions/the-sample-company.egf</code>,
+  which might tell the third party that Example Corporation is
+  intending to merge with The Sample Company. Implementors might wish
+  to consider allowing administrators to disable this feature for
+  certain subdomains, content types, or protocols.</p><p><strong>Leaking secure URLs.</strong> User agents should not send
+  HTTPS URLs to third-party sites registered as content handlers, in
+  the same way that user agents do not send <code title="http-referer">Referer</code> headers from secure sites to
+  third-party sites.</p><p><strong>Leaking credentials.</strong> User agents must never send
+  username or password information in the URLs that are escaped and
+  included sent to the handler sites. User agents may even avoid
+  attempting to pass to Web-based handlers the URLs of resources
+  that are known to require authentication to access, as such sites
+  would be unable to access the resources in question without
+  prompting the user for credentials themselves (a practice that would
+  require the user to know whether to trust the third-party handler, a
+  decision many users are unable to make or even understand).</p><h5 id="sample-handler-impl"><span class="secno">5.7.2.2 </span>Sample user interface</h5><p><em>This section is non-normative.</em></p><p>A simple implementation of this feature for a desktop Web browser
+  might work as follows.</p><p>The <code title="dom-navigator-registerProtocolHandler"><a href="#dom-navigator-registerprotocolhandler">registerProtocolHandler()</a></code>
+  method could display a modal dialog box:</p><pre>||[ Protocol Handler Registration ]|||||||||||||||||||||||||||
+|                                                            |
+| This Web page:                                             |
+|                                                            |
+|    Kittens at work                                         |
+|    http://kittens.example.org/                             |
+|                                                            |
+| ...would like permission to handle the protocol "x-meow:"  |
+| using the following Web-based application:                 |
+|                                                            |
+|    Kittens-at-work displayer                               |
+|    http://kittens.example.org/?show=%s                     |
+|                                                            |
+| Do you trust the administrators of the "kittens.example.   |
+| org" domain?                                               |
+|                                                            |
+|              ( Trust kittens.example.org )  (( Cancel ))   |
+|____________________________________________________________|</pre><p>...where "Kittens at work" is the title of the page that invoked
+  the method, "http://kittens.example.org/" is the URL of that page,
+  "x-meow" is the string that was passed to the <code title="dom-navigator-registerProtocolHandler"><a href="#dom-navigator-registerprotocolhandler">registerProtocolHandler()</a></code>
+  method as its first argument (<var title="">protocol</var>),
+  "http://kittens.example.org/?show=%s" was the second argument (<var title="">url</var>), and "Kittens-at-work displayer" was the third
+  argument (<var title="">title</var>).</p><p>If the user clicks the Cancel button, then nothing further
+  happens. If the user clicks the "Trust" button, then the handler is
+  remembered.</p><p>When the user then attempts to fetch a URL that uses the
+  "x-meow:" scheme, then it might display a dialog as follows:</p><pre>||[ Unknown Protocol ]||||||||||||||||||||||||||||||||||||||||
+|                                                            |
+| You have attempted to access:                              |
+|                                                            |
+|    x-meow:S2l0dGVucyBhcmUgdGhlIGN1dGVzdCE%3D               |
+|                                                            |
+| How would you like FerretBrowser to handle this resource?  |
+|                                                            |
+|  (o) Contact the FerretBrowser plugin registry to see if   |
+|      there is an official way to handle this resource.     |
+|                                                            |
+|  ( ) Pass this URL to a local application:                 |
+|      [ /no application selected/             ] ( Choose )  |
+|                                                            |
+|  ( ) Pass this URL to the "Kittens-at-work displayer"      |
+|      application at "kittens.example.org".                 |
+|                                                            |
+|  [ ] Always do this for resources using the "x-meow"       |
+|      protocol in future.                                   |
+|                                                            |
+|                                     ( Ok )  (( Cancel ))   |
+|____________________________________________________________|</pre><p>...where the third option is the one that was primed by the site
+  registering itself earlier.</p><p>If the user does select that option, then the browser, in
+  accordance with the requirements described in the previous two
+  sections, will redirect the user to
+  "http://kittens.example.org/?show=x-meow%3AS2l0dGVucyBhcmUgdGhlIGN1dGVzdCE%253D".</p><p>The <code title="dom-navigator-registerContentHandler"><a href="#dom-navigator-registercontenthandler">registerContentHandler()</a></code>
+  method would work equivalently, but for unknown MIME types instead
+  of unknown protocols.</p></body></html>

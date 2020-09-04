@@ -1,0 +1,855 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+<!-- descricao_site -->
+<META NAME="description" CONTENT="In this article, we shall learn the very important feature of java networking that helps to accessing the methods running on the server by the client. ">
+<title>How to create RMI client and server to invoke remove method of RMI server in java</title>
+
+<link rel="publisher" href="https://plus.google.com/100661587440603177063" />
+<link href="/include_mrbool/estilo_reset.css?d=1" rel="stylesheet" type="text/css" />
+<link href="http://www.devmedia.com.br/includeb/estilo.min.css?d=100" rel="stylesheet" type="text/css" />
+<link href="/articles/artigo_style.css?d=1" rel="stylesheet" type="text/css">
+<link href="/includeb/sharethis.css?d=2" rel="stylesheet" type="text/css" />
+<link   type="text/css" rel="stylesheet" href="http://mrbool.com/syntaxhl_3.0.83/styles/shCoreDefault.css"/>
+<link rel="canonical" href="http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320" />
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="/articles/article.js?d=2"></script>
+<script type="text/javascript" src="/includeb/stickyfloat.min.js"></script>
+
+<script type="text/javascript" src="http://mrbool.com/syntaxhl_3.0.83/scripts/shCore.js"></script> 
+<script type="text/javascript" src="http://mrbool.com/syntaxhl_3.0.83/scripts/shBrushJScript.js"></script> 
+<script type="text/javascript">SyntaxHighlighter.all();</script>
+
+<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+
+<!--share this-->
+<script type="text/javascript">var switchTo5x=true;</script>
+<script type="text/javascript" src="http://w.sharethis.com/button/buttons.js"></script>
+<script type="text/javascript">stLight.options({publisher: "6f216ae5-5b2a-44ad-89e4-fcab9e7e7984", onhover: false}); </script>
+
+<style>
+.img-twit{background-size:100%;width:54px;}
+.img-sharethis{background-size:100%;width:54px;}
+.img-linkedin{background-size:100%;width:55px;}
+</style>
+
+<script type="text/javascript">
+$(function(){
+	$('#socialbuttons-float').stickyfloat({ duration:0 });
+});
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-25213615-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+
+<style>
+#box_social{float:left;margin-left:0}
+#box_fb_comp{float:left;margin-top:4px}
+a.linkfeedback:link{text-decoration:none}
+a.linkfeedback:hover{color:blue}
+
+#div_feedback_post {
+	display: none;
+	z-index: 701;
+	position: absolute;
+	top: 31%;
+	left: 11%;
+	margin-left: 50px;
+	margin-top: -10px;
+	padding: 10px;
+	width: 430px;
+	height: 180px;
+	border: 1px solid #d0d0d0;
+	background-color: #f5f5f5;
+	border-style: solid;
+	border-color: grey;
+	border-width: 1px;
+}
+
+#box_voto_negativo {
+	font-size: 1.3em;
+	border-color: grey;
+	border-style: solid;
+	border-width: 1px;
+	padding: 20px;
+	margin-top: 20px;
+	margin-bottom: 100px;
+	background-color: #eee;
+	display: none;
+}
+</style>
+
+</head>
+
+
+
+<body >
+<link rel="shortcut icon" href="/favicon.ico">
+<link href="http://mrbool.com/include_mrbool/estilo_default.css" rel="stylesheet" type="text/css" />
+<link href="http://mrbool.com/include_mrbool/topo_mrbool.css?d=1" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="http://mrbool.com/include_mrbool/funcoes_js.js"></script>
+<script>(function() {
+var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+po.src = 'https://apis.google.com/js/plusone.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+})();</script><div id="div_login_topo" style="background-image: url('http://mrbool.com/portal2/mrbool_img/fx_topo.jpg');height:50px;"> 
+
+<div style="width:795px;margin:0 auto;align:center;">
+
+	<div style="width:500px;padding-top:15px;float:left;">
+	
+			<form name="f1" action="http://mrbool.com/login/login.asp" method="POST">
+			<span style="font-family:verdana;font-size:14px;color:white">Login:&nbsp;</span>
+			<input type="text" name="usuario" size=20 style="width:120px;background: #fff;	padding: 3px; 	margin: 0px; 	border: 1px solid #babdb6; font: inherit;"> 
+
+			<span style="padding-left:15px;font-family:verdana;font-size:14px;color:white">Password:&nbsp;</span>
+			<input type="password" name="senha" size=20 style="width:120px;background: #fff;	padding: 3px; 	margin: 0px; 	border: 1px solid #babdb6; font: inherit;">&nbsp;&nbsp;
+			
+			<input type=image src="http://mrbool.com/portal2/mrbool_img/bt_ok.jpg" >
+			
+		
+		  <input type="hidden" name="ac" value="1">
+		  </form>
+
+	</div>
+
+		
+		<div style="float:left;margin-left:15px;margin-top:18px;width:120px;">
+		<span >
+			<a href='http://mrbool.com/cadastro/lembrarcadastro.asp' class="link_topo_white"><span style="font-family:verdana;font-size:11px;color:white"><u>forgot my password</u></span></a></span>
+		</div>
+
+
+		<div style="margin-left:30px;padding-top:2px;padding-bottom:3px;float:left;background-color:#FFFFB3;width:74px;margin-top:15px;border-top-color:white;border-bottom-color:black;border-left-color:white;border-style:solid;border-width:1px;">
+			<span style="padding-left:15px;"><!-- class="link_topo_white" -->
+			<a href='http://mrbool.com/join' style="text-decoration:none" ><span style="font-family:verdana;font-size:11px;color:#595959">sign up!</span></a></span>
+		</div>
+		<div style="float:left;margin:15px 0px 0px 25px;width:20px;"><g:plusone size="medium" href="http://mrbool.com/"></g:plusone></div>
+			<div style="clear:both;">
+		</div> 
+  </div>
+
+ </div> 
+
+<center>
+<div id="main_topo" align="center">
+<div style="float:left;" >
+<a href="http://mrbool.com"><img src="http://mrbool.com/portal2/mrbool_img/logo.jpg"  style="position:relative; top:15px;" border=0></a>
+</div>
+
+<div id="opcoes_menu_main">
+
+<div style="padding-top:20px;">
+
+<ul id="primary-nav">
+  <li style="padding-left:40px;"><a href='http://mrbool.com'>Home</a></li>
+
+  <li class="menuparent" ><a href="#">Channels&nbsp;&#9660;</a> 
+	<ul style="z-index:10;padding:5px;width:140px;background:#FFFFFF;line-height:15px;border:1px solid #EAEAEA;-moz-box-shadow:1px 0px 5px 2px #CACACA;-webkit-box-shadow:1px 0px 5px 2px #CACACA;box-shadow:1px 0px 5px 2px #CACACA;">
+	  <li><a href="http://mrbool.com/articles/listcomp.asp">List all content</a></li>
+	  <li><a href="http://mrbool.com/channel/java">Java</a></li>
+	  <li><a href="http://mrbool.com/channel/front-end-web">Front-end Web</a></li>
+	  <li><a href="http://mrbool.com/channel/mobile">Mobile</a></li>
+	  <li><a href="http://mrbool.com/channel/dotnet">.net</a></li>
+	  <li><a href="http://mrbool.com/channel/database">Databases</a></li>
+	  
+	</ul>
+  </li>
+
+  <li class="menuparent"><a href="#">Courses&nbsp;&#9660;</a> 
+	<ul style="z-index:10;padding:5px;width:180px;background:#FFFFFF;line-height:15px;border:1px solid #EAEAEA;-moz-box-shadow:1px 0px 5px 2px #CACACA;-webkit-box-shadow:1px 0px 5px 2px #CACACA;box-shadow:1px 0px 5px 2px #CACACA;">
+	  <li><a href="http://mrbool.com/course">All courses</a></li>
+	  <li><a href="http://mrbool.com/course/java-courses">Java courses</a></li>
+	  <li><a href="http://mrbool.com/course/dotnet-courses">.net courses</a></li>
+	  <li><a href="http://mrbool.com/course/database-courses">Database courses</a></li>
+	  <li><a href="http://mrbool.com/course/web-developer-courses">webDeveloper courses</a></li>
+	  <li><a href="http://mrbool.com/course/delphi-courses">Delphi courses</a></li>
+	</ul>
+  </li>
+
+  <li class="menuparent"><a href='http://mrbool.com/portal/publish.asp'>Publish your post</a>   </li>
+  <!--<li class="menuparent"><a href='http://mrbool.com/credits'>Mr.Bool Credits</a>   </li>
+  <li class="menuparent" style="padding-right:0px;"><a href='http://mrbool.com/credits/?p=6'>Buy Credits</a>   </li>-->
+</ul>
+	<a href="https://plus.google.com/100661587440603177063?prsrc=3" target="_blank" style="cursor:pointer;display:inline-block;text-decoration:none;color:#333;font:13px/16px arial,sans-serif;"><img src="https://ssl.gstatic.com/images/icons/gplus-16.png" alt="" style="border:0;width:16px;height:16px;"/></a>
+	<a href='http://www.facebook.com/MrBool.Website' target='_blank'><img src='http://mrbool.com/portal2/mrbool_img/icone_facebook.jpg' style="position:relative; padding-left:0px;" border=0></a>
+	<a href='http://mrbool.com/feed/'><img src='http://mrbool.com/portal2/mrbool_img/icone_feed.jpg' border=0></a>
+	<a href='http://twitter.com/#!/mrboolteam'><img src='http://mrbool.com/portal2/mrbool_img/icone_twitter.jpg' border=0></a>
+	</div>
+</div>
+
+</div>
+</center>
+
+<div id="div_search_topo_single"  align="center">
+
+	<div id="topo_search_single"> 
+		
+	  <div style="margin:0 auto;width:464px;">
+		<div style="padding-top:5px;float:left;" >
+		<span style="font-family:verdana;font-size:17px;color:white;">Search:&nbsp;</span>
+		</div> 
+
+		<div style="padding-left:5px;float:left;">
+			<span style="font-family:verdana;font-size:17px;color:white;">
+			<form name="frmsearchtopo_single" method="get" action="http://mrbool.com/articles/listcomp.asp" >
+			<input type=text name="txtsearch" size=30 style="border: 1px solid #babdb6;background: #fff;padding: 4px;-moz-border-radius: 3px;-webkit-border-radius: 3px;border-radius: 3px;-moz-box-shadow: inset 0 1px 4px #eeeeec;-webkit-box-shadow: inset 0 1px 4px #eeeeec;box-shadow: inset 0 1px 4px #eeeeec;font: inherit;">
+			</span>
+		</div>
+		<div style="padding-left:5px;float:left;">					
+
+					
+			<input type=image src="http://mrbool.com/portal2/mrbool_img/bt_go.jpg" >
+			</form>
+		</div>
+		<div style="clear:both;"></div>
+	  </div>	
+
+	
+
+
+
+	</div>
+</div>
+
+	<div id="main" style="background-color:#F8F8F8;border-top: 0px solid #ff9999;border-right: 0px dotted #99ff99;border-bottom: 0px dashed #9999ff;">	
+
+		
+			<div id="div_corpo_post" style="padding-top:20px;display:table;width:800px;margin: 0 auto;background-color:white;padding-left:80px;padding-right:10px;box-shadow:3px 3px 10px grey,-3px 3px 10px grey;position:relative;">	
+			
+			<div id="socialbuttons-float" style="background-color:#F2F2F2;position:absolute;top:0px;left:-68px;width:65px;border:1px solid #d0d0d0;box-shadow:1px 1px 5px grey,-1px 1px 5px grey;height: 393px;"><center>
+				<div style="margin:15px auto;"><span class='st_fblike_vcount' displayText='Facebook Like' st_url="http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320"></span></div>
+				<div style="margin:15px auto;">
+					<div class="st_twitter_custom box-sharethis" st_url="http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320">
+						<div class="countbox">
+							<span id="twitcount" class="count"></span>
+							<span class="social-arrow"></span>
+							<span class="img-twit"></span>
+						</div>
+					</div>
+				</div>
+				<div style="margin:15px auto;"><span class='st_plusone_vcount' displayText='Google +1' st_url="http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320"></span></div>
+				<div style="margin:15px auto;">
+					<div class="st_linkedin_custom box-sharethis" st_url="http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320">
+						<div class="countbox">
+							<span id="linkedincount" class="count"></span>
+							<span class="social-arrow"></span>
+							<span class="img-linkedin"></span>
+						</div>
+					</div>
+				</div>
+				<div style="margin:15px auto;">
+					<div class="st_sharethis_custom box-sharethis" st_url="http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320">
+						<div class="countbox">
+							<span id="sharethiscount" class="count"></span>
+							<span class="social-arrow"></span>
+							<span class="img-sharethis"></span>
+						</div>
+					</div>
+				</div>
+<script type="text/javascript">
+stButtons.getCount("http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320","linkedin",document.getElementById('linkedincount'));
+stButtons.getCount("http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320","twitter",document.getElementById('twitcount'));
+stButtons.getCount("http://mrbool.com/how-to-create-rmi-client-and-server-to-invoke-remove-method-of-rmi-server-in-java/28320","sharethis",document.getElementById('sharethiscount'));
+</script>
+				</center>
+				</div>
+
+			<!--include file="exibe_anotacoes.asp" -->		
+			<div style="clear:both"></div>
+
+			
+			<div id="div_conteudo_post">		
+			
+
+			<div >
+			<h1 >How to create RMI client and server to invoke remove method of RMI server in java</h1>
+			
+			</div>
+			<div style="padding-top:20px;">
+			
+			<h2>In this article, we shall learn the very important feature of java networking that helps to accessing the methods running on the server by the client. </h2>			
+			</div>
+
+			<div id="barra_botoes" style="margin-top:20px;margin-bottom:20px;">
+			
+			<div style="margin-right:20px;float:left;font-size:9pt;background-color:#E1E1E1;border-color:grey;border-style:solid;border-width:1px;padding:3px;width:120px;"><center><a href='http://mrbool.com/favorite/addfavorite.asp?comp=28320' rel="nofollow">add to favorites</a></center>	  			   
+			</div>
+			
+			  
+			  
+				  <div style='margin-right:20px;float:left;font-size:9pt;background-color:#E1E1E1;border-color:grey;border-style:solid;border-width:1px;padding:3px;width:100px;'><center><a href='#' onclick="_gaq.push(['_trackEvent', 'site_buttons', 'sourcecode_button', '[down_source_msg] How to create RMI client and server to invoke remove method of RMI server in java']);document.getElementById('pop2').style.display='block';" rel='nofollow' >source code</a></center>
+				  </div>
+			   					
+		
+
+<div style="margin-right:20px;float:left;font-size:9pt;background-color:#E1E1E1;border-color:grey;border-style:solid;border-width:1px;padding:3px;width:100px;"><center>
+<a href="http://www.mrbool.com/favorite/add_finished.asp?comp=28320" class="linkDEV" rel="nofollow">
+set as viewed</a></center>	  			   
+			</div>
+
+<div style="margin-right:20px;float:left;font-size:9pt;background-color:#E1E1E1;border-color:grey;border-style:solid;border-width:1px;padding:3px;width:80px;"><center>
+<a class="linkDEV" href="http://www.mrbool.com/articles/addnote.asp?idcomp=28320" rel="nofollow">
+add a note</a></center>	  			   
+			</div>
+
+
+				<div style="clear:both;"></div>
+
+			
+	
+			</div>
+			
+			<div id="div_barrasocial" style="border-top: 1px solid #CACACA;border-bottom: 1px solid #CACACA;background-color:#F8F8F8;padding-top:10px;padding-left:5px;padding-bottom:10px;margin-top:40px;margin-bottom:40px;"> 
+				<div id="box_social" >		
+				  <span class="st_twitter_hcount" displayText="Tweet"></span>
+				  <span class="st_plusone_hcount" displayText="Tweet2"></span>
+				  <span class="st_fblike_hcount" displayText="Facebook"></span>
+				</div>			
+				<div style="margin-left:50px;float:left;">&nbsp;</div>
+				<span id="ja_votou" style="display:none">0</span>
+
+<div id="box_fb_comp">			
+	<div style="float:left;" >
+
+	
+	<a class="linkfeedback" href="#" onclick="document.getElementById('div_feedback_post').style.display='block';"><img src="http://mrbool.com/articles/img/handUp.png"><span style="font-size:1.4em;font-weight:600;color:#0127BE;">&nbsp;Like</span>
+	<span  style="margin-left:4px;font-size:1.4em;color:#0127BE;">(1)</span></a>
+
+	
+	
+	</div>
+
+	<div style="margin-left:40px;float:left;">
+	
+			
+	<a class="linkfeedback" href="#" onclick="document.getElementById('div_feedback_post').style.display='block';">
+	<img src="http://mrbool.com/articles/img/handDown_peq2.png">
+	
+	<span style="font-size:1.2em;color:#787878;"> (0)</span></div></a>
+	
+	
+	<div style="clear:both;"></div>
+</div>
+
+				
+				<div style="clear:both;"></div>
+			</div>
+			
+					<a name="link_voto_negativo"></a>
+		<div id  = "box_voto_negativo" >
+		<a onclick="document.getElementById('box_voto_negativo').style.display='none';">[fechar]</a>		
+		<p style='font-size:1.35em;'>You didn't like the <b>quality</b> of this content?</p>
+		<p>Would you like to comment what you didn't like?</p>		
+		<form name="form_voto_negativo" method="post" action="http://mrbool.com/articles/grava_fb_negativo.asp">
+		  <textarea name="texto_voto" cols=40 rows=5></textarea>
+		  <input type="hidden" name="idcomp" value="28320">		  				
+		<div style = 'color:white;background-color:grey;border-color:black;border-style:solid;border-width:1px;margin-top:20px;padding:10px;width:220px;'>
+		<a href="#" style="color:white;" onclick="document.forms['form_voto_negativo'].submit(); return false;">Yes, I confirm my negative vote</a>
+		</div>		
+		</form>
+		</div>
+			
+			<div id="box_info_post_main" ><!--style="float:right;"-->
+					
+			</div>
+
+			<div>
+			
+								
+					<div class='p_espacado'>
+					
+<p>The java concept RMI, stands for Remote Method Invocation made it very easy the client to access a method on server, which is known as remote method invocation.</p>
+<p><strong>Objective</strong>:  The main objective of RMI is to provide the facility of invoking method on server. This is done by creating a RMI Client and RMI Server. RMI Client invokes a method defined on the RMI Server. In this article, we will learn:</p>
+
+<UL>
+<LI>	What is RMI (Remote Method Invocation)?</LI>
+<LI>	How do we in invoke a method running in differ JVM from another JVM</LI>
+<LI>	How to write an application using RMI methodology</LI>
+</UL>
+
+
+
+
+<H3>RMI Terminology:</H3>
+	
+
+
+
+<img src="http://file.mrbool.com/mrbool/articles/Vinay/RMIClient/RMIClient01.jpg" alt="Method is invoked by client on the server using RMI"><br />
+
+<p><strong>Figure 1</strong>: Method is invoked by client on the server using RMI</p>
+
+
+<p>RMI is used to communicate between two running java applications on different JVM (Java Virtual Machines). The main motive behind RMI implementation is to invoke one method running on different JVM. The JVM Application, in which an invoked method is running out, is called RMI Server, where as the invoking application running on the different JVM is called RMI Client.</p>
+<p>Remote Obj / RMI Server: It is an object that exposes methods which can be invoked by Remote Client using RMI.</p>
+<p><strong>RMI Client</strong>: It is an object that invokes remote methods on an RMI Server.</p>
+
+<p><strong>Stub</strong>: A stub is proxy that stands for RMI Server on client side and handles remote method invocation on behalf of RMI Client.</p>
+<p><strong>Skeleton</strong>: It is a proxy that stands for RMI client on server side and handles remote method invocation on RMI Server on behalf of client.</p>
+<p><strong>Registry Service</strong>: A Registry Service is an application that provides the facility of registration & lookup of Remote stub.</p>
+
+<p>A Registry Service provides location transparency of Remote Object to RMI Client.</p>
+<p><strong>Steps:</strong></p>
+<p>Define a Remote Interface that contains methods which can be remotely invoked on remote object. Each Remote Interface have to extend </p>
+
+<H3>java.rmi.Remote </H3>
+<p>Interface and each remote method declared in the remote interface have to throw java.rmi.RemoteException.</p>
+
+<p><strong>Lisiting 1</strong>: Define Remote Interface, declaring Remote Method</p>
+
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">import java.rmi.*;
+public interface HelloInterface	 extends Remote {
+	public String say(String msg, int a, int b) throws RemoteException;
+               }
+
+</pre></div>
+
+<p>Let’s define a class for representing remote object. This class must implement remote interface created in the first point and this class is also responsible for created Stub and Skeleton objects.</p>
+<p>In order to provide functionality of creating stub and skeleton object, this class must be extended by UnicastRemoteObject and this class must have a default constructor throwing RemoteException.</p>
+<p><strong>Listing 2</strong>: Defining Hello class that extends and implements UnicastRemoteObject and HelloInterface</p>
+
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">import java.rmi.*;
+import java.rmi.server.*;
+public class Hello
+	extends UnicastRemoteObject
+	implements HelloInterface {
+		private String message;
+		public Hello(String msg) throws RemoteException {
+			message = msg;
+		}
+		public String say(String m, int a, int b) throws RemoteException {
+			String str = "";
+			switch(m.charAt(0)){
+				case 'a':
+					str = "Addtion : " + add(a,b);
+				break;
+				case 's':
+					str = "Substraction : " + sub(a,b);
+				break;
+				case 'm':
+					str = "Multiplication : " + mul(a,b);
+				break;
+				case 'd':
+					str = "Division : " + div(a,b);
+				break;
+				default:
+					str = "Wrong Operation";
+			}
+			return str;
+		}
+		public int add(int a, int b){
+			return a+b;
+		}
+		public int sub(int a, int b){
+			return a-b;
+		}
+		public int mul(int a, int b){
+			return a*b;
+		}
+		public int div(int a, int b){
+			return a/b;
+		}
+	}
+</pre></div>
+
+
+<p>Generate Stub & Skeleton classes using rmic tool:</p>
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">rmic &lt;remote-class&gt;</pre></div>
+	<p><strong>Listing 3</strong>: How to compile and generate Stub and Skeleton Classes</p>
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">javac HelloInterface.java Hello.java
+rmic Hello</pre></div>
+
+<p>Start Registry Services using rmiRegistry tool:</p>
+ 	<p><strong>rmiRegistry &lt;port-number&gt;</strong></p>
+<p>or</p>
+	<p><strong>rmiRegistry </strong></p>
+<p>Create an object of RMI server and register its stub in the RMI registry. Java.rmi.Naming class provide static method for registration in the lookup of rmiStub.</p>
+
+<p><strong>bind() </strong>: This method is used to register a remote object (stub of object) in the rmiRegistry.</p>
+
+<p>Syntax:  public static void bind(String name, Remote object) throws RemoteException, AlreadyBindException</p>
+
+<p><strong>rebin()</strong>:  This method is used to rebind the remote object in the rmiRegistry.</p>
+<p>Syntax:  Public static void rebind(String name, Remote object) throws RemoteException</p>
+
+<p><strong>Lookup() </strong>: This method is used to lookup remote stub in the rmiRegsitry.</p>
+<p>Syntax:  Public static Remote lookup(String name) throws RemoteException</p>
+
+
+<p><strong>Listing 4</strong>: Define a RMI Server Class</p>
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">
+import java.rmi.*;
+import java.rmi.server.*;
+public class HelloServer {
+	public static void main(String argv[]) {
+		try {
+			  Naming.rebind ("Hello", new Hello ("Hello, world!"));
+			  System.out.println ("Hello Server is ready.");
+		} catch (Exception e) {
+		  System.out.println ("Hello Server failed: " + e);
+		}
+	}
+}
+
+</pre></div>
+
+<p>Now define a RMI Client. A RMI Client has to obtain the refrence of remote stub from the RMI registry and invokes remote method.</p>
+<p><strong>Listing 5</strong>: Define a RMI Client Class</p>
+
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">import java.rmi.*;
+public class HelloClient {
+	public static void main(String args[]) {
+		try {
+			if (args.length &lt; 0) {
+				System.err.println("usage: java HelloClient string …\n");
+				System.exit(1);
+			}
+			HelloInterface hello = (HelloInterface)Naming.lookup("//localhost/Hello");
+			System.out.println(hello.say(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2])));
+		}
+		catch (Exception e) {
+			System.out.println("Helloclient exception: " + e);
+		}
+	}
+}
+</pre></div>
+
+<p>If RMI registry is running on non-default port on a different machine, then following steps are required for registration:</p>
+
+<p>Java.rmi.registry.LocateRegistry class is used to create a registry object. This class provide following methods:</p>
+
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">Public static Registry getRegistry (int port);
+Public static Registry getRegistry(String host, int port);</pre></div>
+
+<p>Java.rmi.registry.Registry class provides bind() and lookup() methods for registration & lookup of remote stub in a registry.</p>
+
+
+<p><strong>Listing 6</strong>: Define how to register a server in Registry if RMI Registry run on non default port</p>
+
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">import java.rmi.AlreadyBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+public class RegisterServer {
+	public static void main(String[]args){
+		try{
+			System.out.println("Createing A RMI Server..");
+			ServerClass serverObject = new ServerClass();
+			System.out.println("Register created RMI Server..");
+			Registry registerObj = LocateRegistry.getRegistry("localhost", 5000);
+			//The next statement will throw AlreadyBoundException, that will be caught by catch statement of class AlreadyBoundException
+			registerObj.bind("serverclass", serverObject);
+			System.out.println("Stub Registered, Server is ready..");
+		}
+		catch(RemoteException e){
+			e.printStackTrace();
+		}
+		catch(AlreadyBoundException e){
+			e.printStackTrace();
+		}
+	}
+}
+</pre></div>
+
+<p>Info  regarding RMI registry is provided to lookup() method through “Lookup String”. Lookup string has the following format:</p>
+<p>LookupString:</p>
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">“protocol:hostname:portNo/registeredNameserver”</pre></div>
+
+<p><strong>Listing 7</strong>: If RMI Registry run on non default port, define a RMI Client</p>
+
+<div style='margin-top:10px;margin-bottom:40px;'><pre class="brush: js; toolbar: false;">import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+
+public class MyClient {
+public static void main(String[]args){
+	try {
+		/*
+		 * Following statement may throw three kinds of exceptions:
+		 * @ MalformedURLException
+		 * @ RemoteException
+		 * @ NotBoundException
+		 * 
+		 */
+		
+		Naming.lookup("rmi://localhost:3000/serverclass");
+	} catch (MalformedURLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (RemoteException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (NotBoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+}
+}
+</pre></div>
+
+<p>Compile RMI Client and Server Classes and Interface</p>
+
+<UL>
+<LI>	First of all compile all the classes and interface using javac command: javac *.java</LI>
+<LI>	Now generate stub class file from remote method class that implements Remote Methods using rmic tool for remote : rmic hello</LI>
+<LI>	Now start rmiregistry in one console:</LI>
+</UL>
+
+
+ <img src="http://file.mrbool.com/mrbool/articles/Vinay/RMIClient/RMIClient02.jpg" alt="Start rmiregistry in command window as shown in figure using command rmiregistry"><br />
+<p><strong>Figure 2</strong>: Start rmiregistry in command window as shown in figure using command rmiregistry</p>
+
+<p>In the above figure, RMI Registry is shown running on its default port 1022. We can also rmiregistry on different port using rmiregistry &lt;port-no&gt;.</p>
+
+<p>Now start RMI server in new console as shown in figure:</p>
+
+<img src="http://file.mrbool.com/mrbool/articles/Vinay/RMIClient/RMIClient03.jpg" alt="Star RMI server using java server-class-name command as shown in figure"><br />
+ 
+<p><strong>Figure 3</strong>: Star RMI server using java &lt;server-class-name&gt; command as shown in figure</p>
+
+<p>Above figure shows, how to start RMI server. Java &lt;rmi-server-class-name&gt; & is placed in the command window to start rmi server.</p>
+
+<p>Now start a RMI client using java &lt;client-class-name&gt; and command line arguments, if needed as shown in figure:</p>
+
+ 
+<img src="http://file.mrbool.com/mrbool/articles/Vinay/RMIClient/RMIClient04.jpg" alt="Calling remote method running on rmi server using rmi client"><br />
+<p><strong>Figure 4</strong>: Calling remote method running on rmi server using rmi client</p>
+
+<p>Above figure shows that HelloClient call remote method to perform arithmetic operation to add two numbers. Three arguments are passed as command line argument those are manipulated on these server in the remote method implemented and process results of two numbers as string:</p>
+
+	<p>Addition  : 2</p>
+
+<H3>Conclusion:</H3>
+<p>In this article, we learn:</p>
+
+<UL>
+<LI>	What is RMI</LI>
+<LI>	Why do we need RMI</LI>
+<LI>	How to create RMI Server and Client to invoke Remote Methods</LI>
+</UL>
+
+</b></i></u>
+					</div>
+					
+					<div style='margin-top:30px;background-color:#F8F8F8;padding-top:20px;padding-bottom:20px;padding-right:10px;padding-left:10px;border-left-color:grey;border-left-style:solid;border-left-width:3px;width:675px;'>
+
+
+<a class='linkDEV' href="http://www.mrbool.com/space.asp?id=315148"><img src="http://mrbool.com/images/columnist/DSC_6973 [1600x1200].JPG" border=0 width=70></a><br>
+
+<span class='nome_autor'>
+<a class='linkDEV' href="http://www.mrbool.com/space.asp?id=315148" rel="author">Vinay Kumar</a></span><br>
+
+<span class='minibio_autor'>Software developer with more than 5 years of development on Java, HTML, CSS. </span><br>
+</div>
+				
+				<div id="div_barrasocial" style="border-top: 1px solid #CACACA;border-bottom: 1px solid #CACACA;background-color:#F8F8F8;padding-top:10px;padding-left:5px;padding-bottom:10px;margin-top:60px;margin-bottom:60px;"> 
+					<div id="box_social" >		
+					  <span class="st_twitter_hcount" displayText="Tweet"></span>
+					  <span class="st_plusone_hcount" displayText="Tweet2"></span>
+					  <span class="st_fblike_hcount" displayText="Facebook"></span>
+					</div>			
+					<div style="margin-left:50px;float:left;">&nbsp;</div>
+
+					<span id="ja_votou" style="display:none">0</span>
+
+<div id="box_fb_comp">			
+	<div style="float:left;" >
+
+	
+	<a class="linkfeedback" href="#" onclick="document.getElementById('div_feedback_post').style.display='block';"><img src="http://mrbool.com/articles/img/handUp.png"><span style="font-size:1.4em;font-weight:600;color:#0127BE;">&nbsp;Like</span>
+	<span  style="margin-left:4px;font-size:1.4em;color:#0127BE;">(1)</span></a>
+
+	
+	
+	</div>
+
+	<div style="margin-left:40px;float:left;">
+	
+			
+	<a class="linkfeedback" href="#" onclick="document.getElementById('div_feedback_post').style.display='block';">
+	<img src="http://mrbool.com/articles/img/handDown_peq2.png">
+	
+	<span style="font-size:1.2em;color:#787878;"> (0)</span></div></a>
+	
+	
+	<div style="clear:both;"></div>
+</div>
+
+					
+					<div style="clear:both;"></div>
+				</div>	
+			<div id="box_comentarios">
+				<div id="div_comentarios" >
+
+<div style="padding-top:50px;padding-bottom:50px;background-color:#F7F7F7;margin-top:60px;margin-bottom:60px;width:695px;border-color:grey;border-style:solid;border-width:1px;">
+<a href='http://mrbool.com/rte3/addcomment.asp?idcomp=28320'><span style="font-size:20pt;"><center>Add your comment</center></a></span>
+			
+	<div id="popcoment">
+<a href="#coment" onclick="document.getElementById('popcoment').style.display='none';">[Fechar]</a>
+<br /><br>
+	Este post é fechado - você precisa ter acesso ao post para incluir um comentário.<BR><BR>
+</div>
+
+
+  <br>
+<center>
+<span style="font-size:10pt;">no comments have been posted - be the first!</span>
+</center>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+			</div>
+			
+			
+			
+			  <DIV id="divBox_2" style="WIDTH: 680px;margin-top:60px;margin-bottom:100px;border-left-color:grey;border-left-style:solid;border-left-width:3px;padding-left:10px;">											 				 
+				<div style="font-size:12pt;background-color:#F5F5F5;padding:15px;">
+						<b>More posts from this author:</b>
+				</div><br><br>					 
+				<div style="line-height:180%">
+
+
+<span style="color:blue;font-size:8pt;">
+<a href="http://mrbool.com/how-to-create-crud-in-hibernate/29035" class='linkDEV'>How to create CRUD in Hibernate</a>
+				<BR><img src='http://mrbool.com/articles/img/row_divide.png' ><BR> 
+			</span>
+
+
+<span style="color:blue;font-size:8pt;">
+<a href="http://mrbool.com/how-to-create-singleton-session-bean-in-java/29029" class='linkDEV'>How to create Singleton Session Bean in Java</a>
+				<BR><img src='http://mrbool.com/articles/img/row_divide.png' ><BR> 
+			</span>
+
+
+<span style="color:blue;font-size:8pt;">
+<a href="http://mrbool.com/how-to-implement-offline-support-using-html5/28886" class='linkDEV'>How to Implement Offline Support using HTML5</a>
+				<BR><img src='http://mrbool.com/articles/img/row_divide.png' ><BR> 
+			</span>
+
+
+<span style="color:blue;font-size:8pt;">
+<a href="http://mrbool.com/how-to-drag-and-drop-an-object-using-html5/28804" class='linkDEV'>How to drag and drop an object using html5</a>
+				<BR><img src='http://mrbool.com/articles/img/row_divide.png' ><BR> 
+			</span>
+
+
+<span style="color:blue;font-size:8pt;">
+<a href="http://mrbool.com/how-to-implement-inheritance-for-a-single-table-in-hibernate/28548" class='linkDEV'>How to implement inheritance for a single table in hibernate</a>
+				<BR><img src='http://mrbool.com/articles/img/row_divide.png' ><BR> 
+			</span>
+
+
+<span style="color:blue;font-size:8pt;">
+<a href="http://mrbool.com/how-to-create-an-enterprise-web-application-using-ejb-stateless-session-bean-in-ejb-3-x-version/28473" class='linkDEV'>How to create an enterprise web application using EJB Stateless Session Bean in EJB 3.X version</a>
+				<BR><img src='http://mrbool.com/articles/img/row_divide.png' ><BR> 
+			</span>
+
+
+<span style="color:blue;font-size:8pt;">
+<a href="http://mrbool.com/using-html-forms-with-servlets/28335" class='linkDEV'>Using HTML Forms with Servlets</a>
+				<BR><img src='http://mrbool.com/articles/img/row_divide.png' ><BR> 
+			</span>
+
+</div>			  					
+				<BR><a href="http://mrbool.com/space.asp?id=315148&post=2">[List all]</a>
+			  </div>
+		  		
+
+			
+
+				<BR><BR>
+			
+
+		</div> 
+
+	</div>
+
+	
+
+</div>
+
+</div>
+<div id="div_feedback_post">
+<font face=verdana size=2><a href="#" onclick="document.getElementById('div_feedback_post').style.display='none';">[Close]</a></font>
+<br /><br>
+		
+		<font size=2 face=verdana><b>You must be logged in to give feedback. </b><BR><BR><a href="http://mrbool.com/login/login.asp?ret=articles/viewcomp.asp?comp=28320" rel="nofollow">Click here to login</a></font>
+		
+</div>
+
+				     				
+<div id="pop">
+<a href="#" onclick="document.getElementById('pop').style.display='none';"><font face=verdana size=2><b>[Close]</b></a>
+<br />
+
+	<div style='margin-top:8px;'><span style='line-height:18px;'><font face=VErdana size=2>To have full access to this post (or download the associated files) you must have <b><a href='http://www.mrbool.com/creditos/default.asp?p=1'>MrBool Credits</a></b>.<font size=1><br><BR><img src='http://mrbool.com/articles/info.jpg'>&nbsp;&nbsp;See the prices for this post in Mr.Bool Credits System below:<font size=1><br><BR><font size=2 ><b>Individually</b><font size=2 color=black> – in this case the price for this post is <b>US$ 0,00 <a href='https://secure.mrbool.com/buymrboolcredits.asp?comp=28320' rel='nofollow'><font color=#FF0000>(Buy it now)</font></a><BR><font color=black></b><font size=1>in this case you will buy only this video by paying the full price with no discount.<br><BR><b><font size=2 >Package of 10 credits<font size=2 color=black></b> - in this case the price for this post is <b>US$ 0,00</b><BR><font size=1>This subscription is ideal if you want to download few videos. In this  plan you will receive a discount of 50% in each video. <a href='https://secure.mrbool.com/buymrboolcredits.asp?v=0'><font size=2 color=#FF0000><b>Subscribe for this package!</b></font></a><BR><BR>  <b><font size=2 color=black>Package of 50 credits</b> <font size=2 color=black> – in this case the price for this post is <b>US$ 0,00</b><BR><font size=1>This subscription is ideal if you want to download several videos. In this plan you will receive a discount of 83% in each video.<a href='https://secure.mrbool.com/buymrboolcredits.asp?tp=1'> <font size=2 color=#FF0000><b>Subscribe for this package!</b></font></a><BR><br><BR><font size=2 ></b><a href='http://www.mrbool.com/creditos/default.asp?p=1'>> More info about MrBool Credits</a><BR> </font></span></div>
+</div>
+
+<div id="pop2">
+<a href="#" onclick="document.getElementById('pop2').style.display='none';"><font face=verdana size=2><b>[Close]</b></a>
+<br />
+	You must be logged to download.<BR><BR>
+	<a href="http://mrbool.com/login/login.asp?comp=28320">Click here to login</a><BR><BR>
+</div>
+
+<div id="poplogin">
+<a href="#" onclick="document.getElementById('poplogin').style.display='none';"><font face=verdana size=2><b>[Close]</b></a>
+
+	
+		You must be logged to give your feedback.
+	<BR><BR>
+	<a href="http://mrbool.com/login/login.asp?comp=28320">Click here to login</a><BR><BR>
+	<a href="http://mrbool.com/join/">If you don't have a MrBool registration, click here to register (free)</a>
+	
+</div>
+
+<div id="poplink">
+<a href="#" onclick="document.getElementById('poplink').style.display='none';"><font face=verdana size=2><b>[Close]</b></a>
+<br /><br>
+	This is a closed post. You need have acess to enable the download links.<BR><BR>
+</div>
+
+
+<div style="background-color:#E0E0E0;">
+<div style="margin:0 auto;width:1000px;padding:10px;border:0px solid #000;height:190px;">
+<div style="position:absolute;">
+<br><br><br><br><br><br>
+<span style="font-family:verdana;font-size:11px;line-height:22px;color:#747474;">
+<a href='http://mrbool.com' rel="nofollow"><b>mrbool.com</b></a><br>
+<a href='http://mrbool.com/portal/contact.asp' >contact us</a> &nbsp;&nbsp;|&nbsp;&nbsp; 
+<a href='http://mrbool.com/portal/publish.asp' >publish your post</a> &nbsp;&nbsp;|&nbsp;&nbsp; 
+<!--<a href='http://mrbool.com/creditos/default.asp?p=6' >buy credits</a>--></span><BR>
+<span style="font-family:verdana;font-size:11px;line-height:22px;color:#747474">Copyright 2013 - all rights reserved to <a href='http://www.web-03.net' rel="nofollow" target='blank_'>www.web-03.net</a></span>
+</div>
+<div style="float:right;background:#fff;">
+<iframe src="http://www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2FMrBool.Website&width=516&height=190&show_faces=true&colorscheme=light&stream=false&show_border=false&header=false" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:516px; height:190px;" allowTransparency="false"></iframe>
+</div>
+</div>
+</div>
+
+
+</body>
+</html>

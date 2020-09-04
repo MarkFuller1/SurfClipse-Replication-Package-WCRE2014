@@ -1,0 +1,1163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+			<html>
+				<head>
+					<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+					<link rel="stylesheet" href="/nabble.pack.css?v=27" type="text/css" />
+	<link rel="stylesheet" href="/template/NamlServlet.jtp?macro=site_style" type="text/css" />
+					<script src="/util/jquery-1.7.2.pack.js" type="text/javascript"></script>
+	<script src="/util/nabbledropdown-2.4.1.pack.js" type="text/javascript"></script>
+	<script src="/template/NamlServlet.jtp?macro=javascript_library&amp;v=60" type="text/javascript"></script>
+					<script type="text/javascript">
+		var terms = Nabble.getSearchTerms();
+		var hasTurnOff = false;
+		Nabble.searchHighlight = function($elem) {
+			if (terms != null && terms.length > 0) {
+				$elem.each(function() {
+					Nabble.highlightSearchTerms(terms, this);
+				});
+				if (Nabble.hasHighlightedTerms && !hasTurnOff) {
+					var turnOffLink = '<span id="turn-off-highlight-control"><span class="highlight">&nbsp;X&nbsp;</span> ';
+					turnOffLink += '<a href="javascript:void(0)" onclick="Nabble.turnOffHighlight()">Turn off highlighting</a></span>';
+					$('#topics-controls-right').prepend(turnOffLink);
+					hasTurnOff = true;
+				}
+			}
+		};
+		Nabble.turnOffHighlight = function() {
+			Nabble.deleteCookie("query");
+			Nabble.deleteCookie("searchuser");
+			Nabble.deleteCookie("searchterms");
+			$('span.search-highlight').removeClass('bold highlight');
+			$('#turn-off-highlight-control').hide();
+		};
+	</script>
+	<script type="text/javascript">
+		Nabble.messageTextWidth();
+	</script>
+			<script type="text/javascript"> $(document).ready(function() { Nabble.searchHighlight($('h2.post-subject,div.message-text')); }); </script> <script type="text/javascript"> var _hash = Nabble.hash(); if (_hash) { (function(){ var post = _hash.substr(2); var allPosts = [17045, 17046, 17047, 17048]; var allURLs = ["/ThreadSafeClientConnManager-jdk-Executor-td17045.html"]; var iPost = allPosts.indexOf(parseInt(post)); var lower = 0; var upper = lower + 20; if (iPost != -1 && (iPost < lower || iPost >= upper)) location.replace(allURLs[Math.floor(iPost/20)]+_hash); })(); } $(document).ready(function() { var rootId = '17045'; var currentPostId = rootId; var isChangingViews = _hash == '#none'; if (_hash && !isChangingViews) currentPostId = _hash.substr(2); Nabble.hideQuotes(); function scrollToSelectedPost() { var $arrow = $('#red-arrow'+currentPostId).show(); if ($arrow.size() > 0) { var isRootPost = currentPostId == rootId; if (Nabble.isEmbedded) { if (Nabble.canScroll()) scrollTo(0, 0); var y = isChangingViews? null : isRootPost? 1 : $arrow.parents('div.classic-row').offset().top; Nabble.resizeFrames('', y); } else if (Nabble.canScroll() && !isRootPost) { var yPos = $arrow.offset().top; scrollTo(0,yPos-20); } } else { if (Nabble.isEmbedded && Nabble.canScroll()) { Nabble.resizeFrames('', 1); } else { var tb = $('div.top-bar').get(0); if (tb) tb.scrollIntoView(); } } }; $(window).load(scrollToSelectedPost); if (Nabble.isEmbedded) { $('div.message-text img').load(Nabble.resizeFrames); } }); </script> <style type="text/css"> div.classic-header { height:2.2em; clear:both; overflow:hidden; } div.classic-author-name { float:left; width: 140px; overflow: hidden; text-align:center; font-weight:bold; } div.classic-subject-line { left:.5em; overflow:hidden; height:1.3em; position:relative; } div.classic-right-menu { float:right; padding-left:1em; } div.classic-bar { padding:.5em .3em; clear:both; height:1.8em; } table.classic-body { border-collapse:collapse; margin-bottom:1em; table-layout: fixed; width:100%; } td.classic-author { vertical-align: top; text-align:center; width:140px; padding-bottom:1em; } td.classic-message { vertical-align:top; padding:1em; } div.message-text { cursor:text; overflow-x:auto; } div.avatar-inner { margin-left:20px; } div.avatar-outer { width:140px; text-align:left; } div.avatar-label { white-space:nowrap; font-size:80%; } </style>
+
+	<title>HttpClient-User - ThreadSafeClientConnManager + jdk Executor</title>
+			<META NAME="description" CONTENT="ThreadSafeClientConnManager  + jdk Executor. Hey folks, I was trying out the ThreadSafeClientConnManager example from documentation, together with java executor framework and the executor.shutdown()..."/>
+			<META NAME="keywords" CONTENT="threadsafeclientconnmanager, jdk, executor, hey, folks, trying, out, example, documentation, together, with, java, framework, shutdown, function, ok, exit, threads, running, httpclient-user, httpcomponents"/>
+			<style type="text/css">
+			#search-box-dropdown {
+				text-align:left;
+				position:absolute;
+				display:none;
+				z-index:1000;
+				overflow:hidden;
+			}
+		</style>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var $sdd = $('#search-box-dropdown');
+				var $sb = $('#search-input');
+				var $form = $sb.parent();
+				var timeout;
+				$(document).click(function(o){
+					var $target = $(o.target);
+					if ($target.parents().hasClass('search-box-dropdown')) {
+						clearTimeout(timeout);
+						$sb.focus();
+					}
+				});
+				$sb.focusin(function(e) {
+					$sdd.css('left', $sb.position().left - 5);
+					$sdd.width($sb.outerWidth() + 10);
+					$sdd.show();
+				});
+				$sb.focusout(function() {
+					timeout = setTimeout(function() {
+						$sdd.hide();
+					},250);
+				});
+				$('input[type=radio]', $sdd).change(function() {
+					var nodeId = $(this).val();
+					$('input[name="node"]', $form).val(nodeId);
+				});
+				$('input[name="node"]', $form).val(2);
+			});
+		</script><script type="text/javascript">
+			Nabble.setView = function(view,url,post) {
+				Nabble.setVar("tview",view);
+				url += Nabble.getClientID(';');
+				if (url.indexOf('#') == -1)
+					url += '#none';
+				location.replace(url);
+			};
+		</script><style type="text/css"> div.nabble-tooltip, div.nabble-tooltip * { color: #EEE; font-weight:bold; } div.nabble-tooltip { background: #000; font-size:90%; line-height:normal; display: none; position: absolute; z-index: 88888; padding: .5em; border: 1px solid #FFF; white-space:normal; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; } div.nabble-tooltip-small-row, div.nabble-tooltip-small-row * { color:#D0EAF2; } div.nabble-tooltip-small-row { font-size:80%; font-weight:normal; padding-top: .4em; } div.nabble-tooltip-arrow { font: 40px Arial, Sans-serif; line-height:1em; left:15px; position:absolute; bottom:-15px; height:15px; width:30px; overflow:hidden; } div.nabble-tooltip-arrow div { position:absolute; } div.nabble-tooltip-arrow div.d1 { top:-22px; color: #FFF; } div.nabble-tooltip-arrow div.d2 { top:-25px; color: #000; } </style> <script type="text/javascript"> Nabble.startTooltip = function(e, position, delay) { if (e.nabbletooltip) return; e.nabbletooltip = true; var $this = $(e); var $arrow = $this.children().last(); var $elem = $this.prev(); $elem.hover( function() { setTip(); setTimer(); }, function() { stopTimer(); $this.hide(); } ); function setTimer() { $this.showTipTimer = setTimeout(function() { $('div.nabble-tooltip').hide(); stopTimer(); $this.fadeTo('fast', .8); }, delay); }; function stopTimer() { clearInterval($this.showTipTimer); }; function setTip(){ if ($this.parent().get() != document.body) $(document.body).append($this); var useTitle = $this.attr('use_title') == 'true'; if (useTitle) { var title = $elem.attr('title'); if (title != '') { $arrow.remove(); $this.html(title); $elem.attr('title',''); $this.append($arrow); } } var win = $(window).width(); if (position == 'up') { var w = $this.outerWidth(); if (w > 250) { w = 250; $this.width(w); } var xMid = $elem.offset().left + $elem.outerWidth()/2; var xTip = xMid - w/2; if (xTip+w > win-5) xTip = win-w-5; if (xTip < 0) xTip = 0; var xArrow = xMid-xTip-11; var yTip = $elem.offset().top-$this.outerHeight()-12; $arrow.css('left', xArrow); $this.css({'top' : yTip, 'left' : xTip}); } else if (position == 'right') { var h = $this.outerHeight(); var yMid = $elem.offset().top + $elem.outerHeight()/2; var yTip = yMid - h/2; var xTip = $elem.offset().left + $elem.outerWidth() + 10; $arrow.width(8).height(24).css({bottom:0,left:-8}); var yArrow = (h - 24)/2; $arrow.css({top:yArrow}); var $d1 = $arrow.children().first(); var $d2 = $arrow.children().last(); $d1.css({top:-11}); $d2.css({top:-11,left:1}); $this.css({'top' : yTip, 'left' : xTip}); } }; }; </script><script type="text/javascript">
+			Nabble.pinTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=pin_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#pin-icon').show();
+					NabbleDropdown.show('unpinTopic');
+					NabbleDropdown.hide('pinTopic');
+					alert('This topic has been pinned.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.unpinTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=unpin_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#pin-icon').hide();
+					NabbleDropdown.hide('unpinTopic');
+					NabbleDropdown.show('pinTopic');
+					alert('This topic has been unpinned.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.lockTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=lock_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#lock-icon').show();
+					NabbleDropdown.show('unlockTopic');
+					NabbleDropdown.hide('lockTopic');
+					alert('This topic has been locked.');
+				});
+			};
+		</script><script type="text/javascript">
+			Nabble.unlockTopic = function(id) {
+				var call = '/template/NamlServlet.jtp?macro=unlock_topic&node=' + id + Nabble.getClientID();
+				$.getScript(call, function() {
+					$('#lock-icon').hide();
+					NabbleDropdown.hide('unlockTopic');
+					NabbleDropdown.show('lockTopic');
+					alert('This topic has been unlocked.');
+				});
+			};
+		</script><script type="text/javascript">
+		var starredImg = new Image();
+		starredImg.src = "/images/icon_starred.png";
+		var unstarredImg = new Image();
+		unstarredImg.src = "/images/icon_unstarred.png";
+		var star = '<img src="/images/icon_starred.png" class="star" alt="star"/>';
+
+		function starInit(isStarred, c, id) {
+			$('#star'+c+id)
+				.css('cursor','pointer')
+				.click(function(){
+					starToggle(c,id);
+				});
+
+			starShow(isStarred,c,id);
+		};
+
+		function starShow(isStarred,c,id) {
+			var $img = $('#img-star'+c+id);
+			if (isStarred)
+				$img.attr('src', starredImg.src).attr('title', "Favorite (click to remove this item from your favorites list)");
+			else
+				$img.attr('src', unstarredImg.src).attr('title', "Add this item to your favorites list");
+			updateReadonlyStars(isStarred, id);
+		};
+
+		function updateReadonlyStars(isStarred, id) {
+			var $stars = $('#starC'+id+',#starD'+id);
+			$stars.html(isStarred? star : '');
+		};
+
+		function starToggle(c,id) {
+			if (!Nabble.userId) {
+				if( confirm("You must log in to star this item.\nWould you like to login now?") ) {
+					parent.location = "/template/NamlServlet.jtp?macro=login_page&nextUrl="+encodeURIComponent(parent.location) + Nabble.getClientID();
+				}
+				return;
+			}
+			var $img = $('#img-star'+c+id);
+			var isStarred = $img.attr('src') == starredImg.src;
+			isStarred = !isStarred;
+			var descendants = c == 'A';
+			var path = "/template/NamlServlet.jtp?node=" + id;
+			if( descendants && !isStarred )
+				path += "&macro=clear_descendant_stars";
+			else
+				path += "&macro=set_star&star=" + isStarred;
+			$.getScript(path + Nabble.getClientID(), function() {
+				starShow(isStarred,c,id);
+			});
+		};
+	</script><script type="text/javascript" src="http://www.adbayes.com/LoadUnit.jtp?c=1"></script>
+			<script type="text/javascript">
+				Nabble.adbayes();
+			</script><script type="text/javascript">
+			Nabble.nViews = function(id, views) {
+				var $v = $('#v'+id);
+				var pos = views=='1'?0:1;
+				var t = $v.html()? $v.html().split('|')[pos]:'';
+				$v.html(t == ''? views : t.replace(/%1/g,views)).show();
+			};
+		</script><style type="text/css">
+			img.report-flag {
+				vertical-align:middle;
+				cursor: pointer;
+			}
+			#report-inappropriate-content {
+				position: fixed;
+				z-index:9999;
+				display:none;
+				padding:1.5em;
+				left:8%;
+				right:8%;
+				top:8%;
+				background-color:#555;
+			}
+			#report-inappropriate-content-inner { padding:.5em; }
+			#report-inappropriate-content-inner div.big {
+				height:5em;
+				padding-top:2em;
+				text-align:center;
+				font-size:250%;
+			}
+			#report-inappropriate-content-inner div.big2 { font-size:70%; }
+			div.inappropriate-option { margin:.5em 0; }
+		</style>
+		<script type="text/javascript">
+			var reportNodeId = null;
+			Nabble.reportContent = function(nodeId) {
+				reportNodeId = nodeId;
+				$('#report-inappropriate-content').show();
+				var url = '/template/NamlServlet.jtp?macro=report_inappropriate_content_form';
+				$.get(url, function(data) {
+					$('#report-inappropriate-content-inner').html(data);
+				});
+			}
+			Nabble.closeReport = function() {
+				$('#report-inappropriate-content').hide();
+			}
+			Nabble.sendReport = function() {
+				$('#send-report-button').attr('disabled','true').addClass('toolbar-disabled');
+				var type = $('input[name=report_type]:checked').val();
+				var url = '/template/NamlServlet.jtp?macro=report_inappropriate_content_submit&node='+reportNodeId+'&type='+type+Nabble.getClientID();
+				$.get(url, function(data) {
+					var h = 'Thank You';
+					h += '<div class="weak-color big2">We will review your report soon.</div>';
+					h += '<a href="javascript: void Nabble.closeReport()">Close</a>';
+					$('#report-inappropriate-content-inner').html('<div class="big">'+h+'</div>');
+				});
+			}
+		</script>
+					<script type="text/javascript">
+		Nabble.setFontSize();
+		
+	</script>
+	<script type="text/javascript">
+		if (Nabble.analytics) Nabble.analytics();
+	</script>
+	<!-- Start Quantcast tag -->
+	<script type="text/javascript">
+		_qoptions={ qacct:"p-34EL1DZyJypTI" };
+	</script>
+	<script type="text/javascript" src="http://edge.quantserve.com/quant.js"></script>
+	<noscript>
+		<a href="http://www.quantcast.com/p-34EL1DZyJypTI" target="_blank" rel="nofollow">
+			<img src="http://pixel.quantserve.com/pixel/p-34EL1DZyJypTI.gif" style="display: none;" border="0" height="1" width="1" alt="Quantcast"/>
+		</a>
+	</noscript>
+	<!-- End Quantcast tag -->
+	<!-- Start Google Analytics -->
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['nabble._setAccount', 'UA-91855-9']);
+		_gaq.push(['nabble._trackPageview']);
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+	<!-- End Google Analytics -->
+	<script type="text/javascript">
+		var site_admins = [1, 2];
+	</script>
+	<script type="text/javascript">
+		var isSafe = true;
+		var Ads = Ads || {};
+		Ads.text = {
+			daysLeft: 'Trial period ends in $1 day(s)',
+			removeAds: 'Remove Ads',
+			buyCredits: 'Buy credits'
+		};
+		$(document).ready(function() {
+			if (Nabble.wasCreatedRecently && Nabble.currentCredits == 0) {
+				var s = '<div class="weak-color" style="text-align:center;margin:1em;font-size:80%">';
+				s += Ads.text.daysLeft.replace(/\$1/,daysLeft)+' &ndash; ';
+				s += '<a href="'+Nabble.buyCreditsPath+'">'+(Nabble.isSafe?Ads.text.removeAds:Ads.text.buyCredits)+'</a>';
+				s += '</div>';
+				var isAdmin = Nabble.userId && site_admins.indexOf(Number(Nabble.userId)) >= 0;
+				if (!isSafe || isAdmin)
+					$('div.nabble').append(s);
+			}
+		});
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			if (Nabble.userId && site_admins.indexOf(Number(Nabble.userId)) >= 0)
+				$('div.no-ads-message').show();
+		});
+	</script>
+				</head>
+				<body>
+					<div id="notice" class="notice rounded-bottom"></div>
+					<div class="nabble macro_classic_forum_topic" id="nabble">
+						
+			
+			<div class="top-bar">
+		<div class="breadcrumbs" style="float:left">
+			<span id="breadcrumbs" class="weak-color">
+		<a href="http://httpcomponents.10934.n7.nabble.com/">HttpComponents</a>
+						<span> &rsaquo; </span>
+				<a href="http://httpcomponents.10934.n7.nabble.com/HttpClient-User-f11330.html">HttpClient-User</a>
+	</span>
+		</div>
+		<div style="text-align:right;">
+			<span style="white-space:nowrap;" id="nabble-user-header"></span>
+	<script type="text/javascript">Nabble.userHeader();</script>
+		</div>
+	</div>
+			
+			<div id="nabble-newsflash" class="info-message" style="display:none;padding:.5em;margin-bottom:.5em"></div>
+	
+			<div id="topic-search-box" class="search-box float-right" style="padding:.5em 0">
+		<form action="/template/NamlServlet.jtp">
+		<input type="hidden" name="macro" value="search_page" />
+		<input type="hidden" name="node" value="17045" />
+		
+		
+		
+		
+		<input id="search-input" name="query" size="18" class="medium-border-color"/>
+		<div id="search-box-dropdown" class="search-box-dropdown light-bg-color drop-shadow border1 medium-border-color rounded-bottom">
+		<div style="margin:.5em .5em 0 .5em">
+					<b>Search</b><br/>
+					<input id="search-root-node" type="radio" name="n" value="2" checked="true"/>
+					<label for="search-root-node">everywhere</label><br/>
+
+					<input id="search-this-node" type="radio" name="n" value="17045"/>
+					<label for="search-this-node">
+						only in this topic
+					</label>
+				</div>
+		<div style="margin:.5em;line-height:2em">
+			<input class="toolbar action-button float-right" type="submit" value="Search"/>
+			<a href="/template/NamlServlet.jtp?macro=adv_search_page&amp;node=17045" rel="nofollow" style="font-size:80%">Advanced Search</a>
+		</div>
+	</div>
+	</form>
+	</div>
+
+	<h1 id="post-title" class="adbayes-content" style="margin:0.25em 0 .8em">
+		ThreadSafeClientConnManager  + jdk Executor
+	</h1>
+			<div style="margin:1.2em 0 5em">
+		<div id="topics-controls-left" class="float-left nowrap">
+			<table>
+		<tr>
+			<td style="padding-right:.1em">
+		<img src="/images/view-classic.gif" width="18" height="18" style="border:none" alt="classic"/>
+	</td>
+
+	<td style="padding-right:1.1em">
+		Classic
+	</td>
+
+			<td style="padding-right:.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('list', '/ThreadSafeClientConnManager-jdk-Executor-tc17045.html',null)"><img src="/images/view-list.gif" width="18" height="18" style="border:none" alt="list"/></a>
+	</td>
+
+	<td style="padding-right:1.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('list', '/ThreadSafeClientConnManager-jdk-Executor-tc17045.html',null)">List</a>
+	</td>
+
+			<td style="padding-right:.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/ThreadSafeClientConnManager-jdk-Executor-tt17045.html',null)"><img src="/images/view-threaded.gif" width="18" height="18" style="border:none" alt="threaded"/></a>
+	</td>
+
+	<td style="padding-right:1.1em">
+		<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/ThreadSafeClientConnManager-jdk-Executor-tt17045.html',null)">Threaded</a>
+	</td>
+		</tr>
+	</table>
+		</div>
+		<div id="topics-controls-right" class="float-right nowrap" style="padding-top:.3em">
+			<span style="padding-right:1em;height:21px">
+		<img id="pin-icon" src="/images/pin.png" width="20" height="21" title="This topic has been pinned in HttpClient-User." style="vertical-align:middle;display:none;"/>
+		<div id="tooltip7012" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip7012'), 'up', 400);
+	</script>
+	</span>
+	<span id="lock-icon" class="weak-color" style="padding:0 .5em;margin-right:.5em;display:none;">
+		<img src="/images/lock_sm.png" width="10" height="15" style="vertical-align:middle"/> Locked
+	</span>
+	<span style="padding-right:1em">
+		4 messages
+	</span>
+	<img src="/images/gear.png" class="image16" alt="Options"/>
+	<span id="dd_topicdropdown"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("topicdropdown", "Options","Click for more options");
+		
+		dropdown.add('topicSubscriptionLink', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dsubscribe&amp;node\x3D17045\" rel\x3D\"nofollow\"\x3ESubscribe via email\x3C/a\x3E');
+		dropdown.addSeparator();
+		dropdown.add('moveTopic', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D17045\" rel\x3D\"nofollow\"\x3EMove topic\x3C/a\x3E', 'display:none');
+		dropdown.add('pinTopic', '\x3Ca href\x3D\"javascript: void Nabble.pinTopic(17045)\" rel\x3D\"nofollow\"\x3EPin topic\x3C/a\x3E', 'display:none');
+		dropdown.add('unpinTopic', '\x3Ca href\x3D\"javascript: void Nabble.unpinTopic(17045)\" rel\x3D\"nofollow\"\x3EUnpin topic\x3C/a\x3E', 'display:none');
+		dropdown.add('lockTopic', '\x3Ca href\x3D\"javascript: void Nabble.lockTopic(17045)\" rel\x3D\"nofollow\"\x3ELock topic\x3C/a\x3E', 'display:none');
+		dropdown.add('unlockTopic', '\x3Ca href\x3D\"javascript: void Nabble.unlockTopic(17045)\" rel\x3D\"nofollow\"\x3EUnlock topic\x3C/a\x3E', 'display:none');
+		dropdown.add('deleteRecursively', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(17045)\" rel\x3D\"nofollow\"\x3EDelete this topic\x3C/a\x3E', 'display:none');
+			dropdown.add('deletePost', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(17045)\" rel\x3D\"nofollow\"\x3EDelete this topic\x3C/a\x3E', 'display:none');
+		dropdown.add('changeMetaTags', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_title_and_meta_tags&amp;node\x3D17045\" rel\x3D\"nofollow\"\x3EChange title and meta tags\x3C/a\x3E', 'display:none');
+		dropdown.add('embedPost17045', '\x3Ca href\x3D\"/embed/EmbedOptions.jtp?node\x3D17045\" rel\x3D\"nofollow\"\x3EEmbed post\x3C/a\x3E');
+		dropdown.add('permalink17045', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://httpcomponents.10934.n7.nabble.com/ThreadSafeClientConnManager-jdk-Executor-tp17045.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.build('dd_topicdropdown');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=topic_dropdown_later&node=17045' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+		</div>
+	</div>
+			<div id="topic-contents" style="margin-top:1em;clear:both">
+		<div id="classic-contents">
+		
+		<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://httpcomponents.10934.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=490">6mix (Bugzilla)</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=17045" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/ThreadSafeClientConnManager-jdk-Executor-tt17045.html',17045)">Threaded</a>
+	<div id="tooltip54887" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip54887'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown17045"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown17045", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor17045', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D17045\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost17045', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D17045\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost17045', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D17045\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost17045', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(17045)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively17045', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(17045)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate17045', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D17045\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print17045', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D17045\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink17045', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://httpcomponents.10934.n7.nabble.com/ThreadSafeClientConnManager-jdk-Executor-tp17045.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail17045', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D17045\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown17045');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=17045' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(17045)"/>
+	<div id="tooltip49963" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip49963'), 'up', 400);
+	</script>
+					<span id="starB17045">
+		<img id="img-starB17045" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip72514" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip72514'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow17045" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1275425730000-32"></span><script type="text/javascript">
+		Nabble.get('d1275425730000-32').innerHTML= Nabble.formatDateLong(new Date(1275425730000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		ThreadSafeClientConnManager  + jdk Executor
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://httpcomponents.10934.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=490" rel="nofollow" title="View profile of 6mix (Bugzilla)" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/c80c49735b5186a3f4c4c110b8e1d4fa?s=100&amp;r=pg&amp;d=http%3A%2F%2Fn7.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="6mix (Bugzilla)" title="6mix (Bugzilla)"/><img src="/images/online.png" class="online490 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count490 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message17045" class="message-text adbayes-content">
+		Hey folks,
+<br/><br/>I was trying out the ThreadSafeClientConnManager example from documentation, together with java executor framework and the executor.shutdown() function. Is it ok to exit threads running httpClient.execute &nbsp;like this ? I'm getting this stack trace for each thread shutdown like this. They are usually refused connections... &nbsp;appreciate &nbsp;any advice, Jakub
+<br/><br/><a href="http://pastebin.com/eGjzQAy9" target="_top" rel="nofollow" link="external">http://pastebin.com/eGjzQAy9</a><br/><a href="http://pastebin.com/F80VRZxX" target="_top" rel="nofollow" link="external">http://pastebin.com/F80VRZxX</a><br/><br/><br/>java.lang.Throwable: java.io.InterruptedIOException
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at tools.proxies.GetThread.run(GetThread.java:88)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.lang.Thread.run(Thread.java:619) &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908) &nbsp; &nbsp;
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.lang.Thread.run(Thread.java:619) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>Caused by: java.io.InterruptedIOException &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:392)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:641) &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:731) &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:709) &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:700) &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at tools.proxies.GetThread.run(GetThread.java:65) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; ... 4 more &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>Caused by: java.lang.InterruptedException &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.reportInterruptAfterWait(AbstractQueuedSynchronizer.java:1899)
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1934) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.conn.tsccm.WaitingThread.await(WaitingThread.java:158) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.conn.tsccm.ConnPoolByRoute.getEntryBlocking(ConnPoolByRoute.java:331) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.conn.tsccm.ConnPoolByRoute$1.getPoolEntry(ConnPoolByRoute.java:228) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager$1.getConnection(ThreadSafeClientConnManager.java:172) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:390) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&nbsp; &nbsp; &nbsp; &nbsp; ... 9 more &nbsp; 
+<br/><br/>---------------------------------------------------------------------
+<br/>To unsubscribe, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17045&i=0" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>For additional commands, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17045&i=1" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/><br/>
+
+	
+	
+	
+	</div>
+	<script type="text/javascript">
+				Nabble.ads('first_classic_message');
+			</script>
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://httpcomponents.10934.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=3">Oleg Kalnichevski</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=17046" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/ThreadSafeClientConnManager-jdk-Executor-tt17045.html#a17046',17046)">Threaded</a>
+	<div id="tooltip33105" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip33105'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown17046"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown17046", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor17046', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D17046\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost17046', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D17046\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost17046', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D17046\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost17046', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(17046)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively17046', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(17046)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate17046', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D17046\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print17046', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D17046\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink17046', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://httpcomponents.10934.n7.nabble.com/ThreadSafeClientConnManager-jdk-Executor-tp17045p17046.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail17046', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D17046\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown17046');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=17046' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(17046)"/>
+	<div id="tooltip89114" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip89114'), 'up', 400);
+	</script>
+					<span id="starB17046">
+		<img id="img-starB17046" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip75064" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip75064'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow17046" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1275478686000-19"></span><script type="text/javascript">
+		Nabble.get('d1275478686000-19').innerHTML= Nabble.formatDateLong(new Date(1275478686000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: ThreadSafeClientConnManager  + jdk Executor
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://httpcomponents.10934.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=3" rel="nofollow" title="View profile of Oleg Kalnichevski" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/a0176e178f8f08da2ac4524454b4184e?s=100&amp;r=pg&amp;d=http%3A%2F%2Fn7.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="Oleg Kalnichevski" title="Oleg Kalnichevski"/><img src="/images/online.png" class="online3 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count3 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message17046" class="message-text adbayes-content">
+		On Tue, 2010-06-01 at 22:55 +0200, Jakub wrote:
+<br/>&gt; Hey folks,
+<br/>&gt; 
+<br/>&gt; I was trying out the ThreadSafeClientConnManager example from documentation, together with java executor framework and the executor.shutdown() function. Is it ok to exit threads running httpClient.execute &nbsp;like this ? I'm getting this stack trace for each thread shutdown like this. They are usually refused connections... &nbsp;appreciate &nbsp;any advice, Jakub
+<br/>&gt; 
+<br/>&gt; <a href="http://pastebin.com/eGjzQAy9" target="_top" rel="nofollow" link="external">http://pastebin.com/eGjzQAy9</a><br/>&gt; <a href="http://pastebin.com/F80VRZxX" target="_top" rel="nofollow" link="external">http://pastebin.com/F80VRZxX</a><br/>&gt; 
+<br/><br/>Executor#shutdown() terminates worker threads by interrupting them.
+<br/>While this might work, it usually can result in all sorts of funny
+<br/>exceptions. Moreover, as far as I know some I/O operations cannot be
+<br/>reliably unblocked by just interrupting the thread. It is recommended to
+<br/>use HttpUriRequest#abort method to abort requests still being executed
+<br/>and then terminate and join worker threads.
+<br/><br/>Hope this helps
+<br/><br/>Oleg
+<br/><div class='shrinkable-quote'><br/>&gt; 
+<br/>&gt; java.lang.Throwable: java.io.InterruptedIOException
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at tools.proxies.GetThread.run(GetThread.java:88)
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at java.lang.Thread.run(Thread.java:619) &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908) &nbsp; &nbsp;
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at java.lang.Thread.run(Thread.java:619) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&gt; Caused by: java.io.InterruptedIOException &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:392)
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:641) &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:731) &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:709) &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:700) &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at tools.proxies.GetThread.run(GetThread.java:65) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; ... 4 more &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&gt; Caused by: java.lang.InterruptedException &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.reportInterruptAfterWait(AbstractQueuedSynchronizer.java:1899)
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1934) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.conn.tsccm.WaitingThread.await(WaitingThread.java:158) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.conn.tsccm.ConnPoolByRoute.getEntryBlocking(ConnPoolByRoute.java:331) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.conn.tsccm.ConnPoolByRoute$1.getPoolEntry(ConnPoolByRoute.java:228) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager$1.getConnection(ThreadSafeClientConnManager.java:172) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:390) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<br/>&gt; &nbsp; &nbsp; &nbsp; &nbsp; ... 9 more &nbsp; 
+<br/>&gt; 
+<br/>&gt; ---------------------------------------------------------------------
+<br/>&gt; To unsubscribe, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17046&i=0" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>&gt; For additional commands, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17046&i=1" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>&gt; 
+</div><br/><br/><br/>---------------------------------------------------------------------
+<br/>To unsubscribe, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17046&i=2" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>For additional commands, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17046&i=3" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/><br/>
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://httpcomponents.10934.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=228">Ken Krugler</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=17047" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/ThreadSafeClientConnManager-jdk-Executor-tt17045.html#a17047',17047)">Threaded</a>
+	<div id="tooltip90688" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip90688'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown17047"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown17047", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor17047', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D17047\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost17047', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D17047\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost17047', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D17047\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost17047', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(17047)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively17047', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(17047)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate17047', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D17047\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print17047', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D17047\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink17047', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://httpcomponents.10934.n7.nabble.com/ThreadSafeClientConnManager-jdk-Executor-tp17045p17047.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail17047', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D17047\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown17047');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=17047' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(17047)"/>
+	<div id="tooltip98404" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip98404'), 'up', 400);
+	</script>
+					<span id="starB17047">
+		<img id="img-starB17047" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip76667" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip76667'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow17047" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1281142720000-546"></span><script type="text/javascript">
+		Nabble.get('d1281142720000-546').innerHTML= Nabble.formatDateLong(new Date(1281142720000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: ThreadSafeClientConnManager  + jdk Executor
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://httpcomponents.10934.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=228" rel="nofollow" title="View profile of Ken Krugler" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/37be47d692682d0e06847bc80f1663e6?s=100&amp;r=pg&amp;d=http%3A%2F%2Fn7.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="Ken Krugler" title="Ken Krugler"/><img src="/images/online.png" class="online228 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count228 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message17047" class="message-text adbayes-content">
+		Hi Oleg,
+<br/><br/>On Jun 2, 2010, at 4:38am, Oleg Kalnichevski wrote:
+<br/><div class='shrinkable-quote'><br/>&gt; On Tue, 2010-06-01 at 22:55 +0200, Jakub wrote:
+<br/>&gt;&gt; Hey folks,
+<br/>&gt;&gt;
+<br/>&gt;&gt; I was trying out the ThreadSafeClientConnManager example from &nbsp;
+<br/>&gt;&gt; documentation, together with java executor framework and the &nbsp;
+<br/>&gt;&gt; executor.shutdown() function. Is it ok to exit threads running &nbsp;
+<br/>&gt;&gt; httpClient.execute &nbsp;like this ? I'm getting this stack trace for &nbsp;
+<br/>&gt;&gt; each thread shutdown like this. They are usually refused &nbsp;
+<br/>&gt;&gt; connections... &nbsp;appreciate &nbsp;any advice, Jakub
+<br/>&gt;&gt;
+<br/>&gt;&gt; <a href="http://pastebin.com/eGjzQAy9" target="_top" rel="nofollow" link="external">http://pastebin.com/eGjzQAy9</a><br/>&gt;&gt; <a href="http://pastebin.com/F80VRZxX" target="_top" rel="nofollow" link="external">http://pastebin.com/F80VRZxX</a><br/>&gt;
+<br/>&gt; Executor#shutdown() terminates worker threads by interrupting them.
+<br/>&gt; While this might work, it usually can result in all sorts of funny
+<br/>&gt; exceptions. Moreover, as far as I know some I/O operations cannot be
+<br/>&gt; reliably unblocked by just interrupting the thread.
+</div><br/>Yes, this is what we're seeing when (for example) a very slow server &nbsp;
+<br/>is trickling back data. The interrupt does nothing.
+<br/><br/>&gt; It is recommended to
+<br/>&gt; use HttpUriRequest#abort method to abort requests still being executed
+<br/>&gt; and then terminate and join worker threads.
+<br/><br/>I'm trying to figure out how to map this advice onto what I've got in &nbsp;
+<br/>Bixo:
+<br/><br/>- I've got a bunch of fetch tasks being executed in threads using &nbsp;
+<br/>Java's ThreadPoolExecutor.
+<br/><br/>- Each task uses the same DefaultHttpClient with a &nbsp;
+<br/>ThreadSafeClientConnManager to execute GetMethod requests.
+<br/><br/>So when I decide that some of these fetch tasks need to be terminated:
+<br/><br/>1. What's the right way to get the list of active HttpUriRequest &nbsp;
+<br/>objects that need to be aborted? I assume I'll need to keep track of &nbsp;
+<br/>this myself, in some ThreadLocal storage. I don't see a way to get the &nbsp;
+<br/>set of active requests back from either HttpClient or the connection &nbsp;
+<br/>manager.
+<br/><br/>2. I assume it's safe to call the HttpUriRequest.abort() method from &nbsp;
+<br/>my main thread, while a worker thread is busy calling any method for &nbsp;
+<br/>this same object (including abort) at the same time.
+<br/><br/>Thanks!
+<br/><br/>-- Ken
+<br/><br/><div class='shrinkable-quote'><br/>&gt;&gt; java.lang.Throwable: java.io.InterruptedIOException
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at tools.proxies.GetThread.run(GetThread.java:88)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at java.lang.Thread.run(Thread.java:619)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at java.util.concurrent.ThreadPoolExecutor 
+<br/>&gt;&gt; $Worker.runTask(ThreadPoolExecutor.java:886)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at java.util.concurrent.ThreadPoolExecutor 
+<br/>&gt;&gt; $Worker.run(ThreadPoolExecutor.java:908)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at java.lang.Thread.run(Thread.java:619)
+<br/>&gt;&gt; Caused by: java.io.InterruptedIOException
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org 
+<br/>&gt;&gt; .apache 
+<br/>&gt;&gt; .http 
+<br/>&gt;&gt; .impl 
+<br/>&gt;&gt; .client.DefaultRequestDirector.execute(DefaultRequestDirector.java: 
+<br/>&gt;&gt; 392)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org 
+<br/>&gt;&gt; .apache 
+<br/>&gt;&gt; .http 
+<br/>&gt;&gt; .impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:641)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org 
+<br/>&gt;&gt; .apache 
+<br/>&gt;&gt; .http 
+<br/>&gt;&gt; .impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:731)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org 
+<br/>&gt;&gt; .apache 
+<br/>&gt;&gt; .http 
+<br/>&gt;&gt; .impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:709)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org 
+<br/>&gt;&gt; .apache 
+<br/>&gt;&gt; .http 
+<br/>&gt;&gt; .impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:700)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at tools.proxies.GetThread.run(GetThread.java:65)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;... 4 more
+<br/>&gt;&gt; Caused by: java.lang.InterruptedException
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at java.util.concurrent.locks.AbstractQueuedSynchronizer 
+<br/>&gt;&gt; $ 
+<br/>&gt;&gt; ConditionObject 
+<br/>&gt;&gt; .reportInterruptAfterWait(AbstractQueuedSynchronizer.java:1899)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at java.util.concurrent.locks.AbstractQueuedSynchronizer 
+<br/>&gt;&gt; $ConditionObject.await(AbstractQueuedSynchronizer.java:1934)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org 
+<br/>&gt;&gt; .apache.http.impl.conn.tsccm.WaitingThread.await(WaitingThread.java: 
+<br/>&gt;&gt; 158)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org 
+<br/>&gt;&gt; .apache 
+<br/>&gt;&gt; .http 
+<br/>&gt;&gt; .impl 
+<br/>&gt;&gt; .conn.tsccm.ConnPoolByRoute.getEntryBlocking(ConnPoolByRoute.java: 
+<br/>&gt;&gt; 331)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at org.apache.http.impl.conn.tsccm.ConnPoolByRoute 
+<br/>&gt;&gt; $1.getPoolEntry(ConnPoolByRoute.java:228)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager 
+<br/>&gt;&gt; $1.getConnection(ThreadSafeClientConnManager.java:172)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;at &nbsp;
+<br/>&gt;&gt; org 
+<br/>&gt;&gt; .apache 
+<br/>&gt;&gt; .http 
+<br/>&gt;&gt; .impl 
+<br/>&gt;&gt; .client.DefaultRequestDirector.execute(DefaultRequestDirector.java: 
+<br/>&gt;&gt; 390)
+<br/>&gt;&gt; &nbsp; &nbsp; &nbsp; &nbsp;... 9 more
+<br/>&gt;&gt;
+<br/>&gt;&gt; ---------------------------------------------------------------------
+<br/>&gt;&gt; To unsubscribe, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17047&i=0" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>&gt;&gt; For additional commands, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17047&i=1" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>&gt;&gt;
+<br/>&gt;
+<br/>&gt;
+<br/>&gt;
+<br/>&gt; ---------------------------------------------------------------------
+<br/>&gt; To unsubscribe, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17047&i=2" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>&gt; For additional commands, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17047&i=3" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>&gt;
+</div><br/>--------------------------------------------
+<br/>&lt;<a href="http://ken-blog.krugler.org" target="_top" rel="nofollow" link="external">http://ken-blog.krugler.org</a>&gt;
+<br/>+1 530-265-2225
+<br/><br/><br/><br/><br/><br/><br/>--------------------------------------------
+<br/>Ken Krugler
+<br/>+1 530-210-6378
+<br/><a href="http://bixolabs.com" target="_top" rel="nofollow" link="external">http://bixolabs.com</a><br/>e l a s t i c &nbsp; w e b &nbsp; m i n i n g
+<br/><br/><br/><br/><br/>
+
+	
+	
+	
+	</div>
+	
+			
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="classic-row">
+		<div class="classic-header">
+			<div class="classic-bar shaded-bg-color rounded-top">
+				<div class="classic-author-name nowrap">
+					<a href="http://httpcomponents.10934.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=3">Oleg Kalnichevski</a>
+				</div>
+				<div class="classic-right-menu shaded-bg-color weak-color">
+					<a href="/template/NamlServlet.jtp?macro=reply&amp;node=17048" rel="nofollow">Reply</a> |
+					<a href="javascript:void(0)" onclick="Nabble.setView('threaded', '/ThreadSafeClientConnManager-jdk-Executor-tt17045.html#a17048',17048)">Threaded</a>
+	<div id="tooltip91814" class="nabble-tooltip" use_title="false">
+		Open this post in threaded view
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip91814'), 'up', 400);
+	</script> |
+					<span id="dd_postdropdown17048"></span>
+	<script type="text/javascript">
+		var dropdown = new NabbleDropdown("postdropdown17048", "More","Click for more options");
+		
+		dropdown.add('replyToAuthor17048', '\x3Ca href\x3D\"/user/SendEmail.jtp?type\x3Dpm&amp;post\x3D17048\" rel\x3D\"nofollow\"\x3EReply to author\x3C/a\x3E', 'display:none');
+		dropdown.add('editPost17048', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dedit_post&amp;node\x3D17048\" rel\x3D\"nofollow\"\x3EEdit post\x3C/a\x3E', 'display:none');
+		dropdown.add('movePost17048', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dmove_node&amp;node\x3D17048\" rel\x3D\"nofollow\"\x3EMove post\x3C/a\x3E', 'display:none');
+		dropdown.add('deletePost17048', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deletePost(17048)\" rel\x3D\"nofollow\"\x3EDelete this post\x3C/a\x3E', 'display:none');
+			dropdown.add('deleteRecursively17048', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"Nabble.deleteFromSite(17048)\" rel\x3D\"nofollow\"\x3EDelete this post and replies\x3C/a\x3E', 'display:none');
+		dropdown.add('changePostDate17048', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dchange_post_date&amp;node\x3D17048\" rel\x3D\"nofollow\"\x3EChange post date\x3C/a\x3E', 'display:none');
+		dropdown.add('print17048', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Dprint_post&amp;node\x3D17048\" rel\x3D\"nofollow\"\x3EPrint post\x3C/a\x3E');
+		dropdown.add('permalink17048', '\x3Ca href\x3D\"javascript: void(0)\" onclick\x3D\"prompt(\'Copy this:\',\'http://httpcomponents.10934.n7.nabble.com/ThreadSafeClientConnManager-jdk-Executor-tp17045p17048.html\')\"\x3EPermalink\x3C/a\x3E');
+		dropdown.add('rawMail17048', '\x3Ca href\x3D\"/template/NamlServlet.jtp?macro\x3Draw_mail&amp;node\x3D17048\" rel\x3D\"nofollow\"\x3ERaw mail\x3C/a\x3E', 'display:none');
+		dropdown.build('dd_postdropdown17048');
+		dropdown.loadOnClick('/template/NamlServlet.jtp?macro=post_dropdown_later&node=17048' + Nabble.getClientID() + '&_=' + Math.floor(Math.random()*999999));
+	</script>
+					&nbsp;
+					<img src="/images/flag_gray.png" class="report-flag" onclick="Nabble.reportContent(17048)"/>
+	<div id="tooltip32775" class="nabble-tooltip" use_title="false">
+		Report Content as Inappropriate
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip32775'), 'up', 400);
+	</script>
+					<span id="starB17048">
+		<img id="img-starB17048" src="/images/icon_unstarred.png" class="star" alt="star" title="Add this item to your favorites list"/>
+		<div id="tooltip46619" class="nabble-tooltip" use_title="true">
+		
+		<div class="nabble-tooltip-arrow">
+			<div class="d1">&diams;</div>
+			<div class="d2">&diams;</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		Nabble.startTooltip(Nabble.get('tooltip46619'), 'up', 400);
+	</script>
+	</span>
+	
+				</div>
+				<div class="classic-subject-line">
+					<span id="red-arrow17048" class="float-left invisible" style="margin-top:.2em">
+		<img title="Selected post" width="15" height="15" src="/images/arrow.png" alt="Selected post"/>
+	</span>
+					<span class="post-date float-left">
+		<span id="d1281355597000-348"></span><script type="text/javascript">
+		Nabble.get('d1281355597000-348').innerHTML= Nabble.formatDateLong(new Date(1281355597000));
+	</script>
+	</span>
+					<h2 class="post-subject float-left adbayes-content" style="width:30%;overflow:visible;font-family:inherit">
+		Re: ThreadSafeClientConnManager  + jdk Executor
+	</h2>
+				</div>
+			</div>
+		</div>
+		<table class="classic-body">
+			<tr>
+				<td class="classic-author shaded-bg-color rounded-bottom">
+					<div class="avatar-outer">
+		<div class="avatar-inner">
+			<a href="http://httpcomponents.10934.n7.nabble.com/template/NamlServlet.jtp?macro=user_nodes&amp;user=3" rel="nofollow" title="View profile of Oleg Kalnichevski" class="nowrap no-decoration"><img class="avatar medium-border-color" src="http://www.gravatar.com/avatar/a0176e178f8f08da2ac4524454b4184e?s=100&amp;r=pg&amp;d=http%3A%2F%2Fn7.nabble.com%2Fimages%2Favatar100.png" height="100" width="100" alt="Oleg Kalnichevski" title="Oleg Kalnichevski"/><img src="/images/online.png" class="online3 online invisible" title="User is online" alt="online"/></a>
+
+	
+	
+		</div>
+	</div>
+	
+	
+	<div class="post-count3 avatar-label weak-color"></div>
+	
+				</td>
+				<td class="classic-message">
+					
+	
+	
+	<div id="message17048" class="message-text adbayes-content">
+		On Fri, 2010-08-06 at 17:58 -0700, Ken Krugler wrote:
+<br/>&gt; Hi Oleg,
+<br/><br/>...
+<br/><div class='shrinkable-quote'><br/>&gt; 
+<br/>&gt; I'm trying to figure out how to map this advice onto what I've got in &nbsp;
+<br/>&gt; Bixo:
+<br/>&gt; 
+<br/>&gt; - I've got a bunch of fetch tasks being executed in threads using &nbsp;
+<br/>&gt; Java's ThreadPoolExecutor.
+<br/>&gt; 
+<br/>&gt; - Each task uses the same DefaultHttpClient with a &nbsp;
+<br/>&gt; ThreadSafeClientConnManager to execute GetMethod requests.
+<br/>&gt; 
+<br/>&gt; So when I decide that some of these fetch tasks need to be terminated:
+<br/>&gt; 
+<br/>&gt; 1. What's the right way to get the list of active HttpUriRequest &nbsp;
+<br/>&gt; objects that need to be aborted? I assume I'll need to keep track of &nbsp;
+<br/>&gt; this myself, in some ThreadLocal storage. I don't see a way to get the &nbsp;
+<br/>&gt; set of active requests back from either HttpClient or the connection &nbsp;
+<br/>&gt; manager.
+<br/>&gt; 
+</div><br/>Hi Ken
+<br/><br/>There is currently no reliable way of obtaining a list of all requests
+<br/>being executed by a HttpClient with a pooling connection manager. One
+<br/>could work the problem around by decorating the HttpClient interface and
+<br/>keeping track of request instances that are passed to the #execute
+<br/>method. The problem is that #execute method returns before the
+<br/>request/response exchange is fully completed, which makes this approach
+<br/>unreliable. A better alternative could be extending the pooling
+<br/>connection manager and providing a means of enumerating (or shutting
+<br/>down) all connections currently leased from the pool.
+<br/><br/><br/>&gt; 2. I assume it's safe to call the HttpUriRequest.abort() method from &nbsp;
+<br/>&gt; my main thread, while a worker thread is busy calling any method for &nbsp;
+<br/>&gt; this same object (including abort) at the same time.
+<br/>&gt; 
+<br/><br/>Yes, it is. AbortableHttpRequest#abort method implementations should be
+<br/>thread-safe.
+<br/><br/>Hope this helps
+<br/><br/>Oleg
+<br/><br/><br/><br/>---------------------------------------------------------------------
+<br/>To unsubscribe, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17048&i=0" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/>For additional commands, e-mail: <a href="/user/SendEmail.jtp?type=node&node=17048&i=1" target="_top" rel="nofollow" link="external">[hidden email]</a>
+<br/><br/>
+
+	
+	
+	
+	</div>
+	
+			<script type="text/javascript">
+				Nabble.ads('last_classic_message');
+			</script>
+				</td>
+			</tr>
+		</table>
+	</div>
+	
+		
+	</div>
+	</div>
+			<div id="topic-footer" class="weak-color" style="padding-top:1em">
+		&laquo;
+		<a href="http://httpcomponents.10934.n7.nabble.com/HttpClient-User-f11330.html">Return to HttpClient-User</a>
+		&nbsp;|&nbsp;
+		<span id="v17045" style="display:none">1 view|%1 views</span>
+	
+	
+	</div>
+			<div id="report-inappropriate-content" class="report-inappropriate-content rounded">
+		<div id="report-inappropriate-content-inner" class="no-bg-color medium-border-color border2">
+			<div class="big">Loading...</div>
+		</div>
+	</div>
+				<script type="text/javascript">
+				Nabble.ads('topic_bottom');
+			</script>
+	<script type="text/javascript">
+	var infolinks_pid = 1480243;
+	var infolinks_wsid = 0;
+	</script>
+	<script type="text/javascript" src="http://resources.infolinks.com/js/infolinks_main.js"></script>
+			<table class="footer-table shaded-bg-color">
+		<tr>
+			<td class="footer-left weak-color">
+				Powered by
+				<a href="http://www.nabble.com/" target="_top">Nabble</a>
+			</td>
+			<td class="footer-right">
+				<a href="/template/NamlServlet.jtp?macro=macro_viewer&amp;id=classic_forum_topic%21nabble%3Atopic.naml&amp;base=nabble.view.web.template.ServletNamespace" rel="nofollow">Edit this page</a>
+			</td>
+		</tr>
+	</table>
+	<!-- Ad.true -->
+			<script type='text/javascript'>
+var scriptUrl = '/template/NamlServlet.jtp?macro=js_page&searchSpecial=17045&incViewCount=17045&newsflash=&starB=17045|17046|17047|17048&visitorOnline=&avatarOnline=490|3|228&postCount=490|3|228&markVisited=17048&views=17045';
+scriptUrl += '&_=' + Math.floor(Math.random()*9999) + Nabble.getClientID();
+$.getScript(scriptUrl, function() { Nabble.resizeFrames(); });
+</script>
+
+					</div>
+					<script type="text/javascript">
+		$(document).ready(function() { Nabble.fixCookieClientID(); });
+		(function(){ var sNew = document.createElement("script"); sNew.defer = true; sNew.src = "http://tag.crsspxl.com/s1.js?d=1294"; var s0 = document.getElementsByTagName('script')[0]; s0.parentNode.insertBefore(sNew, s0); })();
+	</script>
+					<!-- n7.nabble.com | Site ID = 10934 -->
+				</body>
+			</html>

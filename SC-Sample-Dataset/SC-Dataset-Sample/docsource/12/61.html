@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>[The Java Posse] Re: How do YOU handle Exceptions?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#06038">
+<link rel="index" href="maillist.html#06038">
+<link rel="prev" href="msg06037.html">
+<link rel="next" href="msg06030.html">
+<link rel="alternate" title="javaposse RSS" href="#" type="application/rss+xml">
+<link rel="canonical" href="https://www.mail-archive.com/javaposse@googlegroups.com/msg06038.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=javaposse@googlegroups.com&amp;q=subject:%22%5BThe+Java+Posse%5D+Re%3A+How+do+YOU+handle+Exceptions%3F%22" rel="nofollow"><span itemprop="name">[The Java Posse] Re: How do YOU handle Exceptions?</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=javaposse@googlegroups.com&amp;q=from:%22Viktor+Klang%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Viktor Klang</span></span></a></span>
+<span class="date"><a href="/search?l=javaposse@googlegroups.com&amp;q=date:20090818" rel="nofollow"><span itemprop="datePublished" content="2009-08-18T04:49:28-0700">Tue, 18 Aug 2009 04:49:28 -0700</span></a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>On Tue, Aug 18, 2009 at 1:31 PM, Michael Neale &lt;michael.ne...@gmail.com&gt;wrote:</pre><pre>
+
+&gt;
+&gt; Proably would use a set of case classes I guess, but would end up
+&gt; looking like a pretty version of that (someone like Viktor will
+&gt; probably show us !).
+
+
+As Peter Becker suggested previously in this thread, you could use the
+Either-type in Scala, or if you are adventurous: use the Box-type in Lift
+
+scala&gt; def foo[T](fun : =&gt; T) : Either[T,Exception] = try { Left(fun) }
+catch { case e : Exception =&gt; Right(e) }
+foo: [T](=&gt; T)Either[T,Exception]
+
+scala&gt; def fooResult[T](fun : =&gt; T) : String = foo(fun) match { case Left(x)
+=&gt; &quot;Yielded: &quot; + x; case Right(x) =&gt; &quot;Exception: &quot; + x; }
+fooResult: [T](=&gt; T)String
+
+scala&gt; fooResult(10/0)
+res0: String = Exception: java.lang.ArithmeticException: / by zero
+
+scala&gt; fooResult(System.currentTimeMillis)
+res1: String = Yielded: 1250596147666
+
+
+Box from Lift has a sligtly different semantics, it has 3 distinct states:
+
+Full
+Empty
+Failure
+
+while Either only has 2:
+
+Left
+Right
+
+
+
+
+&gt;
+&gt;
+&gt; On Aug 18, 9:11 pm, Peter Becker &lt;peter.becker...@gmail.com&gt; wrote:
+&gt; &gt; Reinier Zwitserloot wrote:
+&gt; &gt; &gt; Yes, an utopia with checked exceptions is probably pretty decent, but
+&gt; &gt; &gt; as a practical matter they've been horribly abused. Not just by third
+&gt; &gt; &gt; party libraries; the java core library is inconsistent in places and
+&gt; &gt; &gt; has a lot of missing throws clauses in interfaces that can't be fixed
+&gt; &gt; &gt; because it would break backwards compatibility. Trying to fix these
+&gt; &gt; &gt; things is going to be even more painful than having to deal with
+&gt; &gt; &gt; checked exceptions in the current circumstance, which is one of the
+&gt; &gt; &gt; reasons why I advocate solving the problem directly. Such as offering
+&gt; &gt; &gt; an opt out mechanism where a programmer can explicitly 'correct' the
+&gt; &gt; &gt; compiler to say: Yah, I know, I know, this method call here DECLARES
+&gt; &gt; &gt; that it'll throw SomeCheckedException, and I neither catch it nor
+&gt; &gt; &gt; declare to throw it onwards, but, shaddap. I know what I'm doing, just
+&gt; &gt; &gt; compile this code, and let me get on with my day.
+&gt; &gt;
+&gt; &gt; &gt; It'll be abused, but the notion that exceptions will be abused in some
+&gt; &gt; &gt; fashion is what we have to deal with. The question is: How can we make
+&gt; &gt; &gt; sure the abuse is kept to a minimum? I'd assert that try {} catch
+&gt; &gt; &gt; ( Throwable t ) { Log.log(t); } is a much worse abuse than
+&gt; &gt; &gt; sneakythrowing.
+&gt; &gt;
+&gt; &gt; Agreed.
+&gt; &gt; &gt; You get the benefit of being explicitly told about the checked
+&gt; &gt; &gt; exceptions that you ought to be checking, but when the theory fails
+&gt; &gt; &gt; due to a practical matter (the declared exception can't possibly
+&gt; &gt; &gt; happen, or you want to throw the exception onward but due to a badly
+&gt; &gt; &gt; designed interface you're not allowed to, etc, etc), you won't have to
+&gt; &gt; &gt; jump through a bunch of hoops, obscuring the exception as you go.
+&gt; &gt;
+&gt; &gt; &gt; Being able to return a disjoint type so you can cover extraordinary
+&gt; &gt; &gt; exit conditions that way instead of throwing exceptions for them could
+&gt; &gt; &gt; work, but I don't really know of any language that handles them all
+&gt; &gt; &gt; that well. The only way I can see how it could possibly work is
+&gt; &gt; &gt; pattern matching. Which scala can mostly do, can't it?
+&gt; &gt;
+&gt; &gt; As far as I understand you can't just do something like this (in
+&gt; &gt; Java-like syntax, but ignoring a few other things Java such as the
+&gt; &gt; .class for types):
+&gt; &gt;
+&gt; &gt; public Result|Error1|Error2 someMethod() {...}
+&gt; &gt;
+&gt; &gt; public void someOtherMethod() {
+&gt; &gt;    var result = someMethod();
+&gt; &gt;    switch(typeof result) {
+&gt; &gt;       case Result:
+&gt; &gt;          processResult(result);
+&gt; &gt;       default:
+&gt; &gt;          handleError(result);
+&gt; &gt;    }
+&gt; &gt;
+&gt; &gt; }
+&gt; &gt;
+&gt; &gt; public void processResult(Result result) {...}
+&gt; &gt;
+&gt; &gt; public void handleError(Error1|Error2 error) {
+&gt; &gt; ...code using anything on common supertypes of Error1/2...
+&gt; &gt;
+&gt; &gt; }
+&gt; &gt;
+&gt; &gt; Part of what I'd like to see is that there is no need to name the types
+&gt; &gt; used. The signature of the last method should also be allowed to be
+&gt; &gt; handleError(Error) assuming that both Error1 nad Error2 are subtypes of
+&gt; &gt; Error (which is really just normal polymorphism since it implies that
+&gt; &gt; the union is a subtype, too).
+&gt; &gt;
+&gt; &gt; My Scala is not good enough to judge what is truly possible, but most
+&gt; &gt; code I've seen seems to end up using Either in this case, which seems a
+&gt; &gt; bit of a kludge -- particularly if you create a union of more than two
+&gt; &gt; types. I'd be happy to hear about alternatives.
+&gt; &gt;
+&gt; &gt;   Peter
+&gt; &gt;
+&gt; &gt;
+&gt; &gt;
+&gt; &gt; &gt; On Aug 18, 12:13 pm, Peter Becker &lt;peter.becker...@gmail.com&gt; wrote:
+&gt; &gt;
+&gt; &gt; &gt;&gt; I still believe that the main reason people hate checked exceptions is
+&gt; &gt; &gt;&gt; that they have been used badly.
+&gt; &gt;
+&gt; &gt; &gt;&gt; But I don't really like them either, I just dislike runtime exceptions
+&gt; &gt; &gt;&gt; more ;-) The reason for that is that they hide things I might want to
+&gt; &gt; &gt;&gt; know about when using an API. No one reads documentation well enough,
+&gt; &gt; &gt;&gt; the enforcement checked exceptions give you is quite useful -- at
+&gt; least
+&gt; &gt; &gt;&gt; given the context of Java. And I don't buy into the &quot;just unit test&quot;
+&gt; &gt; &gt;&gt; argument, things like SQLException and IOException rarely happen in
+&gt; test
+&gt; &gt; &gt;&gt; environments unless the test was designed to test just that -- it is
+&gt; the
+&gt; &gt; &gt;&gt; exceptional case you don't expect that scares me.
+&gt; &gt;
+&gt; &gt; &gt;&gt; What I would really like to see is a meet/or/disjunction/union
+&gt; operator
+&gt; &gt; &gt;&gt; in the type system, with a case-like construct to resolve the
+&gt; resulting
+&gt; &gt; &gt;&gt; types. Scala has two things that are halfway there (Either, case
+&gt; &gt; &gt;&gt; classes), but neither is the full monty.
+&gt; &gt;
+&gt; &gt; &gt;&gt;   Peter
+&gt; &gt;
+&gt; &gt; &gt;&gt; phil swenson wrote:
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt; there is a reason no other language ever written has checked
+&gt; &gt; &gt;&gt;&gt; exceptions - checked exceptions are a bad idea.
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt; On my first java project back in 1999 I remember adding in a checked
+&gt; &gt; &gt;&gt;&gt; exception to a utility class.  It has effects on hundreds of classes
+&gt; &gt; &gt;&gt;&gt; and 1000s of method calls.  I then decided it was more trouble than
+&gt; it
+&gt; &gt; &gt;&gt;&gt; was worth and switched everything to runtime exceptions.  Worked
+&gt; &gt; &gt;&gt;&gt; brilliantly.
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt; Checked exceptions almost always degenerate into &quot;throws exception&quot;
+&gt; on
+&gt; &gt; &gt;&gt;&gt; 100s to 1000s of methods in your project.  They simply don't scale,
+&gt; &gt; &gt;&gt;&gt; one small change can ripple through an entire project.  They also
+&gt; lead
+&gt; &gt; &gt;&gt;&gt; to try{blahblah}catch(Exception e}{} (exception hiding).  They lead
+&gt; to
+&gt; &gt; &gt;&gt;&gt; logging the exception multiple times (catch, log, rethrow), giant
+&gt; &gt; &gt;&gt;&gt; method signatures, exception wrapping, and other harmful practices.
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt; The correct (IMO) way to handle it is to let the exception bubble up
+&gt; &gt; &gt;&gt;&gt; to the top level thread and handle it there, whether it's present to
+&gt; &gt; &gt;&gt;&gt; the user, log, and/or cancel a transaction.  Exceptions almost never
+&gt; &gt; &gt;&gt;&gt; can be recovered from and people are almost always fooling themselves
+&gt; &gt; &gt;&gt;&gt; if they think they can.  I think 95+% of the time exceptions are from
+&gt; &gt; &gt;&gt;&gt; bugs, not from recoverable situations.  People try to build hugely
+&gt; &gt; &gt;&gt;&gt; fault tolerant systems and they end up hiding bugs.
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt; In the rare case that you want to handle an exception at a lower
+&gt; &gt; &gt;&gt;&gt; level, do it.  But you certainly don't want this to be the default
+&gt; &gt; &gt;&gt;&gt; behavior, it's the EXCEPTIONAL case. :)
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt; On Aug 17, 9:10 pm, Michael Neale &lt;michael.ne...@gmail.com&gt; wrote:
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt; What do people think of the scala approach of no checked exceptions
+&gt; -
+&gt; &gt; &gt;&gt;&gt;&gt; even checked exceptions are not treated specially by the constructor
+&gt; &gt; &gt;&gt;&gt;&gt; (personally, I like it).
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt; On Aug 18, 12:55 pm, Christian Catchpole &lt;christ...@catchpole.net&gt;
+&gt; &gt; &gt;&gt;&gt;&gt; wrote:
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt; No, i just let that go up.  I really try to avoid the declare as
+&gt; null
+&gt; &gt; &gt;&gt;&gt;&gt;&gt; then set thingy.
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt; On Aug 18, 12:03 pm, Casper Bang &lt;casper.b...@gmail.com&gt; wrote:
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; You neglect to handle the checked exception declared by
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; prepareStatement no?
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; PreparedStatement stmt = null;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; try{
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     stmt = connection.prepareStatement(sql);
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     final ResultSet rs = stmt.executeQuery();
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     try{
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;         while (rs.next()){
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;             // Stuff...
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;         {
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     }
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     finally{
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;         rs.close();
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     }}
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; catch(SQLException e){
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     // Logging...}
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; finally{
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     try{
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;         stmt.close();
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     }
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     catch(SQLException whoTheFuckCares){
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt;     };
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; }
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; Really, how many other ways are there to do it I wonder now?
+&gt; (Apart
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; from wrapping certain things, like the last try-catch clause in
+&gt; some
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; general purpose &quot;closer util&quot;?).
+&gt; &gt;
+&gt; &gt; &gt;&gt;&gt;&gt;&gt;&gt; /Casper
+&gt; &gt;
+&gt;
+
+
+-- 
+Viktor Klang
+
+Rogue Scala-head
+
+Blog: klangism.blogspot.com
+Twttr: viktorklang
+
+--~--~---------~--~----~------------~-------~--~----~
+You received this message because you are subscribed to the Google Groups &quot;The 
+Java Posse&quot; group.
+To post to this group, send email to javaposse@googlegroups.com
+To unsubscribe from this group, send email to 
+javaposse+unsubscr...@googlegroups.com
+For more options, visit this group at 
+<a  rel="nofollow" href="http://groups.google.com/group/javaposse?hl=en">http://groups.google.com/group/javaposse?hl=en</a>
+-~----------~----~----~----~------~----~------~--~---
+
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages
+</h2>
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg06037.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#06038">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#06038">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg06030.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceLiset margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages within this thread
+</h2>
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg06010.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Christian Catchpole</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06011.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Christian Catchpole</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06012.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Casper Bang</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06014.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Christian Catchpole</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06017.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Michael Neale</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06019.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">phil swenson</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06028.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Peter Becker</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06029.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Reinier Zwitserloot</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06033.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Peter Becker</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06037.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Michael Neale</span></li>
+<li class="icons-email tSliceCur"><span class="subject">[The Java Posse] Re: How do YOU handle Exceptions?</span><span class="sender italic">Viktor Klang</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06030.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Viktor Klang</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06035.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Peter Becker</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06043.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Alexey Zinger</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06044.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Casper Bang</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06046.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Alexey</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06049.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Reinier Zwitserloot</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06051.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Jess Holle</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06056.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Reinier Zwitserloot</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06061.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Jess Holle</span></li>
+<li class="icons-email"><span class="subject"><a href="msg06083.html">[The Java Posse] Re: How do YOU handle Exceptions?</a></span> <span class="sender italic">Reinier Zwitserloot</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="HIDDEN" name="subject" value="[The Java Posse] Re: How do YOU handle Exceptions?">
+<input type="HIDDEN" name="msgid" value="4d0f9db0908180448x5c29de5emd4aa28877d3ce101@mail.gmail.com">
+<input type="submit" value=" Viktor Klang ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="javaposse@googlegroups.com">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search javaposse">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<h2 class="hidden">
+				Site navigation
+</h2>
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/javaposse@googlegroups.com/">javaposse - all messages</a></li>
+<li class="icons-about"><a href="/javaposse@googlegroups.com/info.html">javaposse - about the list</a></li>
+<li class="icons-prev"><a href="msg06037.html">Previous message</a></li>
+<li class="icons-next"><a href="msg06030.html">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+<h2 class="hidden">
+				Mail list logo
+</h2>
+
+</div>
+<div class="bannertower margintopdouble">
+<h2 class="hidden">
+				Advertising banner
+</h2>
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<h2 class="hidden">
+		Footer information
+</h2>
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+</ul>
+</div>
+</body>
+</html>

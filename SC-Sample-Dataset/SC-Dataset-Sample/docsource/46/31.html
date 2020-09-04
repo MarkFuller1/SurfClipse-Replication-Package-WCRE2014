@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>netty的粘包 解包问题(转) - 空相 - �?�客园</title>
+<link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=5bITb1XmtieJKhNy3HCsng1mgkC1fjWAtqCxIQA888c1"/>
+<link id="MainCss" type="text/css" rel="stylesheet" href="http://common.cnblogs.com/Skins/MoonlightInk/style.css?id=20131027"/>
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/an0701/rss"/>
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/an0701/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/an0701/wlwmanifest.xml"/>
+<script src="http://common.cnblogs.com/script/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'an0701';</script>
+<script src="/bundles/blog-common.js?v=u1AiBrSeUR117oqQTNbORaLk0NsMoQO-C0ST0VrTysU1" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="http://www.cnblogs.com/an0701/"><img id="blogLogo" src="/Skins/custom/images/logo.gif" alt="返回主页" /></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/an0701/">rookie</a></h1>
+<h2>java,架构设计，数�?�库</h2>
+
+
+
+		
+	</div><!--end: blogTitle �?�客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">�?�客园</a></li>
+<li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/an0701/">首页</a></li>
+<li><a class="menu" href="http://q.cnblogs.com/">�?�问</a></li>
+<li><a class="menu" href="http://home.cnblogs.com/ing/">闪存</a></li>
+<li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://www.cnblogs.com/an0701/admin/EditPosts.aspx?opt=1">新�?笔</a></li>
+<li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://space.cnblogs.com/msg/send/%e7%a9%ba%e7%9b%b8">�?�系</a></li>
+<li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/an0701/rss">订阅</a>
+<!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/an0701/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://www.cnblogs.com/an0701/admin/EditPosts.aspx">管�?�</a></li>
+</ul>
+		<div class="blogStats">
+			
+			
+<!--done-->
+�?笔- 7&nbsp;
+文章- 1&nbsp;
+评论- 0&nbsp;
+
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator �?�客导航�? -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+
+<!--done-->
+<div id="topics">
+	<div class = "post">
+		<h1 class = "postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/an0701/archive/2012/12/17/2821309.html">netty的粘包 解包问题(转)</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body"><p>1�?简介<br />Java1.4�??供了NIO使开�?�者�?�以使用Java编写高性能的�?务端程�?，但使用原生的NIO API就�?Linux C中网络编程一样，还是需�?�?�IO处�?��?�??议处�?�等低层次工作。所以，就�?C�?务端程�?大�?使用libevent作为网络应用框架一样，Java社区也�?断涌现出基于NIO的网络应用框架。在这其中，Jboss出�?的Netty就是个中翘楚。Netty是个异步的事件驱动网络应用框架，具有高性能�?高扩展性等特性。Netty�??供了统一的底层�??议接�?�，使得开�?�者从底层的网络�??议（比如TCP/IP�?UDP）中解脱出�?�。就使用�?�说，开�?�者�?��?�?�考 Netty�??供的若干例�?和它的指�?�文档，就�?�以放手开�?�基于Netty的�?务端程�?了。</p>
+<p>在Java社区，最知�??的开�?Java NIO框架�?属Mina和Netty，而且两者渊�?颇多，对两者的比较自然�?少。实际上，Netty的作者原�?�就是Mina作者之一，所以�?�以想到，Netty和Mina在设计�?�念上会有很多共�?�点。我对Mina没什么研究，但其作者介�?，Netty的设计对开�?�者有更�?�好的扩展性，并且性能方�?��?优于Mina，而Netty完善的文档也很�?�引人。所以，如果你在寻找Java NIO框架，Netty是个很�?错的选择。本文的内容就是围绕一个demo介�?使用Netty的点点滴滴。</p>
+<p>2�?�?务端程�?<br />2.1�?ChannelHandler<br />�?务端程�?通常的处�?�过程是：解�?请求数�?��?业务逻辑处�?��?编�?�?应。从框架角度�?�说，�?�以�??供3个接�?��?�控制并调度该处�?�过程；从更通用的角度�?�说，并�?特化处�?�其中的�?一步，而把�?一步当�?�过滤器链中的一环，这也是Netty的�?�法。Netty对请求处�?�过程实现了过滤器链模�?（ChannelPipeline），�?个过滤器实现了ChannelHandler接�?�。Netty中有两�?请求事件�?类型也�?�了细分：</p>
+<p>1）downstream event：其对应的ChannelHandler�?接�?�是ChannelDownstreamHandler。downstream event是说从头到尾执行ChannelPipeline中的ChannelDownstreamHandler，这一过程相当于�?�外�?��?数�?�的过程。 downstream event有：&rdquo;write&rdquo;�?&rdquo;bind&rdquo;�?&rdquo;unbind&rdquo;�? &ldquo;connect&rdquo;�? &ldquo;disconnect&rdquo;�?&rdquo;close&rdquo;。</p>
+<p>2）upstream event：其对应的ChannelHandler�?接�?�是ChannelUpstreamHandler。upstream event处�?�的事件方�?�和downstream event相�??，这一过程相当于接收处�?�外�?�请求的过程。upstream event有：&rdquo;messageReceived&rdquo;�? &ldquo;exceptionCaught&rdquo;�?&rdquo;channelOpen&rdquo;�?&rdquo;channelClosed&rdquo;�? &ldquo;channelBound&rdquo;�?&rdquo;channelUnbound&rdquo;�? &ldquo;channelConnected&rdquo;�?&rdquo;writeComplete&rdquo;�?&rdquo;channelDisconnected&rdquo;�?&rdquo;channelInterestChanged&rdquo;。</p>
+<p>Netty中有个注释@interface ChannelPipelineCoverage，它表示被注释的ChannelHandler是�?�能添加到多个ChannelPipeline中，其�?�选的值是&rdquo;all&rdquo;和&rdquo;one&rdquo;。&rdquo;all&rdquo;表示ChannelHandler是无状�?的，�?�被多个ChannelPipeline共享，而&rdquo;one&rdquo;表示ChannelHandler�?�作用于�?�个ChannelPipeline中。但ChannelPipelineCoverage�?�是个注释而已，并没有实际的检查作用。对于ChannelHandler是&rdquo;all&rdquo;还是&rdquo;one&rdquo;，还是根�?�逻辑需�?而定。比如，�?解�?请求handler，因为�?�能解�?的数�?��?完整，需�?等待下一次读事件�?�了之�?��?继续解�?，所以解�?请求handler就需�?是&rdquo;one&rdquo;的（�?�则多个Channel共享数�?�就乱了）。而�?业务逻辑处�?�hanlder通常是&rdquo;all&rdquo;的。</p>
+<p>下�?�以一个简�?�的例�?说明如何编写&ldquo;解�?请求数�?��?业务逻辑处�?��?编�?�?应&rdquo;这一过程中涉�?�的ChannelHandler。该例�?实现的�??议格�?很简�?�，请求和�?应�?中头4个字节表示�?��?�跟的内容长度，根�?�该长度�?�得到内容体。</p>
+<p>首先看下解�?器的实现：</p>
+<p>public class MessageDecoder extends FrameDecoder {<br /> <br />    @Override<br />    protected Object decode(<br />            ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {<br />        if (buffer.readableBytes() &lt; 4) {<br />            return null;//(1)<br />        }<br />        int dataLength = buffer.getInt(buffer.readerIndex());<br />        if (buffer.readableBytes() &lt; dataLength + 4) {<br />            return null;//(2)<br />        }<br /> <br />        buffer.skipBytes(4);//(3)<br />        byte[] decoded = new byte[dataLength];<br />        buffer.readBytes(decoded);<br />        String msg = new String(decoded);//(4)<br />        return msg;<br />    }<br />}<br />MessageDecoder继承自FrameDecoder，FrameDecoder是Netty codec包中的辅助类，它是个ChannelUpstreamHandler，decode方法是FrameDecoder�?类需�?实现的。在上�?�的代�?中，有：</p>
+<p>(1)检查ChannelBuffer中的字节数，如果ChannelBuffer�?�读的字节数少于4,则返回null等待下次读事件。<br />(2)继续检查ChannelBuffer中的字节数，如果ChannelBuffer�?�读的字节数少于dataLength + 4，则返回null等待下次读事件。<br />(3)越过dataLength的字节。<br />(4)构造解�?的字符串返回。</p>
+<p>@ChannelPipelineCoverage("all")<br />public class MessageServerHandler extends SimpleChannelUpstreamHandler {<br /> <br />    private static final Logger logger = Logger.getLogger(<br />            MessageServerHandler.class.getName());<br /> <br />    @Override<br />    public void messageReceived(<br />            ChannelHandlerContext ctx, MessageEvent e) {<br />        if (!(e.getMessage() instanceof String)) {<br />            return;//(1)<br />        }<br />        String msg = (String) e.getMessage();<br />        System.err.println("got msg:"+msg);<br />        e.getChannel().write(msg);//(2)<br />    }<br /> <br />    @Override<br />    public void exceptionCaught(<br />            ChannelHandlerContext ctx, ExceptionEvent e) {<br />        logger.log(<br />                Level.WARNING,<br />                "Unexpected exception from downstream.",<br />                e.getCause());<br />        e.getChannel().close();<br />    }<br />}<br />MessageServerHandler是�?务端业务处�?�handler，其继承自SimpleChannelUpstreamHandler，并主�?实现messageReceived事件。关于该类，有如下注解：</p>
+<p>(1)该upstream事件�?中，首先�?过MessageDecoder，其会将decode返回的解�?�?�的数�?�构造�? MessageEvent.getMessage()，所以在handler上下文关系中，MessageEvent.getMessage()并�?一定都返回ChannelBuffer类型的数�?�。<br />(2)MessageServerHandler�?�是简�?�的将得到的msg�?写回给客户端。e.getChannel().write(msg);�?作将触�?�DownstreamMessageEvent事件，也就是调用下�?�的MessageEncoder将编�?的数�?�返回给客户端。</p>
+<p>@ChannelPipelineCoverage("all")<br />public class MessageEncoder extends OneToOneEncoder {<br /> <br />    @Override<br />    protected Object encode(<br />            ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {<br />        if (!(msg instanceof String)) {<br />            return msg;//(1)<br />        }<br /> <br />        String res = (String)msg;<br />        byte[] data = res.getBytes();<br />        int dataLength = data.length;<br />        ChannelBuffer buf = ChannelBuffers.dynamicBuffer();//(2)<br />        buf.writeInt(dataLength);<br />        buf.writeBytes(data);<br />        return buf;//(3)<br />    }<br />}<br />MessageEncoder是个ChannelDownstreamHandler。对该类的注解如下：</p>
+<p>(1)如果编�?的msg�?是�?�法类型，就直接返回该msg，之�?�OneToOneEncoder会调用 ctx.sendDownstream(evt);�?�调用下一个ChannelDownstreamHandler。对于该例�?�?�说，这�?情况是�?应该出现的。<br />(2)开�?�者创建ChannelBuffer的用武之地就是这儿了，通常使用dynamicBuffer�?��?�，表示得到的ChannelBuffer�?�动�?增加大�?。<br />(3)返回编�?�?�的ChannelBuffer之�?�，OneToOneEncoder会调用Channels.write将数�?�写回客户端。</p>
+<p>2.2�?MessageServerPipelineFactory<br />创建了3个ChannelHandler，需�?将他们注册到ChannelPipeline，而ChannelPipeline�?�是和Channel对应的（是全局�?�例还是�?个Channel对应一个ChannelPipeline实例�?赖于实现）。�?�以实现ChannelPipeline的工厂接�?� ChannelPipelineFactory实现该目的。MessageServerPipelineFactory的代�?如下：</p>
+<p>public class MessageServerPipelineFactory implements<br />        ChannelPipelineFactory {<br /> <br />    public ChannelPipeline getPipeline() throws Exception {<br />        ChannelPipeline pipeline = pipeline();<br /> <br />        pipeline.addLast("decoder", new MessageDecoder());<br />        pipeline.addLast("encoder", new MessageEncoder());<br />        pipeline.addLast("handler", new MessageServerHandler());<br /> <br />        return pipeline;<br />    }<br />}<br />2.3�?MessageServer<br />�?务端程�?就剩下�?�动代�?了，使用Netty的ServerBootstrap三下五除二完�?之。</p>
+<p>public class MessageServer {<br /> <br />    public static void main(String[] args) throws Exception {<br />        // Configure the server.<br />        ServerBootstrap bootstrap = new ServerBootstrap(<br />                new NioServerSocketChannelFactory(<br />                        Executors.newCachedThreadPool(),<br />                        Executors.newCachedThreadPool()));<br /> <br />        // Set up the default event pipeline.<br />        bootstrap.setPipelineFactory(new MessageServerPipelineFactory());<br /> <br />        // Bind and start to accept incoming connections.<br />        bootstrap.bind(new InetSocketAddress(8080));<br /> <br />    }<br />}<br />�?加补充的是，该Server程�?并�?完整，它没有处�?�关闭时的资�?释放，尽管暴力的�?�看并�?一定需�?�?�这样的善�?�工作。</p>
+<p>3�?客户端程�?<br />客户端程�?和�?务端程�?处�?�模型上是很相似的，这里还是付上代�?并作简�?说明。</p>
+<p>3.1�? ChannelHandler<br />客户端是先�?��?数�?�到�?务端（downstream事件�?），然�?�是处�?�从�?务端接收的数�?�（upstream事件�?）。这里有个问题是，怎么把需�?�?��?的数�?��?到downstream事件�?里呢？这就用到了ChannelUpstreamHandler的channelConnected事件了。实现的 MessageClientHandler代�?如下：</p>
+<p>@ChannelPipelineCoverage("all")<br />public class MessageClientHandler extends SimpleChannelUpstreamHandler {<br /> <br />    private static final Logger logger = Logger.getLogger(<br />            MessageClientHandler.class.getName());<br /> <br /> <br />    @Override<br />    public void channelConnected(<br />            ChannelHandlerContext ctx, ChannelStateEvent e) {<br />        String message = "hello kafka0102";<br />        e.getChannel().write(message);<br />    }<br /> <br />    @Override<br />    public void messageReceived(<br />            ChannelHandlerContext ctx, MessageEvent e) {<br />        // Send back the received message to the remote peer.<br />        System.err.println("messageReceived send message "+e.getMessage());<br />        try {<br />            Thread.sleep(1000*3);<br />        } catch (Exception ex) {<br />            ex.printStackTrace();<br />        }<br />        e.getChannel().write(e.getMessage());<br />    }<br /> <br />    @Override<br />    public void exceptionCaught(<br />            ChannelHandlerContext ctx, ExceptionEvent e) {<br />        // Close the connection when an exception is raised.<br />        logger.log(<br />                Level.WARNING,<br />                "Unexpected exception from downstream.",<br />                e.getCause());<br />        e.getChannel().close();<br />    }<br />}<br />对于编�?和解�?Handler，�?用MessageEncoder和MessageDecoder�?��?�。</p>
+<p>3.2�? MessageClientPipelineFactory<br />    public class MessageClientPipelineFactory implements<br />        ChannelPipelineFactory {<br /> <br />    public ChannelPipeline getPipeline() throws Exception {<br />        ChannelPipeline pipeline = pipeline();<br /> <br />        pipeline.addLast("decoder", new MessageDecoder());<br />        pipeline.addLast("encoder", new MessageEncoder());<br />        pipeline.addLast("handler", new MessageClientHandler());<br /> <br />        return pipeline;<br />    }<br />}<br />3.3�?MessageClient<br />public class MessageClient {<br /> <br />    public static void main(String[] args) throws Exception {<br />        // Parse options.<br />        String host = "127.0.0.1";<br />        int port = 8080;<br />        // Configure the client.<br />        ClientBootstrap bootstrap = new ClientBootstrap(<br />                new NioClientSocketChannelFactory(<br />                        Executors.newCachedThreadPool(),<br />                        Executors.newCachedThreadPool()));<br />        // Set up the event pipeline factory.<br />        bootstrap.setPipelineFactory(new MessageClientPipelineFactory());<br />        // Start the connection attempt.<br />        ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));<br />        // Wait until the connection is closed or the connection attempt fails.<br />        future.getChannel().getCloseFuture().awaitUninterruptibly();<br />        // Shut down thread pools to exit.<br />        bootstrap.releaseExternalResources();<br />    }<br />}<br />在写客户端例�?时，我想�?的代�?并�?是这样的，对客户端的代�?我也没�?�过多的研究，所以也�?�能没有找到更好的解决方案。在上�?�的例�?中，bootstrap.connect方法中会触�?�实际的连接�?作，接�?�触�?� MessageClientHandler.channelConnected，使整个过程�?转起�?�。但是，我想�?的是一个连接池，并且如何写数�?�也�?应该在channelConnected中，这样对于动�?的数�?�，�?�能在构造函数中传递需�?写的数�?�了。但到现在，我还�?清楚如何将连接池和 ChannelPipeline有效的结�?�起�?�。或许，这样的需求�?�以跨过Netty�?�实现。</p>
+<p>4�?总结<br />关于Netty的�?步使用，尚且总结到这里。关于这篇文章，写得断断续续，以至于到�?��?�我都没兴趣把内容都整�?�出�?�。当然，这多少也是因为我是先整�?� Netty原�?�方�?�的东西所致。我也�?�能�?�微的期望，该文对Netty入门者会有些许帮助。</p>
+<p><br />=============================== �?�丽的终止符 ================================ </p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+		</div>
+		<div class = "postDesc">posted @ <span id="post-date">2012-12-17 10:28</span> <a href='http://www.cnblogs.com/an0701/'>空相</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="http://www.cnblogs.com/an0701/admin/EditPosts.aspx?postid=2821309" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(2821309);return false;">收�?</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,isLogined=false,cb_blogId=121524,cb_entryId=2821309,cb_blogApp=currentBlogApp,cb_blogUserGuid='2c081a8e-b8c4-e111-aa3f-842b2b196315',cb_entryCreatedDate='2012/12/17 10:28:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章�?评论容器-->
+<a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" id="lnk_RefreshComments" onclick="return RefreshCommentList();">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页�?�</a><a href="#top">返回顶部</a></div>
+<div id="comment_form_container"></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="site_nav_under"><a href="http://www.cnblogs.com/" target="_blank" title="程�?员的网上家园">�?�客园首页</a><a href="http://q.cnblogs.com/" target="_blank" title="程�?员问答社区">�?�问</a><a href="http://news.cnblogs.com/" target="_blank" title="IT新闻">新闻</a><a href="http://home.cnblogs.com/ing/" target="_blank">闪存</a><a href="http://job.cnblogs.com/" target="_blank">程�?员招�?�</a><a href="http://kb.cnblogs.com/" target="_blank">知识库</a></div>
+<div id="ad_under_post_holder"></div>
+<script type="text/javascript">
+var enableGoogleAd = true;
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+fixPostBodyFormat();
+loadAdUnderPost();
+</script>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+loadBlogSignature();
+LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+</script>
+<script type="text/javascript">
+    $.ajax({ url: 'http://counter.cnblogs.com/blog/post/' + cb_entryId, type: 'get', dataType: 'script', cache: true });
+</script>
+</div>
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style="displya:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边�?容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright &copy;2013 空相
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+<script type="text/javascript" src="http://common.cnblogs.com/script/google-analytics.js"></script>
+</body>
+</html>

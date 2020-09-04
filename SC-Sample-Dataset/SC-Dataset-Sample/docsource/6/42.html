@@ -1,0 +1,1659 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- code.jsp -->
+
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>javax.imageio: ImageIO.java</title>
+</head>
+<body style="padding:0 0 0 0;margin:0 0 0 0">
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; javax &#187;  <a href='/docs/api/javax/imageio/package-index.html'>imageio</a> &#187; 
+ [<a href="/docs/api/javax/imageio/ImageIO.html">javadoc</a> | source]
+</div>
+<pre>
+<a name='1'>    1 &nbsp; /*
+    2 &nbsp;  * Copyright (c) 2000, 2005, Oracle and/or its affiliates. All rights reserved.
+    3 &nbsp;  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+    4 &nbsp;  *
+    5 &nbsp;  * This code is free software; you can redistribute it and/or modify it
+    6 &nbsp;  * under the terms of the GNU General Public License version 2 only, as
+    7 &nbsp;  * published by the Free Software Foundation.  Oracle designates this
+    8 &nbsp;  * particular file as subject to the "Classpath" exception as provided
+    9 &nbsp;  * by Oracle in the LICENSE file that accompanied this code.
+   10 &nbsp;  *
+<a name='11'>   11 &nbsp;  * This code is distributed in the hope that it will be useful, but WITHOUT
+   12 &nbsp;  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   13 &nbsp;  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+   14 &nbsp;  * version 2 for more details (a copy is included in the LICENSE file that
+   15 &nbsp;  * accompanied this code).
+   16 &nbsp;  *
+   17 &nbsp;  * You should have received a copy of the GNU General Public License version
+   18 &nbsp;  * 2 along with this work; if not, write to the Free Software Foundation,
+   19 &nbsp;  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+   20 &nbsp;  *
+<a name='21'>   21 &nbsp;  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+   22 &nbsp;  * or visit www.oracle.com if you need additional information or have any
+   23 &nbsp;  * questions.
+   24 &nbsp;  */
+   25 &nbsp; 
+   26 &nbsp; <span class='kw'>package</span> <a href=/docs/api/javax/imageio/package-index.html>javax.imageio</a>;
+   27 &nbsp; 
+   28 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/awt/image/BufferedImage.html>java.awt.image.BufferedImage</a>;
+   29 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/awt/image/RenderedImage.html>java.awt.image.RenderedImage</a>;
+   30 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/File.html>java.io.File</a>;
+<a name='31'>   31 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/FilePermission.html>java.io.FilePermission</a>;
+   32 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/InputStream.html>java.io.InputStream</a>;
+   33 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/IOException.html>java.io.IOException</a>;
+   34 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/OutputStream.html>java.io.OutputStream</a>;
+   35 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/lang/reflect/Method.html>java.lang.reflect.Method</a>;
+   36 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/URL.html>java.net.URL</a>;
+   37 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/security/AccessController.html>java.security.AccessController</a>;
+   38 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/util/Arrays.html>java.util.Arrays</a>;
+   39 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/util/Collections.html>java.util.Collections</a>;
+   40 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/util/HashSet.html>java.util.HashSet</a>;
+<a name='41'>   41 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/util/Iterator.html>java.util.Iterator</a>;
+   42 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/util/NoSuchElementException.html>java.util.NoSuchElementException</a>;
+   43 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/util/Set.html>java.util.Set</a>;
+   44 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/spi/IIORegistry.html>javax.imageio.spi.IIORegistry</a>;
+   45 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/spi/ImageReaderSpi.html>javax.imageio.spi.ImageReaderSpi</a>;
+   46 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/spi/ImageReaderWriterSpi.html>javax.imageio.spi.ImageReaderWriterSpi</a>;
+   47 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/spi/ImageWriterSpi.html>javax.imageio.spi.ImageWriterSpi</a>;
+   48 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/spi/ImageInputStreamSpi.html>javax.imageio.spi.ImageInputStreamSpi</a>;
+   49 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/spi/ImageOutputStreamSpi.html>javax.imageio.spi.ImageOutputStreamSpi</a>;
+   50 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/spi/ImageTranscoderSpi.html>javax.imageio.spi.ImageTranscoderSpi</a>;
+<a name='51'>   51 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/spi/ServiceRegistry.html>javax.imageio.spi.ServiceRegistry</a>;
+   52 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/stream/ImageInputStream.html>javax.imageio.stream.ImageInputStream</a>;
+   53 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/imageio/stream/ImageOutputStream.html>javax.imageio.stream.ImageOutputStream</a>;
+   54 &nbsp; <span class='kw'>import</span> <a href=/docs/api/sun/awt/AppContext.html>sun.awt.AppContext</a>;
+   55 &nbsp; <span class='kw'>import</span> <a href=/docs/api/sun/security/action/GetPropertyAction.html>sun.security.action.GetPropertyAction</a>;
+   56 &nbsp; 
+   57 &nbsp; /**
+   58 &nbsp;  * A class containing static convenience methods for locating
+   59 &nbsp;  * &lt;code&gt;ImageReader&lt;/code&gt;s and &lt;code&gt;ImageWriter&lt;/code&gt;s, and
+   60 &nbsp;  * performing simple encoding and decoding.
+<a name='61'>   61 &nbsp;  *
+   62 &nbsp;  */
+   63 &nbsp; public final class ImageIO {
+   64 &nbsp; 
+   65 &nbsp;     private static final IIORegistry theRegistry =
+   66 &nbsp;         IIORegistry.getDefaultInstance();
+   67 &nbsp; 
+   68 &nbsp;     /**
+   69 &nbsp;      * Constructor is private to prevent instantiation.
+   70 &nbsp;      */
+<a name='71'>   71 &nbsp;     private ImageIO() {}
+   72 &nbsp; 
+   73 &nbsp;     /**
+   74 &nbsp;      * Scans for plug-ins on the application class path,
+   75 &nbsp;      * loads their service provider classes, and registers a service
+   76 &nbsp;      * provider instance for each one found with the
+   77 &nbsp;      * &lt;code&gt;IIORegistry&lt;/code&gt;.
+   78 &nbsp;      *
+   79 &nbsp;      * &lt;p&gt;This method is needed because the application class path can
+   80 &nbsp;      * theoretically change, or additional plug-ins may become available.
+<a name='81'>   81 &nbsp;      * Rather than re-scanning the classpath on every invocation of the
+   82 &nbsp;      * API, the class path is scanned automatically only on the first
+   83 &nbsp;      * invocation. Clients can call this method to prompt a re-scan.
+   84 &nbsp;      * Thus this method need only be invoked by sophisticated applications
+   85 &nbsp;      * which dynamically make new plug-ins available at runtime.
+   86 &nbsp;      *
+   87 &nbsp;      * &lt;p&gt; The &lt;code&gt;getResources&lt;/code&gt; method of the context
+   88 &nbsp;      * &lt;code&gt;ClassLoader&lt;/code&gt; is used locate JAR files containing
+   89 &nbsp;      * files named
+   90 &nbsp;      * &lt;code&gt;META-INF/services/javax.imageio.spi.&lt;/code&gt;&lt;i&gt;classname&lt;/i&gt;,
+<a name='91'>   91 &nbsp;      * where &lt;i&gt;classname&lt;/i&gt; is one of &lt;code&gt;ImageReaderSpi&lt;/code&gt;,
+   92 &nbsp;      * &lt;code&gt;ImageWriterSpi&lt;/code&gt;, &lt;code&gt;ImageTranscoderSpi&lt;/code&gt;,
+   93 &nbsp;      * &lt;code&gt;ImageInputStreamSpi&lt;/code&gt;, or
+   94 &nbsp;      * &lt;code&gt;ImageOutputStreamSpi&lt;/code&gt;, along the application class
+   95 &nbsp;      * path.
+   96 &nbsp;      *
+   97 &nbsp;      * &lt;p&gt; The contents of the located files indicate the names of
+   98 &nbsp;      * actual implementation classes which implement the
+   99 &nbsp;      * aforementioned service provider interfaces; the default class
+  100 &nbsp;      * loader is then used to load each of these classes and to
+<a name='101'>  101 &nbsp;      * instantiate an instance of each class, which is then placed
+  102 &nbsp;      * into the registry for later retrieval.
+  103 &nbsp;      *
+  104 &nbsp;      * &lt;p&gt; The exact set of locations searched depends on the
+  105 &nbsp;      * implementation of the Java runtime enviroment.
+  106 &nbsp;      *
+  107 &nbsp;      * @see ClassLoader#getResources
+  108 &nbsp;      */
+  109 &nbsp;     public static void scanForPlugins() {
+  110 &nbsp;         theRegistry.registerApplicationClasspathSpis();
+<a name='111'>  111 &nbsp;     }
+  112 &nbsp; 
+  113 &nbsp;     // ImageInputStreams
+  114 &nbsp; 
+  115 &nbsp;     /**
+  116 &nbsp;      * A class to hold information about caching.  Each
+  117 &nbsp;      * &lt;code&gt;ThreadGroup&lt;/code&gt; will have its own copy
+  118 &nbsp;      * via the &lt;code&gt;AppContext&lt;/code&gt; mechanism.
+  119 &nbsp;      */
+  120 &nbsp;     static class CacheInfo {
+<a name='121'>  121 &nbsp;         boolean useCache = true;
+  122 &nbsp;         File cacheDirectory = null;
+  123 &nbsp;         Boolean hasPermission = null;
+  124 &nbsp; 
+  125 &nbsp;         public CacheInfo() {}
+  126 &nbsp; 
+  127 &nbsp;         public boolean getUseCache() {
+  128 &nbsp;             return useCache;
+  129 &nbsp;         }
+  130 &nbsp; 
+<a name='131'>  131 &nbsp;         public void setUseCache(boolean useCache) {
+  132 &nbsp;             this.useCache = useCache;
+  133 &nbsp;         }
+  134 &nbsp; 
+  135 &nbsp;         public File getCacheDirectory() {
+  136 &nbsp;             return cacheDirectory;
+  137 &nbsp;         }
+  138 &nbsp; 
+  139 &nbsp;         public void setCacheDirectory(File cacheDirectory) {
+  140 &nbsp;             this.cacheDirectory = cacheDirectory;
+<a name='141'>  141 &nbsp;         }
+  142 &nbsp; 
+  143 &nbsp;         public Boolean getHasPermission() {
+  144 &nbsp;             return hasPermission;
+  145 &nbsp;         }
+  146 &nbsp; 
+  147 &nbsp;         public void setHasPermission(Boolean hasPermission) {
+  148 &nbsp;             this.hasPermission = hasPermission;
+  149 &nbsp;         }
+  150 &nbsp;     }
+<a name='151'>  151 &nbsp; 
+  152 &nbsp;     /**
+  153 &nbsp;      * Returns the &lt;code&gt;CacheInfo&lt;/code&gt; object associated with this
+  154 &nbsp;      * &lt;code&gt;ThreadGroup&lt;/code&gt;.
+  155 &nbsp;      */
+  156 &nbsp;     private static synchronized CacheInfo getCacheInfo() {
+  157 &nbsp;         AppContext context = AppContext.getAppContext();
+  158 &nbsp;         CacheInfo info = (CacheInfo)context.get(CacheInfo.class);
+  159 &nbsp;         if (info == null) {
+  160 &nbsp;             info = new CacheInfo();
+<a name='161'>  161 &nbsp;             context.put(CacheInfo.class, info);
+  162 &nbsp;         }
+  163 &nbsp;         return info;
+  164 &nbsp;     }
+  165 &nbsp; 
+  166 &nbsp;     /**
+  167 &nbsp;      * Returns the default temporary (cache) directory as defined by the
+  168 &nbsp;      * java.io.tmpdir system property.
+  169 &nbsp;      */
+  170 &nbsp;     private static String getTempDir() {
+<a name='171'>  171 &nbsp;         GetPropertyAction a = new GetPropertyAction("java.io.tmpdir");
+  172 &nbsp;         return (String)AccessController.doPrivileged(a);
+  173 &nbsp;     }
+  174 &nbsp; 
+  175 &nbsp;     /**
+  176 &nbsp;      * Determines whether the caller has write access to the cache
+  177 &nbsp;      * directory, stores the result in the &lt;code&gt;CacheInfo&lt;/code&gt; object,
+  178 &nbsp;      * and returns the decision.  This method helps to prevent mysterious
+  179 &nbsp;      * SecurityExceptions to be thrown when this convenience class is used
+  180 &nbsp;      * in an applet, for example.
+<a name='181'>  181 &nbsp;      */
+  182 &nbsp;     private static boolean hasCachePermission() {
+  183 &nbsp;         Boolean hasPermission = getCacheInfo().getHasPermission();
+  184 &nbsp; 
+  185 &nbsp;         if (hasPermission != null) {
+  186 &nbsp;             return hasPermission.booleanValue();
+  187 &nbsp;         } else {
+  188 &nbsp;             try {
+  189 &nbsp;                 SecurityManager security = System.getSecurityManager();
+  190 &nbsp;                 if (security != null) {
+<a name='191'>  191 &nbsp;                     File cachedir = getCacheDirectory();
+  192 &nbsp;                     String cachepath;
+  193 &nbsp; 
+  194 &nbsp;                     if (cachedir != null) {
+  195 &nbsp;                         cachepath = cachedir.getPath();
+  196 &nbsp;                     } else {
+  197 &nbsp;                         cachepath = getTempDir();
+  198 &nbsp; 
+  199 &nbsp;                         if (cachepath == null || cachepath.isEmpty()) {
+  200 &nbsp;                             getCacheInfo().setHasPermission(Boolean.FALSE);
+<a name='201'>  201 &nbsp;                             return false;
+  202 &nbsp;                         }
+  203 &nbsp;                     }
+  204 &nbsp; 
+  205 &nbsp;                     // we have to check whether we can read, write,
+  206 &nbsp;                     // and delete cache files.
+  207 &nbsp;                     // So, compose cache file path and check it.
+  208 &nbsp;                     String filepath = cachepath;
+  209 &nbsp;                     if (!filepath.endsWith(File.separator)) {
+  210 &nbsp;                         filepath += File.separator;
+<a name='211'>  211 &nbsp;                     }
+  212 &nbsp;                     filepath += "*";
+  213 &nbsp; 
+  214 &nbsp;                     security.checkPermission(new FilePermission(filepath, "read, write, delete"));
+  215 &nbsp;                 }
+  216 &nbsp;             } catch (SecurityException e) {
+  217 &nbsp;                 getCacheInfo().setHasPermission(Boolean.FALSE);
+  218 &nbsp;                 return false;
+  219 &nbsp;             }
+  220 &nbsp; 
+<a name='221'>  221 &nbsp;             getCacheInfo().setHasPermission(Boolean.TRUE);
+  222 &nbsp;             return true;
+  223 &nbsp;         }
+  224 &nbsp;     }
+  225 &nbsp; 
+  226 &nbsp;     /**
+  227 &nbsp;      * Sets a flag indicating whether a disk-based cache file should
+  228 &nbsp;      * be used when creating &lt;code&gt;ImageInputStream&lt;/code&gt;s and
+  229 &nbsp;      * &lt;code&gt;ImageOutputStream&lt;/code&gt;s.
+  230 &nbsp;      *
+<a name='231'>  231 &nbsp;      * &lt;p&gt; When reading from a standard &lt;code&gt;InputStream&lt;/code&gt;&gt;, it
+  232 &nbsp;      * may be necessary to save previously read information in a cache
+  233 &nbsp;      * since the underlying stream does not allow data to be re-read.
+  234 &nbsp;      * Similarly, when writing to a standard
+  235 &nbsp;      * &lt;code&gt;OutputStream&lt;/code&gt;, a cache may be used to allow a
+  236 &nbsp;      * previously written value to be changed before flushing it to
+  237 &nbsp;      * the final destination.
+  238 &nbsp;      *
+  239 &nbsp;      * &lt;p&gt; The cache may reside in main memory or on disk.  Setting
+  240 &nbsp;      * this flag to &lt;code&gt;false&lt;/code&gt; disallows the use of disk for
+<a name='241'>  241 &nbsp;      * future streams, which may be advantageous when working with
+  242 &nbsp;      * small images, as the overhead of creating and destroying files
+  243 &nbsp;      * is removed.
+  244 &nbsp;      *
+  245 &nbsp;      * &lt;p&gt; On startup, the value is set to &lt;code&gt;true&lt;/code&gt;.
+  246 &nbsp;      *
+  247 &nbsp;      * @param useCache a &lt;code&gt;boolean&lt;/code&gt; indicating whether a
+  248 &nbsp;      * cache file should be used, in cases where it is optional.
+  249 &nbsp;      *
+  250 &nbsp;      * @see #getUseCache
+<a name='251'>  251 &nbsp;      */
+  252 &nbsp;     public static void setUseCache(boolean useCache) {
+  253 &nbsp;         getCacheInfo().setUseCache(useCache);
+  254 &nbsp;     }
+  255 &nbsp; 
+  256 &nbsp;     /**
+  257 &nbsp;      * Returns the current value set by &lt;code&gt;setUseCache&lt;/code&gt;, or
+  258 &nbsp;      * &lt;code&gt;true&lt;/code&gt; if no explicit setting has been made.
+  259 &nbsp;      *
+  260 &nbsp;      * @return true if a disk-based cache may be used for
+<a name='261'>  261 &nbsp;      * &lt;code&gt;ImageInputStream&lt;/code&gt;s and
+  262 &nbsp;      * &lt;code&gt;ImageOutputStream&lt;/code&gt;s.
+  263 &nbsp;      *
+  264 &nbsp;      * @see #setUseCache
+  265 &nbsp;      */
+  266 &nbsp;     public static boolean getUseCache() {
+  267 &nbsp;         return getCacheInfo().getUseCache();
+  268 &nbsp;     }
+  269 &nbsp; 
+  270 &nbsp;     /**
+<a name='271'>  271 &nbsp;      * Sets the directory where cache files are to be created.  A
+  272 &nbsp;      * value of &lt;code&gt;null&lt;/code&gt; indicates that the system-dependent
+  273 &nbsp;      * default temporary-file directory is to be used.  If
+  274 &nbsp;      * &lt;code&gt;getUseCache&lt;/code&gt; returns false, this value is ignored.
+  275 &nbsp;      *
+  276 &nbsp;      * @param cacheDirectory a &lt;code&gt;File&lt;/code&gt; specifying a directory.
+  277 &nbsp;      *
+  278 &nbsp;      * @see File#createTempFile(String, String, File)
+  279 &nbsp;      *
+  280 &nbsp;      * @exception SecurityException if the security manager denies
+<a name='281'>  281 &nbsp;      * access to the directory.
+  282 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;cacheDir&lt;/code&gt; is
+  283 &nbsp;      * non-&lt;code&gt;null&lt;/code&gt; but is not a directory.
+  284 &nbsp;      *
+  285 &nbsp;      * @see #getCacheDirectory
+  286 &nbsp;      */
+  287 &nbsp;     public static void setCacheDirectory(File cacheDirectory) {
+  288 &nbsp;         if ((cacheDirectory != null) &amp;&amp; !(cacheDirectory.isDirectory())) {
+  289 &nbsp;             throw new IllegalArgumentException("Not a directory!");
+  290 &nbsp;         }
+<a name='291'>  291 &nbsp;         getCacheInfo().setCacheDirectory(cacheDirectory);
+  292 &nbsp;         getCacheInfo().setHasPermission(null);
+  293 &nbsp;     }
+  294 &nbsp; 
+  295 &nbsp;     /**
+  296 &nbsp;      * Returns the current value set by
+  297 &nbsp;      * &lt;code&gt;setCacheDirectory&lt;/code&gt;, or &lt;code&gt;null&lt;/code&gt; if no
+  298 &nbsp;      * explicit setting has been made.
+  299 &nbsp;      *
+  300 &nbsp;      * @return a &lt;code&gt;File&lt;/code&gt; indicating the directory where
+<a name='301'>  301 &nbsp;      * cache files will be created, or &lt;code&gt;null&lt;/code&gt; to indicate
+  302 &nbsp;      * the system-dependent default temporary-file directory.
+  303 &nbsp;      *
+  304 &nbsp;      * @see #setCacheDirectory
+  305 &nbsp;      */
+  306 &nbsp;     public static File getCacheDirectory() {
+  307 &nbsp;         return getCacheInfo().getCacheDirectory();
+  308 &nbsp;     }
+  309 &nbsp; 
+  310 &nbsp;     /**
+<a name='311'>  311 &nbsp;      * Returns an &lt;code&gt;ImageInputStream&lt;/code&gt; that will take its
+  312 &nbsp;      * input from the given &lt;code&gt;Object&lt;/code&gt;.  The set of
+  313 &nbsp;      * &lt;code&gt;ImageInputStreamSpi&lt;/code&gt;s registered with the
+  314 &nbsp;      * &lt;code&gt;IIORegistry&lt;/code&gt; class is queried and the first one
+  315 &nbsp;      * that is able to take input from the supplied object is used to
+  316 &nbsp;      * create the returned &lt;code&gt;ImageInputStream&lt;/code&gt;.  If no
+  317 &nbsp;      * suitable &lt;code&gt;ImageInputStreamSpi&lt;/code&gt; exists,
+  318 &nbsp;      * &lt;code&gt;null&lt;/code&gt; is returned.
+  319 &nbsp;      *
+  320 &nbsp;      * &lt;p&gt; The current cache settings from &lt;code&gt;getUseCache&lt;/code&gt;and
+<a name='321'>  321 &nbsp;      * &lt;code&gt;getCacheDirectory&lt;/code&gt; will be used to control caching.
+  322 &nbsp;      *
+  323 &nbsp;      * @param input an &lt;code&gt;Object&lt;/code&gt; to be used as an input
+  324 &nbsp;      * source, such as a &lt;code&gt;File&lt;/code&gt;, readable
+  325 &nbsp;      * &lt;code&gt;RandomAccessFile&lt;/code&gt;, or &lt;code&gt;InputStream&lt;/code&gt;.
+  326 &nbsp;      *
+  327 &nbsp;      * @return an &lt;code&gt;ImageInputStream&lt;/code&gt;, or &lt;code&gt;null&lt;/code&gt;.
+  328 &nbsp;      *
+  329 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;input&lt;/code&gt;
+  330 &nbsp;      * is &lt;code&gt;null&lt;/code&gt;.
+<a name='331'>  331 &nbsp;      * @exception IOException if a cache file is needed but cannot be
+  332 &nbsp;      * created.
+  333 &nbsp;      *
+  334 &nbsp;      * @see javax.imageio.spi.ImageInputStreamSpi
+  335 &nbsp;      */
+  336 &nbsp;     public static ImageInputStream createImageInputStream(Object input)
+  337 &nbsp;         throws IOException {
+  338 &nbsp;         if (input == null) {
+  339 &nbsp;             throw new IllegalArgumentException("input == null!");
+  340 &nbsp;         }
+<a name='341'>  341 &nbsp; 
+  342 &nbsp;         Iterator iter;
+  343 &nbsp;         // Ensure category is present
+  344 &nbsp;         try {
+  345 &nbsp;             iter = theRegistry.getServiceProviders(ImageInputStreamSpi.class,
+  346 &nbsp;                                                    true);
+  347 &nbsp;         } catch (IllegalArgumentException e) {
+  348 &nbsp;             return null;
+  349 &nbsp;         }
+  350 &nbsp; 
+<a name='351'>  351 &nbsp;         boolean usecache = getUseCache() &amp;&amp; hasCachePermission();
+  352 &nbsp; 
+  353 &nbsp;         while (iter.hasNext()) {
+  354 &nbsp;             ImageInputStreamSpi spi = (ImageInputStreamSpi)iter.next();
+  355 &nbsp;             if (spi.getInputClass().isInstance(input)) {
+  356 &nbsp;                 try {
+  357 &nbsp;                     return spi.createInputStreamInstance(input,
+  358 &nbsp;                                                          usecache,
+  359 &nbsp;                                                          getCacheDirectory());
+  360 &nbsp;                 } catch (IOException e) {
+<a name='361'>  361 &nbsp;                     throw new IIOException("Can't create cache file!", e);
+  362 &nbsp;                 }
+  363 &nbsp;             }
+  364 &nbsp;         }
+  365 &nbsp; 
+  366 &nbsp;         return null;
+  367 &nbsp;     }
+  368 &nbsp; 
+  369 &nbsp;     // ImageOutputStreams
+  370 &nbsp; 
+<a name='371'>  371 &nbsp;     /**
+  372 &nbsp;      * Returns an &lt;code&gt;ImageOutputStream&lt;/code&gt; that will send its
+  373 &nbsp;      * output to the given &lt;code&gt;Object&lt;/code&gt;.  The set of
+  374 &nbsp;      * &lt;code&gt;ImageOutputStreamSpi&lt;/code&gt;s registered with the
+  375 &nbsp;      * &lt;code&gt;IIORegistry&lt;/code&gt; class is queried and the first one
+  376 &nbsp;      * that is able to send output from the supplied object is used to
+  377 &nbsp;      * create the returned &lt;code&gt;ImageOutputStream&lt;/code&gt;.  If no
+  378 &nbsp;      * suitable &lt;code&gt;ImageOutputStreamSpi&lt;/code&gt; exists,
+  379 &nbsp;      * &lt;code&gt;null&lt;/code&gt; is returned.
+  380 &nbsp;      *
+<a name='381'>  381 &nbsp;      * &lt;p&gt; The current cache settings from &lt;code&gt;getUseCache&lt;/code&gt;and
+  382 &nbsp;      * &lt;code&gt;getCacheDirectory&lt;/code&gt; will be used to control caching.
+  383 &nbsp;      *
+  384 &nbsp;      * @param output an &lt;code&gt;Object&lt;/code&gt; to be used as an output
+  385 &nbsp;      * destination, such as a &lt;code&gt;File&lt;/code&gt;, writable
+  386 &nbsp;      * &lt;code&gt;RandomAccessFile&lt;/code&gt;, or &lt;code&gt;OutputStream&lt;/code&gt;.
+  387 &nbsp;      *
+  388 &nbsp;      * @return an &lt;code&gt;ImageOutputStream&lt;/code&gt;, or
+  389 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+  390 &nbsp;      *
+<a name='391'>  391 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;output&lt;/code&gt; is
+  392 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+  393 &nbsp;      * @exception IOException if a cache file is needed but cannot be
+  394 &nbsp;      * created.
+  395 &nbsp;      *
+  396 &nbsp;      * @see javax.imageio.spi.ImageOutputStreamSpi
+  397 &nbsp;      */
+  398 &nbsp;     public static ImageOutputStream createImageOutputStream(Object output)
+  399 &nbsp;         throws IOException {
+  400 &nbsp;         if (output == null) {
+<a name='401'>  401 &nbsp;             throw new IllegalArgumentException("output == null!");
+  402 &nbsp;         }
+  403 &nbsp; 
+  404 &nbsp;         Iterator iter;
+  405 &nbsp;         // Ensure category is present
+  406 &nbsp;         try {
+  407 &nbsp;             iter = theRegistry.getServiceProviders(ImageOutputStreamSpi.class,
+  408 &nbsp;                                                    true);
+  409 &nbsp;         } catch (IllegalArgumentException e) {
+  410 &nbsp;             return null;
+<a name='411'>  411 &nbsp;         }
+  412 &nbsp; 
+  413 &nbsp;         boolean usecache = getUseCache() &amp;&amp; hasCachePermission();
+  414 &nbsp; 
+  415 &nbsp;         while (iter.hasNext()) {
+  416 &nbsp;             ImageOutputStreamSpi spi = (ImageOutputStreamSpi)iter.next();
+  417 &nbsp;             if (spi.getOutputClass().isInstance(output)) {
+  418 &nbsp;                 try {
+  419 &nbsp;                     return spi.createOutputStreamInstance(output,
+  420 &nbsp;                                                           usecache,
+<a name='421'>  421 &nbsp;                                                           getCacheDirectory());
+  422 &nbsp;                 } catch (IOException e) {
+  423 &nbsp;                     throw new IIOException("Can't create cache file!", e);
+  424 &nbsp;                 }
+  425 &nbsp;             }
+  426 &nbsp;         }
+  427 &nbsp; 
+  428 &nbsp;         return null;
+  429 &nbsp;     }
+  430 &nbsp; 
+<a name='431'>  431 &nbsp;     private static enum SpiInfo {
+  432 &nbsp;         FORMAT_NAMES {
+  433 &nbsp;             @Override
+  434 &nbsp;             String[] info(ImageReaderWriterSpi spi) {
+  435 &nbsp;                 return spi.getFormatNames();
+  436 &nbsp;             }
+  437 &nbsp;         },
+  438 &nbsp;         MIME_TYPES {
+  439 &nbsp;             @Override
+  440 &nbsp;             String[] info(ImageReaderWriterSpi spi) {
+<a name='441'>  441 &nbsp;                 return spi.getMIMETypes();
+  442 &nbsp;             }
+  443 &nbsp;         },
+  444 &nbsp;         FILE_SUFFIXES {
+  445 &nbsp;             @Override
+  446 &nbsp;             String[] info(ImageReaderWriterSpi spi) {
+  447 &nbsp;                 return spi.getFileSuffixes();
+  448 &nbsp;             }
+  449 &nbsp;         };
+  450 &nbsp; 
+<a name='451'>  451 &nbsp;         abstract String[] info(ImageReaderWriterSpi spi);
+  452 &nbsp;     }
+  453 &nbsp; 
+  454 &nbsp;     private static &lt;S extends ImageReaderWriterSpi&gt;
+  455 &nbsp;         String[] getReaderWriterInfo(Class&lt;S&gt; spiClass, SpiInfo spiInfo)
+  456 &nbsp;     {
+  457 &nbsp;         // Ensure category is present
+  458 &nbsp;         Iterator&lt;S&gt; iter;
+  459 &nbsp;         try {
+  460 &nbsp;             iter = theRegistry.getServiceProviders(spiClass, true);
+<a name='461'>  461 &nbsp;         } catch (IllegalArgumentException e) {
+  462 &nbsp;             return new String[0];
+  463 &nbsp;         }
+  464 &nbsp; 
+  465 &nbsp;         HashSet&lt;String&gt; s = new HashSet&lt;String&gt;();
+  466 &nbsp;         while (iter.hasNext()) {
+  467 &nbsp;             ImageReaderWriterSpi spi = iter.next();
+  468 &nbsp;             Collections.addAll(s, spiInfo.info(spi));
+  469 &nbsp;         }
+  470 &nbsp; 
+<a name='471'>  471 &nbsp;         return s.toArray(new String[s.size()]);
+  472 &nbsp;     }
+  473 &nbsp; 
+  474 &nbsp;     // Readers
+  475 &nbsp; 
+  476 &nbsp;     /**
+  477 &nbsp;      * Returns an array of &lt;code&gt;String&lt;/code&gt;s listing all of the
+  478 &nbsp;      * informal format names understood by the current set of registered
+  479 &nbsp;      * readers.
+  480 &nbsp;      *
+<a name='481'>  481 &nbsp;      * @return an array of &lt;code&gt;String&lt;/code&gt;s.
+  482 &nbsp;      */
+  483 &nbsp;     public static String[] getReaderFormatNames() {
+  484 &nbsp;         return getReaderWriterInfo(ImageReaderSpi.class,
+  485 &nbsp;                                    SpiInfo.FORMAT_NAMES);
+  486 &nbsp;     }
+  487 &nbsp; 
+  488 &nbsp;     /**
+  489 &nbsp;      * Returns an array of &lt;code&gt;String&lt;/code&gt;s listing all of the
+  490 &nbsp;      * MIME types understood by the current set of registered
+<a name='491'>  491 &nbsp;      * readers.
+  492 &nbsp;      *
+  493 &nbsp;      * @return an array of &lt;code&gt;String&lt;/code&gt;s.
+  494 &nbsp;      */
+  495 &nbsp;     public static String[] getReaderMIMETypes() {
+  496 &nbsp;         return getReaderWriterInfo(ImageReaderSpi.class,
+  497 &nbsp;                                    SpiInfo.MIME_TYPES);
+  498 &nbsp;     }
+  499 &nbsp; 
+  500 &nbsp;     /**
+<a name='501'>  501 &nbsp;      * Returns an array of &lt;code&gt;String&lt;/code&gt;s listing all of the
+  502 &nbsp;      * file suffixes associated with the formats understood
+  503 &nbsp;      * by the current set of registered readers.
+  504 &nbsp;      *
+  505 &nbsp;      * @return an array of &lt;code&gt;String&lt;/code&gt;s.
+  506 &nbsp;      * @since 1.6
+  507 &nbsp;      */
+  508 &nbsp;     public static String[] getReaderFileSuffixes() {
+  509 &nbsp;         return getReaderWriterInfo(ImageReaderSpi.class,
+  510 &nbsp;                                    SpiInfo.FILE_SUFFIXES);
+<a name='511'>  511 &nbsp;     }
+  512 &nbsp; 
+  513 &nbsp;     static class ImageReaderIterator implements Iterator&lt;ImageReader&gt; {
+  514 &nbsp;         // Contains ImageReaderSpis
+  515 &nbsp;         public Iterator iter;
+  516 &nbsp; 
+  517 &nbsp;         public ImageReaderIterator(Iterator iter) {
+  518 &nbsp;             this.iter = iter;
+  519 &nbsp;         }
+  520 &nbsp; 
+<a name='521'>  521 &nbsp;         public boolean hasNext() {
+  522 &nbsp;             return iter.hasNext();
+  523 &nbsp;         }
+  524 &nbsp; 
+  525 &nbsp;         public ImageReader next() {
+  526 &nbsp;             ImageReaderSpi spi = null;
+  527 &nbsp;             try {
+  528 &nbsp;                 spi = (ImageReaderSpi)iter.next();
+  529 &nbsp;                 return spi.createReaderInstance();
+  530 &nbsp;             } catch (IOException e) {
+<a name='531'>  531 &nbsp;                 // Deregister the spi in this case, but only as
+  532 &nbsp;                 // an ImageReaderSpi
+  533 &nbsp;                 theRegistry.deregisterServiceProvider(spi, ImageReaderSpi.class);
+  534 &nbsp;             }
+  535 &nbsp;             return null;
+  536 &nbsp;         }
+  537 &nbsp; 
+  538 &nbsp;         public void remove() {
+  539 &nbsp;             throw new UnsupportedOperationException();
+  540 &nbsp;         }
+<a name='541'>  541 &nbsp;     }
+  542 &nbsp; 
+  543 &nbsp;     static class CanDecodeInputFilter
+  544 &nbsp;         implements ServiceRegistry.Filter {
+  545 &nbsp; 
+  546 &nbsp;         Object input;
+  547 &nbsp; 
+  548 &nbsp;         public CanDecodeInputFilter(Object input) {
+  549 &nbsp;             this.input = input;
+  550 &nbsp;         }
+<a name='551'>  551 &nbsp; 
+  552 &nbsp;         public boolean filter(Object elt) {
+  553 &nbsp;             try {
+  554 &nbsp;                 ImageReaderSpi spi = (ImageReaderSpi)elt;
+  555 &nbsp;                 ImageInputStream stream = null;
+  556 &nbsp;                 if (input instanceof ImageInputStream) {
+  557 &nbsp;                     stream = (ImageInputStream)input;
+  558 &nbsp;                 }
+  559 &nbsp; 
+  560 &nbsp;                 // Perform mark/reset as a defensive measure
+<a name='561'>  561 &nbsp;                 // even though plug-ins are supposed to take
+  562 &nbsp;                 // care of it.
+  563 &nbsp;                 boolean canDecode = false;
+  564 &nbsp;                 if (stream != null) {
+  565 &nbsp;                     stream.mark();
+  566 &nbsp;                 }
+  567 &nbsp;                 canDecode = spi.canDecodeInput(input);
+  568 &nbsp;                 if (stream != null) {
+  569 &nbsp;                     stream.reset();
+  570 &nbsp;                 }
+<a name='571'>  571 &nbsp; 
+  572 &nbsp;                 return canDecode;
+  573 &nbsp;             } catch (IOException e) {
+  574 &nbsp;                 return false;
+  575 &nbsp;             }
+  576 &nbsp;         }
+  577 &nbsp;     }
+  578 &nbsp; 
+  579 &nbsp;     static class CanEncodeImageAndFormatFilter
+  580 &nbsp;         implements ServiceRegistry.Filter {
+<a name='581'>  581 &nbsp; 
+  582 &nbsp;         ImageTypeSpecifier type;
+  583 &nbsp;         String formatName;
+  584 &nbsp; 
+  585 &nbsp;         public CanEncodeImageAndFormatFilter(ImageTypeSpecifier type,
+  586 &nbsp;                                              String formatName) {
+  587 &nbsp;             this.type = type;
+  588 &nbsp;             this.formatName = formatName;
+  589 &nbsp;         }
+  590 &nbsp; 
+<a name='591'>  591 &nbsp;         public boolean filter(Object elt) {
+  592 &nbsp;             ImageWriterSpi spi = (ImageWriterSpi)elt;
+  593 &nbsp;             return Arrays.asList(spi.getFormatNames()).contains(formatName) &amp;&amp;
+  594 &nbsp;                 spi.canEncodeImage(type);
+  595 &nbsp;         }
+  596 &nbsp;     }
+  597 &nbsp; 
+  598 &nbsp;     static class ContainsFilter
+  599 &nbsp;         implements ServiceRegistry.Filter {
+  600 &nbsp; 
+<a name='601'>  601 &nbsp;         Method method;
+  602 &nbsp;         String name;
+  603 &nbsp; 
+  604 &nbsp;         // method returns an array of Strings
+  605 &nbsp;         public ContainsFilter(Method method,
+  606 &nbsp;                               String name) {
+  607 &nbsp;             this.method = method;
+  608 &nbsp;             this.name = name;
+  609 &nbsp;         }
+  610 &nbsp; 
+<a name='611'>  611 &nbsp;         public boolean filter(Object elt) {
+  612 &nbsp;             try {
+  613 &nbsp;                 return contains((String[])method.invoke(elt), name);
+  614 &nbsp;             } catch (Exception e) {
+  615 &nbsp;                 return false;
+  616 &nbsp;             }
+  617 &nbsp;         }
+  618 &nbsp;     }
+  619 &nbsp; 
+  620 &nbsp;     /**
+<a name='621'>  621 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+  622 &nbsp;      * registered &lt;code&gt;ImageReader&lt;/code&gt;s that claim to be able to
+  623 &nbsp;      * decode the supplied &lt;code&gt;Object&lt;/code&gt;, typically an
+  624 &nbsp;      * &lt;code&gt;ImageInputStream&lt;/code&gt;.
+  625 &nbsp;      *
+  626 &nbsp;      * &lt;p&gt; The stream position is left at its prior position upon
+  627 &nbsp;      * exit from this method.
+  628 &nbsp;      *
+  629 &nbsp;      * @param input an &lt;code&gt;ImageInputStream&lt;/code&gt; or other
+  630 &nbsp;      * &lt;code&gt;Object&lt;/code&gt; containing encoded image data.
+<a name='631'>  631 &nbsp;      *
+  632 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing &lt;code&gt;ImageReader&lt;/code&gt;s.
+  633 &nbsp;      *
+  634 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;input&lt;/code&gt; is
+  635 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+  636 &nbsp;      *
+  637 &nbsp;      * @see javax.imageio.spi.ImageReaderSpi#canDecodeInput
+  638 &nbsp;      */
+  639 &nbsp;     public static Iterator&lt;ImageReader&gt; getImageReaders(Object input) {
+  640 &nbsp;         if (input == null) {
+<a name='641'>  641 &nbsp;             throw new IllegalArgumentException("input == null!");
+  642 &nbsp;         }
+  643 &nbsp;         Iterator iter;
+  644 &nbsp;         // Ensure category is present
+  645 &nbsp;         try {
+  646 &nbsp;             iter = theRegistry.getServiceProviders(ImageReaderSpi.class,
+  647 &nbsp;                                               new CanDecodeInputFilter(input),
+  648 &nbsp;                                               true);
+  649 &nbsp;         } catch (IllegalArgumentException e) {
+  650 &nbsp;             return Collections.emptyIterator();
+<a name='651'>  651 &nbsp;         }
+  652 &nbsp; 
+  653 &nbsp;         return new ImageReaderIterator(iter);
+  654 &nbsp;     }
+  655 &nbsp; 
+  656 &nbsp;     private static Method readerFormatNamesMethod;
+  657 &nbsp;     private static Method readerFileSuffixesMethod;
+  658 &nbsp;     private static Method readerMIMETypesMethod;
+  659 &nbsp;     private static Method writerFormatNamesMethod;
+  660 &nbsp;     private static Method writerFileSuffixesMethod;
+<a name='661'>  661 &nbsp;     private static Method writerMIMETypesMethod;
+  662 &nbsp; 
+  663 &nbsp;     static {
+  664 &nbsp;         try {
+  665 &nbsp;             readerFormatNamesMethod =
+  666 &nbsp;                 ImageReaderSpi.class.getMethod("getFormatNames");
+  667 &nbsp;             readerFileSuffixesMethod =
+  668 &nbsp;                 ImageReaderSpi.class.getMethod("getFileSuffixes");
+  669 &nbsp;             readerMIMETypesMethod =
+  670 &nbsp;                 ImageReaderSpi.class.getMethod("getMIMETypes");
+<a name='671'>  671 &nbsp; 
+  672 &nbsp;             writerFormatNamesMethod =
+  673 &nbsp;                 ImageWriterSpi.class.getMethod("getFormatNames");
+  674 &nbsp;             writerFileSuffixesMethod =
+  675 &nbsp;                 ImageWriterSpi.class.getMethod("getFileSuffixes");
+  676 &nbsp;             writerMIMETypesMethod =
+  677 &nbsp;                 ImageWriterSpi.class.getMethod("getMIMETypes");
+  678 &nbsp;         } catch (NoSuchMethodException e) {
+  679 &nbsp;             e.printStackTrace();
+  680 &nbsp;         }
+<a name='681'>  681 &nbsp;     }
+  682 &nbsp; 
+  683 &nbsp;     /**
+  684 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+  685 &nbsp;      * registered &lt;code&gt;ImageReader&lt;/code&gt;s that claim to be able to
+  686 &nbsp;      * decode the named format.
+  687 &nbsp;      *
+  688 &nbsp;      * @param formatName a &lt;code&gt;String&lt;/code&gt; containing the informal
+  689 &nbsp;      * name of a format (&lt;i&gt;e.g.&lt;/i&gt;, "jpeg" or "tiff".
+  690 &nbsp;      *
+<a name='691'>  691 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing
+  692 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt;s.
+  693 &nbsp;      *
+  694 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;formatName&lt;/code&gt;
+  695 &nbsp;      * is &lt;code&gt;null&lt;/code&gt;.
+  696 &nbsp;      *
+  697 &nbsp;      * @see javax.imageio.spi.ImageReaderSpi#getFormatNames
+  698 &nbsp;      */
+  699 &nbsp;     public static Iterator&lt;ImageReader&gt;
+  700 &nbsp;         getImageReadersByFormatName(String formatName)
+<a name='701'>  701 &nbsp;     {
+  702 &nbsp;         if (formatName == null) {
+  703 &nbsp;             throw new IllegalArgumentException("formatName == null!");
+  704 &nbsp;         }
+  705 &nbsp;         Iterator iter;
+  706 &nbsp;         // Ensure category is present
+  707 &nbsp;         try {
+  708 &nbsp;             iter = theRegistry.getServiceProviders(ImageReaderSpi.class,
+  709 &nbsp;                                     new ContainsFilter(readerFormatNamesMethod,
+  710 &nbsp;                                                        formatName),
+<a name='711'>  711 &nbsp;                                                 true);
+  712 &nbsp;         } catch (IllegalArgumentException e) {
+  713 &nbsp;             return Collections.emptyIterator();
+  714 &nbsp;         }
+  715 &nbsp;         return new ImageReaderIterator(iter);
+  716 &nbsp;     }
+  717 &nbsp; 
+  718 &nbsp;     /**
+  719 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+  720 &nbsp;      * registered &lt;code&gt;ImageReader&lt;/code&gt;s that claim to be able to
+<a name='721'>  721 &nbsp;      * decode files with the given suffix.
+  722 &nbsp;      *
+  723 &nbsp;      * @param fileSuffix a &lt;code&gt;String&lt;/code&gt; containing a file
+  724 &nbsp;      * suffix (&lt;i&gt;e.g.&lt;/i&gt;, "jpg" or "tiff").
+  725 &nbsp;      *
+  726 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing
+  727 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt;s.
+  728 &nbsp;      *
+  729 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;fileSuffix&lt;/code&gt;
+  730 &nbsp;      * is &lt;code&gt;null&lt;/code&gt;.
+<a name='731'>  731 &nbsp;      *
+  732 &nbsp;      * @see javax.imageio.spi.ImageReaderSpi#getFileSuffixes
+  733 &nbsp;      */
+  734 &nbsp;     public static Iterator&lt;ImageReader&gt;
+  735 &nbsp;         getImageReadersBySuffix(String fileSuffix)
+  736 &nbsp;     {
+  737 &nbsp;         if (fileSuffix == null) {
+  738 &nbsp;             throw new IllegalArgumentException("fileSuffix == null!");
+  739 &nbsp;         }
+  740 &nbsp;         // Ensure category is present
+<a name='741'>  741 &nbsp;         Iterator iter;
+  742 &nbsp;         try {
+  743 &nbsp;             iter = theRegistry.getServiceProviders(ImageReaderSpi.class,
+  744 &nbsp;                                    new ContainsFilter(readerFileSuffixesMethod,
+  745 &nbsp;                                                       fileSuffix),
+  746 &nbsp;                                               true);
+  747 &nbsp;         } catch (IllegalArgumentException e) {
+  748 &nbsp;             return Collections.emptyIterator();
+  749 &nbsp;         }
+  750 &nbsp;         return new ImageReaderIterator(iter);
+<a name='751'>  751 &nbsp;     }
+  752 &nbsp; 
+  753 &nbsp;     /**
+  754 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+  755 &nbsp;      * registered &lt;code&gt;ImageReader&lt;/code&gt;s that claim to be able to
+  756 &nbsp;      * decode files with the given MIME type.
+  757 &nbsp;      *
+  758 &nbsp;      * @param MIMEType a &lt;code&gt;String&lt;/code&gt; containing a file
+  759 &nbsp;      * suffix (&lt;i&gt;e.g.&lt;/i&gt;, "image/jpeg" or "image/x-bmp").
+  760 &nbsp;      *
+<a name='761'>  761 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing
+  762 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt;s.
+  763 &nbsp;      *
+  764 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;MIMEType&lt;/code&gt; is
+  765 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+  766 &nbsp;      *
+  767 &nbsp;      * @see javax.imageio.spi.ImageReaderSpi#getMIMETypes
+  768 &nbsp;      */
+  769 &nbsp;     public static Iterator&lt;ImageReader&gt;
+  770 &nbsp;         getImageReadersByMIMEType(String MIMEType)
+<a name='771'>  771 &nbsp;     {
+  772 &nbsp;         if (MIMEType == null) {
+  773 &nbsp;             throw new IllegalArgumentException("MIMEType == null!");
+  774 &nbsp;         }
+  775 &nbsp;         // Ensure category is present
+  776 &nbsp;         Iterator iter;
+  777 &nbsp;         try {
+  778 &nbsp;             iter = theRegistry.getServiceProviders(ImageReaderSpi.class,
+  779 &nbsp;                                       new ContainsFilter(readerMIMETypesMethod,
+  780 &nbsp;                                                          MIMEType),
+<a name='781'>  781 &nbsp;                                               true);
+  782 &nbsp;         } catch (IllegalArgumentException e) {
+  783 &nbsp;             return Collections.emptyIterator();
+  784 &nbsp;         }
+  785 &nbsp;         return new ImageReaderIterator(iter);
+  786 &nbsp;     }
+  787 &nbsp; 
+  788 &nbsp;     // Writers
+  789 &nbsp; 
+  790 &nbsp;     /**
+<a name='791'>  791 &nbsp;      * Returns an array of &lt;code&gt;String&lt;/code&gt;s listing all of the
+  792 &nbsp;      * informal format names understood by the current set of registered
+  793 &nbsp;      * writers.
+  794 &nbsp;      *
+  795 &nbsp;      * @return an array of &lt;code&gt;String&lt;/code&gt;s.
+  796 &nbsp;      */
+  797 &nbsp;     public static String[] getWriterFormatNames() {
+  798 &nbsp;         return getReaderWriterInfo(ImageWriterSpi.class,
+  799 &nbsp;                                    SpiInfo.FORMAT_NAMES);
+  800 &nbsp;     }
+<a name='801'>  801 &nbsp; 
+  802 &nbsp;     /**
+  803 &nbsp;      * Returns an array of &lt;code&gt;String&lt;/code&gt;s listing all of the
+  804 &nbsp;      * MIME types understood by the current set of registered
+  805 &nbsp;      * writers.
+  806 &nbsp;      *
+  807 &nbsp;      * @return an array of &lt;code&gt;String&lt;/code&gt;s.
+  808 &nbsp;      */
+  809 &nbsp;     public static String[] getWriterMIMETypes() {
+  810 &nbsp;         return getReaderWriterInfo(ImageWriterSpi.class,
+<a name='811'>  811 &nbsp;                                    SpiInfo.MIME_TYPES);
+  812 &nbsp;     }
+  813 &nbsp; 
+  814 &nbsp;     /**
+  815 &nbsp;      * Returns an array of &lt;code&gt;String&lt;/code&gt;s listing all of the
+  816 &nbsp;      * file suffixes associated with the formats understood
+  817 &nbsp;      * by the current set of registered writers.
+  818 &nbsp;      *
+  819 &nbsp;      * @return an array of &lt;code&gt;String&lt;/code&gt;s.
+  820 &nbsp;      * @since 1.6
+<a name='821'>  821 &nbsp;      */
+  822 &nbsp;     public static String[] getWriterFileSuffixes() {
+  823 &nbsp;         return getReaderWriterInfo(ImageWriterSpi.class,
+  824 &nbsp;                                    SpiInfo.FILE_SUFFIXES);
+  825 &nbsp;     }
+  826 &nbsp; 
+  827 &nbsp;     static class ImageWriterIterator implements Iterator&lt;ImageWriter&gt; {
+  828 &nbsp;         // Contains ImageWriterSpis
+  829 &nbsp;         public Iterator iter;
+  830 &nbsp; 
+<a name='831'>  831 &nbsp;         public ImageWriterIterator(Iterator iter) {
+  832 &nbsp;             this.iter = iter;
+  833 &nbsp;         }
+  834 &nbsp; 
+  835 &nbsp;         public boolean hasNext() {
+  836 &nbsp;             return iter.hasNext();
+  837 &nbsp;         }
+  838 &nbsp; 
+  839 &nbsp;         public ImageWriter next() {
+  840 &nbsp;             ImageWriterSpi spi = null;
+<a name='841'>  841 &nbsp;             try {
+  842 &nbsp;                 spi = (ImageWriterSpi)iter.next();
+  843 &nbsp;                 return spi.createWriterInstance();
+  844 &nbsp;             } catch (IOException e) {
+  845 &nbsp;                 // Deregister the spi in this case, but only as a writerSpi
+  846 &nbsp;                 theRegistry.deregisterServiceProvider(spi, ImageWriterSpi.class);
+  847 &nbsp;             }
+  848 &nbsp;             return null;
+  849 &nbsp;         }
+  850 &nbsp; 
+<a name='851'>  851 &nbsp;         public void remove() {
+  852 &nbsp;             throw new UnsupportedOperationException();
+  853 &nbsp;         }
+  854 &nbsp;     }
+  855 &nbsp; 
+  856 &nbsp;     private static boolean contains(String[] names, String name) {
+  857 &nbsp;         for (int i = 0; i &lt; names.length; i++) {
+  858 &nbsp;             if (name.equalsIgnoreCase(names[i])) {
+  859 &nbsp;                 return true;
+  860 &nbsp;             }
+<a name='861'>  861 &nbsp;         }
+  862 &nbsp; 
+  863 &nbsp;         return false;
+  864 &nbsp;     }
+  865 &nbsp; 
+  866 &nbsp;     /**
+  867 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+  868 &nbsp;      * registered &lt;code&gt;ImageWriter&lt;/code&gt;s that claim to be able to
+  869 &nbsp;      * encode the named format.
+  870 &nbsp;      *
+<a name='871'>  871 &nbsp;      * @param formatName a &lt;code&gt;String&lt;/code&gt; containing the informal
+  872 &nbsp;      * name of a format (&lt;i&gt;e.g.&lt;/i&gt;, "jpeg" or "tiff".
+  873 &nbsp;      *
+  874 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing
+  875 &nbsp;      * &lt;code&gt;ImageWriter&lt;/code&gt;s.
+  876 &nbsp;      *
+  877 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;formatName&lt;/code&gt; is
+  878 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+  879 &nbsp;      *
+  880 &nbsp;      * @see javax.imageio.spi.ImageWriterSpi#getFormatNames
+<a name='881'>  881 &nbsp;      */
+  882 &nbsp;     public static Iterator&lt;ImageWriter&gt;
+  883 &nbsp;         getImageWritersByFormatName(String formatName)
+  884 &nbsp;     {
+  885 &nbsp;         if (formatName == null) {
+  886 &nbsp;             throw new IllegalArgumentException("formatName == null!");
+  887 &nbsp;         }
+  888 &nbsp;         Iterator iter;
+  889 &nbsp;         // Ensure category is present
+  890 &nbsp;         try {
+<a name='891'>  891 &nbsp;             iter = theRegistry.getServiceProviders(ImageWriterSpi.class,
+  892 &nbsp;                                     new ContainsFilter(writerFormatNamesMethod,
+  893 &nbsp;                                                        formatName),
+  894 &nbsp;                                             true);
+  895 &nbsp;         } catch (IllegalArgumentException e) {
+  896 &nbsp;             return Collections.emptyIterator();
+  897 &nbsp;         }
+  898 &nbsp;         return new ImageWriterIterator(iter);
+  899 &nbsp;     }
+  900 &nbsp; 
+<a name='901'>  901 &nbsp;     /**
+  902 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+  903 &nbsp;      * registered &lt;code&gt;ImageWriter&lt;/code&gt;s that claim to be able to
+  904 &nbsp;      * encode files with the given suffix.
+  905 &nbsp;      *
+  906 &nbsp;      * @param fileSuffix a &lt;code&gt;String&lt;/code&gt; containing a file
+  907 &nbsp;      * suffix (&lt;i&gt;e.g.&lt;/i&gt;, "jpg" or "tiff").
+  908 &nbsp;      *
+  909 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing &lt;code&gt;ImageWriter&lt;/code&gt;s.
+  910 &nbsp;      *
+<a name='911'>  911 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;fileSuffix&lt;/code&gt; is
+  912 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+  913 &nbsp;      *
+  914 &nbsp;      * @see javax.imageio.spi.ImageWriterSpi#getFileSuffixes
+  915 &nbsp;      */
+  916 &nbsp;     public static Iterator&lt;ImageWriter&gt;
+  917 &nbsp;         getImageWritersBySuffix(String fileSuffix)
+  918 &nbsp;     {
+  919 &nbsp;         if (fileSuffix == null) {
+  920 &nbsp;             throw new IllegalArgumentException("fileSuffix == null!");
+<a name='921'>  921 &nbsp;         }
+  922 &nbsp;         Iterator iter;
+  923 &nbsp;         // Ensure category is present
+  924 &nbsp;         try {
+  925 &nbsp;             iter = theRegistry.getServiceProviders(ImageWriterSpi.class,
+  926 &nbsp;                                    new ContainsFilter(writerFileSuffixesMethod,
+  927 &nbsp;                                                       fileSuffix),
+  928 &nbsp;                                             true);
+  929 &nbsp;         } catch (IllegalArgumentException e) {
+  930 &nbsp;             return Collections.emptyIterator();
+<a name='931'>  931 &nbsp;         }
+  932 &nbsp;         return new ImageWriterIterator(iter);
+  933 &nbsp;     }
+  934 &nbsp; 
+  935 &nbsp;     /**
+  936 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+  937 &nbsp;      * registered &lt;code&gt;ImageWriter&lt;/code&gt;s that claim to be able to
+  938 &nbsp;      * encode files with the given MIME type.
+  939 &nbsp;      *
+  940 &nbsp;      * @param MIMEType a &lt;code&gt;String&lt;/code&gt; containing a file
+<a name='941'>  941 &nbsp;      * suffix (&lt;i&gt;e.g.&lt;/i&gt;, "image/jpeg" or "image/x-bmp").
+  942 &nbsp;      *
+  943 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing &lt;code&gt;ImageWriter&lt;/code&gt;s.
+  944 &nbsp;      *
+  945 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;MIMEType&lt;/code&gt; is
+  946 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+  947 &nbsp;      *
+  948 &nbsp;      * @see javax.imageio.spi.ImageWriterSpi#getMIMETypes
+  949 &nbsp;      */
+  950 &nbsp;     public static Iterator&lt;ImageWriter&gt;
+<a name='951'>  951 &nbsp;         getImageWritersByMIMEType(String MIMEType)
+  952 &nbsp;     {
+  953 &nbsp;         if (MIMEType == null) {
+  954 &nbsp;             throw new IllegalArgumentException("MIMEType == null!");
+  955 &nbsp;         }
+  956 &nbsp;         Iterator iter;
+  957 &nbsp;         // Ensure category is present
+  958 &nbsp;         try {
+  959 &nbsp;             iter = theRegistry.getServiceProviders(ImageWriterSpi.class,
+  960 &nbsp;                                       new ContainsFilter(writerMIMETypesMethod,
+<a name='961'>  961 &nbsp;                                                          MIMEType),
+  962 &nbsp;                                             true);
+  963 &nbsp;         } catch (IllegalArgumentException e) {
+  964 &nbsp;             return Collections.emptyIterator();
+  965 &nbsp;         }
+  966 &nbsp;         return new ImageWriterIterator(iter);
+  967 &nbsp;     }
+  968 &nbsp; 
+  969 &nbsp;     /**
+  970 &nbsp;      * Returns an &lt;code&gt;ImageWriter&lt;/code&gt;corresponding to the given
+<a name='971'>  971 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt;, if there is one, or &lt;code&gt;null&lt;/code&gt;
+  972 &nbsp;      * if the plug-in for this &lt;code&gt;ImageReader&lt;/code&gt; does not
+  973 &nbsp;      * specify a corresponding &lt;code&gt;ImageWriter&lt;/code&gt;, or if the
+  974 &nbsp;      * given &lt;code&gt;ImageReader&lt;/code&gt; is not registered.  This
+  975 &nbsp;      * mechanism may be used to obtain an &lt;code&gt;ImageWriter&lt;/code&gt;
+  976 &nbsp;      * that will understand the internal structure of non-pixel
+  977 &nbsp;      * metadata (as encoded by &lt;code&gt;IIOMetadata&lt;/code&gt; objects)
+  978 &nbsp;      * generated by the &lt;code&gt;ImageReader&lt;/code&gt;.  By obtaining this
+  979 &nbsp;      * data from the &lt;code&gt;ImageReader&lt;/code&gt; and passing it on to the
+  980 &nbsp;      * &lt;code&gt;ImageWriter&lt;/code&gt; obtained with this method, a client
+<a name='981'>  981 &nbsp;      * program can read an image, modify it in some way, and write it
+  982 &nbsp;      * back out preserving all metadata, without having to understand
+  983 &nbsp;      * anything about the structure of the metadata, or even about
+  984 &nbsp;      * the image format.  Note that this method returns the
+  985 &nbsp;      * "preferred" writer, which is the first in the list returned by
+  986 &nbsp;      * &lt;code&gt;javax.imageio.spi.ImageReaderSpi.getImageWriterSpiNames()&lt;/code&gt;.
+  987 &nbsp;      *
+  988 &nbsp;      * @param reader an instance of a registered &lt;code&gt;ImageReader&lt;/code&gt;.
+  989 &nbsp;      *
+  990 &nbsp;      * @return an &lt;code&gt;ImageWriter&lt;/code&gt;, or null.
+<a name='991'>  991 &nbsp;      *
+  992 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;reader&lt;/code&gt; is
+  993 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+  994 &nbsp;      *
+  995 &nbsp;      * @see #getImageReader(ImageWriter)
+  996 &nbsp;      * @see javax.imageio.spi.ImageReaderSpi#getImageWriterSpiNames()
+  997 &nbsp;      */
+  998 &nbsp;     public static ImageWriter getImageWriter(ImageReader reader) {
+  999 &nbsp;         if (reader == null) {
+ 1000 &nbsp;             throw new IllegalArgumentException("reader == null!");
+<a name='1001'> 1001 &nbsp;         }
+ 1002 &nbsp; 
+ 1003 &nbsp;         ImageReaderSpi readerSpi = reader.getOriginatingProvider();
+ 1004 &nbsp;         if (readerSpi == null) {
+ 1005 &nbsp;             Iterator readerSpiIter;
+ 1006 &nbsp;             // Ensure category is present
+ 1007 &nbsp;             try {
+ 1008 &nbsp;                 readerSpiIter =
+ 1009 &nbsp;                     theRegistry.getServiceProviders(ImageReaderSpi.class,
+ 1010 &nbsp;                                                     false);
+<a name='1011'> 1011 &nbsp;             } catch (IllegalArgumentException e) {
+ 1012 &nbsp;                 return null;
+ 1013 &nbsp;             }
+ 1014 &nbsp; 
+ 1015 &nbsp;             while (readerSpiIter.hasNext()) {
+ 1016 &nbsp;                 ImageReaderSpi temp = (ImageReaderSpi) readerSpiIter.next();
+ 1017 &nbsp;                 if (temp.isOwnReader(reader)) {
+ 1018 &nbsp;                     readerSpi = temp;
+ 1019 &nbsp;                     break;
+ 1020 &nbsp;                 }
+<a name='1021'> 1021 &nbsp;             }
+ 1022 &nbsp;             if (readerSpi == null) {
+ 1023 &nbsp;                 return null;
+ 1024 &nbsp;             }
+ 1025 &nbsp;         }
+ 1026 &nbsp; 
+ 1027 &nbsp;         String[] writerNames = readerSpi.getImageWriterSpiNames();
+ 1028 &nbsp;         if (writerNames == null) {
+ 1029 &nbsp;             return null;
+ 1030 &nbsp;         }
+<a name='1031'> 1031 &nbsp; 
+ 1032 &nbsp;         Class writerSpiClass = null;
+ 1033 &nbsp;         try {
+ 1034 &nbsp;             writerSpiClass = Class.forName(writerNames[0], true,
+ 1035 &nbsp;                                            ClassLoader.getSystemClassLoader());
+ 1036 &nbsp;         } catch (ClassNotFoundException e) {
+ 1037 &nbsp;             return null;
+ 1038 &nbsp;         }
+ 1039 &nbsp; 
+ 1040 &nbsp;         ImageWriterSpi writerSpi = (ImageWriterSpi)
+<a name='1041'> 1041 &nbsp;             theRegistry.getServiceProviderByClass(writerSpiClass);
+ 1042 &nbsp;         if (writerSpi == null) {
+ 1043 &nbsp;             return null;
+ 1044 &nbsp;         }
+ 1045 &nbsp; 
+ 1046 &nbsp;         try {
+ 1047 &nbsp;             return writerSpi.createWriterInstance();
+ 1048 &nbsp;         } catch (IOException e) {
+ 1049 &nbsp;             // Deregister the spi in this case, but only as a writerSpi
+ 1050 &nbsp;             theRegistry.deregisterServiceProvider(writerSpi,
+<a name='1051'> 1051 &nbsp;                                                   ImageWriterSpi.class);
+ 1052 &nbsp;             return null;
+ 1053 &nbsp;         }
+ 1054 &nbsp;     }
+ 1055 &nbsp; 
+ 1056 &nbsp;     /**
+ 1057 &nbsp;      * Returns an &lt;code&gt;ImageReader&lt;/code&gt;corresponding to the given
+ 1058 &nbsp;      * &lt;code&gt;ImageWriter&lt;/code&gt;, if there is one, or &lt;code&gt;null&lt;/code&gt;
+ 1059 &nbsp;      * if the plug-in for this &lt;code&gt;ImageWriter&lt;/code&gt; does not
+ 1060 &nbsp;      * specify a corresponding &lt;code&gt;ImageReader&lt;/code&gt;, or if the
+<a name='1061'> 1061 &nbsp;      * given &lt;code&gt;ImageWriter&lt;/code&gt; is not registered.  This method
+ 1062 &nbsp;      * is provided principally for symmetry with
+ 1063 &nbsp;      * &lt;code&gt;getImageWriter(ImageReader)&lt;/code&gt;.  Note that this
+ 1064 &nbsp;      * method returns the "preferred" reader, which is the first in
+ 1065 &nbsp;      * the list returned by
+ 1066 &nbsp;      * javax.imageio.spi.ImageWriterSpi.&lt;code&gt;getImageReaderSpiNames()&lt;/code&gt;.
+ 1067 &nbsp;      *
+ 1068 &nbsp;      * @param writer an instance of a registered &lt;code&gt;ImageWriter&lt;/code&gt;.
+ 1069 &nbsp;      *
+ 1070 &nbsp;      * @return an &lt;code&gt;ImageReader&lt;/code&gt;, or null.
+<a name='1071'> 1071 &nbsp;      *
+ 1072 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;writer&lt;/code&gt; is
+ 1073 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1074 &nbsp;      *
+ 1075 &nbsp;      * @see #getImageWriter(ImageReader)
+ 1076 &nbsp;      * @see javax.imageio.spi.ImageWriterSpi#getImageReaderSpiNames()
+ 1077 &nbsp;      */
+ 1078 &nbsp;     public static ImageReader getImageReader(ImageWriter writer) {
+ 1079 &nbsp;         if (writer == null) {
+ 1080 &nbsp;             throw new IllegalArgumentException("writer == null!");
+<a name='1081'> 1081 &nbsp;         }
+ 1082 &nbsp; 
+ 1083 &nbsp;         ImageWriterSpi writerSpi = writer.getOriginatingProvider();
+ 1084 &nbsp;         if (writerSpi == null) {
+ 1085 &nbsp;             Iterator writerSpiIter;
+ 1086 &nbsp;             // Ensure category is present
+ 1087 &nbsp;             try {
+ 1088 &nbsp;                 writerSpiIter =
+ 1089 &nbsp;                     theRegistry.getServiceProviders(ImageWriterSpi.class,
+ 1090 &nbsp;                                                     false);
+<a name='1091'> 1091 &nbsp;             } catch (IllegalArgumentException e) {
+ 1092 &nbsp;                 return null;
+ 1093 &nbsp;             }
+ 1094 &nbsp; 
+ 1095 &nbsp;             while (writerSpiIter.hasNext()) {
+ 1096 &nbsp;                 ImageWriterSpi temp = (ImageWriterSpi) writerSpiIter.next();
+ 1097 &nbsp;                 if (temp.isOwnWriter(writer)) {
+ 1098 &nbsp;                     writerSpi = temp;
+ 1099 &nbsp;                     break;
+ 1100 &nbsp;                 }
+<a name='1101'> 1101 &nbsp;             }
+ 1102 &nbsp;             if (writerSpi == null) {
+ 1103 &nbsp;                 return null;
+ 1104 &nbsp;             }
+ 1105 &nbsp;         }
+ 1106 &nbsp; 
+ 1107 &nbsp;         String[] readerNames = writerSpi.getImageReaderSpiNames();
+ 1108 &nbsp;         if (readerNames == null) {
+ 1109 &nbsp;             return null;
+ 1110 &nbsp;         }
+<a name='1111'> 1111 &nbsp; 
+ 1112 &nbsp;         Class readerSpiClass = null;
+ 1113 &nbsp;         try {
+ 1114 &nbsp;             readerSpiClass = Class.forName(readerNames[0], true,
+ 1115 &nbsp;                                            ClassLoader.getSystemClassLoader());
+ 1116 &nbsp;         } catch (ClassNotFoundException e) {
+ 1117 &nbsp;             return null;
+ 1118 &nbsp;         }
+ 1119 &nbsp; 
+ 1120 &nbsp;         ImageReaderSpi readerSpi = (ImageReaderSpi)
+<a name='1121'> 1121 &nbsp;             theRegistry.getServiceProviderByClass(readerSpiClass);
+ 1122 &nbsp;         if (readerSpi == null) {
+ 1123 &nbsp;             return null;
+ 1124 &nbsp;         }
+ 1125 &nbsp; 
+ 1126 &nbsp;         try {
+ 1127 &nbsp;             return readerSpi.createReaderInstance();
+ 1128 &nbsp;         } catch (IOException e) {
+ 1129 &nbsp;             // Deregister the spi in this case, but only as a readerSpi
+ 1130 &nbsp;             theRegistry.deregisterServiceProvider(readerSpi,
+<a name='1131'> 1131 &nbsp;                                                   ImageReaderSpi.class);
+ 1132 &nbsp;             return null;
+ 1133 &nbsp;         }
+ 1134 &nbsp;     }
+ 1135 &nbsp; 
+ 1136 &nbsp;     /**
+ 1137 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+ 1138 &nbsp;      * registered &lt;code&gt;ImageWriter&lt;/code&gt;s that claim to be able to
+ 1139 &nbsp;      * encode images of the given layout (specified using an
+ 1140 &nbsp;      * &lt;code&gt;ImageTypeSpecifier&lt;/code&gt;) in the given format.
+<a name='1141'> 1141 &nbsp;      *
+ 1142 &nbsp;      * @param type an &lt;code&gt;ImageTypeSpecifier&lt;/code&gt; indicating the
+ 1143 &nbsp;      * layout of the image to be written.
+ 1144 &nbsp;      * @param formatName the informal name of the &lt;code&gt;format&lt;/code&gt;.
+ 1145 &nbsp;      *
+ 1146 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing &lt;code&gt;ImageWriter&lt;/code&gt;s.
+ 1147 &nbsp;      *
+ 1148 &nbsp;      * @exception IllegalArgumentException if any parameter is
+ 1149 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1150 &nbsp;      *
+<a name='1151'> 1151 &nbsp;      * @see javax.imageio.spi.ImageWriterSpi#canEncodeImage(ImageTypeSpecifier)
+ 1152 &nbsp;      */
+ 1153 &nbsp;     public static Iterator&lt;ImageWriter&gt;
+ 1154 &nbsp;         getImageWriters(ImageTypeSpecifier type, String formatName)
+ 1155 &nbsp;     {
+ 1156 &nbsp;         if (type == null) {
+ 1157 &nbsp;             throw new IllegalArgumentException("type == null!");
+ 1158 &nbsp;         }
+ 1159 &nbsp;         if (formatName == null) {
+ 1160 &nbsp;             throw new IllegalArgumentException("formatName == null!");
+<a name='1161'> 1161 &nbsp;         }
+ 1162 &nbsp; 
+ 1163 &nbsp;         Iterator iter;
+ 1164 &nbsp;         // Ensure category is present
+ 1165 &nbsp;         try {
+ 1166 &nbsp;             iter = theRegistry.getServiceProviders(ImageWriterSpi.class,
+ 1167 &nbsp;                                  new CanEncodeImageAndFormatFilter(type,
+ 1168 &nbsp;                                                                    formatName),
+ 1169 &nbsp;                                             true);
+ 1170 &nbsp;         } catch (IllegalArgumentException e) {
+<a name='1171'> 1171 &nbsp;             return Collections.emptyIterator();
+ 1172 &nbsp;         }
+ 1173 &nbsp; 
+ 1174 &nbsp;         return new ImageWriterIterator(iter);
+ 1175 &nbsp;     }
+ 1176 &nbsp; 
+ 1177 &nbsp;     static class ImageTranscoderIterator
+ 1178 &nbsp;         implements Iterator&lt;ImageTranscoder&gt;
+ 1179 &nbsp;     {
+ 1180 &nbsp;         // Contains ImageTranscoderSpis
+<a name='1181'> 1181 &nbsp;         public Iterator iter;
+ 1182 &nbsp; 
+ 1183 &nbsp;         public ImageTranscoderIterator(Iterator iter) {
+ 1184 &nbsp;             this.iter = iter;
+ 1185 &nbsp;         }
+ 1186 &nbsp; 
+ 1187 &nbsp;         public boolean hasNext() {
+ 1188 &nbsp;             return iter.hasNext();
+ 1189 &nbsp;         }
+ 1190 &nbsp; 
+<a name='1191'> 1191 &nbsp;         public ImageTranscoder next() {
+ 1192 &nbsp;             ImageTranscoderSpi spi = null;
+ 1193 &nbsp;             spi = (ImageTranscoderSpi)iter.next();
+ 1194 &nbsp;             return spi.createTranscoderInstance();
+ 1195 &nbsp;         }
+ 1196 &nbsp; 
+ 1197 &nbsp;         public void remove() {
+ 1198 &nbsp;             throw new UnsupportedOperationException();
+ 1199 &nbsp;         }
+ 1200 &nbsp;     }
+<a name='1201'> 1201 &nbsp; 
+ 1202 &nbsp;     static class TranscoderFilter
+ 1203 &nbsp;         implements ServiceRegistry.Filter {
+ 1204 &nbsp; 
+ 1205 &nbsp;         String readerSpiName;
+ 1206 &nbsp;         String writerSpiName;
+ 1207 &nbsp; 
+ 1208 &nbsp;         public TranscoderFilter(ImageReaderSpi readerSpi,
+ 1209 &nbsp;                                 ImageWriterSpi writerSpi) {
+ 1210 &nbsp;             this.readerSpiName = readerSpi.getClass().getName();
+<a name='1211'> 1211 &nbsp;             this.writerSpiName = writerSpi.getClass().getName();
+ 1212 &nbsp;         }
+ 1213 &nbsp; 
+ 1214 &nbsp;         public boolean filter(Object elt) {
+ 1215 &nbsp;             ImageTranscoderSpi spi = (ImageTranscoderSpi)elt;
+ 1216 &nbsp;             String readerName = spi.getReaderServiceProviderName();
+ 1217 &nbsp;             String writerName = spi.getWriterServiceProviderName();
+ 1218 &nbsp;             return (readerName.equals(readerSpiName) &amp;&amp;
+ 1219 &nbsp;                     writerName.equals(writerSpiName));
+ 1220 &nbsp;         }
+<a name='1221'> 1221 &nbsp;     }
+ 1222 &nbsp; 
+ 1223 &nbsp;     /**
+ 1224 &nbsp;      * Returns an &lt;code&gt;Iterator&lt;/code&gt; containing all currently
+ 1225 &nbsp;      * registered &lt;code&gt;ImageTranscoder&lt;/code&gt;s that claim to be
+ 1226 &nbsp;      * able to transcode between the metadata of the given
+ 1227 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt; and &lt;code&gt;ImageWriter&lt;/code&gt;.
+ 1228 &nbsp;      *
+ 1229 &nbsp;      * @param reader an &lt;code&gt;ImageReader&lt;/code&gt;.
+ 1230 &nbsp;      * @param writer an &lt;code&gt;ImageWriter&lt;/code&gt;.
+<a name='1231'> 1231 &nbsp;      *
+ 1232 &nbsp;      * @return an &lt;code&gt;Iterator&lt;/code&gt; containing
+ 1233 &nbsp;      * &lt;code&gt;ImageTranscoder&lt;/code&gt;s.
+ 1234 &nbsp;      *
+ 1235 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;reader&lt;/code&gt; or
+ 1236 &nbsp;      * &lt;code&gt;writer&lt;/code&gt; is &lt;code&gt;null&lt;/code&gt;.
+ 1237 &nbsp;      */
+ 1238 &nbsp;     public static Iterator&lt;ImageTranscoder&gt;
+ 1239 &nbsp;         getImageTranscoders(ImageReader reader, ImageWriter writer)
+ 1240 &nbsp;     {
+<a name='1241'> 1241 &nbsp;         if (reader == null) {
+ 1242 &nbsp;             throw new IllegalArgumentException("reader == null!");
+ 1243 &nbsp;         }
+ 1244 &nbsp;         if (writer == null) {
+ 1245 &nbsp;             throw new IllegalArgumentException("writer == null!");
+ 1246 &nbsp;         }
+ 1247 &nbsp;         ImageReaderSpi readerSpi = reader.getOriginatingProvider();
+ 1248 &nbsp;         ImageWriterSpi writerSpi = writer.getOriginatingProvider();
+ 1249 &nbsp;         ServiceRegistry.Filter filter =
+ 1250 &nbsp;             new TranscoderFilter(readerSpi, writerSpi);
+<a name='1251'> 1251 &nbsp; 
+ 1252 &nbsp;         Iterator iter;
+ 1253 &nbsp;         // Ensure category is present
+ 1254 &nbsp;         try {
+ 1255 &nbsp;             iter = theRegistry.getServiceProviders(ImageTranscoderSpi.class,
+ 1256 &nbsp;                                             filter, true);
+ 1257 &nbsp;         } catch (IllegalArgumentException e) {
+ 1258 &nbsp;             return Collections.emptyIterator();
+ 1259 &nbsp;         }
+ 1260 &nbsp;         return new ImageTranscoderIterator(iter);
+<a name='1261'> 1261 &nbsp;     }
+ 1262 &nbsp; 
+ 1263 &nbsp;     // All-in-one methods
+ 1264 &nbsp; 
+ 1265 &nbsp;     /**
+ 1266 &nbsp;      * Returns a &lt;code&gt;BufferedImage&lt;/code&gt; as the result of decoding
+ 1267 &nbsp;      * a supplied &lt;code&gt;File&lt;/code&gt; with an &lt;code&gt;ImageReader&lt;/code&gt;
+ 1268 &nbsp;      * chosen automatically from among those currently registered.
+ 1269 &nbsp;      * The &lt;code&gt;File&lt;/code&gt; is wrapped in an
+ 1270 &nbsp;      * &lt;code&gt;ImageInputStream&lt;/code&gt;.  If no registered
+<a name='1271'> 1271 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt; claims to be able to read the
+ 1272 &nbsp;      * resulting stream, &lt;code&gt;null&lt;/code&gt; is returned.
+ 1273 &nbsp;      *
+ 1274 &nbsp;      * &lt;p&gt; The current cache settings from &lt;code&gt;getUseCache&lt;/code&gt;and
+ 1275 &nbsp;      * &lt;code&gt;getCacheDirectory&lt;/code&gt; will be used to control caching in the
+ 1276 &nbsp;      * &lt;code&gt;ImageInputStream&lt;/code&gt; that is created.
+ 1277 &nbsp;      *
+ 1278 &nbsp;      * &lt;p&gt; Note that there is no &lt;code&gt;read&lt;/code&gt; method that takes a
+ 1279 &nbsp;      * filename as a &lt;code&gt;String&lt;/code&gt;; use this method instead after
+ 1280 &nbsp;      * creating a &lt;code&gt;File&lt;/code&gt; from the filename.
+<a name='1281'> 1281 &nbsp;      *
+ 1282 &nbsp;      * &lt;p&gt; This method does not attempt to locate
+ 1283 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt;s that can read directly from a
+ 1284 &nbsp;      * &lt;code&gt;File&lt;/code&gt;; that may be accomplished using
+ 1285 &nbsp;      * &lt;code&gt;IIORegistry&lt;/code&gt; and &lt;code&gt;ImageReaderSpi&lt;/code&gt;.
+ 1286 &nbsp;      *
+ 1287 &nbsp;      * @param input a &lt;code&gt;File&lt;/code&gt; to read from.
+ 1288 &nbsp;      *
+ 1289 &nbsp;      * @return a &lt;code&gt;BufferedImage&lt;/code&gt; containing the decoded
+ 1290 &nbsp;      * contents of the input, or &lt;code&gt;null&lt;/code&gt;.
+<a name='1291'> 1291 &nbsp;      *
+ 1292 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;input&lt;/code&gt; is
+ 1293 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1294 &nbsp;      * @exception IOException if an error occurs during reading.
+ 1295 &nbsp;      */
+ 1296 &nbsp;     public static BufferedImage read(File input) throws IOException {
+ 1297 &nbsp;         if (input == null) {
+ 1298 &nbsp;             throw new IllegalArgumentException("input == null!");
+ 1299 &nbsp;         }
+ 1300 &nbsp;         if (!input.canRead()) {
+<a name='1301'> 1301 &nbsp;             throw new IIOException("Can't read input file!");
+ 1302 &nbsp;         }
+ 1303 &nbsp; 
+ 1304 &nbsp;         ImageInputStream stream = createImageInputStream(input);
+ 1305 &nbsp;         if (stream == null) {
+ 1306 &nbsp;             throw new IIOException("Can't create an ImageInputStream!");
+ 1307 &nbsp;         }
+ 1308 &nbsp;         BufferedImage bi = read(stream);
+ 1309 &nbsp;         if (bi == null) {
+ 1310 &nbsp;             stream.close();
+<a name='1311'> 1311 &nbsp;         }
+ 1312 &nbsp;         return bi;
+ 1313 &nbsp;     }
+ 1314 &nbsp; 
+ 1315 &nbsp;     /**
+ 1316 &nbsp;      * Returns a &lt;code&gt;BufferedImage&lt;/code&gt; as the result of decoding
+ 1317 &nbsp;      * a supplied &lt;code&gt;InputStream&lt;/code&gt; with an &lt;code&gt;ImageReader&lt;/code&gt;
+ 1318 &nbsp;      * chosen automatically from among those currently registered.
+ 1319 &nbsp;      * The &lt;code&gt;InputStream&lt;/code&gt; is wrapped in an
+ 1320 &nbsp;      * &lt;code&gt;ImageInputStream&lt;/code&gt;.  If no registered
+<a name='1321'> 1321 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt; claims to be able to read the
+ 1322 &nbsp;      * resulting stream, &lt;code&gt;null&lt;/code&gt; is returned.
+ 1323 &nbsp;      *
+ 1324 &nbsp;      * &lt;p&gt; The current cache settings from &lt;code&gt;getUseCache&lt;/code&gt;and
+ 1325 &nbsp;      * &lt;code&gt;getCacheDirectory&lt;/code&gt; will be used to control caching in the
+ 1326 &nbsp;      * &lt;code&gt;ImageInputStream&lt;/code&gt; that is created.
+ 1327 &nbsp;      *
+ 1328 &nbsp;      * &lt;p&gt; This method does not attempt to locate
+ 1329 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt;s that can read directly from an
+ 1330 &nbsp;      * &lt;code&gt;InputStream&lt;/code&gt;; that may be accomplished using
+<a name='1331'> 1331 &nbsp;      * &lt;code&gt;IIORegistry&lt;/code&gt; and &lt;code&gt;ImageReaderSpi&lt;/code&gt;.
+ 1332 &nbsp;      *
+ 1333 &nbsp;      * &lt;p&gt; This method &lt;em&gt;does not&lt;/em&gt; close the provided
+ 1334 &nbsp;      * &lt;code&gt;InputStream&lt;/code&gt; after the read operation has completed;
+ 1335 &nbsp;      * it is the responsibility of the caller to close the stream, if desired.
+ 1336 &nbsp;      *
+ 1337 &nbsp;      * @param input an &lt;code&gt;InputStream&lt;/code&gt; to read from.
+ 1338 &nbsp;      *
+ 1339 &nbsp;      * @return a &lt;code&gt;BufferedImage&lt;/code&gt; containing the decoded
+ 1340 &nbsp;      * contents of the input, or &lt;code&gt;null&lt;/code&gt;.
+<a name='1341'> 1341 &nbsp;      *
+ 1342 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;input&lt;/code&gt; is
+ 1343 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1344 &nbsp;      * @exception IOException if an error occurs during reading.
+ 1345 &nbsp;      */
+ 1346 &nbsp;     public static BufferedImage read(InputStream input) throws IOException {
+ 1347 &nbsp;         if (input == null) {
+ 1348 &nbsp;             throw new IllegalArgumentException("input == null!");
+ 1349 &nbsp;         }
+ 1350 &nbsp; 
+<a name='1351'> 1351 &nbsp;         ImageInputStream stream = createImageInputStream(input);
+ 1352 &nbsp;         BufferedImage bi = read(stream);
+ 1353 &nbsp;         if (bi == null) {
+ 1354 &nbsp;             stream.close();
+ 1355 &nbsp;         }
+ 1356 &nbsp;         return bi;
+ 1357 &nbsp;     }
+ 1358 &nbsp; 
+ 1359 &nbsp;     /**
+ 1360 &nbsp;      * Returns a &lt;code&gt;BufferedImage&lt;/code&gt; as the result of decoding
+<a name='1361'> 1361 &nbsp;      * a supplied &lt;code&gt;URL&lt;/code&gt; with an &lt;code&gt;ImageReader&lt;/code&gt;
+ 1362 &nbsp;      * chosen automatically from among those currently registered.  An
+ 1363 &nbsp;      * &lt;code&gt;InputStream&lt;/code&gt; is obtained from the &lt;code&gt;URL&lt;/code&gt;,
+ 1364 &nbsp;      * which is wrapped in an &lt;code&gt;ImageInputStream&lt;/code&gt;.  If no
+ 1365 &nbsp;      * registered &lt;code&gt;ImageReader&lt;/code&gt; claims to be able to read
+ 1366 &nbsp;      * the resulting stream, &lt;code&gt;null&lt;/code&gt; is returned.
+ 1367 &nbsp;      *
+ 1368 &nbsp;      * &lt;p&gt; The current cache settings from &lt;code&gt;getUseCache&lt;/code&gt;and
+ 1369 &nbsp;      * &lt;code&gt;getCacheDirectory&lt;/code&gt; will be used to control caching in the
+ 1370 &nbsp;      * &lt;code&gt;ImageInputStream&lt;/code&gt; that is created.
+<a name='1371'> 1371 &nbsp;      *
+ 1372 &nbsp;      * &lt;p&gt; This method does not attempt to locate
+ 1373 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt;s that can read directly from a
+ 1374 &nbsp;      * &lt;code&gt;URL&lt;/code&gt;; that may be accomplished using
+ 1375 &nbsp;      * &lt;code&gt;IIORegistry&lt;/code&gt; and &lt;code&gt;ImageReaderSpi&lt;/code&gt;.
+ 1376 &nbsp;      *
+ 1377 &nbsp;      * @param input a &lt;code&gt;URL&lt;/code&gt; to read from.
+ 1378 &nbsp;      *
+ 1379 &nbsp;      * @return a &lt;code&gt;BufferedImage&lt;/code&gt; containing the decoded
+ 1380 &nbsp;      * contents of the input, or &lt;code&gt;null&lt;/code&gt;.
+<a name='1381'> 1381 &nbsp;      *
+ 1382 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;input&lt;/code&gt; is
+ 1383 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1384 &nbsp;      * @exception IOException if an error occurs during reading.
+ 1385 &nbsp;      */
+ 1386 &nbsp;     public static BufferedImage read(URL input) throws IOException {
+ 1387 &nbsp;         if (input == null) {
+ 1388 &nbsp;             throw new IllegalArgumentException("input == null!");
+ 1389 &nbsp;         }
+ 1390 &nbsp; 
+<a name='1391'> 1391 &nbsp;         InputStream istream = null;
+ 1392 &nbsp;         try {
+ 1393 &nbsp;             istream = input.openStream();
+ 1394 &nbsp;         } catch (IOException e) {
+ 1395 &nbsp;             throw new IIOException("Can't get input stream from URL!", e);
+ 1396 &nbsp;         }
+ 1397 &nbsp;         ImageInputStream stream = createImageInputStream(istream);
+ 1398 &nbsp;         BufferedImage bi;
+ 1399 &nbsp;         try {
+ 1400 &nbsp;             bi = read(stream);
+<a name='1401'> 1401 &nbsp;             if (bi == null) {
+ 1402 &nbsp;                 stream.close();
+ 1403 &nbsp;             }
+ 1404 &nbsp;         } finally {
+ 1405 &nbsp;             istream.close();
+ 1406 &nbsp;         }
+ 1407 &nbsp;         return bi;
+ 1408 &nbsp;     }
+ 1409 &nbsp; 
+ 1410 &nbsp;     /**
+<a name='1411'> 1411 &nbsp;      * Returns a &lt;code&gt;BufferedImage&lt;/code&gt; as the result of decoding
+ 1412 &nbsp;      * a supplied &lt;code&gt;ImageInputStream&lt;/code&gt; with an
+ 1413 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt; chosen automatically from among those
+ 1414 &nbsp;      * currently registered.  If no registered
+ 1415 &nbsp;      * &lt;code&gt;ImageReader&lt;/code&gt; claims to be able to read the stream,
+ 1416 &nbsp;      * &lt;code&gt;null&lt;/code&gt; is returned.
+ 1417 &nbsp;      *
+ 1418 &nbsp;      * &lt;p&gt; Unlike most other methods in this class, this method &lt;em&gt;does&lt;/em&gt;
+ 1419 &nbsp;      * close the provided &lt;code&gt;ImageInputStream&lt;/code&gt; after the read
+ 1420 &nbsp;      * operation has completed, unless &lt;code&gt;null&lt;/code&gt; is returned,
+<a name='1421'> 1421 &nbsp;      * in which case this method &lt;em&gt;does not&lt;/em&gt; close the stream.
+ 1422 &nbsp;      *
+ 1423 &nbsp;      * @param stream an &lt;code&gt;ImageInputStream&lt;/code&gt; to read from.
+ 1424 &nbsp;      *
+ 1425 &nbsp;      * @return a &lt;code&gt;BufferedImage&lt;/code&gt; containing the decoded
+ 1426 &nbsp;      * contents of the input, or &lt;code&gt;null&lt;/code&gt;.
+ 1427 &nbsp;      *
+ 1428 &nbsp;      * @exception IllegalArgumentException if &lt;code&gt;stream&lt;/code&gt; is
+ 1429 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1430 &nbsp;      * @exception IOException if an error occurs during reading.
+<a name='1431'> 1431 &nbsp;      */
+ 1432 &nbsp;     public static BufferedImage read(ImageInputStream stream)
+ 1433 &nbsp;         throws IOException {
+ 1434 &nbsp;         if (stream == null) {
+ 1435 &nbsp;             throw new IllegalArgumentException("stream == null!");
+ 1436 &nbsp;         }
+ 1437 &nbsp; 
+ 1438 &nbsp;         Iterator iter = getImageReaders(stream);
+ 1439 &nbsp;         if (!iter.hasNext()) {
+ 1440 &nbsp;             return null;
+<a name='1441'> 1441 &nbsp;         }
+ 1442 &nbsp; 
+ 1443 &nbsp;         ImageReader reader = (ImageReader)iter.next();
+ 1444 &nbsp;         ImageReadParam param = reader.getDefaultReadParam();
+ 1445 &nbsp;         reader.setInput(stream, true, true);
+ 1446 &nbsp;         BufferedImage bi;
+ 1447 &nbsp;         try {
+ 1448 &nbsp;             bi = reader.read(0, param);
+ 1449 &nbsp;         } finally {
+ 1450 &nbsp;             reader.dispose();
+<a name='1451'> 1451 &nbsp;             stream.close();
+ 1452 &nbsp;         }
+ 1453 &nbsp;         return bi;
+ 1454 &nbsp;     }
+ 1455 &nbsp; 
+ 1456 &nbsp;     /**
+ 1457 &nbsp;      * Writes an image using the an arbitrary &lt;code&gt;ImageWriter&lt;/code&gt;
+ 1458 &nbsp;      * that supports the given format to an
+ 1459 &nbsp;      * &lt;code&gt;ImageOutputStream&lt;/code&gt;.  The image is written to the
+ 1460 &nbsp;      * &lt;code&gt;ImageOutputStream&lt;/code&gt; starting at the current stream
+<a name='1461'> 1461 &nbsp;      * pointer, overwriting existing stream data from that point
+ 1462 &nbsp;      * forward, if present.
+ 1463 &nbsp;      *
+ 1464 &nbsp;      * &lt;p&gt; This method &lt;em&gt;does not&lt;/em&gt; close the provided
+ 1465 &nbsp;      * &lt;code&gt;ImageOutputStream&lt;/code&gt; after the write operation has completed;
+ 1466 &nbsp;      * it is the responsibility of the caller to close the stream, if desired.
+ 1467 &nbsp;      *
+ 1468 &nbsp;      * @param im a &lt;code&gt;RenderedImage&lt;/code&gt; to be written.
+ 1469 &nbsp;      * @param formatName a &lt;code&gt;String&lt;/code&gt; containg the informal
+ 1470 &nbsp;      * name of the format.
+<a name='1471'> 1471 &nbsp;      * @param output an &lt;code&gt;ImageOutputStream&lt;/code&gt; to be written to.
+ 1472 &nbsp;      *
+ 1473 &nbsp;      * @return &lt;code&gt;false&lt;/code&gt; if no appropriate writer is found.
+ 1474 &nbsp;      *
+ 1475 &nbsp;      * @exception IllegalArgumentException if any parameter is
+ 1476 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1477 &nbsp;      * @exception IOException if an error occurs during writing.
+ 1478 &nbsp;      */
+ 1479 &nbsp;     public static boolean write(RenderedImage im,
+ 1480 &nbsp;                                 String formatName,
+<a name='1481'> 1481 &nbsp;                                 ImageOutputStream output) throws IOException {
+ 1482 &nbsp;         if (im == null) {
+ 1483 &nbsp;             throw new IllegalArgumentException("im == null!");
+ 1484 &nbsp;         }
+ 1485 &nbsp;         if (formatName == null) {
+ 1486 &nbsp;             throw new IllegalArgumentException("formatName == null!");
+ 1487 &nbsp;         }
+ 1488 &nbsp;         if (output == null) {
+ 1489 &nbsp;             throw new IllegalArgumentException("output == null!");
+ 1490 &nbsp;         }
+<a name='1491'> 1491 &nbsp; 
+ 1492 &nbsp;         return doWrite(im, getWriter(im, formatName), output);
+ 1493 &nbsp;     }
+ 1494 &nbsp; 
+ 1495 &nbsp;     /**
+ 1496 &nbsp;      * Writes an image using an arbitrary &lt;code&gt;ImageWriter&lt;/code&gt;
+ 1497 &nbsp;      * that supports the given format to a &lt;code&gt;File&lt;/code&gt;.  If
+ 1498 &nbsp;      * there is already a &lt;code&gt;File&lt;/code&gt; present, its contents are
+ 1499 &nbsp;      * discarded.
+ 1500 &nbsp;      *
+<a name='1501'> 1501 &nbsp;      * @param im a &lt;code&gt;RenderedImage&lt;/code&gt; to be written.
+ 1502 &nbsp;      * @param formatName a &lt;code&gt;String&lt;/code&gt; containg the informal
+ 1503 &nbsp;      * name of the format.
+ 1504 &nbsp;      * @param output a &lt;code&gt;File&lt;/code&gt; to be written to.
+ 1505 &nbsp;      *
+ 1506 &nbsp;      * @return &lt;code&gt;false&lt;/code&gt; if no appropriate writer is found.
+ 1507 &nbsp;      *
+ 1508 &nbsp;      * @exception IllegalArgumentException if any parameter is
+ 1509 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1510 &nbsp;      * @exception IOException if an error occurs during writing.
+<a name='1511'> 1511 &nbsp;      */
+ 1512 &nbsp;     public static boolean write(RenderedImage im,
+ 1513 &nbsp;                                 String formatName,
+ 1514 &nbsp;                                 File output) throws IOException {
+ 1515 &nbsp;         if (output == null) {
+ 1516 &nbsp;             throw new IllegalArgumentException("output == null!");
+ 1517 &nbsp;         }
+ 1518 &nbsp;         ImageOutputStream stream = null;
+ 1519 &nbsp; 
+ 1520 &nbsp;         ImageWriter writer = getWriter(im, formatName);
+<a name='1521'> 1521 &nbsp;         if (writer == null) {
+ 1522 &nbsp;             /* Do not make changes in the file system if we have
+ 1523 &nbsp;              * no appropriate writer.
+ 1524 &nbsp;              */
+ 1525 &nbsp;             return false;
+ 1526 &nbsp;         }
+ 1527 &nbsp; 
+ 1528 &nbsp;         try {
+ 1529 &nbsp;             output.delete();
+ 1530 &nbsp;             stream = createImageOutputStream(output);
+<a name='1531'> 1531 &nbsp;         } catch (IOException e) {
+ 1532 &nbsp;             throw new IIOException("Can't create output stream!", e);
+ 1533 &nbsp;         }
+ 1534 &nbsp; 
+ 1535 &nbsp;         try {
+ 1536 &nbsp;             return doWrite(im, writer, stream);
+ 1537 &nbsp;         } finally {
+ 1538 &nbsp;             stream.close();
+ 1539 &nbsp;         }
+ 1540 &nbsp;     }
+<a name='1541'> 1541 &nbsp; 
+ 1542 &nbsp;     /**
+ 1543 &nbsp;      * Writes an image using an arbitrary &lt;code&gt;ImageWriter&lt;/code&gt;
+ 1544 &nbsp;      * that supports the given format to an &lt;code&gt;OutputStream&lt;/code&gt;.
+ 1545 &nbsp;      *
+ 1546 &nbsp;      * &lt;p&gt; This method &lt;em&gt;does not&lt;/em&gt; close the provided
+ 1547 &nbsp;      * &lt;code&gt;OutputStream&lt;/code&gt; after the write operation has completed;
+ 1548 &nbsp;      * it is the responsibility of the caller to close the stream, if desired.
+ 1549 &nbsp;      *
+ 1550 &nbsp;      * &lt;p&gt; The current cache settings from &lt;code&gt;getUseCache&lt;/code&gt;and
+<a name='1551'> 1551 &nbsp;      * &lt;code&gt;getCacheDirectory&lt;/code&gt; will be used to control caching.
+ 1552 &nbsp;      *
+ 1553 &nbsp;      * @param im a &lt;code&gt;RenderedImage&lt;/code&gt; to be written.
+ 1554 &nbsp;      * @param formatName a &lt;code&gt;String&lt;/code&gt; containg the informal
+ 1555 &nbsp;      * name of the format.
+ 1556 &nbsp;      * @param output an &lt;code&gt;OutputStream&lt;/code&gt; to be written to.
+ 1557 &nbsp;      *
+ 1558 &nbsp;      * @return &lt;code&gt;false&lt;/code&gt; if no appropriate writer is found.
+ 1559 &nbsp;      *
+ 1560 &nbsp;      * @exception IllegalArgumentException if any parameter is
+<a name='1561'> 1561 &nbsp;      * &lt;code&gt;null&lt;/code&gt;.
+ 1562 &nbsp;      * @exception IOException if an error occurs during writing.
+ 1563 &nbsp;      */
+ 1564 &nbsp;     public static boolean write(RenderedImage im,
+ 1565 &nbsp;                                 String formatName,
+ 1566 &nbsp;                                 OutputStream output) throws IOException {
+ 1567 &nbsp;         if (output == null) {
+ 1568 &nbsp;             throw new IllegalArgumentException("output == null!");
+ 1569 &nbsp;         }
+ 1570 &nbsp;         ImageOutputStream stream = null;
+<a name='1571'> 1571 &nbsp;         try {
+ 1572 &nbsp;             stream = createImageOutputStream(output);
+ 1573 &nbsp;         } catch (IOException e) {
+ 1574 &nbsp;             throw new IIOException("Can't create output stream!", e);
+ 1575 &nbsp;         }
+ 1576 &nbsp; 
+ 1577 &nbsp;         try {
+ 1578 &nbsp;             return doWrite(im, getWriter(im, formatName), stream);
+ 1579 &nbsp;         } finally {
+ 1580 &nbsp;             stream.close();
+<a name='1581'> 1581 &nbsp;         }
+ 1582 &nbsp;     }
+ 1583 &nbsp; 
+ 1584 &nbsp;     /**
+ 1585 &nbsp;      * Returns &lt;code&gt;ImageWriter&lt;/code&gt; instance according to given
+ 1586 &nbsp;      * rendered image and image format or &lt;code&gt;null&lt;/code&gt; if there
+ 1587 &nbsp;      * is no appropriate writer.
+ 1588 &nbsp;      */
+ 1589 &nbsp;     private static ImageWriter getWriter(RenderedImage im,
+ 1590 &nbsp;                                          String formatName) {
+<a name='1591'> 1591 &nbsp;         ImageTypeSpecifier type =
+ 1592 &nbsp;             ImageTypeSpecifier.createFromRenderedImage(im);
+ 1593 &nbsp;         Iterator&lt;ImageWriter&gt; iter = getImageWriters(type, formatName);
+ 1594 &nbsp; 
+ 1595 &nbsp;         if (iter.hasNext()) {
+ 1596 &nbsp;             return iter.next();
+ 1597 &nbsp;         } else {
+ 1598 &nbsp;             return null;
+ 1599 &nbsp;         }
+ 1600 &nbsp;     }
+<a name='1601'> 1601 &nbsp; 
+ 1602 &nbsp;     /**
+ 1603 &nbsp;      * Writes image to output stream  using given image writer.
+ 1604 &nbsp;      */
+ 1605 &nbsp;     private static boolean doWrite(RenderedImage im, ImageWriter writer,
+ 1606 &nbsp;                                  ImageOutputStream output) throws IOException {
+ 1607 &nbsp;         if (writer == null) {
+ 1608 &nbsp;             return false;
+ 1609 &nbsp;         }
+ 1610 &nbsp;         writer.setOutput(output);
+<a name='1611'> 1611 &nbsp;         try {
+ 1612 &nbsp;             writer.write(im);
+ 1613 &nbsp;         } finally {
+ 1614 &nbsp;             writer.dispose();
+ 1615 &nbsp;             output.flush();
+ 1616 &nbsp;         }
+ 1617 &nbsp;         return true;
+ 1618 &nbsp;     }
+ 1619 &nbsp; }
+
+</pre>
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; javax &#187;  <a href='/docs/api/javax/imageio/package-index.html'>imageio</a> &#187; 
+ [<a href="/docs/api/javax/imageio/ImageIO.html">javadoc</a> | source]
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-138120-1");
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- end -->

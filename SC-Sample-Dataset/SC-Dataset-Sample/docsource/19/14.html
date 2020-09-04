@@ -1,0 +1,1110 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]><html  xmlns:fb="https://www.facebook.com/2008/fbml"  xmlns:og="http://ogp.me/ns#" lang="en-US" class="no-js lt-ie9 lt-ie8 lt-ie7"><![endif]-->
+<!--[if IE 7]><html  xmlns:fb="https://www.facebook.com/2008/fbml"  xmlns:og="http://ogp.me/ns#" lang="en-US" class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if IE 8]><html  xmlns:fb="https://www.facebook.com/2008/fbml"  xmlns:og="http://ogp.me/ns#" lang="en-US" class="no-js lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!--><html  xmlns:fb="https://www.facebook.com/2008/fbml"  xmlns:og="http://ogp.me/ns#" lang="en-US" class="no-js"><!--<![endif]--> 
+<head>
+    
+	<meta charset="UTF-8">
+	<title>  Using the Cassandra Bulk Loader : DataStax</title>
+	
+	<!-- Meta -->
+	<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+	<meta name="google-site-verification" content="qLux1bhC-tgDVidUfPH8WU-Jc4Cr4ggXj9w48FcJtiw" />
+	<link rel="shortcut icon" href="http://www.datastax.com/wp-content/themes/datastax-2013/favicon.ico" />
+		
+	<!-- CSS + jQuery + JavaScript -->
+	<link rel="alternate" type="application/rss+xml" title="DataStax &raquo; Dev Posts Feed" href="http://www.datastax.com/dev/blog/feed" />
+<link rel='stylesheet' id='otw_sbm.css-css'  href='http://www.datastax.com/wp-content/plugins/sidebar-manager-light/css/otw_sbm.css?ver=3.5.1' media='all' />
+<link rel='stylesheet' id='wpgform-css-css'  href='http://www.datastax.com/wp-content/plugins/wpgform/css/wpgform.css?ver=3.5.1' media='all' />
+<link rel='stylesheet' id='css-css'  href='http://www.datastax.com/wp-content/themes/datastax-2013/css/styles.css?ver=1.1' media='all' />
+<link rel='stylesheet' id='A2A_SHARE_SAVE-css'  href='http://www.datastax.com/wp-content/plugins/add-to-any/addtoany.min.css?ver=1.5' media='all' />
+<link rel="stylesheet" type="text/css" href="http://www.datastax.com/wp-content/plugins/wp-facebox-gallery/facebox3.css" />
+<script type="text/javascript">/* wp-facebox */
+	WPFB = { root: "http://www.datastax.com/wp-content/plugins/wp-facebox-gallery", home: "http://www.datastax.com", site: "http://www.datastax.com" };
+	WPFB.options = {
+		image_types     : [ 'png', 'jpg', 'jpeg', 'gif' ],
+		loadingImage	: WPFB.root + '/images/v3/loading.gif',
+		closeImage		: WPFB.root + '/images/v3/closelabel.png',
+		next_image      : WPFB.root + '/images/v3/fast_forward.png',
+        prev_image      : WPFB.root + '/images/v3/rewind.png',
+        play_image      : WPFB.root + '/images/v3/play.png',
+        pause_image     : WPFB.root + '/images/v3/pause.png'
+	};
+</script>
+<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js?ver=1.9.0'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/plugins/wp-facebox-gallery/facebox3.js?ver=3.0'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/themes/datastax-2013/js/modernizr.min.js?ver=2.6.2'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/themes/datastax-2013/js/scripts.js?ver=1.1.0'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-includes/js/comment-reply.min.js?ver=3.5.1'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/themes/datastax-2013/js/jquery.easytabs.min.js?ver=3.5.1'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/themes/datastax-2013/js/jquery.ba-hashchange.min.js?ver=3.5.1'></script>
+
+<script type="text/javascript"><!--
+var a2a_config=a2a_config||{},wpa2a={done:false,html_done:false,script_ready:false,script_load:function(){var a=document.createElement('script'),s=document.getElementsByTagName('script')[0];a.type='text/javascript';a.async=true;a.src='http://static.addtoany.com/menu/page.js';s.parentNode.insertBefore(a,s);wpa2a.script_load=function(){};},script_onready:function(){if(a2a.type=='page'){wpa2a.script_ready=true;if(wpa2a.html_done)wpa2a.init();}},init:function(){for(var i=0,el,target,targets=wpa2a.targets,length=targets.length;i<length;i++){el=document.getElementById('wpa2a_'+(i+1));target=targets[i];a2a_config.linkname=target.title;a2a_config.linkurl=target.url;if(el){a2a.init('page',{target:el});el.id='';}wpa2a.done=true;}wpa2a.targets=[];}};a2a_config.tracking_callback=['ready',wpa2a.script_onready];
+//--></script>
+      <!-- Open Graph Meta Tags for Facebook and LinkedIn Sharing !-->
+		<meta property="og:title" content="Using the Cassandra Bulk Loader"/>
+		<meta property="og:description" content="Cassandra 0.8.1 introduces a new tool to solve the bulk loading problem: sstableloader" />
+		<meta property="og:url" content="http://www.datastax.com/dev/blog/bulk-loading"/>
+		<meta property="og:image" content="http://www.datastax.com/wp-content/themes/datastax-2013/images/common/logo.png" />
+		<meta property="og:type" content="article"
+		/>
+		<meta property="og:site_name" content="DataStax"/>
+		<!-- End Open Graph Meta Tags !-->
+
+    <script type="text/javascript">if (jQuery && jQuery.facebox) jQuery(function($) { $("a[rel*='facebox'], .gallery-item a").facebox(WPFB.options); });</script>
+
+<!-- All in One SEO Pack 2.1 by Michael Torbert of Semper Fi Web Design[-1,-1] -->
+<meta name="description" content="Cassandra 0.8.1 introduces a new tool to solve the bulk loading problem: sstableloader" />
+
+<meta name="keywords" content="apache cassandra, cassandra bulk loader, cassandra sstableloader, cassandra 0.8, cassandra bulk loading, bulk loading data,article" />
+
+<!-- /all in one seo pack -->
+<script type="text/javascript">var src="http://www.datastax.com/wp-admin/admin-ajax.php?action=wordfence_logHuman&hid=6EE3F5B235BC096C74206CBFD0D8F9C7"; if(window.location.protocol == "https:"){ src = src.replace("http:", "https:"); } var wfHTImg = new Image();  wfHTImg.src=src;</script><meta id="syntaxhighlighteranchor" name="syntaxhighlighter-version" content="3.1.3" />
+	
+		
+		<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-20879577-1']);
+	  _gaq.push(['_setDomainName', 'datastax.com']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+</head>
+<body class="single single-dev-post postid-4291 blog dev-center bulk-loading">
+	<div id="Wrapper" class="row">
+		<div class="twelve columns wrapperContainer">
+        
+        	<div id="Header" class="row">
+		    <div class="three columns offset-by-one">
+		      <div id="SiteId">
+              	<a href="http://www.datastax.com">
+					<img src="http://www.datastax.com/wp-content/themes/datastax-2013/images/common/logo.png" alt="DataStax logo" />
+				</a>
+              </div>
+		    </div>
+			<div class="seven columns end clearfix">
+			    <div class="toolbar">
+						<div class="search clearfix">
+							<div class="formContainer">
+								<form class="gsc-search-box" accept-charset="utf-8" method="get" id="searchform" action="/search/">
+									<div class="searchBox">
+										<input type="text" autocomplete="off" size="10" class="gsc-input" name="q" title="search" id="gsc-i-id1" dir="ltr" spellcheck="false" style="outline: medium none;">
+										<input type="image" alt="Search" class="gsc-search-button" title="search" src="http://www.datastax.com/wp-content/themes/datastax-2013/images/common/search-submit.png" />
+									</div>
+								</form>
+							</div>
+							<a href="http://planetcassandra.org/" class="planetCassandra" target="_blank"><img src="http://www.datastax.com/wp-content/themes/datastax-2013/images/common/planet-cassandra.png" alt="Planet Cassandra Community"/></a>
+						</div>
+						<ul class="links right"><li id="menu-item-13820" class="first-menu-item menu-item menu-item-type-post_type menu-item-object-page menu-item-13820"><a href="http://www.datastax.com/what-we-offer/products-services/support">Support</a></li>
+<li id="menu-item-13821" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13821"><a href="/blog">Blog</a></li>
+<li id="menu-item-17674" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17674"><a href="http://www.datastax.com/resources">Resources</a></li>
+<li id="menu-item-17675" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17675"><a href="http://www.datastax.com/company/careers">Careers</a></li>
+<li id="menu-item-14754" class="last-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-14754"><a href="/company#contact">Contact Us</a></li>
+</ul>			</div>
+            <div id="NavigationPrimary">
+            	<ul><li id="menu-item-13695" class="first-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-13695"><a href="/big-data-challenges">Big Data Challenges</a>
+<ul class="sub-menu">
+	<li id="menu-item-13696" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13696"><a href="/big-data-challenges">Overview</a></li>
+</ul>
+</li>
+<li id="menu-item-13653" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13653"><a href="/customers">Customers</a>
+<ul class="sub-menu">
+	<li id="menu-item-13651" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13651"><a href="/customers">Overview</a></li>
+</ul>
+</li>
+<li id="menu-item-17594" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17594"><a href="http://www.datastax.com/what-we-offer">What We Offer</a>
+<ul class="sub-menu">
+	<li id="menu-item-17617" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-17617"><a href="/what-we-offer/products-services">Overview</a></li>
+	<li id="menu-item-5952" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5952"><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise">DataStax Enterprise</a></li>
+	<li id="menu-item-18964" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-18964"><a href="http://www.datastax.com/what-we-offer/products-services/devcenter">DataStax DevCenter</a></li>
+	<li id="menu-item-17623" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17623"><a href="http://www.datastax.com/what-we-offer/products-services/datastax-opscenter">DataStax OpsCenter</a></li>
+	<li id="menu-item-9768" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-9768"><a href="http://www.datastax.com/what-we-offer/products-services/support">Support</a></li>
+	<li id="menu-item-9767" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-9767"><a href="http://www.datastax.com/what-we-offer/products-services/training">Training</a></li>
+	<li id="menu-item-9772" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-9772"><a href="http://www.datastax.com/what-we-offer/products-services/consulting">Consulting</a></li>
+</ul>
+</li>
+<li id="menu-item-2361" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2361"><a href="/dev">Developer Center</a>
+<ul class="sub-menu">
+	<li id="menu-item-13649" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-13649"><a href="/dev">Overview</a></li>
+	<li id="menu-item-10081" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-10081"><a href="/docs/quick_start/quickstart">Quick Start Guide</a></li>
+	<li id="menu-item-2365" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2365"><a href="/docs">Documentation</a></li>
+	<li id="menu-item-2364" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2364"><a href="/dev/blog">Developer Blog</a></li>
+	<li id="menu-item-17627" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17627"><a href="http://www.datastax.com/dev/tutorials">Tutorials</a></li>
+</ul>
+</li>
+<li id="menu-item-17598" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17598"><a href="http://www.datastax.com/company">Company</a>
+<ul class="sub-menu">
+	<li id="menu-item-17651" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17651"><a href="http://www.datastax.com/company">About DataStax</a></li>
+	<li id="menu-item-14305" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14305"><a href="/company#management">Management</a></li>
+	<li id="menu-item-17642" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17642"><a href="http://www.datastax.com/company/news-and-events/press-releases">Press Releases</a></li>
+	<li id="menu-item-17641" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17641"><a href="http://www.datastax.com/company/news-and-events/in-the-news">In the News</a></li>
+	<li id="menu-item-17644" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17644"><a href="http://www.datastax.com/company/news-and-events/events">Events</a></li>
+	<li id="menu-item-16822" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-16822"><a href="http://www.datastax.com/bod">Board of Directors</a></li>
+	<li id="menu-item-17660" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-17660"><a href="http://www.datastax.com/company/investors">Investors</a></li>
+	<li id="menu-item-15026" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-15026"><a href="/company#partners">Partners</a></li>
+	<li id="menu-item-14307" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14307"><a href="/company#rebel-elite">Rebel Elite Program</a></li>
+	<li id="menu-item-20007" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-20007"><a href="http://www.datastax.com/company/careers">Careers</a></li>
+	<li id="menu-item-14309" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14309"><a href="/company#contact">Contact Us</a></li>
+</ul>
+</li>
+<li id="menu-item-13652" class="last-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-13652"><a href="/download">Download</a></li>
+</ul>            </div>
+			
+		</div>
+	</div> <!-- #Header -->
+    
+    <div id="MainBody">
+									<div id="Mast" class="row">
+						<div class="content seven columns offset-by-one">
+							<div id="Breadcrumbs">
+								<ul>
+									<li><a href="/">Home</a></li>
+									<li class="last">Blog</li>
+								</ul>
+							</div> <!-- #Breadcrumbs -->
+						
+							<h1>DataStax Developer Blog</h1>
+						</div>
+					</div>
+									
+        <div id="MainChannel" class="row">
+					<div id="Content" class="seven columns">
+						<div id="ContentChannel">
+	
+	<!-- Section -->
+   
+	<section class="row">
+	
+		
+        
+	
+		
+		<!-- Article -->
+		<article id="post-4291" class="post-4291 dev-post type-dev-post status-publish hentry category-blog-post tag-article-2">
+        
+        	<h1>Using the Cassandra Bulk Loader</h1>
+		    <p class="meta">
+	            <span class="author">By <a href="http://www.datastax.com/author/sylvain-lebresne" title="Posts by Sylvain Lebresne" rel="author">Sylvain Lebresne</a></span> <span class="pipe">-</span>
+	            <span class="date">August 1, 2011</span> <span class="pipe">|</span>
+	            <span class="comments"><a href="http://www.datastax.com/dev/blog/bulk-loading#comments" title="Comment on Using the Cassandra Bulk Loader">25 Comments</a></span>
+	        </p>
+	        
+			<p>
+Bulk loading data in Cassandra has historically been difficult. Although Cassandra has had the BinaryMemtable interface from the very beginning, BinaryMemtable is hard to use and provides a relatively minor throughput improvement over normal client writes.
+</p>
+<p>
+Cassandra 0.8.1 introduces a new tool to solve this problem: <tt>sstableloader</tt>
+</p>
+<h2>Using <tt>sstableloader</tt></h2>
+<h3>Overview</h3>
+<p>
+<tt>sstableloader</tt> is a tool that, given a set of <a href="http://wiki.apache.org/cassandra/MemtableSSTable">sstable</a> data files, streams them to a live cluster. It does <i>not</i> simply copy the set of sstables to every node, but only transfers the relevant part of the data to each, conforming to the replication strategy of the cluster.
+</p>
+<p>
+There are two primary use cases for this new tool:</p>
+<ul>
+<li>
+    Bulk loading external data into a cluster: for this you will have to first generate sstables for the data to load, as we will see later in this post.
+    </li>
+<li>
+    Loading pre-existing sstables, typically snapshots, into another cluster with different node counts or replication strategy.
+    </li>
+</ul>
+<p />
+<h3>Example</h3>
+<p>
+Let us start with the second use case to demonstrate how <tt>sstableloader</tt>  is used. For that, consider the following scenario: you have a one node test cluster populated with data that you want to transfer into another, multi-node cluster.
+</p>
+<p>
+A brute-force solution would be to copy all the sstables of the source node to every node in the multi-node destination cluster, restart each node, and then run <tt>nodetool cleanup</tt> on them. This works, but is obviously inefficient, especially if the destination cluster has a lot of nodes.
+</p>
+<p>
+With <tt>sstableloader</tt>, you first need the sstables&#8211;only the <tt>-Data</tt> and <tt>-Index</tt> components are required, the others (<tt>-Statistics</tt> and <tt>-Filter</tt>) will be ignored&#8211;to be in a directory whose name is the name of the keyspace of the sstables.  This is how they will be stored in either the main data directory, or a snapshot.  Then, assuming <tt>sstableloader</tt> is configured to talk to your multi-node cluster:<br />
+<code><br />
+$ ls TestKeyspace/<br />
+TestCF-g-1-Data.db        TestCF-g-2-Data.db        TestCF-g-3-Data.db<br />
+TestCF-g-1-Index.db       TestCF-g-2-Index.db       TestCF-g-3-Index.db<br />
+$ sstableloader TestKeyspace<br />
+Starting client (and waiting 30 seconds for gossip) ...<br />
+Streaming revelant part of testKeyspace/TestCF-g-1-Data.db TestKeyspace/TestCF-g-2-Data.db TestKeyspace/TestCF-g-3-Data.db to [/127.0.0.1, /127.0.0.2, /127.0.0.3]</p>
+<p>progress: [/127.0.0.1 3/3 (100)] [/127.0.0.2 3/3 (100)] [/127.0.0.3 3/3 (100)] [total: 100 - 24MB/s (avg: 18MB/s)]<br />
+Waiting for targets to rebuild indexes ...<br />
+</code>
+</p>
+<h3>Configuration</h3>
+<p>
+To learn the topology of the cluster, the number of nodes, which ranges of keys each node is responsible for, the schema, etc., <tt>sstableloader</tt> uses the Cassandra gossip subsystem. It thus requires a directory containing a <tt>cassandra.yaml</tt> configuration file in the classpath. (If you use sstableloader from the Cassandra source tree, the <tt>cassandra.yaml</tt> file in <tt>conf</tt> will be used.)
+</p>
+<p>
+In this config file, the <tt>listen_address</tt>, <tt>storage_port</tt>, <tt>rpc_address</tt> and <tt>rpc_port</tt> should be set correctly to communicate with the cluster, and at least one node of the cluster you want to load data in should be configured as <tt>seed</tt>.  The rest is ignored for the purposes of <tt>sstableloader</tt>.
+</p>
+<p>
+Because the <tt>sstableloader</tt> uses gossip to communicate with other nodes, if launched on the same machine that a given Cassandra node, it will need to use a different network interface than the Cassandra node. But if you want to load data from a Cassandra node, there is a simpler solution: you can use the <tt>JMX-&gt;StorageService-&gt;bulkload()</tt> call from said node.
+</p>
+<p>
+This method simply takes the absolute path to the directory where the sstables to load are, and it will load those as <tt>sstableloader</tt>  would. However, since the node running <tt>sstableloader</tt> will be both source and destination for the streaming, this will put more load on that particular node, so we advise loading data from machines that are not Cassandra nodes when loading into a live cluster.
+</p>
+<p>
+Note that the schema for the column families to be loaded should be defined beforehand, using you prefered method: CLI, thrift or CQL.
+</p>
+<h3>Other considerations</h3>
+<ul>
+<li>
+    There is no requirement that the column family into which which data is loaded be empty. More generally, it is perfectly reasonable to load data into a live, active cluster.
+    </li>
+<li>
+    To get the best throughput out of the sstable loading, you will want to parallelize the creation of sstables to stream across multiple machines. There is no hard limit on the number of sstable loader that can run at the same time, so you can add additional loaders until you see no further improvement.
+    </li>
+<li>
+    At the time of this writing, <tt>sstableloader</tt> does not handle failure very well. In particular, if a node it is sending to dies, it will get stuck (a progress indicator is displayed so you will be able to tell when that happens and check if one of your node is indeed dead). Until this is fixed, if that happens, you will have to stop the loader and relaunch it. If you know that the transfer has successfully ended on some of the other nodes, you can use the <tt>-i</tt> flag to skip those nodes during the retry.
+    </li>
+</ul>
+<h2>Bulk-loading external data: a complete example</h2>
+<h3>The setup</h3>
+<p>
+If you want to bulk-load external data that is not in sstable form  using <tt>sstableloader</tt>, you will have to first generate sstables. To do so, the simplest solution is the new Java class <tt>SSTableSimpleUnsortedWriter</tt> introduced in Cassandra 0.8.2. To demonstrate how it is used, let us consider the example of bulk-loading &#8220;user profile&#8221; data from a csv file. More precisely, we consider a csv file of the following form:<br />
+<code><br />
+# uuid, firstname, lastname, password, age, email</p>
+<p>5bd8c586-ae44-11e0-97b8-0026b0ea8cd0, Alice, Smith, asmi1975, 32, alice.smith@mail.com<br />
+4bd8cb58-ae44-12e0-a2b8-0026b0ed9cd1, Bob, Miller, af3!df8, 28, bob.miller@mail.com<br />
+1ce7cb58-ae44-12e0-a2b8-0026b0ad21ab, Carol, White, cw1845?, 49, c.white@mail.com<br />
+...<br />
+</code>
+</p>
+<p>
+From this csv, we want to populate two column families that can have been created (using the CLI) with:<br />
+<code><br />
+create keyspace Demo;<br />
+use Demo;<br />
+create column family Users<br />
+&nbsp;&nbsp;&nbsp;&nbsp;with key_validation_class=LexicalUUIDType<br />
+&nbsp;&nbsp;&nbsp;&nbsp;and comparator=AsciiType<br />
+&nbsp;&nbsp;&nbsp;&nbsp;and column_metadata=[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ column_name: 'firstname', validation_class: AsciiType }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ column_name: 'lastname', validation_class: AsciiType }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ column_name: 'password', validation_class: AsciiType }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ column_name: 'age', validation_class: LongType, index_type: KEYS }<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ column_name: 'email', validation_class: AsciiType }];</p>
+<p>create column family Logins<br />
+&nbsp;&nbsp;&nbsp;&nbsp;with key_validation_class=AsciiType<br />
+&nbsp;&nbsp;&nbsp;&nbsp;and comparator=AsciiType<br />
+&nbsp;&nbsp;&nbsp;&nbsp;and column_metadata=[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ column_name: 'password', validation_class: AsciiType },<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ column_name: 'uuid', validation_class: LexicalUUIDType }];<br />
+</code><br />
+In other words, the column family <tt>Users</tt> will contain user profiles: the key is a uuid identifying the user, the columns are the user properties. We also added a secondary index on the &#8216;age&#8217; property, mainly to show that this is supported by the bulk-loading process.
+</p>
+<p>
+The second column family, <tt>Logins</tt>, associates the user <tt>email</tt> (note that this example assumes that user emails are unique) to its <tt>password</tt> and <tt>identifier</tt>. It is this column family that would typically be queried when a user login to check its credentials and allow to find its identifier to retrieve the profile data (a possibly simpler/better design would be to use a secondary index on the <tt>email</tt> column on <tt>Users</tt>. We don&#8217;t do this here to show how to load multiple column families together).
+</p>
+<h3>Creating sstables</h3>
+<p>
+A complete Java example of how to create the relevant sstables from the csv file using the <tt>SSTableSimpleUnsortedWriter</tt> class can be found <a href="http://www.datastax.com/wp-content/uploads/2011/08/DataImportExample.java">here</a>.
+</p>
+<p>
+To compile this file the Cassandra jar (&gt;= 0.8.2) needs to be in the classpath (<tt>javac -cp &lt;path_to&gt;/apache-cassandra-0.8.2.jar DataImportExample.java</tt>). To run it, the Cassandra jar needs to be present as well as the jar of the librairies used by Cassandra (those in the <tt>lib/</tt> directory of Cassandra source tree). Valid <tt>cassandra.yaml</tt> and <tt>log4j</tt> configuration files should also be accessible; typically, this means the <tt>conf/</tt> directory of the Cassandra source tree should be in the classpath&#8211;see <a href="http://www.datastax.com/wp-content/uploads/2011/08/DataImport">here</a> for a typical launch script that sets all those.  As of 0.8.2, you will need to set the <tt>data_file_directories</tt> and <tt>commitlog_directory</tt> directives in said <tt>cassandra.yaml</tt> to accessible directories, but <b>not</b> ones of an existing Cassandra node.  (This will be <a href="https://issues.apache.org/jira/browse/CASSANDRA-2953">fixed in 0.8.3</a>, but in the meantime using <tt>/tmp</tt> for both is a good idea.) The only useful property you need to set up for <tt>SSTableSimpleUnsortedWriter</tt> is the partitioner you want to use.
+</p>
+<p>
+Let us run through the important parts of this example:</p>
+<ul>
+<li>
+        Creation of the sstable writers:<br />
+<code><br />
+SSTableSimpleUnsortedWriter usersWriter = new SSTableSimpleUnsortedWriter(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;directory,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyspace,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Users",<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AsciiType.instance,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;64);<br />
+SSTableSimpleUnsortedWriter loginWriter = new SSTableSimpleUnsortedWriter(<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;directory,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;keyspace,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Logins",<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AsciiType.instance,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;null,<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;64);<br />
+</code><br />
+The <tt>directory</tt> and <tt>keyspace</tt> parameters are the directory where to put the sstables (a Java <tt>File</tt>) and the keyspace of the column families (a <tt>String</tt>), respectively. Next, there are the column family name and the comparator and sub-columns comparator&#8211;here, we don&#8217;t use super columns so the sub-columns comparator is <tt>null</tt>.</p>
+<p>
+        The last parameter is a &#8220;buffer&#8221; size: sstables need to have rows sorted according to the partitioner. For <tt>RandomPartitioner</tt>, this means that row should be ordered by the MD5 of their key. Since there is no chance data will come in that order, SSTableSimpleUnsortedWriter buffers whatever input it gets in memory and &#8220;flush&#8221; everything in one sstable once the buffer is full. The buffer size is in MB (here 64MB) and actually corresponds to serialized space. That is, the resulting sstables will be approximately 64MB size. Note that the &#8220;live&#8221; size on the Java heap can be larger, so setting this parameter too large is not advisable, and in any case there is little performance advantage to use a very high value.
+    </li>
+<li>
+        Populate with each csv entry:<br />
+<code><br />
+for (...each csv entry...)<br />
+{<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ByteBuffer uuid = ByteBuffer.wrap(decompose(entry.key));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;usersWriter.newRow(uuid);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;usersWriter.addColumn(bytes("firstname"), bytes(entry.firstname), timestamp);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;usersWriter.addColumn(bytes("lastname"), bytes(entry.lastname), timestamp);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;usersWriter.addColumn(bytes("passsword"), bytes(entry.password), timestamp);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;usersWriter.addColumn(bytes("age"), bytes(entry.age), timestamp);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;usersWriter.addColumn(bytes("email"), bytes(entry.email), timestamp);<br />
+<br /> <br />
+&nbsp;&nbsp;&nbsp;&nbsp;loginWriter.newRow(bytes(entry.email));<br />
+&nbsp;&nbsp;&nbsp;&nbsp;loginWriter.addColumn(bytes("password"), bytes(entry.password), timestamp);<br />
+&nbsp;&nbsp;&nbsp;&nbsp;loginWriter.addColumn(bytes("uuid"), uuid, timestamp);&lt;<br />
+}<br />
+usersWriter.close();<br />
+loginWriter.close();<br />
+</code><br />
+        In this excerpt, <tt>entry</tt> is a parsed csv entry. Each call to <tt>newRow()</tt> starts a new row that is populated with the column added by <tt>addColumn()</tt>. Though not demonstrated here, it is equally simple to add super, expiring or counter columns; the exact API is described <a href="https://svn.apache.org/viewvc/cassandra/tags/cassandra-0.8.2/src/java/org/apache/cassandra/io/sstable/AbstractSSTableSimpleWriter.java?view=co">here</a>.</p>
+<p>
+        Note that the order of additions of rows and of columns inside rows does not matter. It is also possible to &#8220;restart&#8221; a row multiple times or to add the same column multiple times, in which case the usual conflict resolution rules between columns apply. </p>
+<p>
+        Finally, each writer should be closed, otherwise the resulting sstables will not be complete.
+    </li>
+</ul>
+<p>
+Once compiled and run with a csv file as argument, this example program will create sstables in the <tt>Demo</tt> directory. Those sstables can then be loaded into a live cluster using <tt>sstableloader</tt> as described in the previous section: <tt>sstableloader Demo/</tt>.
+</p>
+<h3>Other considerations</h3>
+<ul>
+<li>
+    <tt>SSTableSimpleUnsortedWriter</tt> never flushes to disk between two calls of <tt>newRow()</tt>. As a consequence, all data inserted between two of those calls must fit in memory. If you have a huge row for which this does not hold, you can call <tt>newRow()</tt> regularly, using the same row key, to avoid buffering everything.
+    </li>
+<li>
+    The methods of the simple writer expect ByteBuffers for the row key, column name and column value. Converting data to bytes is your responsibility; this is the <i>raison d&#8217;être</i> of the <tt>bytes()</tt> method in the example above.
+    </li>
+</ul>
+			
+			<br class="clear">
+			<div class="a2a_kit a2a_kit_size_32 addtoany_list"><a class="a2a_button_twitter" href="http://www.addtoany.com/add_to/twitter?linkurl=http%3A%2F%2Fwww.datastax.com%2Fdev%2Fblog%2Fbulk-loading&amp;linkname=Using%20the%20Cassandra%20Bulk%20Loader" title="Twitter" rel="nofollow" target="_blank"></a><a class="a2a_button_linkedin" href="http://www.addtoany.com/add_to/linkedin?linkurl=http%3A%2F%2Fwww.datastax.com%2Fdev%2Fblog%2Fbulk-loading&amp;linkname=Using%20the%20Cassandra%20Bulk%20Loader" title="LinkedIn" rel="nofollow" target="_blank"></a><a class="a2a_button_facebook" href="http://www.addtoany.com/add_to/facebook?linkurl=http%3A%2F%2Fwww.datastax.com%2Fdev%2Fblog%2Fbulk-loading&amp;linkname=Using%20the%20Cassandra%20Bulk%20Loader" title="Facebook" rel="nofollow" target="_blank"></a><a class="a2a_button_google_plus" href="http://www.addtoany.com/add_to/google_plus?linkurl=http%3A%2F%2Fwww.datastax.com%2Fdev%2Fblog%2Fbulk-loading&amp;linkname=Using%20the%20Cassandra%20Bulk%20Loader" title="Google+" rel="nofollow" target="_blank"></a></div>			<br class="clear">
+			
+			<p><a id="comments" name="comments"></a></p>
+			
+<div id="comments" class="comments-area">
+
+	
+			<h3 class="comments-title">Comments
+						
+		</h3>
+
+		<ol class="commentlist">
+				<li class="comment even thread-even depth-1" id="comment-10099">
+		<div id="div-comment-10099" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/8981e43acec05d092b33df4e1f529105?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Tom Davidson</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-10099">
+		August 10, 2011 at 5:17 pm</a>	</div>
+
+	<p>Any work on getting this to work with Hadoop? It would be cool to have an Hadoop OutputFormat that could write SStables. Then you could just copy the files from HDFS and use sstableloader to load them.</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=10099#respond' onclick='return addComment.moveForm("div-comment-10099", "10099", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-10742">
+		<div id="div-comment-10742" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/e5144d561d7d66cb6d189a380b356075?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Thamizhannal</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-10742">
+		August 16, 2011 at 7:18 am</a>	</div>
+
+	<p>Has this bulk upload supported from Hadoop M/R?</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=10742#respond' onclick='return addComment.moveForm("div-comment-10742", "10742", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment byuser comment-author-jonathan-ellis even thread-even depth-1 parent" id="comment-10796">
+		<div id="div-comment-10796" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/bc157185a40228ca05c3f4cc4d69b061?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Jonathan Ellis</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-10796">
+		August 16, 2011 at 4:07 pm</a>	</div>
+
+	<p>There is no OutputFormat yet, but it&#8217;s easy to use use the SSTableSimpleUnsortedWriter described above in a reduce stage.</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=10796#respond' onclick='return addComment.moveForm("div-comment-10796", "10796", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	<ol class='children'>
+	<li class="comment odd alt depth-2" id="comment-1274511">
+		<div id="div-comment-1274511" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/9278cef05e6a66a132d26eb9dd3c06ae?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">sai</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-1274511">
+		November 12, 2013 at 8:22 am</a>	</div>
+
+	<p>Hi,Can anyone let me know how to load data into dynamic column families using sstableloader??</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=1274511#respond' onclick='return addComment.moveForm("div-comment-1274511", "1274511", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+</ol>
+</li>
+	<li class="comment byuser comment-author-jonathan-ellis even thread-odd thread-alt depth-1" id="comment-10813">
+		<div id="div-comment-10813" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/bc157185a40228ca05c3f4cc4d69b061?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Jonathan Ellis</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-10813">
+		August 16, 2011 at 8:43 pm</a>	</div>
+
+	<p>I&#8217;ve created <a href="https://issues.apache.org/jira/browse/CASSANDRA-3045" rel="nofollow">https://issues.apache.org/jira/browse/CASSANDRA-3045</a> to make this automatic.</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=10813#respond' onclick='return addComment.moveForm("div-comment-10813", "10813", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="comment-12732">
+		<div id="div-comment-12732" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/67178b46f97224a885cde4cc8e579ba4?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Christopher J. Bottaro</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-12732">
+		September 1, 2011 at 2:16 pm</a>	</div>
+
+	<p>cluster_name in the cassandra.yaml that sstableloader uses is required to match the cluster_name of the cluster you are importing to.</p>
+<p>The Cassandra logs will show a message of level WARN, but sstableload will fail with message: &#8220;no live member found in the cluster&#8221;</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=12732#respond' onclick='return addComment.moveForm("div-comment-12732", "12732", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="comment-13241">
+		<div id="div-comment-13241" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/2d384b975ded27af095b45349a8632a8?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Manish</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-13241">
+		September 5, 2011 at 5:50 am</a>	</div>
+
+	<p>Hello,</p>
+<p>When I try to load the data in my cluster with replication factor of two, I got following error.<br />
+java.lang.RuntimeException: Got an unknow host from describe_ring()</p>
+<p>I have created the separate folder which is exact copy of the cassandra installation folder for using sstableloader utility.I have set the listen_address,rpc_address to same machine adress.<br />
+         Am I missing something.Please help!!!</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=13241#respond' onclick='return addComment.moveForm("div-comment-13241", "13241", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="comment-23411">
+		<div id="div-comment-23411" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/b1ef96042da23fbdc63f6d8bb0b1750e?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Samarth Gahire</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-23411">
+		November 10, 2011 at 3:15 am</a>	</div>
+
+	<p>I would like to thank the Cassandra community for this SStable Generator and Loader utility as it increased the efficiency of our system almost by 75% (The loading time). It helped a lot.</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=23411#respond' onclick='return addComment.moveForm("div-comment-23411", "23411", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="comment-83940">
+		<div id="div-comment-83940" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/ae5d0bc894850482565f15ecae2cf91d?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">xiongxiong</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-83940">
+		May 29, 2012 at 12:36 am</a>	</div>
+
+	<p>why i got this:</p>
+<p>Exception in thread &#8220;main&#8221; java.lang.NullPointerException<br />
+        at org.apache.cassandra.io.sstable.AbstractSSTableSimpleWriter.newRow(AbstractSSTableSimpleWriter.java:96)<br />
+        at DataImportExample.main(DataImportExample.java:71)</p>
+<p>cassandra1.1</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=83940#respond' onclick='return addComment.moveForm("div-comment-83940", "83940", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="comment-92180">
+		<div id="div-comment-92180" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/cab875aa4b650249f47d722ff4d5d1e4?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Apara</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-92180">
+		June 15, 2012 at 11:07 pm</a>	</div>
+
+	<p>I get the same exception, anyone have some solution??<br />
+Exception in thread &#8220;main&#8221; java.lang.NullPointerException<br />
+	at org.apache.cassandra.io.sstable.AbstractSSTableSimpleWriter.newRow(AbstractSSTableSimpleWriter.java:96)<br />
+	at DataImportExample.main(DataImportExample.java:60)</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=92180#respond' onclick='return addComment.moveForm("div-comment-92180", "92180", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1 parent" id="comment-99164">
+		<div id="div-comment-99164" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/cab875aa4b650249f47d722ff4d5d1e4?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Apara</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-99164">
+		June 29, 2012 at 1:40 am</a>	</div>
+
+	<p>I found the reason for this error, that is because I had null the IPartitioner argument in creating new SSTableSimpleUnsortedWriter(, , ,). Since I am using cassendra 1.1.1 the constructor with 6 args is not available as in this post.</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=99164#respond' onclick='return addComment.moveForm("div-comment-99164", "99164", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	<ol class='children'>
+	<li class="comment odd alt depth-2" id="comment-1123920">
+		<div id="div-comment-1123920" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/cbbeb834c7e74ec4d1b920f95fefaa9f?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Joseph</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-1123920">
+		October 31, 2013 at 9:00 am</a>	</div>
+
+	<p>Can you post the solution for Cassandra 1.1.1?</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=1123920#respond' onclick='return addComment.moveForm("div-comment-1123920", "1123920", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+</ol>
+</li>
+	<li class="comment even thread-even depth-1" id="comment-107289">
+		<div id="div-comment-107289" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/423f07bb5843d5010c804d4566d9bc49?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Ameya</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-107289">
+		July 18, 2012 at 3:40 am</a>	</div>
+
+	<p>I am trying to bulk load using the sstableloader. My files get loaded OK (I think &#8211; judging from the progress bar), but then I get this message and it just hangs indefinitely:</p>
+<p>&#8220;Waiting for targets to rebuild indexes &#8230;&#8221;</p>
+<p>Full output of the loader is as follows:<br />
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;&#8211;<br />
+Starting client (and waiting 30 seconds for gossip) &#8230;<br />
+Streaming revelant part of /app/sstable/bin/tuiru/packagetours-hd-4-Data.db /app/sstable/bin/tuiru/packagetours-hd-2-Data.db /app/sstable/bin/tuiru/packagetours-hd-1-Data.db /app/sstable/bin/tuiru/packagetours-hd-3-Data.db to [/10.40.14.93]</p>
+<p>progress: [/10.40.14.93 4/4 (100)] [total: 100 - 3MB/s (avg: 17MB/s)]<br />
+Waiting for targets to rebuild indexes &#8230;<br />
+&#8212;&#8212;&#8212;&#8212;</p>
+<p>Any help would be greatly appreciated. Thanks!</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=107289#respond' onclick='return addComment.moveForm("div-comment-107289", "107289", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-127019">
+		<div id="div-comment-127019" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/7ae004446ec5d4f73a1c4c3e97734dde?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Manu Zhang</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-127019">
+		September 19, 2012 at 5:25 pm</a>	</div>
+
+	<p>Is there a way to bulk load data into Memtable first? I really want my data to reside in memory.</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=127019#respond' onclick='return addComment.moveForm("div-comment-127019", "127019", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment even thread-even depth-1" id="comment-132268">
+		<div id="div-comment-132268" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/cccefee351467bd35c552dfd55854055?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Ash1</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-132268">
+		October 8, 2012 at 2:41 am</a>	</div>
+
+	<p>Hi, Even though the streaming of SSTables is very fast , I find that generation of SStables is quite slow (for me atleast) for very large files (CSV, 4GB+). I am using a Dual Core computer with 2 GB ram. Could it be because of the system spec or any other factor?</p>
+<p>Thanks</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=132268#respond' onclick='return addComment.moveForm("div-comment-132268", "132268", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-171337">
+		<div id="div-comment-171337" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/0a26ba49036aed8952700cf84354f4d7?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Pradeep Mantha</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-171337">
+		November 28, 2012 at 5:39 pm</a>	</div>
+
+	<p>I am trying to use the DataImportExample, but it seems it doesn&#8217;t work with the latest 1.1.6 version.  I updated the partitioner in the new constructor of SSTableSimpleUnsortedWriter class to NULL and then not sure, whats the problem with addColumn function&#8230;</p>
+<p>I get the following error</p>
+<p>Exception in thread &#8220;main&#8221; java.lang.NullPointerException<br />
+	at org.apache.cassandra.io.sstable.AbstractSSTableSimpleWriter.addColumn(AbstractSSTableSimpleWriter.java:115)<br />
+	at org.apache.cassandra.io.sstable.AbstractSSTableSimpleWriter.addColumn(AbstractSSTableSimpleWriter.java:130)</p>
+<p>Could you please help me out. </p>
+<p>thanks<br />
+pradeep</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=171337#respond' onclick='return addComment.moveForm("div-comment-171337", "171337", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment even thread-even depth-1 parent" id="comment-196879">
+		<div id="div-comment-196879" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/5911d5e8448a52a47080ca9f8f8fecaf?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Sachin</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-196879">
+		January 31, 2013 at 11:31 pm</a>	</div>
+
+	<p>I am trying to use the DataImportExample, but it seems it doesn’t work with the latest 1.2  version.</p>
+<p>I have a CSV file with 1 million records in it.</p>
+<p>First it says you have to use murmur3partitioner and not randomPartitioner in 1.2 in<br />
+IPartitioner partitioner = new RandomPartitioner();</p>
+<p>So I changed it to<br />
+IPartitioner partitioner = new murmur3Partitioner();</p>
+<p>Then<br />
+SSTableSimpleUnsortedWriter usersWriter = new SSTableSimpleUnsortedWriter(directory,partitioner,keyspace,ColumnFamily,AsciiType.instance,null,64);</p>
+<p>this says that the method not available with 6 parameters, so I remove the last 64.</p>
+<p>After making the change, I get the following error java.util.NoSuchElementException<br />
+in userWriter.addColumn  after adding 129128 records.</p>
+<p>So I reduced the no. of records in CSV file to only 10000, then the same error is shown for (java.util.NoSuchElementException) in<br />
+userWriter.close()</p>
+<p>I am not able to create SSTables in 1.2 at all. Has anybody tried this?</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=196879#respond' onclick='return addComment.moveForm("div-comment-196879", "196879", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	<ol class='children'>
+	<li class="comment odd alt depth-2" id="comment-233019">
+		<div id="div-comment-233019" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/aa4fcf5dc9482938663e0391f4c3e0ad?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">ELDHOSE RAJAN</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-233019">
+		June 14, 2013 at 8:09 am</a>	</div>
+
+	<p>I created the SSTables. But I used the SSTable loader too. But, not able to do a select * on the column family.<br />
+Its giving a rpc timeout error.<br />
+Did you get your SSLoader buolk upload working..</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=233019#respond' onclick='return addComment.moveForm("div-comment-233019", "233019", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+</ol>
+</li>
+	<li class="comment even thread-odd thread-alt depth-1" id="comment-196880">
+		<div id="div-comment-196880" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/f6ce69be07d88b257a551bbe419d22ef?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Josh</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-196880">
+		February 12, 2013 at 7:44 pm</a>	</div>
+
+	<p>Hi Sachin,<br />
+I have the same issue, Datastax, can you please update this article? I&#8217;m running in circles trying to figure this out <img src='http://www.datastax.com/wp-includes/images/smilies/icon_smile.gif' alt=':)' class='wp-smiley' /> </p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=196880#respond' onclick='return addComment.moveForm("div-comment-196880", "196880", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment odd alt thread-even depth-1" id="comment-217713">
+		<div id="div-comment-217713" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/1ceda6254ed7e94130d37e0a78308320?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">kitty</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-217713">
+		May 18, 2013 at 11:07 pm</a>	</div>
+
+	<p>Hi, I am using 1.1.9.3 cassandra version. In the above example, added partitioner(random partitioner) in constructer argument list, and followed all the steps. On running the script, I keep getting error below:<br />
+Error instantiating snitch class &#8216;com.datastax.bdp.snitch.DseDelegateSnitch&#8217;.<br />
+Fatal configuration error; unable to start server.  See log for stacktrace.</p>
+<p>I am executing it from location /usr/lib/datastax/dse-3.0.1/resources/cassandra</p>
+<p>This is my script file</p>
+<p>#!/bin/sh</p>
+<p># paths to the cassandra source tree, cassandra jar and java<br />
+CASSANDRA_HOME=&#8221;.&#8221;<br />
+CASSANDRA_JAR=&#8221;$CASSANDRA_HOME/../../lib/dse-3.0.1.jar&#8221;<br />
+JAVA=`which java`</p>
+<p># Java classpath. Must include:<br />
+#   &#8211; directory of DataImportExample<br />
+#   &#8211; directory with cassandra/log4j config files<br />
+#   &#8211; cassandra jar<br />
+#   &#8211; cassandra depencies jar<br />
+CLASSPATH=&#8221;.:$CASSANDRA_HOME/conf:$CASSANDRA_JAR&#8221;</p>
+<p>for jar in $CASSANDRA_HOME/lib/*.jar; do<br />
+    CLASSPATH=$CLASSPATH:$jar<br />
+done</p>
+<p>$JAVA -ea -cp $CLASSPATH -Xmx256M \<br />
+        -Dlog4j.configuration=log4j-tools.properties \<br />
+        DataImportExample &#8220;/home/myuser/cassandra_artifacts/demodata.csv&#8221;</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=217713#respond' onclick='return addComment.moveForm("div-comment-217713", "217713", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment even thread-odd thread-alt depth-1 parent" id="comment-233015">
+		<div id="div-comment-233015" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/aa4fcf5dc9482938663e0391f4c3e0ad?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">ELDHOSE RAJAN</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-233015">
+		June 14, 2013 at 8:06 am</a>	</div>
+
+	<p>I am using cassandra 1.2 for Bulk upload.<br />
+I run the sstableloader to get the following output<br />
+<i><br />
+Streaming revelant part of /home/ubuntu/VIQ-Cloud/software/apache-cassandra-1.2.5/data/vng_sugar_cookie_prod/ja_job_master/vng_sugar_cookie_prod-ja_job_master-ic-1-Data.db to [/127.0.0.1]</p>
+<p>progress: [/127.0.0.1 1/1 (100)] [total: 100 &#8211; 0MB/s </i><i></p>
+<p>However when I try to query the columnfamily from cqlsh I get the following error :<br />
+</i><i> Request did not complete within rpc_timeout.</i><br />
+my rpc address in cassandra port is 0.0.0.0<br />
+I am using the murmur3partitioner unlike in sample code as this is the default partitioner with cassandra 1.2.<br />
+I am stuck at this point for 2 days.<br />
+It&#8217;d be great if you could update this page with the sample code and instructions for latest 1.2 release..</p>
+<p>Thanks</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=233015#respond' onclick='return addComment.moveForm("div-comment-233015", "233015", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	<ol class='children'>
+	<li class="comment odd alt depth-2 parent" id="comment-329882">
+		<div id="div-comment-329882" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://1.gravatar.com/avatar/73dc8bc1b75455e0658af429dafdcd0e?s=96&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">Abhijit</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-329882">
+		August 15, 2013 at 11:49 pm</a>	</div>
+
+	<p>HI ,</p>
+<p>Can you provide the command that you have used in CLI.?</p>
+<p>Thanks<br />
+Abhijit</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=329882#respond' onclick='return addComment.moveForm("div-comment-329882", "329882", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	<ol class='children'>
+	<li class="comment even depth-3" id="comment-424271">
+		<div id="div-comment-424271" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/25e981557dc89b41eb158cf38f0cd40f?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">MJafri</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-424271">
+		September 6, 2013 at 10:43 am</a>	</div>
+
+	<p>ELDHOSE RAJAN , I am getting the exact same problem as you!&#8230; Any solution to it yet?</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=424271#respond' onclick='return addComment.moveForm("div-comment-424271", "424271", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+</ol>
+</li>
+	<li class="comment odd alt depth-2" id="comment-424342">
+		<div id="div-comment-424342" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/25e981557dc89b41eb158cf38f0cd40f?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">MJafri</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-424342">
+		September 6, 2013 at 10:57 am</a>	</div>
+
+	<p>I&#8217;ve found the solution to this on the web. The problem is that CQL3&#8242;s default table is with compaction off..</p>
+<p><a href="http://cassandra-user-incubator-apache-org.3065146.n2.nabble.com/Bulk-loader-with-Cassandra-1-2-5-td7588224.html" rel="nofollow">http://cassandra-user-incubator-apache-org.3065146.n2.nabble.com/Bulk-loader-with-Cassandra-1-2-5-td7588224.html</a></p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=424342#respond' onclick='return addComment.moveForm("div-comment-424342", "424342", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+	<li class="comment even depth-2" id="comment-424351">
+		<div id="div-comment-424351" class="comment-body">
+		<div class="comment-author vcard">
+	<img alt='' src='http://0.gravatar.com/avatar/25e981557dc89b41eb158cf38f0cd40f?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G' class='avatar avatar-96 photo' height='96' width='96' />	<cite class="fn">MJafri</cite> <span class="says">says:</span>	</div>
+
+	<div class="comment-meta commentmetadata"><a href="http://www.datastax.com/dev/blog/bulk-loading#comment-424351">
+		September 6, 2013 at 11:00 am</a>	</div>
+
+	<p>In my case, the solution was as simple as defining:</p>
+<p>CREATE TABLE toy (   id int PRIMARY KEY,   x int ) WITH COMPACT STORAGE  and compaction = {&#8216;class&#8217; : &#8216;LeveledCompactionStrategy&#8217; }</p>
+<p>instead of</p>
+<p>CREATE TABLE toy (   id int PRIMARY KEY,   x int )</p>
+<p>The rpc_timeout problem doesn&#8217;t happen with a table defined this way,.</p>
+
+	<div class="reply">
+	<a class='comment-reply-link' href='/dev/blog/bulk-loading?replytocom=424351#respond' onclick='return addComment.moveForm("div-comment-424351", "424351", "respond", "4291")'>Reply</a>	</div>
+		</div>
+	</li>
+</ol>
+</li>
+		</ol><!-- .commentlist -->
+
+		
+		
+	
+									<div id="respond">
+				<h3 id="reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="/dev/blog/bulk-loading#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://www.datastax.com/wp-comments-post.php" method="post" id="commentform">
+																			<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p>							<p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" aria-required='true' /></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="text" value="" size="30" aria-required='true' /></p>
+<p class="comment-form-url"><label for="url">Website</label><input id="url" name="url" type="text" value="" size="30" /></p>
+												<p class="comment-form-comment"><label for="comment">Comment</label><textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment" />
+							<input type='hidden' name='comment_post_ID' value='4291' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+						</p>
+						<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="5bb7393299" /></p>					</form>
+							</div><!-- #respond -->
+						
+</div><!-- #comments .comments-area -->			
+		</article>
+		<!-- /Article -->
+		
+		
+		
+	</section>
+	<!-- /Section -->
+    </div>
+</div> <!-- #Content -->
+	
+
+<style type="text/css">
+  .clear {
+    clear: both;
+    height: 0px;
+    display: block;
+  }
+  img.virt-trng {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 0px;
+  }
+  p.virt-trng {
+    margin-bottom: 8px !important;
+    font-weight: bold !important;
+  }
+  p.cta-button {
+    margin-bottom: 32px !important;
+  }
+  a.cta-button {
+    font-family: 'RobotoCondensed', arial, helvetica, clean, sans-serif !important;
+    font-size: 1.15em;
+    text-align: center;
+    padding: 4px 8px !important;
+    border: 1px solid #bf5a13;
+    display: inline-block;
+    background: #ca5f14;
+    background-image: -ms-linear-gradient(top, #e2641b, #d33905);
+    background: -webkit-gradient(linear, left top, left bottom, from(#e2641b), to(#d33905));
+    background: -moz-linear-gradient(top, #e2641b, #d33905);
+    -pie-background: linear-gradient(#e2641b, #d33905);
+    border-radius: 8px;
+    box-shadow: 0px 3px 3px 0px #999999;
+  }
+  a.cta-button span {
+    color: #fff;
+    display: block;
+    padding-top: 0px;
+    text-align: center;
+    text-shadow: 0 1px 2px #2b2b2b;
+    font-family: "RobotoCondensed", arial, helvetica, clean, sans-serif;
+    font-size: 1rem;
+    font-weight: normal;
+    line-height: 1.5em !important;
+    float: right;
+  }
+  #Sidebar {
+    background-color: #fff;
+    float: right;
+  }
+
+</style>
+
+
+<!-- Sidebar -->
+<div id="Sidebar" class="four columns right">
+	<div class="sidebarBlocks">
+    <div class="sidebarBlocksContainer">
+      <div class="twelve columns">
+        <a href="/what-we-offer/products-services/training/virtual-training">
+          <img class="virt-trng" src="http://www.datastax.com/wp-content/themes/datastax-2013/images/sidebar/virtual-training-pic.jpg" />
+        </a>
+        <p class="virt-trng">Learn Apache Cassandra with DataStax's free comprehensive online training.</p>
+        <p class="cta-button"><a href="/what-we-offer/products-services/training/virtual-training" class="cta-button"><span>Start Learning Now ></span></a></p>
+      </div>
+    
+
+
+      <div class="sidebar-widget">
+           
+      </div>
+
+      <div class="sidebar-widget">
+              </div>
+
+      
+      
+            
+      
+            
+      	<div id="developer-center-widget-2" class="developer-center widget"><h3>Developer Center</h3><div class="row"><select id="DevCenterQuicknav"><option value="">Select</option><option value="/docs/quick_start/quickstart">Quickstart Guide</option><option value="/dev/blog">Developer Blog</option><option value="/dev/tutorials">Tutorials</option><select id="DevCenterQuicknav"></div><div class="content row"><h5>Just Getting Started?</h5>
+<a href="/docs/quick_start/quickstart">Introduction to Apache Cassandra<br /> and DataStax Community Edition</a></div></div><div id="text-25" class="widget_text widget"><h3>Data Sheets</h3>			<div class="textwidget"><div class="row datasheets">
+    <div class="customerVideo columns five">
+    	<div class="icon">
+        </div>
+    </div>
+    <div class="customerVideo columns seven end">
+    	<ul style="padding-left: 15px; margin-bottom: 5px;">
+    	<li style="padding-bottom: 5px;"><a href="/wp-content/uploads/2011/09/DS-DataStax-Enterprise.pdf">DataStax Enterprise</a></li>
+        <li style="padding-bottom: 5px;"><a href="/wp-content/uploads/2013/10/DS_DataStax_DevCenter.pdf">DataStax DevCenter</a></li>
+        <li><a href="/wp-content/uploads/2013/08/DS-DataStax-Overview.pdf">DataStax Overview</a></li>
+</ul>
+         <span><a href="/resources/datasheets" class="more" style="font-weight: bold;">View all Data Sheets</span>
+    </div>
+</div></div>
+		</div><div id="text-26" class="widget_text widget"><h3>Customer Video</h3>			<div class="textwidget"><div class="row customerVideo">
+    <div class="customerVideo columns five">
+    <a href="http://www.youtube.com/watch?v=4udr__ABKzM&feature=share&list=UUqA6zOSMpQ55vvguq4Y0jAg" class="modalVideo youtube" width="80" height="45" title="Case Study: Netflix"><img src="/wp-content/uploads/2013/03/netflix-sidebar-video-thumb.jpg" alt="Netflix" /></a>
+    </div>
+    <div class="customerVideo columns seven end">
+        <span>Netflix</span>
+        <a href="http://www.youtube.com/watch?v=4udr__ABKzM&feature=share&list=UUqA6zOSMpQ55vvguq4Y0jAg" class="modalVideo youtube watchVideo" title="Case Study: Netflix">Watch Video</a>
+    </div>
+</div></div>
+		</div><div id="text-21" class="widget_text widget"><h3>Media + Inquiries</h3>			<div class="textwidget"><p><b>For all media inquiries contact</b><br>
+<a href="mailto:pr@datastax.com">PR@DataStax.com</a></p></div>
+		</div>
+        <div class="technical-articles">
+          <h3>Technical Articles</h3>
+
+          <ul>
+            <li><a href="/2012/12/using-the-datastax-odbc-driver-for-hive">Using the DataStax ODBC Driver for Hive</a></li>
+            <li><a href="/dev/blog/datastax-enterprise-cassandra-with-solr-integration-details">DataStax Enterprise: Cassandra with Solr Integration Details</a></li>
+            <li><a href="/2012/03/how-to-move-data-from-relational-databases-to-datastax-enterprise-cassandra-using-sqoop">How to Move Data from Relational Databases to DataStax Enterprise / Cassandra using Sqoop</a></li>
+            <li><a href="/2012/01/working-with-apache-cassandra-on-mac-os-x">Working with Apache Cassandra on Mac OS X</a></li>
+            <li><a href="/2012/01/getting-started-with-apache-cassandra-on-windows-the-easy-way">Getting Started with Apache Cassandra on Windows the Easy Way</a></li>
+            <li><a href="/2012/01/how-to-setup-and-monitor-a-multi-node-cassandra-cluster-on-windows">How to Setup and Monitor a Multi-Node Cassandra Cluster on Windows</a></li>
+            <li><a href="/2012/01/how-to-set-up-and-monitor-a-multi-node-cassandra-and-hadoop-cluster-on-linux">How to Set Up and Monitor a Multi-Node Cassandra and Hadoop Cluster on Linux</a></li>
+            <li><a href="/2012/01/how-to-set-up-and-monitor-a-multi-node-cassandra-cluster-on-linux">How to Set Up and Monitor a Multi-Node Cassandra Cluster on Linux</a></li>
+            <li><a href="/2012/01/getting-started-with-cassandra">Getting Started with Apache Cassandra</a></li>
+            <li><a href="/dev/blog/whats-new-in-opscenter-1-3">What&rsquo;s new in OpsCenter 1.3</a></li>
+            <li><a href="/dev/blog/whats-new-in-cassandra-1-0-windows-service-new-cql-clients-and-more">What&rsquo;s New in Cassandra 1.0: Windows Service, New CQL Clients, and More</a></li>
+            <li><a href="/dev/blog/whats-new-in-cassandra-1-0-performance">What&rsquo;s new in Cassandra 1.0: Performance</a></li>
+            <li><a href="/dev/blog/leveled-compaction-in-apache-cassandra">Leveled Compaction in Apache Cassandra</a></li>
+            <li><a href="/dev/blog/whats-new-in-cassandra-1-0-improved-memory-and-disk-space-management">What&rsquo;s New in Cassandra 1.0: Improved Memory and Disk Space Management</a></li>
+            <li><a href="/dev/blog/whats-new-in-cassandra-1-0-compression">What&rsquo;s new in Cassandra 1.0: Compression</a></li>
+            <li><a href="/dev/blog/bulk-loading">Using the Cassandra Bulk Loader</a></li>
+          </ul>
+        </div>
+      		</div> <!-- .sidebarBlocksContainer -->
+	</div> <!-- .sidebarBlocks -->
+</div> <!-- #Sidebar -->
+<!-- /Sidebar -->
+	</div> <!-- #MainChannel -->
+    					<div id="Announcements">
+										<div class="row carouselContainer">
+						<div class="twelve columns">
+							<div class="ten columns offset-by-one end">
+								<div class="row">
+									<div class="two columns announcementsNav">
+										<span>DataStax News</span>
+										<div class="navLinks clearfix"><a href="#" class="prev">&lt;</a> <a href="#" class="next">&gt;</a></div>
+									</div>
+																		<div class="nine columns end carouselContent">
+										<ul class="carousel">
+	                                    												<li><a href="http://www.datastax.com/2013/12/datastax-enterprise-3-1-5-now-available">DataStax Enterprise 3.1.5 Now Available</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/12/the-five-minute-interview-engine">The Five Minute Interview – Engine</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/12/datastax-tests-enterprise-grade-cassandra-database-on-google-compute-engine">DataStax Tests Enterprise-grade Cassandra Database on Google Compute Engine</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/12/datastax-enterprise-3-0-9-now-available">DataStax Enterprise 3.0.9 Now Available</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/12/the-five-minute-interview-amara-health-analytics">The Five Minute Interview – Amara Health Analytics</a></li>
+	                                        											<li><a href="http://www.slideshare.net/IDGConnect/20-pre-ipo-companies-in-2014-b2-b-tech">20 Red Hot, Pre-IPO Companies in 2014 B2B Tech</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/11/the-five-minute-interview-nexgate">The Five Minute Interview – Nexgate</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/11/the-five-minute-interview-shift">The Five Minute Interview – Shift</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/11/the-five-minute-interview-chill-com">The Five Minute Interview – Chill.com</a></li>
+	                                        											<li><a href="http://www.datastax.com/2013/11/the-five-minute-interview-codemettle">The Five Minute Interview – CodeMettle</a></li>
+	                                        										 </ul>
+									 </div>
+								 </div>
+							</div>
+						</div> <!-- twelve columns -->
+					</div>
+				</div> <!-- #Announcements -->
+                          
+				
+				<div id="ContentFooter" class="row">
+					<div class="fiveCol ten offset-by-one end">
+                    	<div class="col"></ul><h3><a href="http://www.datastax.com/customers">Customers</a></h3><ul></ul><h3><a href="/what-we-offer/products-services">What We Offer</a></h3><ul><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise">DataStax Enterprise</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-opscenter">DataStax OpsCenter</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise/apache-cassandra">Apache Cassandra</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise/apache-hadoop">Analytics with Cassandra</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/datastax-enterprise/apache-solr">Enterprise Search with Cassandra</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/support">Support</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/training">Training</a></li><li><a href="http://www.datastax.com/what-we-offer/products-services/consulting">Consulting</a></li></ul></div><div class="col"><h3><a href="http://www.datastax.com/dev">Developer Center</a></h3><ul><li><a href="/docs/quick_start/quickstart">Quick Start Guide</a></li><li><a href="/docs">Documentation</a></li><li><a href="/support-forums/">Support Forums</a></li><li><a href="/dev/blog">Developer Blog</a></li><li><a href="http://www.datastax.com/dev/tutorials">Tutorials</a></li></ul></div><div class="col"><h3><a href="http://www.datastax.com/company">About DataStax</a></h3><ul><li><a href="/company#management">Management</a></li><li><a href="http://www.datastax.com/company/news-and-events/press-releases">Press Releases</a></li><li><a href="http://www.datastax.com/company/news-and-events/in-the-news">In the News</a></li><li><a href="http://www.datastax.com/company/news-and-events/events">Events</a></li><li><a href="http://www.datastax.com/company/investors">Investors</a></li><li><a href="http://www.datastax.com/company/partners">Partners</a></li><li><a href="/company#mvp">MVP Program</a></li><li><a href="/careers">Careers</a></li><li><a href="/company#contact">Contact Us</a></li></ul></div><div class="col"><h3><a href="http://www.datastax.com/download">Download</a></h3><ul></ul></div><div class="col"><h3><a href="http://www.datastax.com/blog">Blog</a></h3><ul></ul></div><div class="col"><h3><a href="http://www.datastax.com/resources">Resources</a></h3><ul><li><a href="http://www.datastax.com/resources/casestudies">Customer Case Studies</a></li><li><a href="http://www.datastax.com/resources/datasheets">Data Sheets</a></li><li><a href="http://www.datastax.com/resources/webinars">Webinars</a></li><li><a href="http://www.datastax.com/resources/whitepapers">White Papers</a></li><li><a href="http://www.datastax.com/resources/faq">FAQ</a></li></ul></div>						<div class="col last">
+							<ul class="social">
+								<li><a href="http://www.facebook.com/datastax" class="facebook" target="_blank">Facebook</a></li>
+								<li><a href="http://www.twitter.com/datastax" class="twitter" target="_blank">Twitter</a></li>
+								<li><a href="https://plus.google.com/118217019989017627230/posts" class="googlePlus" target="_blank">Google+</a></li>
+								<li><a href="http://feeds.feedburner.com/datastax" class="blog" target="_blank">Bog</a></li>
+							</ul>
+						</div>
+					</div> <!-- .fiveCol -->
+				</div> <!-- #ContentFooter -->
+			</div> <!-- #MainBody -->
+		</div> <!-- .wrapperContainer -->
+	</div> <!-- #Wrapper -->
+	
+  <!-- Footer -->
+  <div id="WrapperFooter" class="row">
+		<div class="twelve columns footerContainer">
+			<footer class="row">
+				<div class="ten columns offset-by-one end">
+                	<ul class="siteLinks"><li id="menu-item-13842" class="first-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-13842"><a href="/">© 2013 DataStax, All rights reserved.</a></li>
+<li id="menu-item-13843" class="last-menu-item menu-item menu-item-type-custom menu-item-object-custom menu-item-13843"><a href="/terms-of-use">Terms of Use</a></li>
+</ul>				</div>
+			</footer>
+		</div> <!-- .footerContainer -->
+	</div>
+
+  
+  <!-- Included JS Files (Compressed) -->
+  <script src="http://www.datastax.com/wp-content/themes/datastax-2013/js/plugins.js"></script>
+	<script src="http://www.datastax.com/wp-content/themes/datastax-2013/js/library.js"></script>
+	<img src="http://ad.retargeter.com/seg?add=598160&t=2" width="1" height="1" />
+	<script type="text/javascript">
+	(function() {
+	  var didInit = false;
+	  function initMunchkin() {
+	    if(didInit === false) {
+	      didInit = true;
+	      Munchkin.init('059-YLZ-577');
+	    }
+	  }
+	  var s = document.createElement('script');
+	  s.type = 'text/javascript';
+	  s.async = true;
+	  s.src = document.location.protocol + '//munchkin.marketo.net/munchkin.js';
+	  s.onreadystatechange = function() {
+	    if (this.readyState == 'complete' || this.readyState == 'loaded') {
+	      initMunchkin();
+	    }
+	  };
+	  s.onload = initMunchkin;
+	  document.getElementsByTagName('head')[0].appendChild(s);
+	})();
+	</script>
+	<script> 
+
+	// Open menu on first tap on touch devices.
+
+	jQuery(document).ready(function () {
+	  $(".menu-item").has("ul").children("a").attr("aria-haspopup", "true");
+	});
+
+	</script>
+	
+<script type="text/javascript"><!--
+wpa2a.targets=[];
+wpa2a.html_done=true;if(wpa2a.script_ready&&!wpa2a.done)wpa2a.init();wpa2a.script_load();
+//--></script>
+<!-- Google Analytics --><script>var _gaq=[['_setAccount','UA-XXXXXXXX-X'],['_trackPageview']];
+            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g,s)}(document,'script'));</script><!-- Protocol Relative jQuery fall back if Google CDN offline --><script>window.jQuery || document.write('<script src="http://www.datastax.com/wp-content/themes/datastax-2013/js/jquery-1.9.0.min.js"><\/script>')</script><script type='text/javascript' src='http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js?ver=3.5.1'></script>
+<script type='text/javascript' src='http://www.datastax.com/wp-content/plugins/wpgform/js/jquery.columnizer.js?ver=3.5.1'></script>
+</body>
+</html>

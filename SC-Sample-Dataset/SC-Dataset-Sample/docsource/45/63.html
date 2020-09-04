@@ -1,0 +1,192 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>https connection added cert still getting exception please help? (Sockets and Internet Protocols forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/207818/sockets/java/https-connection-added-cert-exception"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/207818/sockets/java/https-connection-added-cert-exception?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-8/sockets">Sockets and Internet Protocols</a>
+<div class="subject">https connection added cert still getting exception please help?</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: steve labar, Ranch Hand<br />
+  on <span class="lastPostTime">Sep 10, 2008 15:28:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">So, i have tried everything i can possibly think of and still i'm not able to establish a connection with a website. So here is a brief description of the problem with code,errors,etc. I have added my cert by using the popular InstallCert.java i found online. It created a file called jssecacerts. this is commandline response from program and everthing has seemed to work great!<br /> <textarea name="code" class="java" cols="60" rows="10">    
+Loading KeyStore jssecacerts...
+Opening connection to console.whitey.com:443...
+Starting SSL handshake...
+ 
+No errors, certificate is already trusted
+ 
+Server sent 1 certificate(s):
+ 
+1 Subject EMAILADDRESS=noc@console02.wh.prod, CN=console02.wh.prod, OU=Network Operations, O="Whitey, Inc.", L=Santa Clara, ST=California, C=US
+  Issuer  EMAILADDRESS=noc@whitey.com, CN=Whitey CA, OU=Certificate Authority, O="Whity, Inc.", L=Santa Clara, ST=California, C=CA
+ 
+ 
+Enter certificate to add to trusted keystore or 'q' to quit: [1]
+</textarea><br /> I then attempt to connect with this code:<br /> <textarea name="code" class="java" cols="60" rows="10">    
+    try
+    {
+       
+        System.setProperty("javax.net.ssl.trustStore", "/Users/whitey/Desktop/eclipse/work/InstallCert/jssecacerts");
+   
+       
+ 
+        System.out.println("a");
+ 
+ 
+    URL u = new URL("https://console.whitey.com");
+    HttpURLConnection http = (HttpURLConnection)u.openConnection();
+    http.setRequestProperty  ("Authorization", "Basic " + auth.getPasswordAuthentication());
+ 
+    Object s =    http.getInputStream();
+   
+    }
+    catch(MalformedURLException e)
+    {
+    System.out.println("Invalid URL");
+    }
+    catch(IOException e)
+    {
+    System.out.println("Error connecting: " + e);
+    }
+    catch(Exception e)
+    {
+        System.out.println("exception" + e);
+ 
+    }
+   
+    System.out.println("e");
+   
+ 
+}
+</textarea><br />  <br />  <br /> I get this error:<br />  <br />  <br /> Error connecting: javax.net.ssl.SSLHandshakeException: java.security.cert.CertificateException: No name matching console.whitey.com found<br />  <br />  <br /> Please i have added the cert connected and still having no luck! Any ideas to try and/or what the problem could be would be very helpful!<br /> [ September 10, 2008: Message edited by: steve labar ]<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: T.A. Nguyen, Ranch Hand<br />
+  on <span class="lastPostTime">Sep 16, 2008 07:03:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">It look like your CN=console02.wh.prod is not console.whitey.com, certificate not being issued to the correct domain?  You should check on that.  <br />  <br /> When generate keystore file, the first question should be the domain of the CAS server, for you it should be: [console.whitey.com]<br />  <br /> What is your first and last name?<br /> [Unknown]: console.whitey.com<br />  <br /> <br />  <blockquote class="uncited">
+			<div>Originally posted by steve labar:<br /> ...<br />  <br /> 1 Subject EMAILADDRESS=noc@console02.wh.prod, CN=console02.wh.prod, OU=Network Operations, O="Whitey, Inc.", L=Santa Clara, ST=California, C=US<br />   Issuer  EMAILADDRESS=noc@whitey.com, CN=Whitey CA, OU=Certificate Authority, O="Whity, Inc.", L=Santa Clara, ST=California, C=CA<br />  <br /> ...<br />  <br /> Error connecting: javax.net.ssl.SSLHandshakeException: java.security.cert.CertificateException: No name matching console.whitey.com found<br />  <br /> </div>
+		</blockquote>&nbsp;</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/207818'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=8'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 17:19:59</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/8"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/207818/sockets/java/https-connection-added-cert-exception?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Remote Method Invocation (RMI)</title><link rel="stylesheet" href="notes.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.67.2"><link rel="start" href="index.html" title="Object-Oriented Programming For Engineers"><link rel="up" href="ch13.html" title="Chapter&nbsp;13.&nbsp;Java Client Server Networking"><link rel="prev" href="ch13s02.html" title="Serialization"><link rel="next" href="ch13s04.html" title="Exercise"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Remote Method Invocation (RMI)</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch13s02.html"><img src="images/prev.gif" alt="Prev"></a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;13.&nbsp;Java Client Server Networking</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch13s04.html"><img src="images/next.gif" alt="Next"></a></td></tr></table><hr></div><div class="sect1" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d4e7754"></a>Remote Method Invocation (RMI)</h2></div></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d4e7756"></a>The concept</h3></div></div></div><div class="blockquote"><blockquote class="blockquote"><p>
+	Remote method invocation (RMI) is the action of invoking a method of a remote interface 
+	on a remote object. Most importantly, a method invocation on a remote object has the same 
+	syntax as a method invocation on a local object.
+</p></blockquote></div><p>As we have seen, Java sockets, combined with serialization makes is it easy to send objects 
+across the network, however, sockets require the programmer to encode and decode the messages that
+are being exchanged. As the application facilities grow, so do the complexities in communication. 
+</p><p>RMI is a full architecture for distributed computing. It provides a mechanism for 
+distributing objects as services, where a remote service request looks similar to a local one. The 
+object is not passed to and from the client/server, rather it is fixed in the one place on the server. The 
+Virtual Machine that is responsible for the object declares it exportable and makes it available 
+to an object server that can call on it when a request is received.</p><p>The remote client obtains a reference to the object and calls methods on it. To obtain this
+reference to the object, the client must know the name of the object, where it is and also what methods 
+it has. Once this information is known, RMI takes care of the passing of information back and forth,  
+tasks such as: object serialization, object transport, exception handling (Exceptions may occur 
+when network connections are broken, one of the client/server pair may crash etc..) and security 
+management.</p><p>To use a remote object, we first must have a reference to it. An application can register its 
+remote objects with RMI's simple naming facility, the <img src="images/derek_class.gif" border="0"><code class="classname">rmiregistry</code>, or the 
+application can pass and return remote object references as part of its normal operation
+
+
+ The only concise way to do 
+this is to have lookup information available (such as the method names) to the client, generally 
+prior to run-time. This is facilitated through the use of a pair of classes, termed 
+<span class="emphasis"><em>skeletons</em></span> and <span class="emphasis"><em>stubs</em></span>, that are derived directly from the 
+remote object. </p><p>The client calls the remote object by using this lookup information, which is coded into 
+the client. If the lookup succeeds then the RMI Server could return the remote object's stub, which 
+acts as a stand-in for the remote object's methods. A call to any of the stub's methods, is sent 
+from the stub to the skeleton reference, that resides on the server-side. The skeleton in effect 
+calls the method on the server-side and routes the remote object's response back through to the 
+stub.</p><p> The stub for a remote object acts as a client's local representative or proxy for the remote 
+object. The caller invokes a method on the local stub which is responsible for carrying out the method 
+call on the remote object. In RMI, a stub for a remote object implements the same set of remote interfaces 
+that a remote object implements. When a stub's method is invoked, it:
+</p><div class="itemizedlist"><ul type="disc"><li><p>initiates a connection with the remote JVM containing the remote object,</p></li><li><p>marshals (writes and transmits) the parameters to the remote JVM,</p></li><li><p>waits for the result of the method invocation,</p></li><li><p>unmarshals (reads) the return value or exception returned, and, </p></li><li><p>returns the value to the caller. </p></li></ul></div><p>
+</p><p>In the remote JVM, each remote object may have a corresponding skeleton (in Java 2 platform-only 
+environments, skeletons are not required). The skeleton is responsible for dispatching the call to 
+the actual remote object implementation. When a skeleton receives an incoming method invocation it 
+does the following:
+</p><div class="itemizedlist"><ul type="disc"><li><p>unmarshals (reads) the parameters for the remote method,</p></li><li><p>invokes the method on the actual remote object implementation, and </p></li><li><p>marshals (writes and transmits) the result (return value or exception) to the caller.
+		</p></li></ul></div><p>
+</p><div class="figure"><a name="skeletonandstub"></a><p class="title"><b>Figure&nbsp;13.1.&nbsp;Skeleton and stub communication</b></p><img src="figures/skeletonandstub.gif" align="middle" alt="Skeleton and stub communication"></div><p>This communication takes place over the RMI remote reference layer (which relies on the 
+TCP/IP transport layer). </p><p><a href="ch13s03.html#RMIcommunication" title="Figure&nbsp;13.2.&nbsp;RMI Distributed Application">Figure&nbsp;13.2, &#8220;RMI Distributed Application&#8221;</a> illustrates an RMI distributed application that uses the 
+registry to obtain references to a remote object. The server calls the registry to associate a name with 
+a remote object. The client looks up the remote object by its name in the server's registry and then 
+invokes a method on it. The illustration also shows that the RMI system uses an existing web server 
+to load bytecodes of classes written in the Java programming language, from server to client and 
+from client to server, for objects when needed. RMI can load class bytecodes using any URL protocol 
+(e.g., HTTP, FTP, file, etc.) that is supported by the Java platform.</p><div class="figure"><a name="RMIcommunication"></a><p class="title"><b>Figure&nbsp;13.2.&nbsp;RMI Distributed Application</b></p><img src="figures/RMIcommunication.gif" align="middle" alt="RMI Distributed Application"></div><p>Note: Non-remote arguments to, and results from, a remote method invocation are passed by copy 
+rather than by reference. This is because references to objects are only useful within 
+a single virtual machine.</p></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d4e7800"></a>Implementation</h3></div></div></div><p>The best way to learn is from a simple example. There are a number of steps here, but once 
+you get used to them it is quite routine.</p><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d4e7803"></a>The Interface Declaration for a Remote Object</h4></div></div></div><p>
+<a href="java/RMI/RemoteRequest.java" target="_top"><em class="citetitle"><code class="filename">RemoteRequest.java</code></em></a>
+</p><pre class="programlisting">&nbsp;1 
+&nbsp;2  
+&nbsp;3   import java.rmi.*;
+&nbsp;4 
+&nbsp;5   public interface RemoteRequest extends Remote
+&nbsp;6   {
+&nbsp;7      public void display(String theString) throws RemoteException;
+&nbsp;8   }
+&nbsp;9   
+10 </pre><p>
+</p><p>The remote interface declaration declares the remote methods of the remote object. In this case 
+we have only one remote method. This is in a file called <code class="filename">RemoteRequest.java</code>. 
+Note that it uses the <img src="images/derek_class.gif" border="0"><code class="classname">java.rmi.*;</code> package.</p><p>Notes:
+</p><div class="itemizedlist"><ul type="disc"><li><p>A remote interface must at least extend, either directly or indirectly, the interface 
+		<img src="images/derek_interface.gif" border="0"><code class="interfacename">java.rmi.Remote</code>.</p></li><li><p>Each method declaration in a remote interface must satisfy the requirements of a remote 
+	method declaration as follows: 
+	</p><div class="itemizedlist"><ul type="circle"><li><p>A remote method declaration must include the exception 
+			<img src="images/derek_exception.gif" border="0"><code class="exceptionname">java.rmi.RemoteException</code> (The exception 
+			<img src="images/derek_exception.gif" border="0"><code class="exceptionname">RemoteException</code> is thrown when a remote method invocation fails for 
+			some reason, e.g. Communication failure (the connection is closed by the server, etc.), failure during 
+			parameter or return value marshalling or unmarshalling, Protocol errors) in its throws clause, in 
+			addition to any application-specific exceptions.
+		</p></li><li><p>In a remote method declaration, a remote object declared as a parameter or return value 
+			must be declared as the remote interface, not the implementation class of that interface. 
+		</p></li></ul></div><p>
+	</p></li><li><p>The interface <img src="images/derek_interface.gif" border="0"><code class="interfacename">java.rmi.Remote</code> is a marker interface that 
+	defines no methods.</p></li></ul></div><p>
+</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d4e7830"></a>The Remote Object and Server Definition</h4></div></div></div><p>
+<a href="java/RMI/RequestServer.java" target="_top"><em class="citetitle"><code class="filename">RequestServer.java</code></em></a>
+</p><pre class="programlisting">&nbsp;1 
+&nbsp;2   import java.rmi.*;
+&nbsp;3   import java.rmi.server.*;
+&nbsp;4   import java.rmi.registry.*;
+&nbsp;5 
+&nbsp;6   public class RequestServer extends UnicastRemoteObject implements RemoteRequest
+&nbsp;7   {
+&nbsp;8     public RequestServer() throws RemoteException
+&nbsp;9     {
+10        super();	
+11     }
+12     
+13     public void display(String theString) throws RemoteException
+14     {
+15         // implementation of the display method here...
+16         System.out.println("Received: "+theString);
+17     }
+18     
+19     public static void main(String args[])
+20     {
+21       try {
+22         LocateRegistry.createRegistry(1099);
+23         RequestServer obj = new RequestServer();
+24         Naming.rebind("rmi://127.0.0.1/Request", obj);  //for localhost
+25         System.out.println("Request bound in registry");
+26       }
+27       catch (Exception e)
+28       {
+29         System.out.println("Failed to bind in registry: "+e.getMessage());
+30       }
+31     }
+32   }
+33   
+34 </pre><p>
+</p><p>This is the server part of the system. Note that we have to import the packages 
+<img src="images/derek_class.gif" border="0"><code class="classname">java.rmi.*</code>, <img src="images/derek_class.gif" border="0"><code class="classname">java.rmi.server.*</code> and 
+<img src="images/derek_class.gif" border="0"><code class="classname">java.rmi.registry.*</code></p><p>It extends the <img src="images/derek_class.gif" border="0"><code class="classname">UnicastRemoteObject</code> object which basically allows the 
+<img src="images/derek_class.gif" border="0"><code class="classname">Request</code> class to be exported and so usable outside the Virtual Machine where 
+it was created. The constructor calls the constructor of the <img src="images/derek_class.gif" border="0"><code class="classname">UnicastRemoteObject</code>
+class and that is it. This class also provides the implementation for the 
+<img src="images/derek_method.gif" border="0"><code class="methodname">display()</code> method that was defined in the <img src="images/derek_interface.gif" border="0"><code class="interfacename">RemoteRequest</code>
+interface (that we just defined).</p><p>The methods needed to create remote objects and export them (make them available to remote 
+clients) are provided by the class <img src="images/derek_class.gif" border="0"><code class="classname">UnicastRemoteObject</code>. The 
+<img src="images/derek_class.gif" border="0"><code class="classname">java.rmi.server.UnicastRemoteObject</code> class defines a singleton
+	<sup>[<a name="d4e7850" href="#ftn.d4e7850">13</a>]</sup>
+(unicast) remote object whose references are valid only while the server process is alive.</p><p>The <img src="images/derek_method.gif" border="0"><code class="methodname">main()</code> method creates a registry on port 1099 (this is the 
+default port for the registry services) and binds a new instance of the <img src="images/derek_class.gif" border="0"><code class="classname">Request</code> 
+object (<img src="images/derek_object.gif" border="0"><code class="varname">obj</code>) to it. So, the <img src="images/derek_method.gif" border="0"><code class="methodname">createRegistry(int port)</code> method 
+creates and exports a registry on a local host that accepts requests on a specified port (It creates 
+a static Registry, i.e. The registry.). Placing an object in a registry makes it available to 
+clients on other virtual machines, once those clients have access to the machine, they can obtain a 
+reference to the remote object by specifying the machine name, port number and the name of the 
+exported object.</p></div><div class="sect3" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="d4e7858"></a>The Client Definition</h4></div></div></div><p>
+<a href="java/RMI/RMIClient.java" target="_top"><em class="citetitle"><code class="filename">RMIClient.java</code></em></a>
+</p><pre class="programlisting">&nbsp;1 
+&nbsp;2   import java.rmi.*;
+&nbsp;3   import java.net.*;
+&nbsp;4 
+&nbsp;5   public class RMIClient
+&nbsp;6   {
+&nbsp;7     RemoteRequest aRequest;
+&nbsp;8     
+&nbsp;9     public void goRequest()
+10     {
+11       try
+12       {
+13         aRequest = (RemoteRequest) 
+14              Naming.lookup("rmi://127.0.0.1/Request"); // for localhost
+15         aRequest.display("Test");
+16       }
+17       catch(MalformedURLException e)
+18       {
+19         System.out.println("MalformedURLException");
+20       }
+21       catch(AccessException e)
+22       {
+23         System.out.println("AccessException");
+24       }
+25       catch(RemoteException e)
+26       {
+27         System.out.println("RemoteException");
+28       }
+29       catch(NotBoundException e)
+30       {
+31         System.out.println("NotBoundException");
+32       }
+33     }
+34 	
+35 	public static void main(String args[])
+36 	{
+37 	  RMIClient aClient = new RMIClient();
+38 	  aClient.goRequest();
+39 	}
+40   }
+41 </pre><p>
+</p><p>The <img src="images/derek_class.gif" border="0"><code class="classname">RMIClient</code> object exists on client machine. Note that the 
+<img src="images/derek_class.gif" border="0"><code class="classname">RMIClient</code> class is compiled with the <img src="images/derek_interface.gif" border="0"><code class="interfacename">RemoteRequest</code>
+interface.</p><p>The <img src="images/derek_method.gif" border="0"><code class="methodname">main()</code> method creates an instance of <img src="images/derek_class.gif" border="0"><code class="classname">RMIClient</code>
+and calls the <img src="images/derek_method.gif" border="0"><code class="methodname">goRequest()</code> method. In this method, we call the 
+<img src="images/derek_method.gif" border="0"><code class="methodname">Naming.lookup()</code> method. The <img src="images/derek_class.gif" border="0"><code class="classname">java.rmi.Naming</code> class provides 
+Uniform Resource Locator (URL) based methods to look up, bind, rebind, unbind, and list the name-object 
+pairings maintained on a particular host and port. This method retrieves a reference to the object, 
+specified by the <img src="images/derek_class.gif" border="0"><code class="classname">URL</code> reference (This object is described by <img src="images/derek_interface.gif" border="0"><code class="interfacename">Remote</code>, 
+the parent of <img src="images/derek_interface.gif" border="0"><code class="interfacename">RemoteRequest</code>, the interface that we created) that must be
+cast convereted back to a <img src="images/derek_interface.gif" border="0"><code class="interfacename">RemoteRequest</code> object. As no port number is specified, it is 
+assumed that the port number is 1099 on the machine 127.0.0.1 (you can use any IP address if 
+required). The next line calls the <img src="images/derek_method.gif" border="0"><code class="methodname">display()</code> method on the remote object 
+created on the remote system. The remainder of the code attempts to catch any exceptions that can
+occur. </p><p>An argument to, or a return value from, a remote object can be any object that is 
+serializable. This includes primitive types, remote objects, and non-remote objects that implement
+the <img src="images/derek_interface.gif" border="0"><code class="interfacename">java.io.Serializable</code> interface. So, when a non-remote object is passed 
+as an argument or return value in a remote method invocation, the content of the non-remote object is 
+copied before invoking the call on the remote object. When a non-remote object is returned from a remote method 
+invocation, a new object is created in the calling virtual machine. When passing an exported remote object as a 
+parameter or return value in a remote method call, the stub for that remote object is passed instead.</p></div></div><div class="sect2" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d4e7882"></a>Compilation and Running</h3></div></div></div><p>To compile this example do the following:</p><p>On the server side, type:
+</p><pre class="programlisting">
+  javac RequestServer.java 
+  rmic RequestServer
+</pre><p>
+Running <span><strong class="command">rmic</strong></span> creates a skeleton and a stub, called 
+<code class="filename">RequestServer_Stub.class</code> and <code class="filename">RequestServer_Skel.class</code>. Copy the stub to the 
+directory of the client, and run the server by typing:
+</p><pre class="programlisting">
+  java RequestServer
+</pre><p>
+See <a href="ch13s03.html#RequestServerGrab" title="Figure&nbsp;13.3.&nbsp;Screen Grab of the Request Server, Compilation and Execution.">Figure&nbsp;13.3, &#8220;Screen Grab of the Request Server, Compilation and Execution.&#8221;</a></p><div class="figure"><a name="RequestServerGrab"></a><p class="title"><b>Figure&nbsp;13.3.&nbsp;Screen Grab of the Request Server, Compilation and Execution.</b></p><img src="figures/RequestServerGrab.gif" align="middle" alt="Screen Grab of the Request Server, Compilation and Execution."></div><p>On the client side, type:
+</p><pre class="programlisting">
+  javac RMIClient.java
+</pre><p>
+And run the client by typing:
+</p><pre class="programlisting">
+  java RMIClient
+</pre><p>
+See <a href="ch13s03.html#RMIClientGrab" title="Figure&nbsp;13.4.&nbsp;Screen Grab of the RMI Cient Application, Compilation and Execution.">Figure&nbsp;13.4, &#8220;Screen Grab of the RMI Cient Application, Compilation and Execution.&#8221;</a></p><div class="figure"><a name="RMIClientGrab"></a><p class="title"><b>Figure&nbsp;13.4.&nbsp;Screen Grab of the RMI Cient Application, Compilation and Execution.</b></p><img src="figures/RMIClientGrab.gif" align="middle" alt="Screen Grab of the RMI Cient Application, Compilation and Execution."></div></div><div class="footnotes"><br><hr width="100" align="left"><div class="footnote"><p><sup>[<a name="ftn.d4e7850" href="#d4e7850">13</a>] </sup>A <span class="emphasis"><em>singleton</em></span> is an object where only one instance of that object is possible.
+	</p></div></div></div><P align="right" class="copyright">&copy; 2006
+  		<a href="http://www.eeng.dcu.ie/~molloyd/">Dr. Derek Molloy</a><a href="mailto:Derek.Molloy@dcu.ie"><img src="images/email_message.gif" border="0"></a>
+  		(<a href="http://www.dcu.ie/">DCU</a>).</P><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch13s02.html"><img src="images/prev.gif" alt="Prev"></a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch13.html"><img src="images/up.gif" alt="Up"></a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch13s04.html"><img src="images/next.gif" alt="Next"></a></td></tr><tr><td width="40%" align="left" valign="top">Serialization&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html"><img src="images/home.gif" alt="Home"></a></td><td width="40%" align="right" valign="top">&nbsp;Exercise</td></tr></table></div></body></html>

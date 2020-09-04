@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en" id="vbulletin_html"> <head>
+<base href="http://www.java-forums.org/" /><!--[if IE]></base><![endif]--> <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" /> <base href="http://www.java-forums.org/" /><!--[if IE]></base><![endif]--> <meta name="generator" content="vBulletin 4.2.1" /> <link rel="stylesheet" type="text/css" href="http://www.java-forums.org/clientscript/vbulletin_css/style00015l/main-rollup.css?d=1384369214" /> <link rel="stylesheet" type="text/css" href="http://www.java-forums.org/clientscript/vbulletin_css/style00015l/printthread.css?d=1384369214" /> <title> java.io.EOFException: send vector from client to server through socket</title> <!--[if IE 6]><link rel="stylesheet" type="text/css" href="http://www.java-forums.org/forumbits-ie.css" /><![endif]--><!--[if lt IE 8]><link rel="stylesheet" type="text/css" href="http://www.java-forums.org/forumbits-ie.css,sidebar-ie.css" /><![endif]--><link rel="stylesheet" type="text/css" href="http://www.java-forums.org/clientscript/vbulletin_css/style00015l/additional.css?d=1384369214" /> 
+<script type="text/javascript"><!--
+window.google_analytics_uacct = 'UA-136266-54'; var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-136266-54'], ['_trackPageview'], ['_trackPageLoadTime']); (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);  })();
+//--></script>
+</head> <body> <div class="above_body"> <div id="header" class="floatcontainer"> <div><a name="top" href="http://www.java-forums.org/forum.php" class="logo-image"><img src="http://www.java-forums.org/images/misc/java-forums-logo.gif" alt="Java Programming Forum - Learn Java Programming" /></a></div> </div> </div> <div class="body_wrapper"> <div id="pagetitle"> <h1><a href="http://www.java-forums.org/new-java/17942-java-io-eofexception-send-vector-client-server-through-socket.html">java.io.EOFException: send vector from client to server through socket</a></h1> <p class="description">Printable View</p> </div> <ul id="postlist"> <li class="postbit blockbody" id="post_1"> <div class="header"> <div class="datetime">04-05-2009, 04:59 PM</div> <span class="username">kathychow</span> </div> <div class="title">java.io.EOFException: send vector from client to server through socket</div> <div class="content"> <blockquote class="restore">I want to send a vector&lt;string&gt; from client to server through socket.<br />
+It gave me the following error:<br />
+&quot;java.io.EOFException<br />
+	at java.io.ObjectInputStream$PeekInputStream.readFull  y(Unknown Source)<br />
+	at java.io.ObjectInputStream$BlockDataInputStream.rea  dShort(Unknown Source)<br />
+	at java.io.ObjectInputStream.readStreamHeader(Unknown Source)<br />
+	at java.io.ObjectInputStream.&lt;init&gt;(Unknown Source)<br />
+	at testing.testing1.run(testing1.java:337)&quot;<br /> <br />
+when I tried the following code:<br /> <br /> <b>Client side:</b><br /> <br />
+Socket socket = null;		   <br />
+DataOutputStream dout;<br />
+ObjectOutputStream oos;<br /> <br /> <br />
+try<br />
+{				<br />
+	for (int i=0; i&lt;list.size(); i++)<br />
+	{<br />
+	 socket = new Socket(list.elementAt(i),PORT);<br />
+	 PrintWriter outStart = new PrintWriter(socket.getOutputStream(), true);<br />
+	 outStart.println(START);<br />
+	 outStart.flush();<br /> <br /> <br />
+	 //transmit vector&lt;string&gt;<br />
+	 dout = new DataOutputStream (socket.getOutputStream());<br />
+	 oos = new ObjectOutputStream (dout);<br />
+	 oos.writeObject(list);<br />
+	 oos.flush();<br /> <br /> <br />
+	 PrintWriter outInitialize = new PrintWriter(socket.getOutputStream(), true);<br />
+	 outInitialize.println(INITIALIZED);<br />
+	 outInitialize.flush();<br />
+	 socket.close();<br />
+	}<br /> <br />
+}<br />
+catch (IOException e)<br />
+{<br />
+	e.printStackTrace();<br />
+}<br /> <br /> <b>Server side:</b><br /> <br />
+Socket socket;<br />
+ServerSocket serverSocket;<br />
+DataInputStream din;<br />
+ObjectInputStream ois;<br /> <br />
+try<br />
+{<br />
+	serverSocket = new ServerSocket(PORT);<br />
+	socket = serverSocket.accept();	<br /> <br />
+	din = new DataInputStream(socket.getInputStream());<br />
+	ois = new ObjectInputStream (din);<br /> <br /> <br />
+	@SuppressWarnings(&quot;unchecked&quot;)<br />
+	Vector&lt;String&gt; list = (Vector&lt;String&gt;)ois.readObject();<br />
+socket.close();<br />
+}<br />
+catch (IOException e)<br />
+{<br />
+	e.printStackTrace();<br /> <br /> <br />
+}<br />
+catch (ClassNotFoundException e)<br />
+{<br />
+	e.printStackTrace();<br />
+}<br /> <br />
+Could any give a help?</blockquote> </div> </li> </ul> </div> <div class="below_body"> <div id="footer_time" class="footer_time">All times are GMT +2. The time now is <span class="time">01:22 AM</span>.</div> <div id="footer_copyright" class="footer_copyright"> 
+	VBulletin, Copyright ©2000 - 2013, Jelsoft Enterprises Ltd.
+	
+<br /> </div> <div id="footer_morecopyright" class="footer_morecopyright">  
+	Copyright ©2006 - 2012, Java Programming Forum
+</div> </div> </body> </html>

@@ -1,0 +1,190 @@
+<html>
+<head>
+<title>リフレクションの学?K</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="right"> 
+  <!-- #BeginDate format:Ja2 -->2005年2月21日 <!-- #EndDate -->
+</p>
+<h1>リフレクションの学?K</h1>
+<pre>
+
+[okita@tamkatsu-rhl9 okita]$ cat RefrectionTest.java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+
+public class RefrectionTest {
+        public static void main(String [] args) {
+                try {
+                        /*
+                         * loading class by reflection mechanizm
+                         */
+                        Class [] types = new Class [] { String.class, String.class };
+                        Constructor cons = TwoString.class.getConstructor(types);
+                        Object [] objs = new Object [] { "a", "b" };
+
+                        TwoString ts = (TwoString) cons.newInstance(objs);
+
+                        /*
+                         * access field
+                         */
+                        Field field = ts.getClass().getDeclaredField("message1");
+                        System.out.println(field.get("message"));
+
+
+                        ts.print();
+                } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                } catch (InstantiationException e) {
+                        e.printStackTrace();
+                } catch (IllegalAccessException e ) {
+                        e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                } catch (NoSuchFieldException e) {
+                        e.printStackTrace();
+                }
+
+        }
+}
+
+class TwoString {
+        private String message1;
+        private String message2;
+
+        public TwoString(String s1, String s2) {
+                message1 = s1;
+                message2 = s2;
+        }
+
+        public void print() {
+                System.out.println("message1:" + message1);
+                System.out.println("message2:" + message2);
+        }
+}
+[okita@tamkatsu-rhl9 okita]$ javac RefrectionTest.java
+[okita@tamkatsu-rhl9 okita]$ java -verbose:class -cp . RefrectionTest
+[Opened /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+[Opened /home/okita/j2sdk1.4.2_01/jre/lib/sunrsasign.jar]
+[Opened /home/okita/j2sdk1.4.2_01/jre/lib/jsse.jar]
+[Opened /home/okita/j2sdk1.4.2_01/jre/lib/jce.jar]
+...
+...
+[Loaded java.security.cert.Certificate from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+[Loaded RefrectionTest]
+[Loaded java.lang.NoSuchFieldException from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+[Loaded java.lang.reflect.InvocationTargetException from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+[Loaded java.lang.IllegalAccessException from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+[Loaded java.lang.InstantiationException from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+[Loaded java.lang.NoSuchMethodException from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+[Loaded TwoString]
+java.lang.IllegalAccessException: Class RefrectionTest can not access a member of class TwoString with modifiers "private"
+[Loaded java.lang.StackTraceElement from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+        at sun.reflect.Reflection.ensureMemberAccess(Reflection.java:57)
+        at java.lang.reflect.Field.doSecurityCheck(Field.java:811)
+        at java.lang.reflect.Field.getFieldAccessor(Field.java:758)
+        at java.lang.reflect.Field.get(Field.java:228)
+        at RefrectionTest.main(RefrectionTest.java:21)
+[Loaded java.lang.Shutdown from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+[Loaded java.lang.Shutdown$Lock from /home/okita/j2sdk1.4.2_01/jre/lib/rt.jar]
+
+message1がprivateフィ?[ルドのためアクセス時にIllegalAccessExceptionが発?ｶしている?B
+
+しかし?A通?墲ﾌフィ?[ルドや�?ソッドアクセスとは異なり?Aリフレクションをつかうとprivateなものに関してもアクセスできる?B
+そのためには?Ajava.lang.reflect.AccessibleObject#setAccessible�?ソッドをつかう?Bjava.lang.reflect.Fieldクラスなどは
+このAccessibleObjectクラスを継?ｳしているため利用できる?B
+
+
+
+
+[okita@tamkatsu-rhl9 okita]$ cat RefrectionTest.java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+
+import java.lang.reflect.InvocationTargetException;
+
+public class RefrectionTest {
+        public static void main(String [] args) {
+                try {
+                        /*
+                         * loading class by reflection mechanizm
+                         */
+                        Class [] types = new Class [] { String.class, String.class };
+                        Constructor cons = TwoString.class.getConstructor(types);
+                        Object [] objs = new Object [] { "a", "b" };
+
+                        TwoString ts = (TwoString) cons.newInstance(objs);
+
+                        /*
+                         * access field
+                         */
+                        Field field = ts.getClass().getDeclaredField("message1");
+                        /*
+                         * set accessible private field.
+                         */
+                        field.setAccessible(true);
+
+                        // argment is instance of TwoString class.
+                        System.out.println(field.get(ts));
+
+
+                        ts.print();
+                } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                } catch (InstantiationException e) {
+                        e.printStackTrace();
+                } catch (IllegalAccessException e ) {
+                        e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                } catch (NoSuchFieldException e) {
+                        e.printStackTrace();
+                }
+
+        }
+}
+
+class TwoString {
+        public String message1;
+        private String message2;
+
+        public TwoString(String s1, String s2) {
+                message1 = s1;
+                message2 = s2;
+        }
+
+        public void print() {
+                System.out.println("message1:" + message1);
+                System.out.println("message2:" + message2);
+        }
+}
+[okita@tamkatsu-rhl9 okita]$ java -cp . RefrectionTest
+a
+message1:a
+message2:b
+[okita@tamkatsu-rhl9 okita]$ java -Djava.security.manager -cp . RefrectionTest
+Exception in thread "main" java.security.AccessControlException: access denied (java.lang.reflect.ReflectPermission suppressAccessChecks)
+        at java.security.AccessControlContext.checkPermission(AccessControlContext.java:269)
+        at java.security.AccessController.checkPermission(AccessController.java:401)
+        at java.lang.SecurityManager.checkPermission(SecurityManager.java:524)
+        at java.lang.reflect.AccessibleObject.setAccessible(AccessibleObject.java:107)
+        at RefrectionTest.main(RefrectionTest.java:21)
+[okita@tamkatsu-rhl9 okita]$
+
+-Djava.security.managerを負荷するとsetAccessible�?ソッドを実装してもアクセスできなくなる?B
+
+また?Aリフレクション機能は?A実?s時に動的に解?ﾍする?Bつまりインタプリタのため非?墲ﾉ実?s速度が遅くなる?B
+そして?Aソ?[スコ?[ドの解?ﾍが非?墲ﾉ?｢難になる?B
+
+
+
+http://www-6.ibm.com/jp/developerworks/java/040709/j_j-shared.html
+Dynamic Proxy
+Ruby#eval
+
+http://www-6.ibm.com/jp/developerworks/java/030808/j_j-dyn0603.html</pre>
+</body>
+</html>

@@ -1,0 +1,796 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta name="google-site-verification" content="sED8J56REpKgW_ENTY_bX-Yi0dNja6FDtE6Hb0SGvCY" />
+    <meta content="index, follow" name="robots"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Eyal Lupu Java Blog >> 
+                   Instrumenting Java Code using Agents
+        </title>
+        <link rel="alternate" type="application/atom+xml" title="Atom Entries"  href="http://www.jroller.com/eyallupu/feed/entries/atom" />
+    <link rel="alternate" type="application/atom+xml" title="Atom Comments" href="http://www.jroller.com/eyallupu/feed/comments/atom" />
+    <link rel="alternate" type="application/rss+xml"  title="RSS Entries"   href="http://www.jroller.com/eyallupu/feed/entries/rss" />
+    <link rel="alternate" type="application/rss+xml"  title="RSS Comments"  href="http://www.jroller.com/eyallupu/feed/comments/rss" />
+           <link rel="EditURI"   type="application/rsd+xml" title="RSD" href="http://www.jroller.com/eyallupu/rsd"/>
+        <style type="text/css">           /*-------------------------------------------------------------
+Base styles
+--------------------------------------------------------------*/
+
+body {
+    background: white;
+    font-family:"Lucida Grande", lucida, Geneva, Arial, sans-serif;
+}
+.img {
+    border: 0px;
+    margin: 0px; 
+}
+
+/* entries ----------------------------------------------- */
+
+div.entryBox {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.entryTitle {
+    font-weight: bold;
+}
+.entryInfo {
+    font-size: 80%;
+    color: #999;
+}
+div.dayTitle {
+    background-color: #eee;
+    border-top: 1px dotted black;
+    border-bottom: 1px dotted black;
+    padding: .5em;
+    font-family: verdana,arial,sans-serif;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+}
+div.next-previous {
+    font-size: 80%;
+    text-align: center;
+    padding: .5em 0 .5em 0;
+
+}
+div.dayBox {
+    border: 1px dashed grey;
+    padding: 2px;
+    margin-bottom: 10px;
+}
+
+/* category chooser ----------------------------------------------- */
+
+.category-chooser {
+    margin: -50%;
+    width:100%;
+}
+.rCategory li {
+    font-size: 80%;
+    display: inline;
+    list-style-type: none;
+    padding-right: 20px;
+}
+li.selected {
+    font-weight: bold;
+}
+
+/* other lists ----------------------------------------------- */
+
+ul.rNavigationBar, ul.rMenu, ul.rFolder, ul.rFeeds, ul.rReferersList, ul.rEntriesList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-size: 80%;
+}
+ul.rFeeds li {
+    background-image: url(http://www.jroller.com/images/feed-icon-12x12.gif);
+    background-repeat: no-repeat;
+    background-position: 0 .2em; 
+    padding-left: 1.4em;
+    line-height: 1.5em;
+}
+
+/* calendar ----------------------------------------------- */
+
+.hCalendarDay{
+    text-align : center;
+    font-size: small;
+}
+th.hCalendarDayNameRow {
+    text-align : center;
+    font-size : small;
+    font-weight : bold;
+}
+td.hCalendarDayCurrent {
+    text-align : center;
+    font-size  : small;
+    font-weight: bold;
+}
+td.hCalendarDayLinked {
+    text-align : center;
+    font-size  : small;
+    font-weight: bold;
+}
+
+/* comments ----------------------------------------------- */
+
+p.comment-details {
+    font-size: 80%;
+    color: #999;
+}
+.comments-syntax-indicator {
+    font-weight: bold;
+}
+.comments-syntax-indicator span.enabled {
+    background: transparent;
+    color: green;
+    font-style: italic;
+}
+.comments-syntax-indicator span.disabled {
+    background: transparent;
+    color: red;
+    font-style: italic;
+}
+
+form ul{ position: relative; list-style: none; width: 100%; }
+form li{ line-height: 2em; margin: 0; padding: 1px 1px 6px 9px; }
+form li.focused{ background-color: #fff7c0 !important; }
+form li p{ font-size: 9px; line-height: 13px; color: #444; }
+form li{ display: inline-block; }
+form[id] li{ display: block; }
+form li div{ display: inline-block; }
+form[id] li div{ display: inline; }
+form .left{ float: left !important; margin: 0; }
+form .right{ float: right !important; margin: 0; }
+form .clear{ clear: both; } 
+form li div p{ margin: 0 0 5px 0; }
+form div.left{ margin-right: 2px !important; }
+form div.left[class]{ margin-right: 4px !important; }
+form div.left img{ margin: 0 0 -2px 0; }
+form h2{ font-size: 1.8em; clear: left; } 
+form .info{ display: inline-block; margin: 0 0 10px 0; padding: 0 0 4px 0; border-bottom: 1px dotted #ccc !important;}
+form .info[class]{ display: block; }
+form .info p{ font-size: 1em; line-height: 1.3em; margin: 0 0 8px 0; }
+textarea.textarea{margin-bottom: 1px;}
+textarea.textarea[class]{font-family: "Lucida Grande", Tahoma, "Trebuchet MS", Verdana, sans-serif;}
+select.select{ padding: 1px 0 0 0; margin: 1px 0 3px 0; }
+select.select[class]{ margin: 0; padding: 1px 0 1px 0; }
+form .small{ width: 70px; }
+form .medium{ width: 170px; }
+form .large, form textarea.textarea{ width: 340px; }
+form .tags{ width: 320px; }
+form textarea.small{ height: 5.5em; }
+form textarea.medium{ height: 10em; }
+form textarea.large{ height: 20em; }
+.choices input{ width: 200px; margin-right: 3px; }
+.choices ol{ margin: 10px 0 0 0; }
+.choices[class] ol{ margin: 0 !important; }
+.choices img{ margin: 0 0 1px 0; }
+fieldset ol li{ display: list-item !important; margin: 0 5px 2px 3px !important; padding: 0 !important; list-style: inside decimal; }
+input.button, button { width: 6em; padding: 2px 2px 0 0; /* fix for IE */ }
+/* revert to normal for Firefox */
+li>input.button, li>button, input.button>input.button, button>button { padding: 2px; }
+label.desc{
+    margin: 4px 0 3px 0;
+    border: 0;
+    color: #444;
+    font-size: 1em;
+    line-height: 1.3em;
+    display: block;
+    font-weight: bold;
+}
+input.text, input.number, input.url, input.email, input.password, input.file, 
+textarea.textarea, select.select{
+    font-size: 1.2em;
+    border-top: 1px solid #7c7c7c;
+    border-left: 1px solid #c3c3c3;
+    border-right: 1px solid #c3c3c3;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+}
+input.text, input.number, input.url, input.email, input.password, input.file{ padding: 2px; }
+input.currency{ text-align: right; }
+input.checkbox, input.radio{
+    display: block;
+    line-height: 1.4em;
+    margin: 8px 0 0 3px;
+    width: 13px;
+    height: 13px;
+}
+input.focus, textarea.focus { background: #ffd; color: #000; }
+label.choice{
+    display: block;
+    line-height: 1.4em;
+    margin: -19px 0 0 25px;
+    padding: 4px 0 5px 0;
+    color: #444;
+    width: 80%;
+}
+
+/*------ Changes start here ----*/
+
+h1.blog-title {
+  background-color: #0000A0;
+  font-family:'Times New Roman',Times,serif;
+  font-size:230%;
+  font-size-adjust:none;
+  font-style:italic;
+  font-variant:normal;
+  font-weight:normal;
+  letter-spacing:0.2em;
+  line-height:normal;
+  color: #FFFFFF;
+  margin-bottom: 0px;
+}
+
+
+div.nameboxEx {
+   background-color: #D6E2F5;
+   border:1px dashed gray;
+   color:yellow;
+   font-weight:bold;
+   margin:5px;
+   padding:2px;
+}
+
+div.dayTitleEx {
+  background-color: #D6E2F5;
+  border-bottom:1px dotted black;
+  border-top:1px dotted black;
+  color:#333333;
+  font-family:verdana,arial,sans-serif;
+  font-weight:bold;
+  padding:0.5em;
+  text-transform:uppercase;
+}
+
+
+.java-code {
+   overflow:auto; 
+   font-family:"Courier New",Courier,mono; 
+   font-size: 100%;
+   margin:0; 
+   padding:1em 0 1em 2.8em; 
+   color: black; 
+   background-color: #EEEEEE;
+   width:95%; 
+   border-style: solid;
+   border-width: 1px;
+}
+
+.java-code-strong {
+   font-weight: bold;
+   color: #0080ff; 
+}
+
+/*------ Changes end here    </style>
+    <link rel="stylesheet" type="text/css" href='http://www.jroller.com/eyallupu/resource/theme.css' />
+    <script language="javascript" type="text/javascript">
+function keywordsToText(keywords) {
+	var result;
+	var first = true;
+	for (var i = 0; i<keywords.length; ++i ) {
+		if (first) {
+			result = keywords[i];
+			first=false;
+		} else if (i==keywords.length-1 ) {
+			result = result + " and " + keywords[i];
+		} else {
+			result = result + ", " + keywords[i];
+		}
+	}
+     return result;
+}
+    </script>
+</head>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-15318213-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+<body>
+<div id="MainColumn">
+   <div align="center">
+       <h1 class="blog-title">Eyal Lupu - All About Java</h1>
+       <div><br/> </div>
+       <div class="dayTitleEx"><br>
+<img alt="Important" style="width:25px;height:23px;vertical-align:middle" src="/eyallupu/resource/important.png"/>&nbsp;NOTICE - Changing my blog address<br>
+<div style="text-transform: none; text-align: left;">
+Starting of June 2010 my blog has been moved to a new address: <a href="http://blog.eyallupu.com">http://blog.eyallupu.com</a>. New posts will be made to that new URL while in this site I will only post references to posts on the new site.<br/><br/>
+Eyal
+</div>
+
+
+      </div>
+                                <ul class="rCategory">
+                   <li class="selected">All</li>
+                                            <li><a href="http://www.jroller.com/eyallupu/category/Java">Java</a></li>
+                                                <li><a href="http://www.jroller.com/eyallupu/category/Technology">Technology</a></li>
+                                                <li><a href="http://www.jroller.com/eyallupu/category/Spring+Framework">Spring Framework</a></li>
+                                                <li><a href="http://www.jroller.com/eyallupu/category/Persistence">Persistence</a></li>
+                                                <li><a href="http://www.jroller.com/eyallupu/category/Web-Container">Web-Container</a></li>
+                            </ul>
+       </div>
+
+        <div class="next-previous">
+                                                &laquo; <a href="http://www.jroller.com/eyallupu/entry/using_jsr220_annotations_to_map">Using JSR220 Annotat...</a> |  
+                <a href="/eyallupu/">Main</a>
+                | <a href="http://www.jroller.com/eyallupu/entry/using_hibernate_annotations_to_map">Using Hibernate...</a> &raquo;
+                </div>
+
+                <div class="dayBox">
+
+    <div class="dayTitleEx">
+       Sunday Feb 26, 2006
+    </div>
+
+        <div class="entryBox">
+        <a name="instrumenting_java_code_using_agents" id="instrumenting_java_code_using_agents"></a>
+        <p class="entryTitle">Instrumenting Java Code using Agents</p>
+        <p class="entryContent"> 
+                            <H3><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">Class
+manipulations using java.lang.instrument</SPAN></FONT></H3>
+<p><pre><i>
+The source samples might be missing some information as a result of the HTML<br>formatting, you
+can download the source file from <a href="http://jroller.com/resources/e/eyallupu/MethodsNotifierAgent.java">here</a>
+</i></pre></p>
+<P><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">The new JSE
+1.5 package java.lang.instrument enables us to register a java-agent
+which can instrument java bytecode. This entry illustrates the usage of these agents</SPAN></FONT></P>
+<H3><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">Write the
+agent </SPAN></FONT>
+</H3>
+<P><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">The agent
+is a POJO which have to implement the following method </SPAN></FONT>
+</P>
+<OL>
+	<OL>
+		<P><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US"><I>public
+		static void premain(String agentArgs, Instrumentation inst)</I></SPAN></FONT></P>
+	</OL>
+</OL>
+<P STYLE="font-style: normal"><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">Each
+permain method will be invoked in the order of command line
+registration (<A HREF="#0.0.0.Invoke premain|outline">see next
+section</A>) before the application's main method will be invoked. If
+this method doesn't return the program won't start. The agent class
+will be loaded by the same classloader which loads the class
+containing the application main method (that is the system
+classloader). The premain can get options and it can register an
+agent using the <I>inst.addTransformer(ClassFileTransformer)</I>
+method. Here is a premain</SPAN></FONT></P>
+<PRE STYLE="background: #e6e6e6; border: 1px solid #000000; padding: 0.05cm">
+<SPAN LANG="en-US">	<B>public static void premain(String options, Instrumentation inst) {</B></SPAN>
+<SPAN LANG="en-US">		System.out.println(MSG_PREFIX + &quot; agent starts&quot;);</SPAN>
+<SPAN LANG="en-US">		if (options != null) {</SPAN>
+<SPAN LANG="en-US">			System.out.printf(&quot;%s Agent options: \&quot;%s\&quot;%n&quot;, MSG_PREFIX, options);</SPAN>
+<SPAN LANG="en-US">		} else</SPAN>
+<SPAN LANG="en-US">			System.out.println(MSG_PREFIX + &quot; no options&quot;);</SPAN>
+<SPAN LANG="en-US">		<B>inst.addTransformer(new MethodsNotifierAgent());</B></SPAN>
+<SPAN LANG="en-US">	}</SPAN>
+
+</PRE><P STYLE="font-style: normal">
+<BR><BR>
+</P>
+<H3><A NAME="0.0.0.Invoke premain|outline"></A><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">Invoke premain</SPAN></FONT></H3>
+<P><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">To invoke
+one or more premain we should name all of the agents in the command
+line</SPAN></FONT></P>
+<P>              <FONT FACE="Times New Roman, serif"><SPAN LANG="en-US"><I>java
+ -javaagent:jarpath[=options] </I></SPAN></FONT>
+</P>
+<P STYLE="font-style: normal"><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">Each
+agent should be packed in a jar file, this jar is pointed to using
+the javaagent command line switch. The agent class itself is
+identified using the <I>Premain-Class</I> manifest attribute in the
+jar file, another important manifest attribute is
+<I>Can-Redefine-Classes</I> which can be set to true or false
+(default). Here is a sample manifest file</SPAN></FONT></P>
+<P STYLE="margin-bottom: 0cm; background: #e6e6e6; border: 1px solid #000000; padding: 0.05cm">
+<FONT FACE="Tahoma"><FONT SIZE=2><SPAN LANG="he-IL">Manifest-Version:
+1.0</SPAN></FONT></FONT><br>
+<FONT FACE="Tahoma"><FONT SIZE=2><SPAN LANG="he-IL">Ant-Version:
+Apache Ant 1.6.5</SPAN></FONT></FONT><br>
+<FONT FACE="Tahoma"><FONT SIZE=2><SPAN LANG="he-IL">Created-By:
+1.5.0_06-b05 (Sun Microsystems Inc.)</SPAN></FONT></FONT><br>
+<FONT FACE="Tahoma"><FONT SIZE=2><SPAN LANG="he-IL"><B>Premain-Class:
+agents.MethodsNotifierAgent</B></SPAN></FONT></FONT><br>
+<FONT FACE="Tahoma"><FONT SIZE=2><SPAN LANG="he-IL"><B>Can-Redefine-Classes:
+true</B></SPAN></FONT></FONT><br>
+
+<p><H3>
+<FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">The
+Instrumentation</SPAN></FONT></H3>
+<P><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">To perform
+the instrumentation the agent has to implement the
+<I>ClassFileTransformer</I><SPAN STYLE="font-style: normal">
+interface, this interface defines one method</SPAN></SPAN></FONT></P>
+<P>                                       <FONT FACE="Times New Roman, serif"><SPAN LANG="en-US"><I>public
+byte[] transform(ClassLoader loader, </I></SPAN></FONT>
+</P>
+<P>                                                       <FONT FACE="Times New Roman, serif"><SPAN LANG="en-US"><I>String
+className, Class cBR, java.security.ProtectionDomain pD, </I></SPAN></FONT>
+</P>
+<P>                                                      <FONT FACE="Times New Roman, serif"><SPAN LANG="en-US"><I>byte[]
+classfileBuffer) throws  IllegalClassFormatException</I></SPAN></FONT></P>
+
+<p><center>
+<script type="text/javascript"><!--
+google_ad_client = "pub-7548643028974164";
+google_ad_width = 468;
+google_ad_height = 60;
+google_ad_format = "468x60_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+google_color_border = "9191CD";
+google_color_bg = "FFFFFF";
+google_color_link = "0000FF";
+google_color_url = "008000";
+google_color_text = "000000";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</center></p>
+
+
+<P STYLE="font-style: normal"><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">This
+method is will be invoke before a class is defined in the JVM and it
+is the opportunity for the agent to perform any instrumentation it
+needs. The instrumentation itself can be done using many tools like 
+<A HREF="http://jakarta.apache.org/bcel/news.html">BCEL</A> ,
+<A HREF="http://www.csg.is.titech.ac.jp/~chiba/javassist/">javaassist</A>
+ and others. The next code fragment illustrates an agent which adds
+to the beginning of each method an invocation trace message (using
+BCEL):</SPAN></FONT></P>
+<PRE STYLE="background: #e6e6e6; border: 1px solid #000000; padding: 0.05cm"><SPAN LANG="en-US">	</SPAN>
+                   <SPAN LANG="en-US">public byte[] transform(ClassLoader loader, String className, Class cBR,</SPAN>
+<SPAN LANG="en-US">			java.security.ProtectionDomain pD, byte[] classfileBuffer)</SPAN>
+<SPAN LANG="en-US">			throws IllegalClassFormatException {</SPAN>
+<SPAN LANG="en-US">		try {</SPAN>
+
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			// Parse the class stream, to obtain a JavaClass instance</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			ClassParser classParser = new ClassParser(new ByteArrayInputStream(</SPAN>
+<SPAN LANG="en-US">					classfileBuffer), className + &quot;.class&quot;);</SPAN>
+<SPAN LANG="en-US">			JavaClass javaClass = classParser.parse();</SPAN>
+
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			// We will change the class' constant pool (new strings)</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			ConstantPoolGen constantPoolGen = new ConstantPoolGen(javaClass</SPAN>
+<SPAN LANG="en-US">					.getConstantPool());</SPAN>
+
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			// We will use PrintStream in all of out methods</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">		ObjectType printStreamObjectType = new ObjectType(&quot;java.io.PrintStream&quot;);</SPAN>
+
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			// Go over all of the methods</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			Method[] methods = javaClass.getMethods();</SPAN>
+<SPAN LANG="en-US">			for (int t = 0; t &lt; methods.length; ++t) {</SPAN>
+<SPAN LANG="en-US">				Method m = methods[t];</SPAN>
+
+<SPAN LANG="en-US">				//</SPAN>
+<SPAN LANG="en-US">				// Ignore abstract and native methods</SPAN>
+<SPAN LANG="en-US">				//</SPAN>
+<SPAN LANG="en-US">				if (m.isAbstract() || m.isNative())</SPAN>
+<SPAN LANG="en-US">					continue;</SPAN>
+
+<SPAN LANG="en-US">				//</SPAN>
+<SPAN LANG="en-US">				// Create a copy of the method</SPAN>
+<SPAN LANG="en-US">				//</SPAN>
+<SPAN LANG="en-US">				MethodGen methodGen = new MethodGen(m,</SPAN>
+<SPAN LANG="en-US">						javaClass.getClassName(), constantPoolGen);</SPAN>
+<SPAN LANG="en-US">			InstructionList instructionList = methodGen</SPAN>
+<SPAN LANG="en-US">						.getInstructionList();</SPAN>
+
+<SPAN LANG="en-US">				//</SPAN>
+<SPAN LANG="en-US">			// Create the the following code segment:</SPAN>
+<SPAN LANG="en-US">			// System.out.println(MSG_PREFIX + &quot; Invoking: &quot; + className +</SPAN>
+<SPAN LANG="en-US">			// &quot;.&quot; + methodGen.getName() + &quot;\n&quot;</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			InstructionList printMessageInstructionList = new InstructionList();</SPAN>
+<SPAN LANG="en-US">			InstructionFactory instructionFactory = new InstructionFactory(</SPAN>
+<SPAN LANG="en-US">						constantPoolGen);</SPAN>
+
+<SPAN LANG="en-US">				printMessageInstructionList.append(instructionFactory</SPAN>
+<SPAN LANG="en-US">						.createFieldAccess(&quot;java.lang.System&quot;, &quot;out&quot;,</SPAN>
+                                                         <SPAN LANG="en-US">printStreamObjectType,</SPAN>
+<SPAN LANG="en-US">								Constants.GETSTATIC));</SPAN>
+
+<SPAN LANG="en-US">				printMessageInstructionList.append(new PUSH(constantPoolGen,</SPAN>
+<SPAN LANG="en-US">		MSG_PREFIX + &quot; Invoking: &quot; + className + &quot;.&quot;</SPAN>
+<SPAN LANG="en-US">								+ methodGen.getName() + &quot;\n&quot;));</SPAN>
+<SPAN LANG="en-US">				</SPAN>
+<SPAN LANG="en-US">             printMessageInstructionList.append(instructionFactory</SPAN>
+<SPAN LANG="en-US">	            .createInvoke(&quot;java.io.PrintStream&quot;, &quot;print&quot;,</SPAN>
+<SPAN LANG="en-US">			Type.VOID, new Type[] { Type.STRING },</SPAN>
+<SPAN LANG="en-US">								Constants.INVOKEVIRTUAL));</SPAN>
+
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			// Append the generated list to the method</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			instructionList.insert(printMessageInstructionList);</SPAN>
+
+<SPAN LANG="en-US">				//</SPAN>
+<SPAN LANG="en-US">				// Seal the method and replace it</SPAN>
+<SPAN LANG="en-US">				//</SPAN>
+<SPAN LANG="en-US">				methodGen.setMaxLocals();</SPAN>
+<SPAN LANG="en-US">				methodGen.setMaxStack();</SPAN>
+<SPAN LANG="en-US">				methods[t] = methodGen.getMethod();</SPAN>
+<SPAN LANG="en-US">				instructionList.dispose();</SPAN>
+<SPAN LANG="en-US">				printMessageInstructionList.dispose();</SPAN>
+<SPAN LANG="en-US">			}</SPAN>
+
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			// Seal constant pool</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			javaClass.setConstantPool(constantPoolGen.getFinalConstantPool());</SPAN>
+
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			// Return the new generated class</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			return javaClass.getBytes();</SPAN>
+<SPAN LANG="en-US">			</SPAN>
+<SPAN LANG="en-US">		} catch (Exception e) {</SPAN>
+<SPAN LANG="en-US">			</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			// On error no instrumenting will be done</SPAN>
+<SPAN LANG="en-US">			//</SPAN>
+<SPAN LANG="en-US">			e.printStackTrace();</SPAN>
+<SPAN LANG="en-US">			return null;</SPAN>
+<SPAN LANG="en-US">		}</SPAN>
+<SPAN LANG="en-US">	}</SPAN>
+</PRE>
+<P STYLE="font-style: normal"><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">This
+agent instruments all of the classes which have been loaded after the
+agent was registered, including java core classes (notice that some
+JVM's license prohibits you from changing code in the rt.jar).</SPAN></FONT></P>
+<P STYLE="font-style: normal"><BR><BR>
+</P>
+<P STYLE="font-style: normal"><FONT FACE="Times New Roman, serif"><SPAN LANG="en-US">Attached
+is the agent <a href="http://jroller.com/resources/e/eyallupu/MethodsNotifierAgent.java">source</a> file (requires BCEL 5.1)</SPAN></FONT></P>
+                    </p>
+        <p class="entryInfo">
+            Posted at <a href="http://www.jroller.com/eyallupu/entry/instrumenting_java_code_using_agents">
+               03:32PM Feb 26, 2006</a>
+            by Eyal Lupu in <span class="category">Java</span> &nbsp;|&nbsp;
+                                        <a href="http://www.jroller.com/eyallupu/entry/instrumenting_java_code_using_agents#comments" class="commentsLink">Comments[1]</a>
+                    </p>
+    </div>
+        
+</div>
+
+    
+               <a name="comments"></a>
+    <div class="comments" id="comments">
+
+            <div class="comments-head">Comments:</div>
+            
+    <br/>
+                                                            
+            <div class="comment odd" id="comment1">
+                Some core classes such as FileInputStream would already be defined by the time the premain method is invoked, Is it possible to intercept these classes before they are loaded into the JVM
+
+                <p class="comment-details">
+                Posted by
+                                    <b>Vimil</b>
+                
+                on December 26, 2007 at 08:03 AM GMT+02:00
+
+                <a href="http://www.jroller.com/eyallupu/entry/instrumenting_java_code_using_agents#comment-1198649025000"
+                   class="entrypermalink" title="comment permalink">#</a>
+                </p>
+
+            </div>
+
+                </div>
+       
+    <div class="comments-form">
+    <div class="comments-head">Post a Comment:</div>
+
+
+    
+    <form method="post" action="http://www.jroller.com/eyallupu/entry/instrumenting_java_code_using_agents" focus="name" 
+        name="commentForm" onsubmit="fixURL(this); return validateComments(this)">    
+        <input type="hidden" name="method" value="post" />
+
+        <ul>
+            <li>
+                <label class="desc">Name:</label>
+                <input type="text" name="name" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+
+            <li><label class="desc">E-Mail:</label>
+                <input type="text" name="email" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+            <li><label class="desc">URL:</label>
+                <input type="text" name="url" class="text large" value="" size="50" maxlength="255" />
+            </li>
+
+                    <li><input type="checkbox" class="checkbox" id="notify" name="notify" />
+                <label for="notify" class="choice">Notify me by email of new comments</label>
+            </li>
+                    <li>
+                <input type="checkbox" class="checkbox" id="rememberInfo" name="rememberInfo" />
+                <label for="rememberInfo" class="choice">Remember Information?</label>
+            </li>
+            <li>
+                <label class="desc">Your Comment:</label>
+                                                <textarea name="content" class="textarea large" cols="" rows=""></textarea>
+            </li>
+            <li class="info">
+                <span class="comments-syntax-indicator">
+                HTML Syntax:
+                                    <span class="disabled">NOT allowed</span>
+                                </span>
+            </li>
+            <li class="info">
+               <script type="text/javascript" src="/theme/scripts/clientSideInclude.js"></script>
+               <div id="commentAuthenticator"></div>
+            </li>
+            <li>
+               <input type="button" class="button" name="post" value="&nbsp;Preview&nbsp;"
+                  onclick="this.form.method.value='preview';this.form.submit()" />
+               <input type="submit" class="button" name="post" value="&nbsp;Post&nbsp;" />
+            </li>
+        </ul>
+
+    </form>
+
+    <script type="text/javascript" src="/theme/scripts/roller.js"></script>
+    <script type="text/javascript">
+    clientSideInclude('commentAuthenticator', '/CommentAuthenticatorServlet');
+
+    var author = getCookie("commentAuthor");
+    var email = getCookie("commentEmail");
+    var url = getCookie("commentUrl");
+    // check each field - IE will render "null"
+    if (author) {
+        document.forms['commentForm'].name.value = author;
+    }
+    if (email) {
+        document.forms['commentForm'].email.value = email;
+    }
+    if (url) {
+        document.forms['commentForm'].url.value = url;
+    }
+
+    if (author || email || url) {
+        document.forms['commentForm'].rememberInfo.checked = true;
+    }
+
+    function fixURL(theForm) {
+        if (theForm.url.value != "" &&
+            theForm.url.value.indexOf("http://") == -1) { //prepend http://
+            theForm.url.value = "http://"+theForm.url.value;
+        }
+        saveUserInformation(theForm);
+    }
+
+    function saveUserInformation(theForm) {
+        if (theForm.rememberInfo.checked) {
+            rememberUser(theForm);
+        } else {
+            forgetUser(theForm);
+        }
+    }
+
+    function validateComments(theForm) {
+        if (theForm.content.value == "") {
+            alert("Please enter a comment.");
+            theForm.content.focus();
+            return false;
+        }
+    }
+    </script>
+
+
+    </div>
+    
+<br/>
+</div>
+
+<div id="SideBar">
+ <div class="nameboxEx">
+   <center><br/>
+<!-- Start of StatCounter Code -->
+<script type="text/javascript">
+sc_project=1496837; 
+sc_invisible=0; 
+sc_partition=13; 
+sc_security="ee510ef9"; 
+</script>
+
+<script type="text/javascript" src="http://www.statcounter.com/counter/counter.js"></script><noscript><div class="statcounter"><a title="hits counter" href="http://www.statcounter.com/free_hit_counter.html" target="_blank"><img class="statcounter" src="http://c14.statcounter.com/1496837/0/ee510ef9/0/" alt="hits counter" ></a></div></noscript>
+<!-- End of StatCounter Code -->
+
+   <br/><br/>
+   </center>
+ </div>
+ <div class="menubox">
+ <h2 class="box">contact me</h2>
+ <center>
+   <a href="http://www.linkedin.com/in/eyallupu" ><img src="http://www.linkedin.com/img/webpromo/btn_viewmy_160x33.gif" width="160" height="33" border="0" alt="View Eyal Lupu's profile on LinkedIn"></a>
+    <br/><br/>
+     <img src="/eyallupu/resource/css/email.gif"/> <a href="mailto:eyall2 (at) gmail.com">eyall2 (at) gmail.com</a>
+    <br/><br/>
+</center>
+ </div>
+<div class="menubox" style="border:none;padding:3px;text-align:center;background-color:white;">
+<center>
+<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab" id="Player_ff762bd2-f47a-4061-b5f6-946264e3480f"  WIDTH="160px" HEIGHT="400px"> <PARAM NAME="movie" VALUE="http://ws.amazon.com/widgets/q?ServiceVersion=20070822&MarketPlace=US&ID=V20070822%2FUS%2Feljb-20%2F8009%2Fff762bd2-f47a-4061-b5f6-946264e3480f&Operation=GetDisplayTemplate"><PARAM NAME="quality" VALUE="high"><PARAM NAME="bgcolor" VALUE="#FFFFFF"><PARAM NAME="allowscriptaccess" VALUE="always"><embed src="http://ws.amazon.com/widgets/q?ServiceVersion=20070822&MarketPlace=US&ID=V20070822%2FUS%2Feljb-20%2F8009%2Fff762bd2-f47a-4061-b5f6-946264e3480f&Operation=GetDisplayTemplate" id="Player_ff762bd2-f47a-4061-b5f6-946264e3480f" quality="high" bgcolor="#ffffff" name="Player_ff762bd2-f47a-4061-b5f6-946264e3480f" allowscriptaccess="always"  type="application/x-shockwave-flash" align="middle" height="400px" width="160px"></embed></OBJECT> <NOSCRIPT><A HREF="http://ws.amazon.com/widgets/q?ServiceVersion=20070822&MarketPlace=US&ID=V20070822%2FUS%2Feljb-20%2F8009%2Fff762bd2-f47a-4061-b5f6-946264e3480f&Operation=NoScript">Amazon.com Widgets</A></NOSCRIPT>
+</center>
+</div>
+<!--
+ <div class="menubox"><h2 class="box">subscribe</h2>
+   <form style="border:1px solid #ccc;padding:3px;text-align:center;" action="http://www.feedburner.com/fb/a/emailverify" method="post" 
+      target="popupwindow" onsubmit="window.open('http://www.feedburner.com/fb/a/emailverifySubmit?feedId=1655504', 'popupwindow', 'scrollbars=yes,width=550,height=520');return true">
+     <p>Enter your email address:</p><p><input type="text" style="width:140px" name="email"/></p>
+        <input type="hidden" value="http://feeds.feedburner.com/~e?ffid=1655504" name="url"/>
+        <input type="hidden" value="Eyal Lupu Java Blog" name="title"/><input type="hidden" name="loc" value="en_US"/>
+        <input type="submit" value="Subscribe" />
+     </form>
+ </div>
+-->
+ <div class="menubox"><h2 class="box">navigation</h2>
+      <ul class="rNavigationBar">
+        <li class="rNavItem">
+            <a href="/">Front Page</a>
+        </li>
+        <li class="rNavItem">
+            <a href="http://www.jroller.com/eyallupu/">Weblog</a>
+        </li>
+                                                                        <li class="rNavItem"><a href="http://www.jroller.com/eyallupu/page/Archives">Archives</a></li>
+                                                                                                                                                                                                                                                                                                    <li class="rNavItem">
+                    <a href="/roller-ui/login-redirect.jsp">Login</a>
+                </li>
+                        </ul>
+  <br/>
+  
+ </div>
+
+ <div class="menubox"><h2 class="box">atom feeds</h2>
+       <ul class="rFeeds">
+    <li><a href="http://www.jroller.com/eyallupu/feed/entries/atom">All</a></li>
+                <li><a href="http://www.jroller.com/eyallupu/feed/entries/atom?cat=%2FJava">/Java</a></li>
+            <li><a href="http://www.jroller.com/eyallupu/feed/entries/atom?cat=%2FTechnology">/Technology</a></li>
+            <li><a href="http://www.jroller.com/eyallupu/feed/entries/atom?cat=%2FSpring+Framework">/Spring Framework</a></li>
+            <li><a href="http://www.jroller.com/eyallupu/feed/entries/atom?cat=%2FPersistence">/Persistence</a></li>
+            <li><a href="http://www.jroller.com/eyallupu/feed/entries/atom?cat=%2FWeb-Container">/Web-Container</a></li>
+        <li><a href="http://www.jroller.com/eyallupu/feed/comments/atom">Comments</a></li>
+    </ul>
+<br/>
+ </div>
+
+ <div class="menubox"><h2 class="box">links</h2>
+  <br/>
+   <center>
+<!-- AddThis Button BEGIN -->
+<div><script type="text/javascript">var addthis_pub="eyallupu";</script>
+<a href="http://www.addthis.com/bookmark.php" onmouseover="return addthis_open(this, '', '[URL]', '[TITLE]')" onmouseout="addthis_close()" onclick="return addthis_sendto()"><img src="http://s7.addthis.com/static/btn/lg-bookmark-en.gif" width="125" height="16" border="0" alt="" style="border:0"/></a><script type="text/javascript" src="http://s7.addthis.com/js/152/addthis_widget.js"></script></div>
+<!-- AddThis Button END -->
+  <br/>
+   </center>
+ </div>
+
+ <div class="menubox"><h2 class="box">design by</h2>
+   Werner Ramaeker
+ </div>
+
+</div>
+
+</body>
+</html>

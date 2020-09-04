@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- code.jsp -->
+
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>sun.io: Converters.java</title>
+</head>
+<body style="padding:0 0 0 0;margin:0 0 0 0">
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-code.html">openjdk-7</a> &#187; sun &#187;  <a href='/docs/api/sun/io/package-index.html'>io</a> &#187; 
+ [<a href="/docs/api/sun/io/Converters.html">javadoc</a> | source]
+</div>
+<pre>
+<a name='1'>    1 &nbsp; /*
+    2 &nbsp;  * Copyright (c) 1998, 2010, Oracle and/or its affiliates. All rights reserved.
+    3 &nbsp;  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+    4 &nbsp;  *
+    5 &nbsp;  * This code is free software; you can redistribute it and/or modify it
+    6 &nbsp;  * under the terms of the GNU General Public License version 2 only, as
+    7 &nbsp;  * published by the Free Software Foundation.  Oracle designates this
+    8 &nbsp;  * particular file as subject to the "Classpath" exception as provided
+    9 &nbsp;  * by Oracle in the LICENSE file that accompanied this code.
+   10 &nbsp;  *
+<a name='11'>   11 &nbsp;  * This code is distributed in the hope that it will be useful, but WITHOUT
+   12 &nbsp;  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   13 &nbsp;  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+   14 &nbsp;  * version 2 for more details (a copy is included in the LICENSE file that
+   15 &nbsp;  * accompanied this code).
+   16 &nbsp;  *
+   17 &nbsp;  * You should have received a copy of the GNU General Public License version
+   18 &nbsp;  * 2 along with this work; if not, write to the Free Software Foundation,
+   19 &nbsp;  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+   20 &nbsp;  *
+<a name='21'>   21 &nbsp;  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+   22 &nbsp;  * or visit www.oracle.com if you need additional information or have any
+   23 &nbsp;  * questions.
+   24 &nbsp;  */
+   25 &nbsp; 
+   26 &nbsp; <span class='kw'>package</span> <a href=/docs/api/sun/io/package-index.html>sun.io</a>;
+   27 &nbsp; 
+   28 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/UnsupportedEncodingException.html>java.io.UnsupportedEncodingException</a>;
+   29 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/lang/ref/SoftReference.html>java.lang.ref.SoftReference</a>;
+   30 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/util/Properties.html>java.util.Properties</a>;
+<a name='31'>   31 &nbsp; 
+   32 &nbsp; /**
+   33 &nbsp;  * Package-private utility class that caches the default converter classes and
+   34 &nbsp;  * provides other logic common to both the ByteToCharConverter and
+   35 &nbsp;  * CharToByteConverter classes.
+   36 &nbsp;  *
+   37 &nbsp;  * @author   Mark Reinhold
+   38 &nbsp;  * @since    1.2
+   39 &nbsp;  *
+   40 &nbsp;  * @deprecated Replaced by {@link java.nio.charset}.  THIS API WILL BE
+<a name='41'>   41 &nbsp;  * REMOVED IN J2SE 1.6.
+   42 &nbsp;  */
+   43 &nbsp; @Deprecated
+   44 &nbsp; public class Converters {
+   45 &nbsp; 
+   46 &nbsp;     private Converters() { }    /* To prevent instantiation */
+   47 &nbsp; 
+   48 &nbsp;     /* Lock for all static fields in this class */
+   49 &nbsp;     private static Object lock = Converters.class;
+   50 &nbsp; 
+<a name='51'>   51 &nbsp;     /* Cached values of system properties */
+   52 &nbsp;     private static String converterPackageName = null;  /* file.encoding.pkg */
+   53 &nbsp;     private static String defaultEncoding = null;       /* file.encoding */
+   54 &nbsp; 
+   55 &nbsp;     /* Converter type constants and names */
+   56 &nbsp;     public static final int BYTE_TO_CHAR = 0;
+   57 &nbsp;     public static final int CHAR_TO_BYTE = 1;
+   58 &nbsp;     private static final String[] converterPrefix = { "ByteToChar",
+   59 &nbsp;                                                       "CharToByte" };
+   60 &nbsp; 
+<a name='61'>   61 &nbsp; 
+   62 &nbsp;     // -- Converter class cache --
+   63 &nbsp; 
+   64 &nbsp;     private static final int CACHE_SIZE = 3;
+   65 &nbsp; 
+   66 &nbsp;     /* For the default charset, whatever it turns out to be */
+   67 &nbsp;     private static final Object DEFAULT_NAME = new Object();
+   68 &nbsp; 
+   69 &nbsp;     /* Cached converter classes, CACHE_SIZE per converter type.  Each cache
+   70 &nbsp;      * entry is a soft reference to a two-object array; the first element of
+<a name='71'>   71 &nbsp;      * the array is the converter class, the second is an object (typically a
+   72 &nbsp;      * string) representing the encoding name that was used to request the
+   73 &nbsp;      * converter, e.g.,
+   74 &nbsp;      *
+   75 &nbsp;      *     ((Object[])classCache[CHAR_TO_BYTE][i].get())[0]
+   76 &nbsp;      *
+   77 &nbsp;      * will be a CharToByteConverter and
+   78 &nbsp;      *
+   79 &nbsp;      *     ((Object[])classCache[CHAR_TO_BYTE][i].get())[1]
+   80 &nbsp;      *
+<a name='81'>   81 &nbsp;      * will be the string encoding name used to request it, assuming that cache
+   82 &nbsp;      * entry i is valid.
+   83 &nbsp;      *
+   84 &nbsp;      * Ordinarily we'd do this with a private static utility class, but since
+   85 &nbsp;      * this code can be involved in the startup sequence it's important to keep
+   86 &nbsp;      * the footprint down.
+   87 &nbsp;      */
+   88 &nbsp;     @SuppressWarnings("unchecked")
+   89 &nbsp;     private static SoftReference&lt;Object[]&gt;[][] classCache
+   90 &nbsp;         = (SoftReference&lt;Object[]&gt;[][]) new SoftReference&lt;?&gt;[][] {
+<a name='91'>   91 &nbsp;             new SoftReference&lt;?&gt;[CACHE_SIZE],
+   92 &nbsp;             new SoftReference&lt;?&gt;[CACHE_SIZE]
+   93 &nbsp;         };
+   94 &nbsp; 
+   95 &nbsp;     private static void moveToFront(Object[] oa, int i) {
+   96 &nbsp;         Object ob = oa[i];
+   97 &nbsp;         for (int j = i; j &gt; 0; j--)
+   98 &nbsp;             oa[j] = oa[j - 1];
+   99 &nbsp;         oa[0] = ob;
+  100 &nbsp;     }
+<a name='101'>  101 &nbsp; 
+  102 &nbsp;     private static Class&lt;?&gt; cache(int type, Object encoding) {
+  103 &nbsp;         SoftReference&lt;Object[]&gt;[] srs = classCache[type];
+  104 &nbsp;         for (int i = 0; i &lt; CACHE_SIZE; i++) {
+  105 &nbsp;             SoftReference&lt;Object[]&gt; sr = srs[i];
+  106 &nbsp;             if (sr == null)
+  107 &nbsp;                 continue;
+  108 &nbsp;             Object[] oa = sr.get();
+  109 &nbsp;             if (oa == null) {
+  110 &nbsp;                 srs[i] = null;
+<a name='111'>  111 &nbsp;                 continue;
+  112 &nbsp;             }
+  113 &nbsp;             if (oa[1].equals(encoding)) {
+  114 &nbsp;                 moveToFront(srs, i);
+  115 &nbsp;                 return (Class&lt;?&gt;)oa[0];
+  116 &nbsp;             }
+  117 &nbsp;         }
+  118 &nbsp;         return null;
+  119 &nbsp;     }
+  120 &nbsp; 
+<a name='121'>  121 &nbsp;     private static Class&lt;?&gt; cache(int type, Object encoding, Class&lt;?&gt; c) {
+  122 &nbsp;         SoftReference&lt;Object[]&gt;[] srs = classCache[type];
+  123 &nbsp;         srs[CACHE_SIZE - 1] = new SoftReference&lt;&gt;(new Object[] { c, encoding });
+  124 &nbsp;         moveToFront(srs, CACHE_SIZE - 1);
+  125 &nbsp;         return c;
+  126 &nbsp;     }
+  127 &nbsp; 
+  128 &nbsp;     /* Used to avoid doing expensive charset lookups for charsets that are not
+  129 &nbsp;      * yet directly supported by NIO.
+  130 &nbsp;      */
+<a name='131'>  131 &nbsp;     public static boolean isCached(int type, String encoding) {
+  132 &nbsp;         synchronized (lock) {
+  133 &nbsp;             SoftReference&lt;Object[]&gt;[] srs = classCache[type];
+  134 &nbsp;             for (int i = 0; i &lt; CACHE_SIZE; i++) {
+  135 &nbsp;                 SoftReference&lt;Object[]&gt; sr = srs[i];
+  136 &nbsp;                 if (sr == null)
+  137 &nbsp;                     continue;
+  138 &nbsp;                 Object[] oa = sr.get();
+  139 &nbsp;                 if (oa == null) {
+  140 &nbsp;                     srs[i] = null;
+<a name='141'>  141 &nbsp;                     continue;
+  142 &nbsp;                 }
+  143 &nbsp;                 if (oa[1].equals(encoding))
+  144 &nbsp;                     return true;
+  145 &nbsp;             }
+  146 &nbsp;             return false;
+  147 &nbsp;         }
+  148 &nbsp;     }
+  149 &nbsp; 
+  150 &nbsp; 
+<a name='151'>  151 &nbsp; 
+  152 &nbsp;     /** Get the name of the converter package */
+  153 &nbsp;     private static String getConverterPackageName() {
+  154 &nbsp;         String cp = converterPackageName;
+  155 &nbsp;         if (cp != null) return cp;
+  156 &nbsp;         java.security.PrivilegedAction&lt;String&gt; pa =
+  157 &nbsp;             new sun.security.action.GetPropertyAction("file.encoding.pkg");
+  158 &nbsp;         cp = java.security.AccessController.doPrivileged(pa);
+  159 &nbsp;         if (cp != null) {
+  160 &nbsp;             /* Property is set, so take it as the true converter package */
+<a name='161'>  161 &nbsp;             converterPackageName = cp;
+  162 &nbsp;         } else {
+  163 &nbsp;             /* Fall back to sun.io */
+  164 &nbsp;             cp = "sun.io";
+  165 &nbsp;         }
+  166 &nbsp;         return cp;
+  167 &nbsp;     }
+  168 &nbsp; 
+  169 &nbsp;     public static String getDefaultEncodingName() {
+  170 &nbsp;         synchronized (lock) {
+<a name='171'>  171 &nbsp;             if (defaultEncoding == null) {
+  172 &nbsp;                 java.security.PrivilegedAction&lt;String&gt; pa =
+  173 &nbsp;                     new sun.security.action.GetPropertyAction("file.encoding");
+  174 &nbsp;                 defaultEncoding = java.security.AccessController.doPrivileged(pa);
+  175 &nbsp;             }
+  176 &nbsp;         }
+  177 &nbsp;         return defaultEncoding;
+  178 &nbsp;     }
+  179 &nbsp; 
+  180 &nbsp;     public static void resetDefaultEncodingName() {
+<a name='181'>  181 &nbsp;         // This method should only be called during VM initialization.
+  182 &nbsp;         if (sun.misc.VM.isBooted())
+  183 &nbsp;             return;
+  184 &nbsp; 
+  185 &nbsp;         synchronized (lock) {
+  186 &nbsp;             defaultEncoding = "ISO-8859-1";
+  187 &nbsp;             Properties p = System.getProperties();
+  188 &nbsp;             p.setProperty("file.encoding", defaultEncoding);
+  189 &nbsp;             System.setProperties(p);
+  190 &nbsp;         }
+<a name='191'>  191 &nbsp;     }
+  192 &nbsp; 
+  193 &nbsp;     /**
+  194 &nbsp;      * Get the class that implements the given type of converter for the named
+  195 &nbsp;      * encoding, or throw an UnsupportedEncodingException if no such class can
+  196 &nbsp;      * be found
+  197 &nbsp;      */
+  198 &nbsp;     private static Class&lt;?&gt; getConverterClass(int type, String encoding)
+  199 &nbsp;         throws UnsupportedEncodingException
+  200 &nbsp;     {
+<a name='201'>  201 &nbsp;         String enc = null;
+  202 &nbsp; 
+  203 &nbsp;         /* "ISO8859_1" is the canonical name for the ISO-Latin-1 encoding.
+  204 &nbsp;            Native code in the JDK commonly uses the alias "8859_1" instead of
+  205 &nbsp;            "ISO8859_1".  We hardwire this alias here in order to avoid loading
+  206 &nbsp;            the full alias table just for this case. */
+  207 &nbsp;         if (!encoding.equals("ISO8859_1")) {
+  208 &nbsp;             if (encoding.equals("8859_1")) {
+  209 &nbsp;                 enc = "ISO8859_1";
+  210 &nbsp;             /*
+<a name='211'>  211 &nbsp;              * On Solaris with nl_langinfo() called in GetJavaProperties():
+  212 &nbsp;              *
+  213 &nbsp;              *   locale undefined -&gt; NULL -&gt; hardcoded default
+  214 &nbsp;              *   "C" locale       -&gt; "" -&gt; hardcoded default    (on 2.6)
+  215 &nbsp;              *   "C" locale       -&gt; "646"                      (on 2.7)
+  216 &nbsp;              *   "en_US" locale -&gt; "ISO8859-1"
+  217 &nbsp;              *   "en_GB" locale -&gt; "ISO8859-1"                  (on 2.7)
+  218 &nbsp;              *   "en_UK" locale -&gt; "ISO8859-1"                  (on 2.6)
+  219 &nbsp;              */
+  220 &nbsp;             } else if (encoding.equals("ISO8859-1")) {
+<a name='221'>  221 &nbsp;                 enc = "ISO8859_1";
+  222 &nbsp;             } else if (encoding.equals("646")) {
+  223 &nbsp;                 enc = "ASCII";
+  224 &nbsp;             } else {
+  225 &nbsp;                 enc = CharacterEncoding.aliasName(encoding);
+  226 &nbsp;             }
+  227 &nbsp;         }
+  228 &nbsp;         if (enc == null) {
+  229 &nbsp;             enc = encoding;
+  230 &nbsp;         }
+<a name='231'>  231 &nbsp; 
+  232 &nbsp;         try {
+  233 &nbsp;             return Class.forName(getConverterPackageName()
+  234 &nbsp;                                  + "." + converterPrefix[type] + enc);
+  235 &nbsp;         } catch(ClassNotFoundException e) {
+  236 &nbsp;             throw new UnsupportedEncodingException(enc);
+  237 &nbsp;         }
+  238 &nbsp; 
+  239 &nbsp;     }
+  240 &nbsp; 
+<a name='241'>  241 &nbsp;     /**
+  242 &nbsp;      * Instantiate the given converter class, or throw an
+  243 &nbsp;      * UnsupportedEncodingException if it cannot be instantiated
+  244 &nbsp;      */
+  245 &nbsp;     private static Object newConverter(String enc, Class&lt;?&gt; c)
+  246 &nbsp;         throws UnsupportedEncodingException
+  247 &nbsp;     {
+  248 &nbsp;         try {
+  249 &nbsp;             return c.newInstance();
+  250 &nbsp;         } catch(InstantiationException e) {
+<a name='251'>  251 &nbsp;             throw new UnsupportedEncodingException(enc);
+  252 &nbsp;         } catch(IllegalAccessException e) {
+  253 &nbsp;             throw new UnsupportedEncodingException(enc);
+  254 &nbsp;         }
+  255 &nbsp;     }
+  256 &nbsp; 
+  257 &nbsp;     /**
+  258 &nbsp;      * Create a converter object that implements the given type of converter
+  259 &nbsp;      * for the given encoding, or throw an UnsupportedEncodingException if no
+  260 &nbsp;      * appropriate converter class can be found and instantiated
+<a name='261'>  261 &nbsp;      */
+  262 &nbsp;     static Object newConverter(int type, String enc)
+  263 &nbsp;         throws UnsupportedEncodingException
+  264 &nbsp;     {
+  265 &nbsp;         Class&lt;?&gt; c;
+  266 &nbsp;         synchronized (lock) {
+  267 &nbsp;             c = cache(type, enc);
+  268 &nbsp;             if (c == null) {
+  269 &nbsp;                 c = getConverterClass(type, enc);
+  270 &nbsp;                 if (!c.getName().equals("sun.io.CharToByteUTF8"))
+<a name='271'>  271 &nbsp;                     cache(type, enc, c);
+  272 &nbsp;             }
+  273 &nbsp;         }
+  274 &nbsp;         return newConverter(enc, c);
+  275 &nbsp;     }
+  276 &nbsp; 
+  277 &nbsp;     /**
+  278 &nbsp;      * Find the class that implements the given type of converter for the
+  279 &nbsp;      * default encoding.  If the default encoding cannot be determined or is
+  280 &nbsp;      * not yet defined, return a class that implements the fallback default
+<a name='281'>  281 &nbsp;      * encoding, which is just ISO 8859-1.
+  282 &nbsp;      */
+  283 &nbsp;     private static Class&lt;?&gt; getDefaultConverterClass(int type) {
+  284 &nbsp;         boolean fillCache = false;
+  285 &nbsp;         Class&lt;?&gt; c;
+  286 &nbsp; 
+  287 &nbsp;         /* First check the class cache */
+  288 &nbsp;         c = cache(type, DEFAULT_NAME);
+  289 &nbsp;         if (c != null)
+  290 &nbsp;             return c;
+<a name='291'>  291 &nbsp; 
+  292 &nbsp;         /* Determine the encoding name */
+  293 &nbsp;         String enc = getDefaultEncodingName();
+  294 &nbsp;         if (enc != null) {
+  295 &nbsp;             /* file.encoding has been set, so cache the converter class */
+  296 &nbsp;             fillCache = true;
+  297 &nbsp;         } else {
+  298 &nbsp;             /* file.encoding has not been set, so use a default encoding which
+  299 &nbsp;                will not be cached */
+  300 &nbsp;             enc = "ISO8859_1";
+<a name='301'>  301 &nbsp;         }
+  302 &nbsp; 
+  303 &nbsp;         /* We have an encoding name; try to find its class */
+  304 &nbsp;         try {
+  305 &nbsp;             c = getConverterClass(type, enc);
+  306 &nbsp;             if (fillCache) {
+  307 &nbsp;                 cache(type, DEFAULT_NAME, c);
+  308 &nbsp;             }
+  309 &nbsp;         } catch (UnsupportedEncodingException x) {
+  310 &nbsp;             /* Can't find the default class, so fall back to ISO 8859-1 */
+<a name='311'>  311 &nbsp;             try {
+  312 &nbsp;                 c = getConverterClass(type, "ISO8859_1");
+  313 &nbsp;             } catch (UnsupportedEncodingException y) {
+  314 &nbsp;                 throw new InternalError("Cannot find default "
+  315 &nbsp;                                         + converterPrefix[type]
+  316 &nbsp;                                         + " converter class");
+  317 &nbsp;             }
+  318 &nbsp;         }
+  319 &nbsp;         return c;
+  320 &nbsp; 
+<a name='321'>  321 &nbsp;     }
+  322 &nbsp; 
+  323 &nbsp;     /**
+  324 &nbsp;      * Create a converter object that implements the given type of converter
+  325 &nbsp;      * for the default encoding, falling back to ISO 8859-1 if the default
+  326 &nbsp;      * encoding cannot be determined.
+  327 &nbsp;      */
+  328 &nbsp;     static Object newDefaultConverter(int type) {
+  329 &nbsp;         Class&lt;?&gt; c;
+  330 &nbsp;         synchronized (lock) {
+<a name='331'>  331 &nbsp;             c = getDefaultConverterClass(type);
+  332 &nbsp;         }
+  333 &nbsp;         try {
+  334 &nbsp;             return newConverter("", c);
+  335 &nbsp;         } catch (UnsupportedEncodingException x) {
+  336 &nbsp;             throw new InternalError("Cannot instantiate default converter"
+  337 &nbsp;                                     + " class " + c.getName());
+  338 &nbsp;         }
+  339 &nbsp;     }
+  340 &nbsp; 
+<a name='341'>  341 &nbsp; }
+
+</pre>
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-code.html">openjdk-7</a> &#187; sun &#187;  <a href='/docs/api/sun/io/package-index.html'>io</a> &#187; 
+ [<a href="/docs/api/sun/io/Converters.html">javadoc</a> | source]
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-138120-1");
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- end -->

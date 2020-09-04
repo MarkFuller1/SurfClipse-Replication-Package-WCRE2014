@@ -1,0 +1,1245 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Generator" content="Microsoft Word 97">
+   <meta name="Template" content="C:\Program Files\Microsoft Office\Office\html.dot">
+   <meta name="GENERATOR" content="Mozilla/4.72 [en] (WinNT; I) [Netscape]">
+   <title>1 How to program in an Object-oriented World</title>
+</head>
+<body link="#0000FF" vlink="#800080">
+
+<h2> <b><font face="Verdana"><font color="#CC6600">MOO programming workshop</font></font></b></h2>
+<p><font face="Verdana"><font size=-2>Compiled by Ken Eustace, May 2000-2004 using 
+  major works by Pavel Curtis, Jan Holmevik and Cynthia Haynes</font></font></p>
+<h2>Introduction</h2>
+<p>It all began with AusieMOO in September 1994, with the ISPG at Charles Sturt 
+  University hosting Australia's first educational and social MOO. Today AussieMOO 
+  has been set free and is operating at http://www.aussiemoo.org/ by a team of 
+  talented programmers and Web developers. You can download a copy of the Dank 
+  Fairy's The Ultimate AussieMOO Manual which is described as the definitive guide 
+  to AussieMOO, but also covers a great deal of MOO learning in general as well 
+  as a host of information specific to AussieMOO. Ten years later the ISPG provides 
+  two main MOO services: </p>
+<p><a href="http://ispg.csu.edu.au:9000">K9MOO</a> for training and development 
+  of programmers, fun &quot;learn-by-doing projects&quot; and a space for MOO 
+  research.<br>
+  <a href="http://ispg.csu.edu.au:8800">LC_MOO</a> A facility for professional 
+  groups, educators and students for workgroup practice.<br>
+</p>
+<p> The MOO programming workshop can take place at either MOO and may be applied 
+  for use at other MOOs.</p>
+<p>According to Pavel Curtis in his MOO programming manual, one-line commands 
+  are parsed and interpreted by the MOO. Such commands may cause changes in the 
+  virtual reality, such as the location of a character, or may simply report on 
+  the current state of that reality, such as the appearance of some object. The 
+  job of interpreting those commands is shared between the two major components 
+  in the MOO system: <strong>the server</strong> and the <strong>database</strong>. 
+  Either way, this workshop will change your thinking as a programmer as you program 
+  your own self as an avatar object in an object-oriented virtaul world.</p>
+<p>Some time ago I drew a diagram to explain how the architecture of the MOO may 
+  be of interest to client/server application developers as it shows horizontal 
+  scalabity by use of different clients and protocols - telnet and HTTP. The enCore 
+  Xpress system devised over several years by Jan Holmevik and Cynthia Haynes, 
+  uses Java applets to build a GUI interface and to extend the database core, 
+  as shown in figure 1. Multimedia users connect via HTTP while text-only users 
+  may use a telnet client. Many exist for customised telnet access, but I use 
+  Pueblo/UE. You can download the latest version from <a href="http://pueblo.sourceforge.net/pueblo/index.php">http://pueblo.sourceforge.net/pueblo/index.php</a>. 
+  I use HTTP with MOO classes and workshops and programming, while I also use 
+  Pueblo for patching upgrades and system tests. You can program the MOO with 
+  either client, but the enCore program editot is useful. The command are given 
+  in this workshop so you can program through either client type.</p>
+<p><img src="../XML/encoreTED04.jpg" width="720" height="540"></p>
+<p align="center"><font size="2">Figure 1. The client/server architecture of the 
+  enCore Xpress MOO system.</font></p>
+<p>The MOO server is a program, written in a standard programming language, that 
+  manages the network connections, maintains queues of commands and other tasks 
+  to be executed, controls all access to the database, and executes other programs 
+  written in the MOO programming language. </p>
+<p>The database contains representations of all the objects in the virtual reality, 
+  including the MOO programs, that the server executes to give those objects their 
+  specific behaviors. Almost every command is parsed by the server into a call 
+  on a MOO procedure, or verb, that actually does the work. Thus, programming 
+  in the MOO language is a central part of making non-trivial extensions to the 
+  database and thus, the virtual reality. </p>
+<h3>Objects in the MOO</h3>
+<p>The object with number `<font face="Courier New, Courier, mono">#494</font>' 
+  in LC_MOO does not exist just because you write down its number, but it is a 
+  good idea that you write down object numbers on creation.. An explicit operation, 
+  the `<font face="Courier New, Courier, mono">create()</font>' function described 
+  later, is required to bring an object into existence. Symmetrically, once created, 
+  objects continue to exist until they are explicitly destroyed by the `<font face="Courier New, Courier, mono">recycle()</font>' 
+  function.</p>
+<p>The identifying number associated with an object is unique to that object. 
+  It was assigned when the object was created and will never be reused, even if 
+  the object is destroyed. Thus, if we create an object and it is assigned the 
+  number `#1076', the next object to be created will be assigned `#1077', even 
+  if `#1076' is destroyed in the meantime. Every object is made up of three kinds 
+  of pieces that together define its behavior: <strong>attributes</strong>, <strong>properties</strong>, 
+  and <strong>verbs</strong>. Verbs are to MOO like methods toJava.</p>
+<h3>K9MOO uses a canine metaphor</h3>
+<p>Canine metaphor and themes are used as an &#8220;alternative world&#8221; to 
+  a university. With its learn-by-doing apporach, K9 has a simple topology for 
+  builders:</p>
+<ul>
+  <li> <strong>KennelWorld</strong> &#8211; build your &quot;kennel&quot; as your 
+    personal space</li>
+  <li><strong>CanineCampus</strong> &#8211; lectures, workshops and team meetings 
+    as a group space</li>
+  <li><strong>DogWorld</strong> &#8211; building and designing cyber worlds as 
+    your Project space</li>
+</ul>
+<h3>Creating your online persona</h3>
+<p>Stop and close you eyes. Imagine a scripting language sitting on top of a network 
+  interface. The server provides a basic framework, but all the real behaviors 
+  are programmed in the scripting language and part of the &quot;database&quot;. 
+  <br>
+  A MOO database is a collection of MOO objects, with inheritance, properties, 
+  and program code. It's not a relational database. In a MOO, an object in the 
+  game world sense is the same as an object in the programming sense. <br>
+  <a href="http://games.slashdot.org/games/03/05/07/017234.shtml?tid=127&tid=186">http://games.slashdot.org/games/03/05/07/017234.shtml?tid=127&amp;tid=186</a>, 
+  so harness your imagination and hang on to your seat!</p>
+<h2><font color="#CC6600">Workshop 1: Designing your part of the canine world</font></h2>
+<p><img src="../XML/options2.jpg" width="48" height="60">In workshop 1 we must 
+  stop and design our character or avatar using text and images and by setting 
+  properties using the OPTIONS button on the menu applet . </p>
+<p>1. Use a checklist as a design tool for a scalable, portable design. This is 
+  done by making 3 plans: Thematic,Technical and Community plans. At least have 
+  a thematic plan before you start to program.<br>
+  <strong>Thematic plan</strong> &#8211; think of your part of the world as a 
+  theme park that must have:</p>
+<ul>
+  <li> Purpose</li>
+  <li>Attractions</li>
+  <li>Themes and activities</li>
+  <li>Multiple avatars support</li>
+</ul>
+<p><strong>Technical Plan</strong><br>
+  Which technologies, protocols, interfaces?<br><br>
+  <strong>Community Plan</strong></p>
+<ul>
+  <li>Promotion</li>
+  <li>Archiving history and culture</li>
+  <li>Customised features</li>
+</ul>
+<p>Here is my basic design for my avatar at LC_MOO, where my MOO wizard character 
+  is <a href="http://ispg.csu.edu.au:8800/247/">Hopper</a> (#247):</p>
+<table width="60%" border="1" align="center">
+  <tr> 
+    <td><strong>Environment:</strong></td>
+    <td><a href="http://ispg.csu.edu.au:8800">LC_MOO</a></td>
+  </tr>
+  <tr> 
+    <td><strong>Theme:</strong></td>
+    <td>Tundra habitat/ children&#8217;s literature</td>
+  </tr>
+  <tr> 
+    <td><strong>Task/Role:</strong></td>
+    <td>Secretariat member; global warming researcher</td>
+  </tr>
+  <tr> 
+    <td><strong>Group space:</strong></td>
+    <td><a href="http://ispg.csu.edu.au:8800/404/">Casuarina Conference Resort</a> 
+      #404 </td>
+  </tr>
+  <tr> 
+    <td><strong>Personal space:</strong></td>
+    <td><a href="http://ispg.csu.edu.au:8800/494/">IceRigger</a> - block of sea 
+      ice #494</td>
+  </tr>
+  <tr> 
+    <td><strong>Project space:</strong></td>
+    <td><a href="http://ispg.csu.edu.au:8800/267/">Crayfish Bay</a> #267</td>
+  </tr>
+</table>
+<p align="center"><font size="2">Table 1. Hopper's details</font></p>
+<p>And at K9MOO my Wizard character is <a href="http://ispg.csu.edu.au:9000/2/">GrisWald</a> 
+  (#2):</p>
+<table width="60%" border="1" align="center">
+  <tr> 
+    <td><strong>Environment:</strong></td>
+    <td><a href="http://ispg.csu.edu.au:9000">K9MOO</a></td>
+  </tr>
+  <tr> 
+    <td><strong>Theme:</strong></td>
+    <td>Gone to the dogs!</td>
+  </tr>
+  <tr> 
+    <td><strong>Task/Role:</strong></td>
+    <td>Top Dog to maintain admin position</td>
+  </tr>
+  <tr> 
+    <td><strong>Group space:</strong></td>
+    <td><a href="http://ispg.csu.edu.au:9000/161/">CanineCollege</a> (#161) or 
+      the <a href="http://ispg.csu.edu.au:9000/62">DogHouse</a> (#62) </td>
+  </tr>
+  <tr> 
+    <td><strong>Personal space:</strong></td>
+    <td><a href="http://ispg.csu.edu.au:9000/202/">Griswald's Classroom</a> (#202)</td>
+  </tr>
+  <tr> 
+    <td><strong>Project space:</strong></td>
+    <td><a href="http://ispg.csu.edu.au:9000/190/">DogWorld</a> (#190)</td>
+  </tr>
+</table>
+<p align="center"><font size="2">Table 2. GrisWald's details.</font></p>
+<p align="left">2. Fill yours in now...</p>
+<table width="60%" border="1" align="center">
+  <tr> 
+    <td width="28%">Environment:</td>
+    <td width="72%">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>Theme:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>Task/Role:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>Group space:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>Personal space:</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td>Project space:</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p align="center"><font size="2">Table 3. Your draft details.</font></p>
+<p>3. Design the avatar as part of design. Add more properties to your character 
+  via <strong><font color="#CC6600">Options</font></strong> button. Learn by doing. 
+  Make a change and see what happens. Use the URL for each multimedia content 
+  and icon. I suggest you make a folder in your ZOPE folder or any Web server 
+  where you can store documents and store encore MOO images, sounds etc for you 
+  MOO programming exercises:</p>
+<p align="center"><img src="../XML/options.jpg" width="215" height="348"></p>
+<p align="center"><font size="2">Figure 2. Player object properties to edit..</font></p>
+<h3>Creating rooms, spaces or even a kennel!</h3>
+<p>Here are 3 ways to create a room by entering commands (<font face="Courier New, Courier, mono">Courier 
+  New</font> font) directly into the telnet window. You may need a Wizard character 
+  to help allow rooms to be connected in certain areas. You can use MOO Mail (or 
+  e-mail) to post such a message to a Wizard character. To find out you object 
+  inventory and the object numbers of each of your objects, simple type <font color="#CC6600" face="Courier New, Courier, mono">@audit 
+  me</font> in the telnet screen entry window. </p>
+<p>If you have to make a change to an object's name, type <font color="#CC6600" face="Courier New, Courier, mono">@rename 
+  me to jane </font>will change your name to Jane.</p>
+<p>Room WITHOUT entrances and exits: <font face="Courier New, Courier, mono">@dig 
+  mykennel</font><br>
+  Room WITH entrances and exits: <font face="Courier New, Courier, mono">@dig 
+  in|out to mykennel</font><br>
+  Add entrance and exit to current room without them already, to the attic: <font face="Courier New, Courier, mono">@dig 
+  up|down to attic</font></p>
+<p>The room names are interachangeable with room numbers, so instead of using 
+  &quot;<font face="Courier New, Courier, mono">attic</font>&quot; which has a 
+  room number of #1313, we can use the object number: <font face="Courier New, Courier, mono">@dig 
+  up|down to #1313</font></p>
+<h3>Decorating your room or kennel</h3>
+<p>Stop and design what objects you will need.</p>
+<p>You will need to add a bowl to your kennel for the next exercise. Try these 
+  commands, substituting &quot;mybowl&quot; for the name of the object. </p>
+<p><font color="#CC6600" face="Courier New, Courier, mono">@create $container called mybowl</font></p>
+<p>Enter <font color="#CC6600" face="Courier New, Courier, mono">drop mybowl </font>and 
+  hit the &quot;Look&quot; button or just type &quot;look&quot; into the telnet 
+  window to see it is in the room. When you create each object, it belongs to 
+  you. To leave it visible in a room, you must use the drop command.<font face="Courier New, Courier, mono"><br>
+  <font color="#CC6600">look mybowl</font></font><font color="#000000"> to see 
+  its description</font><font color="#CC6600"><font face="Courier New, Courier, mono">.<br>
+  </font></font><font color="#CC6600" face="Courier New, Courier, mono">open mybowl 
+  </font>to see inside it as a $container class object<br>
+  <font color="#CC6600" face="Courier New, Courier, mono">take mybowl </font>will 
+  let you pick it up again.<font face="Courier New, Courier, mono"><br>
+  <font color="#CC6600">@recycle mybowl</font> </font>will remove or destroy the 
+  mybowl</p>
+<p align="left">Now edit its properties using the <img src="../XML/objects2.jpg" width="48" height="60"> 
+  button to change properties:</p>
+<p align="center"><img src="../XML/grisbowl.jpg" width="601" height="388"></p>
+<p align="center"><font size="2">Figure 3. The Object editor.</font></p>
+<h3><font color="#CC6600">Exercise: Give a dog a bone</font></h3>
+<p>Here is a chance to revise your plans. Use the thematic, technical and community 
+  plan you are to add a bone to your mybowl object of class $container. Griswald 
+  has a bowl called <a href="http://ispg.csu.edu.au:9000/1508">GrisBowl</a> with 
+  object number #1508 and parent generic container (#8) made with that command 
+  entered into the MOOTcan telnet applet window. Some have added some imagination 
+  to include objects inside their kennels such as a box of chocolates, a rug with 
+  a fleas verb and in one case the kennel is an Italian restaurant!</p>
+<h2><font color="#CC6600">Workshop 2: Programming and building your canine world</font></h2>
+<p>You are now on your own. All dogs are now off the chain and free to roam and 
+  explore. Use the hypertext links below and put what you learn into action, through 
+  your thematic plan development which began in workshop 1.</p>
+<p>This will allow you to <em><strong>learn-by-doing</strong></em> in your own 
+  time and each week for the duration of the workshop series, we will meet to 
+  discuss our progress, share our joys and frustrations as well as enjoy learning 
+  what each has done. Use the <a href="http://forums.csu.edu.au/perl/forums.pl?forum_id=ITC411_200440_x_x_Sub1_forum">MOO-workshop</a> 
+  sub-forum to &quot;show and tell&quot;. Good luck.</p>
+<p></p>
+<p></p>
+<b><font face="Verdana"><font size=+1>1 <a href="#how">How to program in
+an Object-oriented World</a></font></font></b>
+<p><b><font face="Verdana"><font size=+1>2 <a href="#obj">Object-oriented
+design in the MOO</a></font></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 2.1 <a href="#simple">A
+simple object modeling design technique</a></font></b>
+<p><b><font face="Verdana"><font size=+1>3 <a href="#obj3">Object-oriented
+programming in the MOO – Is it hard?</a></font></font></b>
+<p><b><font face="Verdana"><font size=+1>4 <a href="#prog">Programming
+in the MOO</a></font></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.1 <a href="#bec">Becoming
+a MOO Programmer: the First Steps</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.2 <a href="#time">Time
+for a drink break</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.3 <a href="#creating">Creating
+you generic object</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.4 <a href="#defining">Defining
+verbs and arguments</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.5 <a href="#defining2">Defining
+Properties</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.6 <a href="#perm">Permissions
+on an object, verb or property</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.7 <a href="#expressions">Expressions,
+Statements and Operators</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.8 <a href="#sel">Selection
+Statements</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.8.1
+<a href="#if">If
+structure</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.8.2
+<a href="#if..then">If..then..else
+structure</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.8.3
+<a href="#if..elseif">If..esleif..else..endif
+structure or case..if</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.9 <a href="#iter">Iterative
+statements</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.9.1
+<a href="#for">For
+statement</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.9.2
+<a href="#while">While
+statement</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.10 <a href="#passing">Passing
+messages to player objects</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.11 <a href="#operators">Operators</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.12 <a href="#editing">Editing
+objects, properties and verbs</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.13 <a href="#examining">Examining
+MOO code</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.13.1
+<a href="#moo coding">MOO
+coding example 1: @list object:verb</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.13.2
+<a href="#moo coding 2">MOO
+coding example 2: What’s on TV?</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4.13.3
+<a href="#encore">EnCore
+Xpress verb editor</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.14 <a href="#verb">Verb
+structure</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.15 <a href="#quick">Quick
+verb programming example</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.16 <a href="#fixing">Fixing
+bugs</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.17 <a href="#sharing">Sharing
+your Generic Objects</a></font></b>
+<br><b><font face="Verdana">&nbsp;&nbsp;&nbsp; 4.18 <a href="#checklist">Checklist
+for MOO programmers</a></font></b>
+<h3>
+<b><font face="Verdana"><a href="#ref">References</a></font></b></h3>
+<font face="Verdana"><font size=-2>Compiled by Ken Eustace, May 2000-2004 using 
+major works by Pavel Curtis, Jan Holmevik and Cynthia Haynes</font></font>. <font face="Verdana"><font size=-2>The 
+recommended textbook to use with these programming notes is:</font><font size=-2>&nbsp; 
+<i><a href="http://vig.abacon.com/catalog/abbooks/0,2371,0205271146,00.html">MOOniversity: 
+A Student's Guide to Online Learning Environments</a></i></font><font size=-2> 
+Cynthia Haynes, University of Texas at Dallas</font></font> <font face="Verdana"><font size=-2>Jan 
+Rune Holmevik, University of Bergen, Norway. Copyright: 2000</font></font> <font face="Verdana"><font size=-2>Format: 
+Paper, 170 pp</font></font> <font face="Verdana"><font size=-2>ISBN: 0-205-27114-6</font></font> 
+<br>
+<hr WIDTH="100%">
+<p><a NAME="how"></a><b><font face="Arial">1 How to program in an Object-oriented
+World</font></b>
+<p>If you are new to the ideas expressed in object-oriented design and
+programming in software engineering (or don’t much care), then beware of
+information technology specialists who suggest that this is a new paradigm.
+Firstly it has always been an object-oriented world, secondly Grace Hopper
+was doing object-oriented programming just after World War 2, only we didn’t
+call it that then. This led to the suggestion that in IT we don’t really
+do anything new, we just rename some old stuff. Renaming objects is a common
+feature in object-oriented programming and you can do it in a MOO.
+<p>So what does this paradigm suggest?
+<p>The object-oriented way of doing things makes the following points:
+<ul>
+<li>
+Processes (methods and verbs), data (properties and values) flow into an
+object model (this is called encapsulation) where objects are modeled as
+independent entities that can be re-used.</li>
+
+<li>
+The conversion from the design model to an implementation is easier and
+therefore cost-effective.</li>
+
+<li>
+Database record structures and multimedia information are also supported.</li>
+</ul>
+Big tasks are broken down into to easy-to-manage chunks. This is not new,
+but is often called <i>top-down design</i> (yes there is also a bottom-up
+approach, too). A process called stepwise refinement is used to decompose
+a task into smaller units. Each unit can be further decomposed into detailed
+sub-units until a manageable solution to the problem is achieved. Data
+modeling using entity-relationship diagram(s) and a data dictionary are
+useful. So let us now look at a MOO object modeling case.
+<center>
+  <p><img src="Image3.gif" height=208 width=480>
+  <p>&nbsp;</p>
+  <p><font size="2">Figure 4. Client/ server object model</font></p>
+</center>
+
+<p><a NAME="obj"></a><b><font face="Arial">2 Object-oriented design in
+the MOO</font></b>
+<p>First we have some terms and concepts to collect and digest.
+<p>An OBJECT is usually an abstraction of a real-world entity. Everything
+is an object in a MOO. Players, Rooms, Containers, Notes, WhiteBoards,
+Editors etc. Each object has an OBJECT NUMBER in the MOO database e.g.
+<font face="Courier New">Crayfish
+Bay</font> is object number #267 at LC_MOO. The object number can be substituted
+for the object name at any time.
+<p>A CLASS is a collection of objects having common features. A good example
+is the set of player classes of wizard (administrator), programmer, builder,
+player and guest. Use @classes to see the public classes available for
+use. The player classes represent a skill-based hierarchy that is flattening
+out as you can then change yourself by getting your own MOO player object
+by @requesting (type help @request) thus upgrading your parent class from
+guest to player and so on. For higher levels such as programmer and wizard,
+these are awarded to experienced players on request to a layer of class
+wizard. (type '@wizards' for a list of on-line wizards).
+<p>MOO objects are grouped together into classes by a mechanism called
+Inheritance. <i>Inheritance</i> is a relationship between two classes of
+objects, such that one of them, the CHILD, inherits all of the relevant
+features of the other class called the PARENT. Each class produces a particular
+type of object. For example all player objects are descendants of some
+kind of $player class in a MOO. The $player class has sub-classes that
+reveal a MOO character hierarchy, from least to most power and influence.
+Guest, builder, programmer and wizard are typical parts of the hierarchy
+of access levels and privileges. Once you get a MOO character yourself,
+use the <font face="Courier New">@parents me</font> command to list all
+classes of your player object back to the <i>root class</i>. Here is my
+list of classes for my character GrisWald(#2), at K9MOO:
+<p><font face="Courier New">GrisWald(#2) generic wizard(#57) generic programmer(#58)
+generic builder(#4) Frand's player class(#90) Generic Mail Receiving Player(#40)
+generic player(#6) enCore Web Object(#126) enCore Web Class(#138) Root
+Class(#1)</font>
+<p>Each object inherits "<i>layers of characteristics</i>" form its parent
+classes (super classes). The object has a new layer added for its own characteristics.
+This is illustrated by the construction of classes through inheritance
+in Figure 7.2 on p100 of Holmevik and Haynes.
+<p><a NAME="simple"></a><b><font face="Arial">2.1 A simple object modeling
+design technique</font></b>
+<p>Sample tasks are taken from a MOO object modeling table to help show
+development of your ideas, using very simple object modeling techniques.
+Here is a simple way to model your objects. Use the level 1 and 3 tables
+for designing any object in a MOO.
+<p><font face="Arial">Level1 – User and system tasks table</font>
+<center><table BORDER CELLPADDING=7 WIDTH="309" >
+<tr>
+<td VALIGN=TOP WIDTH="47%" BGCOLOR="#FFFFFF"><b><font face="Arial">What
+the user does</font></b></td>
+
+<td VALIGN=TOP WIDTH="53%" BGCOLOR="#FFFFFF"><b><font face="Arial">What
+the systems does</font></b></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="47%">
+<br>&nbsp;
+<br>&nbsp;
+<p>&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="53%">&nbsp;</td>
+</tr>
+</table>
+</center>
+
+<p align="center"><font size="2">Table 4. Simple OO use case.</font></p>
+<p>Make a list of things done by the user and the system.
+<p><font face="Arial">Level2 – Abstraction</font>
+<p>The next step is called finding the level of abstraction, where MOO
+objects build on each other to form classes from the most general and abstract
+– root class, to the more refined and concrete – what could be more concrete
+than a bottle of soda! So by the end of this step, you should have a good
+idea about which list classes to use or make for your design, but it may
+be much shorter than the list revealed by the <font face="Courier New">@parents
+&lt;object></font> command in the MOO.
+<p><font face="Arial">Level3 – Object description table</font> 
+<p> Use the <font face="Arial, Helvetica, sans-serif">level3</font> table below 
+  to detail your design with the example used in object-oriented design.</p>
+On page 103, it is revealed how <i>Pseudocode</i> describes in general
+trems, what any verb is supposed to do. The Generic Drink (aka drink) with
+object number #208 and parent generic thing (#5) is created and then a
+new object is created called soda with object number #209 and parent Generic
+Drink (#208). Note that the object numbers in column 1 of the level 2 table
+are generated by the system.
+<br>&nbsp;
+<table WIDTH="590" BORDER align="center" CELLPADDING=7 >
+  <tr>
+<td VALIGN=TOP WIDTH="17%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Object No.</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="17%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Object name</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="16%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Class</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="18%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Description</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="17%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Verbs</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="17%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Properties</font></b></center>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="17%">
+<center>#208</center>
+</td>
+
+<td VALIGN=TOP WIDTH="17%">
+<center>Generic Drink</center>
+</td>
+
+<td VALIGN=TOP WIDTH="16%">
+<center>$thing</center>
+</td>
+
+<td VALIGN=TOP WIDTH="18%">&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="17%">
+<center>Drink</center>
+</td>
+
+<td VALIGN=TOP WIDTH="17%">
+<center>Taste</center>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="17%">
+<center>#209</center>
+</td>
+
+<td VALIGN=TOP WIDTH="17%">
+<center>soda</center>
+</td>
+
+<td VALIGN=TOP WIDTH="16%">
+<center>Generic Drink</center>
+</td>
+
+<td VALIGN=TOP WIDTH="18%">
+<center>You see a bottle of soda</center>
+</td>
+
+<td VALIGN=TOP WIDTH="17%">&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="17%">&nbsp;</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="17%">&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="17%">&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="16%">&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="18%">&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="17%">&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="17%">&nbsp;</td>
+</tr>
+</table>
+
+<p align="center"><font size="2">T</font><font size="2">able 5. Object description 
+  table. </font></p>
+<p>NOTE: as a rule, you should only place your verbs and properties on generic 
+  objects like #208, which should NOT be used to interact with – instead create 
+  a subclass to use as a test object, as shown by #209. 
+<p><a NAME="obj3"></a><b><font face="Arial">3 Object-oriented programming
+in the MOO – Is it hard?</font></b>
+<p>MOO programming is easy once you get started with a few good resources,
+take your time and learn a few simple concepts about Object-oriented (OO)
+programming – a lot easier than learning Java and more fun. People are
+objects. Your understanding of OO concepts will be enhanced at using a
+MOO as you behave as an object in an OO world, something that MOO programming
+has over learning Java, Smalltalk and C++. Walker (1999) has the resources
+you need to get started – the LambdaMOO programmers manual (Curtis, 1997)-use
+this as a reference, and Yib’s Pet Rock: a programming primer for beginners
+(use this as a tutorial). Other resources also exist on the Web.
+<p>The MOO database core starts off with basic object types – classes called
+GENERIC OBJECTS or GENERICS. Generic objects are intended for use as the
+parents of new objects. As you create new objects, the class is defined.
+Typical generic objects are $thing, $player, $room, $note and $container.
+The $root_class is the ROOT CLASS where all objects begin. If I wanted
+to create a computer object in the current room using the $note class:
+<p><font face="Courier New">&nbsp;&nbsp;&nbsp; @create $note named "computer"</font>
+<p>If I wanted to create a computer SUBCLASS, the command is: 
+<p><font face="Courier New">&nbsp;&nbsp;&nbsp; @create "computer" named "macintosh"</font> 
+  <br>
+  <font face="Courier New">&nbsp;&nbsp;&nbsp; @create "computer" named "compaq"</font> 
+<p>So it is easy to create objects and to make that object can either be an instance 
+  of a generic object or a subclass of a generic object, as was the case for "computer" 
+  as a sub-class of the generic object called $note . The next step is to attach 
+  special methods to an object in order to make an object do something. These 
+  methods are called VERBS and this is a second level of the MOO programming process. 
+  Most of the tutorials will take you through three main steps: 
+<p>1 make sure that your character is a programmer or wizard sub class
+<br>2 create or find the object(s) in the database.
+<br>3 create, program and/or edit the verb(s) and properties for that object.
+<p><a NAME="prog"></a><b><font face="Arial">4 Programming in the MOO</font></b>
+<p>Holmevik and Haynes (2000) provide an excellent step-by-step introduction
+to the way the MOO makes programming "fun and easy" in Chapter 7. MOO is
+also a good preparation for learning object-oriented design and programming
+techniques that are used in C++ and Java. In my own opinion, MOO, Visual
+BASIC and Python are better for beginners then either C++ or Java. If new
+programmers still find programming "fun and easy" then let them loose with
+C++, Java or maybe even jPython (See <a href="http://www.jpython.org/">http://www.jpython.org</a>)
+<ul>
+<li>
+Read page 97-98</li>
+</ul>
+<a NAME="bec"></a><b><font face="Arial">4.1 Becoming a MOO Programmer:
+the First Steps</font></b>
+<p>Let me digress and talk about the Java programming language, in order
+to make a brief point. When teaching Java, I always tell my students to
+know the language. Start by dissecting its parts and putting them back
+together. So off they go to study the class hierarchy in the various Java
+packages before tackling the work at <a href="http://java.sun.com/docs/books/tutorial/java/">http://java.sun.com/docs/books/tutorial/java/</a>
+<p>The java.net package of classes for Java 1.2 is shown below:
+<p><b><font face="Courier New,Courier"><font size=-1>java.net Class Hierarchy</font></font></b>
+<p><font face="Courier New,Courier">class java.lang.Object</font>
+<br><font face="Courier New,Courier">class java.net.Authenticator</font>
+<br><font face="Courier New,Courier">class java.lang.ClassLoader</font>
+<br><font face="Courier New,Courier">class java.security.SecureClassLoader</font>
+<br><font face="Courier New,Courier">class java.net.URLClassLoader</font>
+<br><font face="Courier New,Courier">class java.net.ContentHandler</font>
+<br><font face="Courier New,Courier">class java.net.DatagramPacket</font>
+<br><font face="Courier New,Courier">class java.net.DatagramSocket</font>
+<br><font face="Courier New,Courier">class java.net.MulticastSocket</font>
+<br><font face="Courier New,Courier">class java.net.DatagramSocketImpl
+(implements java.net.SocketOptions)</font>
+<br><font face="Courier New,Courier">class java.net.InetAddress (implements
+java.io.Serializable)</font>
+<br><font face="Courier New,Courier">class java.net.PasswordAuthentication</font>
+<br><font face="Courier New,Courier">class java.security.Permission (implements
+java.security.Guard, java.io.Serializable)</font>
+<br><font face="Courier New,Courier">class java.security.BasicPermission
+(implements java.io.Serializable)</font>
+<br><font face="Courier New,Courier">class java.net.NetPermission</font>
+<br><font face="Courier New,Courier">class java.net.SocketPermission (implements
+java.io.Serializable)</font>
+<br><font face="Courier New,Courier">class java.net.ServerSocket</font>
+<br><b><font face="Courier New,Courier">class java.net.Socket</font></b>
+<br><font face="Courier New,Courier">class java.net.SocketImpl (implements
+java.net.SocketOptions)</font>
+<br><font face="Courier New,Courier">class java.lang.Throwable (implements
+java.io.Serializable)</font>
+<br><font face="Courier New,Courier">class java.lang.Exception</font>
+<br><font face="Courier New,Courier">class java.io.IOException</font>
+<br><font face="Courier New,Courier">class java.net.MalformedURLException</font>
+<br><font face="Courier New,Courier">class java.net.ProtocolException</font>
+<br><font face="Courier New,Courier">class java.net.SocketException</font>
+<br><font face="Courier New,Courier">class java.net.BindException</font>
+<br><font face="Courier New,Courier">class java.net.ConnectException</font>
+<br><font face="Courier New,Courier">class java.net.NoRouteToHostException</font>
+<br><font face="Courier New,Courier">class java.net.UnknownHostException</font>
+<br><font face="Courier New,Courier">class java.net.UnknownServiceException</font>
+<br><font face="Courier New,Courier">class java.net.URL (implements java.io.Serializable)</font>
+<br><font face="Courier New,Courier">class java.net.URLConnection</font>
+<br><font face="Courier New,Courier">class java.net.HttpURLConnection</font>
+<br><font face="Courier New,Courier">class java.net.JarURLConnection</font>
+<br><font face="Courier New,Courier">class java.net.URLDecoder</font>
+<br><font face="Courier New,Courier">class java.net.URLEncoder</font>
+<br><font face="Courier New,Courier">class java.net.URLStreamHandler</font>
+<p><b><font size=-1>Interface Hierarchy</font></b>
+<p><font face="Courier New,Courier">interface java.net.ContentHandlerFactory</font>
+<br><font face="Courier New,Courier">interface java.net.FileNameMap</font>
+<br><font face="Courier New,Courier">interface java.net.SocketImplFactory</font>
+<br><font face="Courier New,Courier">interface java.net.SocketOptions</font>
+<br><font face="Courier New,Courier">interface java.net.URLStreamHandlerFactory</font>
+<p>Find the class <i>java.net.Socket</i><b> </b>in the above package, by
+following the links at the same Web site. If you look for the class method
+to use to find out which port a MOO server is running you may want to use
+the method below, from the class<i> java.net.Socket</i>
+<p><font face="Courier New">getLocalPort()</font>
+<p>This method when installed, returns an integer value for the local port
+to which this socket is bound.
+<p>Is a Java method the same as a MOO verb?
+<ul>
+  <li> Compare what was just said about the Java class hierarchy for just one 
+    package of Java classes to the simpler MOO class hierarchy. MOO verbs and 
+    properties are much easier to handle.</li>
+</ul>
+<a NAME="time"></a><b><font face="Arial">4.2 Time for a drink break</font></b>
+<p>After that heavy piece of thinking about comparing class hierarchies,
+your thirst to learn MOO programming continues after a drink.
+<ul>
+  <li> Design and create the bottle of soda (OK you can make it champagne, but 
+    you had better have a reason to celebrate, I recommend a cheap bottle of soda 
+    for beginners <font face="Wingdings">J</font> ).</li>
+</ul>
+<a NAME="creating"></a><b><font face="Arial">4.3 Creating your generic
+object</font></b>
+<p> The construction of classes by inheritance and the anatomy of the MOO object 
+  depict verbs as the <em>object processes </em>and properties as the <em>stored 
+  data</em> about the object. Starting with a subclass of $thing: 
+<p><font face="Courier New">@create $thing named Generic Drink, drink</font>
+<br><font face="Courier New">@describe soda as "You see a bottle of soda."</font>
+<p>The new test object named soda is now a subclass <font face="Courier New">drink</font>
+and will inherit the verbs and properties used to define <font face="Courier New">GenericDrink</font>.
+<p>The next step in the design process uses pseudocode to describe any verb. The 
+  design suggests that the Generic Drink object (super class or parent of the 
+  soda object) requires a verb called Drink and a review of the design adds a 
+  property called taste. 
+<p><a NAME="defining"></a><b><font face="Arial">4.4 Defining verbs and
+arguments</font></b>
+<p>Verbs are like commands and are formed in two steps:
+<ol>
+<li>
+Define the verb on an object</li>
+
+<li>
+Program the verb.</li>
+</ol>
+When executing the verb, the MOO server needs to know three things:
+<ol>
+<li>
+on which object it is defined – this is called the direct object.</li>
+
+<li>
+whether a preposition is allowed</li>
+
+<li>
+whether an indirect object is allowed, in the command syntax.</li>
+</ol>
+Here is the general syntax of the @verb command:
+<p><font face="Courier New">@verb object:verb direct_object preposition
+indirect_object</font>
+<p>Note how the verb argument variables operate. You can now define the verb drink 
+  and its arguments on to the Generic Drink object: 
+<p><font face="Courier New">@verb "Generic Drink":drink this none none</font>
+<br><font face="Courier New">Verb added (0).</font>
+<p>and now you may even have time to teach yourself how to throw a snowball
+at someone whicl drinking a bottle of soda <font face="Wingdings">J</font>
+<p><a NAME="defining2"></a><b><font face="Arial">4.5 Defining Properties</font></b>
+<p>The drink verb also needs to define the message property. The five MOO data 
+  types that properties and other variables can hold. <br>
+  &nbsp;
+<table WIDTH="557" BORDER align="center" CELLPADDING=7 >
+  <tr>
+<td VALIGN=TOP WIDTH="56%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial"><font size=-1>Data type</font></font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="44%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Example</font></b></center>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="56%">Object number</td>
+
+<td VALIGN=TOP WIDTH="44%">#64</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="56%">Integer</td>
+
+<td VALIGN=TOP WIDTH="44%">42</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="56%">Floating point (decimal)</td>
+
+<td VALIGN=TOP WIDTH="44%">4.2</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="56%">String</td>
+
+<td VALIGN=TOP WIDTH="44%">"The time has come, the walrus said"</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="56%">List (an array that can contain all the data
+types above)</td>
+
+<td VALIGN=TOP WIDTH="44%">{"The","cat","sat","on","the","mat"}</td>
+</tr>
+</table>
+
+<p align="center"><font size="2">Table 6. MOO data types to consider..</font></p>
+<p>The command to create properties on an object has the general format that uses 
+  a period to separate object names and property names. 
+<p><font face="Courier New">@property object.property_name data_type init
+value</font>
+<p>So if the Generic Drink object is to store text messages about how the
+drink tastes – like in a property, then the data_type string is used. See
+the example in table 7.3. Now to add the property:
+<p><font face="Courier New">@property "Generic Drink".taste ""</font>
+<br><font face="Courier New">Property added with value "".</font>
+<p>Why an empty string or null of "" for the taste property? Each type
+of drink, either soda or champagne will have its own taste message, when
+new test objects form Generic Drink are created. The table below summarises
+what has been done to this stage.
+<p align="left">That now defines the verb on an object, but step 2 of programming 
+  the verb is still to do. This will require a closer look at the "building blocks" 
+  of the MOO language and its expressions, statements and operators. 
+<div align="center">
+  <table BORDER CELLPADDING=7 WIDTH="538" >
+    <tr> 
+      <td VALIGN=TOP WIDTH="33%" BGCOLOR="#FFFFFF"> <center>
+          <b><font face="Arial">Object Created</font></b></center></td>
+      <td VALIGN=TOP WIDTH="37%" BGCOLOR="#FFFFFF"> <center>
+          <b><font face="Arial">Object name</font></b></center></td>
+      <td VALIGN=TOP WIDTH="30%" BGCOLOR="#FFFFFF"> <center>
+          <b><font face="Arial">Features</font></b></center></td>
+    </tr>
+    <tr> 
+      <td VALIGN=TOP WIDTH="33%"><font size=-1>New object</font></td>
+      <td VALIGN=TOP WIDTH="37%">Generic Drink</td>
+      <td VALIGN=TOP WIDTH="30%">Super class Generic Thing</td>
+    </tr>
+    <tr> 
+      <td VALIGN=TOP WIDTH="33%">Test object</td>
+      <td VALIGN=TOP WIDTH="37%">Soda</td>
+      <td VALIGN=TOP WIDTH="30%">Super class Generic Drink</td>
+    </tr>
+    <tr> 
+      <td VALIGN=TOP WIDTH="33%">New verb</td>
+      <td VALIGN=TOP WIDTH="37%">Drink</td>
+      <td VALIGN=TOP WIDTH="30%">Arguments: this none none</td>
+    </tr>
+    <tr> 
+      <td VALIGN=TOP WIDTH="33%">New property</td>
+      <td VALIGN=TOP WIDTH="37%">Taste</td>
+      <td VALIGN=TOP WIDTH="30%">Data_type: string</td>
+    </tr>
+  </table>
+  <p align="center"><font size="2">Table 7. Verb programming table to keep track 
+    of names and features.</font></p>
+</div>
+<p><a NAME="perm"></a><b><font face="Arial">4.6 Permissions on an object,
+verb or property</font></b>
+<p>If you are familiar with UNIX, you may already know abouit read, write
+and execute permission on a file or directory. In a MOO we are concerned
+about similar permissions on an object. Here are some useful notes on permissions
+from <a href="http://tecfa.unige.ch/moo/book2/node120.html">http://tecfa.unige.ch/moo/book2/node120.html</a>
+<p><i><font size=-1>Acknowledgement: This text is a formatted version of
+a message posted to *programmers on (now defunct) WorldMOO on Sat Mar 4
+07:50:23 1995 PST by Defender (#160)</font></i>
+<ol>
+<li>
+Every object, verb, and property has an owner.</li>
+
+<li>
+Verbs are executed with a 'set of permissions', or a flag indicating which
+player owns the task. Any verb you write will normally run with your permissions,
+which means it can affect things you own. Wizards can use a built-in function
+called set_task_perms(), documented, to change the permissions of a particular
+verb's execution. This doesn't change the verb ownership, nor does it change
+permissions for other verbs. Normally you don't need to worry about that.</li>
+
+<li>
+A verb with the permissions of the owner of something, or a wizard's permissions,
+can affect that something (read its value or write to it). For instance,
+you can create verbs and properties on objects you own, because the creative
+verbs run with your permissions.</li>
+
+<li>
+Everything (objects, verbs, and properties) have a set of possible 'permission
+bits', which control access to them. Two of these potential bits are always
+R and W (for Readable and Writable). For verbs whose permissions aren't
+the owner and aren't wizardly, these flags are important.</li>
+
+<li>
+If the R bit for something is set, any set of permissions can read it.
+For example, if a verb you write has its R bit set, anybody can read the
+verb code. If it is not set, the object/verb/property is said to be "E_PERM'ed",
+referring to the error code E_PERM (Permission Denied), which will be returned
+upon attempts to read the value. Unless you are deliberately needing to
+hide some information, it is good practice to make things readable by setting
+the R bit.</li>
+
+<li>
+If the W bit for something is set, any set of permissions can write to
+it. For example, if you have a property whose W bit is set, anybody can
+set the property value to anything they want, or remove it altogether.
+The W bit is almost never set, and should NOT be set for verbs in particular.</li>
+
+<li>
+What reading and writing mean depends on what you are dealing with.</li>
+</ol>
+Table below summarizes the READ and WRITE permissions on object, verbs
+and properties:
+<br>&nbsp;
+<table WIDTH="538" BORDER align="center" CELLPADDING=7 >
+  <tr>
+<td VALIGN=TOP WIDTH="16%">&nbsp;</td>
+
+<td VALIGN=TOP WIDTH="39%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">read</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="46%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">write</font></b></center>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial"><font size=-1>Objects</font></font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="39%">You can use verbs() and properties() directly
+to read the list of verbs and properties directly.</td>
+
+<td VALIGN=TOP WIDTH="46%">You can define your own verbs and properties
+on the object, which will be owned by you.</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Verbs</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="39%">You can use verb_info(), verb_args(), and verb_code()
+on the verb, and you can @list the code and you can @list the code.</td>
+
+<td VALIGN=TOP WIDTH="46%">You can change the arguments, names, and program
+code for the verb in question, using @edit.</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%" BGCOLOR="#FFFFFF">
+<center><b><font face="Arial">Properties</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="39%">You can see the permissions and value for the
+property.</td>
+
+<td VALIGN=TOP WIDTH="46%">You can change the permissions and value for
+the property.</td>
+</tr>
+</table>
+
+<p align="center"><font size="2">Table 8. verb permission to consider.</font></p>
+<p><a NAME="expressions"></a><b><font face="Arial">4.7 Expressions, Statements
+and Operators</font></b>
+<p>At the simplest levels, MOO code can exist as expressions and statements separated 
+  by semi-colons. Using your pseudocode design, the body of code in a verb program 
+  is a combination of expressions, statements and operators. While expressions 
+  generate values and statements provide structure to verbs, operators are used 
+  to manipulate both expressions and statements. 
+<p>While the expression 2 + 2 = 4 generates the value 4, a variable can
+be used as a temporary place to store values as shown by the expressions
+using the assign (=) and addition (+) operators:
+<p><font face="Courier New">Number1 = 2;</font>
+<br><font face="Courier New">Number2 = 2;</font>
+<br><font face="Courier New">Answer = Number1 + Number2;</font>
+<p>When learning a new programming language like Java or Python, students
+often misunderstand the significance of local and global variables. While
+properties can be accessed form any verb, variables like Number1 are always
+<i>local
+to the verb</i>, are temporary and disappear when the verb stops running.
+Meanwhile properties are permanent and keep their assigned value until
+it is changed or removed. Hence we can define local and global variable
+as:
+<p><i>Local variables</i> – variables used inside verb programs
+<br><i>Global variables</i> – properties defined on objects e.g. taste
+<br>
+  The programmers manual has listed the reserved variables used in the MOO system.
+<p>Now on to examine the selection and iterative control structures that
+form the basis of algorithm design of MOO verbs.
+<p><a NAME="sel"></a><b><font face="Arial">4.8 Selection Statements</font></b>
+<p>It’s a matter of choice… using a logical test condition in order to
+make a decision.
+<p><a NAME="if"></a><b><font face="Arial">4.8.1 If structure</font></b>
+<p><font face="Courier New"><font size=-1>if..endif</font></font>
+<p>The basic If-statement selects an action based upon the result of a
+certain condition being TRUE.
+<p><font face="Courier New">if (it is raining)</font>
+<br><font face="Courier New">&nbsp;&nbsp; Stay home</font>
+<br><font face="Courier New">&nbsp;&nbsp; Read a book</font>
+<br><font face="Courier New">endif</font>
+<p><a NAME="if..then"></a><b><font face="Arial">4.8.2 If..then..else structure</font></b>
+<p><font face="Courier New"><font size=-1>if..else..endif</font></font>
+<p><font size=-1>This variation of the If-statement is structured so that
+the action based upon the result of the test condition is TRUE, has an
+alternative or else action to be carried out if the result of the test
+condition is FALSE. Note the use of the reserved word <font face="Courier New">else</font>
+for this type of binary selection mechanism.</font>
+<p><font face="Courier New">if (it is raining)</font>
+<br><font face="Courier New">&nbsp;&nbsp; Stay home</font>
+<br><font face="Courier New">&nbsp;&nbsp; Read a book</font>
+<br><font face="Courier New">else</font>
+<br><font face="Courier New">&nbsp;&nbsp; Go for a long bike ride</font>
+<br><font face="Courier New">endif</font>
+<p><a NAME="if..elseif"></a><b><font face="Arial">4.8.3 If..esleif..else..endif
+structure or case..if</font></b>
+<p>What happens when you go to a restaurant?
+<p>Well for a start, you usually get busy talking and forget to order.
+Then you are faced with make a quick decision from the multiple of choices
+on the menu. Will you have an entree as well as main course and dessert?
+If so, which entr&eacute;e and which main course? Ok leave the decision
+about dessert until later. Here we have the <font face="Courier New">case..if</font>
+structure in action, where there are a multiple number of option to select.
+<p><font face="Courier New">if I am hungry</font>
+<br><font face="Courier New">&nbsp;&nbsp; go to restaurant</font>
+<br><font face="Courier New">elseif thirsty</font>
+<br><font face="Courier New">&nbsp;&nbsp; go to coffee shop</font>
+<br><font face="Courier New">else</font>
+<br><font face="Courier New">&nbsp;&nbsp; stay home and repair bike</font>
+<br><font face="Courier New">endif</font>
+<p>Note the level of indentation (using 3 spaces) and how each if structure
+must have its own <font face="Courier New">endif </font>statement. In some
+programming languages the <font face="Courier New">esleif</font> is seen
+as an abbreviated <font face="Courier New">elif</font> statement.
+<p><a NAME="iter"></a><b><font face="Arial">4.9 Iterative statements</font></b>
+<p>Iteration is a process to perform an expression or statement for a set
+number of times. So the program enters and leaves a loop, but since iteration
+is a fancier term than looping, that is why it is used <font face="Wingdings">J</font>
+<p><font face="Courier New"><font size=-1>"Let me re-iterate"</font></font>
+<p>Since to iterate is to repeat an action, then to re-iterate is almost
+a tautology or a recursive action… let’s not go any further with that discussion.
+<br>The two iterative statements are the <font face="Courier New">for…endfor</font>
+and the <font face="Courier New">while…endwhile</font> structures.
+<p><a NAME="for"></a><b><font face="Arial">4.9.1 For statement</font></b>
+<p>This is used when you want to run in a loop until a certain condition
+is met. This is a test condition where the iterative process happens until
+the exit condition is met.
+<p><font face="Courier New"><font size=-1>for (first to last student in
+class)</font></font>
+<br><font face="Courier New"><font size=-1>&nbsp;&nbsp; Give them a homework
+exercise</font></font>
+<br><font face="Courier New"><font size=-1>endfor</font></font>
+<p><font face="Courier New"><font size=-1>for (10 downto 0)</font></font>
+<br><font face="Courier New"><font size=-1>&nbsp;&nbsp; Print each number</font></font>
+<br><font face="Courier New"><font size=-1>endfor</font></font>
+<p>Like if-statements, the <font face="Courier New">for..endfor</font>
+and <font face="Courier New">while..endwhile</font> loops must always be
+closed off with an <font face="Courier New">endfor</font> and <font face="Courier New">endwhile</font>
+construct, respectively.
+<p><a NAME="while"></a><b><font face="Arial">4.9.2 While statement</font></b>
+<p>The <font face="Courier New">while..endwhile</font> statement is an
+iterative statement with a pre-test condition. This means that unless the
+condition is met at the start of the loop, then the process never enters
+the loop in the first place. Thus we do not know in advance, how many times
+the process loops through the set of expressions and statements
+<p><font face="Courier New"><font size=-1>while (the book is interesting)</font></font>
+<br><font face="Courier New"><font size=-1>&nbsp;&nbsp; keep reading</font></font>
+<br><font face="Courier New"><font size=-1>endwhile</font></font>
+<p><a NAME="passing"></a><b><font face="Arial">4.10 Passing messages to
+player objects</font></b>
+<p>In MOO, we don’t just use the print or some variant of an output statement
+to the user’s screen, we pass messages to each other. The two main ways
+of doing this are to send a message to all players in the same location
+or to tell it privately to a player.
+<p>What do the following statements imply? Who gets each message?
+<br>Do you remember the significance of the colon : and the period . in
+the MOO object syntax for verbs and properties?
+<p><font face="Courier New">player.location:announce_all(player.name, "
+has been cursed .");</font>
+<br><font face="Courier New">player:tell("The curse is upon you now.");</font>
+<p><a NAME="operators"></a><b><font face="Arial">4.11 Operators</font></b>
+<p>The operators used in a MOO - Arithmetic, Value comparison and Boolean operators 
+  provide the programmer with the logic to manipulate the various expressions, 
+  statements and variables used earlier in this topic. 
+<ul>
+  <li> Try to design and add a drink verb to the soda object.</li>
+</ul>
+<a NAME="editing"></a><b><font face="Arial">4.12 Editing objects, properties
+and verbs</font></b>
+<p>Just as the <font face="Courier New">@set</font> command is used to
+assign values to properties by the following syntax:
+<p><font face="Courier New">@set object.property to value</font> 
+<p>the EnCore Xpress buttons called Objects (Create and Edit object), Edit (Properties) 
+  and Program (for editing verbs), are an . Note the use of the <font face="Courier New">@display</font> 
+  command for listing verbs and properties on objects. 
+<ul>
+<li>
+Draw up a table to describe the action of the following command list:</li>
+</ul>
+
+<dir><font face="Courier New">@list @rmverb @rmprop @rename @renprop @args @dump</font></dir><a NAME="examining"></a><b><font face="Arial">4.13 
+Examining MOO code</font></b> 
+<p><a NAME="moo coding"></a><b><font face="Arial">4.13.1 MOO coding example
+1: @list object:verb</font></b>
+<p>Sign is a verb attached to the Generic Room object #3, on LC_MOO and K9MOO. 
+  Here is what it looks like: 
+<p><font size="2" face="Courier New">@list #3:sign</font> 
+<p><font size="2" face="Courier New,Courier">#3:sign any any any</font> 
+<p><font size="2" face="Courier New,Courier">1: lines = player:linesplit(argstr, 
+  75 - length(player.name + " holds up a SIGN: | " + " )"));</font> <font size="2"><br>
+  <font face="Courier New,Courier">2: length = 0;</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">3: for line in (lines)</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">4:&nbsp;&nbsp;&nbsp; length = max(length, length(line));</font></font> 
+  <font size="2"><br>
+  <font face="Courier New,Courier">5: endfor</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">6: space = $string_utils:space(length(player.name) 
+  + 15);</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">7: bound = $string_utils:space(length + 2, 
+  "_");</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">8: player.location:announce_all(space, " ", 
+  bound);</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">9: player.location:announce_all(space, " |", 
+  $string_utils:space(length), " |");</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">10: for line in (lines)</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">11:&nbsp;&nbsp;&nbsp; player.location:announce_all(player.name, 
+  " holds up a SIGN: | ", $string_utils:center(line, length), " |");</font></font> 
+  <font size="2"><br>
+  <font face="Courier New,Courier">12: endfor</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">13: player.location:announce_all(space, " |", 
+  bound, "|");</font></font> 
+<p><a NAME="moo coding 2"></a><b><font face="Arial">4.13.2 MOO coding example
+2: What’s on TV?</font></b>
+<p>Like most programming environments, the MOO code has to be compiled
+into an internal form and this is done for you by the <font face="Courier New">@program</font>
+command. If I use the Generic TV object #104 and use the command <font face="Courier New">@examine
+#104</font>, a list of the following verbs appears:
+<p><font size="2" face="Courier New,Courier">@examine #104</font> <font size="2"><br>
+  <font face="Courier New,Courier">Generic TV (#104) is owned by Secretariat (#2).</font></font> 
+<p><font size="2" face="Courier New,Courier">Aliases: Generic TV and gentv</font> 
+<p><font size="2" face="Courier New,Courier">Congratulations on your new TV! Type 
+  'schedule &lt;tvname>' to see the tapes available for viewing. You can also 
+  hook a VCR up to your new tv and view cdr/format tapes. Enjoy!</font> 
+<p><font size="2" face="Courier New,Courier">Key: (None.)</font> <font size="2"><br>
+  <font face="Courier New,Courier">Obvious Verbs:</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">Turnon play init_for_core</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">Turnoff pause</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">Tune res*ume</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">look_self autopause</font></font> <font size="2"><br>
+  <font face="Courier New,Courier">sch*edule dumptape</font></font> 
+<p><a NAME="encore"></a><b><font face="Arial">4.13.3 EnCore Xpress verb
+editor</font></b>
+<center>
+  <p><img src="../XML/progedit.jpg" width="783" height="680"> 
+  <p><font size=-1>Figure 5. The Verb editor showing the sign verb on Generic 
+    Room object #3.</font>
+</center>
+
+<p><a NAME="verb"></a><b><font face="Arial">4.14 Verb structure</font></b>
+<p>Each of the verbs in the list have the following attributes:
+<p><font face="Courier New">Verb Name:</font>
+<br><font face="Courier New">Verb Owner: Boxer (#2)</font>
+<br><font face="Courier New"><font size=-1>Permissions: rxd</font></font>
+<br><font face="Courier New"><font size=-1>Read</font></font>
+<br><font face="Courier New">Execute</font>
+<br><font face="Courier New">Debug</font>
+<br><font face="Courier New">Arguments: this any none</font>
+<br><font face="Courier New">Direct Object</font>
+<br><font face="Courier New">Preposition</font>
+<br><font face="Courier New">Indirect Object</font>
+<p>If I want to look at the 14 lines of entered MOO code inside the verb
+<b>sch*edule</b>,
+I use the <font face="Courier New">@list &lt;object>:&lt;verb></font> command
+and study the syntax of the <font face="Courier New">for</font> and <font face="Courier New">if</font>
+structures:
+<p><font face="Courier New,Courier">@list #104:sch</font>
+<p><font face="Courier New,Courier">#104:sch*edule this none none</font>
+<p><font face="Courier New,Courier">1: player.location:announce_all(player.name,
+" consults the tv schedule. .");</font>
+<br><font face="Courier New,Courier">2: player:tell("The following tapes
+in the tape Library can be viewed at ANY time. Just tune your tv to channel
+11, turn it on, and 'play &lt;selection #> on tv'.");</font>
+<br><font face="Courier New,Courier">3: player:tell(" ");</font>
+<br><font face="Courier New,Courier">4: n = 1;</font>
+<br><font face="Courier New,Courier">5: for tape in (this.library.tapes)</font>
+<br><font face="Courier New,Courier">6:&nbsp;&nbsp;&nbsp; if (length(tape.labl)
+> 30)</font>
+<br><font face="Courier New,Courier">7:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+lab = tape.labl[1..30];</font>
+<br><font face="Courier New,Courier">8:&nbsp;&nbsp;&nbsp; else</font>
+<br><font face="Courier New,Courier">9:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+lab = tape.labl;</font>
+<br><font face="Courier New,Courier">10:&nbsp;&nbsp; endif</font>
+<br><font face="Courier New,Courier">11:&nbsp;&nbsp; su = $string_utils;</font>
+<br><font face="Courier New,Courier">12:&nbsp;&nbsp; player:tell(su:left(n,
+5), su:left(lab, 31), su:left(tape.owner.name, 15));</font>
+<br><font face="Courier New,Courier">13:&nbsp;&nbsp; n = n + 1;</font>
+<br><font face="Courier New,Courier">14: endfor</font>
+<p><a NAME="quick"></a><b><font face="Arial">4.15 Quick verb programming
+example</font></b>
+<p>This is the shortest number of steps in adding one line of MOO code
+to a verb called start which is to be attached to a new object that I create
+called car:
+<p><font face="Courier New">@create $thing named car</font>
+<br><font face="Courier New">@verb car:start this none none rxd</font>
+<br><font face="Courier New">@program car:start</font>
+<p><font face="Courier New">player:tell("You start the car. Nothing happens.");.</font>
+<p>Note the arguments and permission included in the @verb statement. To
+fix a verb or edit it, you can use <font face="Courier New">@program car:start</font>
+again by typing in ALL the code again, as this command includes the compile
+step or use the verb editor <font face="Courier New">@edit car:start</font>.
+<p><b>NOTE:</b> once you use @verb to create the verb, you can only use
+@program or @edit.
+<p>If you want to remove the verb from the object use <font face="Serifa BT,Bookman Old Style">@rmverb
+car:start </font>and if you want to go further then, use <font face="Courier New">@recycle
+car</font> to remove the car object. That may be a good idea if the car
+won’t start <font face="Wingdings">J</font>
+<p>Still confused? Then maybe you need more time working with Chapter 7
+of the textbook do some programming in the MOO.
+<p><a NAME="fixing"></a><b><font face="Arial">4.16 Fixing bugs</font></b>
+<p>The MOO code is checked for errors at two stages: when the verb is compiled
+and during runtime, where the trace back call points to the verb and line
+where the bug occurs. Study the code if an error occurs and fix it!
+<p><a NAME="sharing"></a><b><font face="Arial">4.17 Sharing your Generic
+Objects</font></b>
+<p>A lot of MOO’s have a place or repository where programmers drop off
+generic objects for others to use. In some other languages, this may be
+called a class library. Since all the objects you create are part of your
+inventory, you will need to make your generic objects <i>fertile</i> so
+that they can have subclasses created – i.e. for others to share your code.
+Make sure that your code is free of bugs and then use the <font face="Courier New">chmod</font>
+command used in UNIX to change the access privilege and make your generic
+object fertile.
+<p><font face="Courier New"><font size=-1>@chmod "Generic Drink" +f</font></font>
+<br>&nbsp;
+<p><a NAME="checklist"></a><b><font face="Arial">4.18 Checklist for MOO programmers</font></b> 
+<p>1. Build yourself a room to attach to your kennel in KennelWorld at K9MOO. 
+  <br>
+  2. Design and attach the following room to your ‘kennel’: 
+<p><i>An attic with a door, a window (with view), a mirror, a poster, a
+map of the world and a mahogany dresser.</i>
+<p>3. Do any of the objects in your room interact with each other?
+<br>4. How would you change the d&eacute;cor? It is your attic! Find out
+who else has built an attic and compare design ideas.
+<p><a NAME="ref"></a><b><font face="Arial">References:</font></b>
+<p>Curtis, P. (1997). LambdaMOO Programmer's Manual For LambdaMOO Version
+1.8.0p6 March 1997. [Online] Available at <a href="ftp://ftp.lambda.moo.mud.org/pub/MOO/">ftp://ftp.lambda.moo.mud.org/pub/MOO/</a>
+<p>Holmevik, J. R. and Haynes, C. (1999). EnCore open source MOO project.
+[Online]. Available at <a href="http://lingua.utdallas.edu/encore/">http://lingua.utdallas.edu/encore/</a>
+<p>Raza, H. (2000). Design and management plan for K2MOO. Master’s project
+[Online] Available at <a href="ftp://ftp.lambda.moo.mud.org/pub/MOO/">http://www.csu.edu.au/research/ispg/razak2.html</a>
+<p>Schneider, D. K., Godard, R, et al (1997). The evolving TecfaMOO Book-
+Part II: Technical Manual. [Online] Available at <a href="http://tecfa.unige.ch/moo/book2/tm2.html">http://tecfa.unige.ch/moo/book2/tm2.html</a>
+<p>S&oslash;rensen, S. (1999). MOOtcan files. [Online]. Available at <a href="http://cmc.uib.no/~sindre/mootcan/">http://cmc.uib.no/~sindre/mootcan/</a>
+<p>Yib (#58337 at LambdaMOO). (1999). Yib's Pet Rock: A Programming Primer
+for Beginners. [Online]. Available at <a href="http://cmc.uib.no/moo/yib/">http://cmc.uib.no/moo/yib/</a>
+<p>Walker, D.W., Collings, P. and Richards-Smith, A. (1998). Synchronous
+IT Support for Group Work. [Online]. Available at <a href="http://simnotes.canberra.edu.au/synch.nsf/">http://simnotes.canberra.edu.au/synch.nsf/</a>
+<p>Walker, J. (1999). MOO programming resources. Cyber Culture Media Center.
+[Online]. Available at <a href="http://cmc.uib.no/moo/">http://cmc.uib.no/moo/</a>
+</body>
+</html>
+

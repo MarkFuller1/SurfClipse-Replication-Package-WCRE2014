@@ -1,0 +1,323 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>Exception in thread   (Java in General forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/382020/java/java/Exception-thread"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/382020/java/java/Exception-thread?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-1/java">Java in General</a>
+<div class="subject">Exception in thread  </div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Michael Statham, Greenhorn<br />
+  on <span class="lastPostTime">Feb 11, 2007 11:11:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I've written this code so far and only 1 error but it's driving me nuts, maybe lack of sleep or something far worse, who knows. If any one can help, thank you in advance.<br />  <br /> <textarea name="code" class="java" cols="60" rows="10">  /*************************************************************************
+ *  
+ *
+ *  Generate N random real numbers between 0 and 1 and quicksort them.
+ *
+ *  On average, this quicksort algorithm runs in time proportional to
+ *  N log N, independent of the input distribution. 
+ *
+ *************************************************************************/
+ 
+public class QuickSort {
+    private static long comparisons = 0;
+    private static long exchanges   = 0;
+ 
+   public static void quicksort(double[] a) {
+        shuffle(a);                        // to guard against worst-case
+        quicksort(a, 0, a.length - 1);
+    }
+    public static void quicksort(double[] a, int left, int right) {
+        if (right &lt;= left) return;
+        int i = partition(a, left, right);
+        quicksort(a, left, i-1);
+        quicksort(a, i+1, right);
+    }
+ 
+    private static int partition(double[] a, int left, int right) {
+        int i = left - 1;
+        int j = right;
+        while (true) {
+            while (less(a[++i], a[right]))      // find item on left to swap
+                ;                               // a[right] acts as sentinel
+            while (less(a[right], a[--j]))      // find item on right to swap
+                if (j == left) break;           // don't go out-of-bounds
+            if (i &gt;= j) break;                  // check if pointers cross
+            exch(a, i, j);                      // swap two elements into place
+        }
+        exch(a, i, right);                      // swap with partition element
+        return i;
+    }
+ 
+    // is x &lt; y ?
+    private static boolean less(double x, double y) {
+        comparisons++;
+        return (x &lt; y);
+    }
+ 
+    // exchange a[i] and a[j]
+    private static void exch(double[] a, int i, int j) {
+        exchanges++;
+        double swap = a[i];
+        a[i] = a[j];
+        a[j] = swap;
+    }
+ 
+    // shuffle the array a
+    private static void shuffle(double[] a) {
+        int N = a.length;
+        for (int i = 0; i &lt; N; i++) {
+            int r = i + (int) (Math.random() * (N-i));   // between i and N-1
+            exch(a, i, r);
+        }
+    }
+ 
+ 
+ 
+    // test client
+    public static void main(String[] args) {
+        int N = Integer.parseInt(args[0]);
+ 
+        // generate N random real numbers between 0 and 1
+        long start = System.currentTimeMillis();
+        double[] a = new double[N];
+        for (int i = 0; i &lt; N; i++)
+            a[i] = Math.random();
+        long stop = System.currentTimeMillis();
+        double elapsed = (stop - start) / 1000.0;
+        System.out.println("Generating input:  " + elapsed + " seconds");
+ 
+        // sort them
+        start = System.currentTimeMillis();
+        quicksort(a);
+        stop = System.currentTimeMillis();
+        elapsed = (stop - start) / 1000.0;
+        System.out.println("Quicksort:   " + elapsed + " seconds");
+ 
+        // print statistics
+        System.out.println("Comparisons: " + comparisons);
+        System.out.println("Exchanges:   " + exchanges);
+    }
+}
+ 
+
+   </textarea><br /> This is the error I'm getting any help would be appreciated in advance, thank you!<br />  <br /> Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 0<br /> at QuickSort.main(QuickSort.java:77)</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Garrett Rowe, Ranch Hand<br />
+  on <span class="lastPostTime">Feb 11, 2007 11:33:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">How are you running it? I ran it using this command<br /> <textarea name="code" class="java" cols="60" rows="10">
+java QuickSort 15</textarea><br />  <br /> and this was my output:<br />  <br /> <textarea name="code" class="java" cols="60" rows="10">
+Generating input:  0.0 seconds
+Quicksort:   0.0 seconds
+Comparisons: 68
+Exchanges:   30</textarea></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Anton Uwe, Ranch Hand<br />
+  on <span class="lastPostTime">Feb 11, 2007 11:33:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Perhaps you called this program without a parameter?</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Campbell Ritchie, Sheriff<br />
+  on <span class="lastPostTime">Feb 11, 2007 12:05:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Welcome to the Ranch.<br />  <br /> Go back to your Exception error message; it has a line no on ?77. Go to your line 77 and there you will find an array used. If the index is 0 it means you don't have a 1st member.<br /> There are several possibilities for this error:-<li>1: You have an array declared but have never created it with a statement like: fooArray = new foo[20];</li><li>2: You have an array which you have never inserted any members into.</li>Are you using the args[] array without passing anything from the command line? That is a potent source of unexpected ArrayIndexEtcExceptions.<br />  <br /> CR<br /> [ February 11, 2007: Message edited by: Campbell Ritchie ]<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: kiranmayi srivastava, Greenhorn<br />
+  on <span class="lastPostTime">Feb 12, 2007 03:12:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I think the error comes when there is no argument passed with the run command.<br /> This can be handled this way:<br />  <br /> Replace int N = Integer.parseInt(args[0]);<br /> with the following code: <br />  <br /> int N = 0;<br /> if(args.length &gt; 0)<br />     N = Integer.parseInt(args[0]);<br />  <br /> OR<br />  <br /> int N = 0;<br /> try<br /> {<br /> N = Integer.parseInt(args[0]);<br /> }<br /> catch (ArrayIndexOutOfBoundsException aiob)<br /> {<br /> System.out.println("No value recieved!!!");<br /> }</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Ilja Preuss, Sheriff<br />
+  on <span class="lastPostTime">Feb 12, 2007 07:21:00</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">&nbsp;<blockquote class="uncited">
+			<div>Originally posted by Campbell Ritchie:<br /> <br /> There are several possibilities for this error:-<li>1: You have an array declared but have never created it with a statement like: fooArray = new foo[20];</li><li>2: You have an array which you have never inserted any members into.</li></div>
+		</blockquote> <br /> Not quite - the first would cause a NullPointerException when trying to access the array, the latter doesn't make sense to me because you don't really *insert* members to arrays.<br />  <br /> Really the only way this error can happen is when the array has a length of zero.</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/382020'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=1'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 17:13:40</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/1"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/382020/java/java/Exception-thread?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

@@ -1,0 +1,2883 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+
+
+
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="https://www.facebook.com/2008/fbml" xml:lang="en" lang="en">
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# supportforums: http://ogp.me/ns/fb/supportforums#">
+
+
+  <meta property="fb:app_id" content="304181709679773" />
+  <meta property="og:type"   content="article" />
+   <meta property="og:title"  content="ACS 4.x to 5.3 Migration Tools fail with java exception - Cisco Support Community" />  
+   <meta property="og:image"  content="https://supportforums.cisco.com/4.5.4/themes/cisco_csc/resources/images/jive-fb-icon-discuss.gif" />
+    <title>
+    		ACS 4.x to 5.3 Migration Tools fail with java exception|2198188 - Cisco Support Community
+    </title>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />     
+<script type="text/javascript">
+    if (top != self) {
+        var isSafeTopUrl = false;
+        try {
+            var topUrl = top.location.href;
+            var topUrlQsIdx = topUrl.indexOf('?');
+            if (topUrlQsIdx > 0) {
+                topUrl = topUrl.substring(0, topUrlQsIdx);
+            }
+            topUrl = topUrl.toLowerCase();
+
+            var safeTopUrls = new Array(
+                'https://supportforums.cisco.com/skin-basic.jspa',
+                'https://supportforums.cisco.com/skin-advanced.jspa',
+                'https://supportforums.cisco.com/skin-advanced!UploadSkinZip.jspa',
+                'https://supportforums.cisco.com/skin-palette.jspa',
+                'https://supportforums.cisco.com/skin-palette!start.jspa'
+            );
+            for (var i = 0; i < safeTopUrls.length; i++) {
+                if (safeTopUrls[i].toLowerCase() == topUrl) {
+                    isSafeTopUrl = true;
+                    break;
+                }
+            }
+        } catch (err) {
+        }
+        if (!isSafeTopUrl) top.location = location;
+    }
+</script>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Language" content="en" />
+<meta name="keywords" content="acs, acs_5.3" />
+<!-- CDC FAST Required Metadata -->
+
+<meta name="accessLevel" content="Guest" />
+<meta name="accessLevel" content="Customer" />
+<meta name="accessLevel" content="Partner" />
+<meta name="country" content="US" />
+<meta name="language" content="en" />
+
+
+<link rel="search"
+    href="/opensearch.xml"
+    title="Home"
+    type="application/opensearchdescription+xml"/>
+
+
+<link rel="shortcut icon" href="/themes/cisco_csc/resources/images/favicon.ico" />
+<link rel="icon" type="image/png" href="/themes/cisco_csc/resources/images/favicon.png" />
+
+    <!-- Set username for Unica Metrics collection, if logged in -->
+
+    <!-- Add Unica pagetag js                                             -->
+    <!-- Note : This inclusion location is important, otherwise Prototype -->
+    <!--        code clobbers the pagetag callout                         -->
+        <script type="text/javascript" language="JavaScript" src="/themes/cisco_csc/scripts/ntpagetag-prd.js"></script>
+
+    
+
+
+
+
+    <script type="text/javascript">
+        (function() {
+            var prepareUrl = function(url) {
+                if (url.indexOf(";") > 0) {
+                    url = url.substring(0, url.indexOf(";"));
+                }
+                if (url.charAt(url.length - 1) == '/') {
+                    url = url.substring(0, url.length - 1);
+                }
+                return url
+            };
+            if (typeof(window._jive_base_url) == "undefined") {
+                window._jive_base_url = prepareUrl("/")
+            }
+            if (typeof(window._jive_resource_url) == "undefined") {
+                window._jive_resource_url = prepareUrl("/4.5.4/")
+            }
+                if (typeof(window._jive_current_user) == "undefined") {
+                    window._jive_current_user = {
+                        anonymous: true,
+                        username: 'ANONYMOUS',
+                        ID: '-1',
+                        enabled: true,
+                        avatarID: '-1',
+                        displayName: ''
+                    };
+                }
+
+
+
+        })();
+
+        var _jive_effective_user_id = "-1";
+        var _jive_auth_token ="no-user";
+        var _jive_locale = "en_US";
+
+    </script>
+
+
+<script type="text/javascript">
+    function KJS(config) { this._path = (config && config.path) || ''; this._d = {}; }
+    KJS.prototype = {
+        require: function(/* deps */) {
+            var ms = Array.prototype.slice.call(arguments), fn;
+            if (typeof ms[ms.length - 1] == 'function') { fn = ms.pop(); }
+            for (var i = 0; i < ms.length; i++) {
+                this.sat(ms[i] +'--required');
+            }
+            if (fn) {
+                this.run(fn, ms);
+            }
+        },
+        load: function(file, depends, satisfies) {
+            var kjs = this,
+                s = (satisfies || []).concat(file.split('?')[0]),
+                satisfy = function(body) {
+                    kjs.embed(body);
+                    var i;
+                    while (i = s.shift()) { kjs.sat(i); }
+                };
+            if (!kjs.isSat(s)) {
+                this.get(this._path + file, function(body) {
+                    depends && depends.length ?
+                        kjs.run(function() { satisfy(body); }, depends) :
+                        satisfy(body);
+                });
+            }
+        },
+        run: function(fn, depends, satisfies) {
+            var kjs = this, ifn,
+                s = satisfies || [],
+                fn_with_satisfies = s.length ?
+                    function() { fn(); var i; while (i = s.pop()) { kjs.sat(i); } } : fn;
+            if (!kjs.isSat(s)) {
+                if (!depends.length) {
+                    fn_with_satisfies();
+                } else if (1 == depends.length) {
+                    ifn = fn_with_satisfies;
+                } else {
+                    var c = depends.length;
+                    ifn = function() { if (!--c) { fn_with_satisfies(); } };
+                }
+                var i;
+                while (i = depends.pop()) {
+                    if (true === this._d[i]) { ifn(); }
+                    else {
+                        this._d[i] = this._d[i] ?
+                        function(ofn, nfn) {
+                            return function() { ofn(); nfn(); };
+                        }(this._d[i], ifn) : ifn;
+                    }
+                }
+            }
+        },
+        get: function(url, fn) {
+            var t;
+            try {
+                t = new XMLHttpRequest();
+            } catch(_) {
+                try {
+                    t = new ActiveXObject('Msxml2.XMLHTTP');
+                } catch(_) {
+                    t = new ActiveXObject('Microsoft.XMLHTTP');
+                }
+            }
+            t.open('GET', url, true);
+            t.onreadystatechange = function() {
+                if (4 == t.readyState) {
+                    fn(t.responseText);
+                    t.onreadystatechange = function(){};
+                }
+            };
+            t.send();
+        },
+        embed: function(body) {
+            eval(body);
+        },
+        sat: function(dep) {
+            if (this._d[dep] && true !== this._d[dep]) { this._d[dep](); }
+            this._d[dep] = true;
+        },
+        isSat: function(deps) {
+            var c = 0;
+            for (var i = 0; i < deps.length; i++) {
+                if (true === this._d[deps[i]]) { c++; }
+            }
+            return c > 0 && c === deps.length
+        }
+    };
+    var kjs = new KJS();
+</script>
+
+    
+      
+      
+    <script type="text/javascript">
+        window.SPELL_LANGS = "English (Canada)=en_ca,English (United Kingdom)=en_gb,+English (United States)=en_us,French=fr,French (Canada)=fr_ca,German=de,Italian=it,Spanish=es";
+        window.CS_BASE_URL = "";
+        window.CS_RESOURCE_BASE_URL = "/4.5.4";
+        window.tinyMCEPreInit = {
+            suffix : "_src",
+            base : CS_BASE_URL + "/resources/scripts/tiny_mce3"
+        };
+        if (typeof(_jive_project_i18n) == "undefined") {
+            var _jive_project_i18n = new Array();
+            _jive_project_i18n['project.calendar.task'] = "Task";
+            _jive_project_i18n['project.calendar.tasks'] = "Tasks";
+            _jive_project_i18n['project.calendar.checkpoint'] = "Checkpoint";
+            _jive_project_i18n['project.calendar.checkpoints'] = "Checkpoints";
+            _jive_project_i18n['global.edit'] = "Edit";
+            _jive_project_i18n['global.delete'] = "Delete";
+            _jive_project_i18n['project.task.mark.complete'] = "Mark complete";
+            _jive_project_i18n['project.task.assign.to.me'] = "Assign to me";
+            _jive_project_i18n['task.incomplete.link'] = "Incomplete";
+            _jive_project_i18n['project.checkPoint.create.link'] = "Create a checkpoint";
+            _jive_project_i18n['project.task.create.link'] = "Create a task";
+        }
+    </script>
+     
+
+
+
+
+    
+
+
+
+    
+<script type="text/javascript">
+kjs.run(function() {
+kjs.load('/4.5.4/resources/scripts/gen/7b3938e095546192eb5443d2fb71c1bf.js', [  ]);
+kjs.run(function() {
+        Zapatec.Calendar._TT["DEF_DATE_FORMAT"] = "%m/%d/%Y";
+
+
+}, [ '/4.5.4/resources/scripts/gen/7b3938e095546192eb5443d2fb71c1bf.js' ], [ 'Zapatec.Calendar' ]);
+}, [ 'Zapatec.Calendar--required' ]);
+</script>
+    
+    <script type="text/javascript">
+        var profileShortUrl = "/profile-short.jspa";
+        var profileLoadingTooltip = "Loading user profile";
+        var profileErrorTooltip = "There was an error loading that profile information.";
+
+        var projectChooserUrl = "/project-chooser!input.jspa";
+
+        var containerShortUrl = "/container-short.jspa";
+        var containerLoadingTooltip = "Loading place information.";
+        var containerErrorTooltip = "There was an error loading that place information.";
+
+        var videoShortUrl = "/view-video-short.jspa";
+        var videoLoadingTooltip = "Loading video information";
+        var videoErrorTooltip = "There was an error loading that video information.";
+        var _jive_video_picker__url = "?container=2026&containerType=14";
+        var followErrorMessage = "An internal error ocurred while following the project or space.";
+
+        (function() {
+            var originalWrite = document.write;
+            document.write = function() {
+                if(typeof $j != 'undefined' && $j.isReady) {
+                    console.warn("document.write called after document was loaded: ", arguments);
+                }
+                else {
+                    // In IE before version 8 `document.write()` does not
+                    // implement Function methods, like `apply()`.
+                    return Function.prototype.apply.call(originalWrite, document, arguments);
+                }
+            }
+        })();        
+    </script>
+
+
+
+
+
+    <link rel="stylesheet" href="/4.5.4/styles/jive-global.css" type="text/css" media="all" />
+    <!-- <link rel="stylesheet" href="/styles/jive-icons-legacy.css" type="text/css" media="all" /> -->
+    <link rel="stylesheet" href="/4.5.4/styles/jive-icons.css" type="text/css" media="all" />
+
+        <link rel="stylesheet" href="/plugins/video/resources/styles/jive-videomodule.css" type="text/css" media="all" />
+
+
+
+
+    <!--[if IE 6]>
+    <style type="text/css">
+    /* hack for IE6's lack of alpha PNG support */
+    #jive-wrapper .ie6png {
+        filter: expression(function(e){
+            e.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src=" +
+                (e.tagName=='IMG' ? e.src : e.currentStyle.backgroundImage.split('\"')[1]) + ")",
+            e.runtimeStyle.backgroundImage = "none",
+            e.src = "/images/transparent.png"
+        }(this));
+    }
+    </style>
+
+    <link rel="stylesheet" href="/4.5.4/styles/jive-icons-ie.css" type="text/css" media="all" />
+    <![endif]-->
+
+
+<script type="text/javascript" src="/4.5.4/resources/scripts/gen/aa92ac4dffae98e70264421ac2cf8105.js"></script>
+<script type="text/javascript">
+        // begin list of custom CSS
+        jive.rte.defaultStyles = new Array();
+            jive.rte.defaultStyles.push("/plugins/video/resources/styles/jive-videomodule.css");
+        // end list of custom CSS
+
+
+            var jiveControl = new jive.model.Controller();
+            jive.rte.mobileUI = false;
+
+
+if (dwr == null) var dwr = {};
+if (dwr.engine == null) dwr.engine = {};
+if (DWREngine == null) var DWREngine = dwr.engine;
+
+dwr.engine._origScriptSessionId = "47F67323FA1F7A10D4C093016B55A4F3";
+dwr.engine._sessionCookieName = "JSESSIONID"; // JSESSIONID
+dwr.engine._allowGetForSafariButMakeForgeryEasier = "true";
+dwr.engine._scriptTagProtection = "throw 'allowScriptTagRemoting is false.';";
+dwr.engine._defaultPath = "/dwr/interface";
+dwr.engine._pollWithXhr = "false";
+
+
+    (function() {
+        var options = {
+            friendsRange : 20,
+            everyoneRange : 20,
+            youUsername : 'ANONYMOUS',
+            youID : -1,
+            isGuest : true
+        };
+
+        var i18n = {
+            acclaimLikingLike : "Like",
+            acclaimLikingUnlike : "Liked",
+            acclaimLikedNone : "None",
+            acclaimLikingLiked : "Person Liked This",
+            acclaimLikingLikedPlural : "People Liked This",
+            acclaimPeopleLiked : "People who liked this",
+            acclaimLikedYou : "You",
+            acclaimLikedFriends : "Friends",
+            acclaimLikedEveryone : "Everyone Else",
+            globalMore : "More",
+            globalClose : "Close"
+        };
+
+        new jive.Acclaim(options, i18n);
+    })();
+
+
+        var quickuserprofile = new QuickUserProfile("jive-note-user-body", profileShortUrl, profileLoadingTooltip,
+                profileErrorTooltip);
+        var jiveprojectchooser = new JiveProjectChooser(projectChooserUrl);
+        var quickcontainersummary = new QuickContainerSummary("jive-note-container-body", containerShortUrl,
+                containerLoadingTooltip, containerErrorTooltip);
+        var quickviewvideo = new QuickViewVideo("jive-note-video-body", videoShortUrl, videoLoadingTooltip,
+                videoErrorTooltip);
+
+        var jiveFollow = new jive.Follow(followErrorMessage);
+
+
+</script>
+        <script type="text/javascript" src="/plugins/jotlet/resources/script/jiveheader.js" ></script>
+        <script type="text/javascript" src="/plugins/video/resources/script/videomacro.js" ></script>
+
+<script type="text/javascript" src="/4.5.4/resources/scripts/gen/0759e683458cea058b513c8183301d76.js"></script>
+<script type="text/javascript">
+    window.errorHandlerMessage = "An error occurred:";
+
+    window.editorErrorHandler = function(message, exception) {
+        // if the message is something other than a timeout, show the message plus the error code
+        if (message.indexOf('Timeout') == -1) {
+            $j('#dwr-error-text').text(errorHandlerMessage + ' Error Code: ' + message);
+            $j('#dwr-error-table').fadeIn();
+            setTimeout(function() {
+                $j('#dwr-error-table').fadeOut();
+            }, 10000);
+        }
+    };
+
+
+    
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+    if(typeof(tinyMCE) != "undefined"){ // could be Safari 2, which dies with tinyMCE
+        tinyMCE.addI18n('en.jivemacros',{
+                    "unused.jive.key" : "nothing."
+        });
+    }
+
+
+        window.RawHTMLSaveFunction = function(element_id, html, body){
+            var text = $j('#wysiwygtext');
+            if (text.is(':not(:visible)')) {
+                return html;
+            }else{
+                return text.val();
+            }
+        }
+        jive.rte.multiRTE = new Array();
+
+        //Not used by RTEWrap, but we need this for backward compatibility; see CS-23883
+        window.refreshLinks = function() {
+            jive.rte.multiRTE.forEach(function(rteID) {
+                if ($j('#' + rteID + '_parent').length < 1) {
+                    // safari 2, text only
+                    $j('#' + rteID + '_toggle_html').hide();
+                    $j('#jivePreferredEditorModeLinkHREF').hide();
+                    return;
+                }
+
+                if(currentMode == 'rawhtml') {
+                    $j('#' + rteID + '_toggle_html').css('display', 'block');
+                }else{
+                    $j('#' + rteID + '_toggle_html').hide();
+                }
+
+                if (preferredMode == currentMode) {
+                    $j('#jivePreferredEditorModeLinkHREF').hide();
+                } else {
+                    $j('#jivePreferredEditorModeLinkHREF').css('display', 'block');
+                }
+            });
+        }
+
+    window.editor = new jive.ext.y.HashTable();
+
+
+       
+jive.rte.macros.push(new jive.rte.Macro("color","","TEXT", true, false, [], [{name: "0",value: ""},{name: "__default_attr",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("size","","TEXT", true, false, [], [{name: "0",value: ""},{name: "__default_attr",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("font","","TEXT", true, false, [], [{name: "0",value: ""},{name: "__default_attr",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("toc","","IMAGE", true, true, [], [], true,false));
+jive.rte.macros.push(new jive.rte.Macro("code","","TEXT", false, true, [{ name: "sql", deleteAll: true, params: [{ name: "__default_attr", value :"sql"} ]},{ name: "html", deleteAll: true, params: [{ name: "__default_attr", value :"html"} ]},{ name: "xml", deleteAll: true, params: [{ name: "__default_attr", value :"xml"} ]},{ name: "java", deleteAll: true, params: [{ name: "__default_attr", value :"java"} ]},{ name: "plain", deleteAll: true, params: [{ name: "__default_attr", value :"plain"} ]}], [{name: "__default_attr",value: ["sql","html","xml","java","plain"]}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("noformat","","TEXT", true, false, [], [], true,false));
+jive.rte.macros.push(new jive.rte.Macro("thread","thread/","INLINE", true, false, [], [{name: "id",value: ""},{name: "0",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("message","message/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("external-site","bookmarks/","INLINE", false, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("document","docs/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("microblog","status/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("polls","polls/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("blogpost","blogs/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("blog","blogs/","INLINE", true, false, [], [{name: "id",value: ""},{name: "name",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("community","community/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("space","community/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("user","","INLINE", true, false, [], [{name: "id",value: ""},{name: "username",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("project","project/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("task","view-task.jspa?task=","INLINE", true, false, [], [{name: "id",value: ""},{name: "0",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("group","groups/","INLINE", true, false, [], [{name: "id",value: ""},{name: "__default_attr",value: ""},{name: "title",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("quote","","TEXT", false, true, [], [{name: "title",value: ""},{name: "__default_attr",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("vimeo","","IMAGE", false, false, [], [{name: "__default_attr",value: ""},{name: "width",value: ""},{name: "height",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("veoh","","IMAGE", false, false, [], [{name: "__default_attr",value: ""},{name: "width",value: ""},{name: "height",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("dailymotion","","IMAGE", false, false, [], [{name: "__default_attr",value: ""},{name: "width",value: ""},{name: "height",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("google","","IMAGE", false, false, [], [{name: "__default_attr",value: ""},{name: "width",value: ""},{name: "height",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("youtube","","IMAGE", false, false, [], [{name: "__default_attr",value: ""},{name: "width",value: ""},{name: "height",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("videomacro","","IMAGE", true, true, [{ name: "default", deleteAll: true, params: [{ name: "id", value :""} ,{ name: "__default_attr", value :""} ,{ name: "jivemacro_uid", value :""} ,{ name: "width", value :""} ,{ name: "height", value :""} ,{ name: "imageURL", value :""} ]}], [{name: "id",value: ""},{name: "height",value: ""},{name: "width",value: ""},{name: "jivemacro_uid",value: ""},{name: "__default_attr",value: ""},{name: "imageURL",value: ""}], true,false));
+jive.rte.macros.push(new jive.rte.Macro("videolink","","INLINE", true, false, [{ name: "default", deleteAll: true, params: [{ name: "id", value :""} ,{ name: "__default_attr", value :""} ,{ name: "jivemacro_uid", value :""} ,{ name: "title", value :""} ,{ name: "zero", value :""} ]}], [{name: "id",value: ""},{name: "title",value: ""},{name: "jivemacro_uid",value: ""},{name: "__default_attr",value: ""},{name: "zero",value: ""}], true,false));
+
+
+
+</script>
+<script type="text/javascript" src="/4.5.4/resources/scripts/gen/74f28d260677c53697d0c437fc71e901.js"></script>
+<script type="text/javascript">
+        $j(function() {
+			$j('.jive-shared-list-toggle').click(function() {
+				$j('.jive-shared-list-short').toggle();
+				$j('.jive-shared-list-all').toggle();
+                                return false;
+			});
+        });
+
+
+        var _jive_video_picker__url = "?container=2026&containerType=14"
+
+
+    
+    function toggleFeatured() {
+
+        ToggleFeatured.toggleFeatured(1, 2198188, 2026, 14, {
+            callback:function(featured) {
+
+                if (featured) {
+                    $j('#featured-toggle-unfeature').show();
+                    $j('#featured-toggle-feature').hide();
+                } else {
+                    $j('#featured-toggle-unfeature').hide();
+                    $j('#featured-toggle-feature').show();
+                }
+
+
+
+                Jive.AlertMessage('content-featured-notify', {
+                    beforeStart:function() {
+                        if (featured) {
+                            $j('#content-featured-notify').html('<div><span class="jive-icon-med jive-icon-info"></span>This item is now featured!</div>');
+                           
+                        } else {
+                            $j('#content-featured-notify').html('<div><span class="jive-icon-med jive-icon-info"></span>You have removed this from featured content.</div>');
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+
+        $j(document).ready(function(){
+
+			
+            var options = {
+                isModerated:        false,
+                isThreaded:         true,
+                resourceType:       1,
+                resourceID:         2198188,
+
+                containerType:      14,
+                containerID:        2026,
+
+                listAction:         "/comment-list.jspa",
+                resourceVersionID:  -1,
+
+                preferredMode:      'advanced',
+                currentMode:        'advanced',
+                rteDisabledBrowser: false,
+                isAnonymous:        true,
+
+                question:           true,
+                imagesEnabled:      false,
+                rteOptions : {
+                    controller    : jiveControl,
+                    preset        : "mini-w-quote",
+                    autoSave      : new DummyAutoSave(false),
+                    preferredMode : "advanced",
+                    startMode     : "advanced",
+                    mobileUI      : false,
+                    toggleText    : 'Show Full Editor',
+                    alwaysUseTabText : 'Always use this editor',
+                    editDisabledText : 'You are using a device that only enables you to add content.',
+                    editDisabledSummary : 'If you access {0} from a computer, you can both add and edit your content.',
+                    communityName : 'Home',
+                    height        : 300,
+                    _imagePickerUrl : "/post!imagePicker.jspa?containerType=14&container=2026&message=3854130&postedFromGUIEditor=true&reply=true",
+                    _destroyImagePickerUrl : _jive_base_url + "/image-picker!clean.jspa"
+                },
+                i18n: {
+                    postSuccessText:         'Your message was posted successfully.',
+                    postErrorText:           'An error occured while trying to submit your post. Please try again.',
+                    forumThrdReplyTo:        'Reply to',
+
+                    // Question text for discussions-question.soy
+                    questionNotAnswered:     'This question is {0}Not Answered.{1}',
+                    markQuestionAsAssumedAnswered: '{0}{1}Mark as assumed answered{2}{3}',
+                    questionAssumedAnswered: 'This question is {0}Assumed Answered.{1}',
+                    questionAnswered: 'This question has been {0}Answered.{1}',
+                    correctAnswer: 'Correct Answer',
+                    helpfulAnswer: 'Helpful Answer',
+                    helpfulAnswers: 'Helpful Answers',
+                    byWord: 'by&nbsp;',
+                    onWord: '&nbsp;on&nbsp;',
+                    leftParen: '(',
+                    rightParen: ')',
+                    unmarkAsCorrectAnswer: 'Unmark as Correct',
+                    unmarkAsHelpfulAnswer: 'Unmark as Helpful',
+                    seeAnswerInContext: 'See the answer in context',
+                    seeThisAnswer: 'See this answer',
+                    allHelpfulAnswersAwarded: 'You\'ve awarded all available Helpful Answers',
+                    oneHelpfulAnswerLeft: 'You have {0} more Helpful answer to award.',
+                    someHelpfulAnswersLeft: 'You have {0} more Helpful answers to award.',
+                    postUserWroteLabel: '{0} wrote',
+                    postGuestWroteLabel: 'Guest wrote',
+                    formSubmitPleaseWait:'Please Wait ...',
+                    postReplyMustBeApprvdText:'Please note, your reply will need to be approved by a moderator before it is posted in the forum.',
+                    globalLoginRequired:'You are no longer logged in. Please {0}log in{1} to continue.'
+                }
+            };
+
+            // Create DiscusssionApp
+            var discussisons = new jive.DiscussionApp.Main(options);
+        });
+        
+
+
+	                                        var viewVotersEnabled;
+
+                                            function showSmallList(data, displayVotersLimit){
+                                                $j('#user-votes-table tr').remove();
+
+                                                for(var i =0; i<displayVotersLimit && i<data.length; i++){
+                                                    var userName = data[i];
+                                                    var user = "https://supportforums.cisco.com"+"/people/"+userName;
+                                                    var row = "<tr><td><a href="+user+">"+userName+"</a></a></td></tr>";
+                                                    $j('#user-votes-table > tbody:last').append(row);
+                                                }
+
+                                                if(data.length>displayVotersLimit){
+                                                    $j('#user-votes-table > tbody:last').append("<tr><td class=\"voter-toggle\" onclick=\"$j('#all-user-votes-table').toggle();$j('#user-votes-table').toggle();\">Show all ...</td></tr>");
+                                                }
+
+                                            }
+
+                                            function showCompleteList(data){
+                                               $j('#all-user-votes-table tr').remove();
+                                                   for(var i =0; i<data.length; i++){
+                                                       var userName = data[i];
+                                                       var user = "https://supportforums.cisco.com"+"/people/"+userName;
+                                                        var row = "<tr><td><a href="+user+">"+userName+"</a></a></td></tr>";
+                                                       $j('#all-user-votes-table > tbody:last').append(row);
+                                                   }
+                                                   $j('#all-user-votes-table > tbody:last').append("<tr><td class=\"voter-toggle\" onclick=\"$j('#all-user-votes-table').toggle();$j('#user-votes-table').toggle();\">Show less ...</td></tr>");
+                                            }
+	                                        var votesButtonClickHandler = function() {
+	                                            JiveCiscoVoteUtils.getVoters(1,2198188,{
+	                                                callback:function(data){
+                                                        var numOfVoters = data.length;
+                                                        var displayVotersLimit = 10;
+                                                        showSmallList(data,displayVotersLimit);
+                                                        showCompleteList(data);
+                                                    }
+	                                            });
+
+                                                $j("#user-votes").lightbox_me({
+	                                                closeSelector: ".jive-modal-close-top"
+	                                            });
+	                                            return false;
+	                                        }
+
+                                            var voteButtonClickHandler = function() {
+                                                JiveCiscoVoteUtils.upVote(1,2198188,{
+                                                    callback:function(data){
+                                                       var numOfVotes = parseInt(data);
+                                                       if(numOfVotes>0){
+                                                            $j('#cisco-weighted-vote').attr("disabled","disabled").hide();
+                                                            $j('#voted').show();
+                                                            if(viewVotersEnabled)
+                                                                $j('#cisco-weighted-voters').bind('click',votesButtonClickHandler);
+                                                            if(numOfVotes==1)
+                                                                $j(".votes span").text(numOfVotes +" Vote");
+                                                            else
+                                                                $j(".votes span").text(numOfVotes +" Votes");
+                                                       }else if(numOfVotes<1){ //Anonymous user
+                                                            $j('#cisco-weighted-vote').attr("disabled","disabled");
+                                                            $j('#voted').hide();
+                                                       }
+                                                        watchThread();
+                                                    }
+                                                });
+	                                        };
+
+                                            var initializeVoting = function(){
+                                                JiveCiscoVoteUtils.init(1,2198188,{
+                                                    callback:function(data) {
+                                                        var voteObject = $j.parseJSON(data);
+
+                                                        if(parseInt(voteObject.numOfVotes)==1)
+                                                            $j(".votes span").text(voteObject.numOfVotes +" Vote");
+                                                        else
+                                                            $j(".votes span").text(voteObject.numOfVotes +" Votes");
+
+                                                        if(voteObject.votingEnabled){
+                                                            $j('#cisco-weighted-vote').removeAttr("disabled").show();
+                                                            $j('#voted').hide();
+                                                            $j('#cisco-weighted-vote').bind('click',voteButtonClickHandler);
+                                                        }
+
+                                                        viewVotersEnabled = voteObject.viewVotersEnabled;
+
+                                                        if(viewVotersEnabled && voteObject.numOfVotes>0){
+                                                            $j('#cisco-weighted-voters').bind('click',votesButtonClickHandler);
+                                                            $j('#cisco-weighted-voters').addClass('enabled');
+                                                        }
+                                                        $j('#user-question-vote').toggle();
+
+                                                    }
+                                                });
+                                            };
+
+
+        $j(function() {
+            $j("#jive-view-picker").change();
+        });
+
+        $j(function() {
+            var tooltipUrl = "/view-favorite-tooltip.jspa";
+            $j("#jive-bookmark-sidebar .jive-avatar").livequery(function() {
+                var favoriteId = $j(this).parents("li").attr("id").slice("favorite-".length);
+                $j(this).tooltip("bookmark", tooltipUrl + "?favorite=" + favoriteId);
+            });
+        });
+
+
+</script>
+    
+<meta property="go:image"  content="https://supportforums.cisco.com/4.5.4/images/SR_read.jpg" />
+<meta property="go:url" content="https://supportforums.cisco.com/thread/2198188" />
+<link rel="canonical" href="https://supportforums.cisco.com/thread/2198188" />
+
+
+	<meta name="description" content="ACS 4.x to 5.3 Migration Tools fail with java exception Hi ALL,    I have to migrate Data from ACS 4.1.1.24 to ACS 5.3.    When I run the migration util|2198188" />
+<meta property="go:description" content="ACS 4.x to 5.3 Migration Tools fail with java exception Hi ALL,    I have to migrate Data from ACS 4.1.1.24 to ACS 5.3.    When I run the migration util|2198188"/>
+
+
+		 
+
+
+   <link rel="stylesheet" href="/4.5.4/styles/jive-content.css" type="text/css" media="all" />
+    
+    
+    
+
+    
+		
+				<meta name="date" content="Tue Feb 12 12:14:38 PST 2013" />
+			<meta name="rating" content="0"/>
+				
+		 		<meta name="question_status" content="not answered"/>
+			<meta name="number_of_replies" content="0" />
+	           <meta name="tags" content="acs;acs_5.3" />
+			<meta name="number_of_authors" content="1" />
+	 	
+<script type="text/javascript">
+    if( (typeof ntptAddPair == 'function') && (typeof ntptEventTag == 'function')){
+        (function(scope){
+            var contentType = "thread";
+            var content_id = "2198188";
+            //CSCE-1157 added containerType as a specific property
+            var communityType = "14";
+            var communityId = "2026";
+            var communityName = "AAA, Identity and NAC";
+            var communityUrl = "https://supportforums.cisco.com/community/netpro/security/aaa";
+                var replyCount = "1";
+            var answeredStatus = "UnansweredQuestion";
+            var answeredSource = "";
+            var answeredBy = "";
+            ntptAddPair( "evcntid", content_id);
+            ntptAddPair( "evctyp", contentType);
+            ntptAddPair( "evcid", communityId);
+            ntptAddPair( "evcnm", communityName);
+            ntptAddPair( "evcurl", communityUrl);
+            ntptAddPair( "evcntrtyp", communityType);            
+            ntptAddPair( "ReplyCount", replyCount);
+            ntptAddPair( "QuestionStatus", answeredStatus);
+            ntptAddPair( "AnsweredSource", answeredSource);
+            ntptAddPair( "AnsweredBy", answeredBy);
+            setTimeout("ntptEventTag('ev=PageLoad');",2000);
+        })();
+    }
+</script>
+	
+            <link rel="alternate" type="application/rss+xml"
+                title=" AAA, Identity and NAC Discussions Feed"
+                href="/community/feeds/threads?community=2026">
+
+        <link rel="alternate" type="application/rss+xml"
+            title="Messages in 'ACS 4.x to 5.3 Migration Tools fail with java exception' Discussion Feed"
+            href="/community/feeds/messages?thread=2198188">
+
+
+
+
+
+
+    
+    
+	
+	
+
+
+    <!-- BEGIN action bar -->
+
+    
+
+    <!-- END action bar -->
+
+
+
+
+	<script type="text/javascript">
+		$j(document).ready(function(){
+			$j('body').ajaxComplete(function(){
+				$j('ul.jive-discussion-indent-0 li.reply:odd > div').each(function(){
+					$j(this).addClass('odd-reply');
+				});
+				$j('ul.jive-discussion-indent-0 li.reply:even > div').each(function(){
+					$j(this).addClass('even-reply');
+				});	
+			$j('#jive-thread-messages-container .jive-thread-condensed:even').addClass('even-reply');
+			$j('#jive-thread-messages-container .jive-thread-condensed:first').addClass('condensed-first');
+			
+			});
+			
+		});
+
+
+		
+	</script>
+
+	<!-- Share This script-->
+	<script type="text/javascript" src="https://ws.sharethis.com/button/buttons.js"></script>
+	<script type="text/javascript">stLight.options({publisher: "ur-fee838b9-4f4a-95b-6b14-376b7b996c38"}); </script>
+	<!-- End Share This script for threads -->
+
+    <script type="text/javascript" src="/themes/cisco_csc/scripts/jquery.qtip.js"></script>
+    <link rel="stylesheet" type="text/css" href="/themes/cisco_csc/resources/css/jquery.qtip.css" />
+	
+
+
+
+    	
+		<link rel="stylesheet" href="/theme/cisco_csc/2.06/custom.css" type="text/css" media="all" />
+
+    
+	<link rel="alternate" type="text/html" media="handheld" href="http%3A%2F%2Fsupportforums.cisco.mobi%3Furl2%3Dhttps%3A%2F%2Fsupportforums.cisco.com%2Fthread%2F2198188" title="Mobile/PDA">
+    <style type="text/css">/* custom-css-container */</style>
+    <!--[if IE 6]>	
+	<style type="text/css">
+		.badge-detail-popup{
+			_width: 290px;
+			_margin-top: 0px;
+		}
+		.badge-detail-popup .badge-detail-area{
+			filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/themes/cisco_csc/resources/images/badge-popup-background.png');
+		}
+		.badge-detail-popup .badge-detail-area .badge-detail-left-border{
+			filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/themes/cisco_csc/resources/images/badge-popup-left.png');
+		}		
+		.badge-detail-popup .badge-arrow{
+			_margin-left: -210px;		
+			_width: 290px;
+			filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/themes/cisco_csc/resources/images/badge-popup-arrow.png');
+		}
+		.jive-thread-reply .jive-author .jive-username-link-wrapper, 
+		.jive-thread-reply-mod .jive-author .jive-username-link-wrapper{
+			_margin-top: 30px;
+		}		
+		.jive-body-content-document #jive-body-maincol .jive-doc-ratings ul#cisco-social-share {
+			margin-top: 20px;
+		}		
+		#jive-body-maincol .jive-doc-ratings ul#cisco-social-share li{
+			position: relative; 
+			left: 18px;
+		}
+		.jive-body-content-document #jive-body-maincol .jive-doc-ratings ul#cisco-social-share li.cisco-social-share-link .fb_share_count {
+			top: 0px;
+		}	
+		#jive-body-maincol .jive-doc-ratings ul{
+			margin-right: 5px;
+		}
+		#jive-body-maincol .jive-doc-ratings li.cisco-social-share-link-twitter{
+			margin-right: 3px;
+		}
+
+		#jive-body-maincol .jive-doc-ratings li.cisco-social-share-link-facebook{
+			padding-right: 18px;
+		}
+	</style>
+    <![endif]-->	
+<script type="text/javascript" src="/4.5.4/resources/scripts/gen/a93effb188671106a1739fe3a33838cb.js"></script>
+<script type="text/javascript">
+    (function(scope){
+        window[scope] = function(){};
+        var isIE6 = navigator.appVersion.indexOf('MSIE 6.0') >= 0;
+        window[scope].prototype = (function() {
+            var _this =  window[scope].prototype;
+            var findPos = function(obj) {
+                var curleft = curtop = 0;
+                var prevElemWidth = -1;
+                if (obj.offsetParent) {
+                    do {
+                        curleft += obj.offsetLeft;
+                        curtop += obj.offsetTop;
+                    } while (obj = obj.offsetParent);
+                    if(isIE6){
+                        curleft = window.event.screenX - 15;
+                        curtop -= 10;
+                    }
+                    return [curleft,curtop];
+                }
+            };
+            _this.showBadge = function(obj,badgeDetailElem) {
+                var pos = findPos(obj);
+                badgeDetailElem.style.left = (pos[0] - 25)+ 'px';
+                badgeDetailElem.style.top = (pos[1] - 30) + 'px';
+                badgeDetailElem.style.display = 'inline-block';
+            };
+            _this.hideBadge = function(badgeDetailElem){
+                badgeDetailElem.style.display = 'none';
+            };
+            return _this;
+        })();
+    })('_badgeController');
+
+</script>
+	    <script type="text/javascript">	
+			var badgeController = new _badgeController();
+		</script>
+		
+	
+	<script type="text/javascript">
+
+	 $j('document').ready(function(){
+	 	var firstButton = '#cisco-main-nav ul li.first a';
+	 	$j(firstButton +":contains('soporte t�cnico')").addClass('espanol');
+	 		if( $j(firstButton).hasClass('espanol') ){
+	 			$j('head').append('<link rel="stylesheet" href="/themes/cisco_csc/resources/css/spanish.css" type="text/css" media="screen" />');
+	 		};
+	 	});
+	 $j('body').ajaxComplete(function(){
+	 	var firstButton = '#cisco-main-nav ul li.first a';
+	 	$j(firstButton +":contains('soporte t�cnico')").addClass('espanol');
+	 		if( $j(firstButton).hasClass('espanol') ){
+	 			$j('head').append('<link rel="stylesheet" href="/themes/cisco_csc/resources/css/spanish.css" type="text/css" media="screen" />');
+	 		};
+	 	});	 	
+	</script>
+
+    <script type="text/javascript" src="/themes/cisco_csc/scripts/jquery.cookie.js"></script>
+	
+	<script type="text/javascript">
+//Overridden to extend display time
+Jive.AlertMessage = function(element, options) {
+    options = options || {};
+
+    $j('[id="'+ element +'"]').fadeIn(100, function() {
+        var that = $j(this);
+
+        that.each(function() {
+            if (options.beforeStart) {
+                options.beforeStart(this);
+            }
+        });
+
+        setTimeout(function() {
+            that.fadeOut(500, function() {
+                that.each(function() {
+                    if (options.afterFinish) {
+                        options.afterFinish(this);
+                    }
+                });
+            });
+        }, 3000);
+    });
+};
+</script>
+
+</head>
+<body class="jive-body-content jive-body-content-discussion guest" >
+
+	<!-- START Facebook Like Integration -->
+	
+	<div id="fb-root"></div>
+	
+	<!-- END Facebook Like Integration -->
+
+
+
+
+<style type="text/css">
+	#mr-light-box {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		display: block;
+		background-image: url('/themes/cisco_csc/resources/images/light-box.png');
+		z-index: 600;
+		top: 0px;
+		left: 0px;
+	}
+	
+	#mr-container {
+		width: 660px;
+		position: absolute;
+		z-index: 601;
+		left: 50%;
+		margin-left: -395px;
+		top: 90px;
+		border-radius: 22px;
+		border: 1px solid white;
+		background: #ffffff;
+		padding: 22px 65px 43px 65px;
+		text-align: left;
+	}
+	
+	#mr-container h2 {
+		font-size: 50px;
+	}
+	
+	#no-device-body {
+		font-size: 43px;
+		text-align: center;
+		padding-left: 145px;
+		padding-right: 61px;
+		padding-top: 22px;
+		margin-bottom: 65px;
+		margin-top: 65px;
+		margin-left: -15px;
+	}
+	
+	#no-device-body a {
+		font-size: 30px;
+	}
+	
+	#no-device-body p {
+		padding-bottom: 15px;
+	}
+	
+	#mr-cancel {
+		float: right;
+		background: url('/themes/cisco_csc/resources/images/mr-cancel.png') no-repeat center center transparent;
+		width: 85px;
+		height: 85px;
+		margin-right: -66px;
+		margin-top: -23px;
+	}
+	
+	#mr-body {
+		margin-top: 22px;
+	}
+	
+	#mr-device-image {
+		width:243px;
+		float: left;
+	}
+	
+	#mr-device-text {
+		width:390px;
+		float: left;
+		margin-left: 27px;
+	}
+	#mr-device-text ul li {
+		list-style-image: url('/themes/cisco_csc/resources/images/mr-list-image.png');
+		font-size: 30px;
+		margin-top: 30px;
+	}
+	
+	#mr-download {
+		background: url('/themes/cisco_csc/resources/images/mr-download.png') center center no-repeat;
+		width: 650px;
+		height: 103px;
+		margin-bottom: 22px;
+		margin-top: 22px;
+		display:block;
+	}
+	
+	.mr-footer-link {
+		text-decoration: underline;
+		float: left;
+		width: 325px;
+		text-align: center;
+		font-size: 30px;
+	}
+</style>
+<div id="mr-light-box" style="display:none;">&nbsp;</div>
+<div id="mr-container" style="display:none;">
+	<a id="mr-cancel" class="clearfix" href="" onclick='$j.cookie("CISCOMOBILEREMIND", "false", {path: "/"},{domain: "supportforums.cisco.com"})'></a>
+		<div id="no-device-body">
+			<p>There's a mobile version of our website.</p>
+			<p><a href="http://supportforums.cisco.mobi">Go there now >></a></p>
+		</div>
+
+    <script>
+        var dt = new Date(2020,10,10,10,10,10);
+        var curr_date  = new Date();
+            curr_date.setTime(curr_date.getTime() + 3600000 * 24 * 14);
+    </script>
+    
+    <div class="mr-footer-link"><a href="" onclick='$j.cookie("CISCOMOBILEREMIND", "false",{expires:curr_date} ,{path: "/"},{domain: "supportforums.cisco.com"})'>Remind me later</a></div>
+    <div class="mr-footer-link"><a href="" onclick='$j.cookie("CISCOMOBILEREMIND","false",{expires:dt},{path:"/"},{domain:"supportforums.cisco.com"})'>No thanks-go to classic version</a></div>
+</div>
+<script>
+	$j(document).ready(function(){
+		var totalHeight = $j('body').css('height');
+		$j('#mr-light-box').css('height', totalHeight);
+	})
+</script>
+<a href="#jive-body" class="jive-skip-nav">Skip navigation</a>
+
+    <div id="jive-compliance" class=""style="display:none">
+        <span class="jive-icon-med "></span>
+        
+    </div>
+
+<!-- Fix for CISOP-127 -->
+<!-- yes community object is there in doc/discussion -->
+
+
+
+
+
+    <div id="jive-wrapper" class="clearfix">
+
+	<!-- BEGIN header -->
+	<a name="top"></a>
+    <div id="jive-global-header" class="clearfix">
+		<div id="jive-userbar-right">  
+		
+			<div id="csc-language-picker">			
+Language:				<div>
+					<a href="#">English</a>            
+					<ul>
+Select a Community								<li class="last">
+									<a href="/index.jspa">English</a>
+								</li>
+								<li class="last">
+									<a href="/community/csc-japan">日本語 (Japanese)</a>
+								</li>
+								<li class="last">
+									<a href="/community/spanish">Español (Spanish)</a>
+								</li>
+								<li class="last">
+									<a href="/community/portuguese">Português (Portuguese)</a>
+								</li>
+								<li class="last">
+									<a href="/community/russian">Ру�?�?кий (Russian)</a>
+								</li>
+					</ul>	
+				</div>					
+			
+				<script type="text/javascript">
+					jQuery(function($){
+						$("#csc-language-picker div").hover(function(){
+							$(this).addClass("current");
+							$('ul:first',this).css('visibility', 'visible');
+						}, function(){
+							$(this).removeClass("current");
+							$('ul:first',this).css('visibility', 'hidden');
+						});
+					});
+				
+				</script>
+			</div>
+			<ul id="csc-nav">		
+				
+				
+				
+				
+				<!--<li class="first"><a href="https://www.ciscofeedback.vovici.com/se.ashx" target="_blank">Feedback</a></li>-->
+				<li class="first">
+					<FORM id="feedback-form" name="feedback" action="https://www.ciscofeedback.vovici.com/se.ashx" method="get" target="_blank">
+						<INPUT type="hidden" name="s" value="6A5348A7439AF098">
+						<INPUT type="hidden" name="url" value="https://supportforums.cisco.com/thread/2198188"> 
+						<div id="feedback-form-submit">Contact Us</div>
+					</FORM> 
+					<script>
+						$j(document).ready(function(){
+							$j("#feedback-form-submit").click(function(){
+								$j("#feedback-form").submit();
+							})
+						})
+					</script>
+				</li>
+				<li class="last"><a href="/community/help">Help</a></li>
+			</ul>	
+	    
+				<div id="jive-userbar-login">
+					<form action="/cs_login" method="post" name="loginform" autocomplete="off">
+						
+						
+		
+						<span class="jive-userbar-login-welcome" id="jiveLoginWelcome">
+							
+							<span class="jive-userbar-login-loginlink">
+
+								<a href="/login.jspa" accesskey="L">Login</a>
+
+							</span>
+		
+						</span>
+		
+						<span class="jive-userbar-login-form" id="jiveLoginForm" style="display: none;">
+							<span class="jive-userbar-login-username">
+								<label for="login-username">
+Username:								</label>
+								<input type="text" name="username" size="20" maxlength="150" value="" tabindex="1" id="login-username">
+							</span>
+		
+							<span class="jive-userbar-login-password">
+								<label for="login-password">
+Password:								</label>
+									<a href="emailPasswordToken!input.jspa" title="I forgot my password ">(?)</a>
+								<input type="password" name="password" size="20" maxlength="150" value="" tabindex="2" id="login-password" autocomplete="off">
+							</span>
+		
+							<span class="jive-userbar-login-auto">
+								<input type="checkbox" name="autoLogin" id="login-auto" value="true" tabindex="3">
+								<label for="login-auto">Remember Me</label>
+							</span>
+		
+							<span class="jive-userbar-login-submit">
+								<input type="submit" name="login" value="Login" tabindex="4" class="jive-login-button">
+								<input type="reset" name="doCancel" value="Cancel" tabindex="5" class="jive-cancel-button" onclick="jivetoggleLogin();">
+							</span>
+						</span>
+					</form>
+				</div>	
+		</div> 
+		<div id="jive-userbar-search">
+		    <form action="/search.jspa" method="get" id="jive-userbar-search-form">
+		        <input type="hidden" name="peopleEnabled" value="true"/>
+		
+		        <input type="hidden" name="userID"/>
+		        <input type="hidden" name="containerType" value="14" />
+                <input type="hidden" name="container" value="2026" />
+		        <input type="hidden" name="spotlight" value="false"/>
+		        <label for="jive-query" class="j-508-label">Search for:</label>
+		        <input type="text" id="jive-query" name="q" onClick="this.value=''" value="Search the Support Community" accesskey="4" class="jive-userbar-search-field" autocomplete="off"/>
+		        <button type="submit" value="Search Tags" class="jive-userbar-search-button">Search</button>
+		    </form>
+		
+		    <div id="jive-spotlight-search-container"></div>
+		    <script type="text/javascript">
+		        var containerType = 14;
+		        var containerID = 2026;
+		
+		        $j('#jive-userbar-search-form').submit(function() {
+		            var query = $j('#jive-query').val();
+		            var isWildcard = query.charAt(query.length-1) == '*';
+		            if (query && !isWildcard) {
+		                $j('#jive-userbar-search-form input[name=spotlight]').val("true");
+		            }
+		        });
+		    </script>
+		</div>
+	   
+	    <!-- END right-aligned user bar items -->        
+
+		<div id="jive-global-header-texture">
+                    <div class="jive-header-logo ie6png" >
+                    	<a href="http://www.cisco.com" target="_blank" id="cisco-logo"></a>
+                        <a href="/index.jspa" class="jive-global-header-logolink"></a>
+                    </div>
+		</div>
+	</div>
+<!-- END header -->
+
+
+<!-- BEGIN user bar -->
+<div id="user-bar-wrapper">
+    <div id="jive-userbar" class="clearfix">
+       
+<script type="text/javascript">
+	$j(document).ready(function(){
+		function fixIE() {
+			$j('#jive-userbar-droplink li').css({
+			'padding-right' : '0px',
+			'margin-right' : '0px'
+			});
+		}
+		fixIE();
+		$j('body').ajaxComplete(function(){
+			fixIE();
+		});	
+	});
+</script>
+	<div id="cisco-main-nav" class="cisco-nav">
+	
+				
+		
+		
+		
+		
+		
+		
+		
+		
+		<ul>
+			<li class="first"><a href="/index.jspa">Home</a></li>
+	   		<li class=""><a href="/community/netpro/top-netpro">Top Contributors</a></li>
+	   		<li class=""><a href="/community/netpro/expert-corner">Expert Corner</a></li>
+			
+			<ul class="social-nav">
+		
+		
+		
+		
+		
+		
+		
+		      <li id="cisco-facebook-share-link" class="cisco-social-presence-link">
+		        <a href="http://www.facebook.com/CiscoSupportCommunity" target="_blank">
+			  		<img src="/themes/cisco_csc/resources/images/facebook.png" alt="Find us on Facebook" title="Find us on Facebook" />
+				</a>
+		      </li>
+		      <li id="cisco-twitter-share-link" class="cisco-social-presence-link">
+		        <a href="http://twitter.com/cisco_support" target="_blank">
+			  		<img src="/themes/cisco_csc/resources/images/twitter.png" alt="Follow us on Twitter" title="Follow us on Twitter" />
+				</a>
+		      </li>
+		      <li id="cisco-youtube-share-link" class="cisco-social-presence-link">
+		        <a href="http://www.youtube.com/user/ciscosupportchannel" target="_blank">
+		           <img src="/themes/cisco_csc/resources/images/youtube.png" alt="Watch us on YouTube" title="Watch us on YouTube" /> 
+				</a>
+		      </li>
+		      <li id="cisco-linkedin-share-link" class="cisco-social-presence-link">
+		        <a href="https://www.linkedin.com/groups/CSC-Cisco-Support-Community-3210019" target="_blank">
+			  		<img src="/themes/cisco_csc/resources/images/linked-in.gif" alt="Connect with us on LinkedIn" title="Connect with us on LinkedIn" />
+				</a>
+		      </li>
+		      <li id="cisco-googlePlus-share-link" class="cisco-social-presence-link">
+		        <a href="https://plus.google.com/110418616513822966153?prsrc=3" target="_blank">
+		           <img src="/themes/cisco_csc/resources/images/gplus.png" alt="Find us on Google+" title="Find us on Google+" /> 
+				</a>
+		      </li>
+		      <li id="cisco-apple-share-link" class="cisco-social-presence-link">
+		        <a href="http://itunes.apple.com/us/app/cisco-technical-support/id398104252" target="_blank">
+		           <img src="/themes/cisco_csc/resources/images/apple.gif" alt="Download on iTunes" title="Download on iTunes" /> 
+				</a>
+		      </li>
+		      <li id="cisco-email-share-link" class="cisco-social-presence-link">
+		        <a href="https://tools.cisco.com/gdrp/coiga/showsurvey.do?surveyCode=589&amp;keyCode=146298_2&amp;PHYSICAL%20FULFILLMENT%20Y/N=NO&amp;SUBSCRIPTION%20CENTER=YES" target="_blank">
+		           <img src="/themes/cisco_csc/resources/images/email.png" alt="Subscribe to the Newsletter" title="Subscribe to the Newsletter" /> 
+				</a>
+		      </li>
+	<script type="text/javascript">	
+		(function(scope){
+			// private function
+	   		var recordHeaderTraffic = function(elem, sharingResource){
+				ntptAddPair( "site", sharingResource);
+				ntptAddPair( "linkVer", "2.0");
+				setTimeout("ntptEventTag('ev=social_header_sharing_link')",2000);   				
+			};
+			$j('#cisco-facebook-share-link a').bind('click',function(){recordHeaderTraffic(this,'facebook')});
+			$j('#cisco-youtube-share-link a').bind('click',function(){recordHeaderTraffic(this,'youtube')});
+			$j('#cisco-twitter-share-link a').bind('click',function(){recordHeaderTraffic(this,'twitter')});																    									
+		})();
+	</script>
+			</ul>
+	   	</ul>
+	</div>
+
+        
+    </div>	
+
+		<div id="jive-breadcrumb" class="jive-breadcrumb-anon">
+					
+					
+
+	   <div class="level-first"><div><a href="/">Home
+	</a></div></div>  
+
+				<div class="level" >								
+									<div class="sibling"> <a href="/community/help">Support Community Help</a> </div>
+								
+									<div class="sibling"> <a href="/community/etc">Additional Communities</a> </div>
+								
+									<div class="sibling"> <a href="/community/russian">Сообще�?тво Tехниче�?кой Поддержки на ру�?�?ком �?зыке</a> </div>
+								
+									<div class="sibling"> <a href="/community/csc-japan">サ�?ート コミュニティ日本 (Japan) </a> </div>
+								
+									<div class="sibling"> <a href="/community/portuguese">Comunidade de Suporte Cisco em Português</a> </div>
+								
+									<div class="sibling"> <a href="/community/spanish">Comunidad de Soporte de Cisco en Español </a> </div>
+								
+									<div class="sibling"> <a href="/community/polish">Polska</a> </div>
+								<div class="main_community ">
+							  		 &nbsp; <a href="/community/netpro">NetPro</a>  
+							  	</div>
+								
+									<div class="sibling"> <a href="/community/getronics">Getronics</a> </div>
+					<div class='siblings'>
+							<div class="select_community">Select a community</div><br />
+					</div>					
+				</div>
+				<div class="level" >								
+									<div class="sibling"> <a href="/community/netpro/small-business">Small Business Support Community</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/network-infrastructure">Network Infrastructure</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/wireless-mobility">Wireless - Mobility</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/service-providers">Service Providers</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/collaboration-voice-video">Collaboration, Voice and Video</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/career-certification">Cisco Certifications</a> </div>
+								<div class="main_community ">
+							  		 &nbsp; <a href="/community/netpro/security">Security</a>  
+							  	</div>
+								
+									<div class="sibling"> <a href="/community/netpro/expert-corner">Expert Corner</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/architectures">Solutions and Architectures</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/solutions">Services</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/data-center">Data Center</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/top-contributors">Top Contributors</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/idea-center">Cisco Social</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/online-tools">Online Tools and Resources</a> </div>
+					<div class='siblings'>
+							<div class="select_community">Select a community</div><br />
+					</div>					
+				</div>
+				<div class="level" >								
+									<div class="sibling"> <a href="/community/netpro/security/vpn?view=discussions">VPN</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/security/firewall?view=discussions">Firewalling</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/security/intrusion-prevention?view=discussions">Intrusion Prevention Systems/IDS</a> </div>
+								<div class="main_community ">
+							  		 &nbsp; <a href="/community/netpro/security/aaa">AAA, Identity and NAC</a>  
+							  	</div>
+								
+									<div class="sibling"> <a href="/community/netpro/security/physical-security?view=discussions">Physical Security</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/security/network-management?view=discussions">Security Management</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/security/mars?view=discussions">MARS</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/security/email?view=discussions">Email Security</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/security/web?view=discussions">Web Security</a> </div>
+								
+									<div class="sibling"> <a href="/community/netpro/security/others?view=discussions">Other Security Subjects</a> </div>
+					<div class='siblings'>
+							<div class="select_community">Select a community</div><br />
+					</div>					
+				</div>
+
+			   <div class="level jive-breadcrumb-last"> <div class="main_content" >&nbsp;	
+		<a href="/community/netpro/security/aaa?view=discussions">Discussions</a>
+	</div> </div>
+		</div>
+
+<script>
+	$j(function(){
+		$j('.level').each(function(){
+			var sibling;
+			sibling =  $j(this).find('div.sibling').remove();
+			$j(sibling).each(function(){
+				if($j(sibling).index(this) % 2 == 1){
+					$j(this).css('float','left').css('display','block');
+				}else{
+					$j(this).css('float','left').css('display','block');
+				}
+			});
+		$j(this).find('.siblings').append(sibling);
+		
+		var openTimeoutID;
+		var closeTimeoutID;
+				
+		$j(this).find('.main_community a').mouseover(function(){
+			window.clearTimeout(closeTimeoutID);
+			$j(this).parent().parent().siblings().find('div.siblings').hide();
+			$j(this).parent().parent().siblings().find('.main_community a').addClass('off').removeClass('on')
+			$j(this).parent().parent().siblings().addClass('off').removeClass('on')
+			$j(this).siblings().addClass('off').removeClass('on')
+			//.css('background-color','transparent').css('border', 'solid 1px transparent');
+			
+			var that = $j(this).parent().parent();
+			
+			$j(that).find('div.siblings').mouseover(function(){
+					window.clearTimeout(closeTimeoutID);
+				
+				})
+				
+			$j(that).find('.main_community a').mouseout(function(){
+					closeTimeoutID = window.setTimeout(function(){
+						//$j(that).find('div.siblings').slideUp();
+					}, 1000);
+					window.clearTimeout(openTimeoutID);
+				})
+
+			window.clearTimeout(closeTimeoutID);
+			openTimeoutID = window.setTimeout(function(){
+				$j(that).addClass('on').removeClass('off');//css('background-color','#D5E0E6').css('border', 'solid 1px #ababab');
+				$j(that).find('div.sibling,div.siblings').slideDown(400);
+				$j(that).find('.main_community a').addClass('on').removeClass('off')
+
+			}, 500);
+		  });
+		  
+		  $j(this).mouseout(function(){
+			  var that = this;
+			  closeTimeoutID = window.setTimeout(function(){
+				window.clearTimeout(openTimeoutID);
+			    $j(that).find('div.siblings').slideUp();
+			    $j(that).find('.main_community a').addClass('off').removeClass('on');
+				$j(that).addClass('off').removeClass('on');//.css('border','solid 1px transparent').css('background',"transparent").find('.main_community a').css('background',"transparent url('/themes/cisco_csc/resources/images/crumb-arrow-right.png') no-repeat left");
+			  }, 500);
+		  });
+		});
+	});
+</script>
+
+</div>
+<!-- END user bar -->
+
+        <div id="jive-body">
+
+            
+
+
+    <script>
+            window._jive_images_enabled = true;
+    </script>
+
+
+
+
+
+    <link rel="stylesheet" type="text/css" href="/4.5.4/styles/tiny_mce3/plugins/inlinepopups/skins/clearlooks2/window.css" />
+
+
+
+    <div id="rte-template" style="display:none;">
+        <input type="hidden" name="jive.token.name" value="message.post.2198188"/>
+        <input type="hidden" name="message.post.2198188" value="1386976909911-6FMFRUFGTVKRJ2X5RTV8LSE54AGEDCB1"/>
+
+
+	<form action="/post.jspa?container=2026&containerType=14&thread=2198188&message=3854130&reply=true" method="post" name="isInline" id="postform" >
+	<input type="hidden" name="containerType" value="14">
+	<input type="hidden" name="container" value="2026">
+
+		<input type="hidden" name="thread" value="2198188">
+
+		<input type="hidden" name="reply" value="true">
+        <input type="hidden" name="message" value="">
+        <input type="hidden" name="inlinePost" value="true">
+	<input type="hidden" name="postedFromGUIEditor" id="postTypeFlag" value="false" />
+
+	<div class="jive-error-message jive-error-box" id="dwr-error-table" style="display:none;">
+		<div>
+			<span class="jive-icon-med jive-icon-redalert"></span>
+			<span class="jive-error-text" id="dwr-error-text"></span>
+		</div>
+	</div>
+
+
+
+	<div class="jive-error-message jive-error-box" id="post-error-table" style="display:none;">
+		<div id="post-error-subject" style="display:none;">
+Please enter a title.		</div>
+		<div id="post-error-body" style="display:none;">
+You can not post a blank message. Please type your message and try again.		</div>
+	</div>
+	<input type="hidden" name="subject" size="75" maxlength="255"  id="subject01" value="ACS 4.x to 5.3 Migration Tools fail with java exception"/>
+
+
+
+    <textarea name="body"rows="10" class="jive-comment-textarea"></textarea>
+
+
+
+    <script>
+        var currentURL = "https://supportforums.cisco.com".concat("/message/3854130#3854130");
+        if(window._social!='no' && false != true ){
+        $j('.jive-form-button-save').click(function(){
+                if(_social!='no'){
+                      FB.api({
+                              method: 'fql.query',
+                              query: 'SELECT 1 FROM stream WHERE type = 80 AND source_id=me() AND attachment.href="'+currentURL+'"'
+
+                          }, function(response) {
+                          if(response.length<1){
+                              console.log(response.length);
+                              FB.api('/me/feed',{ link: currentURL, description : "Replied to a Discussion in the Cisco Support Community", picture: "https://supportforums.cisco.com"+"/4.5.4/themes/cisco_csc/resources/images/SR_replied_sharper.jpg"}, 'post', function(response) {
+                                      if (!response || response.error) {
+                                           console.log('Error occured '+response.error.message);
+                                      }
+                                      else {
+                                                  console.log('Message was posted! (post id: ' + response.id + ")");
+                                                  $j('#facebook-replyactivity-added').fadeIn(function(){
+                                                   setTimeout(function(){$j('#facebook-replyactivity-added').fadeOut()},4000);
+                                                });
+                                              }
+                                         });
+                          }else{
+                              console.log("Link already posted: "+response.length);
+                          }
+            });
+        }
+            });
+        }
+    </script>
+	<div>
+		<input type="submit" name="post" class="jive-form-button-save" value="Add Reply" />
+		<input type="button" name="cancel" class="jive-form-button-cancel" value="Cancel" />
+	</div>
+</form>
+</div>
+
+
+<script type="text/javascript" src="/themes/cisco_csc/template/js/discussion_app/question_view.js"></script>
+<script type="text/javascript" src="/themes/cisco_csc/template/js/discussion_app/question_source.js"></script>
+<script type="text/javascript" src="/themes/cisco_csc/template/js/discussion_app/main.js"></script>
+<script type="text/javascript" src="/themes/cisco_csc/template/js/discussion_app/discussion_list_view.js"></script>
+
+
+
+
+<!-- BEGIN main body -->
+<div id="jive-body-main">
+
+    <!-- BEGIN main body column -->
+    <div id="jive-body-maincol-container">
+        <div id="jive-body-maincol">
+        
+		<div id="floating-shareWrapper">
+       	<div id="floating-share">
+        	
+			<script type="text/javascript">
+				jQuery(document).ready(function () {  
+				  var top = jQuery('#floating-share').offset().top - parseFloat(jQuery('#floating-share').css('marginTop').replace(/auto/, 0));
+				  jQuery(window).scroll(function (event) {
+				    // what the y position of the scroll is
+				    var y = jQuery(this).scrollTop();
+				  
+				    // whether that's below the form
+				    if (y >= top) {
+				      // if so, ad the fixed class
+				      jQuery('#floating-share').addClass('fixed');
+				    } else {
+				      // otherwise remove it
+				      jQuery('#floating-share').removeClass('fixed');
+				    }
+				  });
+				});
+			</script>
+			
+			<span class="share-title">Share:</span>
+
+			<span class='st_facebook_large share-button' displayText='Facebook'></span>	
+			<span class="share-button cisco-share-twitter">
+			<a href="javascript:open('http://twitter.com/home?status=Currently reading ACS%25204.x%2520to%25205.3%2520Migration%2520Tools%2520fail%2520with%2520java%2520exception on https%253A%252F%252Fsupportforums.cisco.com%252Fthread%252F2198188 %2523ciscosupport','twitter','toolbar=0,status=0,width=800,height=600');  void(0);">				
+					<img width="32" height="32" src="/themes/cisco_csc/resources/images/twitter_32.png" alt="twitter" title="twitter"/>
+				</a>
+			</span>	
+			<span class='st_linkedin_large share-button' displayText='LinkedIn'></span>
+			<span class='st_googleplus_large share-button' displayText='Google +'></span>
+		</div>
+		</div>
+<script type="text/javascript">
+    (function(scope){
+    var contentType = 'thread';
+        var communityName = "AAA, Identity and NAC";
+        var communityId = "2026";
+        var communityUrl = "https://supportforums.cisco.com/thread/2198188";
+
+        var recordSharingTraffic = function(sharingResource){
+            ntptAddPair( "site", sharingResource);
+            ntptAddPair( "evctyp", contentType);
+            ntptAddPair( "evcnm", communityName);
+            ntptAddPair( "evcid", communityId);
+            ntptAddPair( "evcurl", communityUrl);
+            setTimeout("ntptEventTag('ev=social_media_sharing_link');",2000);
+        };
+        jQuery('#cisco-social-share .cisco-social-share-link-facebook a').bind('click',function(){recordSharingTraffic('facebook')});
+        jQuery('#cisco-social-share .cisco-social-share-link-twitter a').bind('click',function(){recordSharingTraffic('twitter')});
+        jQuery('#cisco-social-share .cisco-social-share-link-linkedin a').bind('click',function(){recordSharingTraffic('linkedin')});
+    })();
+</script>
+
+        	<!-- BEGIN header & intro  -->
+			<div id="jive-body-intro">
+	
+		    	<div id="jive-body-intro-content">
+	
+		    	    <a href="/community/netpro/security/aaa?view=discussions&amp;start=0"><span class="jive-icon-sml jive-icon-arrow-generic-up"></span>
+  		  	            Up to Discussions in&nbsp;AAA, Identity and NAC
+			        </a>
+ 				</div>
+			</div>
+			<!-- END header & intro -->
+        
+            <!-- moderation feedback message -->
+
+            <!-- hidden div used in parsing of ajax response to indicate that we have a moderated message -->
+            
+            <div id="success-moderation-edit" class="jive-success-box" style="display:none"></div>
+
+            <div id="thread.watch.notify" class="jive-info-box" style="display:none"></div>
+
+            <div id="content-featured-notify" class="jive-info-box" style="display:none"></div>
+
+
+
+
+
+            <!-- BEGIN thread messages -->
+
+			     <div id="jive-discussion-header">
+                    <h3 class="jive-content-block-header">Discussions</h3>
+                        <h4>This Question is
+                                <span class="jive-answer-notanswered">Not Answered</span>
+                        </h4>
+                    <div class="clearfix"></div>
+                  </div>
+                  
+
+            
+
+                <!-- BEGIN thread info -->
+                <div class="jive-thread-info font-color-meta">
+				<div id="jive-thread-info-padding">
+					<span class="float-left">
+                    <strong>     
+        
+    386&nbsp;Views
+        
+
+</strong>
+                        <strong>0 Replies</strong>
+                    <a href="#3854130" class="localScroll">Latest reply</a>:
+                    Feb 12, 2013 1:14 PM by
+Gianpiero Viola                        <!-- CISCOP-508  Allow hiding of links for RSS feeds -->
+                            <span><a href="/community/feeds/messages?thread=2198188"><img class="jive-icon-sml jive-icon-rss" src="/4.5.4/images/transparent.png" alt="RSS" /></a></span>
+
+
+					</span><!-- .float-left -->
+				
+				</div>
+                </div>
+                <!-- END thread info -->
+                
+                
+            <div id="jive-thread-messages-container" class="jive-thread-messages">
+                
+                <!-- BEGIN original thread post -->
+                 
+
+                    <div class="jive-thread-post">
+
+                        <a name="2198188"></a><a name="3854130"></a>
+                        <div class="jive-thread-post-body clearfix">
+
+                            <div class="jive-author">
+
+                                    <div class="jive-author-avatar-container">
+                                        <div class="user-status-wrapper">
+
+
+
+
+
+
+	<span class="jive-cisco-user-points"><img src="/themes/cisco_csc/resources/images/nostar.gif" alt="&nbsp points" title="&nbsp points" /> </span>
+
+                                        </div> 
+
+
+                <a href="/people/gianpiero.viola"
+                   data-externalId=""
+                   data-username="gianpiero.viola"
+                   data-avatarId="-1"
+                   class="jiveTT-hover-user"
+                   onmouseover="var presence = null; quickuserprofile.getUserProfileTooltip( 621831, presence );"
+                   onmouseout="quickuserprofile.cancelTooltip();"
+                        >
+                    <img
+                                class="jive-avatar"
+
+                                src="/people/gianpiero.viola/avatar/30.png?a=-1"
+                                border="0" height="30" width="30"
+                                alt="Gianpiero Viola"
+                            /><span username="gianpiero.viola" style="display:none;"></span></a>
+                                    </div>
+
+                                    <div class="jive-username-link-wrapper">
+<a href="/people/gianpiero.viola"
+data-externalId=""
+data-username="gianpiero.viola"
+data-avatarId="-1"
+id="jive-6218315354159242500925"
+onmouseover="var presence = null; quickuserprofile.getUserProfileTooltip( 621831, presence );"
+onmouseout="quickuserprofile.cancelTooltip();"
+class="jiveTT-hover-user jive-username-link"
+>Gianpiero Viola</a>											<em>7 posts since</em>
+											<em>Mar 21, 2012</em>
+	         							<span style="color: #c30; width:200px; font-weight: bold; float: left; clear: left;">
+ 									</span>
+				                        
+				                       
+
+                                    </div>
+                        			<input id="threadOwnerId" type="hidden" name="threadOwnerId" value="621831">
+                                    
+								<h3 class="jive-thread-moddate">Feb 12, 2013 1:14 PM</h3>
+                            </div>
+
+                            <div class="jive-thread-post-body-container">
+                                <div class="jive-thread-post-subject">
+                                    <div class="jive-thread-post-subject-content">
+                                        <div class="jive-social-actions clearfix">
+                                        </div>
+
+                                        <div class="jive-thread-post-moderating"><span class="jive-icon-med jive-icon-moderation"></span>Currently Being Moderated</div>
+                                        
+                                        <h2><a href="/message/3854130#3854130">ACS 4.x to 5.3 Migration Tools fail with java exception</a></h2>
+                                        
+                                    </div>
+                                </div>
+
+                                <div class="jive-thread-post-message">
+                                    <!-- [DocumentBodyStart:6d193711-0fb0-4f36-8922-704e01395bf5] --><div class="jive-rendered-content"><p>Hi ALL,</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>I have to migrate Data from ACS 4.1.1.24 to ACS 5.3.</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>When I run the migration utility on ACS 4.1.1.24 installed on win2003 server (log on with VNC).I get the following java error:</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Microsoft Windows [Version 5.2.3790]</p><p>(C) Copyright 1985-2003 Microsoft Corp.</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>C:\migration\bin&gt;migration.bat</p><p>**************************************************</p><p>Copyright ? 2008-2009 Cisco Systems, Inc.</p><p>All rights reserved.</p><p>**************************************************</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>This utility migrates data from ACS 4.x to ACS 5.x You can migrate directly from</p><p> the following ACS versions:</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>- ACS 4.1.1.24</p><p>- ACS 4.1.4</p><p>- ACS 4.2.0.124</p><p>- ACS 4.2.1</p><p>Data migration involves the following:</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>a. The migration utility analyzes the ACS 4.x data, exports any data from ACS 4.</p><p>x that can be migrated automatically, and imports the data into ACS 5.x</p><p>b. Before the import stage, you can manually consolidate and resolve data accord</p><p>ing to the analysis report, to maximize the amount of data that the utility can</p><p>migrate.</p><p>c. After migration, use the imported data to recreate your policies in ACS 5.x</p><p>--------------------------------------------------------------------------------</p><p>--------------------------------------</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Make sure that the database is running.</p><p>Enter ACS 5.x IP address or hostname:</p><p>10.1.50.55</p><p>Enter ACS 5.x Administrator username:</p><p>acsadmin</p><p>Enter ACS 5.x password:</p><p>*********</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Change user preferences?[no]</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Save user defaults?[yes]</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Connecting to ACS5.x please wait...</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Enter ACS 4.x Server ID:</p><p>acsOld1</p><p>Add server-specific migration prefixes?[no]</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Show full report on screen?[yes]</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>--------------------------------------------------------------------------------</p><p>--------------------------------------</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Select the ACS 4.x Configuration groups to be migrated:[1]</p><p>1 - ALLObjects</p><p>2 - AllUsersObjects</p><p>3 - AllDevicesObjects</p><p>4 - SharedCommandSet</p><p>5 - SharedDACLObject</p><p>6 - MasterKeys</p><p>7 - SharedRACObjectWithVSA</p><p>--------------------------------------------------------------------------------</p><p>--------------------------------------</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>3</p><p>--------------------------------------------------------------------------------</p><p>--------------------------------------</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>The following object types will be extracted:</p><p>--------------------------------------------------------------------------------</p><p>--------------------------------------</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Network Device Groups</p><p>Network Device</p><p>--------------------------------------------------------------------------------</p><p>--------------------------------------</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Choose one of the following:</p><p>1 - AnalyzeAndExport</p><p>2 - Import</p><p>3 - CreateReportFiles</p><p>4 - Exit</p><p>--------------------------------------------------------------------------------</p><p>--------------------------------------</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>1</p><p>Exception in thread "main" java.lang.NumberFormatException: For input string: "</p><p>32"</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at java.lang.NumberFormatException.forInputString(Unknown Source)</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at java.lang.Integer.parseInt(Unknown Source)</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at java.lang.Integer.parseInt(Unknown Source)</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at com.cisco.nm.acs.mgmt.migration.networkdevice.NetworkDeviceExporter.c</p><p>reateAAAClientType(NetworkDeviceExporter.java:480)</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at com.cisco.nm.acs.mgmt.migration.networkdevice.NetworkDeviceExporter.a</p><p>ddToImportCollection(NetworkDeviceExporter.java:185)</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at com.cisco.nm.acs.mgmt.migration.networkdevice.NetworkDeviceExporter.e</p><p>xportObjects(NetworkDeviceExporter.java:116)</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at com.cisco.nm.acs.mgmt.migration.MigrationApplication.executeExport(Mi</p><p>grationApplication.java:440)</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at com.cisco.nm.acs.mgmt.migration.MigrationApplicationCLI.runExport(Mig</p><p>rationApplicationCLI.java:617)</p><p>&#160;&#160;&#160;&#160;&#160;&#160;&#160; at com.cisco.nm.acs.mgmt.migration.MigrationApplicationCLI.main(Migratio</p><p>nApplicationCLI.java:266)</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p> Any ideas about this issue?</p><p style="min-height: 8pt; height: 8pt; padding: 0px;">&#160;</p><p>Thank's </p></div><!-- [DocumentBodyEnd:6d193711-0fb0-4f36-8922-704e01395bf5] -->
+
+									<!-- START CISCOP-626 Voting system-->
+	                                    
+	                                    <div id="user-question-vote" style="display:none;">
+	                                    
+	                                            
+	                                            	
+		                                            <input
+		                                            		type="button" id="cisco-weighted-vote" class="redirect-login tooltip" title="Vote to get this question answered" value="I have this problem too">
+		                                            
+
+	                                            
+	                                            
+	                                            <input type="hidden" name="objectType" value="1" />
+	                                            <input type="hidden" name="objectID" value="2198188" />
+	                                            <input type="hidden" name="userID" value="-1" />
+	                                        <a id="cisco-weighted-voters" class="votes"><span>Votes</span></a>
+	                                        
+	                                        <script type="text/javascript">
+										        $j(document).ready(function() {
+										        	$j('.tooltip').qtip({  
+										        		fixed: true,
+										        		style: {
+															classes: 'qtip-light'
+														},
+										        		position: {
+										        			my: 'bottom center', 
+										        			at: 'top center',
+										        			target: $j('.tooltip')
+										        			}
+										        	});
+
+                                                    $j('.redirect-login').click(function(){
+                                                        window.location.href = "https://supportforums.cisco.com/login.jspa";
+                                                    });
+										        })
+										    </script>
+										    
+		                                </div>
+
+
+									<!-- END CISCOP-626 - Modal can be found further down-->
+
+
+                                </div>
+                                <!-- CISCOP-502 Embedded Endorsed Answer Begin-->
+
+                                
+                                <!-- CISCOP-502 Embedded Endorsed Answer End-->
+                            </div>
+                            <!-- BEGIN content details -->
+                            <div id="discussion-action-div-baseDiscussionForm" class="jive-thread-post-details clearfix">
+
+							<!-- CONTENT FOR RATING SYSTEM -->
+			                      <!-- BEGIN Thread rating -->
+                                  
+                                  <div id="jive-content-avgrating">
+<div class="jive-content-avgrating-score"
+     title="Average User Rating: 0">
+        <span id="jive-icon-avgrating-1" class="jive-icon-avgrating-1 jive-icon-med jive-icon-rate-avg-off"></span>
+        <span id="jive-icon-avgrating-2" class="jive-icon-avgrating-2 jive-icon-med jive-icon-rate-avg-off"></span>
+        <span id="jive-icon-avgrating-3" class="jive-icon-avgrating-3 jive-icon-med jive-icon-rate-avg-off"></span>
+        <span id="jive-icon-avgrating-4" class="jive-icon-avgrating-4 jive-icon-med jive-icon-rate-avg-off"></span>
+        <span id="jive-icon-avgrating-5" class="jive-icon-avgrating-5 jive-icon-med jive-icon-rate-avg-off"></span>
+</div>
+                                  </div>
+                                  
+                                  <div id="jive-thread-ratings-2,198,188" class="jive-thread-ratings clearfix">
+                                      <strong class="csc-message-rating">Average Rating: <span class="csc-avg-rating">0</span> (<span class="csc-num-vote">0</span> ratings)</strong>
+                                  </div>
+                                    
+                                 <!-- END Thread rating --> 
+                                 
+							<!-- END CONTENT -->
+
+                            	<ul>
+                            		<li>
+                            		</li>
+                                    <li class="discussion-thread-acclaim">        <script type="text/javascript">$j(document).ready(function() {$j('.discussion-thread-acclaim').hide()});</script>
+</li>
+                            	</ul>
+
+
+    <!-- BEGIN view/add/edit tags -->
+    <span class="jive-content-footer-item jive-content-footer-tags">
+            <span class="jive-icon-sml jive-icon-tag"></span>Tags: <span id="jive-edit-inline-add-none" style="display:none;">none</span> <span style="display:none;" id="jive-edit-inline-placeholder"> (<a href="#" class="jive-edit-inline-tags-link">add</a>)</span>
+
+            <span class="jive-thread-post-details-tags" id="jive-thread-post-details-tags_jHoJoE">
+                    <a href="/community/netpro/security/aaa?view=tags&tags=acs">acs</a>,
+                    <a href="/community/netpro/security/aaa?view=tags&tags=acs_5.3">acs_5.3</a>
+            </span>
+    </span>
+    <!-- END view/add/edit tags -->
+                                    
+                                    
+	                            	
+                                </div>
+                                <!-- END content details -->
+
+                            </div>
+                        
+                        <div class="jive-thread-ratings clearfix">
+                        </div>
+                    </div>
+                <!-- END original thread post -->
+
+
+                
+
+
+
+
+
+
+
+            </div>
+            <!-- END messages -->
+
+		</div>
+    </div>
+    <!-- END main body column -->
+
+    <input type="hidden" name="userid" id="rating_userid" value="-1"/>
+
+    <!-- BEGIN sidebar column container -->
+    <div id="jive-body-sidebarcol-container">
+        <!-- BEGIN sidebar column -->
+        <div id="jive-body-sidebarcol">
+        <script type="text/javascript">
+            function createDocFromThread() {
+                    document.location = '/thread-to-doc.jspa?thread=2198188';
+            }
+        </script>
+<div id="jive-action-sidebar" class="jive-sidebar jive-box jive-sidebar-actions jive-box-actions">
+
+    <div class="jive-box-header">
+        <h4 id="jive-action-sidebar-tab-header_thread-actions-tab">Actions</h4>
+    </div>
+    <div id="jive-action-sidebar-body" class="jive-sidebar-body jive-sidebar-body-actions jive-box-body">
+
+        <div id="jive-action-sidebar-tab-_thread-actions-tab"
+             class="jive-action-sidebar-tab-first"
+ >
+
+
+
+            <ul id="jive-action-sidebar-tab-list_thread-actions-tab" class=" jive-icon-list">
+                    <li class="cisco-anonymous-community-regLink"><a href="http://tools.cisco.com/RPF/register/register.do" class="jive-link-register" style="display: inline;">Register</a>&nbsp;/&nbsp;<a href="/login.jspa" class="jive-link-login" style="display: inline;">Login</a>&nbsp;for more Actions</li>
+
+
+                        <script type="text/javascript">
+                            function tsrtMetrics(){
+                                if( (typeof ntptAddPair == 'function') && (typeof ntptEventTag == 'function')){
+                                    (function(scope){
+                                        var threadid = "2198188";
+                                        var threadTitle = "ACS 4.x to 5.3 Migration Tools fail with java exception";
+                                        var containerName = "AAA, Identity and NAC";
+                                        var communityUrl = "https://supportforums.cisco.com" + "/community/netpro/security/aaa";
+                                        ntptAddPair( "site", "TSRT");
+                                        ntptAddPair( "evcnm", containerName);
+                                        ntptAddPair( "evcntid", threadid);
+                                        ntptAddPair( "evcurl", communityUrl);
+                                        ntptAddPair( "threadTitle", threadTitle);
+                                        setTimeout("ntptEventTag('ev=sr_create');",2000);
+                                    })();
+                                }
+                                return false;
+                            }
+                        </script>
+
+
+
+                            <li id="jive-link-thread-pdf" style=""
+                                    ><a href="/thread/2198188.pdf"
+rel="nofollow"
+onclick=""
+title="">
+<span class="jive-icon-med jive-icon-doctype-acrobat"></span>
+View as PDF
+</a></li>
+
+
+
+                            <li id="jive-link-thread-print" style=""
+                                    ><a href="/thread/2198188?decorator=print&amp;displayFullThread=true"
+rel="nofollow"
+onclick=""
+title="">
+<span class="jive-icon-med jive-icon-print-preview"></span>
+View print preview
+</a></li>
+
+            </ul>
+        </div> <!-- /#jive-action-sidebar-tab-_id -->
+    </div>
+
+</div>
+
+
+<script>
+
+        _social = 'yes';
+
+        function turnSocialOff(){
+          _social='no';
+          $j.cookie("cisco.share","no",{path: '/'});
+          $j('#facebook-social').removeClass('sharingOn');
+          $j('#facebook-social').addClass('sharingOff');
+          $j('#facebook-social .sharingOff').css("display","")
+          $j('#facebook-social .sharingOn').css("display","none");
+          $j("#facebook-social ul li.turn-off").css("display","none");
+          $j("#facebook-social ul li.turn-on").css("display","");
+        }
+
+        function turnSocialOn(){
+          _social='yes';
+            console.log("Turning Social On");
+          $j.cookie("cisco.share","yes",{path: '/'});
+          $j('#facebook-social').removeClass('sharingOff');
+          $j('#facebook-social').addClass('sharingOn');
+          $j('#facebook-social .sharingOff').css("display","none")
+          $j('#facebook-social .sharingOn').css("display","");
+          $j("#facebook-social ul li.turn-off").css("display","");
+          $j("#facebook-social ul li.turn-on").css("display","none");
+        }
+
+        var days = new Array(7);
+            days[0] = "Sun";
+            days[1] = "Mon";
+            days[2] = "Tue";
+            days[3] = "Wed";
+            days[4] = "Thur";
+            days[5] = "Fri";
+            days[6] = "Sat";
+
+        var month = new Array(12);
+            month[0] = "January";
+            month[1] = "Feburary";
+            month[2] = "March";
+            month[3] = "APril";
+            month[4] = "May";
+            month[5] = "June";
+            month[6] = "July";
+            month[7] = "August";
+            month[8] = "September";
+            month[9] = "October";
+            month[10] = "November";
+            month[11] = "December";
+
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId      : "304181709679773", // App ID
+            status     : true, // check login status
+            cookie     : true, // enable cookies to allow the server to access the session
+            xfbml      : true  // parse XFBML
+          });
+
+            FB.getLoginStatus(function(response) {
+                $j('#facebook-loggedin').hide();
+              if (response.status === 'connected') {
+                // the user is logged in and has authenticated Social Reader App
+                // app, and response.authResponse supplies
+                // the user's ID, a valid access token, a signed
+                // request, and the time the access token
+                // and signed request each expire
+
+                var uid = response.authResponse.userID;
+                var accessToken = response.authResponse.accessToken;
+                var currentURL = window.location.href;
+                  $j('#facebook-login').hide();
+                  $j('#facebook-loggedin').show();
+                  $j(document).ready(function(){
+                      if($j.cookie("cisco.share")=="no")
+                        turnSocialOff();
+
+                      if(_social!='no'){
+                      var referrer = document.referrer;
+                      if(referrer.toLowerCase().indexOf("post!input.jspa")>0 )
+                      {
+                            if(_social!='no'){
+                                FB.api({
+                                          method: 'fql.query',
+                                          query: 'SELECT 1 FROM stream WHERE type = 80 AND source_id=me() AND attachment.href="'+currentURL+'"'
+
+                                      }, function(response) {
+                                      if(response.length<1){
+                                          FB.api('/me/feed',{ link: currentURL, description : "Created a Discussion in the Cisco Support Community", picture:"https://supportforums.cisco.com"+"/4.5.4/themes/cisco_csc/resources/images/SR_created_sharp.jpg" }, 'post', function(response) {
+                                      if (!response || response.error) {
+                                                   console.log('Error occured '+response.error.message);
+                                              }
+                                              else {
+                                                  console.log('Message was posted! (post id: ' + response.id + ")");
+                                                  $j('#facebook-startactivity-added').fadeIn(function(){
+                                                   setTimeout(function(){$j('#facebook-startactivity-added').fadeOut()},4000);
+                                                });
+                                              }
+                                         });
+                      }
+                                });
+                            }
+                          }
+                      else if(referrer.toLowerCase().indexOf("post!reply")>0 ){
+                              if(_social!='no' && $j.cookie("cisco.share.post")=="true"){
+                                  FB.api({
+                                          method: 'fql.query',
+                                          query: 'SELECT 1 FROM stream WHERE type = 80 AND source_id=me() AND attachment.href="'+currentURL+'"'
+
+                                      }, function(response) {
+                                      if(response.length<1){
+                                          console.log(response.length);
+                                          FB.api('/me/feed',{ link: currentURL, description : "Replied to a Discussion in the Cisco Support Community", picture: "https://supportforums.cisco.com"+"/4.5.4/themes/cisco_csc/resources/images/SR_replied_sharper.jpg" }, 'post', function(response) {
+                                  if (!response || response.error) {
+                                       console.log('Error occured '+response.error.message);
+                                  }
+                                  else {
+                                                  $j.cookie("cisco.share.post","false",{path: '/'});
+                                                  console.log('Message was posted! (post id: ' + response.id + ")");
+                                                  $j('#facebook-replyactivity-added').fadeIn(function(){
+                                                   setTimeout(function(){$j('#facebook-replyactivity-added').fadeOut()},4000);
+                                                });
+                                              }
+                                         });
+                                      }else{
+                                          console.log("Link already posted: "+response.length);
+                      }
+                                  });
+                              }
+                          }
+                      else
+                      {
+                              FB.api({
+                                        method: 'fql.query',
+                                        query: 'SELECT 1 FROM stream WHERE type = 80 AND source_id=me() AND attachment.href="'+currentURL+'"'
+
+                                    }, function(response) {
+                                    if(response.length<1){
+                          setTimeout(function(){
+                                            if(_social!='no' ){
+                                                  FB.api('/me/feed',{ link: currentURL, description : "Read a Discussion in the Cisco Support Community", picture:"https://supportforums.cisco.com"+"/4.5.4/themes/cisco_csc/resources/images/SR_read_sharper.jpg" }, 'post', function(response) {
+                                      if (!response || response.error) {
+                                                   console.log('Error occured '+response.error.message);
+                                              }
+                                              else {
+                                                console.log('Message was posted! (post id: ' + response.id + ")");
+                                                $j('#facebook-readactivity-added').fadeIn(function(){
+                                                   setTimeout(function(){$j('#facebook-readactivity-added').fadeOut()},4000);
+                                                });
+                                              }
+                                         });
+                                            }
+                          },20000);
+                      }
+                              });
+                      }
+                      }
+                  });
+
+              } else if (response.status === 'not_authorized') {
+                // the user is logged in to Facebook,
+                // but has not authenticated your app
+                  $j('#facebook-loggedin').hide();
+              } else {
+                  $j('#facebook-loggedin').hide();
+                // the user isn't logged in to Facebook.
+              }
+             });
+
+        };
+        // Load the SDK Asynchronously
+        (function(d){
+           var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+           if (d.getElementById(id)) {return;}
+           js = d.createElement('script'); js.id = id; js.async = true;
+           js.src = "//connect.facebook.net/en_US/all.js";
+           ref.parentNode.insertBefore(js, ref);
+         }(document));
+
+        function deleteFacebookMessage(messageID){
+            FB.api(messageID,'delete',function(response){
+                if(!response || response.error){
+                    console.log('ERROR '+response.error.message);
+                }else{
+                    console.log('Message Deleted');
+                }
+            });
+            $j('#' + messageID).toggle();
+            $j('#' + messageID + '-message').addClass('messageDelete');
+        }
+      	$j(document).ready(function(){
+						$j("#facebook-your-activity").hover(function(){
+							$j('#social-your-activity').show();
+							$j('#facebook-your-activity').addClass('on');
+                            FB.api({
+                                method: 'fql.query',
+                                query: 'SELECT created_time,post_id,attachment FROM stream WHERE source_id=me() AND app_id=304181709679773 ORDER BY created_time desc LIMIT 3'
+
+                            }, function(response) {
+                                  if (!response || response.error) {
+                                       console.log('Error occured '+response.error.message);
+                                  }
+                                  else {
+                                        $j('.social-activity-count').append('<h3>Added to Your Activity('+response.length+')</h3>');
+                                      for (var i=0, l=response.length; i<l; i++) {
+                                       var post = response[i];
+                                       var date = new Date(post.created_time*1000);
+                                          var date_str = days[date.getDay()]+', '+ month[date.getMonth()]+' '+date.getDate()+', '+ date.getFullYear();
+                                          if(post.attachment.name.length>70){
+                                            post.attachment.name = post.attachment.name.substr(0,70).concat("...");
+                                          }
+                                          var activity_desc = '';
+                                          if(post.attachment.description == "Created a Discussion in the Cisco Support Community")
+                                            activity_desc = "Started Discussion";
+                                          else if(post.attachment.description == "Replied to a Discussion in the Cisco Support Community")
+                                            activity_desc = "Replied To"
+                                          else
+                                            activity_desc = "Read"
+
+                                          $j('.social-activity-list').append('<tr><td colspan="3" class="fb-post-type">'+activity_desc+'</td></tr><tr id="'+post.post_id+'-message"><td class="fb-post-name"><a href="'+post.attachment.href+'"> '+post.attachment.name+'</a></td><td class="fb-post-time">'+date_str+'</td><td class="fb-delete"><a href="#" onclick="deleteFacebookMessage(\''+post.post_id+'\'); return false;"><img id="'+post.post_id+'"src="/images/jive-icon-delete-16x16.gif"/></a></td></tr>');
+
+                                     }
+
+                                  }
+                             });
+						}, function(){
+							$j('#social-your-activity').hide();
+                            $j('.social-activity-count').html('');
+                            $j('.social-activity-list').empty();
+                            $j('#facebook-your-activity').removeClass('on');
+						});
+                        $j("#facebook-social ").hover(function(){
+							$j('#social-facebook-switch').show();
+							$j('#facebook-social').addClass('on');
+							$j('#facebook-your-activity').addClass('off');
+							$j('#facebook-options').addClass('off');
+						}, function(){
+							$j('#social-facebook-switch').hide();
+							$j('#facebook-social').removeClass('on');
+							$j('#facebook-your-activity').removeClass('off');
+							$j('#facebook-options').removeClass('off');
+						});
+                        $j("#facebook-options").hover(function(){
+							$j('#social-facebook-options').show();
+							$j('#facebook-social').addClass('off');
+							$j('#facebook-options').addClass('on');
+						}, function(){
+							$j('#social-facebook-options').hide();
+							$j('#facebook-social').removeClass('off');
+							$j('#facebook-options').removeClass('on');
+						});
+                        $j(".facebook-social-links li:eq(2)").click(function(){
+                            FB.logout(function(response){
+                                $j('#facebook-login').show();
+                                $j('#facebook-loggedin').hide();
+                                $j.cookie("cisco.share","yes",{path: '/'});
+                                console.log("Turning Social On: 2");
+                                turnSocialOn();
+                               console.log(response.message);
+                            });
+                        });
+                        $j(".facebook-social-links li:eq(3)").click(function(){
+                            FB.api("/me/permissions","DELETE",function (response){
+                                $j('#facebook-login').show();
+                                $j('#facebook-loggedin').hide();
+                                $j.cookie("cisco.share","yes",{path: '/'});
+                                console.log("Turning Social On: 3");
+                                turnSocialOn();
+                               console.log(response);
+                            });
+                        });
+                        $j("#facebook-social ul li.turn-on").click(function(){
+                        	$j('#facebook-social').removeClass('sharingOff');
+                        	$j('#facebook-options').removeClass('sharingOff');
+                            $j('#facebook-social .sharingOff').toggle();
+                            $j('#facebook-social .sharingOn').toggle();
+                            $j(this).toggle();
+                            $j("#facebook-social ul li.turn-off").toggle();
+                            $j.cookie("cisco.share","yes",{path: '/'});
+                            console.log("Turning Social On: 4");
+                            turnSocialOn();
+                            _social="yes";
+
+                        });
+                        $j("#facebook-social ul li.turn-off").click(function(){
+                            $j('#facebook-social').addClass('sharingOff');
+                            $j('#facebook-options').addClass('sharingOff');
+                            $j('#facebook-social .sharingOff').toggle();
+                            $j('#facebook-social .sharingOn').toggle();
+                            $j('#facebook-social').removeClass('sharingOn');
+                            $j(this).toggle();
+                            $j("#facebook-social ul li.turn-on").toggle();
+                            $j.cookie("cisco.share","no",{path: '/'});
+                            _social="no";
+                        });
+
+					});
+    function facebookLogin(){
+        $j('#facebook-login').hide();
+        $j('#facebook-loggedin').show();
+        turnSocialOn();
+    }
+</script>
+
+<!--CSCE-1046 - Social Reader: should the default 'Privacy Policy' URL be hard coded or not? -->
+
+<div id="jive-solset-socialreader" class="jive-sidebar jive-box">
+    <img class="socialReader-banner" src="/4.5.4/themes/cisco_csc/resources/images/loginwithfacebook_img.jpg" alt=""/>
+    <div id="facebook-login">
+
+        <fb:login-button perms="publish_stream" size="medium"
+                         onlogin="facebookLogin()">
+          Login with Facebook
+        </fb:login-button>
+        <br>
+        <p>Login to share your discussion activity with your friends on Facebook. You can control what you share and turn off sharing anytime.</p>
+    </div>
+    <div id="facebook-loggedin" >
+        <h2>Your Shared Activity</h2>
+        <fb:profile-pic uid="loggedinuser" size="square" facebook-logo="true"></fb:profile-pic>
+        <fb:name class="fb_name" uid="loggedinuser" useyou="false" linked="false"></fb:name>
+        <div class="fb_message">You are logged in to Facebook</div>
+        <br>
+        <ul class="fb-reader-actions">
+        <li id="facebook-latest-activity-action" >
+    		<div class="social-latest-action">
+                <div id="facebook-startactivity-added" class="fb-notification" style="display:none;"><div><h2>Added to Your Activity</h2><br><p>Your Facebook friends can now see that you have started this discussion</p></div></div>
+                <div id="facebook-replyactivity-added" class="fb-notification" style="display:none;"><div><h2>Added to Your Activity</h2><br><p>Your Facebook friends can now see that you have commented on this discussion</p></div></div>
+                <div id="facebook-readactivity-added" class="fb-notification" style="display:none;"><div><h2>Added to Your Activity</h2><br><p>Your Facebook friends can now see that you have read this discussion</p></div></div>
+    		</div>
+        </li>
+        <li id="facebook-your-activity">
+        	<div class="sharing-tab-label">Your Activity</div>
+        	<div id="social-your-activity" style="display:none">
+        		<div>
+        			<div>
+        				<fb:profile-pic uid="loggedinuser" size="square" facebook-logo="true"></fb:profile-pic>
+        				<fb:name class="fb_name" uid="loggedinuser" useyou="false" linked="false"></fb:name>
+        				<div class="social-activity-count">
+        				</div>
+        			<table><tbody class="social-activity-list"></tbody></table>
+        			</div>
+        		</div>
+        	</div>
+        </li>
+        <li id="facebook-social" class="">
+        	<div class="sharing-tab-label sharingOn">Sharing<img src="/4.5.4/themes/cisco_csc/resources/images/socialSharing-on.png" alt=""/>ON</div>
+        	<div class="sharing-tab-label sharingOff" style="display:none;">Sharing<img src="/4.5.4/themes/cisco_csc/resources/images/socialSharing-off.png" alt=""/>OFF</div>
+        	<div id="social-facebook-switch" style="display:none">
+        		<div>
+        			<div>
+        				<ul>
+        					<li class="turn-off">Turn Sharing<img class="" src="/4.5.4/themes/cisco_csc/resources/images/socialSharing-off.png" alt=""/>OFF</li>
+        					<li class="turn-on" style="display:none;">Turn Sharing<img class="" src="/4.5.4/themes/cisco_csc/resources/images/socialSharing-on.png" alt=""/>ON</li>
+        				</ul>
+        			</div>
+        		</div>
+        	</div>
+        </li>
+        <li id="facebook-options">
+        	<div class="sharing-tab-label">Options</div>
+            <div id="social-facebook-options" style="display:none">
+            <div><div>
+                <ul class="facebook-social-links">
+                    <li><a href="/docs/DOC-26847" >Learn More</a> </li>
+                    <li><a href="https://www.ciscofeedback.vovici.com/se.ashx?s=6A5348A7439AF098"> Contact Us</a></li>
+                    <li class="facebook-logout"><a href="#" >Not you? Log out of Facebook</a></li>
+                    <li class="facebook-remove-app"><a href="#" >Remove this experience</a></li>
+                </ul>
+            </div></div>
+            </div>
+        </li>
+        </ul>
+    </div>
+    <div id="socialReader-privacy-learn">
+        <a class="fb-social-privacy" href="http://www.cisco.com/web/siteassets/legal/privacy.html">Privacy Policy</a> | <a class="fb-social-learn" href="/docs/DOC-26847">Learn More</a>
+    </div>
+</div>
+            
+            
+        
+        <div>
+			<div class="cisco-html-module jive-sidebar ">
+					<div class="cisco-html-title jive-sidebar-header">
+			     		<h4>Trending Topics</h4>
+			    	</div>
+			    	<div class="cisco-html-content jive-sidebar-body">
+			    		<table border="0" width="210">
+<tr>
+  <td colspan="2"></td>
+</tr>
+<tr>
+  <td colspan="2" valign="top"><a href="https://supportforums.cisco.com">by Tech Support</a></td>
+</tr>
+<tr>
+  <td height="12" colspan="2" valign="top"><hr /></td>
+</tr>
+<tr>
+  <td width="24" valign="middle"><img src="https://supportforums.cisco.com/servlet/JiveServlet/showImage/102-14174-38-132912/white-paper-56.png" width="18" height="21"></td>
+  <td width="176" valign="middle"><a href="https://supportforums.cisco.com/thread/2018357"><strong>Cisco Nexus 7000 Network Analysis Module</strong></a></td>
+</tr>
+<tr>
+  <td width="24" valign="middle"><img src="https://supportforums.cisco.com/servlet/JiveServlet/showImage/102-14174-38-132912/white-paper-56.png" width="18" height="21"></td>
+  <td width="176" valign="middle"><a href="https://supportforums.cisco.com/thread/2226008"><strong>command authorization failed</strong></a></td>
+</tr>
+<tr>
+  <td height="21" colspan="2" valign="top"><a href="https://supportforums.cisco.com/community/help">Learn more about Cisco Support</a></td>
+  </tr>
+
+</table>
+			    	</div>
+				</div>
+				<div class="cisco-html-module jive-sidebar cisco-html-module-borderless">
+					<div class="cisco-html-content jive-sidebar-body">
+						<script type="text/javascript">var p="http",d="static";if(document.location.protocol=="https:"){p+="s";d="engine";}var z=document.createElement("script");z.type="text/javascript";z.async=true;z.src=p+"://"+d+".adzerk.net/ados.js";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(z,s);</script>
+<script type="text/javascript">
+var ados = ados || {};
+ados.run = ados.run || [];
+ados.run.push(function() {
+/* load placement for account: Neudesic Media Group, site: CSC, size: 213x200 - 213x200*/
+ados_add_placement(2072, 18119, "azk10242", 170);
+/* load placement for account: Neudesic Media Group, site: CSC, size: 213x200 - 213x200, zone: CSC 213 Network Infrastructure*/
+ados_add_placement(2072, 18119, "azk97836", 170).setZone(7575);
+/* load placement for account: Neudesic Media Group, site: CSC, size: 213x200 - 213x200, zone: CSC 213 Collab Voice Video*/
+ados_add_placement(2072, 18119, "azk71179", 170).setZone(7576);
+/* load placement for account: Neudesic Media Group, site: CSC, size: 213x200 - 213x200, zone: CSC 213 Data Center*/
+ados_add_placement(2072, 18119, "azk91501", 170).setZone(7577);
+/* load placement for account: Neudesic Media Group, site: CSC, size: 213x200 - 213x200, zone: CSC 213 Security*/
+ados_add_placement(2072, 18119, "azk90333", 170).setZone(7578);
+/* load placement for account: Neudesic Media Group, site: CSC, size: 213x200 - 213x200, zone: CSC 213 Wireless Mobility*/
+ados_add_placement(2072, 18119, "azk14195", 170).setZone(7579);
+/* load placement for account: Neudesic Media Group, site: CSC, size: 213x200 - 213x200, zone: CSC 213 Service Provider*/
+ados_add_placement(2072, 18119, "azk22611", 170).setZone(7580);
+ados_load();
+});</script>
+<div id="azk90333"></div>
+					</div>
+				</div>
+        </div>
+
+		<!-- start jive social container -->
+<div class="jive-box jive-sidebar">
+	<div class="jive-box-header jive-sidebar-header">
+		<h4>Bookmarked By (0)</h4>
+	</div>
+	<div class="jive-sidebar-byline">
+        <form id="view-favorite-activity-form" action="/view-favorite-activity.jspa">
+            <input type="hidden" name="object" value="2198188"/>
+            <input type="hidden" name="contentObjectType" value="1"/>
+            <label for="jive-view-picker">View:</label>
+            <select id="jive-view-picker" name="view">
+                <option value="everyone">Everyone</option>
+                <option value="notes">Only Notes</option>
+            </select>
+            <input type="hidden" name="page" value="1"/>
+        </form>
+    </div>
+    <div class="jive-box-body jive-sidebar-body clearfix" id="jive-bookmark-sidebar">
+        <div id="jive-bookmark-avatars-container">
+            <div class="jive-sidebar-footer view-previous">
+                <a href="#" class="jive-less">Previous</a>
+            </div>
+            <div id="jive-bookmark-list"
+                class="jive-avatar-list pageable-container clearfix fixedheight">
+            </div>
+
+            <div class="jive-sidebar-footer view-next">
+                <a class="jive-more" href="#">Next</a>
+            </div>
+        </div>
+    </div>
+
+</div>        <!-- end jive social container -->
+
+        </div>
+        <!-- END sidebar column -->
+    </div>
+    <!-- END sidebar column container -->
+	<!-- csc-survey -->
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/themes/cisco_csc/template/js/usersurvey.js"></script>
+
+<script type="text/javascript">
+var randomNumForSurvey = "0";
+var surveyDisplay = "true";
+var surveyTitle = " Cisco Support Forums Survey ";
+var surveyText = " Please help us improve your Cisco Support Community experience by giving us feedback ";
+var idelTime = "450000";
+var surveyedUserLimit = "90";
+var surveyDeniedUserLimit = "90";
+var voviciSurveyLink = "https://www.ciscofeedback.vovici.com/se.ashx?s=6A5348A70B8AA0B5&communityId=2026";
+var surveyRenderNewWindow = "false";
+
+
+
+/* start the survey*/
+function startSurvey() {
+
+    jQuery(function($){
+        var ra_survey = new RandomSurvey(randomNumForSurvey);
+        var is_random = ra_survey.isRandomUser();
+
+        var cookieUtil = new CookieUtilsForSurvey();
+        var user_eligible = cookieUtil.checkIfUserEligible([surveyDeniedUserLimit, surveyedUserLimit]);
+
+        /*the survey will be displayed only if all the below 3 conditions are met*/
+        if((surveyDisplay == "true") && (is_random === true) && (user_eligible === true))
+        {
+            $("div#lb_container_popup_survey").replaceWith('<div id=\"lb_container_usersurvey\" style=\"width: 100%; top: 0px; left: 0px; right: 0px; bottom: 0px; z-index: 999; display: none\"><div id=\"usersurvey-modal\" class=\"jive-modal\" style=\"position: absolute; left: 60%; width:300px; margin-left: -354px; z-index: 1000;display: block;\"><div><span><h2 class=\"jive-modal-title\"  style=\"width: 280px\">   Cisco Support Forums Survey   </h2><a id=\"usersurvey-close-window" class=\"jive-modal-close-top jive-close no-underline\" href=\"javascript:void(0);\"><img src="/themes/cisco_csc/resources/images/closeImage.gif" /></a></span></div><div class=\"jive-modal-content clearfix\" style=\"padding: 10px;\"><div class=\"jive-standard-formblock jive-bookmark-form clearfix\" style=\"padding-bottom: 0px;\"><div class=\"jive-table\"><table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\"><tr><td><b>  Please help us improve your Cisco Support Community experience by giving us feedback  </b></td></tr><tr></tr><tr><th colspan=\"2\"><input id=\"vovici-survey\" type=\"button\" value=\" OK \" title=\" Click here to participate in the survey \" style=\"margin-right:5px;\"><input id=\"vovici-survey-cancel\" type=\"button\" value=\" Not Today \" title=\" Close the window \" style=\"margin-left:5px;\"></th></tr></table></div></div></div></div><div id=\"lb_container_usersurvey_next_screen\" style=\"width: 100%; top: 0px; left: 0px; right: 0px; bottom: 0px; z-index: 999; display: none\"><div id=\"usersurvey-modal_next_screen\" class=\"jive-modal\" style=\"position: absolute; left: 40%; width:700px; margin-left: -354px; z-index:1000;display: block;\"><div><span><h2 class=\"jive-modal-title\" style=\"width: 300px\">   Cisco Support Forums Survey   </h2><a id=\"usersurvey_next_screen-close-window\" class=\"jive-modal-close-top jive-close no-underline\" href=\"javascript:void(0);\"><img src="/themes/cisco_csc/resources/images/closeImage.gif" /></a></span></div><div class=\"jive-modal-content clearfix\" style=\"padding: 10px;\"><div class=\"jive-standard-formblock jive-bookmark-form clearfix\" style=\"padding-bottom: 0px;\"><IFRAME src=\"https://www.ciscofeedback.vovici.com/se.ashx?s=6A5348A70B8AA0B5&communityId=2026\" width=\"100%\" height=\"850\"></IFRAME></div></div></div></div></div>');
+            $("div#lb_container_usersurvey").show();
+            $("div#lb_overlay").show();
+            var heightFromTop = window.pageYOffset;
+
+            /* check if FF or IE */
+            if((typeof(heightFromTop) !== 'undefined') || (heightFromTop != null))
+            {
+                if(heightFromTop > 150)
+                {
+                    $("div#usersurvey-modal").css({top : window.pageYOffset + 60});
+                }
+                else
+                {
+                    $("div#usersurvey-modal").css({top : 150});
+                }
+            }
+            else
+            {
+                //IE specific property
+                var heightFromTop = (document.documentElement.scrollTop?document.documentElement.scrollTop:document.body.scrollTop);
+                if(heightFromTop > 150)
+                {
+                    $("div#usersurvey-modal").css({top : heightFromTop + 60});
+                }
+                else
+                {
+                    $("div#usersurvey-modal").css({top : 150});
+                }
+
+            }
+
+        }
+
+        $('input#vovici-survey').click(function() {
+
+            if(surveyRenderNewWindow === "false")
+            {
+                /*when user accepts the survey set user completeed cookie */
+                cookieUtil.setCiscoCookie('user_survey_date');
+                $("div#usersurvey-modal").hide();
+                $("div#lb_overlay").hide();
+                $("div#lb_container_usersurvey_next_screen").show();
+
+                var heightFromTop = window.pageYOffset;
+
+                /*check if FF or IE */
+                if((typeof(heightFromTop) !== 'undefined') || (heightFromTop != null))
+                {
+                    if(heightFromTop > 150)
+                    {
+                        $("div#usersurvey-modal_next_screen").css({top : window.pageYOffset + 60});
+                    }
+                    else
+                    {
+                        $("div#usersurvey-modal_next_screen").css({top : 150});
+                    }
+                }
+                else
+                {
+                    //IE specific property
+                    var heightFromTop = (document.documentElement.scrollTop?document.documentElement.scrollTop:document.body.scrollTop);
+                    if(heightFromTop > 150)
+                    {
+                        $("div#usersurvey-modal_next_screen").css({top : heightFromTop + 60});
+                    }
+                    else
+                    {
+                        $("div#usersurvey-modal_next_screen").css({top : 150});
+                    }
+
+                }
+            }
+            else
+            {
+                /*when user accepts the survey set user completeed cookie */
+                cookieUtil.setCiscoCookie('user_survey_date');
+                closeSurveyWindow();
+                /* open the survey in a new window*/
+                window.open(voviciSurveyLink,surveyTitle);
+            }
+
+            return false;
+        });
+
+        $('input#vovici-survey-cancel').click(function(){
+            /*the user has declined the survey, save this info in cookie*/
+            cookieUtil.setCiscoCookie('user_decl_date');
+            $("div#lb_container_usersurvey").hide();
+            $("div#lb_overlay").hide();
+        });
+
+        $("a#usersurvey-close-window").click(function(){
+            /* when user clicks the Later or close link, this should set cookie and hide overlay just like vovici-survey-cancel */
+            cookieUtil.setCiscoCookie('user_decl_date');
+            $("div#lb_container_usersurvey").hide();
+            $("div#lb_overlay").hide();
+
+
+            var heightFromTop = window.pageYOffset;
+
+            //check if FF or IE
+            if((typeof(heightFromTop) !== 'undefined') || (heightFromTop != null))
+            {
+                if(heightFromTop > 150)
+                {
+                    window.scrollTo(0, heightFromTop);
+                }
+                else
+                {
+                    window.scrollTo(0,150);
+                }
+            }
+            else
+            {
+                //IE specific property
+                var heightFromTop = (document.documentElement.scrollTop?document.documentElement.scrollTop:document.body.scrollTop);
+                if(heightFromTop > 150)
+                {
+                    window.scrollTo(0,heightFromTop);
+                }
+                else
+                {
+                    window.scrollTo(0,150);
+                }
+
+            }
+
+        });
+    });
+}
+
+
+// close opened window
+//
+function closeSurveyWindow() {
+
+    jQuery(function($){
+        $("div#lb_overlay").hide();
+        $("div#lb_container_usersurvey").hide();
+        $("div#lb_container_usersurvey_next_screen").hide();
+        var heightFromTop = window.pageYOffset;
+
+        //check if FF or IE
+        if((typeof(heightFromTop) !== 'undefined') || (heightFromTop != null))
+        {
+            if(heightFromTop > 150)
+            {
+                window.scrollTo(0,heightFromTop);
+            }
+            else
+            {
+                window.scrollTo(0,150);
+            }
+        }
+        else
+        {
+            //IE specific property
+            var heightFromTop = (document.documentElement.scrollTop?document.documentElement.scrollTop:document.body.scrollTop);
+            if(heightFromTop > 150)
+            {
+                window.scrollTo(0,heightFromTop);
+            }
+            else
+            {	
+                window.scrollTo(0,150);
+            }
+
+        }
+
+    });
+}
+jQuery(function($){
+    $("a#usersurvey_next_screen-close-window").live("click", closeSurveyWindow);
+
+});
+
+setTimeout("startSurvey()",idelTime);
+
+</script>
+
+
+    <!-- END main body -->
+
+	    <!-- CISCOP-626 Modal-->
+		    <div class="jive-modal" id="user-votes">
+		    	<h2 class="jive-modal-title">Voting Users</h2>
+		         <a href="#" class="jive-modal-close-top">Close</a>
+		         <div id="jive-modal-content-container">
+		         	<table id="user-votes-table">
+		         		<tbody></tbody>
+		         	</table>
+                     <table style="display:none" id="all-user-votes-table">
+                         <tbody></tbody>
+                     </table>
+</div>
+		    </div>
+
+    <!-- END modals -->
+</div>
+<!-- END main body -->
+
+<script type="text/javascript" src="/themes/cisco_csc/template/js/thread-toggle.js"></script>
+<script type="text/javascript" src="/themes/cisco_csc/template/js/reputation-rating.js"></script>
+<script type="text/javascript">
+$j(document).ready(function(){
+		globalCustomRatingJSFunc(-1, 2);
+});
+</script>
+
+
+        
+
+<!-- BEGIN footer -->
+
+
+
+
+
+	<div id="jive-footer" class="clearfix">
+			<div id="cisco-footer" class="cisco-nav clearfix">
+			<p>Postings may contain unverified user-created content and change frequently. The content is provided as-is and is not warrantied by Cisco.</p>
+			
+			<div>
+				<span id="cisco-copyright">&copy; 1992-<script>
+			//jQuery(function(){
+				d = new Date();
+				document.write(d.getFullYear());
+			//})
+			</script> &nbsp; Cisco Systems Inc. All rights reserved.</span>
+				<ul>
+					<li><a target="_blank" href="http://www.cisco.com/web/siteassets/legal/terms_condition.html">Terms &amp; Conditions</a></li>
+					<li><a target="_blank" href="http://www.cisco.com/web/siteassets/legal/privacy.html">Privacy Statement</a></li>
+					<li><a target="_blank" href="http://www.cisco.com/web/siteassets/legal/privacy.html#cookies">Cookie Policy</a></li>
+					<li class="last"><a target="_blank" href="http://www.cisco.com/web/siteassets/legal/trademark.html">Trademarks of Cisco Systems, Inc.</a></li>					
+				</ul>
+			</div>
+			
+		</div>
+	</div>
+<div id="lb_container_popup_survey">
+</div>
+<!-- END footer -->
+</div>
+     
+
+<div id="jiveTT-note-user" class="jive-tooltip2 notedefault snp-mouseoffset"  >
+	<div class="jive-tooltip2-mid j-mini-modal">
+		<div class="jive-tooltip2-mid-padding j-modal-content clearfix" id="jive-note-user-body"></div>
+	</div>
+<!--[if lt IE 7]><iframe src="javascript:false;" class="ieselectfix"></iframe><![endif]--></div>
+
+<div id="jiveTT-note-video" class="jive-tooltip2 notedefault snp-mouseoffset"  >
+	<div class="jive-tooltip2-mid j-mini-modal">
+		<div class="jive-tooltip2-mid-padding j-modal-content clearfix" id="jive-note-video-body"></div>
+	</div>
+<!--[if lt IE 7]><iframe src="javascript:false;" class="ieselectfix"></iframe><![endif]--></div>
+
+<div id="jivecontainerTT-note-container" class="jive-tooltip2 notedefault snp-mouseoffset"  >
+	<div class="jive-tooltip2-mid j-mini-modal">
+		<div class="jive-tooltip2-mid-padding j-modal-content clearfix" id="jive-note-container-body"></div>
+	</div>
+<!--[if lt IE 7]><iframe src="javascript:false;" class="ieselectfix"></iframe><![endif]--></div>
+
+
+
+
+    
+
+
+
+
+<script type="text/javascript">
+		    var jivespotlightsearch = new JiveSpotlightSearch("#jive-query", "#jive-spotlight-search-container", "spotlight-search.jspa", containerType, containerID);
+
+
+</script>
+<script type="text/javascript" src="/4.5.4/resources/scripts/gen/a93effb188671106a1739fe3a33838cb.js"></script>
+
+
+</div>
+</body>
+</html>

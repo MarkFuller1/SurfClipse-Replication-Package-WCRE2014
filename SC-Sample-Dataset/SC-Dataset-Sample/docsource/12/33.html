@@ -1,0 +1,1640 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+ <title>Java Anti-Patterns</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+ <meta name="author" content="Ortwin Gl&uuml;ck">
+ <meta name="keywords" content="java, top 10 mistakes, anti-patterns">
+ <meta name="description" lang="en" content="The top Java beginner's mistakes and anti-patterns">
+ <meta name="og:type" content="article">
+ <meta name="date" content="2013-11-12Z">
+     <meta name="generator" content="Odi&#039;s CSS Skin-O-Matic">
+    <meta name="copyright" content="Ortwin Gl&uuml;ck">
+    <meta name="og:title" content="odi.ch">
+    <meta property="fb:admins" content="ortwin.gluck">
+    <link rel="stylesheet" type="text/css" media="screen,print" href="../../design/rounded_all.css">
+    <link rel="stylesheet" type="text/css" media="print" href="../../design/rounded_print.css"> 
+    <!--[if IE]><link rel="stylesheet" type="text/css" media="screen,print" href="../../design/rounded_ie.css"><![endif]-->
+    <link rel="start" href="../../" title="Home">
+	<link rel="author" href="../../contact.php" title="Contact">
+	<link rel="copyright" href="http://creativecommons.org/licenses/by-sa/3.0/"
+	tile="Creative Commons Attribution-ShareAlike (CC BY-SA)">
+	<link rel="search" href="http://www.google.com/search?domains=odi.ch&amp;sitesearch=odi.ch" title="Search">
+    <script type="text/javascript" src="../../js/google.js"></script>
+ <script type="text/javascript">
+    function toc(skip) {        
+        var menu = document.getElementById("autotoc");
+        
+        var titles = document.getElementsByTagName("h3");
+        for (i=0; i<titles.length; i++) {
+          if (i < skip) continue;
+          var h = titles[i];
+          var div = h.parentNode;
+          if (div.nodeName != "DIV" || div.getAttribute("id") != "content") continue;
+          
+          // menu entry
+          var entry = document.createElement("li");
+          var link = document.createElement("a");
+          link.setAttribute("href", "#"+i);
+          link.appendChild(document.createTextNode(h.firstChild.data));
+          entry.appendChild(link);
+          
+          // anchor
+          var anchor = document.createElement("a");
+          anchor.setAttribute("name", i);
+          
+          h.parentNode.insertBefore(anchor, h);
+          menu.appendChild(entry);
+        }
+        menu.style.display = "block";
+    }
+</script>
+</head>
+
+
+<body onload="toc(0)">
+  <div id="servicebar" title="Site services">
+    <script type="text/javascript">
+      function parseRfcDate(s) {
+        var rfcDate = /(\d{4})-(\d{1,2})-(\d{1,2})(T((\d{1,2}):(\d{1,2}):(\d{1,2})))?(Z|([\+-])(\d\d):(\d\d))/;
+        var m = rfcDate.exec(s);
+        if (!m) return null; // no match
+        var d;
+        if (m[4]) {
+          // has time
+          d = new Date(m[1], m[2]-1, m[3], m[6], m[7], m[8]);
+        } else {
+          // only date
+          d = new Date(m[1], m[2]-1, m[3]);
+        }
+        var tzofs;
+        if (m[9] == "Z") {
+          tzofs = 0;
+        } else {
+          tzofs = parseInt(m[11]) * 60 + parseInt(m[12]);
+          if (m[10] == "-") tzofs = -tzofs;
+        }
+        var myofs = tzofs + d.getTimezoneOffset();
+        d.setTime(d.getTime() - myofs * 60 * 1000);
+        return d;
+      }
+      
+      
+      var head = document.getElementsByTagName("head")[0];
+      var metas = head.getElementsByTagName("meta");
+      for (var i=0; i<metas.length; i++) {
+        if (metas[i].getAttribute("name") != "date") continue;
+        var date = parseRfcDate(metas[i].getAttribute("content"));
+        if (!date) continue;
+        document.write("<p>[edited: ");
+        document.write(date.getFullYear() +"-"+ (date.getMonth()+1) +"-"+ date.getDate());
+        document.write("]</p>");
+        break;
+      }
+    </script>
+    <p>[65580 views]
+    
+    </p>
+
+    <!-- SiteSearch Google -->
+    <form id="googlesearch" title="Search this site" method="GET" action="http://www.google.com/search">
+      <input type="hidden" name="ie" value="UTF-8">
+      <input type="hidden" name="oe" value="UTF-8">
+      <input type="hidden" name="domains" value="odi.ch">
+      <input type="hidden" name="sitesearch" value="odi.ch">
+      [<input type="text" name="q" title="Search keywords" accesskey="f" value="Search" size="5" maxlength="255" onfocus="document.forms['googlesearch'].elements['q'].value=''">]
+    </form>
+    <!-- SiteSearch Google -->
+
+    <p>[<a href="../../toggle_ads.php" rel="nofollow" title="toggles ads on and off">toggle ads</a>]</p>
+  </div>
+
+  <div id="navigation">
+	<span class="skiplink"><a href="#contentanchor" accesskey="1">Skip navigation</a></span>
+    <ul class="navigation" id="navigationid"><li class="node closed"><a href="../../weblog/index.php">Blog</a><ul><li class="leaf"><a href="../../weblog/browse.php">All</a></li><li class="leaf"><a href="../../weblog/bycat.php?cat=2">Code</a></li><li class="leaf"><a href="../../weblog/bycat.php?cat=6">Food</a></li><li class="leaf"><a href="../../weblog/bycat.php?cat=1">General</a></li><li class="leaf"><a href="../../weblog/bycat.php?cat=5">Reviews</a></li><li class="leaf"><a href="../../weblog/bycat.php?cat=3">Social</a></li><li class="leaf"><a href="../../weblog/bycat.php?cat=4">Updates</a></li></ul></li><li class="node open"><a href="../../prog/design/newbies.php">Articles</a><ul><li class="leaf active"><a href="../../prog/design/newbies.php">Java Anti-Patterns</a></li><li class="leaf"><a href="../../prog/design/datetime.php">Date and time</a></li><li class="leaf"><a href="../../prog/shell/index.php">Linux shell</a></li><li class="leaf"><a href="../../prog/git.php">Git</a></li><li class="leaf"><a href="../../prog/ipv6.php">IPv6</a></li><li class="leaf"><a href="../../prog/design/php/index.php">On PHP</a></li><li class="leaf"><a href="../../prog/design/php/guide.php">PHP Best Practice</a></li><li class="leaf"><a href="../../prog/css/nav/index.php">CSS Navigation</a></li><li class="leaf"><a href="../../prog/css/ajaxnav/index.php">AJAX Navigation</a></li><li class="leaf"><a href="../../prog/jms-tx.php">JTA JMS</a></li><li class="leaf"><a href="../../prog/design/singleton.php">Singleton Applied</a></li></ul></li><li class="node closed"><a href="../../prog/zenbook/index.php">Linux</a><ul><li class="leaf"><a href="../../prog/zenbook/index.php">Gentoo on Zenbook</a></li><li class="leaf"><a href="../../prog/macbookpro/index.php">Gentoo on MacBook</a></li><li class="leaf"><a href="../../prog/imac/index.php">Gentoo on iMac</a></li><li class="leaf"><a href="../../prog/tm630/index.php">Acer TM630</a></li><li class="leaf"><a href="../../prog/tm630/gentoo.php">Gentoo on TM630</a></li><li class="leaf"><a href="../../prog/tm630/suse.php">SuSE on TM630</a></li></ul></li><li class="node closed"><a href="../../prog/prog.php">Software Projects</a><ul><li class="leaf"><a href="../../prog/httpclient.php">Apache HTTP Client</a></li><li class="leaf"><a href="../../prog/jaas-pam.php">JAAS-PAM</a></li><li class="node closed"><a href="../../prog/java/index.php">Tiny Java stuff</a><ul><li class="leaf"><a href="../../prog/java/lib_odi.php">lib_odi</a></li><li class="leaf"><a href="../../prog/java/portscanner.php">Portscanner</a></li><li class="leaf"><a href="../../prog/java/qvadis.php">Quo Vadis</a></li></ul></li><li class="node closed"><a href="../../prog/lfn/index.php">Utilities</a><ul><li class="leaf"><a href="../../prog/lfn/index.php">LFN Tools</a></li><li class="leaf"><a href="../../prog/timeout.php">Timeout kill</a></li><li class="leaf"><a href="../../prog/thumbnail.php">Thumbnail</a></li><li class="leaf"><a href="../../prog/stripatt.php">Stripatt</a></li><li class="leaf"><a href="../../prog/povtools.php">POV Tools</a></li></ul></li></ul></li><li class="leaf"><a href="../../guestbook/index.php">Guestbook</a></li><li class="leaf"><a href="../../contact.php">Contact</a></li></ul>  </div>
+
+  <a name="contentanchor" title="Page content follows"></a>
+  <div id="content">
+  <h1>Java Anti-Patterns</h1>
+  <iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.odi.ch%2Fprog%2Fdesign%2Fnewbies.php&amp;send=false&amp;layout=button_count&amp;width=100&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=35" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:100px; height:24px;" allowTransparency="true"></iframe>
+  <g:plusone></g:plusone>
+<p>This page collects some bad code that may not look so obviously bad to beginners. Beginners often struggle with the language
+syntax. They also have little knowledge about the standard JDK class library and how to make the best use of it. In fact I have 
+collected all examples from everyday junior code. I have modified the original code to give it example character and such that it 
+highlights the problems. Many of these problems can easily be detected by <a href="http://findbugs.sourceforge.net">FindBugs</a>,
+which is available as a simple Eclipse Plug-in. I strongly recommend this tool to any beginner programmer. Also pros should
+run it from time to time on their codebase, and review its output carefully. It an easy to use tool and I always find some
+bugs when I use it.</p>
+
+<p>Some of these may seem like micro-optimization, premature optimization without profiling or constant factor optimizations.
+But performance and memory wasted in thousands of these small places adds up quickly and will grind an application to a 
+crawl. And when I say application, I mean a server-side application running on an application server. That's what I do 
+for a living. On desktop GUI applications the situation may not be as bad. But then, what's the only relevant platform
+that runs client-side Java applications? Android. An embedded platform with very limited resources (memory!).
+Here even constant factor optimizations pay off quickly. Like iterating over arrays instead of lists.</p>
+
+<p>In the end a lot of your application's performance depends on the overall quality of your code. By the way you should
+never underestimate the importance of memory footprint. I can't stress that enough. I have seen too many applications
+with crazy garbage collection overhead and out of memory errors. Even though garbage collection is quite fast, most 
+server-side code's scalability is dominated and limited primarily by its <i>memory use per request/transaction</i> and 
+the <i>request/transaction duration</i>. Improving either of these by a constant factor will directly give you a
+higher throughput by that factor. If the factor is 10, it can mean supporting 100 or 1000 users, which can make all
+the difference to your customer.</p>
+
+<p>Compare these scenarios (assume 100MB young generation):</p>
+<table>
+  <tr>
+    <th>Scenario</th>
+    <th>thread pool</th>
+    <th>tx duration</th>
+    <th>=&gt; max. tx / s</th>
+    <th>mem / tx</th>
+    <th>=&gt; garbage / min</th>
+    <th>GC / min</th>
+  </tr>
+  <tr>
+    <td>base</td>
+    <td>30</td>
+    <td>100 ms</td>
+    <td><b>300</b></td>
+    <td>50 KB</td>
+    <td><b>900 MB</b></td>
+    <td><b>9</b></td>
+  </tr>
+  <tr>
+    <td>slower</td>
+    <td>30</td>
+    <td>1000 ms</td>
+    <td><b>30</b></td>
+    <td>50 KB</td>
+    <td><b>90 MB</b></td>
+    <td><b>0.9</b></td>
+  </tr>
+  <tr>
+    <td>more mem</td>
+    <td>30</td>
+    <td>100 ms</td>
+    <td><b>300</b></td>
+    <td>500 KB</td>
+    <td><b>9 GB</b></td>
+    <td><b>90</b></td>
+  </tr>
+  <tr>
+    <td>excess mem</td>
+    <td>30</td>
+    <td>100 ms</td>
+    <td><b>300</b></td>
+    <td>5 MB</td>
+    <td><b>90 GB</b></td>
+    <td><b>900</b></td>
+  </tr>
+</table>
+
+<p>In the <i>slower</i> scenario the transaction duration is 10 times longer. This immediately cuts the maximum number
+of transactions per second by the factor of 10 as well (limited thread-pool, limited CPU resources). In the
+<i>more mem</i> scenario each transaction uses 10 times as much memory. This directly bumps up the number of garbage
+collections to over one per second, which causes non-negligible overhead. Using much more memory like in scenario
+<i>excess mem</i> this would lead to 15 collections per second, leaving 66ms per collection which is clearly not enough.
+The system will thrash. Also 66ms is below the transaction duration of 100ms, so many running transactions will still
+hold onto memory, preventing it from collection, and causing a propagation of that memory to older generations. This
+means the older generations will start growing and will need a large (slow) collection sooner. The application in that
+scenario no longer performs. I think this clearly shows how bad excess memory consumption is, compared to just
+slow code. All your superfast code can't help you when you allocate too much memory.</p>
+
+<ul id="autotoc" class="toc" style="width:20em;display:none;">
+<!-- table of contents is generated automatically by the toc() function -->
+</ul>
+
+<h3>String concatenation</h3>
+<pre title="very bad code">String s = &quot;&quot;;
+for (Person p : persons) {
+    s += &quot;, &quot; + p.getName();
+}
+s = s.substring(2); //remove first comma</pre>
+This is a real performance killer: O(persons.length²). The repeated concatenation of strings in a loop causes excess garbage and array copying. Moreover
+it is ugly that the resulting string has to be fixed for an extra comma.
+<pre title="better code">StringBuilder sb = new StringBuilder(persons.size() * 16); // well estimated buffer
+for (Person p : persons) {
+    if (sb.length() &gt; 0) sb.append(&quot;, &quot;);
+    sb.append(p.getName);
+}</pre>
+
+<h3>Lost StringBuffer performance</h3>
+<pre title="not so good code">StringBuffer sb = new StringBuffer();
+sb.append(&quot;Name: &quot;);
+sb.append(name + '\n');
+sb.append("!");
+...
+String s = sb.toString();</pre>
+Despite good intentions the above code is not perfect. The most obvious mistake is the string concatenation in line 3. In line 4
+appending a <code>char</code> would be faster than appending a String. An also major
+omission is the missing length initialization of the buffer which may incur unnecessary resizing (array copying). In JDK 1.5 and above a
+<code>StringBuilder</code> instead of <code>StringBuffer</code> should have been used: because it is only a local variable the
+implicit synchronization is overkill.
+Actually, using simple String concatenation compiles to almost perfect byte code: it's only missing the length initialization. 
+<pre title="good code">StringBuilder sb = new StringBuilder(100);
+sb.append(&quot;Name: &quot;);
+sb.append(name);
+sb.append("\n!");
+String s = sb.toString();</pre>
+<pre title="simple isn't necessarily bad">
+String s = &quot;Name: &quot; + name + "\n!";
+</pre>
+
+<h3>Testing for string equality</h3>
+<pre title="not perfect">if (name.compareTo("John") == 0) ...
+if (name == "John") ...
+if (name.equals("John")) ...
+if ("".equals(name)) ...</pre>
+None of the above comparisons is wrong - but neither are they really good. The <code>compareTo</code> method is overkill and too 
+verbose. The <code>==</code> operator tests for object identity which is probably not what you want. The <code>equals</code> method 
+is the way to go, but reversing the constant and variable would give you extra safety if <code>name</code> is <code>null</code>.
+<pre title="perfect">if ("John".equals(name)) ...
+if (name.length() == 0) ...
+if (name.isEmpty()) ...</pre>
+
+<h3>Converting numbers to Strings</h3>
+<pre>"" + set.size()
+new Integer(set.size()).toString() 
+</pre>
+The return type of the <code>Set.size()</code> method is <code>int</code>. A conversion to <code>String</code> is wanted. These two
+examples in fact do the conversion. But the first incurs the penalty of a concatenation operation 
+(translates to <code>(new StringBuilder()).append(i).toString())</code>). And the second creates an
+intermediate Integer wrapper. The correct way of doing it is
+<pre>String.valueOf(set.size())</pre>
+
+<h3>Not taking advantage of immutable objects</h3>
+<pre title="code wastes resources">zero = new Integer(0);
+return Boolean.valueOf(&quot;true&quot;);</pre>
+<code>Integer</code> as well as <code>Boolean</code> are immutable. Thus it doesn't make sense to create several objects that
+represent the same value. Those classes have built-in caches for frequently used instances. In the case of Boolean there are even
+only two possible instances. The programmer can take advantage of this:
+<pre title="conservative code">zero = Integer.valueOf(0);
+return Boolean.TRUE;</pre>
+
+<h3>XML parsers are for sissies</h3>
+<pre title="naive code">int start = xml.indexOf(&quot;&lt;name&gt;&quot;) + &quot;&lt;name&gt;&quot;.length();
+int end = xml.indexOf(&quot;&lt;/name&gt;&quot;);
+String name = xml.substring(start, end);</pre>
+This naive XML parsing only works with the most simple XML documents. It will however fail if a) the name element is not unique in
+the document, b) the content of name is not only character data c) the text data of name contains escaped characters
+d) the text data is specified as a CDATA section e) the document uses XML namespaces. XML is way too
+complex for string operations. There is a reason why XML parsers like Xerces are
+a over one megabyte jar files! The equivalent with JDOM is:
+<pre title="more professional code">SAXBuilder builder = new SAXBuilder(false);
+Document doc = doc = builder.build(new StringReader(xml));
+String name = doc.getRootElement().getChild(&quot;name&quot;).getText();</pre>
+
+<h3>Assembling XML with String operations</h3>
+<pre title="not quite xml">
+String name = ...
+String attribute = ...
+String xml = "&lt;root&gt;"
+            +"&lt;name att=\&quot;"+ attribute +"\&quot;&gt;"+ name +"&lt;/name&gt;"
+            +"&lt;/root&gt;";
+</pre>
+Many beginners are tempted to produce XML output like shown above, by using String operations (which they know so well
+and which are so easy). Indeed it is very simple and almost beautiful code. However it has one severe shortcoming: It
+fails to escape reserved characters. So if the variables name or attribute contain any of the reserved characters
+ &lt;, &gt;, &amp;, &quot; or &apos; this code would produce invalid XML. Also as soon as the XML uses namespaces,
+String operations may quickly become nasty and hard to maintain.
+Now XML should be assembled in a DOM. The JDom library is quite nice for that.
+<pre title="use JDOM">
+Element root = new Element("root");
+root.setAttribute("att", attribute);
+root.setText(name);
+Document doc = new Documet();
+doc.setRootElement(root);
+XmlOutputter out = new XmlOutputter(Format.getPrettyFormat());
+String xml = out.outputString(root);
+</pre>
+
+<h3>The XML encoding trap</h3>
+<pre title="very bad code">String xml = FileUtils.readTextFile("my.xml");</pre>
+It is a very bad idea to read an XML file and store it in a String. An XML specifies its encoding in the XML header. But when reading
+a file you have to know the encoding beforehand! Also storing an XML file in a String wastes memory. All XML parsers accept an
+InputStream as a parsing source and they figure out the encoding themselves correctly. So you can feed them an InputStream
+instead of storing the whole file in memory temporarily.
+The byte order (big-endian, little-endian) is another trap when a multi-byte encoding (such as UTF-8)
+is used. XML files may carry a byte order mark at the beginning that specifies the byte order. 
+XML parsers handle them correctly.
+
+<h3>char is not int</h3>
+<pre title="bad cast">int i = in.read();
+char c = (char) i;</pre>
+The above code assumes that you can create a character from a number. It's true technically: a character's number is the
+16 bit Unicode codepoint number. But it is semantic nonsense. In Java the character is a semantic entity of its own. The
+character's byte representation is completely decoupled from that. If we encounter a <code>char</code> we don't need to 
+worry whether the character is stored in UTF-8, UTF-16, USC-4 or ISO-8859-1 internally. It simply doesn't matter. We can
+compare it to other characters and it will always behave as expected. This concept is not known in C for example. In C 
+the char type is just a numeric type. It can contain anything, even invalid data that does not represent characters.
+In C you have to know exactly which character encoding a char array uses or you may do wrong things when sorting, printing,
+searching etc. Also C programs may wrongly assume that a char is one byte long and contains values 0-127 or 0-256, which is
+true for ASCII, but not for many other character encodings (known as "multi-byte" character encodings).
+Anyway, in Java use Reader/Writer or CharsetEncoder/CharsetDecoder instead to convert between characters and their
+byte representation (see following paragraph).
+
+<h3>Platform dependent filenames</h3>
+<pre title="broken on either Linux or Windows">
+File tmp = new File("C:\\Temp\\1.tmp");
+File exp = new File("export-2013-02-01T12:30.txt");
+File f = new File(path +'/'+ filename);
+</pre>
+Never hard code paths in a filesystem. Different platforms have different conventions, and you can
+never be sure that a hard coded path is actually available on a random system. Use API calls
+to create temporary files.
+
+Mind that different file systems have different restrictions on what makes a valid file name. Here
+the exp file contains a colon character, which is illegal on Windows file systems.
+
+When you construct absolute or relative paths in the filesystem, be careful of the platform 
+dependent separator character.
+<pre title="platform safe code">
+File tmp = File.createTempFile("myapp","tmp");
+File exp = new File("export-2013-02-01_1230.txt");
+
+File f = new File(path + File.separatorChar + filename);
+// or even better
+File dir = new File(path);
+File f = new File(dir, filename);
+</pre>  
+
+
+<h3>Undefined encoding</h3>
+<pre title="not portable">Reader r = new FileReader(file);
+Writer w = new FileWriter(file);
+Reader r = new InputStreamReader(inputStream);
+Writer w = new OutputStreamWriter(outputStream);
+String s = new String(byteArray); // byteArray is a byte[]
+byte[] a = string.getBytes();</pre>
+Each line of the above converts between <code>byte</code> and <code>char</code> using the default platform
+encoding. The code behaves differently depending on the platform it runs on. This is harmful if the data
+flows from one platform to another. It is considered bad practice to rely on the default platform encoding
+at all. Conversions should always be performed with a defined encoding.
+<pre title="portable code">Reader r = new InputStreamReader(new FileInputStream(file), "ISO-8859-1");
+Writer w = new OutputStreamWriter(new FileOutputStream(file), "ISO-8859-1");
+Reader r = new InputStreamReader(inputStream, "UTF-8");
+Writer w = new OutputStreamWriter(outputStream, "UTF-8");
+String s = new String(byteArray, "ASCII");
+byte[] a = string.getBytes("ASCII");</pre>
+
+<h3>Unbuffered streams</h3>
+<pre title="performance sink">InputStream in = new FileInputStream(file);
+int b;
+while ((b = in.read()) != -1) {
+   ...
+}</pre>
+The above code reads a file byte by byte. Every <code>read()</code> call on the stream will cause a native
+(JNI) call to the native implementation of the filesystem. Depending on the implementation this may
+cause a syscall to the operating system. JNI calls are expensive and so are syscalls. The number of
+native calls can be reduced dramatically by wrapping the stream into a <code>BufferedInputStream</code>.
+Reading 1 MB of data from <code>/dev/zero</code> with the above code took about 1 second on my laptop.
+With the fixed code below it was down to 60 milliseconds! That's a 94% saving.
+This also applies for output streams of course. And it is true not only for the file system but also for sockets.
+<pre title="reasonable performance">InputStream in = new BufferedInputStream(new FileInputStream(file));</pre>
+
+<h3>Unbuffered writes to an OutputStreamWriter</h3>
+<pre title="unexpected memory use">Writer w = new OutputStreamWriter(os, "UTF-8");
+while (...) {
+  w.write("something");
+}
+</pre>
+As <a href="/weblog/posting.php?posting=671">demonstrated</a> OutputStreamWriter uses memory for
+each call to its write() methods. This is very unfortunate and not the behaviour that one would
+expect! If you do many writes, you should wrap it in a BufferedWriter, which (also unexpectedly)
+seems to use no memory at all:
+<pre title="no memory use">
+Writer w = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+</pre> 
+
+<h3>Infinite heap</h3>
+<pre title="resource waster">byte[] pdf = toPdf(file);</pre>
+Here a method creates a PDF file from some input and returns the binary PDF data as a byte array. This code assumes that the 
+generated file is small enough to fit into the available heap memory. If this code can not make this 100% sure then it is
+vulnerable to an out of memory condition. Especially if this code is run server-side which usually means many parallel threads. Bulk
+data must never be handled with byte arrays. Streams should be used and the data should be spooled to disk or a database.
+<pre title="conservative code">File pdf = toPdf(file);</pre>
+A similar anti-pattern is to buffer streaming input from an "untrusted" (security term) source. 
+Such as buffering data that arrives on a network socket. If the application doesn't know how much
+data will be arriving it must make sure that it keeps an eye on the size of the data. If the amount
+of buffered data exceeds sane limits an error condition (exception) should be signalled to the 
+caller, rather than driving the application against the wall by letting it run into an out of memory
+condition.
+
+<h3>Infinite time</h3>
+<pre title="may block forever">Socket socket = ...
+socket.connect(remote);
+InputStream in = socket.getInputStream();
+int i = in.read();
+</pre>
+The above code has two blocking calls that use unspecified timeouts. Imagine if the timeout is infinite. That may cause
+the application to hang forever. Generally it is an extremely stupid idea to have infinite timeouts in the first place.
+Infinity is extremely long. Even by the time the Sun turns into a red giant (it explodes), it's still a looong way
+to Infinity. The average programmer dies at 72. There is simply <b>no</b> real-world situation, where we want to wait 
+that long. Infinite timeout is just an absurd thing. Use an hour, day, week, month, 1 year, 10 years. But not Infinity.
+To connect to a remote machine I personally find 20 seconds plenty of timeout. A human is not even as patient and would
+cancel the operation before. While there is a nice override for the connect() method that takes a timeout parameter,
+there is no such thing for the read(). But you can modify a Socket's socket timeout before every blocking call.
+(Not just once! You can set different timeouts for different situations.) The socket will throw an exception
+on blocking calls after that timeout. Also frameworks that communicate over the network should provide an API to
+control these timeouts and use sensible default values. Infinity is not sensible - it's insane and drives you mad.
+Who came up with this absolutely useless infinity timeout anyway?
+<pre title="controlled blocking calls">Socket socket = ...
+socket.connect(remote, 20000); // fail after 20s
+InputStream in = socket.getInputStream();
+socket.setSoTimeout(15000);
+int i = in.read();
+</pre>
+Unfortunately the file system API (FileInputStream, FileChannel, FileDescriptor, File) provides no way to set timeouts
+on file operations. That's very unfortunate. Because these are the most common blocking calls in a Java application:
+writing to stdout/stderr and reading from stdin are file operations, and writing to log files is common. Operations on the
+standard input/output streams depend directly on other processes outside of our Java VM. If they decide to block
+forever, so will reads/writes to these streams in our application. Disk I/O is a limited resource for which
+all processes on a system compete. There is no guarantee that a simple read/write on a file is quick. It may incur
+unspecified wait time. Also today remote file systems are ubiquitous. Disks may be on a SAN/NAS, or file systems
+may be mounted over the network (NFS, AFS, CIFS/Samba). So a filesystem call may actually be a network call: too bad
+that we don't have the power of the network API here! So if the OS decides that the timeout for the write is
+60 seconds you're stuck with it. It is a failure to assume that any disk/file operation is fast, or even remotely instantaneous.
+An application can do the user a favour by assuming that a file operation can takes seconds. So it's best avoided or done asynchronously (in background).
+Solutions to this problem are: adequate buffering and queueing/asynchronous processing.
+
+<h3>Assuming a cheap timer call</h3>
+<pre title="access to the system time">
+for (...) {
+  long t = System.currentTimeMillis();
+  long t = System.nanoTime();
+  Date d = new Date();
+  Calendar c = new GregorianCalendar();
+}
+</pre>
+<p>Creating a new Date or Calendar performs a syscall to obtain the current time. On Unix/Linux this is the syscall <code>gettimeofday</code> which is considered "extremely cheap".
+Well, extremely cheap only compared to other syscalls! In that it usually doesn't require a switch from userspace to kernelspace but is rather implemented as a read from a memory
+mapped page. Still calls to <code>gettimeofday</code> are expensive compared to normal code execution.
+The exact penalty of the call strongly depends on the architecture and even configuration (modern x86 systems have numerous timers that can be used by the OS: HPET, TSC, RTC, ACPI, clock chips etc.).
+On my Linux-2.6.37-rc7 system the timer calls also seem to be synchronised over the system. That means the total available bandwidth of ~800 calls per ms is shared by all threads/processes.
+Consequently my dual core running with 2 threads was able to make ~400 calls per ms per thread. (Thanks to J. Davies for that hint)
+And last but not least the resolution of this timer is not infinite. At best it is milliseconds, but it may well be rather something like 25 to 50 milliseconds with a large jitter.
+Modern Linux system can easily achieve the full ms resolution in System.currentTimeMillis. But that has not always been the case.
+System.nanoTime will certainly not have its full theoretical resolution: 1ns = 10<sup>-9</sup>s which corresponds to 1GHz. So on a CPU with 3GHz this would allow ~3 instructions 
+to execute the call, which is obviously not enough. I measured a large jitter between 800ns and 1000000ns(1ms).
+Clearly calling gettimeofday every 100 nano seconds is wasteful.</p>
+<p>Most of the time you don't need the current time as precicely. Caching it outside of the loop is trivial. This way you only access the timer once.
+You can still decide to clone the Date instance, if you really need different objects. Cloning is extremely cheap compared to a timer access (factor 50 on my system).
+</p>
+<pre title="timer outside the loop">
+Date d = new Date();
+for (E entity : entities) {
+  entity.doSomething();
+  entity.setUpdated((Date) d.clone());
+}
+</pre>
+<p>Caching the time may not be an option if the loop runs for more than a couple of milliseconds.
+In that case you may setup a timer that periodically updates a timestamp variable with the current time (using interrupts). Set it to the exact granularity that you need.
+The coarser that granularity is, the better. On my system this loop is 200 times faster than creating a new Date each time.</p>
+<pre>
+private volatile long time;
+
+Timer timer = new Timer(true);
+try {
+  time = System.currentTimeMillis();
+  timer.scheduleAtFixedRate(new TimerTask() {
+    public void run() {
+      time = System.currentTimeMillis();
+    }
+  }, 0L, 10L); // granularity 10ms
+  for (E entity : entities) {
+     entity.doSomething();
+     entity.setUpdated(new Date(time));
+  }
+} finally {
+  timer.cancel();
+}
+</pre>
+
+<h3>Catch all: I don't know the right runtime exception</h3>
+<pre title="wrong code">Query q = ...
+Person p;
+try {
+    p = (Person) q.getSingleResult();
+} catch(Exception e) {
+    p = null;
+}</pre>
+This is an example of a J2EE EJB3 query. The getSingleResult throws runtime exceptions when a) the result is not unique, b) there
+is no result c) when the query could not be executed due to database failure or so. The code above just catches any exception.
+A typical catch-all block. Using
+<code>null</code> as a result may be the right thing for case b) but not for case a) or c). In general one should not catch more 
+exceptions than necessary. The correct exception handling is
+<pre title="correct code">Query q = ...
+Person p;
+try {
+    p = (Person) q.getSingleResult();
+} catch(NoResultException e) {
+    p = null;
+}</pre>
+
+<h3>Exceptions are annoying</h3>
+<pre title="hard to debug code">try {
+    doStuff();
+} catch(Exception e) {
+    log.fatal(&quot;Could not do stuff&quot;);
+}
+doMoreStuff();
+</pre>
+There are two problems with this tiny piece of code. First, if this is really a fatal condition then the method should abort and
+notify the caller of the fatal condition with an appropriate exception (so why is it caught in the first place?)
+Hardly ever can you just continue after a fatal condition.
+Second, this code is very hard to debug because the reason of the failure is lost. Exception objects carry detailed information about
+where the error occurred and what caused it. Individual subclasses may actually carry a lot of extra information that the caller
+can use to deal with the situation properly. It's a lot more than a simple error code (which is so popular in the C world. Just look
+at the Linux kernel. return -EINVAL everywhere...).
+If you catch highlevel exceptions then at least log the message and stack trace.
+You should not see exceptions as a necessary evil. They are a great tool for error handling.
+<pre title="better code">try {
+    doStuff();
+} catch(Exception e) {
+    throw new MyRuntimeException(&quot;Could not do stuff because: &quot;+ e.getMessage(), e);
+}</pre>
+
+<h3>Re-wrapping RuntimeException</h3>
+<pre title="carelessness">try {
+  doStuff();
+} catch(Exception e) {
+  throw new RuntimeException(e);
+}</pre>
+Sometimes you really want to re-throw any checked exception as RuntimeException. The above piece of code doesn't take into account
+however, that RuntimeException extends Exception. The RuntimeException doesn't need to be catched here. Also the exception's message
+is not propagated properly. A bit better is to catch the RuntimeException separately and not wrap it. Even better is to catch
+all the checked exceptions individually (even if they are a lot).
+<pre title="better">try {
+  doStuff();
+} catch(RuntimeException e) {
+  throw e;
+} catch(Exception e) {
+  throw new RuntimeException(e.getMessage(), e);
+}
+</pre>
+<pre title="good">try {
+  doStuff();
+} catch(IOException e) {
+  throw new RuntimeException(e.getMessage(), e);
+} catch(NamingException e) {
+  throw new RuntimeException(e.getMessage(), e);
+}
+</pre>
+
+<h3>Not properly propagating the exception</h3>
+<pre title="bad">try {
+} catch(ParseException e) {
+  throw new RuntimeException();
+  throw new RuntimeException(e.toString());
+  throw new RuntimeException(e.getMessage());
+  throw new RuntimeException(e);
+}
+</pre>
+This codes just wraps a parsing error into a runtime exception in different ways. None of them provides really good information
+to the caller. The first just loses all information. The second may do anything depending on what information toString()
+produces. The default toString() implementation lists the fully qualified exception name followed by the message. Nesting many
+exceptions will produce an unwieldy long and ugly string, unsuitable for a user.
+The third just preserves the message, which is better than nothing. The last preserves the cause, but sets the
+message of the runtime exception to toString() of its cause (see above). The most useful and readable version is to
+propagate only the cause message in the runtime exception and pass the original exception as the cause:
+<pre title="better">try {
+} catch(ParseException e) {
+  throw new RuntimeException(e.getMessage(), e);
+}
+</pre>
+
+<h3>Catching to log</h3>
+<pre title="stupid code">try {
+    ...
+} catch(ExceptionA e) {
+    log.error(e.getMessage(), e);
+    throw e;
+} catch(ExceptionB e) {
+    log.error(e.getMessage(), e);
+    throw e;
+}</pre>
+This code only catches exception to write out a log statement and then rethrows the same exception. This is stupid. Let the caller
+decide if the message is important to log and remove the whole try/catch clause. Its only useful when you know that the
+caller doesn't log it. That's the case if the method is called by a framework which is not under your control.
+
+<h3>Incomplete exception handling</h3>
+<pre title="this instable code can leak file handles">try {
+    is = new FileInputStream(inFile);
+    os = new FileOutputStream(outFile);
+} finally {
+    try {
+        is.close();
+        os.close();
+    } catch(IOException e) {
+        /* we can't do anything */
+    }
+}</pre>
+If streams are not closed, the underlying operating system can't free native resources. This programmer wanted to be careful about 
+closing both streams. So he put the close in a <code>finally</code> clause. But if <code>is.close()</code> throws an IOException then
+<code>os.close</code> is not even executed. Both close statements must be wrapped in their own try/catch clause. Moreover, if creating
+the input stream throws an exception (because the file was not found) then <code>os</code> is null and <code>os.close()</code> will
+throw a <code>NullPointerException</code>. To make this less verbose I have stripped some newlines.
+<pre title="stable code that frees all resources">try {
+    is = new FileInputStream(inFile);
+    os = new FileOutputStream(outFile);
+} finally {
+    try { if (is != null) is.close(); } catch(IOException e) {/* we can't do anything */}
+    try { if (os != null) os.close(); } catch(IOException e) {/* we can't do anything */}
+}</pre>
+
+<h3>The exception that never happens</h3>
+<pre title="bad code">try {
+  ... do risky stuff ...
+} catch(SomeException e) {
+  // never happens
+}
+... do some more ...
+</pre>
+Here the developer executes some code in a try/catch block. He doesn't want to rethrow the exception that one of the called methods
+declares to his annoyance. As the developer is clever he knows that in his particular situation the exception will never be thrown,
+so he just inserts an empty catch block. He even puts a nice comment in the empty catch block - but they are famous last words...
+The problem with this is: how can he be sure? What if the implementation of the called method
+changes? What if the exception is still thrown in some special case but he just didn't think of it? The code after the try/catch
+may do the wrong thing in that situation. The exception will go completely unnoticed. The code can be made much more reliable by
+throwing a runtime exception in the case. This works like an assertion and adheres to the 
+&quot;crash early&quot; principle. The developer
+will notice if his assumption was wrong. The code after the try/catch will not be executed if the exception occurred against all
+honest hope and expectation. If the exception really never occurs - fine, nothing changed.
+<pre title="more reliable code">try {
+  ... do risky stuff ...
+} catch(SomeException e) {
+  // never happens hopefully
+  throw new IllegalStateException(e.getMessage(), e); // crash early, passing all information
+}
+... do some more ...
+</pre>
+
+<h3>The transient trap</h3>
+<pre title="wrong code">public class A implements Serializable {
+    private String someState;
+    private transient Log log = LogFactory.getLog(getClass());
+    
+    public void f() {
+        log.debug(&quot;enter f&quot;);
+        ...
+    }
+}</pre>
+Log objects are not serializable. The programmer knew this and correctly declared the <code>log</code> field as transient so it is
+not serialised. However the initialisation of this variables happens in the class' initialiser. Upon deserialization initializers and
+constructors are not executed! This leaves the deserialized object with a null <code>log</code> variable which subsequently causes
+a <code>NullPointerException</code> in <code>f()</code>. Rule of thumb: never use class initialization with transient variables. You
+can either solve this case here by using a static variable or by using a local variable:
+<pre title="correct code">public class A implements Serializable {
+    private String someState;
+    private static final Log log = LogFactory.getLog(A.class);
+    
+    public void f() {
+        log.debug(&quot;enter f&quot;);
+        ...
+    }
+}
+
+public class A implements Serializable {
+    private String someState;
+    
+    public void f() {
+        Log log = LogFactory.getLog(getClass());
+        log.debug(&quot;enter f&quot;);
+        ...
+    }
+}</pre>
+
+<h3>Overkill initialization</h3>
+<pre title="overkill">public class B {
+    private int count = 0;
+    private String name = null;
+    private boolean important = false;
+}</pre>
+This programmer used to code in C. So naturally he wants to make sure every variable is properly initialized. Here however it is
+not necessary. The Java language specification guarantees that member variables are initialized with certain values automatically:
+0, null, false. By declaring them explicitly the programmer causes a class initializer to be executed before the constructor. This
+is unnecessary overkill and should be avoided.
+<pre title="faster and slicker and still the same">public class B {
+    private int count;
+    private String name;
+    private boolean important;
+}</pre>
+
+<h3>Log instances: static or not?</h3>
+This section was edited and before actually suggested not to store log instances in static variables. Turns out I was wrong. 
+Mea culpa. I apologize.<br>
+Store the darn log instance in a static final variable and be happy.
+<pre>
+private static final Log log = LogFactory.getLog(MyClass.class);
+</pre>
+Here is why:
+<ul>
+  <li>Automatically thread-safe. But only with the final keyword included!</li>
+  <li>Usable from static and non-static code.</li>
+  <li>No problems with serializable classes.</li>
+  <li>Initialization cost only once: getLog() may not be as cheap as you might suppose.</li>
+  <li>Nobody is going to unload the Log class loader anyway.</li>
+</ul>
+
+
+<h3>Chosing the wrong class loader</h3>
+<pre title="rarely uses the right class loader">Class clazz = Class.forName(name);
+Class clazz = getClass().getClassLoader().loadClass(name);</pre>
+This code uses the class loader that loaded the current class. getClass() might return
+something unexpected, like a subclass, or a dynamic proxy. Something out of your control.
+This is hardly ever what you want when you dynamically load an
+additional class. Especially in managed environments like Application servers, Servlet engines or Java Webstart this is most certainly
+wrong. This code will behave very differently depending on the environment it is run in. Environments use the context class loader
+to provide applications with a class loader they should use to retrieve &quot;their own&quot; classes.
+<pre title="mostly uses the right class loader">ClassLoader cl = Thread.currentThread().getContextClassLoader();
+if (cl == null) cl = MyClass.class.getClassLoader(); // fallback
+Class clazz = cl.loadClass(name);</pre>
+
+<h3>Poor use of reflection</h3>
+<pre title="dangerous">Class beanClass = ...
+if (beanClass.newInstance() instanceof TestBean) ...</pre>
+This programmer is struggling with the reflection API. He needs a way to check for inheritance but didn't find a way to do it. So he
+just creates a new instance and uses the <code>instanceof</code> operator he is used to. Creating an instance of a class you don't know
+is dangerous. You never know what this class does. It may be very expensive. Or the default constructor may not even exist. Then this
+if statement would throw an exception. The correct way of doing this check is to use the <code>Class.isAssignableFrom(Class)</code>
+method. Its semantics is upsidedown of <code>instanceof</code>.
+<pre title="correct">Class beanClass = ...
+if (TestBean.class.isAssignableFrom(beanClass)) ...</pre>
+
+<h3>Synchronization overkill</h3>
+<pre title="synchronization overkill">Collection l = new Vector();
+for (...) {
+   l.add(object);
+}</pre>
+<code>Vector</code> is a synchronized <code>ArrayList</code>. And <code>Hashtable</code> is a synchronized <code>HashMap</code>.
+Both classes should only be used if synchronization is explicitly required. If however those collections are used as local temporary
+variables the synchronization is complete overkill and degrades performance considerably.
+I measured a 25% penalty.
+<pre title="no synchronization">Collection l = new ArrayList();
+for (...) {
+   l.add(object);
+}</pre>
+
+<h3>Wrong list type</h3>
+Without sample code. Junior developers often have difficulties to chose the right list type. They usually choose quite randomly from
+<code>Vector</code>, <code>ArrayList</code> and <code>LinkedList</code>. But there are performance considerations to make! The
+implementations behave quite differently when adding, iterating or accessing object by index. I'll ignore Vector in this list because
+it behaves like an ArrayList, just slower. NB: n is the size of the list, not the number of operations!
+<table>
+    <tr>
+        <th></th>
+        <th>ArrayList</th>
+        <th>LinkedList</th>
+    </tr>
+    
+    <tr>
+        <th>add (append)</th>
+        <td>O(1) or ~O(log(n)) if growing</td>
+        <td>O(1)</td>
+    </tr>
+
+    <tr>
+        <th>insert (middle)</th>
+        <td>O(n) or ~O(n*log(n)) if growing</td>
+        <td>O(n)</td>
+    </tr>
+    
+    <tr>
+        <th>remove (middle)</th>
+        <td>O(n) (always performs complete copy)</td>
+        <td>O(n)</td>
+    </tr>
+    
+    <tr>
+        <th>iterate</th>
+        <td>O(n)</td>
+        <td>O(n)</td>
+    </tr>
+    
+    <tr>
+        <th>get by index</th>
+        <td>O(1)</td>
+        <td>O(n)</td>
+    </tr>
+</table>
+The insert performance
+of the ArrayList depends on whether it has to grow during the insert or if the initial size is reasonably set. The
+growing occurs exponentially (by factor 2) so growing costs are O(log(n)). The exponential growing however may use much more memory
+than you actually need. The sudden need to resize the list also makes the response time sluggisch and will probably cause a major
+garbage collection if the list is large. Iterating over the lists is equally inexpensive. Indexed list element access however is very
+slow in linked lists of course.<br>
+
+Memory considerations: LinkedList wraps every element into a wrapper object. ArrayList allocates a completely new array each time it
+needs to grow and performs an array copy on every remove(). All standard Collections can not reuse their Iterator objects, 
+which may cause iterator churn especially when recursively iterating large tree structures.<br>
+
+Personally I almost never use LinkedList. It would really only make sense when you wanted to insert objects in the middle of a list.
+But without access to the wrapper object this doesn't scale with O(1) but O(n) because you must first traverse the list until
+you find the insert position. So what exactly is the point of the LinkedList class?
+I recommend using ArrayLists only.
+
+<h3>The HashMap size trap</h3>
+<pre title="good intentions">
+Map map = new HashMap(collection.size());
+for (Object o : collection) {
+  map.put(o.key, o.value);
+}</pre>
+This developer had good intentions and wanted to make sure that the HashMap doesn't need to be resized. He thus
+set its initial size to the number of elements he was going to put into it. Unfortunately the HashMap
+implementation doesn't quite behave like this. It sets its internal threshold to
+<code>threshold = (int)(capacity * loadFactor)</code>. So it will resize after 75% of the collection
+have been inserted into the map. The above code will thus always cause extra garbage.
+<pre title="correct">
+Map map = new HashMap(1 + (int) (collection.size() / 0.75));
+</pre>
+
+<h3>Hashtable, HashMap and HashSet are overrated</h3>
+These classes are extremely popular. Because they have great usability for the developer. Unfortunately
+they are also horribly inefficient. Hashtable and HashMap wrap every key/value pair into an Entry wrapper
+object. An Entry object is surprisingly large. Not only does it hold a reference to key and value,
+but also stores the hash code and a forward reference to the next Entry of the hash bucket. 
+When you look at heap dumps with a memory analyzer you will be shocked by how much space is
+wasted by them in large applications like an application server. When you look at the source code
+of HashSet you will see that the developers were extremely lazy and just used a HashMap in the backend!<br>
+
+Before using any of these classes, think again. IdentityHashMap can be a viable alternative. But
+be careful, it intentionally breaks the Map interface.
+It is much more memory efficient by implementing an open hashtable (no buckets), doesn't need an
+Entry wrapper and uses a simple Object[] as its backend. Instead of a HashSet a simple ArrayList
+may do similarly well (you can use contains(Object)) as long as it's small and lookups are rare.<br>
+
+For Sets that contain only a handful of entries the whole hashing is overkill and the memory wasted
+for the HashMap backend plus the wrapper objects is just nuts. Just use an ArrayList or even an array.<br>
+
+Actually it's a shame that there is no efficient Map and Set implementations in the standard JDK!
+  
+
+<h3>Lists are overrated</h3>
+Also List implementations are very popular. But even lists are often not necessary. Simple arrays
+may do as well. I am not saying that you should not use Lists at all. They are great to work with.
+But know when to use arrays.
+
+The following are indicators that you should be using an array instead of a list:
+<ul>
+  <li>The list has a fixed size. Example: days of the week. A set of constants.</li>
+  <li>The list is often (10'000 times) traversed.</li>
+  <li>The list contains wrapper objects for numbers (there are no lists of primitive types).</li>
+</ul>
+Let me illustrate that in code:
+
+<pre>
+List&lt;Integer&gt; codes = new ArrayList&lt;Integer&gt;();
+codes.add(Integer.valueOf(10));
+codes.add(Integer.valueOf(20));
+codes.add(Integer.valueOf(30));
+codes.add(Integer.valueOf(40));
+
+versus
+
+int[] codes = { 10, 20, 30, 40 };
+</pre>
+
+<pre>
+// horribly slow and a memory waster if l has a few thousand elements (try it yourself!)
+List&lt;Mergeable&gt; l = ...;
+for (int i=0; i &lt; l.size()-1; i++) {
+    Mergeable one = l.get(i);
+    Iterator&lt;Mergeable&gt; j = l.iterator(i+1); // memory allocation!
+    while (j.hasNext()) {
+        Mergeable other = l.next();
+        if (one.canMergeWith(other)) {
+            one.merge(other);
+            other.remove();
+        }
+    }
+}
+
+versus
+
+// quite fast and no memory allocation
+Mergeable[] l = ...;
+for (int i=0; i &lt; l.length-1; i++) {
+    Mergeable one = l[i];
+    for (int j=i+1; j &lt; l.length; j++) {
+        Mergeable other = l[j];
+        if (one.canMergeWith(other)) {
+            one.merge(other);
+            l[j] = null;
+        }
+    }
+}
+</pre>
+You save an extra list object (wrapping an array), wrapper objects and possibly lots of iterator 
+instances. Even Sun realized this. That's why
+<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collections.html#sort(java.util.List)">Collections.sort()</a>
+actually copies the list into an array and performs the sort on the array.<br>
+
+
+<h3>Object arrays are soooo flexible</h3>
+<pre>/**
+ * @returns [1]: Location, [2]: Customer, [3]: Incident
+ */
+Object[] getDetails(int id) {...</pre>
+Even though documented, this kind of passing back values from a method is ugly and error prone. You should 
+really declare a small class that holds the objects together. This is analoguos to a <code>struct</code> in C.
+<pre>Details getDetails(int id) {...}
+
+private class Details {
+    public Location location;
+    public Customer customer;
+    public Incident incident;
+}</pre>
+
+<h3>Premature object decomposition</h3>
+<pre>public void notify(Person p) {
+    ...
+    sendMail(p.getName(), p.getFirstName(), p.getEmail());
+    ...
+}</pre>
+<pre>class PhoneBook {
+    String lookup(String employeeId) {
+        Employee emp = ...
+        return emp.getPhone();
+    }
+}</pre>
+In the first example it's painful to decompose an object just to pass its state on to a method. In the second example the use of this
+method is very limited. If overall design allows it pass the object itself.
+<pre>public void notify(Person p) {
+    ...
+    sendMail(p);
+    ...
+}</pre>
+<pre>class EmployeeDirectory {
+    Employee lookup(String employeeId) {
+        Employee emp = ...
+        return emp;
+    }
+}</pre>
+
+<h3>Modifying setters</h3>
+<pre>private String name;
+
+public void setName(String name) {
+    this.name = name.trim();
+}
+
+public void String getName() {
+    return this.name;
+}</pre>
+This poor developer suffered from spaces at the beginning or end of a name entered by the user. He
+thought to be clever and just removed the spaces inside the setter method of a bean. But how odd is
+a bean that modifies its data instead of just holding it? Now the getter returns different data than
+was set by the setter! If this was done inside an EJB3 entity bean a simple read from the DB would
+actually modify the data: For every INSERT there would be an UPDATE statement. Let alone how hard it
+is to debug these side-effects!
+In general, a bean should not modify its data. It is a data container, not business logic. Do the
+trimming where it makes sense: in the controller where the input occurs or in the logic where the
+spaces are not wanted.
+<pre>person.setName(textInput.getText().trim());</pre>
+
+<h3>Unnecessary Calendar</h3>
+<pre>Calendar cal = new GregorianCalender(TimeZone.getTimeZone("Europe/Zurich"));
+cal.setTime(date);
+cal.add(Calendar.HOUR_OF_DAY, 8);
+date = cal.getTime();</pre>
+A typical mistake by a developer who is confused about date, time, calendars and time zones. To
+add 8 hours to a Date there is no need for a Calendar. Neither is the time zone of any relevance.
+(Think about is if you don't understand this!) However if we wanted to add days (not hours) we
+would need a Calendar, because we don't know the length of a day for sure (on DST change days
+may have 23 or 25 hours).
+<pre>date = new Date(date.getTime() + 8L * 3600L * 1000L); // add 8 hrs</pre>
+
+<pre>Calendar cal = new GregorianCalender(TimeZone.getTimeZone("Europe/Zurich"));
+SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+df.setCalendar(cal);</pre>
+Here the Calendar object is completely unnecessary. The DateFormat object already contains
+a Calendar instance. Reuse that.
+<pre>SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+df.setTimeZone(TimeZone.getTimeZone("Europe/Zurich"));</pre>
+
+
+<h3>Relying on the default TimeZone</h3>
+<pre>Calendar cal = new GregorianCalendar();
+cal.setTime(date);
+cal.set(Calendar.HOUR_OF_DAY, 0);
+cal.set(Calendar.MINUTE, 0);
+cal.set(Calendar.SECOND, 0);
+Date startOfDay = cal.getTime();</pre>
+The developer wanted to calculate the start of the day (0h00). First he obviously missed out the
+millisecond field of the Calendar. But the real big mistake is not setting the TimeZone of the
+Calendar object. The Calendar will thus use the default time zone. This may be fine in a Desktop
+application, but in server-side code this is hardly ever what you want: 0h00 in Shanghai is in a
+very different moment than in London. The developer needs to check which is the time zone that is
+relevant for this computation.
+<pre>Calendar cal = new GregorianCalendar(user.getTimeZone());
+cal.setTime(date);
+cal.set(Calendar.HOUR_OF_DAY, 0);
+cal.set(Calendar.MINUTE, 0);
+cal.set(Calendar.SECOND, 0);
+cal.set(Calendar.MILLISECOND, 0);
+Date startOfDay = cal.getTime();</pre>
+
+<h3>Time zone &quot;conversion&quot;</h3>
+<pre title="stupid">
+public static Date convertTz(Date date, TimeZone tz) {
+  Calendar cal = Calendar.getInstance();
+  cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+  cal.setTime(date);
+  cal.setTimeZone(tz);
+  return cal.getTime();
+}
+</pre>
+<p>If you think this method does something useful, please go and read the
+<a href="datetime.php">article about time</a>. This developer had not read the article and was
+desperately trying to "fix" the time zone of his date. Actually the method does nothing. The
+returned Date will not have any different value than the input. Because a Date does not carry
+time zone information. It is always UTC. And the getTime / setTime methods of Calendar always
+convert between UTC and the actual time zone of the Calendar.</p>
+
+<h3>Using Calendar.getInstance()</h3>
+<pre title="wrong">
+Calendar c = Calendar.getInstance();
+c.set(2009, Calendar.JANUARY, 15);
+</pre>
+<p>This code assumes a Gregorian calendar. But what if the returned Calendar subclass is
+a Buddhistic, Julian, Hebrew, Islamic, Iranian or Discordian calendar? In these the year 2009 has
+a very different meaning. And a month called January doesn't exist. Calendar.getInstance() uses
+the current default locale to select an appropriate implementation. It depends on the Java 
+implementaton which implementations are available. The utility of Calendar.getInstance() is thus
+very limited, and its use should be avoided as it's result is not well defined.</p>
+<pre title="correct">
+Calendar c = new GregorianCalendar(timeZone);
+c.set(2009, Calendar.JANUARY, 15);
+</pre>
+
+<h3>Dangerous Calendar manipulation</h3>
+<pre title="subtly broken">GregorianCalender cal = new GregorianCalender(TimeZone.getTimeZone("Europe/Zurich"));
+cal.set(Calendar.SECOND, 0);
+cal.set(Calendar.MILLISECOND, 0);
+if (cal.before(other)) doSomething();
+
+cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+cal.set(Calendar.HOUR_OF_DAY, 23);
+Date d = cal.getTime();</pre>
+<p>This code manipulates a Calendar object in ways that are bound to yield undefined results. Calendar objects have
+complex inner state: individual fields for day, hour, year etc., a millisecond since epoch value (like Date) and
+a time zone. Depending on what you change, some of these fields are invalidated and are only recomputed from other
+values when you call certain methods:
+<ul>
+  <li><code>set()</code> invalidates the millisecond since epoch value and dependent fields (changing DATE obviously invalidates DAY_OF_WEEK)</li>
+  <li><code>setTimeZone()</code> invalidates all fields execpt the millisecond since epoch value</li>
+  <li><code>get(), getTime(), getTimeInMillis(), add(), roll()</code> recomputes the millisecond since epoch value from the fields</li>
+  <li><code>get(), add()</code> also recompute invalid fields from millisecond since epoch</li>
+</ul> 
+<p>Whenever you change fields with <code>set()</code>, then dependend fields do not get updated until you call 
+<code>get()</code>, <code>getTime()</code>, <code>getTimeInMillis()</code>, <code>add()</code>, or <code>roll()</code>.
+The first paragraph of above code calls <code>set()</code> followed by <code>before()</code>. There is no guarantee
+(according to the API Doc) that before() will see the modified time value.</p>
+<p>The second paragraph invalidates all fields and the millisecond since epoch value by calling <code>setTimeZone()</code>
+and <code>set()</code>, losing the calendar's data completely. 
+See also <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4827490">bug 4827490</a></p>
+<p>Calendar objects should always be manipulated according to these simple rules:</p>
+<ul>
+  <li>Initialize TimeZone (and Locale if you need) already in the constructor</li>
+  <li>After calls to <code>set()</code> add a call to <code>getTimeInMillis()</code></li>
+  <li>After a call to <code>setTimeZone()</code> add a call to <code>get()</code></li>
+</ul>
+<pre>GregorianCalender cal = new GregorianCalender(TimeZone.getTimeZone("Europe/Zurich"));
+cal.set(Calendar.SECOND, 0);
+cal.set(Calendar.MILLISECOND, 0);
+cal.getTimeInMillis();
+if (cal.before(other)) doSomething();
+
+cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+cal.get(Calendar.DATE);
+cal.set(Calendar.HOUR_OF_DAY, 23);
+Date d = cal.getTime();</pre>
+
+<h3>Calling Date.setTime()</h3>
+<pre title="not recommended">
+account.changePassword(oldPass, newPass);
+Date lastmod = account.getLastModified();
+lastmod.setTime(System.currentTimeMillis());
+</pre>
+<p>The above code updates the last modified date of the account entity. The programmer wants to
+be conservative and avoids creating a new <code>Date</code> object. Instead she uses the the 
+<code>setTime</code> method to modify the existing <code>Date</code> instance.</p>
+<p>There is actually nothing wrong with that. But I just do not recommend this practice. Date
+objects are usually passed around carelessly. The same Date instance could be passed to numerous
+objects, which don't make a copy in their setters. Dates are often used like primitives. Thus if
+you modify a Date instance, other objects that use this instance might behave unexpectedly. Of
+course it is unclean design if an object exposes its intrinsic Date instance to the outside
+world, if you write code that strictly adheres to classical OO-principles 
+(which I think is too inconvenient). General everyday Java practice however
+is to just copy Date references and not clone the object in setters. Thus every programmer should
+treat Date as immutable and should not modify existing instances. This should only be done
+for performance reasons in special situations. Even then the use of a simple <code>long</code>
+is probably equally good.</p>
+<pre title="real world code">
+account.changePassword(oldPass, newPass);
+account.setLastModified(new Date());
+</pre>
+
+<h3>Assuming SimpleDateFormat was thread-safe</h3>
+<pre title="thread-safety disaster">
+public class Constants {
+    public static final SimpleDateFormat date = new SimpleDateFormat("dd.MM.yyyy");
+}
+</pre>
+<p>The above code is flawed in several ways. It's broken, because it shares a static instance
+of a SimpleDateFormat with possibly any number of threads. SimpleDateFormat is not thread-safe. If
+multiple threads concurrently use this object the results are undefined. You may observe strange
+output from <code>format</code> and <code>parse</code> or even exceptions. Unfortunately this mistake is very common!</p>
+<p>Yes, sharing a SimpleDateFormat requires proper synchronization. Yes that comes at a price
+(cache flushes, lock contention, etc.). And yes, creating a SimpleDateFormat is not free either
+(pattern parsing, object allocation). But simply ignoring thread-safety is not a
+solution, but a sure way to break your code.</p>
+<p>Of course this code also doesn't take the time zone into account. And then defining a class called
+Constants screams of yet another anti-pattern (see next section).</p>
+
+<h3>Having a global Configuration/Parameters/Constants class</h3>
+<pre title="global collection of unrelated constants">
+public interface Constants {
+    String version = "1.0";
+    String dateFormat = "dd.MM.yyyy";
+    String configFile = ".apprc";
+    int maxNameLength = 32;
+    String someQuery = "SELECT * FROM ...";
+}
+</pre>
+<p>Often seen in large projects: one class or interface that contains all sorts of constants that
+are used throughout the application. Why is this bad? Because these constants are unrelated to
+each other. This class is the only thing that they have in common. And the reference to this
+class will pollute many again unrelated components of the application. You want to later extract
+a component and use it in a different application? Or share some classes between a server and a
+remote client? You may need to ship the constants class as well! This class has introduced a
+dependency between otherwise unrelated components. This inhibits reuse and loose coupling and gives
+way to chaos.</p>
+<p>Instead put constants where they belong. In no case should constants be used across component
+boundaries. This is only allowed if the component is a library, on which an explicit dependency
+is wanted.</p>
+
+<h3>Not noticing overflows</h3>
+<pre title="overflow">
+public int getFileSize(File f) {
+  long l = f.length();
+  return (int) l;
+}</pre>
+<p>This developer, for whatever reason, wrapped a call to determine the size of a file into a
+method that returns an <code>int</code> instead of a <code>long</code>. This code does not
+support files larger than 2 GB and just returns a wrong length in that case. Code that casts
+a value to a smaller size type must first check for a possible overflow and throw an exception.</p>
+<pre title="no overflow">
+public int getFileSize(File f) {
+  long l = f.length();
+  if (l &gt; Integer.MAX_VALUE) throw new IllegalStateException("int overflow");
+  return (int) l;
+}</pre>
+
+<p>Another version of an overflow bug is the following. Note the missing parantheses in the
+first println statement.</p>
+<pre title="type cast precedes minus operator">
+long a = System.currentTimeMillis();
+long b = a + 100;
+System.out.println((int) b-a);
+System.out.println((int) (b-a)); 
+</pre>
+
+<p>And last, a true gem that I uprooted during code review. Note how the programmer tried
+to be careful, but then failed so badly by assuming an int could ever become larger than
+its maximum value.</p>
+<pre title="what is the meaning of a maximum value again?">
+int a = l.size();
+a = a + 100;
+if (a &gt; Integer.MAX_VALUE)
+    throw new ArithmeticException("int overflow");
+</pre>
+
+<h3>Using == with float or double</h3>
+<pre title="endless loop">for (float f = 10f; f!=0; f-=0.1) {
+  System.out.println(f);
+}</pre>
+The above code doesn't behave as expected. It causes an endless loop. Because 0.1 is an infinite
+binary decimal, <code>f</code> will never be exactly 0. Generally you should never compare float
+or double values with the equality operator ==. Always use less than or greater than. Java compilers
+should be changed to issue a warning in that case. Or even make == an illegal operation for floating
+point types in the Java Language Spec. It makes really no sense to have this feature. 
+<pre title="correct loop">for (float f = 10f; f&gt;0; f-=0.1) {
+  System.out.println(f);
+}</pre>
+
+
+<h3>Storing money in floating point variables</h3>
+<pre title="broken sum">float total = 0.0f;
+for (OrderLine line : lines) {
+  total += line.price * line.count;
+}
+</pre>
+<pre title="unexpected rounding">
+double a = 1.14 * 75; // 85.5 represented as 85.4999...
+System.out.println(Math.round(a)); // surprising output: 85
+System.out.println(10.0/3); // surprising output: 3.333333333333333<b>5</b> (precision lost twice during division and on conversion to decimal)
+</pre>
+<pre title="too late for good intentions">
+BigDecimal d = new BigDecimal(1.14); // precision has already been lost
+</pre>
+<p>I have seen many developers coding such a loop. Including myself in my early days. When this
+code sums 100 order lines with every line having one 0.30$ item, the resulting total is calculated
+to exactly 29.999971. The developer notices the strange behaviour and changes the float to the more
+precise double, only to get the result 30.000001192092896. The somewhat surprising result is of
+course due to the difference in representation of numbers by humans (in decimal format) and computers
+(in binary format). It
+always occurs in its most annyoing form when you add fractional amounts of money or calculate
+the VAT.</p>
+<p>Binary representation of floating point numbers was invented for inherently <em>inexact</em>
+values like measurements. Perfect for engineering! But unusable when you want exact math. Like
+banks. Or when counting.</p>
+<p>There are business cases where you can not afford to lose precision. You lose precision when
+converting between decimal and binary and when rounding happens in not a well-defined mannor or at
+indeterminate points. To avoid losing precision you must use fixed point or integer arithmetics.
+This does not only apply to monetary values, but it is a frequent source of annoyance in business
+applications and therefore makes a good example. In the second example an unsuspecting user of
+the program would simply say the computer's calculator is broken. That's of course very embarassing
+for the programmer.</p>
+<p>Consequently an amount of money should <em>never ever</em> be stored in a floating 
+point data type (float, double). Please note that it is not just any calculation that is inexact. Even a 
+simple multiplication with an integer can already yield an inexact result. It is the mere fact of
+<em>storing</em> a value in a binary representation (float, double) that may already cause rounding!
+<em>You simply can not store 0.3 as an exact value in float or double</em>. Because float and double
+are <a href="http://en.wikipedia.org/wiki/Binary64">binary IEEE754</a> types.
+If you see a float or double in your financial code base, the code will most likely yield inexact results. 
+Instead either a string or fixed point representation should be chosen. A text representation must be in 
+a well-defined format and is <em>not</em> to be confused with user input/output in a locale specific
+format. Both representations must define the precision (number of digits before and after the 
+decimal point) that is stored.</p>
+<p>For calculations the class 
+<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/math/BigDecimal.html">BigDecimal</a> provides
+an excellent facility. The class can be used such that it throws runtime exceptions if precision
+is unexpectedly lost in an operation. This is very helpful to uproot subtle numerical bugs and
+enables the developer to correct the calculation.</p>
+<pre title="correct sum">
+BigDecimal total = BigDecimal.ZERO;
+for (OrderLine line : lines) {
+  BigDecimal price = new BigDecimal(line.price);
+  BigDecimal count = new BigDecimal(line.count);
+  total = total.add(price.multiply(count)); // BigDecimal is immutable!
+}
+total = total.setScale(2, RoundingMode.HALF_UP);
+</pre>
+<pre title="correct rounding">
+BigDecimal a = (new BigDecimal("1.14")).multiply(new BigDecimal(75)); // 85.5 exact
+a = a.setScale(0, RoundingMode.HALF_UP); // 86
+System.out.println(a); // correct output: 86
+</pre>
+<pre title="only a string is precise enough">
+BigDecimal a = new BigDecimal("1.14");
+</pre>
+
+<h3>Not freeing resources in a finally block</h3>
+<pre title="leaking code">
+public void save(File f) throws IOException {
+  OutputStream out = new BufferedOutputStream(new FileOutputStream(f));
+  out.write(...);
+  out.close();
+}
+
+public void load(File f) throws IOException {
+  InputStream in = new BufferedInputStream(new FileInputStream(f));
+  in.read(...);
+  in.close();
+}
+</pre>
+<p>The above code opens an output stream to a file, allocating a file handle in the operating system.
+File handles are a rare resource and need to be properly freed, by calling close on the
+FileOutputStream (same for FileInputStream of course). To ensure that even in the case of an
+exception (the filesystem may become full during the write), closing must happen in a finally
+block. Here the stream is also wrapped into a buffering stream. That means not all data will have
+been written to disk by the time we arrive at the <code>close()</code> call. The close call itself will flush
+the pending data in the buffer to disk and may thus itself fail with an IOException. If that close
+fails the file on disk is incomplete (truncated) and thus probably corrupt. The method should 
+therefore propagate the IOException in that case. In the case of a FileInputStream we can safely
+ignore the potential IOException from a close() call. We have read all data that we need, and there
+is nothing useful that we can do if the underlying close() failed anyway. It's not even worth
+logging it.</p>
+
+<p>In a perfect world <code>BufferedOutputStream.close()</code> would be implemented correctly. But sadly it has
+a <a href="http://bugs.sun.com/view_bug.do?bug_id=6335274">bug</a> that's not going to be fixed: 
+it loses any IOException from the implicit flush and truncates your file silently. So here
+we give the proper workaround with an explicit flush before close.</p>
+
+<p>To be exact the corrected code below can leak in one small corner case: when the file stream was
+allocated but then allocating the buffered stream fails mysteriously 
+(with out of memory for instance). As a pragmatic person I think in such a pathological case we 
+can safely rely on the garbage collector to clean up the mess. It's not worth the hassle to deal 
+with it.</p>
+<pre title="cookbook code">
+// code for your cookbook
+public void save() throws IOException {
+  File f = ...
+  OutputStream out = new BufferedOutputStream(new FileOutputStream(f));
+  try {
+    out.write(...);
+    out.flush(); // don't lose exception by implicit flush on close
+  } finally {
+    out.close();
+  }
+}
+
+public void load(File f) throws IOException {
+  InputStream in = new BufferedInputStream(new FileInputStream(f));
+  try {
+    in.read(...);
+  } finally {
+    try { in.close(); } catch (IOException e) { }
+  }
+}
+</pre>
+
+<p>Let me give you also the cook book recipe for another ubiquitous pattern: database access.
+Again this is the pragmatic approach. Yes, rs.close() could fail with mysterious Errors,
+except they only occur in your university lecture on Quantum Mechanics and not in The Real World (tm).
+And only perverts would write the try/finally cascade that no Error neutrino can escape. Forgive
+my sarcasm. Here once and for all this is how to deal with SQL objects:</p>
+<pre>
+Car getCar(DataSource ds, String plate) throws SQLException {
+  Car car = null;
+  Connection c = null;
+  PreparedStatement s = null;
+  ResultSet rs = null;
+  try {
+    c = ds.getConnection();
+    s = c.prepareStatement("select make, color from cars where plate=?");
+    s.setString(1, plate);
+    rs = s.executeQuery();
+    if (rs.next()) {
+       car = new Car();
+       car.make = rs.getString(1);
+       car.color = rs.getString(2);
+    }
+  } finally {
+    if (rs != null) try { rs.close(); } catch (SQLException e) { }
+    if (s != null) try { s.close(); } catch (SQLException e) { }
+    if (c != null) try { c.close(); } catch (SQLException e) { }
+  }
+  return car;
+}
+</pre>
+With that said, don't miss the next paragraph.
+
+
+
+<h3>Abusing finalize()</h3>
+<pre title="abusive code">
+public class FileBackedCache {
+   private File backingStore;
+   
+   ...
+   
+   protected void finalize() throws IOException {
+      if (backingStore != null) {
+        backingStore.close();
+        backingStore = null;
+      }
+   }
+}
+</pre>
+<p>This class uses the <code>finalize</code> method to release a file handle. The problem is that
+you can don't know when the method is called. The method is called by the garbage collector. If you
+are running out of file handles you want this method to be called rather sooner than later. But the
+GC will probably only invoke the method when you are about to run out of heap, which is a very
+different situation. It may take anything from milliseconds to days until GC and finalization runs. 
+The garbage collector manages memory only. It does that very well. But it must
+not be abused to manage any other resources apart from that. <b>The GC is not a generic resource management
+mechanism!</b> I find Sun's API Doc of the finalize
+method very misleading in that respect. It actually suggest to use this method to close I/O
+resources - complete bullshit if you ask me. Again: I/O has <i>nothing</i> to do with memory!</p>
+<p>Better code provides a public close method, which must be called by a well-defined lifecycle
+management, like JBoss MBeans or so.</p>
+<pre title="proper code">
+public class FileBackedCache {
+   private File backingStore;
+   
+   ...
+   
+   public void close() throws IOException {
+      if (backingStore != null) {
+        backingStore.close();
+        backingStore = null;
+      }
+   }
+}
+</pre>
+JDK 1.7 (Java 7) will introduce the <a href="http://download.java.net/jdk7/docs/api/java/lang/AutoCloseable.html">AutoClosable</a> interface. It enables an automatic call to a <code>close</code> method, when the variable (not the object) goes out of scope of a try-with-resource block.
+It is very different from a finalizer. Its time of execution
+is well-defined at compile time.
+<pre title="jdk-1.7">
+try (Writer w = new FileWriter(f)) { // implements Closable
+  w.write("abc");
+  // w goes out of scope here: w.close() is called automatically in ANY case
+} catch (IOException e) {
+  throw new RuntimeException(e.getMessage(), e);
+}
+</pre>
+
+<h3>Involuntarily resetting Thread.interrupted</h3>
+<pre>
+try {
+	Thread.sleep(1000);
+} catch (InterruptedException e) {
+	// ok
+}
+
+or 
+
+while (true) {
+	if (Thread.interrupted()) break;
+}
+</pre>
+<p>The above code resets the interrupted flag of the Thread. Subsequent readers
+will not know that the Thread has been interrupted. If you need to pass on the
+information about the interrupt, rewrite the code like so.</p>
+<pre>
+try {
+	Thread.sleep(1000);
+} catch (InterruptedException e) {
+	Thread.currentThread().interrupt();
+}
+
+or 
+
+while (true) {
+	if (Thread.currentThread().isInterrupted()) break;
+}
+</pre>
+
+<h3>Spawning thread from static initializers</h3>
+<pre>
+class Cache {
+	private static final Timer evictor = new Timer();
+}
+</pre>
+<p>java.util.Timer spwans a new thread in its constructor. Therefore the above
+code spawns a new thread in its static initializer. The new Thread will inherit
+some properties from its parent: context classloader, inheritable ThreadLocals,
+and some security properties (access rights). It is therefore rarely desireable
+to have those property set in an uncontrolled way. This may for instance prevent
+GC of a class loader.</p>
+<p>The static initializer is executed by the thread that first loads the class
+(in any given ClassLoader), which may be a totally random thread from a thread
+pool of a webserver for example. If you want to control these thread properties
+you will have to start threads in a static method, and take control of who is
+calling that method.</p>
+<pre>
+class Cache {
+    private static Timer evictor;
+
+	public static setupEvictor() {
+		evictor = new Timer();
+	}
+}
+</pre>
+
+
+<h3>Canceled timer tasks that keep state</h3>
+<pre>
+final MyClass callback = this;
+TimerTask task = new TimerTask() {
+	public void run() {
+		callback.timeout();
+	}
+};
+timer.schedule(task, 300000L);
+
+try {
+	doSomething();
+} finally {
+	task.cancel();
+}
+</pre>
+<p>The above code uses a timer to enforce a timeout on doSomething(). The TimerTask
+contains an (implicit) instance reference to the outer class. Thus as long as the
+TimerTask exists the instance of MyClass may not be GC'ed. Unfortunately the Timer
+may keep cancelled TimerTasks around until their scheduled timeout has expired! That
+would leave the program 5 minutes with a dangling reference to the MyClass instance
+during which it can not get collected! It's a temorary memory leak. A better 
+TimerTask would override the cancel() method and null the reference there. It 
+requires slightly more code.</p>
+<pre>
+TimerTask task = new Job(this);
+timer.schedule(task, 300000L);
+
+try {
+	doSomething();
+} finally {
+	task.cancel();
+}
+
+
+static class Job extends TimerTask {
+	private volatile MyClass callback;
+
+	public Job(MyClass callback) {
+		this.callback = callback;
+	}
+
+	public boolean cancel() {
+		callback = null;
+		return super.cancel();
+	}
+
+	public void run() {
+		MyClass cb = callback;
+		if (cb == null) return;
+		cb.timeout();
+	}
+}
+</pre>
+
+<h3>Holding strong references to ClassLoaders and unflushable caches</h3>
+<p>In a dynamic system like an application server or OSGI, you should take good care not to prevent ClassLoaders from
+garbage collection. As you undeploy and redeploy individual applications in an application server you
+create new class loaders for them. The old ones are unused and should be collected. Java isn't going to
+let that happen if there is a single dangling reference from container code into your application code.</p>  
+
+<p>As various libraries are used throughout an enterprise application, that directly means
+that libraries should do their very best not to hold involuntary strong references to objects (and thus their
+class loaders).</p>
+
+<p>This is not easy. Classes like <code>java.beans.Introspector</code> from the JDK or 
+<code>org.apache.commons.beanutils.PropertyUtils</code> from Apache BeanUtils or
+<code>org.springframework.beans.CachedIntrospectionResults</code> from Spring implement caches to speed up
+their inner workings. They keep strong references to classes you pass them for analysis. Fortunately
+they provide methods to flush their caches. But finding all classes that may have internal caches and
+flushing them at the right time is a near to impossible job for the developer.</p>
+
+<p>If you happen to use <code>org.apache.commons.el.BeanInfoManager</code> from Apache Commons EL you probably have a leak. This ancient class keeps a cache of strong
+references that only ever grows until out of memory. And it has no flush method.
+Even Tomcat had to implement a 
+<a href="http://issues.apache.org/bugzilla/attachment.cgi?id=18538&amp;action=diff">workaround</a> involving reflection to clean it.</p>
+
+<p>It would be much better if these libraries just used soft or weak references in the first place. A quick reminder:</p>
+Soft and weak references basically differ in the point in time when they are nulled.
+<ul>
+  <li>WeakReference: nulled more or less at the same time when the last strong reference to the object goes away.
+  Typical for classloader references (of what use is a classloader if none of its classes are loaded). But be
+  careful if you use this <em>within</em> a ClassLoader implementation.</li>
+  <li>SoftReference: the reference is kept even if the last strong reference to the object goes away as long as memory 
+  allows. Typical for caches.</li>
+</ul>
+
+<p>Only if the library just caches objects from its own packages (with no external references), it may be fine not to
+use these special references and just use normal references.</p>
+
+<p>Using soft or weak references also helps the runtime behaviour of your application: if memory gets tight,
+the last thing you want to spend memory on is caches. So the garbage collector will reclaim the memory used
+by caches if necessary. A bad example here is JBoss' SQL statement cache: it's compeletely static and
+can use a lot of memory, even when that is tight. Another bad example is JBoss' authentication cache.</p>
+
+<p>Also every static cache must always provide a simple way to flush its contents. It's the nature of a (clean)cache
+(as opposed to e.g a write cache) that its contents are not valuable and can be safely discarded at any time. The limits
+of the cache are another trap. Caches should never grow large, and never cache objects for too long. A really bad example here is the default
+settings for the JDK DNS cache (it completely ignores DNS record lifetimes, and stores negative lookups forever 
+in an unbounded list). Your API documentation should state if and when caching happens. This also helps the
+ user to estimate runtime performance.</p> 
+
+  </div>
+  <script type="text/javascript"
+    src="https://apis.google.com/js/plusone.js">
+  </script>
+    <div id="ads">
+  <script type="text/javascript">
+	google_ad_client = "pub-0465253261570008";
+	google_ad_width = 160;
+	google_ad_height = 600;
+	google_ad_format = "160x600_as";
+	google_ad_channel ="";
+	google_ad_type = "text_image";
+	google_color_border = "5354BF";
+	google_color_bg = "FFFFFF";
+	google_color_link = "3E3F8F";
+	google_color_url = "3E3F8F";
+	google_color_text = "000000";
+  </script>
+  <script type="text/javascript"
+    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+  </script>
+  <script type="text/javascript">
+     function showAds(oldhandler) {
+         if (oldhandler) oldhandler(); // append to event handler chain
+		 // we patch the CSS to position the ads to the right place
+		 var content = document.getElementById("content");
+	     var ads = document.getElementById("ads");
+		 ads.style.left = (content.offsetLeft + content.offsetWidth + 10) + "px";
+		 ads.style.display = "block"; // now show them
+     }
+     // when window is resized our content moves
+     window.onresize = showAds(window.onresize);
+     // show as soon as rendering is done and offsetWidth calculated
+     window.onload = showAds(window.onload);
+  </script>
+</div>
+</body>
+</html>
+

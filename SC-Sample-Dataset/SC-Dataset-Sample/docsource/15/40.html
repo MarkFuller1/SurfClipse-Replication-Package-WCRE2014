@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>java - Problems using single TCP/IP socket to send data from multiple concurrent threads - Stack Overflow</title>
+    <link rel="shortcut icon" href="//cdn.sstatic.net/stackoverflow/img/favicon.ico">
+    <link rel="apple-touch-icon image_src" href="//cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+    <link rel="search" type="application/opensearchdescription+xml" title="Stack Overflow" href="/opensearch.xml">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:domain" content="stackoverflow.com"/>
+    <meta name="og:type" content="website" />
+    <meta name="og:image" content="http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon@2.png?v=fde65a5a78c6"/>
+    <meta name="og:title" content="Problems using single TCP/IP socket to send data from multiple concurrent threads" />
+    <meta name="og:description" content="After browsing some other threads regarding my problem I think I&#39;ve understood that I need to re-design my application. But just for clarification: I have a single TCP/IP connection between a clien..." />
+    <meta name="og:url" content="http://stackoverflow.com/questions/14939760/problems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread"/>
+    <link rel="canonical" href="http://stackoverflow.com/questions/14939760/problems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread" />
+
+    
+    
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="//cdn.sstatic.net/Js/stub.en.js?v=184c221cbfa3" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.sstatic.net/stackoverflow/all.css?v=1b6de4192b97">
+    
+    <link rel="alternate" type="application/atom+xml" title="Feed for question &#39;Problems using single TCP/IP socket to send data from multiple concurrent threads&#39;" href="/feeds/question/14939760">
+    <script type="text/javascript">
+        
+        StackExchange.ready(function () {
+            StackExchange.using("postValidation", function () {
+                StackExchange.postValidation.initOnBlurAndSubmit($('#post-form'), 2, 'answer');
+            });
+
+            
+            StackExchange.question.init({showAnswerHelp:true,totalCommentCount:14,shownCommentCount:5,highlightColor:'#F4A83D',backgroundColor:'#FFF',questionId:14939760});
+
+            styleCode();
+
+                StackExchange.realtime.subscribeToQuestion('1', '14939760');
+            
+                    });
+    </script>
+
+
+    <script type="text/javascript">
+        StackExchange.init({"locale":"en","stackAuthUrl":"https://stackauth.com","serverTime":1386978095,"styleCode":true,"enableUserHovercards":true,"site":{"name":"Stack Overflow","description":"Q&A for professional and enthusiast programmers","isNoticesTabEnabled":true,"recaptchaPublicKey":"6LdchgIAAAAAAJwGpIzRQSOFaO0pU6s44Xt8aTwc","nonAsciiTags":true,"enableSocialMediaInSharePopup":true},"user":{"fkey":"924444e9d656bd8bb28009690bceb305","isAnonymous":true}});
+        StackExchange.using.setCacheBreakers({"js/prettify-full.en.js":"e0bbd4760e83","js/moderator.en.js":"1a411fd265fe","js/full-anon.en.js":"f11ad0c721c5","js/full.en.js":"4281101ad6b6","js/wmd.en.js":"849f408083f3","js/third-party/jquery.autocomplete.min.js":"e5f01e97f7c3","js/third-party/jquery.autocomplete.min.en.js":"","js/mobile.en.js":"d1d834ef85d2","js/help.en.js":"d3cc74d8a93a","js/tageditor.en.js":"6d51a5f8d7f3","js/tageditornew.en.js":"111b781cf314","js/inline-tag-editing.en.js":"f951bd09dc69","js/revisions.en.js":"33fd38144303","js/review.en.js":"b44cee8b2b0b","js/tagsuggestions.en.js":"e4e7b952fcc7","js/post-validation.en.js":"c275fe37d674","js/explore-qlist.en.js":"73825bd006fc","js/events.en.js":"23bb11cfe220"});
+        StackExchange.using("gps", function() {
+             StackExchange.gps.init(true);
+        });
+        
+    </script>
+    
+        <script type="text/javascript">
+            StackExchange.ready(function () {
+                $('#nav-tour').click(function () {
+                    StackExchange.using("gps", function() {
+                        StackExchange.gps.track("aboutpage.click", { aboutclick_location: "headermain" }, true);
+                    });
+                });
+            });
+        </script>
+</head>
+<body class="question-page new-topbar">
+    <noscript><div id="noscript-padding"></div></noscript>
+    <div id="notify-container"></div>
+    <div id="overlay-header"></div>
+    <div id="custom-header"></div>
+<div class="topbar">
+    <div class="topbar-wrapper">
+        
+        <div class="js-topbar-dialog-corral">
+
+<div class="topbar-dialog siteSwitcher-dialog dno">
+    <div class="header">
+        <h3><a href="//stackexchange.com/sites">Explore our sites</a></h3>
+    </div>
+    <div class="modal-content">
+        <ul class="current-site">
+                <li>
+                        <a href="//stackoverflow.com" 
+       class="current-site-link site-link js-site-link js-gps-track"
+            data-gps-track="site_switcher.click({ item_type:3 })"
+>
+        <div class="site-icon favicon favicon-stackoverflow" title="Stack Overflow"></div>
+        Stack Overflow
+    </a>
+    <div class="related-links js-related-links">
+            <a href="http://chat.stackoverflow.com"     data-gps-track="site_switcher.click({ item_type:6 })"
+>chat</a>
+                    <a href="http://blog.stackexchange.com"     data-gps-track="site_switcher.click({ item_type:7 })"
+>blog</a>
+            </div>
+
+                </li>
+                <li class="related-site">
+                        <a href="//meta.stackoverflow.com" 
+       class="site-link js-site-link js-gps-track"
+            data-gps-track="site.switch({ target_site:4, item_type:3 });site_switcher.click({ item_type:4 })"
+>
+        <div class="site-icon favicon favicon-stackoverflowmeta" title="Meta Stack Overflow"></div>
+        Meta Stack Overflow
+    </a>
+
+                    
+                </li>
+                            <li class="related-site">
+                    <a class="site-link js-site-link" 
+                       href="//careers.stackoverflow.com" 
+                           data-gps-track="site_switcher.click({ item_type:9 })"
+>
+                        <div class="site-icon favicon favicon-careers" title="Stack Overflow Careers"></div>
+                        Careers 2.0
+                    </a>
+                </li>
+        </ul>
+        
+
+
+        
+            <div class="child-content"></div>
+
+    </div>
+</div>        </div>
+
+        <div class="network-items">
+            
+            <a href="//stackexchange.com" 
+               class="topbar-icon icon-site-switcher js-site-switcher-button js-gps-track"
+               data-gps-track="site_switcher.show"
+               data-child-content-url="/topbar/site-switcher/site-list"
+               data-on-class="icon-site-switcher-on"
+               title="A list of all 112 Stack Exchange sites">
+                <span class="hidden-text">Stack Exchange</span>
+            </a>
+            
+        </div>
+
+        <div class="topbar-links">
+            
+                <div class="links-container">
+                    <span class="topbar-menu-links">
+                        <a href="/users/login?returnurl=%2fquestions%2f14939760%2fproblems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread" class="login-link">sign up</a>    
+                        <a href="/users/login?returnurl=%2fquestions%2f14939760%2fproblems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread" class="login-link">log in</a>
+                        <a href="/tour">tour</a>
+                        <a href="/help">help</a>
+                            <a href="//careers.stackoverflow.com">careers 2.0</a>
+                    </span>
+                </div>
+
+			<div class="search-container">
+                <form id="search" action="/search" method="get" autocomplete="off">
+                    <input name="q" type="text" placeholder="search" value="" tabindex="1" autocomplete="off" maxlength="240" />
+                </form>
+			</div>
+            	
+        </div>      
+    </div> 
+</div>
+<script>
+    StackExchange.ready(function () {
+        //topbar.init();
+        StackExchange.topbar.init();
+    });
+</script>    <div class="container">
+        <div id="header" class=headeranon>
+            <br class="cbt">
+            <div id="hlogo">
+                <a href="/">
+                    Stack Overflow
+                </a>
+            </div>
+            <div id="hmenus">
+                <div class="nav mainnavs mainnavsanon">
+                    <ul>
+                            <li class="youarehere"><a id="nav-questions" href="/questions">Questions</a></li>
+                            <li><a id="nav-tags" href="/tags">Tags</a></li>
+                            <li><a id="nav-tour" href="/about">Tour</a></li>
+                            <li><a id="nav-users" href="/users">Users</a></li>
+                    </ul>
+                </div>
+                <div class="nav askquestion">
+                    <ul>
+                        <li>
+                            <a id="nav-askquestion"  href="/questions/ask">Ask Question</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+
+
+
+        <div id="content">
+            
+
+<div itemscope itemtype="http://schema.org/Article">
+	<link itemprop="image" href="//cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+			<!--googleoff: all-->
+<div id="herobox-mini">
+    <div id="hero-content">
+        <span id="controls">
+            <a href="/about" id="tell-me-more" class="button">Take the tour</a>
+            <span id="close"><a title="click to dismiss">&times;</a></span>
+        </span>
+        <div id="blurb">
+            Stack Overflow is a question and answer site for professional and enthusiast programmers. It&#39;s 100% free, no registration required.
+        </div>        
+    </div>
+    <script>
+        $('#tell-me-more').click(function () {
+            var clickSource = $("body").attr("class") + '-mini';
+            if ($("body").hasClass("questions-page")) {
+                clickSource = 'questionpagemini';
+            }
+            if ($("body").hasClass("home-page")) {
+                clickSource = 'homepagemini';
+            }
+
+            StackExchange.using("gps", function () {
+                StackExchange.gps.track("aboutpage.click", { aboutclick_location: clickSource } , true);
+            });
+        });
+        $('#herobox-mini #close').click(function () {
+            StackExchange.using("gps", function () {
+                StackExchange.gps.track("hero.action", { hero_action_type: "close" }, true);
+            });
+            $.cookie("hero", "none", { path: "/" });
+            var $hero = $("#herobox-mini");
+            $hero.slideUp('fast', function () { $hero.remove(); });
+            return false;
+        });
+    </script>
+</div>
+			<!--googleon: all-->
+			<div id="question-header">
+			<h1 itemprop="name"><a href="/questions/14939760/problems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread" class="question-hyperlink">Problems using single TCP/IP socket to send data from multiple concurrent threads</a></h1>
+		</div>
+			<div id="mainbar">
+
+			
+
+<div class="question" data-questionid="14939760"  id="question">
+    
+    <script type="text/javascript">
+                var ados = ados || {};ados.run = ados.run || [];
+                ados.run.push(function() { ados_add_placement(22,8277,"adzerk1151242714",4).setZone(43) ; });                    
+            </script>
+            <div class="everyonelovesstackoverflow" id="adzerk1151242714">
+            </div>    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="14939760">
+    <a class="vote-up-off" title="This question shows research effort; it is useful and clear">up vote</a>
+    <span class="vote-count-post ">1</span>
+    <a class="vote-down-off" title="This question does not show any research effort; it is unclear or not useful">down vote</a>
+    
+    <a class="star-off" href="#" title="This is a favorite question (click again to undo)">favorite</a>
+    <div class="favoritecount"><b></b></div>   
+
+</div>
+
+            </td>
+            
+<td class="postcell">
+<div>
+    <div class="post-text" itemprop="description">
+
+        <p>After browsing some other threads regarding my problem I think I've understood that I need to re-design my application. But just for clarification: I have a single <code>TCP/IP</code> connection between a client and a server. On the client side there are a number of threads running concurrently. Randomly one or more of these threads use the <code>TCP/IP</code> connection to communicate with the server. I've found out that, e. g. While a long running file transfer is active, using the connection with another thread concurrently might lead to errors. Though I've preceeded each message with a specific header including the data length it appears to me that the <code>IP</code> stack sometimes delivers a mix of more than one messages to my program, which means that though one message has net yet been delivered completely, part of another message is delivered to my read method. Is this a correct observation which matches the intended <code>TCP/IP</code> behaviour? Thanks in advance - Mario</p>
+
+<p>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++</p>
+
+<p>For anybody who's interested: following is the source code of my test program. You may play with various values for the BUFFER_SIZE and the number of THREADS used to bombard the server socket with concurrent TCP/IP sends using the same socket. I've left out some error handling and removed a more sophisticated termination including the closing of the sockets. Test with a BUFFER_SIZE greater than 64KB always leads to errors on my machine.</p>
+
+<pre><code>import java.io.*;
+import java.net.*;
+import java.nio.ByteBuffer;
+
+public class TCPTest
+{
+  private final static String INPUT_FILE   = "c:/temp/tcptest.in";
+  private final static int    BUFFER_SIZE  = 64 * 1024 - 8; //65536;
+  private final static int    MESSAGE_SIZE = 512 * 64 * 1024;
+  private final static int    THREADS      = 3;
+  private final static int    SIZE_OF_INT  = 4;
+  private final static int    LENGTH_SIZE  = SIZE_OF_INT;
+  private final static int    ID_SIZE      = SIZE_OF_INT;
+  private final static int    HEADER_SIZE  = LENGTH_SIZE + ID_SIZE;
+  private final static String NEW_LINE     = System.getProperty("line.separator");
+
+  private ServerSocket m_serverSocket = null;
+  private Socket       m_clientSocket = null;
+  private int          m_iThreadCounter;
+
+  public static void main(String[] args)  
+  {
+    new TCPTest();
+  } // main
+
+  public TCPTest() 
+  {
+    final String id = "ReaderThread[*]";
+    // start a new thread creating a server socket waiting for connections 
+    new Thread(new Runnable() 
+    {
+      public void run() 
+      {
+        try 
+        {
+          // create server socket and accept client requests
+          m_serverSocket = new ServerSocket(12345);
+          m_clientSocket = m_serverSocket.accept();
+          // client request =&gt; prepare and read data
+          long       startTime       = System.currentTimeMillis();
+          byte[]     buffer          = new byte[BUFFER_SIZE];
+          ByteBuffer header          = ByteBuffer.allocate(HEADER_SIZE);
+          int        iTotalBytesRead = 0;
+          boolean    fTerminate      = false;
+          int        iBytesRead;
+          // get hold of socket's input stream
+          InputStream clientInputStream = m_clientSocket.getInputStream();
+          // loop
+          while (false == fTerminate)
+          {
+            // loop to read next header
+            for (int i = 0; i &lt; HEADER_SIZE; i++)
+              clientInputStream.read(header.array(), i, 1);
+            header.rewind();
+            // get information of interest
+            int iLength      = header.getInt();
+            int iId          = header.getInt();
+            int iLengthSoFar = 0;
+            int iBytesLeft   = iLength;
+            int iBytesToRead;
+            // any length given?
+            if ((0 &lt; iLength) &amp;&amp; (BUFFER_SIZE &gt;= iLength))
+            {
+              // that's the case =&gt; read complete message
+              while (iLengthSoFar &lt; iLength)
+              {
+                // calculate number of bytes left
+                iBytesLeft = iLength - iLengthSoFar;
+                 // calculate maximum number of bytes to read
+                if (iBytesLeft &gt; BUFFER_SIZE)
+                  iBytesToRead = BUFFER_SIZE;
+                else
+                  iBytesToRead = iBytesLeft;
+                // read next portion of bytes
+                if ((iBytesRead = clientInputStream.read(buffer, 0, iBytesToRead)) != -1)
+                {
+                  // maintain statistics
+                  iTotalBytesRead += iBytesRead;
+                  iLengthSoFar += iBytesRead;
+                } // if
+                else
+                {
+                  // finish =&gt; print message
+                  System.out.println("==&gt; "+id+": ERROR length=&lt;-1&gt; received " +
+                        "for id=&lt;"+iId+"&gt;");
+                  fTerminate = true;
+                  break;
+                } // else
+              } // while
+            } // if
+            else
+            {
+              System.out.println("==&gt; "+id+": ERROR data length &lt;= 0 for id=&lt;"+iId+"&gt;");
+              dump(header, 0, HEADER_SIZE / SIZE_OF_INT, "Error header");
+            } // else
+          } // while
+          System.out.println("==&gt; "+id+": "+ iTotalBytesRead + " bytes read in " 
+                              + (System.currentTimeMillis() - startTime) + " ms.");
+        } // try 
+        catch (IOException e) 
+        {
+          e.printStackTrace();
+        } // catch
+      } // run
+    }).start();
+    // create the socket writer threads
+    try
+    {
+      // ensure server is brought up and request a connection
+      Thread.sleep(1000);
+      System.out.println("==&gt; "+id+": just awoke");
+      Socket       socket             = new Socket("localhost", 12345);
+      OutputStream socketOutputStream = socket.getOutputStream();
+      System.out.println("==&gt; "+id+": socket obtained");
+      // create some writer threads
+      for (int i = 0; i &lt; THREADS; i++)
+        // create a new socket writer and start the thread
+        (new SocketWriter(socket, 
+                          (i+1),
+                          BUFFER_SIZE,
+                          new String("WriterThread["+(i+1)+"]"),
+                          socketOutputStream)).start();
+    } // try
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    } // catch
+  } // TCPTestEx
+
+  private final static void dump(ByteBuffer bb, int iOffset, int iInts, String header)
+  {
+    System.out.println(header);
+    bb.rewind();
+    for (int i = 0; i &lt; iInts; i++)
+      System.out.print(" " + Integer.toHexString(bb.getInt()).toUpperCase());
+    System.out.print(NEW_LINE);
+  } // dump
+
+  private class SocketWriter extends Thread
+  {
+    Socket       m_socket;
+    int          m_iId;
+    int          m_iBufferSize;
+    String       m_id;
+    OutputStream m_os;
+
+    protected SocketWriter(Socket socket, int iId, int iBufferSize, String id, OutputStream os)
+    {
+      m_socket       = socket;
+      m_iId          = iId;
+      m_iBufferSize  = iBufferSize;
+      m_id           = id;
+      m_os           = os;
+      // increment thread counter
+      synchronized (m_serverSocket)
+      {
+        m_iThreadCounter++;
+      } // synchronized
+    } // SocketWriter
+
+    public final void run()
+    {
+      try 
+      {
+        long       startTime        = System.currentTimeMillis();
+        ByteBuffer buffer           = ByteBuffer.allocate(m_iBufferSize + HEADER_SIZE); 
+        int        iTotalBytesRead  = 0;
+        int        iNextMessageSize = 512 * m_iBufferSize; 
+        int        iBytesRead;
+        // open input stream for file to read and send
+        FileInputStream fileInputStream = new FileInputStream(INPUT_FILE);
+        System.out.println("==&gt; "+m_id+": file input stream obtained");
+        // loop to read complete file
+        while (-1 != (iBytesRead = fileInputStream.read(buffer.array(), HEADER_SIZE, m_iBufferSize))) 
+        {
+          // add length and id to buffer and write over TCP
+          buffer.putInt(0, iBytesRead);
+          buffer.putInt(LENGTH_SIZE, m_iId);
+          m_os.write(buffer.array(), 0, HEADER_SIZE + iBytesRead);
+          // maintain statistics and print message if so desired
+          iTotalBytesRead += iBytesRead;
+          if (iNextMessageSize &lt;= iTotalBytesRead)
+          {
+            System.out.println("==&gt; "+m_id+": &lt;"+iTotalBytesRead+"&gt; bytes processed");
+            iNextMessageSize += MESSAGE_SIZE;
+          } // if
+        } // while
+        // close my file input stream
+        fileInputStream.close();
+        System.out.println("==&gt; "+m_id+": file input stream closed");
+        System.out.println("==&gt; "+m_id+": &lt;"+ iTotalBytesRead + "&gt; bytes written in " 
+                            + (System.currentTimeMillis() - startTime) + " ms.");
+        // decrement thread counter
+        synchronized (m_serverSocket)
+        {
+          m_iThreadCounter--;
+          // last thread?
+          if (0 &gt;= m_iThreadCounter)
+            // that's the case =&gt; terminate
+            System.exit(0);
+        } // synchronized
+      } // try 
+      catch (Exception e) 
+      {
+        e.printStackTrace();
+      } // catch
+    } // run
+  } // SocketWriter
+} // TCPTest
+</code></pre>
+
+    </div>
+    <div class="post-taglist">
+        <a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a> <a href="/questions/tagged/multithreading" class="post-tag" title="show questions tagged &#39;multithreading&#39;" rel="tag">multithreading</a> <a href="/questions/tagged/sockets" class="post-tag" title="show questions tagged &#39;sockets&#39;" rel="tag">sockets</a> <a href="/questions/tagged/tcp" class="post-tag" title="show questions tagged &#39;tcp&#39;" rel="tag">tcp</a> 
+    </div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/q/14939760" title="short permalink to this question" class="short-link" id="link-post-14939760">share</a><span class="lsep">|</span><a href="/posts/14939760/edit" class="suggest-edit-post" title="">improve this question</a></div>        
+    </td>
+    <td align="right" class="post-signature">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="/posts/14939760/revisions" title="show all edits to this post">edited <span title="2013-02-19 13:13:03Z" class="relativetime">Feb 19 at 13:13</span></a>
+    </div>
+    <div class="user-gravatar32">
+        
+    </div>
+    <div class="user-details">
+        <br>
+        
+    </div>
+</div>    </td>
+    <td class="post-signature owner">
+        <div class="user-info ">
+    <div class="user-action-time">
+        asked <span title="2013-02-18 15:30:47Z" class="relativetime">Feb 18 at 15:30</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/2083721/supermariojava"><div><img src="https://www.gravatar.com/avatar/dfb086ee50479e135e6f254283085e86?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/2083721/supermariojava">SuperMarioJava</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">6</span><span title="3 bronze badges"><span class="badge3"></span><span class="badgecount">3</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</div>
+</td>
+        </tr>
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-14939760" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="9" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-20966640" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">What mechanism do you use to handle concurrent access to the same data in InputStream? If you didn&#39;t use any - it looks like a reason of duplicated messages (also it would be nice to have example of code).</span>
+	&ndash;&nbsp;
+		<a href="/users/633935/raman" 
+		   title="423 reputation" 
+		   class="comment-user">Raman</a>
+	<span class="comment-date" dir="ltr"><span title="2013-02-18 15:33:21Z" class="relativetime-clean">Feb 18 at 15:33</span></span>
+		<span class="edited-yes" title="this comment was edited 1 time"></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-20966693" class="comment">
+        <td class="comment-actions">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                                <span title="number of &#39;useful comment&#39; votes received" 
+                                        class="cool">2</span>   
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">TCP is just a byte stream - not messages, if you write to that stream concurrently from many threads without proper locking, you will get interleaving, the interleaving would usually be at boundaries of a single operating system level write() call on the socket.</span>
+	&ndash;&nbsp;
+		<a href="/users/126769/nos" 
+		   title="87343 reputation" 
+		   class="comment-user">nos</a>
+	<span class="comment-date" dir="ltr"><span title="2013-02-18 15:34:54Z" class="relativetime-clean">Feb 18 at 15:34</span></span>
+		<span class="edited-yes" title="this comment was edited 4 times"></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-20968851" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">That sounds like the behavior I would expect.  My suggestion would be that instead of having the various threads access the TCP socket directly, dedicate a single thread to handling the socket I/O and have the other threads send messages to that thread for it to send to the socket.  That way entire messages will get queued up and sent in order, with no risk of partial messages getting interleaved with each other.</span>
+	&ndash;&nbsp;
+		<a href="/users/131930/jeremy-friesner" 
+		   title="13994 reputation" 
+		   class="comment-user">Jeremy Friesner</a>
+	<span class="comment-date" dir="ltr"><span title="2013-02-18 16:39:22Z" class="relativetime-clean">Feb 18 at 16:39</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-20996723" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">@timonk: Thanks but that&#39;s not an issue!</span>
+	&ndash;&nbsp;
+		<a href="/users/2083721/supermariojava" 
+		   title="6 reputation" 
+		   class="comment-user owner">SuperMarioJava</a>
+	<span class="comment-date" dir="ltr"><span title="2013-02-19 12:44:16Z" class="relativetime-clean">Feb 19 at 12:44</span></span>
+		<span class="edited-yes" title="this comment was edited 1 time"></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-20998753" class="comment">
+        <td class="comment-actions">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                                <span title="number of &#39;useful comment&#39; votes received" 
+                                        class="cool">1</span>   
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">@PowerPC: Talk about cracking a nut with a sledgehammer :-)</span>
+	&ndash;&nbsp;
+		<a href="/users/2083721/supermariojava" 
+		   title="6 reputation" 
+		   class="comment-user owner">SuperMarioJava</a>
+	<span class="comment-date" dir="ltr"><span title="2013-02-19 13:41:53Z" class="relativetime-clean">Feb 19 at 13:41</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-14939760" data-rep=50 data-anon=true
+			   class="comments-link " 
+			   title="Use comments to ask for more information or suggest improvements. Avoid answering questions in comments." 
+				>show <b>9</b> more comments</a>
+    </td>
+</tr>            </table>    
+</div>
+
+
+			<div id="answers">
+
+				<a name="tab-top"></a>
+				<div id="answers-header">
+					<div class="subheader answers-subheader">
+						<h2>
+								1 Answer
+						</h2>
+						<div>
+							<div id="tabs">
+        <a href="/questions/14939760/problems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread?answertab=active#tab-top" title="Answers with the latest activity first">active</a>
+        <a href="/questions/14939760/problems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread?answertab=oldest#tab-top" title="Answers in the order they were provided">oldest</a>
+        <a class="youarehere" href="/questions/14939760/problems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread?answertab=votes#tab-top" title="Answers with the highest score first">votes</a>
+</div>
+						</div>
+					</div>    
+				</div>    
+
+
+
+
+  
+<a name="14939862"></a>
+<div id="answer-14939862" class="answer" data-answerid="14939862" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="14939862">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">0</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>Yer. TCP is a byte oriented stream protocol. That means that the application receives an (undelimited) stream of bytes. The concept of "message" should be provided by the application (or use a message oriented protocol instead).</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/14939862" title="short permalink to this answer" class="short-link" id="link-post-14939862">share</a><span class="lsep">|</span><a href="/posts/14939862/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2013-02-18 15:36:21Z" class="relativetime">Feb 18 at 15:36</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/1297272/javier"><div><img src="https://www.gravatar.com/avatar/820f7dc1c29b11042c978bc3714c5f8b?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/1297272/javier">Javier</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">3,961</span><span title="1 gold badge"><span class="badge1"></span><span class="badgecount">1</span></span><span title="7 silver badges"><span class="badge2"></span><span class="badgecount">7</span></span><span title="28 bronze badges"><span class="badge3"></span><span class="badgecount">28</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-14939862" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-20996506" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Thanks for all your replies.</span>
+	&ndash;&nbsp;
+		<a href="/users/2083721/supermariojava" 
+		   title="6 reputation" 
+		   class="comment-user owner">SuperMarioJava</a>
+	<span class="comment-date" dir="ltr"><span title="2013-02-19 12:38:18Z" class="relativetime-clean">Feb 19 at 12:38</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-14939862" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+									<a name='new-answer'></a>
+						<form id="post-form" action="/questions/14939760/answer/submit" method="post"  class="post-form">
+							<input type="hidden" id="post-id" value="14939760" />
+							<h2 class="space">Your Answer</h2>
+
+
+
+    
+
+<script type="text/javascript">
+    StackExchange.ready(function() {
+        initTagRenderer("".split(" "), "".split(" "));
+         
+        prepareEditor({
+            heartbeatType: 'answer',
+            bindNavPrevention: true,
+            postfix: "",
+            onDemand: true,
+            discardSelector: ".discard-answer"
+            ,immediatelyShowMarkdownHelp:true
+        });
+        
+
+    });  
+</script>
+
+
+<div id="post-editor" class="post-editor">
+
+    <div style="position: relative;">     
+        <div class="wmd-container">
+            <div id="wmd-button-bar" class="wmd-button-bar"></div>
+            <textarea id="wmd-input" class="wmd-input" name="post-text" cols="92" rows="15" tabindex="101" data-min-length=""></textarea>
+        </div>
+    </div>
+
+    <div class="fl" style="margin-top: 8px; height:24px;">&nbsp;</div>
+    <div id="draft-saved" class="draft-saved community-option fl" style="margin-top: 8px; height:24px; display:none;">draft saved</div>
+
+    <div id="draft-discarded" class="draft-discarded community-option fl" style="margin-top: 8px; height:24px; display:none;">draft discarded</div>
+
+
+
+    <div id="wmd-preview" class="wmd-preview"></div>
+    <div></div>
+    <div class="edit-block">
+        <input id="fkey" name="fkey" type="hidden" value="924444e9d656bd8bb28009690bceb305">
+        <input id="author" name="author" type="text">
+    </div>
+</div>
+							<div style="position: relative;">
+								
+            <div class="form-item dno new-post-login">
+        
+                <div class="new-login-form">
+                    <div class="new-login-left">
+                        <h3>Sign up or <a id="login-link" href="/users/login?returnurl=%2fquestions%2f14939760%2fproblems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread%23new-answer">login</a></h3>
+                        <script type="text/javascript">
+                            StackExchange.ready(function () {
+                                StackExchange.helpers.onClickDraftSave('#login-link');
+                            });
+                        </script>
+                        <div class="preferred-login google-login">
+                            <p><span class="icon"></span><span>Sign up using Google</span></p>
+                        </div>
+                        <div class="preferred-login facebook-login">
+                            <p><span class="icon"></span><span>Sign up using Facebook</span></p>
+                        </div>
+                        <div class="preferred-login stackexchange-login">
+                            <p><span class="icon"></span><span>Sign up using Stack Exchange</span></p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="manual-openid" class="manual-openid" />
+                    <input type="hidden" name="use-facebook" class="use-facebook" value="false" />
+                    <input type="button" class="submit-openid" value="Submit" style="display:none" />
+                    <div class="new-login-right">
+                                <h3>Post as a guest</h3>
+    <div class="form-item">
+        <table>
+        <tr>
+                    <script type="text/javascript">
+                StackExchange.ready(function () {
+                    StackExchange.helpers.bindHelpOverlayEvents($('.vm input'));
+                });
+            </script>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="30" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but not shown</span>
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                StackExchange.ready(
+                    function () {
+                        StackExchange.openid.initPostLogin('.new-post-login', '%2fquestions%2f14939760%2fproblems-using-single-tcp-ip-socket-to-send-data-from-multiple-concurrent-thread%23new-answer');
+                    }
+                );
+            </script>
+            <noscript>
+                        <h3>Post as a guest</h3>
+    <div class="form-item">
+        <table>
+        <tr>
+                    <script type="text/javascript">
+                StackExchange.ready(function () {
+                    StackExchange.helpers.bindHelpOverlayEvents($('.vm input'));
+                });
+            </script>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="30" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but not shown</span>
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+
+            </noscript>
+							</div>
+           
+															<div class="form-submit cbt">
+									<input id="submit-button" type="submit" value="Post Your Answer" tabindex="110">
+									<a href="#" class="discard-answer dno">discard</a>
+
+<p class="privacy-policy-agreement">
+By posting your answer, you agree to the <a href='http://stackexchange.com/legal/privacy-policy' target='_blank'>privacy policy</a> and <a href='http://stackexchange.com/legal/terms-of-service' target='_blank'>terms of service</a>.</p>
+<input type="hidden" name="legalLinksShown" value="1" />								</div>
+						</form>
+
+
+
+						<h2 class="bottom-notice">
+Not the answer you&#39;re looking for?							Browse other questions tagged <a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a> <a href="/questions/tagged/multithreading" class="post-tag" title="show questions tagged &#39;multithreading&#39;" rel="tag">multithreading</a> <a href="/questions/tagged/sockets" class="post-tag" title="show questions tagged &#39;sockets&#39;" rel="tag">sockets</a> <a href="/questions/tagged/tcp" class="post-tag" title="show questions tagged &#39;tcp&#39;" rel="tag">tcp</a>  or <a href="/questions/ask">ask your own question</a>.						</h2>
+			</div>
+		</div>
+				<div id="sidebar" class="show-votes">
+							<div class="module question-stats">
+					<p class="label-key">tagged</p>
+					<div class="tagged"><a href="/questions/tagged/java" class="post-tag" title="show questions tagged &#39;java&#39;" rel="tag">java</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">535852</span></span><br>
+<a href="/questions/tagged/multithreading" class="post-tag" title="show questions tagged &#39;multithreading&#39;" rel="tag">multithreading</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">46067</span></span><br>
+<a href="/questions/tagged/sockets" class="post-tag" title="show questions tagged &#39;sockets&#39;" rel="tag">sockets</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">21565</span></span><br>
+<a href="/questions/tagged/tcp" class="post-tag" title="show questions tagged &#39;tcp&#39;" rel="tag">tcp</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">7542</span></span><br>
+</div>
+					<table id="qinfo">
+						<tr>
+							<td>
+								<p class="label-key">asked</p>
+							</td>
+							<td style="padding-left: 10px">
+								<p class="label-key" title="2013-02-18 15:30:47Z"><b>9 months ago</b></p>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<p class="label-key">viewed</p>
+							</td>
+
+							<td style="padding-left: 10px">
+								<p class="label-key">
+									<b>1210 times</b>
+								</p>
+							</td>
+						</tr>
+							<tr>
+								<td>
+									<p class="label-key">active</p>
+								</td>
+								<td style="padding-left: 10px">
+									<p class="label-key"><b><a href="?lastactivity" class="lastactivity-link" title="2013-02-19 13:13:03Z">9 months ago</a></b></p>
+								</td>
+							</tr>
+					</table>
+				</div>
+						
+			<script type="text/javascript">
+                var ados = ados || {};ados.run = ados.run || [];
+                ados.run.push(function() { ados_add_placement(22,8277,"adzerk554997042",17).setZone(45) ; });                    
+            </script>
+            <div class="everyonelovesstackoverflow" id="adzerk554997042">
+            </div>  
+    <div id="hireme">
+        <script type="text/javascript">
+window.careers_adurl="//careers.stackoverflow.com/gethired/js",window.careers_cssurl="//cdn-careers.sstatic.net/careers/gethired/sidebar.min.css?v=3c55a7a05afd",window.careers_leaderboardcssurl="//cdn-careers.sstatic.net/careers/gethired/ninja.min.css?v=78ccbfa5c59f",window.careers_companycssurl="//cdn-careers.sstatic.net/careers/gethired/company",window.careers_adselector="div.hireme, div#hireme",StackExchange.ready(function(){$.ajax({url:"//cdn-careers.sstatic.net/careers/gethired/loader.min.js?v=c151d0261983",dataType:"script",cache:!0})});        </script>
+    </div>
+			  
+    
+            <div class="module sidebar-linked">
+	<h4 id="h-linked">Linked</h4>
+	<div class="linked" data-tracker="lq=1">
+<div class="spacer">
+	<a href="/q/14036311" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes answered-accepted default">19</div>
+	</a>
+	<a href="/questions/14036311/official-boost-library-support-for-android-and-ios" class="question-hyperlink">Official &ldquo;Boost library&rdquo; Support for Android and iOS?</a>
+</div>			</div>
+</div>
+
+				<div class="module sidebar-related">
+					<h4 id="h-related">Related</h4>
+					<div class="related" data-tracker="rq=1">
+						<div class="spacer">
+<a href="/q/1169739" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">9
+    </div>
+</a><a href="/questions/1169739/java-tcp-socket-data-transfer-is-slow" class="question-hyperlink">Java TCP socket: data transfer is slow</a>
+</div>
+<div class="spacer">
+<a href="/q/12041986" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">4
+    </div>
+</a><a href="/questions/12041986/android-send-a-screenshot-from-java-to-android-via-tcp-socket" class="question-hyperlink">ANDROID - Send a screenshot from java to android via tcp socket</a>
+</div>
+<div class="spacer">
+<a href="/q/12309459" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">0
+    </div>
+</a><a href="/questions/12309459/fifo-queue-of-multiple-threads-for-single-tcp-socket-send-request-and-wait-for-r" class="question-hyperlink">FIFO queue of Multiple Threads for single TCP Socket send request and wait for response</a>
+</div>
+<div class="spacer">
+<a href="/q/12415997" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">2
+    </div>
+</a><a href="/questions/12415997/sending-a-tcp-command-with-android-phone-but-no-data-is-sent" class="question-hyperlink">Sending a TCP command with android phone but no data is sent</a>
+</div>
+<div class="spacer">
+<a href="/q/12536437" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">-2
+    </div>
+</a><a href="/questions/12536437/java-threaded-tcp-server-sockets" class="question-hyperlink">Java threaded TCP server sockets</a>
+</div>
+<div class="spacer">
+<a href="/q/13703021" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">1
+    </div>
+</a><a href="/questions/13703021/java-tcp-sockets-sending-and-receiving-objects-in-a-thread" class="question-hyperlink">Java TCP sockets, sending and receiving objects in a thread</a>
+</div>
+<div class="spacer">
+<a href="/q/16709465" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">0
+    </div>
+</a><a href="/questions/16709465/sending-data-to-tcp-client-gets-hanged-after-some-interval" class="question-hyperlink">Sending Data to TCP Client gets Hanged after some interval</a>
+</div>
+<div class="spacer">
+<a href="/q/19108519" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/19108519/java-sending-objects-from-queue-or-stack-over-tcp-socket" class="question-hyperlink">Java sending objects from queue or stack over TCP socket</a>
+</div>
+<div class="spacer">
+<a href="/q/19139247" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">2
+    </div>
+</a><a href="/questions/19139247/c-sharp-tcp-ip-client-that-sends-data-received-from-serial-port-suggestions" class="question-hyperlink">C# TCP/IP Client that sends data received from serial port - Suggestions</a>
+</div>
+
+					</div>
+				</div>
+		</div>
+	
+<div id="feed-link">
+    <div id="feed-link-text"><a href="/feeds/question/14939760" title="feed of this question and its answers"><span class="feed-icon"></span>question feed</a></div>
+</div>
+	<script type="text/javascript">
+StackExchange.ready(function(){$.get('/posts/14939760/ivc/04fc');});
+</script>
+<noscript>
+    <div><img src="/posts/14939760/ivc/04fc" class="dno" alt="" width="0" height="0"></div>
+</noscript><div style="display:none" id="prettify-lang">lang-java</div></div>
+
+
+        </div>
+    </div>
+    <div id="footer" class="categories">
+        <div class="footerwrap">
+            <div id="footer-menu">
+                <div class="top-footer-links">
+                        <a href="/about">about</a>
+                    <a href="/help">help</a>
+                        <a href="/help/badges">badges</a>
+                    <a href="http://blog.stackexchange.com?blb=1">blog</a>
+                        <a href="http://chat.stackoverflow.com">chat</a>
+                    <a href="http://data.stackexchange.com">data</a>
+                    <a href="http://stackexchange.com/legal">legal</a>
+                    <a href="http://stackexchange.com/legal/privacy-policy">privacy policy</a>
+                    <a href="http://stackexchange.com/about/hiring">jobs</a>
+                    <a href="http://engine.adzerk.net/r?e=eyJhdiI6NDE0LCJhdCI6MjAsImNtIjo5NTQsImNoIjoxMTc4LCJjciI6Mjc3NiwiZG0iOjQsImZjIjoyODYyLCJmbCI6Mjc1MSwibnciOjIyLCJydiI6MCwicHIiOjExNSwic3QiOjAsInVyIjoiaHR0cDovL3N0YWNrb3ZlcmZsb3cuY29tL2Fib3V0L2NvbnRhY3QiLCJyZSI6MX0&s=hRods5B22XvRBwWIwtIMekcyNF8">advertising info</a>
+
+                    <a onclick='StackExchange.switchMobile("on")'>mobile</a>
+                    <b><a href="/contact">contact us</a></b>
+                        <b><a href="http://meta.stackoverflow.com">feedback</a></b>
+                    
+                </div>
+                <div id="footer-sites">
+                    <table>
+    <tr>
+            <th colspan=3>
+                Technology
+            </th>
+            <th >
+                Life / Arts
+            </th>
+            <th >
+                Culture / Recreation
+            </th>
+            <th >
+                Science
+            </th>
+            <th >
+                Other
+            </th>
+    </tr>
+    <tr>
+            <td>
+                <ol>
+                        <li><a href="http://stackoverflow.com" title="professional and enthusiast programmers">Stack Overflow</a></li>
+                        <li><a href="http://serverfault.com" title="professional system and network administrators">Server Fault</a></li>
+                        <li><a href="http://superuser.com" title="computer enthusiasts and power users">Super User</a></li>
+                        <li><a href="http://webapps.stackexchange.com" title="power users of web applications">Web Applications</a></li>
+                        <li><a href="http://askubuntu.com" title="Ubuntu users and developers">Ask Ubuntu</a></li>
+                        <li><a href="http://webmasters.stackexchange.com" title="pro webmasters">Webmasters</a></li>
+                        <li><a href="http://gamedev.stackexchange.com" title="professional and independent game developers">Game Development</a></li>
+                        <li><a href="http://tex.stackexchange.com" title="users of TeX, LaTeX, ConTeXt, and related typesetting systems">TeX - LaTeX</a></li>
+                            </ol></td><td><ol>
+                        <li><a href="http://programmers.stackexchange.com" title="professional programmers interested in conceptual questions about software development">Programmers</a></li>
+                        <li><a href="http://unix.stackexchange.com" title="users of Linux, FreeBSD and other Un*x-like operating systems.">Unix &amp; Linux</a></li>
+                        <li><a href="http://apple.stackexchange.com" title="power users of Apple hardware and software">Ask Different (Apple)</a></li>
+                        <li><a href="http://wordpress.stackexchange.com" title="WordPress developers and administrators">WordPress Answers</a></li>
+                        <li><a href="http://gis.stackexchange.com" title="cartographers, geographers and GIS professionals">Geographic Information Systems</a></li>
+                        <li><a href="http://electronics.stackexchange.com" title="electronics and electrical engineering professionals, students, and enthusiasts">Electrical Engineering</a></li>
+                        <li><a href="http://android.stackexchange.com" title="enthusiasts and power users of the Android operating system">Android Enthusiasts</a></li>
+                        <li><a href="http://security.stackexchange.com" title="Information security professionals">Information Security</a></li>
+                            </ol></td><td><ol>
+                        <li><a href="http://dba.stackexchange.com" title="database professionals who wish to improve their database skills and learn from others in the community">Database Administrators</a></li>
+                        <li><a href="http://drupal.stackexchange.com" title="Drupal developers and administrators">Drupal Answers</a></li>
+                        <li><a href="http://sharepoint.stackexchange.com" title="SharePoint enthusiasts">SharePoint</a></li>
+                        <li><a href="http://ux.stackexchange.com" title="user experience researchers and experts">User Experience</a></li>
+                        <li><a href="http://mathematica.stackexchange.com" title="users of Mathematica">Mathematica</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#technology" class="more">
+                                more (14)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://photo.stackexchange.com" title="professional, enthusiast and amateur photographers">Photography</a></li>
+                        <li><a href="http://scifi.stackexchange.com" title="science fiction and fantasy enthusiasts">Science Fiction &amp; Fantasy</a></li>
+                        <li><a href="http://cooking.stackexchange.com" title="professional and amateur chefs">Seasoned Advice (cooking)</a></li>
+                        <li><a href="http://diy.stackexchange.com" title="contractors and serious DIYers">Home Improvement</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#lifearts" class="more">
+                                more (13)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://english.stackexchange.com" title="linguists, etymologists, and serious English language enthusiasts">English Language &amp; Usage</a></li>
+                        <li><a href="http://skeptics.stackexchange.com" title="scientific skepticism">Skeptics</a></li>
+                        <li><a href="http://judaism.stackexchange.com" title="those who base their lives on Jewish law and tradition and anyone interested in learning more">Mi Yodeya (Judaism)</a></li>
+                        <li><a href="http://travel.stackexchange.com" title="road warriors and seasoned travelers">Travel</a></li>
+                        <li><a href="http://christianity.stackexchange.com" title="committed Christians, experts in Christianity and those interested in learning more">Christianity</a></li>
+                        <li><a href="http://gaming.stackexchange.com" title="passionate videogamers on all platforms">Arqade (gaming)</a></li>
+                        <li><a href="http://bicycles.stackexchange.com" title="people who build and repair bicycles, people who train cycling, or commute on bicycles">Bicycles</a></li>
+                        <li><a href="http://rpg.stackexchange.com" title="gamemasters and players of tabletop, paper-and-pencil role-playing games">Role-playing Games</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#culturerecreation" class="more">
+                                more (21)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://math.stackexchange.com" title="people studying math at any level and professionals in related fields">Mathematics</a></li>
+                        <li><a href="http://stats.stackexchange.com" title="statisticians, data analysts, data miners and data visualization experts">Cross Validated (stats)</a></li>
+                        <li><a href="http://cstheory.stackexchange.com" title="theoretical computer scientists and researchers in related fields">Theoretical Computer Science</a></li>
+                        <li><a href="http://physics.stackexchange.com" title="active researchers, academics and students of physics">Physics</a></li>
+                        <li><a href="http://mathoverflow.net" title="professional mathematicians">MathOverflow</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#science" class="more">
+                                more (7)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://stackapps.com" title="apps, scripts, and development with the Stack Exchange API">Stack Apps</a></li>
+                        <li><a href="http://meta.stackoverflow.com" title="meta-discussion of the Stack Exchange family of Q&amp;A websites">Meta Stack Overflow</a></li>
+                        <li><a href="http://area51.stackexchange.com" title="proposing new sites in the Stack Exchange network">Area 51</a></li>
+                        <li><a href="http://careers.stackoverflow.com">Stack Overflow Careers</a></li>
+                    
+                </ol>
+            </td>
+    </tr>
+</table>
+                </div>
+            </div>
+
+            <div id="copyright">
+                site design / logo &#169; 2013 stack exchange inc; user contributions licensed under <a href="http://creativecommons.org/licenses/by-sa/3.0/" rel="license">cc-wiki</a> 
+ with <a href="http://blog.stackoverflow.com/2009/06/attribution-required/" rel="license">attribution required</a>
+            </div>
+            <div id="footer-flair">
+                <a href="http://creativecommons.org/licenses/by-sa/3.0/" class="cc-wiki-link"></a>
+            </div>
+            <div id="svnrev">
+                rev 2013.12.13.1229
+            </div>
+            
+        </div>
+    </div>
+    <noscript>
+        <div id="noscript-warning">Stack Overflow works best with JavaScript enabled<img src="http://pixel.quantserve.com/pixel/p-c1rF4kxgLUzNc.gif" alt="" class="dno"></div>
+    </noscript>
+<script type="text/javascript">var p = "http", d = "static"; if (document.location.protocol == "https:") { p += "s"; d = "engine"; } var z = document.createElement("script"); z.type = "text/javascript"; z.async = true; z.src = p + "://" + d + ".adzerk.net/ados.js"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(z, s);</script>
+<script type="text/javascript">
+    var ados = ados || {};
+    ados.run = ados.run || [];
+    ados.run.push(function () { ados_setKeywords('java,multithreading,sockets,tcp');; ados_load(); });         
+</script>
+
+    <script type="text/javascript">var _gaq=_gaq||[];_gaq.push(['_setAccount','UA-5620270-1']);
+        _gaq.push(['_setCustomVar', 1, 'tags', '|java|multithreading|sockets|tcp|']); 
+_gaq.push(['_trackPageview']);
+    var _qevents = _qevents || [];
+    var _comscore = _comscore || [];
+    (function () {
+        var ssl='https:'==document.location.protocol,
+            s=document.getElementsByTagName('script')[0],
+            ga=document.createElement('script');
+        ga.type='text/javascript';
+        ga.async=true;
+        ga.src=(ssl?'https://ssl':'http://www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(ga,s);
+        var sc=document.createElement('script');
+        sc.type='text/javascript';
+        sc.async=true;
+        sc.src=(ssl?'https://secure':'http://edge')+'.quantserve.com/quant.js';
+        s.parentNode.insertBefore(sc, s);
+        
+        var s = document.createElement("script"), el = document.getElementsByTagName("script")[0]; s.async = true;
+        s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+        el.parentNode.insertBefore(s, el);
+        
+    })();
+    _comscore.push({ c1: "2", c2: "17440561" });
+    _qevents.push({ qacct: "p-c1rF4kxgLUzNc" });
+    </script>
+            
+</body>
+</html>

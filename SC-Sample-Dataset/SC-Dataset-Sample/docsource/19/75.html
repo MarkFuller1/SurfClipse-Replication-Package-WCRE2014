@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Re: Support for VMware vCloud Director</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="contents" href="index.html#00008">
+<link rel="index" href="maillist.html#00008">
+<link rel="prev" href="msg00003.html">
+<link rel="next" href="msg00011.html">
+<link rel="alternate" title="user RSS" href="#" type="application/rss+xml">
+<link rel="canonical" href="https://www.mail-archive.com/user@jclouds.apache.org/msg00008.html">
+<link rel="stylesheet" href="/normalize.css" media="screen">
+<link rel="stylesheet" href="/master.css" media="screen">
+
+<!--[if lt IE 9]>
+<link rel="stylesheet" href="/ie.css" media="screen">
+<![endif]-->
+</head>
+<body>
+<div itemscope itemtype="http://schema.org/Article" class="container">
+<div class="skipLink">
+<a href="#nav">Skip to site navigation (Press enter)</a>
+</div>
+<div class="content" role="main">
+<div class="msgHead">
+<h1>
+<span class="subject"><a href="/search?l=user@jclouds.apache.org&amp;q=subject:%22Re%3A+Support+for+VMware+vCloud+Director%22" rel="nofollow"><span itemprop="name">Re: Support for VMware vCloud Director</span></a></span>
+</h1>
+<p class="darkgray font13">
+<span class="sender pipe"><a href="/search?l=user@jclouds.apache.org&amp;q=from:%22Paul+Bell%22" rel="nofollow"><span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Paul Bell</span></span></a></span>
+<span class="date"><a href="/search?l=user@jclouds.apache.org&amp;q=date:20131105" rel="nofollow"><span itemprop="datePublished" content="2013-11-05T06:50:02-0800">Tue, 05 Nov 2013 06:50:02 -0800</span></a></span>
+</p>
+</div>
+<div itemprop="articleBody" class="msgBody">
+<!--X-Body-of-Message-->
+<pre>Hi Andrew,
+
+Thank you for this guidance.</pre><pre>
+
+I right away hit a &quot;provider not found&quot; issue concerning provider
+&quot;vcloud-director.&quot; I noticed in the list of extant providers (about 12
+tokens from the end) an entry for &quot;vcloud.&quot; Should I be using this one
+instead?
+
+-Paul
+
+Exception in thread &quot;main&quot; java.util.NoSuchElementException: key
+[vcloud-director] not in the list of providers or apis:
+{providers=[aws-cloudwatch, rackspace-cloudblockstorage-us,
+rackspace-cloudblockstorage-uk, rackspace-clouddns-us,
+rackspace-clouddns-uk, aws-sqs, aws-sts, aws-route53, ultradns-ws, dynect,
+rackspace-cloudloadbalancers-uk, rackspace-cloudloadbalancers-us,
+greenhousedata-element-vcloud, aws-ec2, cloudservers-us, cloudservers-uk,
+trmk-vcloudexpress, trmk-ecloud, bluelock-vcloud-zone01, gogrid,
+elastichosts-lon-p, elastichosts-sat-p, elastichosts-lon-b,
+openhosting-east1, serverlove-z1-man, skalicloud-sdg-my, cloudsigma-zrh,
+cloudsigma-lvs, go2cloud-jhb1, softlayer, ninefold-compute,
+hpcloud-compute, rackspace-cloudservers-us, rackspace-cloudservers-uk,
+aws-s3, ninefold-storage, cloudonestorage, azureblob, cloudfiles-us,
+cloudfiles-uk, hpcloud-objectstorage], apis=[rackspace-cloudidentity,
+openstack-keystone, openstack-cinder, rackspace-clouddns, cloudwatch, sqs,
+sts, route53, rackspace-cloudloadbalancers, openstack-nova,
+openstack-nova-ec2, byon, ec2, cloudservers, vcloud, cloudsigma,
+elasticstack, cloudstack, s3, transient, atmos, swift, swift-keystone,
+cloudfiles, filesystem, stub]}
+       at org.jclouds.ContextBuilder.newBuilder(ContextBuilder.java:176)
+       at test.VcdTest.main(VcdTest.java:24)
+
+
+
+On Mon, Nov 4, 2013 at 7:45 PM, Andrew Phillips &lt;andr...@apache.org&gt; wrote:
+
+&gt; I would be most grateful for some guidance in how to go about using
+&gt;&gt;  jclouds to talk &quot;directly&quot; to VMware's VCD.
+&gt;&gt;
+&gt;
+&gt; You should be able to instantiate a context using the &quot;plain&quot;
+&gt; 'vcloud-director' API, setting (at minimum) the &quot;endpoint&quot; property for
+&gt; your target installation:
+&gt;
+&gt; Properties overrides = new Properties();
+&gt; overrides.setProperty(..., ...);
+&gt; overrides.setProperty(..., ...);
+&gt;
+&gt; ComputeServiceContext context = ContextBuilder.newBuilder(&quot;
+&gt; vcloud-director&quot;)
+&gt;   .endpoint(&quot;<a  rel="nofollow" href="https://your-vloud-ip-or-host/api&quot">https://your-vloud-ip-or-host/api&quot</a>;)
+&gt;   .credentials(&quot;user@org&quot;, &quot;password&quot;)
+&gt;   //.overrides(overrides) - only if needed
+&gt;   .buildView(ComputeServiceContext.class);
+&gt;
+&gt; computeService = context.getComputeService();
+&gt; // do something with the compute service
+&gt;
+&gt; You can see some of the properties you can specific via the overrides in
+&gt; the API metadata [1]. You'll notice that providers using the vCloud
+&gt; Director API, such as Carrenza, effectively do just that in their provider
+&gt; metadata [2].
+&gt;
+&gt; What I don't know, however, is whether or how Whirr allows you to specify
+&gt; a context such as this one. One of the Whirr-savvy members of the list will
+&gt; hopefully be able to help out here!
+&gt;
+&gt; ap
+&gt;
+&gt; [1] <a  rel="nofollow" href="https://github.com/jclouds/jclouds-labs/blob/master/">https://github.com/jclouds/jclouds-labs/blob/master/</a>
+&gt; vcloud-director/src/main/java/org/jclouds/vcloud/director/v1_5/
+&gt; VCloudDirectorApiMetadata.java#L59
+&gt; [2] <a  rel="nofollow" href="https://github.com/jclouds/jclouds-labs/blob/master/">https://github.com/jclouds/jclouds-labs/blob/master/</a>
+&gt; carrenza-vcloud-director/src/main/java/org/jclouds/
+&gt; carrenza/vcloud/director/CarrenzaVCloudDirectorProviderMetadata.java#L69
+&gt;
+</pre>
+
+</div>
+<div class="msgButtons margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages
+</h2>
+<ul class="overflow">
+<li class="msgButtonItems"><a class="button buttonleft " accesskey="p" href="msg00003.html">Previous message</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="c" href="index.html#00008">View by thread</a></li>
+<li class="msgButtonItems textaligncenter"><a class="button" accesskey="i" href="maillist.html#00008">View by date</a></li>
+<li class="msgButtonItems textalignright"><a class="button buttonright " accesskey="n" href="msg00011.html">Next message</a></li>
+</ul>
+</div>
+<a name="tslice"></a>
+<div class="tSliceLiset margintopdouble">
+<h2 class="hidden">
+				Navigate to other messages within this thread
+</h2>
+<ul class="icons monospace">
+<li class="icons-email"><span class="subject"><a href="msg00002.html">Support for VMware vCloud Director</a></span> <span class="sender italic">Paul</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00003.html">Re: Support for VMware vCloud Director</a></span> <span class="sender italic">Andrew Phillips</span></li>
+<li><ul>
+<li class="icons-email tSliceCur"><span class="subject">Re: Support for VMware vCloud Director</span><span class="sender italic">Paul Bell</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00011.html">Re: Support for VMware vCloud Director</a></span> <span class="sender italic">Andrew Phillips</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00012.html">Re: Support for VMware vCloud Director</a></span> <span class="sender italic">Paul Bell</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00019.html">Re: Support for VMware vCloud Direct...</a></span> <span class="sender italic">Paul Bell</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00020.html">Re: Support for VMware vCloud Di...</a></span> <span class="sender italic">Andrew Phillips</span></li>
+<li><ul>
+<li class="icons-email"><span class="subject"><a href="msg00021.html">Re: Support for VMware vClou...</a></span> <span class="sender italic">Paul Bell</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00022.html">Re: Support for VMware vClou...</a></span> <span class="sender italic">Paul Bell</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00023.html">Re: Support for VMware vClou...</a></span> <span class="sender italic">Andrew Phillips</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00024.html">Re: Support for VMware vClou...</a></span> <span class="sender italic">Paul Bell</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00025.html">Re: Support for VMware vClou...</a></span> <span class="sender italic">Andrew Phillips</span></li>
+<li class="icons-email"><span class="subject"><a href="msg00027.html">Re: Support for VMware vClou...</a></span> <span class="sender italic">Paul Bell</span></li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</div>
+<div class="overflow msgActions margintopdouble">
+<div class="msgReply" >
+<h2>
+					Reply via email to
+</h2>
+<form method="POST" action="/mailto.php">
+<input type="HIDDEN" name="subject" value="Re: Support for VMware vCloud Director">
+<input type="HIDDEN" name="msgid" value="CA+ttMd-iybKbeNXOFb_3v22xWMhwyrpFx7w=VhyoVNQcy96a_A@mail.gmail.com">
+<input type="submit" value=" Paul Bell ">
+</form>
+</div>
+</div>
+</div>
+<div class="aside" role="complementary">
+<div class="logo">
+<a href="/"><img src="/logo.png" width=247 height=88 alt="The Mail Archive"></a>
+</div>
+<form class="overflow" action="/search" method="get">
+<input type="hidden" name="l" value="user@jclouds.apache.org">
+<label class="hidden" for="q">Search the site</label>
+<input class="submittext" type="text" id="q" name="q" placeholder="Search user">
+<input class="submitbutton" name="submit" type="image" src="/submit.png" alt="Submit">
+</form>
+<div class="nav margintop" id="nav" role="navigation">
+<h2 class="hidden">
+				Site navigation
+</h2>
+<ul class="icons font16">
+<li class="icons-home"><a href="/">The Mail Archive home</a></li>
+<li class="icons-list"><a href="/user@jclouds.apache.org/">user - all messages</a></li>
+<li class="icons-about"><a href="/user@jclouds.apache.org/info.html">user - about the list</a></li>
+<li class="icons-prev"><a href="msg00003.html">Previous message</a></li>
+<li class="icons-next"><a href="msg00011.html">Next message</a></li>
+</ul>
+</div>
+<div class="listlogo margintopdouble">
+<h2 class="hidden">
+				Mail list logo
+</h2>
+
+</div>
+<div class="bannertower margintopdouble">
+<h2 class="hidden">
+				Advertising banner
+</h2>
+
+</div>
+</div>
+</div>
+<div class="footer" role="contentinfo">
+<h2 class="hidden">
+		Footer information
+</h2>
+<ul>
+<li><a href="/">The Mail Archive home</a></li>
+<li><a href="/faq.html#newlist">Add your mailing list</a></li>
+<li><a href="/faq.html">FAQ</a></li>
+<li><a href="/faq.html#support">Support</a></li>
+<li><a href="/faq.html#privacy">Privacy</a></li>
+</ul>
+</div>
+</body>
+</html>

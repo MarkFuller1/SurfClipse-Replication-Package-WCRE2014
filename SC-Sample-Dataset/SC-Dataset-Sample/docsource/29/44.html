@@ -1,0 +1,629 @@
+
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--><html lang="en" class="no-js"><!--<![endif]-->
+    <head>
+        
+        <meta charset="utf-8">
+        <!--SourceForge.net: Find and Build Open Source Software-->
+        <!--Copyright (c) 1999-2013 SourceForge, Inc. All rights reserved.-->
+        <!-- Create Server: sfs-web-11 -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta name="description" content="HSQLDB is a relational database engine written in Java, with a JDBC driver, conforming to ANSI SQL:2008. A small, fast, multithreaded engine and server with memory and disk tables, LOBs, transaction isolation, multiversion concurrency and ACID." />
+        <meta name="keywords" content="HyperSQL Database Engine (HSQLDB), Database Engines/Servers, Front-Ends, HTTP Servers, Open Source, Development, Community, Source Code, Downloads, Software" />
+                <title>SourceForge.net: HyperSQL Database Engine (HSQLDB): Using stored procedures</title>        <link href='//fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
+        <link rel="canonical" href="//sourceforge.net/projects/hsqldb/forums/forum/73674/topic/4586692" />        <style type="text/css">
+            @font-face {
+                font-family: "Pictos";
+                src: url('http://static.sourceforge.net/include/fonts/sftheme/pictos-web.eot');
+                src: local("☺"), url('http://static.sourceforge.net/include/fonts/sftheme/pictos-web.woff') format('woff'), url('http://static.sourceforge.net/include/fonts/sftheme/pictos-web.ttf') format('truetype'), url('http://static.sourceforge.net/include/fonts/sftheme/pictos-web.svg') format('svg');
+            }
+            #site-header .logo span {
+              background-image: url("http://static.sourceforge.net/images/neotheme/sftheme/logo.png");
+            }
+            #site-footer .wrapper {
+              background-image: url("http://static.sourceforge.net/images/neotheme/sftheme/sf-footer-logo.png") !important;
+            }
+        </style>
+        <link rel="stylesheet" type="text/css" href="http://static.sourceforge.net/css/develop/style.php?secure=0&amp;1385769425" media="all" />
+        <link rel="stylesheet" type="text/css" href="http://static.sourceforge.net/css/develop/global.php?secure=0&amp;1385769425" media="all" />
+        
+        <link rel="stylesheet" type="text/css" href="http://static.sourceforge.net/css/neotheme/sfx.css?1385769425" media="all" />
+                                   <link rel="stylesheet" type="text/css" href="http://static.sourceforge.net/css/develop/droppy.php?secure=0&amp;1385769425" media="all" />
+                                        <!--   -->
+        <script type="text/javascript" src="http://static.sourceforge.net/include/js/sftheme/modernizr.custom.90514.js"></script>
+        <script type="text/javascript" src="http://static.sourceforge.net/include/jquery/jquery-1.3.2.min.js"></script>
+        <script type="text/javascript">
+            
+                jQuery.noConflict();
+            
+        </script>
+
+        <script type="text/javascript" src="http://static.sourceforge.net/include/jquery/jquery.cookie.js"></script>
+                            <script type="text/javascript" src="http://static.sourceforge.net/include/jquery/jquery.droppy.js"></script>
+        <script type="text/javascript" src="http://static.sourceforge.net/include/js/sylvester.js"></script>
+        <script type="text/javascript" src="http://static.sourceforge.net/include/js/pb.transformie.js"></script>
+        <script type='text/javascript'>
+            jQuery(function(){
+                jQuery('.b-hornav > li:last-child').addClass('last');
+                jQuery('.b-hornav > li').each(function() {
+                    jQuery('li[class!=disabled]', this).eq(0).addClass('first');
+                });
+                jQuery('.b-hornav').droppy({speed:0, delay:0});
+            });
+        </script>
+                
+                            <script type="text/javascript" src="http://static.sourceforge.net/include/js/preferences.js"></script>
+            <script type="text/javascript">
+                            var sf_proj_home = 'http://sourceforge.net/projects/hsqldb';
+                        var _visitor = "";
+            var jsonly = document.createElement('link');
+            jsonly.setAttribute('rel', 'stylesheet');
+            jsonly.setAttribute('type', 'text/css');
+            jsonly.setAttribute('href', 'http://static.sourceforge.net/css/phoneix/jsonly.css?secure=0&amp;1385769425');
+            document.getElementsByTagName('head')[0].appendChild(jsonly);
+                    </script>
+                <script type="text/javascript" src="http://static.sourceforge.net/include/js/forums/common.js?secure=0&amp;1385769425"></script>
+                <script type="text/javascript" src="http://static.sourceforge.net/include/bbeditor_20081218/bbeditor.js"></script>
+        <link rel="stylesheet" href="http://static.sourceforge.net/include/bbeditor_20081218/bbeditor.css" media="screen"/>
+                        <script type="text/javascript" src="http://static.sourceforge.net/include/c_jquerytip.js"></script>
+        <link rel="stylesheet" href="http://static.sourceforge.net/css/phoneix/jquery.cluetip.php?secure=0" media="screen"/>
+                        <link rel="stylesheet" type="text/css" href="http://static.sourceforge.net/css/develop/widgets.php?secure=0&amp;1385769425" media="all" />
+                                    <script type="text/javascript" src="http://static.sourceforge.net/include/jquery-alerts/jquery.alerts.js"></script>
+        <link rel="stylesheet" type="text/css" href="http://static.sourceforge.net/include/jquery-alerts/jquery.alerts.css?secure=0&amp;1385769425" media="all" />
+            <!-- DoubleClick Random Number -->
+    <script type="text/javascript">var dfp_ord=Math.random()*10000000000000000; var dfp_tile = 1; var dfp_ptile = 1;</script>
+    <!-- End DoubleClick Random Number -->
+    <!-- After META tags -->
+                                    
+        <script type="text/javascript" src="http://static.sourceforge.net/sfx.js"></script>
+        
+            <script type="text/javascript">
+                        var _gaq = _gaq || [];
+                        _gaq.push(['t1._setAccount', 'UA-32013-6']);
+                        _gaq.push(['t1._trackPageview']);
+                        _gaq.push(['t2._setAccount', 'UA-36130941-1']);
+                        _gaq.push(['t2._trackPageview']);
+                        (function() {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+            })();
+        </script>
+        <script type="text/javascript" src="http://static.sourceforge.net/include/jquery/jquery.notify.js"></script>
+    <script type="text/javascript" src="http://static.sourceforge.net/include/js/header.js"></script>
+    </head>
+
+    <body id="c2" class="short-head">
+    
+    <!--[if IE 7]><div id="ie7only"><![endif]-->
+    <!--[if IE 6]><div id="ie6only"><![endif]-->
+    <!--[if IE]><div id="ieonly"><![endif]-->
+        
+        <div class="forum-topic">
+                        <header id="site-header">
+                <div class="wrapper">
+                    <a href="/" class="logo">
+                        <span>SourceForge</span>
+                    </a>
+                    <form method="get" action="/directory/">
+                        <input type="text" id="words" name="q" placeholder="Search">
+                    </form>
+                    <nav id="nav-site">
+                        <a href="/directory/" title="Browse our software.">Browse</a>
+                        <a href="/directory/enterprise" title="Browse our Enterprise software.">Enterprise</a>
+                        <a href="/blog/" title="Read the latest news from the SF HQ.">Blog</a>
+                        <a href="/support" title="Contact us for help and feedback.">Help</a>
+                        <a href="/jobs?source=header" title="Search 80k+ tech jobs." class="featured-link">Jobs</a>
+                    </nav>
+                    <nav id="nav-account">
+                                                  <div class="logged_out">
+                            <a href="https://sourceforge.net/account/login.php">Log In</a>
+                            <span>or</span>
+                            <a href="https://sourceforge.net/user/registration">Join</a>
+                          </div>
+                                            </nav>
+                </div>
+            </header>
+            <header id="site-sec-header">
+                <div class="wrapper">
+                    <nav id="nav-hubs">
+                        <h4>Solution Centers</h4>
+                        <a href="http://ibmsmartercommerce.sourceforge.net/">Smarter Commerce</a>
+                        <a href="http://goparallel.sourceforge.net/">Go Parallel</a>
+                        <a href="http://html5center.sourceforge.net/">HTML5</a>
+                        <a href="http://ibmsmarteritservices.sourceforge.net/">Smarter IT</a>
+                    </nav>
+                    <nav id="nav-collateral">
+                      <a href="http://library.slashdotmedia.com/?source=sfnet_header">Resources</a>  
+                                              <a href="https://sourceforge.net/user/registration/">Newsletters</a>
+                                            </nav>
+                </div>
+            </header>
+                                                <div id="page-body">
+            <div id="bd" class="inner-bd">
+                <div id="doc4" class="yui-t6">
+                                                            <div id="breadcrumbs">
+                                                    <a href="/">Home</a>
+ / <a href="/directory/" >Browse</a>
+ / <a href="/projects/hsqldb/" >HyperSQL Database Engine (HSQLDB)</a>
+ / <a href="/projects/hsqldb/forums" >Forums</a>
+ / <a href="/projects/hsqldb/forums/forum/73674" >Help</a>
+ / <a href="/projects/hsqldb/forums/forum/73674/topic/4586692"  class="selected">Using stored procedures</a>
+                                            </div>
+                    <!-- begin content -->
+            <a name="projectnav"></a>
+        <div id="project_nav_container">
+            <div class="b-proj__side">
+                                
+                
+                
+                <span class="award-bar"><img height="16" width="16" title="January 2012: Project of the Month" alt="January 2012: Project of the Month" src="http://a.fsdn.com/sf/images/develop/icons/potm.png"/></span>
+            </div>
+            <h1>
+                <a href="/projects/hsqldb/">HyperSQL Database Engine (HSQLDB)</a>
+                            </h1>
+                    <div class="firstwave">
+                <ul class="b-hornav">
+                    <li id="menu_consume_summary"><a href="/projects/hsqldb/"><span><span>Summary</span></span></a></li>
+<li id="menu_consume_files"><a href="/projects/hsqldb/files/"><span><span>Files</span></span></a></li>
+<li id="menu_consume_reviews"><a href="/projects/hsqldb/reviews/"><span><span>Reviews</span></span></a></li>
+<li id="menu_project_support"><a href="/projects/hsqldb/support"><span><span>Support</span></span></a></li>
+<li id="menu_project_develop"><a href="/projects/hsqldb/develop"><span><span>Develop</span></span></a>
+<ul>
+<li id="menu_project_website"><a href="http://hsqldb.org">Web Site</a></li>
+<li id="menu_project_screenshots"><a href="/project/screenshots.php?group_id=23316">Screenshots</a></li>
+<li id="menu_project_news"><a href="/news/?group_id=23316">News</a></li>
+<li id="menu_stats"><a href="/projects/hsqldb/stats/traffic">Project Statistics</a></li>
+<li id="menu_download_stats_dist"><a href="/downloads/hsqldb/stats_timeline">Download Stats</a></li>
+</ul>
+</li>
+<li id="menu_hostedapps"><a href="/hostedapp/?group_id=23316"><span><span>Hosted&nbsp;Apps</span></span></a>
+<ul>
+<li id="menu_hostedapp_piwik"><a href="/apps/piwik/hsqldb/">Piwik</a></li>
+<li id="menu_hostedapp_wordpress"><a href="/apps/wordpress/hsqldb/">Wordpress</a></li>
+</ul>
+</li>
+<li id="menu_tracker"><a href="/tracker/?group_id=23316"><span><span>Tracker</span></span></a>
+<ul>
+<li id="menu_tracker_378131"><a href="/tracker/?group_id=23316&amp;atid=378131">Bugs</a></li>
+<li id="menu_tracker_378134"><a href="/tracker/?group_id=23316&amp;atid=378134">Feature Requests</a></li>
+<li id="menu_tracker_454228"><a href="/tracker/?group_id=23316&amp;atid=454228">HSQLDB Utilities</a></li>
+<li id="menu_tracker_378133"><a href="/tracker/?group_id=23316&amp;atid=378133">Patches</a></li>
+<li id="menu_tracker_stats" class="tools"><a href="/projects/hsqldb/stats/tracker">Statistics for Trackers</a></li>
+<li id="menu_tracker_reports" class="disabled" style="display: none;"><a href="/tracker/reporting/?group_id=23316">Reporting for Trackers</a></li>
+<li id="menu_tracker_search"><a href="/search/?group_id=23316&amp;type_of_search=artifact">Search Trackers</a></li>
+</ul>
+</li>
+<li id="menu_mail"><a href="/mail/?group_id=23316"><span><span>Mailing&nbsp;Lists</span></span></a>
+<ul>
+<li id="menu_mlist_hsqldb-user"><a href="/mailarchive/forum.php?forum_name=hsqldb-user">hsqldb-user</a></li>
+<li id="menu_mlist_hsqldb-developers"><a href="/mailarchive/forum.php?forum_name=hsqldb-developers">hsqldb-developers</a></li>
+<li id="menu_mlist_hsqldb-svn"><a href="/mailarchive/forum.php?forum_name=hsqldb-svn">hsqldb-svn</a></li>
+<li id="menu_mlist_hsqldb-git"><a href="/mailarchive/forum.php?forum_name=hsqldb-git">hsqldb-git</a></li>
+<li id="menu_mail_search" class="tools"><a href="/search/?group_id=23316&amp;type_of_search=mlists">Search Mail Lists</a></li>
+</ul>
+</li>
+<li id="menu_forums" class="selected tier"><a href="/projects/hsqldb/forums"><span><span>Forums</span></span></a>
+<ul>
+<li id="menu_forum_73674"><a href="/projects/hsqldb/forums/forum/73674">Help</a></li>
+<li id="menu_forum_94352"><a href="/projects/hsqldb/forums/forum/94352">License Issues</a></li>
+<li id="menu_forum_73673"><a href="/projects/hsqldb/forums/forum/73673">Open Discussion</a></li>
+<li id="menu_forums_stats" class="tools"><a href="/projects/hsqldb/stats/forums">Statistics for Forums</a></li>
+<li id="menu_forums_search"><a href="/search/?group_id=23316&amp;type_of_search=forums">Search Forums</a></li>
+</ul>
+<div class="diamond"></div></li>
+<li id="menu_code"><a href="#"><span><span>Code</span></span></a>
+<ul>
+<li id="menu_git_about"><a href="/scm/?type=git&amp;group_id=23316">Git</a></li>
+<li id="menu_git_browse"><a href="http://hsqldb.git.sourceforge.net/">Git Browse</a></li>
+<li id="menu_git_stats"><a href="/projects/hsqldb/stats/scm?repo=GitRepository">Git Statistics</a></li>
+<li id="menu_hg_about" class="disabled" style="display: none;"><a href="/scm/?type=hg&amp;group_id=23316">Mercurial</a></li>
+<li id="menu_hg_browse" class="disabled" style="display: none;"><a href="http://hsqldb.hg.sourceforge.net/hgweb/hsqldb/">Mercurial Browse</a></li>
+<li id="menu_hg_stats" class="disabled" style="display: none;"><a href="/projects/hsqldb/stats/scm?repo=HgRepository">Mercurial Statistics</a></li>
+<li id="menu_bzr_about" class="disabled" style="display: none;"><a href="/scm/?type=bzr&amp;group_id=23316">Bazaar</a></li>
+<li id="menu_bzr_browse" class="disabled" style="display: none;"><a href="http://hsqldb.bzr.sourceforge.net/bzr/hsqldb/">Bazaar Browse</a></li>
+<li id="menu_bzr_stats" class="disabled" style="display: none;"><a href="/projects/hsqldb/stats/scm?repo=BazaarBranch">Bazaar Statistics</a></li>
+<li id="menu_cvs_about"><a href="/scm/?type=cvs&amp;group_id=23316">CVS</a></li>
+<li id="menu_cvs_browse"><a href="http://hsqldb.cvs.sourceforge.net/hsqldb/">CVS Browse</a></li>
+<li id="menu_cvs_stats"><a href="/projects/hsqldb/stats/scm?repo=CVSRepository">CVS Statistics</a></li>
+<li id="menu_svn_about"><a href="/scm/?type=svn&amp;group_id=23316">SVN</a></li>
+<li id="menu_svn_browse"><a href="http://hsqldb.svn.sourceforge.net/viewvc/hsqldb/">SVN Browse</a></li>
+<li id="menu_svn_stats"><a href="/projects/hsqldb/stats/scm?repo=SVNRepository">SVN Statistics</a></li>
+</ul>
+</li>
+<li id="menu_newadmin" class="disabled tier" style="display: none;"><a href="/project/admin/?group_id=23316"><span><span>Project&nbsp;Admin</span></span></a>
+<ul>
+<li id="menu_editgroupinfo" class="disabled" style="display: none;"><a href="/project/admin/public_info.php?group_id=23316">Settings</a></li>
+<li id="menu_features" class="disabled" style="display: none;"><a href="/project/admin/features.php?group_id=23316">Features</a></li>
+<li id="menu_userperms" class="disabled" style="display: none;"><a href="/project/admin/project_membership.php?group_id=23316">Members</a></li>
+<li id="menu_stats_admin" class="disabled" style="display: none;"><a href="/project/admin/stats.php?group_id=23316">Analytics</a></li>
+</ul>
+</li>
+
+                </ul>
+            </div>
+                </div>
+        <div style="clear: both;"></div>
+                    <div class="subset">
+            <ul>
+                
+            </ul>
+            </div>
+            <div style="clear: both;"></div>
+            
+
+
+
+<div class="sfBox sfBox-blue">
+    <div class="header dotted-header-1">
+        <a href="/projects/hsqldb/forums/forum/73674/topic/4586692/subscribe" title="Subscribe to this Topic" class="forums-subscribe icon-sm rss">Subscribe</a>        <h2 >Using stored procedures
+        <small><a class="monitor-alert-login" href="/projects/hsqldb/forums/forum/73674/topic/4586692/monitor">Monitor</a></small></h2>
+        <div class="forum-buttonbar" nowrap="true" >
+                    <a class="button" href="#topic-reply"><span>Add A Reply</span></a>
+                </div>
+         <div class="search">
+           <form method="get" id="searchForums" name="searchForums" action="/projects/hsqldb/forums/forum/73674/topic/4586692/search">
+                <input type="hidden" value="23316" name="group_id"/>
+                <input class="text" name="words" type="text" value="Enter Keyword"/>    
+                <select id="forum-search-forum" name="search-forums">
+                    <option>All Forums</option>
+                                                                <option value="73674" selected="selected">Help</option>
+                                            <option value="94352">License Issues</option>
+                                            <option value="73673">Open Discussion</option>
+                                                         </select>            
+                 <input type="submit" name="Search" value="Search" />
+            </form>
+        </div>
+    </div>
+</div>
+<div class="sfBox" id="forum-replies">    
+    
+    <ol id="forum-topic">
+            <li>
+            <div class="message-box">
+                               <div class="message-author">
+                <a class="author-name" href="/users/hbrednek3/" title="Mike">hbrednek3</a> <br /><br />
+                <a href="/users/hbrednek3"><img src="http://www.gravatar.com/avatar/3827e164d2a74bf02b701105844e9571.png?s=48&r=pg&d=http%3A%2F%2Fa.fsdn.com%2Fsf%2Fimages%2Fdevelop%2Fsf-profile-blank.gif" width="48" height="48" title="Avatar" /></a>
+                </div>
+<div class="message-content">
+<div class="message-date">2011-06-26 17:40:30 PDT</div>
+I'm trying to use stored procedures with no luck so far.  I have an HSqlDB instance working just fine and, indeed, part of the following code works just fine.  From the bits I've read I've made the following attempt (which fails):
+
+//---------------------------------------------
+   package mre;
+
+   import java.sql.*;
+
+   public class SPExample {
+
+      static HSqlDatabaseHandler handler = HSqlDatabaseHandler.instance();
+
+      public static ResultSet getAll( String last_name ) throws SQLException {
+	 ResultSet result = null;
+	 final Statement st = handler.getConn().createStatement();
+	 final String where = &quot;where last_name = '&quot; + last_name + &quot;'&quot;;
+	 final String sql = &quot;SELECT * from application &quot; + where;
+	 result = st.executeQuery(sql);
+	 st.close();
+	 return result;
+      }
+
+      // Assume there is a table called application which has a
+      // column called last_name'
+      //
+      public static void testOrdinary() throws SQLException {
+	 ResultSet rs = getAll( &quot;Firefly&quot; );
+	 while (rs.next())
+	    System.out.println( rs.getString( &quot;last_name&quot; ));
+      }
+
+      public static void testStoredProc() throws SQLException {
+	 ResultSet result = null;
+	 Statement st;
+	 st = handler.getConn().createStatement();
+	 String sql = &quot;CREATE ALIAS storedProc FOR &quot; +
+	      '&quot;' + &quot;mre.SPExample.getAll&quot; + '&quot;';
+	 st.execute( sql );
+	 st.close();
+
+	 sql = &quot;{call storedProc( 'Firefly' )}&quot;;
+	 CallableStatement cs = handler.getConn().prepareCall(sql);
+
+	 // Exception thrown here
+	 result = cs.executeQuery();
+
+	 while (result.next())
+	    System.out.println( result.getString( &quot;last_name&quot; ));
+      }
+
+      public static void main(String[] args) throws SQLException {
+	 // Works perfectly.
+	 //
+	 testOrdinary();
+
+	 // Throws:
+	 // Exception in thread &quot;main&quot; java.sql.SQLException: 
+	 //   Wrong data type: java.sql.ResultSet 
+	 //   in statement [ call storedProc( 'Firefly' ) ]
+	 //
+	 testStoredProc();
+      }
+   }
+//-------------------------------------------------
+
+What do I need to do to make the magic happen?
+
+</div>
+</div>
+        </li>
+            <li>
+            <div class="message-box">
+                               <div class="message-author">
+                <a class="author-name" href="/users/fredt/" title="Fred Toussi">fredt</a><a href="/help/icon_legend.php?context=group_admin&amp;uname=fredt&amp;this_group=23316&amp;return_to=%2F"><img src="http://a.fsdn.com/sf/images/images/icons/prj_adm.png" alt="Project Admin" width="16" height="16" /></a> <br /><br />
+                <a href="/users/fredt"><img src="http://www.gravatar.com/avatar/98293ee64b84091d30ef476146cdde67.png?s=48&r=pg&d=http%3A%2F%2Fa.fsdn.com%2Fsf%2Fimages%2Fdevelop%2Fsf-profile-blank.gif" width="48" height="48" title="Avatar" /></a>
+                </div>
+<div class="message-content">
+<div class="message-date">2011-06-26 18:09:35 PDT</div>
+You are trying to return a ResultSet from a stored procedure. This is not supported in version 1.8.x
+
+Please use the latest version 2.2.4 which supports this, and uses a different SQL syntax with CREATE PROCEDURE instead of CREATE ALIAS. See the guide here:  <a href="http://hsqldb.org/doc/2.0/guide/sqlroutines-chapt.html">http://hsqldb.org/doc/2.0/guide/sqlroutines-chapt.html</a> which has examples.
+</div>
+</div>
+        </li>
+            <li>
+            <div class="message-box">
+                               <div class="message-author">
+                <a class="author-name" href="/users/proto8/" title="proto">proto8</a> <br /><br />
+                <a href="/users/proto8"><img src="http://www.gravatar.com/avatar/449b50d3c5106fdd1eff03986d02120c.png?s=48&r=pg&d=http%3A%2F%2Fa.fsdn.com%2Fsf%2Fimages%2Fdevelop%2Fsf-profile-blank.gif" width="48" height="48" title="Avatar" /></a>
+                </div>
+<div class="message-content">
+<div class="message-date">2011-08-11 23:56:48 PDT</div>
+Hi,
+the problem mentioned above is still valid with version 2.2.4.
+
+<code>result = cs.executeQuery();</code>
+throws an Exception
+
+where
+<code>cs.execute();
+cs.getMoreResults();
+cs.getResultSet();</code>
+retrieves the result set correctly.
+
+The end of the story is that you can't use hsqldb with named queries because hibernate calls cs.executeQuery()!
+
+Can someone give me information on this, please.
+
+</div>
+</div>
+        </li>
+            <li>
+            <div class="message-box">
+                               <div class="message-author">
+                <a class="author-name" href="/users/fredt/" title="Fred Toussi">fredt</a><a href="/help/icon_legend.php?context=group_admin&amp;uname=fredt&amp;this_group=23316&amp;return_to=%2F"><img src="http://a.fsdn.com/sf/images/images/icons/prj_adm.png" alt="Project Admin" width="16" height="16" /></a> <br /><br />
+                <a href="/users/fredt"><img src="http://www.gravatar.com/avatar/98293ee64b84091d30ef476146cdde67.png?s=48&r=pg&d=http%3A%2F%2Fa.fsdn.com%2Fsf%2Fimages%2Fdevelop%2Fsf-profile-blank.gif" width="48" height="48" title="Avatar" /></a>
+                </div>
+<div class="message-content">
+<div class="message-date">2011-08-12 14:53:41 PDT</div>
+Updated:
+
+A function defined with CREATE FUNCTION can return a single result set. If such a function is called with a CallableStatement, then this usage is valid and works
+
+<code>result = cs.executeQuery() </code>
+
+
+</div>
+</div>
+        </li>
+            <li>
+            <div class="message-box">
+                               <div class="message-author">
+                <a class="author-name" href="/users/proto8/" title="proto">proto8</a> <br /><br />
+                <a href="/users/proto8"><img src="http://www.gravatar.com/avatar/449b50d3c5106fdd1eff03986d02120c.png?s=48&r=pg&d=http%3A%2F%2Fa.fsdn.com%2Fsf%2Fimages%2Fdevelop%2Fsf-profile-blank.gif" width="48" height="48" title="Avatar" /></a>
+                </div>
+<div class="message-content">
+<div class="message-date">2011-08-13 05:17:57 PDT</div>
+Hi Fredt,
+actually I liked what you wrote before and I really hope you can fix this soon.
+Thanks.
+</div>
+</div>
+        </li>
+            <li>
+            <div class="message-box">
+                               <div class="message-author">
+                <a class="author-name" href="/users/fredt/" title="Fred Toussi">fredt</a><a href="/help/icon_legend.php?context=group_admin&amp;uname=fredt&amp;this_group=23316&amp;return_to=%2F"><img src="http://a.fsdn.com/sf/images/images/icons/prj_adm.png" alt="Project Admin" width="16" height="16" /></a> <br /><br />
+                <a href="/users/fredt"><img src="http://www.gravatar.com/avatar/98293ee64b84091d30ef476146cdde67.png?s=48&r=pg&d=http%3A%2F%2Fa.fsdn.com%2Fsf%2Fimages%2Fdevelop%2Fsf-profile-blank.gif" width="48" height="48" title="Avatar" /></a>
+                </div>
+<div class="message-content">
+<div class="message-date">2011-08-13 12:49:01 PDT</div>
+Changes have already been committed which allow cs.executeQuery() on a PROCEDURE that returns result sets.
+</div>
+</div>
+        </li>
+            <li>
+            <div class="message-box">
+                               <div class="message-author">
+                <a class="author-name" href="/users/proto8/" title="proto">proto8</a> <br /><br />
+                <a href="/users/proto8"><img src="http://www.gravatar.com/avatar/449b50d3c5106fdd1eff03986d02120c.png?s=48&r=pg&d=http%3A%2F%2Fa.fsdn.com%2Fsf%2Fimages%2Fdevelop%2Fsf-profile-blank.gif" width="48" height="48" title="Avatar" /></a>
+                </div>
+<div class="message-content">
+<div class="message-date">2011-08-21 12:34:38 PDT</div>
+Thanks, I'm looking forward to the next release.
+
+... but there is one more question. Can stored procedures return a value? (not out parameters) The call would be <code>? = call storedProc()</code>. I couldn't find it in the documentation and I'v also experimented a little but couldn't make it.
+If that's not implemented yet, will that make it into the next release?
+</div>
+</div>
+        </li>
+            <li>
+            <div class="message-box">
+                               <div class="message-author">
+                <a class="author-name" href="/users/fredt/" title="Fred Toussi">fredt</a><a href="/help/icon_legend.php?context=group_admin&amp;uname=fredt&amp;this_group=23316&amp;return_to=%2F"><img src="http://a.fsdn.com/sf/images/images/icons/prj_adm.png" alt="Project Admin" width="16" height="16" /></a> <br /><br />
+                <a href="/users/fredt"><img src="http://www.gravatar.com/avatar/98293ee64b84091d30ef476146cdde67.png?s=48&r=pg&d=http%3A%2F%2Fa.fsdn.com%2Fsf%2Fimages%2Fdevelop%2Fsf-profile-blank.gif" width="48" height="48" title="Avatar" /></a>
+                </div>
+<div class="message-content">
+<div class="message-date">2011-08-21 12:48:25 PDT</div>
+A stored procedure returns values in OUT parameter. The example you mention actually calls a stored procedure with a single OUT parameter. The parameter value can then be retrieved using one of the getXXX() methods of CallableStatement.
+
+You can try with the current release or the snapshot jar on the support page and define a procedure with one OUT parameter and call it.
+</div>
+</div>
+        </li>
+        </ol>
+    
+    </div>
+
+<div class="sfBox">
+    <div class="actions">
+        <form id="per-page">
+            
+<select name="perpage">
+	<option value="25" selected="selected">Show 25</option>
+	<option value="50">Show 50</option>
+	<option value="75">Show 75</option>
+	<option value="100">Show 100</option>
+</select>
+
+        </form>
+    </div>
+        <div class="actions" style="margin-right:300px;">
+        <form>Jump To: 
+            <select id="forum-jump">
+                <option>Select a Forum</option>
+                                    <option value="/projects/hsqldb/forums/forum/73674">Help</option>
+                                    <option value="/projects/hsqldb/forums/forum/94352">License Issues</option>
+                                    <option value="/projects/hsqldb/forums/forum/73673">Open Discussion</option>
+                            </select>
+        </form>
+    </div>
+        <!--
+See http://developer.yahoo.com/ypatterns/pattern.php?pattern=searchpagination
+-->
+
+<div class="paginationControl">
+<!-- Previous page link -->
+  <span class="disabled">&lt; Previous</span> |
+
+<!-- Numbered page links -->
+      1 |
+  
+<!-- Next page link -->
+  <span class="disabled">Next &gt;</span>
+</div>
+
+</div>
+
+<div class="sfBox" id="topic-reply">
+    <div class="header dotted-header-1">
+        <h2>Add a Reply</h2>
+                    <div class="error">
+            <p>This forum does not allow anonymous participation.</p>
+            <p><a href="/account/login.php">Log in</a> to add a reply. Not registered? <a href="/user/registration/">Create an account</a> to participate and receive email updates when replies are posted to this topic.</p>
+            </div>
+            </div>
+</div>
+
+            </div>
+        </div>
+      </div>
+    
+    <footer id="site-footer">
+        <div class="wrapper">
+            <nav>
+                <h5>SourceForge</h5>
+                <a href="/about">About</a>
+                <a href="/blog/category/sitestatus/">Site Status</a>
+                <a href="http://twitter.com/sfnet_ops">@sfnet_ops</a>
+            </nav>
+            <nav>
+                <h5>Find and Develop Software</h5>
+                <a href="/create/">Create a Project</a>
+                <a href="/directory/">Software Directory</a>
+                <a href="/top">Top Downloaded Projects</a>
+            </nav>
+            <nav>
+                <h5>Community</h5>
+                <a href="/blog/">Blog</a>
+                <a href="http://twitter.com/sourceforge">@sourceforge</a>
+                <a href="/jobs?source=footer">Job Board</a>
+                <a href="http://library.slashdotmedia.com/?source=sfnet_footer">Resources</a>
+            </nav>
+            <nav>
+                <h5>Help</h5>
+                <a href="http://p.sf.net/sourceforge/docs">Site Documentation</a>
+                <a href="/support">Support Request</a>
+                <a href="http://p.sf.net/sourceforge/irc">Real-Time Support</a>
+            </nav>
+        </div>
+    </footer>
+    <footer id="site-copyright-footer">
+        <div class="wrapper">
+            <div id="copyright">
+                Copyright &copy; 2013 SourceForge. All Rights Reserved.<br />
+                SourceForge is a <a href="http://www.diceholdingsinc.com/phoenix.zhtml?c=211152&amp;p=irol-landing">Dice Holdings, Inc.</a> company.
+            </div>
+            <nav>
+                <a href="http://slashdotmedia.com/terms-of-use">Terms</a>
+                <a href="http://slashdotmedia.com/privacy-statement/">Privacy</a>
+                <a href="http://slashdotmedia.com/opt-out-choices">Cookies/Opt Out</a>
+                <a href="http://slashdotmedia.com">Advertise</a>
+                <a href="http://sourceforge.jp/">SourceForge.JP</a>
+            </nav>
+        </div>
+    </footer>
+        <!--[if lt IE 7 ]>
+    <script type="text/javascript" src="http://static.sourceforge.net/include/js/sftheme/dd_belatedpng.js"></script>
+    <script> DD_belatedPNG.fix('img, .png_bg'); //fix any <img> or .png_bg background-images </script>
+    <![endif]-->
+<!--[if IE]></div><![endif]-->
+<!--[if IE 6]></div><![endif]-->
+<!--[if IE 7]></div><![endif]-->
+
+    
+    <!-- Begin comScore Tag -->
+    <script>
+        document.write(unescape("%3Cscript src='" + (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js' %3E%3C/script%3E"));
+    </script>
+    <script>
+        COMSCORE.beacon({
+            c1:2,
+            c2:6035546,
+            c3:"",
+            c4:"",
+            c5:"",
+            c6:"",
+            c15:""
+        });
+    </script>
+    <noscript>
+        <img src="http://b.scorecardresearch.com/p?c1=2&amp;c2=6035546&amp;c3=&amp;c4=&amp;c5=&amp;c6=&amp;c15=&amp;cj=1" />
+    </noscript>
+    <!-- End comScore Tag -->
+    
+
+    <!-- Piwik -->
+    <script type="text/javascript">
+        var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/hsqldb/" : "http://apps.sourceforge.net/piwik/hsqldb/");
+        document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        piwik_action_name = '';
+        piwik_idsite = 1;
+        piwik_url = pkBaseURL + "piwik.php";
+        piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+    </script>
+    <object><noscript><p><img src="http://apps.sourceforge.net/piwik/hsqldb/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+    <!-- End Piwik Tag -->
+
+
+
+        </div>
+    </body>
+</html>
+

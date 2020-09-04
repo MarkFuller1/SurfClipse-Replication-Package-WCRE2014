@@ -1,0 +1,771 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<title>  The What and Why of fixing java.lang.OutOfMemoryError: PermGen space</title>
+
+<meta name="generator" content="WordPress 2.6.3" /> <!-- leave this for stats -->
+
+<link rel="stylesheet" href="http://www.brokenbuild.com/blog/wp-content/themes/ProSense-Grey/style.css" type="text/css" media="screen" />
+<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://feeds.feedburner.com/BrokenBuildByWesMaldonado" />
+<link rel="alternate" type="text/xml" title="RSS .92" href="http://feeds.feedburner.com/BrokenBuildByWesMaldonado" />
+<link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="http://feeds.feedburner.com/BrokenBuildByWesMaldonado" />
+<link rel="pingback" href="http://www.brokenbuild.com/blog/xmlrpc.php" />
+
+
+	<link rel='archives' title='August 2011' href='http://www.brokenbuild.com/blog/2011/08/' />
+	<link rel='archives' title='August 2010' href='http://www.brokenbuild.com/blog/2010/08/' />
+	<link rel='archives' title='October 2009' href='http://www.brokenbuild.com/blog/2009/10/' />
+	<link rel='archives' title='May 2009' href='http://www.brokenbuild.com/blog/2009/05/' />
+	<link rel='archives' title='November 2008' href='http://www.brokenbuild.com/blog/2008/11/' />
+	<link rel='archives' title='August 2008' href='http://www.brokenbuild.com/blog/2008/08/' />
+	<link rel='archives' title='June 2008' href='http://www.brokenbuild.com/blog/2008/06/' />
+	<link rel='archives' title='May 2008' href='http://www.brokenbuild.com/blog/2008/05/' />
+	<link rel='archives' title='April 2008' href='http://www.brokenbuild.com/blog/2008/04/' />
+	<link rel='archives' title='March 2008' href='http://www.brokenbuild.com/blog/2008/03/' />
+	<link rel='archives' title='February 2008' href='http://www.brokenbuild.com/blog/2008/02/' />
+	<link rel='archives' title='January 2008' href='http://www.brokenbuild.com/blog/2008/01/' />
+	<link rel='archives' title='December 2007' href='http://www.brokenbuild.com/blog/2007/12/' />
+	<link rel='archives' title='November 2007' href='http://www.brokenbuild.com/blog/2007/11/' />
+	<link rel='archives' title='October 2007' href='http://www.brokenbuild.com/blog/2007/10/' />
+	<link rel='archives' title='September 2007' href='http://www.brokenbuild.com/blog/2007/09/' />
+	<link rel='archives' title='August 2007' href='http://www.brokenbuild.com/blog/2007/08/' />
+	<link rel='archives' title='July 2007' href='http://www.brokenbuild.com/blog/2007/07/' />
+	<link rel='archives' title='June 2007' href='http://www.brokenbuild.com/blog/2007/06/' />
+	<link rel='archives' title='May 2007' href='http://www.brokenbuild.com/blog/2007/05/' />
+	<link rel='archives' title='April 2007' href='http://www.brokenbuild.com/blog/2007/04/' />
+	<link rel='archives' title='March 2007' href='http://www.brokenbuild.com/blog/2007/03/' />
+	<link rel='archives' title='February 2007' href='http://www.brokenbuild.com/blog/2007/02/' />
+	<link rel='archives' title='January 2007' href='http://www.brokenbuild.com/blog/2007/01/' />
+	<link rel='archives' title='December 2006' href='http://www.brokenbuild.com/blog/2006/12/' />
+	<link rel='archives' title='November 2006' href='http://www.brokenbuild.com/blog/2006/11/' />
+	<link rel='archives' title='October 2006' href='http://www.brokenbuild.com/blog/2006/10/' />
+	<link rel='archives' title='September 2006' href='http://www.brokenbuild.com/blog/2006/09/' />
+	<link rel='archives' title='August 2006' href='http://www.brokenbuild.com/blog/2006/08/' />
+	<link rel='archives' title='July 2006' href='http://www.brokenbuild.com/blog/2006/07/' />
+	<link rel='archives' title='June 2006' href='http://www.brokenbuild.com/blog/2006/06/' />
+	<link rel='archives' title='May 2006' href='http://www.brokenbuild.com/blog/2006/05/' />
+	<link rel='archives' title='April 2006' href='http://www.brokenbuild.com/blog/2006/04/' />
+	<link rel='archives' title='March 2006' href='http://www.brokenbuild.com/blog/2006/03/' />
+	<link rel='archives' title='February 2006' href='http://www.brokenbuild.com/blog/2006/02/' />
+	<link rel='archives' title='January 2006' href='http://www.brokenbuild.com/blog/2006/01/' />
+	<link rel='archives' title='December 2005' href='http://www.brokenbuild.com/blog/2005/12/' />
+	<link rel='archives' title='November 2005' href='http://www.brokenbuild.com/blog/2005/11/' />
+	<link rel='archives' title='May 2005' href='http://www.brokenbuild.com/blog/2005/05/' />
+	<link rel='archives' title='April 2005' href='http://www.brokenbuild.com/blog/2005/04/' />
+	<link rel='archives' title='March 2005' href='http://www.brokenbuild.com/blog/2005/03/' />
+	<link rel='archives' title='February 2005' href='http://www.brokenbuild.com/blog/2005/02/' />
+	<link rel='archives' title='January 2005' href='http://www.brokenbuild.com/blog/2005/01/' />
+	<link rel='archives' title='December 2004' href='http://www.brokenbuild.com/blog/2004/12/' />
+	<link rel='archives' title='November 2004' href='http://www.brokenbuild.com/blog/2004/11/' />
+
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://www.brokenbuild.com/blog/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://www.brokenbuild.com/blog/wp-includes/wlwmanifest.xml" /> 
+<meta name="generator" content="WordPress 2.6.3" />
+
+</head>
+<body>
+
+<div id="page">
+
+<div id="header">
+	
+	
+		<div id="header_left">
+			<h1><a href="http://www.brokenbuild.com/blog">Wes Maldonado:  Data Junkie</a></h1>
+			<div class="description">Databases, code and all things agile.</div>
+		</div>
+	
+		<div id="header_right">
+			<div id="subscribe">
+				<a href="http://www.brokenbuild.com/blog/feed/rss/" title="Subscribe to RSS feed" rel="nofollow"><img src="http://www.brokenbuild.com/blog/wp-content/themes/ProSense-Grey/images/rss-feed-icon.jpg" alt="Subscribe to RSS feed" /></a>
+			</div>
+		</div>
+		<div style="clear:both;"></div>
+	
+	
+</div>
+<hr />
+<div id="wrapper">
+	<div id="content">
+				
+  	
+		<div class="navigation">
+			<div class="alignleft">&laquo; <a href="http://www.brokenbuild.com/blog/2008/01/26/washington-state-considers-allowing-craft-distilleries/">Washington State considers allowing craft distilleries.</a></div>
+			<div class="alignright"><a href="http://www.brokenbuild.com/blog/2008/01/29/seattle-scrum-meeting-jan-31st-2008-featuring-james-shore/">Seattle Scrum Meeting Jan 31st, 2008 Featuring James Shore</a> &raquo;</div>
+			<div style="clear:both;"></div>
+		</div>
+	
+		<div class="post" id="post-595">
+			<h2><a href="http://www.brokenbuild.com/blog/2008/01/29/the-what-and-why-of-fixing-javalangoutofmemoryerror-permgen-space/" rel="bookmark" title="Permanent Link: The What and Why of fixing java.lang.OutOfMemoryError: PermGen space">The What and Why of fixing java.lang.OutOfMemoryError: PermGen space</a></h2>
+	
+			<div class="entrytext">
+	
+				<div id="adsense_singlepost_top_square">
+</div>
+				
+				<p>The permanent generation is the area of heap that holds all the reflective data of the virtual machine 
+itself, such as class and method objects (also called â€œmethod areaâ€�? in The Java Virtual Machine 
+Specification).</p>
+
+<blockquote>
+  <p>Translation:  PermGen holds the information that makes the JVM work.</p>
+</blockquote>
+
+<h2>Why do you care?</h2>
+
+<p>If an application loads â€œtoo manyâ€�? classes then it is possible it will abort with an OutOfMemoryError. 
+The specific error is: â€œException in thread XXXX java.lang.OutOfMemoryError: PermGen spaceâ€�?</p>
+
+<blockquote>
+  <p>Translation:  The <em>JVM itself</em> needs memory to be able to run your application.  The PermGen is information about the classes that make up your application.  Web applications and Servlet containers often need more PermGen memory than the JVM defaults to be able to run.</p>
+</blockquote>
+
+<h2>Fixing the  java.lang.OutOfMemoryError: PermGen space error.</h2>
+
+<p>Start your JVM with <code>-XX:MaxPermSize=XXXm</code> where XXX is a number like 128, 256.  This will allow the JVM to allocate XXX megabytes of memory for the PermGen space <a href="http://www.unixville.com/~moazam/stories/2004/05/17/maxpermsizeAndHowItRelatesToTheOverallHeap.html" onclick="javascript:pageTracker._trackPageview('/outbound/article/www.unixville.com');">if that space is needed</a>. Here are the quick guides to configuring memory options for some popular containers.  If you still have issues see my other posts about tracking down your possible memory leaks.</p>
+
+<ul>
+<li><a href="http://wiki.apache.org/tomcat/FAQ/Memory" onclick="javascript:pageTracker._trackPageview('/outbound/article/wiki.apache.org');">Configuring memory options for Tomcat</a> </li>
+<li><a href="http://wiki.jboss.org/wiki/Wiki.jsp?page=OutOfMemoryExceptions" onclick="javascript:pageTracker._trackPageview('/outbound/article/wiki.jboss.org');">Configuring memory options for JBoss</a></li>
+<li><a href="http://edocs.bea.com/jrockit/docs70/userguide/jvm.html#1032820" onclick="javascript:pageTracker._trackPageview('/outbound/article/edocs.bea.com');">Configuring memory options for BEA Weblogic JRockit 7.0</a></li>
+</ul>
+
+<p>I highly recommend reading <a href="http://www.amazon.com/dp/1590596102?tag=brokenbudataj-20&amp;camp=14573&amp;creative=327641&amp;linkCode=as1&amp;creativeASIN=1590596102&amp;adid=09P49HTHCZNWKMCW08E8&amp;" onclick="javascript:pageTracker._trackPageview('/outbound/article/www.amazon.com');">Pro Java EE 5 Performance Management</a>   if you&#8217;ve read this far into this post.</p>
+
+<div style="float: left; margin-right: 10px; margin-bottom: 5px;"><iframe src="http://rcm.amazon.com/e/cm?t=brokenbudataj-20&#038;o=1&#038;p=8&#038;l=as1&#038;asins=1590596102&#038;fc1=000000&#038;IS2=1&#038;lt1=_blank&#038;lc1=0000FF&#038;bc1=000000&#038;bg1=FFFFFF&#038;f=ifr" style="width:120px;height:250px;" scrolling="no" marginwidth="5" marginheight="5" frameborder="0"></iframe></div>
+
+<p>Translated from a giant PDF: <a href="http://java.sun.com/j2se/1.5/pdf/jdk50_ts_guide.pdf" onclick="javascript:pageTracker._trackPageview('/outbound/article/java.sun.com');">Java 1.5 TS, Section 1.3.3</a></p>
+
+<script type="text/javascript" src="http://cetrk.com/pages/scripts/0007/2652.js"> </script>
+	
+								
+				<div style="clear:both;"></div>
+			        <script src="http://feeds.feedburner.com/~s/BrokenBuildByWesMaldonado?i=http://www.brokenbuild.com/blog/2008/01/29/the-what-and-why-of-fixing-javalangoutofmemoryerror-permgen-space/" type="text/javascript" charset="utf-8"></script>	
+				<div>
+				
+		<div>
+			<h3>Related Posts:</h3>
+			<ul>
+<h3>Random Posts</h3><ul class="related_post"><li><a href="http://www.brokenbuild.com/blog/2007/06/03/worst-conference-acronymn-ever-moist/" title="Worst conference acronymn ever?  MOIST">Worst conference acronymn ever?  MOIST</a></li><li><a href="http://www.brokenbuild.com/blog/2006/09/13/strongtalk-smalltalk-with-a-need-for-speed/" title="Strongtalk:  Smalltalk with a need for speed.">Strongtalk:  Smalltalk with a need for speed.</a></li><li><a href="http://www.brokenbuild.com/blog/2006/06/14/software-development-engineer-in-test-the-chilling-truth-behind-the-sdet-acronym/" title="Software Development Engineer in Test:  The chilling truth behind the SDET acronym!">Software Development Engineer in Test:  The chilling truth behind the SDET acronym!</a></li><li><a href="http://www.brokenbuild.com/blog/2006/11/27/out-of-the-office-today-4-feet-of-new-snow-at-baker/" title="Out of the Office Today, 4 feet of new snow at Baker.">Out of the Office Today, 4 feet of new snow at Baker.</a></li><li><a href="http://www.brokenbuild.com/blog/2006/04/03/free-design-patterns-scrum-unit-testing-and-agile-use-cases-tutorials-from-netobjectives/" title="Free Design Patterns, Scrum, Unit Testing, and Agile Use Cases Tutorials from NetObjectives">Free Design Patterns, Scrum, Unit Testing, and Agile Use Cases Tutorials from NetObjectives</a></li></ul></ul>
+</li>
+		</div>	
+	
+				<p class="postmetadata alt">
+					<small>
+						This entry was posted
+						
+						on Tuesday, January 29th, 2008 at 12:41 am						and is filed under <a href="http://www.brokenbuild.com/blog/category/java/" title="View all posts in Java" rel="category tag">Java</a>,  <a href="http://www.brokenbuild.com/blog/category/permgen/" title="View all posts in PermGen" rel="category tag">PermGen</a>.
+						You can follow any responses to this entry through the <a href='http://www.brokenbuild.com/blog/2008/01/29/the-what-and-why-of-fixing-javalangoutofmemoryerror-permgen-space/feed/'>RSS 2.0</a> feed. 
+						
+													You can <a href="#respond">leave a response</a>, or <a href="http://www.brokenbuild.com/blog/2008/01/29/the-what-and-why-of-fixing-javalangoutofmemoryerror-permgen-space/trackback/" rel="trackback">trackback</a> from your own site.
+						
+												
+					</small>
+				</p>
+				</div>
+			
+			</div>
+		</div>
+		
+	<div id="adsense_singlepost_bottom_square">
+<script type="text/javascript"><!--
+google_ad_client = "pub-3271692061868126";
+//BrokenBuild-Bottom-Square, created 11/18/07
+google_ad_slot = "7477039135";
+google_ad_width = 336;
+google_ad_height = 280;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
+			
+	
+<!-- You can start editing here. -->
+
+	<h3 id="comments">2 Responses to &#8220;The What and Why of fixing java.lang.OutOfMemoryError: PermGen space&#8221;</h3> 
+
+	<ol class="commentlist">
+
+	
+		<li class="alt" id="comment-48615">
+			<div id="comment_title"><a href="http://www.brokenbuild.com/blog/2006/08/04/java-jvm-gc-permgen-and-memory-options/"   rel='external nofollow'>Java JVM GC, PermGen, and Memory Options</a> on <a href="#comment-48615" title="">January 29th, 2008 at 12:44 am</a> 						</div>
+			
+
+			<p>[...] &#8220;30. Should I increase the size of the permanent generation in the client vm? The What and Why of fixing java.lang.OutOfMemoryError: PermGen space for JBoss, Tomcat, and Weblogic [...]</p>
+		</li>
+
+	
+	
+		<li class="" id="comment-93394">
+			<div id="comment_title"><a href="http://newonlinebible.com" onclick="javascript:pageTracker._trackPageview('/outbound/commentauthor/newonlinebible.com');"  rel='external nofollow'>nepoez</a> on <a href="#comment-93394" title="">July 5th, 2010 at 10:07 am</a> 						</div>
+			
+
+			<p>Yeah but if you deploy your web app enough times to jboss it will still happen, increasing the permgen space is just gonna allow more times but the memory is never freed until restarting of JVM</p>
+		</li>
+
+	
+	
+	</ol>
+
+ 
+
+
+<h3 id="respond">Leave a Reply</h3>
+
+
+<form action="http://www.brokenbuild.com/blog/wp-comments-post.php" method="post" id="commentform">
+
+
+<p><input type="text" name="author" id="author" value="" size="22" tabindex="1" />
+<label for="author"><small>Name (required)</small></label></p>
+
+<p><input type="text" name="email" id="email" value="" size="22" tabindex="2" />
+<label for="email"><small>Mail (will not be published) (required)</small></label></p>
+
+<p><input type="text" name="url" id="url" value="" size="22" tabindex="3" />
+<label for="url"><small>Website</small></label></p>
+
+
+<!--<p><small><strong>XHTML:</strong> You can use these tags: &lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;strike&gt; &lt;strong&gt; </small></p>-->
+
+<p><textarea name="comment" id="comment" cols="100%" rows="10" tabindex="4"></textarea></p>
+
+<p><input name="submit" type="submit" id="submit" tabindex="5" value="Submit Comment" />
+<input type="hidden" name="comment_post_ID" value="595" />
+</p>
+
+</form>
+
+
+	
+		
+	</div>
+	
+	<div id="sidebar">
+				
+		<div class="sidebar_left">
+			<ul>
+				<li>
+					<script type="text/javascript"><!--
+google_ad_client = "pub-3271692061868126";
+//Homepage-Skyscraper created 11/18/07
+google_ad_slot = "1936126769";
+google_ad_width = 160;
+google_ad_height = 600;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+				</li>
+			
+						
+							
+			</ul>
+			
+		</div>
+
+		<div class="sidebar_right">
+			<ul>
+							<li>
+					<div>
+<form method="get" action="http://www.google.com/custom" target="_top" id="searchform">
+<input type="hidden" name="domains" value="www.brokenbuild.com"></input>
+<input type="text" name="q" size="18" maxlength="255" value="Search..." id="sbi" onfocus="if (this.value == 'Search...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search...';}" ></input>
+<input type="hidden" name="sitesearch" value="www.brokenbuild.com" id="ss0"></input>
+<input type="hidden" name="sa" value="Search using Google" id="sbb"></input>
+<input type="hidden" name="client" value="pub-3271692061868126"></input>
+<input type="hidden" name="forid" value="1"></input>
+<input type="hidden" name="channel" value="8541235508"></input>
+<input type="hidden" name="ie" value="ISO-8859-1"></input>
+<input type="hidden" name="oe" value="ISO-8859-1"></input>
+<input type="hidden" name="safe" value="active"></input>
+<input type="hidden" name="flav" value="0000"></input>
+<input type="hidden" name="sig" value="B2ZKqYFdI6-yhJQm"></input>
+<input type="hidden" name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:336699;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;FORID:1"></input>
+<input type="hidden" name="hl" value="en"></input>
+</form>
+</div>
+				</li>
+	                        <li><h2>Related Posts</h2>
+<ul>
+<h3>Random Posts</h3><ul class="related_post"><li><a href="http://www.brokenbuild.com/blog/2007/03/01/f-22-raptors-trains-and-the-problems-of-timezones-and-daylight-savings/" title="F-22 Raptors, Trains and the problems of timezones and daylight savings.">F-22 Raptors, Trains and the problems of timezones and daylight savings.</a></li><li><a href="http://www.brokenbuild.com/blog/2008/01/08/agility-in-99-words/" title="Agility in 99 Words">Agility in 99 Words</a></li><li><a href="http://www.brokenbuild.com/blog/2008/02/11/amazing-avalanche-photos-from-stevens-pass-in-the-cascades/" title="Amazing avalanche photos from Stevens Pass in the Cascades">Amazing avalanche photos from Stevens Pass in the Cascades</a></li><li><a href="http://www.brokenbuild.com/blog/2006/04/15/on-technology/" title="On Technology">On Technology</a></li><li><a href="http://www.brokenbuild.com/blog/2007/01/03/faviconico-can-be-a-bandwidth-hog-if-its-70k/" title="FavIcon.ico can be a bandwidth hog&#8230; if it&#8217;s 70K.">FavIcon.ico can be a bandwidth hog&#8230; if it&#8217;s 70K.</a></li></ul></ul>
+</li>
+<li>
+   <ul> <h2>Tweets for <a href="http://twitter.com/wes">@wes</a></h2>
+<script src="http://widgets.twimg.com/j/2/widget.js"></script>
+<script>
+new TWTR.Widget({
+  version: 2,
+  type: 'profile',
+  rpp: 4,
+  interval: 6000,
+  width: 190,
+  height: 300,
+  theme: {
+    shell: {
+      background: '#5C82EF',
+      color: '#333333'
+    },
+    tweets: {
+      background: '#ffffff',
+      color: '#000000',
+      links: '#5C82EF'
+    }
+  },
+  features: {
+    scrollbar: false,
+    loop: true,
+    live: false,
+    hashtags: true,
+    timestamp: true,
+    avatars: false,
+    behavior: 'all'
+  }
+}).render().setUser('wes').start();
+</script>
+    </ul>
+</li>
+
+				<li><h2>Recent Entries</h2>
+				<ul>
+															<li><a href="http://www.brokenbuild.com/blog/2011/08/19/real-life-mario-coin-block/">Real Life Mario Coin Block</a></li>
+										<li><a href="http://www.brokenbuild.com/blog/2010/08/18/ruby-enterprise-edition-is-nice/">Ruby Enterprise Edition is nice.</a></li>
+										<li><a href="http://www.brokenbuild.com/blog/2009/10/11/sr-410-mp-107-10-11-2009/">SR-410 MP 107 10-11-2009</a></li>
+										<li><a href="http://www.brokenbuild.com/blog/2009/05/09/cleaning-up-your-address-book-on-os-x-with-ruby/">Cleaning up your Address Book on OS X with Ruby</a></li>
+									</ul>
+				</li>
+				<li class="pagenav"><h2>Pages</h2><ul><li class="page_item page-item-48"><a href="http://www.brokenbuild.com/blog/interview-questions/" title="Interview Questions">Interview Questions</a></li>
+<li class="page_item page-item-599"><a href="http://www.brokenbuild.com/blog/java-programming-books/" title="Java Programming Books">Java Programming Books</a></li>
+<li class="page_item page-item-645"><a href="http://www.brokenbuild.com/blog/rails-rumble-2008/" title="Rails Rumble 2008">Rails Rumble 2008</a></li>
+<li class="page_item page-item-111"><a href="http://www.brokenbuild.com/blog/scrum-info/" title="Scrum Info">Scrum Info</a></li>
+<li class="page_item page-item-133"><a href="http://www.brokenbuild.com/blog/test-driven-development/" title="Test Driven Development">Test Driven Development</a></li>
+<li class="page_item page-item-57"><a href="http://www.brokenbuild.com/blog/things-to-read/" title="Things to Read">Things to Read</a>
+<ul>
+	<li class="page_item page-item-59"><a href="http://www.brokenbuild.com/blog/things-to-read/articles-by-other-people-you-should-read/" title="Articles">Articles</a></li>
+	<li class="page_item page-item-58"><a href="http://www.brokenbuild.com/blog/things-to-read/books/" title="Books">Books</a></li>
+</ul>
+</li>
+<li class="page_item page-item-552"><a href="http://www.brokenbuild.com/blog/wes-maldonado-contact-information/" title="Wes Maldonado Contact Information">Wes Maldonado Contact Information</a></li>
+</ul></li>				
+				<li><h2>Archives</h2>
+				<ul>
+					<li><a href='http://www.brokenbuild.com/blog/2011/08/' title='August 2011'>August 2011</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2010/08/' title='August 2010'>August 2010</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2009/10/' title='October 2009'>October 2009</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2009/05/' title='May 2009'>May 2009</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2008/11/' title='November 2008'>November 2008</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2008/08/' title='August 2008'>August 2008</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2008/06/' title='June 2008'>June 2008</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2008/05/' title='May 2008'>May 2008</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2008/04/' title='April 2008'>April 2008</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2008/03/' title='March 2008'>March 2008</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2008/02/' title='February 2008'>February 2008</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2008/01/' title='January 2008'>January 2008</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/12/' title='December 2007'>December 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/11/' title='November 2007'>November 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/10/' title='October 2007'>October 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/09/' title='September 2007'>September 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/08/' title='August 2007'>August 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/07/' title='July 2007'>July 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/06/' title='June 2007'>June 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/05/' title='May 2007'>May 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/04/' title='April 2007'>April 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/03/' title='March 2007'>March 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/02/' title='February 2007'>February 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2007/01/' title='January 2007'>January 2007</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/12/' title='December 2006'>December 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/11/' title='November 2006'>November 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/10/' title='October 2006'>October 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/09/' title='September 2006'>September 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/08/' title='August 2006'>August 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/07/' title='July 2006'>July 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/06/' title='June 2006'>June 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/05/' title='May 2006'>May 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/04/' title='April 2006'>April 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/03/' title='March 2006'>March 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/02/' title='February 2006'>February 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2006/01/' title='January 2006'>January 2006</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2005/12/' title='December 2005'>December 2005</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2005/11/' title='November 2005'>November 2005</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2005/05/' title='May 2005'>May 2005</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2005/04/' title='April 2005'>April 2005</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2005/03/' title='March 2005'>March 2005</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2005/02/' title='February 2005'>February 2005</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2005/01/' title='January 2005'>January 2005</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2004/12/' title='December 2004'>December 2004</a></li>
+	<li><a href='http://www.brokenbuild.com/blog/2004/11/' title='November 2004'>November 2004</a></li>
+				</ul>
+				</li>			
+				<li><h2>Categories</h2>
+					<ul>
+						<li class="cat-item cat-item-131"><a href="http://www.brokenbuild.com/blog/category/agile-project-leadership-network/" title="View all posts filed under Agile Project Leadership Network">Agile Project Leadership Network</a> (1)
+</li>
+	<li class="cat-item cat-item-6"><a href="http://www.brokenbuild.com/blog/category/agility/" title="Everything agile.">Agility</a> (38)
+<ul class='children'>
+	<li class="cat-item cat-item-7"><a href="http://www.brokenbuild.com/blog/category/agility/extreme-programming/" title="View all posts filed under Extreme Programming">Extreme Programming</a> (10)
+</li>
+	<li class="cat-item cat-item-8"><a href="http://www.brokenbuild.com/blog/category/agility/scrum/" title="View all posts filed under Scrum">Scrum</a> (7)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-81"><a href="http://www.brokenbuild.com/blog/category/ajax/" title="View all posts filed under AJAX">AJAX</a> (4)
+</li>
+	<li class="cat-item cat-item-123"><a href="http://www.brokenbuild.com/blog/category/amazon/" title="View all posts filed under Amazon">Amazon</a> (1)
+</li>
+	<li class="cat-item cat-item-106"><a href="http://www.brokenbuild.com/blog/category/amazon-ec2/" title="View all posts filed under Amazon EC2">Amazon EC2</a> (2)
+</li>
+	<li class="cat-item cat-item-124"><a href="http://www.brokenbuild.com/blog/category/amazon-inc/" title="View all posts filed under Amazon Inc">Amazon Inc</a> (1)
+</li>
+	<li class="cat-item cat-item-64"><a href="http://www.brokenbuild.com/blog/category/amazon-s3/" title="View all posts filed under Amazon S3">Amazon S3</a> (3)
+</li>
+	<li class="cat-item cat-item-162"><a href="http://www.brokenbuild.com/blog/category/amazon-simpledb/" title="View all posts filed under Amazon SimpleDB">Amazon SimpleDB</a> (1)
+</li>
+	<li class="cat-item cat-item-59"><a href="http://www.brokenbuild.com/blog/category/animals/" title="View all posts filed under Animals">Animals</a> (5)
+</li>
+	<li class="cat-item cat-item-142"><a href="http://www.brokenbuild.com/blog/category/apartment-hunting/" title="View all posts filed under Apartment Hunting">Apartment Hunting</a> (1)
+</li>
+	<li class="cat-item cat-item-44"><a href="http://www.brokenbuild.com/blog/category/api-design/" title="View all posts filed under API Design">API Design</a> (2)
+</li>
+	<li class="cat-item cat-item-87"><a href="http://www.brokenbuild.com/blog/category/apple/" title="View all posts filed under Apple">Apple</a> (2)
+</li>
+	<li class="cat-item cat-item-141"><a href="http://www.brokenbuild.com/blog/category/apple-inc/" title="View all posts filed under Apple Inc">Apple Inc</a> (3)
+</li>
+	<li class="cat-item cat-item-160"><a href="http://www.brokenbuild.com/blog/category/bash/" title="View all posts filed under Bash">Bash</a> (1)
+</li>
+	<li class="cat-item cat-item-75"><a href="http://www.brokenbuild.com/blog/category/bdd/" title="View all posts filed under BDD">BDD</a> (5)
+</li>
+	<li class="cat-item cat-item-104"><a href="http://www.brokenbuild.com/blog/category/between-jobs/" title="View all posts filed under between jobs">between jobs</a> (4)
+</li>
+	<li class="cat-item cat-item-51"><a href="http://www.brokenbuild.com/blog/category/booze/" title="View all posts filed under Booze">Booze</a> (3)
+</li>
+	<li class="cat-item cat-item-67"><a href="http://www.brokenbuild.com/blog/category/build-process/" title="View all posts filed under Build Process">Build Process</a> (3)
+</li>
+	<li class="cat-item cat-item-29"><a href="http://www.brokenbuild.com/blog/category/business/" title="View all posts filed under Business">Business</a> (8)
+</li>
+	<li class="cat-item cat-item-90"><a href="http://www.brokenbuild.com/blog/category/cell-phones/" title="View all posts filed under Cell Phones">Cell Phones</a> (4)
+</li>
+	<li class="cat-item cat-item-37"><a href="http://www.brokenbuild.com/blog/category/chilean-sea-bass/" title="View all posts filed under Chilean Sea Bass">Chilean Sea Bass</a> (2)
+</li>
+	<li class="cat-item cat-item-36"><a href="http://www.brokenbuild.com/blog/category/climate-change/" title="View all posts filed under Climate Change">Climate Change</a> (1)
+</li>
+	<li class="cat-item cat-item-70"><a href="http://www.brokenbuild.com/blog/category/clr/" title="View all posts filed under CLR">CLR</a> (2)
+</li>
+	<li class="cat-item cat-item-4"><a href="http://www.brokenbuild.com/blog/category/code/" title="View all posts filed under Code">Code</a> (65)
+</li>
+	<li class="cat-item cat-item-56"><a href="http://www.brokenbuild.com/blog/category/comics/" title="View all posts filed under Comics">Comics</a> (1)
+</li>
+	<li class="cat-item cat-item-89"><a href="http://www.brokenbuild.com/blog/category/comment-moderation/" title="View all posts filed under Comment Moderation">Comment Moderation</a> (1)
+</li>
+	<li class="cat-item cat-item-48"><a href="http://www.brokenbuild.com/blog/category/community-technology/" title="View all posts filed under Community Technology">Community Technology</a> (2)
+</li>
+	<li class="cat-item cat-item-53"><a href="http://www.brokenbuild.com/blog/category/confessional/" title="View all posts filed under Confessional">Confessional</a> (2)
+</li>
+	<li class="cat-item cat-item-148"><a href="http://www.brokenbuild.com/blog/category/dapper/" title="View all posts filed under Dapper">Dapper</a> (1)
+</li>
+	<li class="cat-item cat-item-97"><a href="http://www.brokenbuild.com/blog/category/dates-and-time/" title="View all posts filed under Dates and Time">Dates and Time</a> (1)
+</li>
+	<li class="cat-item cat-item-80"><a href="http://www.brokenbuild.com/blog/category/debugging/" title="View all posts filed under Debugging">Debugging</a> (1)
+</li>
+	<li class="cat-item cat-item-84"><a href="http://www.brokenbuild.com/blog/category/design-patterns/" title="View all posts filed under Design Patterns">Design Patterns</a> (3)
+</li>
+	<li class="cat-item cat-item-85"><a href="http://www.brokenbuild.com/blog/category/domain-driven-design/" title="View all posts filed under Domain Driven Design">Domain Driven Design</a> (3)
+</li>
+	<li class="cat-item cat-item-133"><a href="http://www.brokenbuild.com/blog/category/dorkbot/" title="View all posts filed under Dorkbot">Dorkbot</a> (1)
+</li>
+	<li class="cat-item cat-item-41"><a href="http://www.brokenbuild.com/blog/category/dotnet/" title="View all posts filed under dotnet">dotnet</a> (2)
+</li>
+	<li class="cat-item cat-item-26"><a href="http://www.brokenbuild.com/blog/category/drinks-on-the-links/" title="View all posts filed under Drinks on the Links">Drinks on the Links</a> (1)
+</li>
+	<li class="cat-item cat-item-28"><a href="http://www.brokenbuild.com/blog/category/drupal/" title="View all posts filed under Drupal">Drupal</a> (1)
+</li>
+	<li class="cat-item cat-item-125"><a href="http://www.brokenbuild.com/blog/category/ebook/" title="View all posts filed under EBook">EBook</a> (1)
+</li>
+	<li class="cat-item cat-item-156"><a href="http://www.brokenbuild.com/blog/category/email/" title="View all posts filed under Email">Email</a> (1)
+</li>
+	<li class="cat-item cat-item-35"><a href="http://www.brokenbuild.com/blog/category/environment/" title="View all posts filed under Environment">Environment</a> (2)
+</li>
+	<li class="cat-item cat-item-31"><a href="http://www.brokenbuild.com/blog/category/evangelism/" title="View all posts filed under Evangelism">Evangelism</a> (1)
+</li>
+	<li class="cat-item cat-item-78"><a href="http://www.brokenbuild.com/blog/category/evolution/" title="View all posts filed under Evolution">Evolution</a> (2)
+</li>
+	<li class="cat-item cat-item-61"><a href="http://www.brokenbuild.com/blog/category/firefox/" title="View all posts filed under FireFox">FireFox</a> (3)
+</li>
+	<li class="cat-item cat-item-145"><a href="http://www.brokenbuild.com/blog/category/fit/" title="View all posts filed under FIT">FIT</a> (1)
+</li>
+	<li class="cat-item cat-item-33"><a href="http://www.brokenbuild.com/blog/category/fitfitnesse/" title="View all posts filed under Fit/Fitnesse">Fit/Fitnesse</a> (5)
+</li>
+	<li class="cat-item cat-item-112"><a href="http://www.brokenbuild.com/blog/category/flatulence/" title="View all posts filed under Flatulence">Flatulence</a> (1)
+</li>
+	<li class="cat-item cat-item-147"><a href="http://www.brokenbuild.com/blog/category/functional-programming/" title="View all posts filed under Functional Programming">Functional Programming</a> (1)
+</li>
+	<li class="cat-item cat-item-1"><a href="http://www.brokenbuild.com/blog/category/the-generic-top-level-container/" title="View all posts filed under General">General</a> (181)
+<ul class='children'>
+	<li class="cat-item cat-item-3"><a href="http://www.brokenbuild.com/blog/category/the-generic-top-level-container/database/" title="View all posts filed under Database">Database</a> (7)
+</li>
+	<li class="cat-item cat-item-10"><a href="http://www.brokenbuild.com/blog/category/the-generic-top-level-container/wess-boring-life/" title="Ramblings about wes&#039;s day to day life... not tech related, just wes relelated.">Wes&#039;s Boring Life</a> (136)
+	<ul class='children'>
+	<li class="cat-item cat-item-11"><a href="http://www.brokenbuild.com/blog/category/the-generic-top-level-container/wess-boring-life/can-i-quote-you-on-that/" title="Things heard and (mis)quoted.">Quotes</a> (21)
+</li>
+	</ul>
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-159"><a href="http://www.brokenbuild.com/blog/category/git/" title="View all posts filed under Git">Git</a> (1)
+</li>
+	<li class="cat-item cat-item-155"><a href="http://www.brokenbuild.com/blog/category/gmail/" title="View all posts filed under GMail">GMail</a> (2)
+</li>
+	<li class="cat-item cat-item-60"><a href="http://www.brokenbuild.com/blog/category/goats/" title="View all posts filed under Goats">Goats</a> (2)
+</li>
+	<li class="cat-item cat-item-40"><a href="http://www.brokenbuild.com/blog/category/google/" title="View all posts filed under Google">Google</a> (3)
+</li>
+	<li class="cat-item cat-item-157"><a href="http://www.brokenbuild.com/blog/category/google-gears/" title="View all posts filed under Google Gears">Google Gears</a> (1)
+</li>
+	<li class="cat-item cat-item-47"><a href="http://www.brokenbuild.com/blog/category/google-maps/" title="View all posts filed under Google Maps">Google Maps</a> (5)
+</li>
+	<li class="cat-item cat-item-2"><a href="http://www.brokenbuild.com/blog/category/google-suckage/" title="A comparison of some fairly reasonable attributes of two items and googles opinion of their suckage. ">Google Suckage</a> (1)
+</li>
+	<li class="cat-item cat-item-93"><a href="http://www.brokenbuild.com/blog/category/greasemonkey/" title="View all posts filed under GreaseMonkey">GreaseMonkey</a> (1)
+</li>
+	<li class="cat-item cat-item-25"><a href="http://www.brokenbuild.com/blog/category/grid-computing/" title="View all posts filed under Grid Computing">Grid Computing</a> (7)
+</li>
+	<li class="cat-item cat-item-17"><a href="http://www.brokenbuild.com/blog/category/hardware/" title="View all posts filed under Hardware">Hardware</a> (6)
+</li>
+	<li class="cat-item cat-item-135"><a href="http://www.brokenbuild.com/blog/category/hibernate/" title="View all posts filed under Hibernate">Hibernate</a> (1)
+</li>
+	<li class="cat-item cat-item-105"><a href="http://www.brokenbuild.com/blog/category/html-tags-time-forgot/" title="View all posts filed under HTML Tags Time Forgot">HTML Tags Time Forgot</a> (1)
+</li>
+	<li class="cat-item cat-item-158"><a href="http://www.brokenbuild.com/blog/category/http/" title="View all posts filed under HTTP">HTTP</a> (1)
+</li>
+	<li class="cat-item cat-item-73"><a href="http://www.brokenbuild.com/blog/category/iis/" title="View all posts filed under IIS">IIS</a> (1)
+</li>
+	<li class="cat-item cat-item-103"><a href="http://www.brokenbuild.com/blog/category/inbetween-jobs/" title="View all posts filed under Inbetween Jobs">Inbetween Jobs</a> (1)
+</li>
+	<li class="cat-item cat-item-150"><a href="http://www.brokenbuild.com/blog/category/internet-explorer/" title="View all posts filed under Internet Explorer">Internet Explorer</a> (1)
+</li>
+	<li class="cat-item cat-item-88"><a href="http://www.brokenbuild.com/blog/category/iphone/" title="View all posts filed under iPhone">iPhone</a> (2)
+</li>
+	<li class="cat-item cat-item-24"><a href="http://www.brokenbuild.com/blog/category/java/" title="View all posts filed under Java">Java</a> (24)
+</li>
+	<li class="cat-item cat-item-82"><a href="http://www.brokenbuild.com/blog/category/javascript/" title="View all posts filed under Javascript">Javascript</a> (3)
+</li>
+	<li class="cat-item cat-item-126"><a href="http://www.brokenbuild.com/blog/category/jruby/" title="View all posts filed under JRuby">JRuby</a> (3)
+</li>
+	<li class="cat-item cat-item-130"><a href="http://www.brokenbuild.com/blog/category/kanban/" title="View all posts filed under Kanban">Kanban</a> (1)
+</li>
+	<li class="cat-item cat-item-129"><a href="http://www.brokenbuild.com/blog/category/kokanee/" title="View all posts filed under Kokanee">Kokanee</a> (1)
+</li>
+	<li class="cat-item cat-item-132"><a href="http://www.brokenbuild.com/blog/category/lean/" title="View all posts filed under Lean">Lean</a> (1)
+</li>
+	<li class="cat-item cat-item-32"><a href="http://www.brokenbuild.com/blog/category/linguistics/" title="View all posts filed under linguistics">linguistics</a> (4)
+</li>
+	<li class="cat-item cat-item-5"><a href="http://www.brokenbuild.com/blog/category/linkblog/" title="Just links with short descriptions.">LinkBlog</a> (33)
+</li>
+	<li class="cat-item cat-item-114"><a href="http://www.brokenbuild.com/blog/category/llamas/" title="View all posts filed under Llamas">Llamas</a> (2)
+</li>
+	<li class="cat-item cat-item-117"><a href="http://www.brokenbuild.com/blog/category/london/" title="View all posts filed under London">London</a> (3)
+</li>
+	<li class="cat-item cat-item-39"><a href="http://www.brokenbuild.com/blog/category/love/" title="View all posts filed under Love">Love</a> (2)
+</li>
+	<li class="cat-item cat-item-50"><a href="http://www.brokenbuild.com/blog/category/mac-os-x/" title="View all posts filed under Mac OS X">Mac OS X</a> (1)
+</li>
+	<li class="cat-item cat-item-111"><a href="http://www.brokenbuild.com/blog/category/markup-syntaxes/" title="View all posts filed under Markup syntaxes">Markup syntaxes</a> (1)
+</li>
+	<li class="cat-item cat-item-46"><a href="http://www.brokenbuild.com/blog/category/mashup/" title="View all posts filed under Mashup">Mashup</a> (2)
+</li>
+	<li class="cat-item cat-item-98"><a href="http://www.brokenbuild.com/blog/category/mass-transit/" title="View all posts filed under Mass Transit">Mass Transit</a> (1)
+</li>
+	<li class="cat-item cat-item-66"><a href="http://www.brokenbuild.com/blog/category/maven2/" title="View all posts filed under Maven2">Maven2</a> (3)
+</li>
+	<li class="cat-item cat-item-13"><a href="http://www.brokenbuild.com/blog/category/media/" title="View all posts filed under Media">Media</a> (11)
+</li>
+	<li class="cat-item cat-item-86"><a href="http://www.brokenbuild.com/blog/category/mistakes/" title="View all posts filed under Mistakes">Mistakes</a> (3)
+</li>
+	<li class="cat-item cat-item-58"><a href="http://www.brokenbuild.com/blog/category/mock-objects/" title="View all posts filed under Mock Objects">Mock Objects</a> (1)
+</li>
+	<li class="cat-item cat-item-42"><a href="http://www.brokenbuild.com/blog/category/mono/" title="View all posts filed under Mono">Mono</a> (3)
+</li>
+	<li class="cat-item cat-item-22"><a href="http://www.brokenbuild.com/blog/category/mysql/" title="View all posts filed under MySQL">MySQL</a> (4)
+</li>
+	<li class="cat-item cat-item-20"><a href="http://www.brokenbuild.com/blog/category/need-a-job/" title="View all posts filed under Need A Job?">Need A Job?</a> (4)
+</li>
+	<li class="cat-item cat-item-45"><a href="http://www.brokenbuild.com/blog/category/odd-news/" title="View all posts filed under Odd News">Odd News</a> (3)
+</li>
+	<li class="cat-item cat-item-71"><a href="http://www.brokenbuild.com/blog/category/optimization/" title="View all posts filed under Optimization">Optimization</a> (6)
+</li>
+	<li class="cat-item cat-item-116"><a href="http://www.brokenbuild.com/blog/category/orm/" title="View all posts filed under ORM">ORM</a> (1)
+</li>
+	<li class="cat-item cat-item-139"><a href="http://www.brokenbuild.com/blog/category/os-x/" title="View all posts filed under OS X">OS X</a> (3)
+</li>
+	<li class="cat-item cat-item-122"><a href="http://www.brokenbuild.com/blog/category/overheard/" title="View all posts filed under Overheard">Overheard</a> (1)
+</li>
+	<li class="cat-item cat-item-119"><a href="http://www.brokenbuild.com/blog/category/paris/" title="View all posts filed under Paris">Paris</a> (1)
+</li>
+	<li class="cat-item cat-item-146"><a href="http://www.brokenbuild.com/blog/category/performance/" title="View all posts filed under Performance">Performance</a> (1)
+</li>
+	<li class="cat-item cat-item-101"><a href="http://www.brokenbuild.com/blog/category/perl/" title="View all posts filed under Perl">Perl</a> (2)
+</li>
+	<li class="cat-item cat-item-144"><a href="http://www.brokenbuild.com/blog/category/permgen/" title="View all posts filed under PermGen">PermGen</a> (3)
+</li>
+	<li class="cat-item cat-item-27"><a href="http://www.brokenbuild.com/blog/category/php/" title="View all posts filed under PHP">PHP</a> (3)
+</li>
+	<li class="cat-item cat-item-152"><a href="http://www.brokenbuild.com/blog/category/pirates/" title="View all posts filed under Pirates">Pirates</a> (1)
+</li>
+	<li class="cat-item cat-item-121"><a href="http://www.brokenbuild.com/blog/category/pony/" title="View all posts filed under Pony">Pony</a> (3)
+</li>
+	<li class="cat-item cat-item-95"><a href="http://www.brokenbuild.com/blog/category/power-text-editing/" title="View all posts filed under Power Text Editing">Power Text Editing</a> (2)
+</li>
+	<li class="cat-item cat-item-151"><a href="http://www.brokenbuild.com/blog/category/product-design/" title="View all posts filed under Product Design">Product Design</a> (1)
+</li>
+	<li class="cat-item cat-item-54"><a href="http://www.brokenbuild.com/blog/category/programming-language/" title="View all posts filed under Programming Language">Programming Language</a> (4)
+</li>
+	<li class="cat-item cat-item-102"><a href="http://www.brokenbuild.com/blog/category/refactoring/" title="View all posts filed under Refactoring">Refactoring</a> (1)
+</li>
+	<li class="cat-item cat-item-138"><a href="http://www.brokenbuild.com/blog/category/regular-expressions/" title="View all posts filed under Regular Expressions">Regular Expressions</a> (1)
+</li>
+	<li class="cat-item cat-item-57"><a href="http://www.brokenbuild.com/blog/category/rest/" title="View all posts filed under REST">REST</a> (3)
+</li>
+	<li class="cat-item cat-item-63"><a href="http://www.brokenbuild.com/blog/category/resume-fishing/" title="View all posts filed under Resume Fishing">Resume Fishing</a> (2)
+</li>
+	<li class="cat-item cat-item-108"><a href="http://www.brokenbuild.com/blog/category/robots/" title="View all posts filed under Robots">Robots</a> (1)
+</li>
+	<li class="cat-item cat-item-77"><a href="http://www.brokenbuild.com/blog/category/rspec/" title="View all posts filed under rSpec">rSpec</a> (2)
+</li>
+	<li class="cat-item cat-item-12"><a href="http://www.brokenbuild.com/blog/category/rssatomsyndication/" title="View all posts filed under RSS/Atom/Syndication">RSS/Atom/Syndication</a> (11)
+</li>
+	<li class="cat-item cat-item-76"><a href="http://www.brokenbuild.com/blog/category/ruby/" title="View all posts filed under Ruby">Ruby</a> (15)
+</li>
+	<li class="cat-item cat-item-115"><a href="http://www.brokenbuild.com/blog/category/ruby-on-rails/" title="View all posts filed under Ruby on Rails">Ruby on Rails</a> (6)
+</li>
+	<li class="cat-item cat-item-110"><a href="http://www.brokenbuild.com/blog/category/san-francisco/" title="View all posts filed under San Francisco">San Francisco</a> (1)
+</li>
+	<li class="cat-item cat-item-65"><a href="http://www.brokenbuild.com/blog/category/scalability/" title="View all posts filed under Scalability">Scalability</a> (11)
+</li>
+	<li class="cat-item cat-item-9"><a href="http://www.brokenbuild.com/blog/category/scm/" title="View all posts filed under SCM">SCM</a> (8)
+</li>
+	<li class="cat-item cat-item-72"><a href="http://www.brokenbuild.com/blog/category/seattle/" title="View all posts filed under Seattle">Seattle</a> (20)
+</li>
+	<li class="cat-item cat-item-43"><a href="http://www.brokenbuild.com/blog/category/second-life/" title="View all posts filed under Second Life">Second Life</a> (4)
+</li>
+	<li class="cat-item cat-item-79"><a href="http://www.brokenbuild.com/blog/category/security/" title="View all posts filed under Security">Security</a> (3)
+</li>
+	<li class="cat-item cat-item-34"><a href="http://www.brokenbuild.com/blog/category/selenium/" title="View all posts filed under Selenium">Selenium</a> (6)
+</li>
+	<li class="cat-item cat-item-19"><a href="http://www.brokenbuild.com/blog/category/site-updates/" title="View all posts filed under Site Updates">Site Updates</a> (7)
+</li>
+	<li class="cat-item cat-item-16"><a href="http://www.brokenbuild.com/blog/category/skiing/" title="View all posts filed under Skiing">Skiing</a> (5)
+</li>
+	<li class="cat-item cat-item-55"><a href="http://www.brokenbuild.com/blog/category/smalltalk/" title="View all posts filed under Smalltalk">Smalltalk</a> (2)
+</li>
+	<li class="cat-item cat-item-128"><a href="http://www.brokenbuild.com/blog/category/snow/" title="View all posts filed under Snow">Snow</a> (5)
+</li>
+	<li class="cat-item cat-item-100"><a href="http://www.brokenbuild.com/blog/category/speech-recognition/" title="View all posts filed under Speech Recognition">Speech Recognition</a> (1)
+</li>
+	<li class="cat-item cat-item-30"><a href="http://www.brokenbuild.com/blog/category/start-up/" title="View all posts filed under Start Up">Start Up</a> (2)
+</li>
+	<li class="cat-item cat-item-68"><a href="http://www.brokenbuild.com/blog/category/subversion/" title="View all posts filed under Subversion">Subversion</a> (2)
+</li>
+	<li class="cat-item cat-item-140"><a href="http://www.brokenbuild.com/blog/category/super-dork/" title="View all posts filed under Super Dork">Super Dork</a> (2)
+</li>
+	<li class="cat-item cat-item-107"><a href="http://www.brokenbuild.com/blog/category/tattoo/" title="View all posts filed under Tattoo">Tattoo</a> (1)
+</li>
+	<li class="cat-item cat-item-74"><a href="http://www.brokenbuild.com/blog/category/tdd/" title="View all posts filed under TDD">TDD</a> (10)
+</li>
+	<li class="cat-item cat-item-14"><a href="http://www.brokenbuild.com/blog/category/television/" title="View all posts filed under Television">Television</a> (2)
+</li>
+	<li class="cat-item cat-item-23"><a href="http://www.brokenbuild.com/blog/category/testing/" title="View all posts filed under Testing">Testing</a> (36)
+</li>
+	<li class="cat-item cat-item-52"><a href="http://www.brokenbuild.com/blog/category/testng/" title="View all posts filed under TestNG">TestNG</a> (3)
+</li>
+	<li class="cat-item cat-item-38"><a href="http://www.brokenbuild.com/blog/category/the-life-aquatic/" title="View all posts filed under The Life Aquatic">The Life Aquatic</a> (2)
+</li>
+	<li class="cat-item cat-item-91"><a href="http://www.brokenbuild.com/blog/category/theplatform/" title="View all posts filed under thePlatform">thePlatform</a> (2)
+</li>
+	<li class="cat-item cat-item-118"><a href="http://www.brokenbuild.com/blog/category/tour-de-france/" title="View all posts filed under Tour de France">Tour de France</a> (1)
+</li>
+	<li class="cat-item cat-item-21"><a href="http://www.brokenbuild.com/blog/category/places-things-and-stuff-done-out-and-about/" title="View all posts filed under Travel">Travel</a> (2)
+</li>
+	<li class="cat-item cat-item-109"><a href="http://www.brokenbuild.com/blog/category/travel-tips/" title="View all posts filed under Travel Tips">Travel Tips</a> (1)
+</li>
+	<li class="cat-item cat-item-92"><a href="http://www.brokenbuild.com/blog/category/trivia/" title="View all posts filed under Trivia">Trivia</a> (1)
+</li>
+	<li class="cat-item cat-item-153"><a href="http://www.brokenbuild.com/blog/category/unix/" title="View all posts filed under Unix">Unix</a> (2)
+</li>
+	<li class="cat-item cat-item-96"><a href="http://www.brokenbuild.com/blog/category/vim/" title="View all posts filed under Vim">Vim</a> (1)
+</li>
+	<li class="cat-item cat-item-143"><a href="http://www.brokenbuild.com/blog/category/washington-state/" title="View all posts filed under Washington State">Washington State</a> (3)
+</li>
+	<li class="cat-item cat-item-149"><a href="http://www.brokenbuild.com/blog/category/web-service/" title="View all posts filed under Web Service">Web Service</a> (1)
+</li>
+	<li class="cat-item cat-item-137"><a href="http://www.brokenbuild.com/blog/category/webql/" title="View all posts filed under WebQL">WebQL</a> (1)
+</li>
+	<li class="cat-item cat-item-134"><a href="http://www.brokenbuild.com/blog/category/wesss/" title="View all posts filed under WesSS">WesSS</a> (1)
+</li>
+	<li class="cat-item cat-item-127"><a href="http://www.brokenbuild.com/blog/category/windows-mobile/" title="View all posts filed under Windows Mobile">Windows Mobile</a> (3)
+</li>
+	<li class="cat-item cat-item-83"><a href="http://www.brokenbuild.com/blog/category/windows-unixism/" title="View all posts filed under Windows Unixism">Windows Unixism</a> (2)
+</li>
+	<li class="cat-item cat-item-99"><a href="http://www.brokenbuild.com/blog/category/windows-vista/" title="View all posts filed under Windows Vista">Windows Vista</a> (1)
+</li>
+	<li class="cat-item cat-item-15"><a href="http://www.brokenbuild.com/blog/category/work/" title="View all posts filed under Work">Work</a> (10)
+</li>
+	<li class="cat-item cat-item-18"><a href="http://www.brokenbuild.com/blog/category/work-environment/" title="View all posts filed under Work Environment">Work Environment</a> (12)
+</li>
+	<li class="cat-item cat-item-154"><a href="http://www.brokenbuild.com/blog/category/wotd/" title="View all posts filed under WOTD">WOTD</a> (1)
+</li>
+	<li class="cat-item cat-item-49"><a href="http://www.brokenbuild.com/blog/category/xml/" title="View all posts filed under XML">XML</a> (2)
+</li>
+					</ul>
+				</li>
+										</ul>
+		</div>
+		<div style="clear:both;"></div>
+	</div>
+</div>
+
+
+<hr />
+<div id="footer">
+	<div id="footer_left">
+		Copyright &copy; <a href="http://www.brokenbuild.com/blog">Wes Maldonado:  Data Junkie</a> - Powered by <a href="http://wordpress.org">WordPress</a>
+	</div>
+	<div id="footer_right">
+		ProSense theme created by <a href="http://www.doshdosh.com">Dosh Dosh</a> and <a href="http://thewrongadvices.com">The Wrong Advices</a>.
+	</div>
+	<div style="clear:both;"></div>
+</div>
+</div>
+			<!-- Google Analytics for WordPress | http://yoast.com/wordpress/google-analytics/ -->
+	<script type="text/javascript">
+		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+		var pageTracker = _gat._getTracker("UA-1996880-1");
+	</script>
+	<script src="http://www.brokenbuild.com/blog/wp-content/plugins/google-analytics-for-wordpress/custom_se.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		pageTracker._initData();
+		
+		pageTracker._trackPageview();
+	</script>
+	<!-- End of Google Analytics code -->
+		<script src="http://www.brokenbuild.com/blog/wp-content/plugins/google-analytics-for-wordpress/adsense-track.js" type="text/javascript"></script>
+<script src="http://stats.wordpress.com/e-201350.js" type="text/javascript"></script>
+<script type="text/javascript">
+st_go({blog:'5417826',v:'ext',post:'595'});
+var load_cmc = function(){linktracker_init(5417826,595,2);};
+if ( typeof addLoadEvent != 'undefined' ) addLoadEvent(load_cmc);
+else load_cmc();
+</script>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-1996880-1";
+urchinTracker();
+</script>
+</body>
+</html>

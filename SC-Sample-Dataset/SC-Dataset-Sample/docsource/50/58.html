@@ -1,0 +1,809 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<meta name="keywords" content="" />
+	<meta name="description" content="UPDATED: 20/02/10 
+This guide has been updated for Ubuntu 9.10 (karmic).  Please note that this guide is only for 64-bit users.  If you are running a 32-bit operating system then you won't need quite a few of the steps listed here. 
+ 
+Adobe's website lists some basic instructions for installing Flex Builder on a 64-bit system but it's a long way from being a complete guide.  If you're new to Linux or don't have the patience for a complex installation my advice is to walk away now.  This is not" />
+	
+	<title> How to install Adobe Flex Builder on Ubuntu 8.04 [64-bit] [Archive]  - Ubuntu Forums</title>
+	<link rel="stylesheet" type="text/css" href="http://ubuntuforums.org/archive/archive.css" />
+</head>
+<body>
+<div class="pagebody">
+<div id="navbar"><a href="http://ubuntuforums.org/archive/index.php?s=3d9a112c639d08a5349b93738b1b3ecc">Ubuntu Forums</a> &gt; <a href="http://ubuntuforums.org/archive/index.php/f-130.html?s=3d9a112c639d08a5349b93738b1b3ecc">The Ubuntu Forum Community</a> &gt; <a href="http://ubuntuforums.org/archive/index.php/f-423.html?s=3d9a112c639d08a5349b93738b1b3ecc">Ubuntu Specialised Discussions</a> &gt; <a href="http://ubuntuforums.org/archive/index.php/f-100.html?s=3d9a112c639d08a5349b93738b1b3ecc">Tutorials</a> &gt; <a href="http://ubuntuforums.org/archive/index.php/f-255.html?s=3d9a112c639d08a5349b93738b1b3ecc">Outdated Tutorials &amp; Tips</a> &gt;  How to install Adobe Flex Builder on Ubuntu 8.04 [64-bit]</div>
+<hr />
+<div class="pda"><a href="http://ubuntuforums.org/archive/index.php/t-947728.html?s=3d9a112c639d08a5349b93738b1b3ecc&amp;pda=1" rel="nofollow">PDA</a></div>
+<p class="largefont">View Full Version : <a href="http://ubuntuforums.org/showthread.php?t=947728&amp;s=3d9a112c639d08a5349b93738b1b3ecc">How to install Adobe Flex Builder on Ubuntu 8.04 [64-bit]</a></p>
+<hr />
+<div class="floatcontainer"></div><br />
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">October 14th, 2008, 07:39 PM</div></div><div class="posttext">UPDATED: 20/02/10<br />
+This guide has been updated for Ubuntu 9.10 (karmic).  Please note that this guide is only for 64-bit users.  If you are running a 32-bit operating system then you won't need quite a few of the steps listed here.<br />
+<br />
+Adobe's website lists some basic instructions for installing Flex Builder on a 64-bit system but it's a long way from being a complete guide.  If you're new to Linux or don't have the patience for a complex installation my advice is to walk away now.  This is not a simple installation and will take quite a bit of time to complete.<br />
+<br />
+One of the main difficulties involved in the installation is that it requires the installation of a few 32-bit applications.  If your system is set up like mine you probably already have a 64-bit version of Firefox, Eclipse and Sun's JRE installed.  You also most likely have other applications that depend on those 64-bit versions so removing the 64-bit versions and replacing them with 32-bit versions isn't an option. The alternative is to install both 32 and 64-bit versions of those applications on the same system, but getting them to coexist creates an entirely new set of problems.<br />
+<br />
+The following guide will walk you through installing the 32-bit versions of Firefox, Eclipse and Sun's JRE in a way that will also allow you to keep your existing 64-bit versions.  Before proceeding you'll need to download the following files.  Make sure to download them to your desktop as the steps below assume that these files can be found in your desktop folder.<br />
+<br />
+<br />
+<br />
+ Adobe Flex Builder (http://labs.adobe.com/downloads/flexbuilder_linux.html)<br />
+ Eclipse 3.3.2 32-bit (http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/europa/winter/eclipse-java-europa-winter-linux-gtk.tar.gz) - The current version of Flex Builder will only work with Eclipse v3.3.x (europa).  You can install Flex Builder in v3.4 but the mxml editor will not function properly.<br />
+ Firefox 3.6 32-bit (ftp://ftp.mozilla.org/pub/firefox/releases/latest-3.6/linux-i686/en-US/)<br />
+<br />
+<br />
+<br />
+Since this guide is geared towards installing Flex Builder for Air application development I'd highly recommend installing the Air runtime before proceeding.  Visit this link for a complete guide on how to install Air on 64-bit systems. (http://ubuntuforums.org/showthread.php?t=941093)<br />
+<br />
+<br />
+<br />
+ Step one, put on a big pot of coffee because this is going to take a while. :)<br />
+ Install the following packages if they're not already installed.<br />
+<br />
+
+<br />
+sudo apt-get install ia32-libs ia32-sun-java6-bin<br />
+<br />
+ We need to temporarily change the default JRE to the 32-bit version.  First let's find out where your java symlink points to.<br />
+<br />
+
+<br />
+readlink -e /usr/bin/java<br />
+<br />
+The command above will display something like the following:<br />
+<br />
+
+<br />
+/usr/lib/jvm/java-6-sun/jre/bin/java<br />
+<br />
+Write down the path that's displayed in your terminal.  If it's already set to the ia32-java-6-sun path then you can just skip the next step.<br />
+<br />
+<br />
+ Now set your 32-bit version of java as the default jre.<br />
+<br />
+
+<br />
+sudo update-alternatives --set java /usr/lib/jvm/ia32-java-6-sun/jre/bin/java<br />
+<br />
+ Now we need to extract the 32-bit versions of Eclipse and Firefox.  For this guide we'll use ~/Flex as our default installation directory.<br />
+<br />
+
+<br />
+mkdir ~/Flex<br />
+tar -xf ~/Desktop/firefox*.bz2 -C ~/Flex<br />
+tar -xf ~/Desktop/eclipse*.gz -C ~/Flex<br />
+<br />
+ Let's make sure that we have the 32-bit versions of firefox and eclipse installed. This may sound like a pointless step but accidentally clicking on the wrong link can lead to a ton of wasted time and frustration. :)<br />
+<br />
+
+<br />
+file ~/Flex/firefox/firefox-bin<br />
+file ~/Flex/eclipse/eclipse<br />
+<br />
+ If they're both listed as &quot;ELF 32-bit LSB executable&quot; then continue to the next step.  Otherwise you probably downloaded the wrong version which means it's time to start over...and possibly another pot of coffee.<br />
+ Run firefox and make sure it opens successfully.<br />
+<br />
+
+<br />
+~/Flex/firefox/firefox<br />
+<br />
+ Run eclipse and make sure it opens successfully.<br />
+<br />
+
+<br />
+~/Flex/eclipse/eclipse<br />
+<br />
+ The first time you run eclipse you will be asked to select a workspace path.  Enter the following path when prompted (replacing YourUserName with your own).<br />
+<br />
+
+<br />
+/home/YourUserName/Flex/workspace<br />
+<br />
+ Assuming no errors are displayed in the terminal you should now be able to install Flex Builder so make the bin file executable.<br />
+<br />
+
+<br />
+chmod +x ~/Desktop/flexbuilder*.bin<br />
+<br />
+ And now start the installation.  Make sure that firefox, eclipse and all java apps are closed before proceeding.<br />
+<br />
+
+<br />
+~/Desktop/flexbuilder*.bin<br />
+<br />
+ When you are prompted to select the Flex Builder installation directory enter the following (replacing YourUserName with your own).<br />
+<br />
+
+<br />
+/home/YourUserName/Flex/Flex_Builder<br />
+<br />
+ When you are prompted to select the 32-bit eclipse directory enter the following (replacing YourUserName with your own).<br />
+<br />
+
+<br />
+/home/YourUserName/Flex/eclipse<br />
+<br />
+ Follow the on-screen instructions to complete the installation.  The JSEclipse plugin is optional but I chose to install it anyway.<br />
+ Now we need to copy the DEBUG flash plugin to the 32-bit version of firefox.  This is different from the standard flash plugin.<br />
+<br />
+
+<br />
+cp ~/Flex/Flex_Builder/Player/linux/install_flash_player_9_linux/libflashplayer.so ~/Flex/firefox/plugins<br />
+<br />
+ Edit the eclipse.ini file so that it always uses the 32-bit version of java.<br />
+<br />
+
+<br />
+gedit ~/Flex/eclipse/eclipse.ini<br />
+<br />
+ Add the following commands to the ini file.  Make sure to enter them on the first line.  The instructions on Adobe's website will tell you to place it at the end of the file.  IGNORE THOSE INSTRUCTIONS.  If you place it at the end of the file it will have no effect.  You must also enter the commands on two separate lines.  If you enter it as one line it will have no effect either.<br />
+<br />
+
+<br />
+-vm<br />
+/usr/lib/jvm/ia32-java-6-sun/jre/bin/java<br />
+<br />
+The resulting file would look something like this:<br />
+<br />
+
+<br />
+-vm<br />
+/usr/lib/jvm/ia32-java-6-sun/jre/bin/java<br />
+-showsplash<br />
+org.eclipse.platform<br />
+-vmargs<br />
+-Dosgi.requiredJavaVersion=1.5<br />
+-Xms40m<br />
+-Xmx256m<br />
+<br />
+ Click save and close gedit.<br />
+ Change back to your default jre using the path you wrote down earlier.  You should probably update javaws as well just to be safe.<br />
+<br />
+
+<br />
+sudo update-alternatives --set java /usr/lib/jvm/java-6-sun/jre/bin/java<br />
+sudo update-alternatives --set javaws /usr/lib/jvm/java-6-sun/jre/bin/javaws<br />
+<br />
+ Now we're going to create an application launcher for Flex Builder on your development menu.<br />
+<br />
+
+<br />
+sudo gedit /usr/share/applications/flexbuilder.desktop<br />
+<br />
+ Copy ALL of the following and paste it into gedit (replace YourUserName with your own).<br />
+<br />
+
+<br />
+[Desktop Entry]<br />
+Name=Adobe Flex Builder<br />
+Comment=Flex Builder plugin for Eclipse IDE<br />
+Exec=/home/YourUserName/Flex/eclipse/eclipse<br />
+Icon=/home/YourUserName/Flex/eclipse/plugins/org.eclipse.platform_3.3.3.r33x_r20080129/eclipse48.png<br />
+Terminal=false<br />
+Type=Application<br />
+Categories=Development;<br />
+StartupNotify=true<br />
+<br />
+ Click save and close gedit.<br />
+ I would highly recommend restarting your pc at this point just to be safe.<br />
+ Now if everything went well you should be able to open Flex Builder from your Applications menu.  Click on your Applications menu, select Development, and click Adobe Flex Builder.<br />
+ If it opens then you have one more step.  We need to set the default browser to the 32-bit version of Firefox that you installed.  Click on Window then click Preferences.  Expand the General menu.  Click on Web Browser.  Check the box labeled 'Use external Web browser'.  Click New.  Enter the following information.<br />
+<br />
+
+<br />
+Name: Firefox<br />
+Location: /home/YourUserName/Flex/firefox/firefox<br />
+Parameters: %URL%<br />
+<br />
+ Click OK.  Check the box next to Firefox and click OK.<br />
+<br />
+<br />
+<br />
+Update Flex and Air sdk<br />
+The following steps will walk you through the process of installing the latest versions of the Flex and Air sdk and how to enable them in Eclipse.  Make sure to download both files to your Desktop folder.<br />
+<br />
+ Download the latest Flex sdk from the nightly section.<br />
+<br />
+ Flex 3 (http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+3)<br />
+ Flex 4 (http://opensource.adobe.com/wiki/display/flexsdk/Download+Flex+4)<br />
+<br />
+ Download the latest AIR sdk.<br />
+<br />
+ Air 1.5 (http://www.adobe.com/products/air/tools/sdk/)<br />
+ Air 2 (http://labs.adobe.com/downloads/air2.html)<br />
+<br />
+ Extract the flex sdk.<br />
+<br />
+
+<br />
+mkdir ~/Flex/latest_flex_sdk<br />
+unzip -o -q ~/Desktop/flex_sdk*.zip -d ~/Flex/latest_flex_sdk<br />
+<br />
+ Extract the air sdk.<br />
+<br />
+
+<br />
+tar --overwrite -xf ~/Desktop/AdobeAIRSDK*.tbz2 -C ~/Flex/latest_flex_sdk<br />
+<br />
+ Try to remove the adl_lin and adt_lin files if they exist.  It's possible that they may not be present in that folder so don't worry if the commands below display any errors.<br />
+<br />
+
+<br />
+rm ~/Flex/latest_flex_sdk/bin/adl_lin<br />
+rm ~/Flex/latest_flex_sdk/bin/adt_lin<br />
+<br />
+ Create the new adl_lin and adt_lin files.<br />
+<br />
+
+<br />
+rename s/adl/adl_lin/ ~/Flex/latest_flex_sdk/bin/adl<br />
+rename s/adt/adt_lin/ ~/Flex/latest_flex_sdk/bin/adt<br />
+<br />
+ Create a symlink for the linux directory.<br />
+<br />
+
+<br />
+ln -s ~/Flex/latest_flex_sdk/runtimes/air/linux ~/Flex/latest_flex_sdk/runtimes/air/Linux<br />
+<br />
+ Open Eclipse<br />
+ Click Window &gt; Preferences<br />
+ Expand the Flex folder<br />
+ Click Installed Flex SDKs<br />
+ Click Add<br />
+ Enter /home/YourUserName/Flex/latest_flex_sdk as the location<br />
+ Enter Nightly as the name (if you don't plan on updating very often then just keep the auto-generated name)<br />
+ Click OK<br />
+ Check the box next to Nightly to use this version by default, then click Apply.<br />
+<br />
+<br />
+<br />
+HELLO WORLD Air Application (http://livedocs.adobe.com/flex/3/html/FBHelloWord_1.html)<br />
+<br />
+ To create a new flex project click on File &gt; New &gt; Project...<br />
+ Click Flex Builder &gt; Flex Project &gt; Next<br />
+ Type a project name and then select Desktop Application.<br />
+ Click Finish.<br />
+ Click Yes if you are prompted to &quot;Switch to Flex Development Perspective?&quot;<br />
+ In the &quot;Flex Navigator&quot; pane, expand the src folder, right click on both files (.mxml and .xml) and select &quot;Open with &gt; Text Editor&quot;.<br />
+ Paste the following into the .mxml file replacing all of the existing content.<br />
+<br />
+
+<br />
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;<br />
+&lt;mx:WindowedApplication xmlns:mx=&quot;http://www.adobe.com/2006/mxml&quot; layout=&quot;absolute&quot; title=&quot;Hello World&quot;&gt;<br />
+    &lt;mx:Style&gt;<br />
+        WindowedApplication<br />
+        {<br />
+            background-color:&quot;0x999999&quot;;<br />
+            background-alpha:&quot;0.5&quot;;<br />
+        }<br />
+    &lt;/mx:Style&gt;<br />
+    &lt;mx:Label text=&quot;Hello World&quot; horizontalCenter=&quot;0&quot; verticalCenter=&quot;0&quot;/&gt;<br />
+&lt;/mx:WindowedApplication&gt;<br />
+<br />
+ In the .xml file select the code beginning with &lt;title&gt; and ending with &lt;/transparent&gt;. Paste the following over the selected code.<br />
+<br />
+
+<br />
+		&lt;title&gt;Hello World&lt;/title&gt;<br />
+		&lt;systemChrome&gt;none&lt;/systemChrome&gt;<br />
+		&lt;transparent&gt;true&lt;/transparent&gt;<br />
+<br />
+ Click save then click debug (or press F11).  A new window should appear with Hello World in the title bar and centered in the body of the window.<br />
+<br />
+<br />
+<br />
+Notes<br />
+If you discover that your mouse has a problem clicking on some of the Next and Finish buttons in Eclipse then simply click on the button to select it and then press enter.  Not sure if I'm the only one experiencing this issue but if you do encounter this problem it's fairly easy to work around it.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">andyrue304</div><div class="date">October 19th, 2008, 12:51 AM</div></div><div class="posttext">Thanks for this. I was planning on attempting this now, but it's 12:50 am atm and I think I'll need some sleep first!</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">Karlabuzer</div><div class="date">October 26th, 2008, 11:30 PM</div></div><div class="posttext">Very good HowTo, thank you! But... <br />
+<br />
+-&gt; 33. If it opens ...<br />
+<br />
+It doesnt :( Everything was good till the p.33.<br />
+<br />
+#<br />
+# An unexpected error has been detected by Java Runtime Environment:<br />
+#<br />
+#  SIGSEGV (0xb) at pc=0xf3c9fc69, pid=6684, tid=4157987728<br />
+#<br />
+# Java VM: Java HotSpot(TM) Client VM (10.0-b23 mixed mode, sharing linux-x86)<br />
+# Problematic frame:<br />
+# C  [libxul.so+0x948c69]<br />
+#<br />
+# If you would like to submit a bug report, please visit:<br />
+#   http://java.sun.com/webapps/bugreport/crash.jsp<br />
+# The crash happened outside the Java Virtual Machine in native code.<br />
+# See problematic frame for where to report the bug.<br />
+#</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">October 27th, 2008, 01:47 AM</div></div><div class="posttext">The 32-bit version of eclipse may not be using the correct version of java.  Type the following:<br />
+<br />
+
+<br />
+/usr/lib/jvm/ia32-java-6-sun-1.6.0.07/jre/bin/java -version<br />
+<br />
+It should output the following:<br />
+<br />
+
+<br />
+java version &quot;1.6.0_07&quot;<br />
+Java(TM) SE Runtime Environment (build 1.6.0_07-b06)<br />
+Java HotSpot(TM) Client VM (build 10.0-b23, mixed mode, sharing)<br />
+<br />
+If you can confirm that your 32-bit version of java is the same as above then double check the eclipse.ini file.<br />
+<br />
+
+<br />
+gedit /usr/lib32/eclipse/eclipse.ini<br />
+<br />
+It needs to look exactly like the following.<br />
+<br />
+
+<br />
+-vm<br />
+/usr/lib/jvm/ia32-java-6-sun-1.6.0.07/jre/bin/java<br />
+-startup<br />
+plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v2008081 9.jar<br />
+--launcher.library<br />
+plugins/org.eclipse.equinox.launcher.gtk.linux.x86_1.0.101 .R34x_v20080805<br />
+-showsplash<br />
+org.eclipse.platform<br />
+--launcher.XXMaxPermSize<br />
+256m<br />
+-vmargs<br />
+-Xms40m<br />
+-Xmx256m<br />
+<br />
+Make sure that the -vm is the first line in the file and that the path to your 32-bit java appears on the second line.  If you still can't launch Flex Builder from your Development menu try opening the 32-bit eclipse as root.  The problem may be related to a permissions issue.<br />
+<br />
+
+<br />
+sudo /usr/lib32/eclipse/eclipse</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">Karlabuzer</div><div class="date">October 27th, 2008, 08:26 AM</div></div><div class="posttext">thanks a lot for your answer!<br />
+<br />
+I checked version and eclipse.ini - everething the same as you wrote.<br />
+<br />
+<br />
+<br />
+java version &quot;1.6.0_07&quot;<br />
+Java(TM) SE Runtime Environment (build 1.6.0_07-b06)<br />
+Java HotSpot(TM) Client VM (build 10.0-b23, mixed mode, sharing)<br />
+<br />
+-------------<br />
+<br />
+<br />
+-vm<br />
+/usr/lib/jvm/ia32-java-6-sun-1.6.0.07/jre/bin/java<br />
+-startup<br />
+plugins/org.eclipse.equinox.launcher_1.0.101.R34x_v2008081 9.jar<br />
+--launcher.library<br />
+plugins/org.eclipse.equinox.launcher.gtk.linux.x86_1.0.101 .R34x_v20080805<br />
+-showsplash<br />
+org.eclipse.platform<br />
+--launcher.XXMaxPermSize<br />
+256m<br />
+-vmargs<br />
+-Xms40m<br />
+-Xmx256m<br />
+<br />
+<br />
+Trying to start as root returns following<br />
+<br />
+<br />
+<br />
+xxx@xxx:~$ sudo /usr/lib32/eclipse/eclipse<br />
+[sudo] password for xxx:<br />
+#<br />
+# An unexpected error has been detected by Java Runtime Environment:<br />
+#<br />
+#  SIGSEGV (0xb) at pc=0xf3c16c69, pid=6027, tid=4158475152<br />
+#<br />
+# Java VM: Java HotSpot(TM) Client VM (10.0-b23 mixed mode, sharing linux-x86)<br />
+# Problematic frame:<br />
+# C  [libxul.so+0x948c69]<br />
+#<br />
+# An error report file with more information is saved as:<br />
+# /home/vit/hs_err_pid6027.log<br />
+#<br />
+# If you would like to submit a bug report, please visit:<br />
+#   http://java.sun.com/webapps/bugreport/crash.jsp<br />
+# The crash happened outside the Java Virtual Machine in native code.<br />
+# See problematic frame for where to report the bug.<br />
+#<br />
+<br />
+<br />
+:(</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">October 27th, 2008, 10:02 AM</div></div><div class="posttext">It looks like there is a problem with one of the libraries you extracted to your lib32 folder.  Enter the following commands:<br />
+<br />
+
+<br />
+sudo -s<br />
+rm /usr/lib32/libjemalloc.so<br />
+rm /usr/lib32/libmozjs.so<br />
+rm /usr/lib32/libsqlite3.so<br />
+rm /usr/lib32/libsqlite3.so.0<br />
+rm /usr/lib32/libxpcom.so<br />
+rm /usr/lib32/libxul.so<br />
+rm /usr/lib32/libnssckbi.so<br />
+rm /usr/lib32/libpyxpcom.so<br />
+file-roller ./xulrunner-1.9_1.9.0.3+build1+nobinonly-0ubuntu0.8.04.1_i386.deb<br />
+<br />
+Then try re-extracting the following files from the xulrunner package into your /usr/lib32 folder.  Make sure you are using the 1.9 version of xulrunner.  You might try extracting the libnssckbi and libpyxpcom files from the xulrunner package as well.  <br />
+<br />
+
+<br />
+/usr/lib/xulrunner-1.9b5/libjemalloc.so<br />
+/usr/lib/xulrunner-1.9b5/libmozjs.so<br />
+/usr/lib/xulrunner-1.9b5/libnssckbi.so<br />
+/usr/lib/xulrunner-1.9b5/libpyxpcom.so<br />
+/usr/lib/xulrunner-1.9b5/libsqlite3.so<br />
+/usr/lib/xulrunner-1.9b5/libsqlite3.so.0<br />
+/usr/lib/xulrunner-1.9b5/libxpcom.so<br />
+/usr/lib/xulrunner-1.9b5/libxul.so</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">Karlabuzer</div><div class="date">October 27th, 2008, 11:28 AM</div></div><div class="posttext">There wasnt libpyxpcom.so ...<br />
+<br />
+I re-extracted all but nothing changed :(<br />
+<br />
+I tried to start after removing files and eclipse was started, but when I extrated files back to /usr/lib32 it cant start again with the same error.<br />
+<br />
+<br />
+
+<br />
+#<br />
+# An unexpected error has been detected by Java Runtime Environment:<br />
+#<br />
+#  SIGSEGV (0xb) at pc=0xf407bc69, pid=9841, tid=4158708624<br />
+#<br />
+# Java VM: Java HotSpot(TM) Client VM (10.0-b23 mixed mode, sharing linux-x86)<br />
+# Problematic frame:<br />
+# C  [libxul.so+0x948c69]<br />
+#<br />
+# An error report file with more information is saved as:<br />
+# /home/vit/all/hs_err_pid9841.log<br />
+#<br />
+# If you would like to submit a bug report, please visit:<br />
+#   http://java.sun.com/webapps/bugreport/crash.jsp<br />
+# The crash happened outside the Java Virtual Machine in native code.<br />
+# See problematic frame for where to report the bug.<br />
+#<br />
+<br />
+<br />
+Btw i have a little another url in xulrunner package<br />
+<br />
+<br />
+
+<br />
+/usr/lib/xulrunner-1.9.0.3/libjemalloc.so<br />
+/usr/lib/xulrunner-1.9.0.3/libmozjs.so<br />
+/usr/lib/xulrunner-1.9.0.3/libnssckbi.so<br />
+/usr/lib/xulrunner-1.9.0.3/libpyxpcom.so<br />
+/usr/lib/xulrunner-1.9.0.3/libsqlite3.so<br />
+/usr/lib/xulrunner-1.9.0.3/libsqlite3.so.0<br />
+/usr/lib/xulrunner-1.9.0.3/libxpcom.so<br />
+/usr/lib/xulrunner-1.9.0.3/libxul.so</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">October 27th, 2008, 12:12 PM</div></div><div class="posttext">Sorry, I posted the wrong xulrunner path.  The one you posted (/usr/lib/xulrunner-1.9.0.3/) is correct.  The files from the xulrunner package are used by the 32-bit version of firefox.  You may want to try removing the xulrunner related files from your lib32 folder and then check whether firefox still has access to all of it's required libraries.<br />
+<br />
+
+<br />
+ldd /usr/lib32/firefox/firefox-bin<br />
+<br />
+More than likely it's going to say not found for a few libraries.  Either way you can still run eclipse without the use of a 32-bit version of firefox.  I'm not too sure why those files would be causing that error to occur on your system, but the only other suggestion I have is to run eclipse without the xulrunner library files in your lib32 folder.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">Karlabuzer</div><div class="date">October 29th, 2008, 02:16 PM</div></div><div class="posttext">Thanks a lot! It works!<br />
+<br />
+I've copied only 4 files from xulrunner package<br />
+<br />
+<br />
+<br />
+        libjemalloc.so<br />
+        libxul.so<br />
+        libmozjs.so<br />
+        libxpcom.so<br />
+<br />
+<br />
+About MXML editor:<br />
+<br />
+Window -&gt; Preferences -&gt; General -&gt; Editors -&gt; File Associations -&gt; *.mxml<br />
+<br />
+Add your preferred editor and make it Default. It's enough for me ;-)<br />
+<br />
+Thank you again :)</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">peddy</div><div class="date">November 3rd, 2008, 06:22 AM</div></div><div class="posttext">Perfect! Thanks!</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">peddy</div><div class="date">November 3rd, 2008, 06:23 AM</div></div><div class="posttext">sorry, double post...</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">andresmh</div><div class="date">November 3rd, 2008, 10:09 AM</div></div><div class="posttext">you might want to rename this to 8.04 and 8.10 :-)<br />
+<br />
+Following your instructions I was able to get it to work in Intrepid. I did run into the same problems the previous poster reported but it works well with Firefox 64-bit which now can run Flash. Maybe at the time of your post there wasn't a Flash plugin for FF 64-bit?<br />
+<br />
+Thanks!</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">peddy</div><div class="date">November 3rd, 2008, 07:46 PM</div></div><div class="posttext">I also had the xulrunner error, and I had to change references of<br />
+<br />
+/usr/lib/jvm/ia32-java-6-sun-1.6.0.07/jre/bin/java<br />
+<br />
+to<br />
+<br />
+<br />
+/usr/lib/jvm/ia32-java-6-sun-1.6.0.10/jre/bin/java<br />
+<br />
+Cheers :)</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">ItecKid</div><div class="date">November 7th, 2008, 09:01 PM</div></div><div class="posttext">Do this work in 8.10?  If I make the file executable (with chmod +x) and then try to install, it returns:<br />
+<br />
+<br />
+bash: ./flexbuilder_linux_install_a4_081408.bin: /bin/sh: bad interpreter: Text file busy<br />
+<br />
+<br />
+And if I execute it from the shell with:<br />
+<br />
+<br />
+sh flexbuilder_linux_install_a4_081408.bin<br />
+<br />
+It returns:<br />
+<br />
+<br />
+Preparing to install...<br />
+Extracting the installation resources from the installer archive...<br />
+Configuring the installer for this system's environment...<br />
+No Java virtual machine could be found from your PATH<br />
+environment variable.  You must install a VM prior to<br />
+running this program.<br />
+<br />
+<br />
+Thoughts?</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">November 7th, 2008, 09:15 PM</div></div><div class="posttext">Following your instructions I was able to get it to work in Intrepid. I did run into the same problems the previous poster reported but it works well with Firefox 64-bit which now can run Flash. Maybe at the time of your post there wasn't a Flash plugin for FF 64-bit?<br />
+<br />
+Flex Builder requires the flash debug plugin for FF.  As far as I know there isn't a 64-bit version of the debug plugin.  The standard flash plugin comes in a 64-bit version but the last time I checked the debug plugin only came in a 32-bit version.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">November 7th, 2008, 09:18 PM</div></div><div class="posttext">I also had the xulrunner error, and I had to change references of<br />
+<br />
+/usr/lib/jvm/ia32-java-6-sun-1.6.0.07/jre/bin/java<br />
+<br />
+to<br />
+<br />
+/usr/lib/jvm/ia32-java-6-sun-1.6.0.10/jre/bin/java<br />
+<br />
+I think I may have overlooked one of the ia32 java folders.  Apparently there is an ia32 java folder that's included in the package that links to the folder with the version number it's name.  If that folder is used instead then it should eliminate the need to change the 32-bit java path each time a new version of the package is released.  I'll edit the instructions to use this path instead.  You may want to edit your eclipse.ini file to the use the following path.<br />
+<br />
+/usr/lib/jvm/ia32-java-6-sun/jre/bin/java</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">November 7th, 2008, 09:39 PM</div></div><div class="posttext">Preparing to install...<br />
+Extracting the installation resources from the installer archive...<br />
+Configuring the installer for this system's environment...<br />
+No Java virtual machine could be found from your PATH<br />
+environment variable.  You must install a VM prior to<br />
+running this program.<br />
+<br />
+Thoughts?<br />
+It sounds like it can't find your 32-bit version of java.  Try changing the java paths to the following.<br />
+<br />
+
+<br />
+sudo rm /usr/bin/java<br />
+sudo ln -s /usr/lib/jvm/ia32-java-6-sun/jre/bin/java /usr/bin/java<br />
+sudo gedit /usr/lib32/eclipse/eclipse.ini<br />
+<br />
+-vm<br />
+/usr/lib/jvm/ia32-java-6-sun/jre/bin/java<br />
+<br />
+sudo chmod +x ./flexbuilder_linux_install_a4_081408.bin<br />
+sudo ./flexbuilder_linux_install_a4_081408.bin</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">ItecKid</div><div class="date">December 1st, 2008, 04:10 PM</div></div><div class="posttext">The link above to get xulrunner is no longer working, where to download it now?</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">December 1st, 2008, 09:41 PM</div></div><div class="posttext">Here's a list of download locations:<br />
+<br />
+http://packages.ubuntu.com/hardy-updates/i386/xulrunner-1.9/download</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">krange</div><div class="date">January 3rd, 2009, 08:23 PM</div></div><div class="posttext">This is great tutorial,. thanks so much! Got everything setup in 8.10 as well. The only issue I'm having when I go to change my Firefox version in Window - Preferences - General - Web Browser, Eclipse crashes.<br />
+<br />
+Any ideas?</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">January 3rd, 2009, 08:33 PM</div></div><div class="posttext">Make sure that your 32-bit version of Firefox has all of it's required libraries.  Run &quot;ldd /usr/lib32/firefox/firefox-bin&quot; and make sure that none of the libraries say 'not found'.  Then try opening the 32-bit Firefox from the command line and see if it displays any errors &quot;/usr/lib32/firefox/firefox-bin&quot;.  You might try running eclipse from the command line as well and see if it throws any errors when it crashes.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">January 3rd, 2009, 08:44 PM</div></div><div class="posttext">Ignore my post above.  I was able to reproduce the crash you described.  As it turns out the problem is related to the libxul.so file.  To fix this issue simply download the latest xulrunner-1.9 package and extract the libxul.so file into your /usr/lib32 folder.  Make sure to overwrite the existing file.  Here's a list of download locations. (http://packages.ubuntu.com/intrepid-updates/i386/xulrunner-1.9/download)</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">krange</div><div class="date">January 3rd, 2009, 09:01 PM</div></div><div class="posttext">awesome - that fixed it. thanks much</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">gurtnamona</div><div class="date">January 12th, 2009, 01:32 AM</div></div><div class="posttext">Awesome HowTo but I have one issue:<br />
+<br />
+Everything appears to have installed correctly but when I start a new Flex project, I get an &quot;Failed to open editor: Assertion Failed&quot; error when attempting to view the mxml file. The only departure I made from the instructions was with respect to the libxul.so file. What can I check to solve this? Should I be using a older version of Eclipse?<br />
+<br />
+Many thanks,<br />
+<br />
+Colin</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">January 12th, 2009, 02:29 AM</div></div><div class="posttext">For some reason the mxml editor doesn't seem to work in Flex Builder so you'll have to use the text editor instead.<br />
+<br />
+
+<br />
+There is one additional step that may be required before you can develop any Adobe Air applications. For some reason on my system the editor threw an error the first time I tried to use the MXML editor. As a workaround you can always use the text editor instead. First close the .mxml file's tab. Then in the 'Flex Navigator' tab right click on the .mxml file entry, select open with, then select 'text editor'.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">JoelJohnson</div><div class="date">February 1st, 2009, 07:51 AM</div></div><div class="posttext">Didn't have a single problem installing. I have a pretty much fresh install of Ubuntu 8.10, I pretty much only had Adobe Air installed when I began installing Flex Builder.<br />
+<br />
+When I try to run Eclipse I have a problem...<br />
+The splash screen came up, prompted me for where I wanted my workspace to be, after I chose a location Eclipse closed.<br />
+<br />
+I ran it from a terminal to find the error:<br />
+<br />
+<br />
+joel@laptop:~$ /usr/lib32/eclipse/eclipse<br />
+#<br />
+# An unexpected error has been detected by Java Runtime Environment:<br />
+#<br />
+#  SIGSEGV (0xb) at pc=0xd163637d, pid=4887, tid=4158684048<br />
+#<br />
+# Java VM: Java HotSpot(TM) Server VM (11.0-b15 mixed mode linux-x86)<br />
+# Problematic frame:<br />
+# C  [libxul.so+0x94a37d]<br />
+#<br />
+# An error report file with more information is saved as:<br />
+# /home/joel/hs_err_pid4887.log<br />
+#<br />
+# If you would like to submit a bug report, please visit:<br />
+#   http://java.sun.com/webapps/bugreport/crash.jsp<br />
+# The crash happened outside the Java Virtual Machine in native code.<br />
+# See problematic frame for where to report the bug.<br />
+#<br />
+<br />
+<br />
+Any suggestions of what I can do to make this work?<br />
+<br />
+I've gone through all the posts in this thread, and none of the suggestions worked.<br />
+I even downloaded the *.3 version of XulRunner (rather than the latest *.5) and dropped all the *.so files in the lib32 folder. Still no luck.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">February 2nd, 2009, 08:39 AM</div></div><div class="posttext">As it turns out the problem is related to the libxul.so file.  To fix this issue simply download the latest xulrunner-1.9 package and extract the libxul.so file into your /usr/lib32 folder.  Make sure to overwrite the existing file.  Here's a list of download locations. (http://packages.ubuntu.com/intrepid-updates/i386/xulrunner-1.9/download)<br />
+<br />
+The instructions above should fix the problem.  Make sure to download the latest version of xulrunner-1.9.  If that still doesn't fix it you can always try the libxul.so file that's included in firefox.  Try copying libxul.so from /usr/lib32/firefox to /usr/lib32.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">vaibhav.nirma</div><div class="date">February 24th, 2009, 11:19 PM</div></div><div class="posttext">Voila , it worked perfectly dude..........<br />
+I have to just removed the 'ia32' during the installation though.<br />
+When i did without removing the same it siad that Java VM not found in path.<br />
+I went to the directory, checked, and changed accordingly....<br />
+Installation was carried out perfectly......<br />
+Thanks a lot Bro.<br />
+http://ubuntuforums.org/images/smilies/guitar.gif</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">vaibhav.nirma</div><div class="date">February 24th, 2009, 11:22 PM</div></div><div class="posttext">Also xulrunner is not available on the link you have mentioned, it can be downloaded from here,<br />
+http://mirror.unmul.ac.id/ubuntu/pool/main/x/xulrunner-1.9/</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">March 26th, 2009, 09:21 PM</div></div><div class="posttext">UPDATE<br />
+The guide has now been updated for Ubuntu 8.10 [64-bit].  I've also created a 32-bit libs package to help simplify the installation which is attached to the first post.<br />
+<br />
+Note to Moderator<br />
+If a moderator happens to see this post please update the title of this thread to read 8.10 instead of 8.04.  Thanks in advance.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">gurtnamona</div><div class="date">April 8th, 2009, 11:13 AM</div></div><div class="posttext">This HowTo worked great for 8.10. One thing that I may be missing: I have seen in tutorials for Adobe Flex a &quot;Data&quot; menu when in the Flex Perspective. This Data menu is on the top menu bar between the Project and Run menus. For my installation however, I have no Data menu. Is this something that should be available or am I missing something?<br />
+<br />
+I know that this is probably outside the scope of this HowTo but any assistance would be greatly appreciated.<br />
+<br />
+Thanks.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">April 8th, 2009, 07:30 PM</div></div><div class="posttext">The Data menu may only be available in Eclipse v3.4.  Currently the Flex plugin for Linux will only work in Eclipse v3.3.  I've previously installed it in v3.4 but the mxml editor doesn't work so you're basically limited to typing in a standard text editor.  The tutorials you saw might have been referring to Flex Builder on a Windows platform.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">OmegaWarrior</div><div class="date">September 14th, 2009, 04:57 AM</div></div><div class="posttext">Does anyone know why java needs to be installed for flex?  the whole reason I wanted to learn flex was to get AWAY from java.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">linuxed</div><div class="date">September 14th, 2009, 08:24 PM</div></div><div class="posttext">You need java in order to run Eclipse which is written mainly in java.  Flex Builder on Linux is simply a plugin for Eclipse.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">OmegaWarrior</div><div class="date">September 14th, 2009, 11:00 PM</div></div><div class="posttext">so if I use a different IDE to make flex apps, then I don't need it?  It seems like that could simplify this process quite a bit.</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">jap1968</div><div class="date">September 17th, 2009, 12:51 PM</div></div><div class="posttext">I have some blog entries about preparing a Flash development framework on Linux.<br />
+<br />
+The setup is based on Eclipse 3.5 and AXDT as well as on the open source Flex SDK provided by Adobe.<br />
+<br />
+You can have a look at the blog entries here:<br />
+<br />
+ Setup Eclipse + AXDT on Linux (http://netpatia.blogspot.com/2009/09/flash-development-on-linux.html)<br />
+ Compile your first Flash program on Linux (http://netpatia.blogspot.com/2009/09/flash-development-on-linux-ii.html)</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">mhuggins</div><div class="date">December 7th, 2009, 05:48 AM</div></div><div class="posttext">Huge thanks!  Your effort is much appreciated, Linuxed.  I didn't need the ia32-flex-libs.deb package, but otherwise the step-by-step was perfect on Ubuntu 9.10 64-bit. :)</div></div><hr />
+
+
+<div class="post"><div class="posttop"><div class="username">andxlr</div><div class="date">February 15th, 2010, 02:57 PM</div></div><div class="posttext">Hi , first at all , Thanks a lot for the tutorial.<br />
+ I did it exactly with your points , and the Flex Builder is working but there is still a problem.<br />
+ I get every time Eclipse crash when I open some java Code in Java Perspective,<br />
+ then I go to Flex Perspective and try to open Flex Code.<br />
+ Did any one of you have this before ? ...google didn't say any thing :(<br />
+ This is my part ~/workspace/.matadata/.log :<br />
+Thanx a lot for any help ! <br />
+In the attachment you can find  log file, here just a part :<br />
+<br />
+<br />
+!SESSION 2010-02-15 14:32:49.729 -----------------------------------------------<br />
+eclipse.buildId=M20080221-1800<br />
+java.version=1.6.0_15<br />
+java.vendor=Sun Microsystems Inc.<br />
+BootLoader constants: OS=linux, ARCH=x86, WS=gtk, NL=de_DE<br />
+Command-line arguments:  -os linux -ws gtk -arch x86<br />
+<br />
+!ENTRY org.eclipse.core.resources 2 10035 2010-02-15 14:32:58.319<br />
+!MESSAGE The workspace exited with unsaved changes in the previous session; refreshing workspace to recover changes.<br />
+<br />
+!ENTRY org.eclipse.ui 2 0 2010-02-15 14:32:59.433<br />
+!MESSAGE Warnings while parsing the key bindings from the 'org.eclipse.ui.commands' extension point<br />
+!SUBENTRY 1 org.eclipse.ui 2 0 2010-02-15 14:32:59.440<br />
+!MESSAGE Cannot bind to an undefined command: plug-in='com.adobe.flexbuilder.editors.actionscript', id='com.adobe.flexbuilder.editors.actionscript.ren ame.element'<br />
+!SUBENTRY 1 org.eclipse.ui 2 0 2010-02-15 14:32:59.441<br />
+!MESSAGE Cannot bind to an undefined command: plug-in='com.adobe.flexbuilder.editors.css', id='com.adobe.flexbuilder.editors.css.design.ZoomI n'<br />
+!SUBENTRY 1 org.eclipse.ui 2 0 2010-02-15 14:32:59.441<br />
+!MESSAGE Cannot bind to an undefined command: plug-in='com.adobe.flexbuilder.editors.css', id='com.adobe.flexbuilder.editors.css.design.ZoomO ut'<br />
+!SUBENTRY 1 org.eclipse.ui 2 0 2010-02-15 14:32:59.441<br />
+!MESSAGE Cannot bind to an undefined command: plug-in='com.adobe.flexbuilder.editors.css', id='com.adobe.flexbuilder.editors.css.design.Magni fy100'<br />
+<br />
+!ENTRY org.eclipse.jface 4 0 2010-02-15 14:33:43.315<br />
+!MESSAGE Undefined context while filtering dialog/window contexts<br />
+!STACK 0<br />
+org.eclipse.core.commands.common.NotDefinedExcepti on: Cannot get the parent identifier from an undefined context. com.adobe.flexbuilder.editors.common.flexEditorSco pe.design.mxml<br />
+    at org.eclipse.core.commands.contexts.Context.getPare ntId(Context.java:201)<br />
+    at org.eclipse.jface.bindings.BindingManager.createFi lteredContextTreeFor(BindingManager.java:825)<br />
+    at org.eclipse.jface.bindings.BindingManager.recomput eBindings(BindingManager.java:1720)<br />
+    at org.eclipse.jface.bindings.BindingManager.contextM anagerChanged(BindingManager.java:689)<br />
+    at org.eclipse.core.commands.contexts.ContextManager. fireContextManagerChanged(ContextManager.java:152)<br />
+    at org.eclipse.core.commands.contexts.ContextManager. addActiveContext(ContextManager.java:96)<br />
+    at org.eclipse.ui.internal.contexts.ContextAuthority. updateContext(ContextAuthority.java:765)<br />
+    at org.eclipse.ui.internal.contexts.ContextAuthority. activateContext(ContextAuthority.java:179)<br />
+    at org.eclipse.ui.internal.contexts.ContextService.ac tivateContext(ContextService.java:88)<br />
+    at org.eclipse.ui.internal.contexts.ContextService.ac tivateContext(ContextService.java:75)<br />
+    at com.adobe.flexbuilder.editors.common.editor.CodeAn dDesignEditor.activateEditorContext(CodeAndDesignE ditor.java:705)<br />
+    at com.adobe.flexbuilder.editors.common.editor.CodeAn dDesignEditor.activateDesignEditorContext(CodeAndD esignEditor.java:714)<br />
+    at com.adobe.flexbuilder.editors.common.editor.CodeAn dDesignEditor.pageChange(CodeAndDesignEditor.java: 538)<br />
+    at com.adobe.flexbuilder.editors.mxml.MXMLEditor.page Change(MXMLEditor.java:422)<br />
+    at com.adobe.flexbuilder.editors.common.editor.CodeAn dDesignEditor.setActivePage(CodeAndDesignEditor.ja va:648)<br />
+    at com.adobe.flexbuilder.editors.mxml.MXMLEditor.setA ctivePage(MXMLEditor.java:487)<br />
+    at com.adobe.flexbuilder.editors.derived.editor.FlexM ultiPageEditorPart.createPartControl(FlexMultiPage EditorPart.java:235)<br />
+    at com.adobe.flexbuilder.editors.common.editor.CodeAn dDesignEditor.createPartControl(CodeAndDesignEdito r.java:162)</div></div><hr />
+
+
+<div id="copyright">Powered by vBulletin&reg; Version 4.2.1 Copyright &copy; 2013 vBulletin Solutions, Inc. All rights reserved.</div>
+</div>
+</body>
+</html>

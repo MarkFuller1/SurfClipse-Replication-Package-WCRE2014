@@ -1,0 +1,848 @@
+Java Swing 
+by Robert Eckstein, Marc Loy, and Dave Wood
+
+
+The unconfirmed error reports are from readers.  They have not yet been 
+approved or disproved by the author or editor and represent solely the
+opinion of the reader.
+
+
+This page was updated on May 02, 2003.
+
+
+Here's a key to the markup:
+
+        [page-number]: serious technical mistake
+        {page-number}: minor technical mistake
+        <page-number>: important language/formatting problem
+        (page-number): language change or minor formatting problem
+        ?page-number?: reader question or request for clarification
+
+
+UNCONFIRMED errors and comments from readers:
+
+
+{1}  1;
+In sections 2.2 and 2.3 the images are in wrong order. This apply to the 
+book on Safari.
+
+
+(xxii) In the paragraph continuing off the previous page:
+
+	"Third, Swing makes a very clear distinction between the data a
+	component displays..."
+
+I think the extra 'a' between data and components is a misprint.
+
+
+(11)  At the end of the last sentence in the first paragraph,
+com.sun.java.accessibility is appended. 
+
+[23]  Line 14 of ToolbarFrame1.java;
+addWindowListener(new BasicWindowMonitor());
+
+When I compile, BasicWindowMonitor is failed to be recognized. I looked for 
+documentation in your book and at http://java.sun.com for this method and 
+failed to locate information on it.
+
+I added the following code to the main method;
+
+		WindowListener l = new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		};
+		tf1.addWindowListener(l);
+
+...which seemed to work fine.
+
+I admit I am new to the language; but going over and over the syntax makes 
+me feel that I didn't enter anything in error. I found the same issue with 
+ToolbarFrame2.java as well.
+
+
+[23]  Line 14 of ToolbarFrame1.java;
+addWindowListener(new BasicWindowMonitor());
+
+When I compile, BasicWindowMonitor is failed to be recognized. I looked for 
+documentation in your book and at http://java.sun.com for this method and 
+failed to locate information on it.
+
+I added the following code to the main method;
+
+		WindowListener l = new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		};
+		tf1.addWindowListener(l);
+
+...which seemed to work fine.
+
+I admit I am new to the language; but going over and over the syntax makes 
+me feel that I didn't enter anything in error. I found the same issue with 
+ToolbarFrame2.java as well.
+
+
+[23]  In the code example on line 15, the compiler gives an error 
+message for:
+	addWindowListener(new BasicWindowMonitor());
+
+it says:
+
+"class 'BasicWindowMonitor' not found.
+
+The book needs to be updated for JDK version 1.2.2 - 001
+(the latest download fron sun)
+
+Note that this is the first code example in the book AND IT DOSN'T 
+COMPILE.
+
+
+[24] Throughout the book, the author makes use of a class called 
+BasicWindowMonitor. It is easy to assume that it is part of the 
+Swing/AWT APIs. This is not the case. The author makes very brief mention
+of the class of page 24. It states there that this is a very simple class 
+to write and the author then presents the code. The author then uses the 
+code throughout the book.
+
+If you start reading the book in the middle as I did (I know Swing and 
+needed the book as a reference), you get confused about this class (where 
+is it defined? ...)
+
+It is NOT MENTIONED IN THE INDEX. The index was the first place I looked 
+when I wanted to know what BasicWindowMonitor was. I found no reference 
+to it. 
+
+
+(29)  Caption of Figure 2-5, bottom of page;
+"WJavaindows (right) look-and-feel" should be "Windows (right) look-and-feel"
+
+
+[35] I have discovered that the latest JAVA release 1.3 doesn't work with your 
+example SimpleInternalFrame (or the next example, SiteManager). The 
+internal frame does not display. The code works fine with JDK1.2.2.
+
+Is there an easy fix or work around? Does this represent a mistake by 
+JavaSoft or is it some sort of direction change?
+
+
+[36]  Near top;
+SimpleInternalFrame.java demo
+
+ >From a previous reader:
+
+"[35] I have discovered that the latest JAVA release 1.3 doesn't work with 
+your
+example SimpleInternalFrame (or the next example, SiteManager). The
+internal frame does not display. The code works fine with JDK1.2.2.
+Is there an easy fix or work around? Does this represent a mistake by
+JavaSoft or is it some sort of direction change?"
+
+Possible Simple solution (i.e. it worked for me):
+
+if (internalFrame == ... <snipped code> {
+
+... <more snipped code>
+
+   internalFrame.setBounds(50,50,200,100);  // from book
+   internalFrame.setVisible(true);          // added
+   desktop.add(internalFrame, new Integer(1)); // from book
+   SwingUtilities.updateComponentTreeUI(internalFrame); // added
+
+... <snipped code>
+
+
+Explanation:
+
+Using the "setVisible(true)" the Internal Frames appeared on my 
+desktop.  However, the inner area of the internal frame was the same color 
+as my desktop when it should have been light grey.  I noticed that if I hit 
+the LnF buttons this condition would disappear.  Therefore I simply added 
+the code from the LnFListener that updated the UI to force the 
+internalFrame to display correctly from the outset.
+
+Disclaimer:
+
+I don't know if this is the "correct" fix, or what unintended consequences 
+this may cause your programs should you try this.  I only know it seems to 
+work for the example on pages 35-36 of the book at present.
+
+
+[36]  source code;
+If you run SimpleInternalFrame as it is, it won't show up the
+internal frame. You need to add internalFrame.show()
+
+
+[36]  actionPerformed method;
+a call to  internalFrame.setVisible(true) is never made. The child window will not be visible in the latest version of Swing it this call is not made.
+
+
+{38}  2nd half of page;
+JDK 1.4.1:  The floating JInternalFrame windows with the site list and the individual
+page frames get created but are NOT VISIBLE when the app is run.  You need to add an
+"x.show()" method in both the addSiteFrame and addPageFrame methods.  See below:
+
+public void addSiteFrame(String name) {
+  ...
+  sf.show();
+}
+
+public void addPageFrame(String name) {
+  ...
+  pf.show();
+}
+
+Note:  I am new to Swing and would not have figured this out if I had not looked at
+the postings of errata from other folks.  Thanks to them, this fix was quick and
+simple.
+
+
+[38]  addPageFrame method & getCurrentFrame method;
+I am new at Java and jumped into Swing, so I admit, maybe I did something 
+wrong.
+
+Anyway, When I wrote out the code, it compiled w/o erros.  But when I ran 
+the program, only the buttons showed.
+
+I also had this problem earlier with the look and feel stuff.  So anyway, 
+to fix it I added the "setVisible(true)" method to all of it.  Then the 
+stuff showed up.
+
+I looked at your code examples and they didnt work either.  So they were 
+wrong in the book and in the examples.  At least on my machine.  I am 
+running 1.3  so maybe something in the vision got changed.?
+
+
+{46} In Table 3-1, the enabled property is not shown as bound, yet it
+generates a PropertyChangedEvent if it is changed (according to the Sun 
+Java 1.2 doc). 
+
+
+[49-50]  Code Example;
+The code shoes that to add a AbstractAction (in this case you extend it and 
+call it Sample Action) that you use the 'add' method.  It probably works in 
+1.2 but in 1.3 Java they now want you to use the 'setAction' method.  But 
+what you really need ot do is create a control and use the setAction on 
+that, then add add that to it.
+
+It took some work, but here is what I came up with that seems to work:
+
+// ActionExample.java
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+
+public class ActionExample extends JPanel {
+	
+	public JMenuBar menuBar;
+	public JToolBar toolBar;
+	
+	public ActionExample(){
+		super(true);
+		
+		SampleAction exampleAction = new SampleAction("Download", new 
+ImageIcon("action.gif") );
+		
+		// create a meu bar and give it a bevel border
+		menuBar = new JMenuBar();
+		menuBar.setBorder(new BevelBorder(BevelBorder.RAISED) );
+		
+		// create a menu and add it ot the menu bar
+		JMenu menu = new JMenu("Menu");
+		menuBar.add(menu);
+		
+		JMenuItem menuItem = new JMenuItem("Download Item");
+		menuItem.setAction(exampleAction);
+		
+		menu.add(menuItem);
+		
+		
+		// creat a toolbar and give it an etched border
+		toolBar = new JToolBar();
+		toolBar.setBorder(new EtchedBorder() );
+		
+		JButton button = new JButton("My Button");
+		button.setAction(exampleAction);
+		
+		toolBar.add(button);
+		
+		
+	}
+	
+	class SampleAction extends AbstractAction {
+		
+		// this is our sample action.  I tmust have an actionPerforemd() method,
+		// which is called when the action should be invoded.
+		public SampleAction(String text, Icon icon){
+			super(text, icon);
+		}
+		
+		public void actionPerformed(ActionEvent e){
+			System.out.println("Action [" + e.getActionCommand() + "] performed!");
+		}
+	}
+	
+	public static void main(String s[]){
+		ActionExample example = new ActionExample();
+		
+		JFrame frame = new JFrame("Action Example");
+		frame.addWindowListener(new BasicWindowMonitor());
+		frame.setJMenuBar(example.menuBar);
+		frame.getContentPane().add(example.toolBar, BorderLayout.NORTH);
+		frame.setSize(400,400);
+		frame.setVisible(true);
+	
+	}
+
+}
+
+
+[50]  toolBar.add...;
+As someone else has pointed out, the "ActionExample" demo example doesn't 
+work in JDK1.3 as written.  The most straightforward fix I have found is to 
+change the toolBar.add... to:
+
+     toolBar.add(new JButton(exampleAction));
+
+The JDK 1.3 documentation is a bit misleading here, for the add interface 
+for JToolBar it states:
+
+  (returns)JButton
+   add(Action a)
+           Adds a new JButton which dispatches the action.
+
+Well, does it take an "Action" or a "JButton"?  The description is a bit 
+confusing.  As it turns out it takes either, but only the JButton seems to 
+work right.
+
+Just to be pedantic, you might want to pass a JMenuItem to the menu instead 
+of an Action...
+
+
+(50) When Running ActionExample.java under JDK 1.3.0, the name of the 
+Action is not displayed when clicking on the toolbar. Also the 
+getActionCommand gives a "Null" value. A JButton has to be created and 
+button.setAction(exampleAction) has to be called. Then the newly created 
+JButton has to be added to the toolbar.
+
+Also see the Java 1.3.0 API documentation under JToolbar.add() 
+
+To get this to work properly you must call the setActionCommand of the 
+JButton returned by the add(action) method of toolbar:
+
+JButton toolButton = toolBar.add(exampleAction);
+toolButton.setActionCommand("Download");
+
+
+{50}  ActionExample;
+add to previous comments:
+Also the string sent to SampleAction is not displayed on the toolbar button 
+(just the icon).  To fix this, call the setText() method of the 
+JButton.  This also sets the action command string so that line can be 
+removed - unless you want the action command to be something other than the 
+button text.
+
+JButton toolButton = toolBar.add(exampleAction);
+//toolButton.setActionCommand("Download");
+toolButton.setText("Download");
+
+
+{59}  4th paragraph;
+The JComponent class does NOT have a "public void pack()" method.
+
+
+[82]  example 4-2;
+I just started at page 81 chapter 4 "Labels and Icons" and
+the first example on page 82 didn't work because the class
+BasicWindowMonitor doesn't exist.
+
+
+[85]  The example in Figure 4-3 does not produce the described behavior:
+When I press a mnenomic key, the focus is transferred to the corresponding 
+TextField as described, but the mnemonic letter is also inserted in the 
+TextField that was focused before.
+
+This is an absolutely inacceptable behavior (it also occurs with menu 
+mnemonics in any JTextComponent).
+We have tested this with the JSDK 1.2 shipped with JBuilder 3.0 dating 
+the 25.05.99, and older versions.
+
+If there is a workaround for this error, or if there is a swing-version 
+that doesn't produce this errer, we'd be very happy to hear about.
+
+
+[95]  example on this page;
+The example on this page doesn't work because it expects a main method.
+
+
+{113}  The last paragraph states: 
+
+	"...the button's armed property remains set to true after 
+	the button is clicked."  
+
+However, when the JButtonEvents example is run using JDK 1.2.2 on 
+a Windows 95 system, the armed property _is_ reset to 
+false after each button click. 
+
+
+{116}  FancyButton constructor;
+On page 106 the rolloverEnabled property is explained, the explanation says
+that calling setRolloverIcon will cause this property to be set to true. 
+The call to setRolloverEnabled( true ) in the FancyButton constructor should
+then be unnecessary.
+
+
+[169]  within the block for public ListModelExample () {;
+when you create a new list, the program reads:
+
+list = new JList ();
+
+Instead, it should create a JList using the data model it has just 
+instantiated in the line above:
+
+list = new JList (model);
+
+
+[182]  in function valueChanged;
+function tries to illustrate that if value is adjusting ( more events coming in )
+then wait for the end. So the code should compare to a true value not false:
+currently reads if( e.getValueIsAdjusting == false ) return ; should be if(
+e.getValueIsAdjusting == true ) return
+
+
+{225} 
+Figure 8-6 has the caption "Figure 8-6. JLayeredFrame example", but there is 
+no such thing as a layered frame.  I believe the caption was meant to read
+"JLayeredPane example".
+
+
+(257)  The third sentence of the first paragraph reads:
+	
+	"Like its superclass, JLayeredPane has a null layout manager."
+
+It should read:
+
+	"Like its superclass, JDesktopPane has a null layout manager." 
+
+
+(270)  inside AddFrameAction.actionPerformed();
+The SampleDesktop example doesn't work as expected (at least not on my 
+installation).  No new Internal Frames appear when commanded from the menu 
+bar.  I inserted the line
+
+f.setVisible(true);
+
+into this function, and that fixed the problem.
+
+
+{274} I used the code listing on pages 269-274 of the Java Swing 
+      text as a basis for a mdi application. The application uses 
+      the client property "JDesktopPane.dragMode" with value "outline", 
+      which allows only the outline of JInternalFrames to be rendered 
+      as they are being dragged. The code that implements the tiling 
+      behavior on page 274, in particular the line 
+      desk.getDesktopManager().resizeFrame(f,x,y,w,h) causes the 
+      internal frames to behave incorrectly (i.e. only the outings are 
+      redrawn). I reported this problem to the sun development team 
+      under bug id 4255613. The response from sun was that instead of 
+      invoking resizeFrame on the JDesktopPane, use the methods 
+      provided directly by JInternalFrame. Therefore, the code snipped 
+      from page 274 should be changed to be f.reshape(x,y,w,h).
+
+
+[289]  Figure 10-6;
+In the text it is said that any arbitary component can be used as the 
+message for a dialog. An example is given of a calendar component.
+It is very frustrating to see a picture of just the component you need, and 
+not be able to find the source of this small, but very standard and useful 
+example. (not in 'JAVA Swing' or anywhere on oreilly.com)
+It would be less frustrating to have used an example component which was 
+covered somewhere else in the book.
+(or better, to use this 'select date' component somewhere in one of your 
+example programms.)
+
+
+[295]  In the OptPaneComparison class example:
+
+1. Compile and run the example.  
+2. From the Dialog menu, select "Constructor".  
+3. Click okay to dismiss the dialog window.
+4. Repeat steps 2 and 3, but this time clicking on "okay" will
+   not dismiss the dialog.  If you click on "cancel" it will.
+   In fact, every other time you bring up the dialog in this way
+   "okay" will work and "cancel" will not.  On the other times,
+   "cancel" will work and "okay" will not.
+
+
+(326) In Figure 11-7 the JTabbedPane figures marked Windows and Motif are 
+reversed. 
+
+
+(401)  Last Paragraph;
+It says:
+
+If you wish to create a slightly more elegant border, there is code inside
+the LineBorder class to round its corners. There is currently no way to
+create a LineBorder with rounded corners unless you extend LineBorder and do
+it yourself.
+
+??? Is there or is there not...
+
+
+[431]  In the fourth paragraph, or second block of source code:
+
+item1.setHorizontalTextAlignment(SwingConstants.RIGHT);
+
+should read:
+
+item1.setHorizontalTextPosition(SwingConstants.RIGHT);
+
+This also occurs in the line starting "item2.set......"
+
+There is no setHorizontalTextAlignmnet,  there is a setHorizontalAlignment, 
+and a setHorizontalTextPosition.  The setHorizontalTextPosition fits the 
+description of what is try to be accomplished.
+
+
+{491}  Figure caption;
+Should read:
+
+... were added as "Names", "In", "Order"
+
+
+[530]  starting on bottom of page, on to page 531;
+This is an erratum for the TableCellRenderer example; I am working from the December
+1998 reprint, so this problem may be on a different page or may have been corrected
+in more recent editions.
+
+The definition of class VolumeRenderer has the class extending JScrollBar and
+implementing TableCellRenderer. The method getTableCellRendererComponent(), required
+by the TableCellRenderer interface, returns "this" in all places in the example.
+Unfortunatley, this is not how TableCellRenderer works. TableCellRenderer is a
+factory, not a component itself. So, the correct class definition should read:
+
+public class VolumeRenderer implements TableCellRenderer {
+    public Component getTableCellRendererComponent(JTable table,
+            Object value, boolean isSelected, boolean hasFocus,
+            int row, int column) {
+        JScrollBar bar = new JScrollBar(JScrollBar.HORIZONTAL);
+        if (value == null) {
+            return bar;
+        }
+        if (value instanceof Volume) {
+            bar.setValue(((Volume)value).getVolume());
+        }
+        else {
+            bar.setValue(0);
+        }
+        return bar;
+    }
+};
+
+The TableCellRenderer must allocate a new JScrollBar for each call, or the table will
+display the same object in all of its scroll bar cells.
+
+
+{533}  fireEditingCancelled() method;
+The line that reads
+  for (int i=listeners.size(); i>=0;i--) {
+    
+
+should read 
+  for (int i=listeners.size()-1; i>0;i--) {
+
+as it does in the next method (fireEditingStopped() )
+
+
+[540]  SimpleTable2.java;
+     I copied the SimpleTable2 example program from your book. In it you shows how to 
+set up a JTable with a row header. One of the key statements is
+
+    jt.setSelectionModel(headerColumn.getSelectionModel());
+
+   where jt is the Data JTable and headerColumn is the Row Header JTable. All works well 
+until I click in the rowHeader and use the arrow keys to scroll downwards. The row header 
+scrolls but the Data Table does not!
+
+   This may be an omission in the program or a problem with Java. Do you have a cure? 
+This would be a means of making the Table scroll when the row header scrolls. Or is this 
+a java bug that has not been discovered yet?
+
+
+[551]  In getColumnClass() method.;
+getColumnClass() should always return String.class since all of the data in
+the data array is of type String.  The code as-is results in an
+"illegalArgumentException: Cannot format object as a Number" being thrown.
+
+
+[551]  3rd code block;
+You mentioned in your very good TableChart example that the user is able to edit each 
+cell and then monitor the result of changes in the pie chart.
+
+With this code however you can't do that. Because with JTable you use the 
+DefaultCellEditor class which does not allow "Number" values be rendered.
+
+
+{541}  7th paragraph of code;
+In order to have horizontal scrolling you add the following two lines to 
+remove auto-resize from the table and row headers.
+
+jt.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+headerColumn.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+The second of these two lines should not be there, the header should 
+autoresize. This causes the funny edge to the screenshot that can be seen 
+on page 539, and causes other rendering problems in tables of other size.
+
+
+[576]  public void refresh...;
+The code line
+
+    int[] ci = new int[] {-1};
+
+generates the error:
+
+java.lang.ArrayIndexOutOfBoundsException: -1 < 0
+        at java.util.Vector.elementAt(Vector.java:427)
+        at
+javax.swing.tree.DefaultMutableTreeNode.getChildAt(DefaultMutableTreeNode.java:231)
+        at
+javax.swing.tree.VariableHeightLayoutCache.treeNodesChanged(VariableHeightLayoutCache.java:374)
+        at
+javax.swing.plaf.basic.BasicTreeUI$TreeModelHandler.treeNodesChanged(BasicTreeUI.java:2344)
+        at ExpressionTreeModel.fireTreeNodesChanged(ExpressionTreeModel.java:103)
+        at ExpressionTreeModel.refresh(ExpressionTreeModel.java:92)
+        at ExprTree1.treeExpanded(ExprTree1.java:63)
+        at javax.swing.JTree.fireTreeExpanded(JTree.java:2124)
+        at javax.swing.JTree.setExpandedState(JTree.java:2794)
+        at javax.swing.JTree.expandPath(JTree.java:1646)
+        at
+javax.swing.plaf.basic.BasicTreeUI.toggleExpandState(BasicTreeUI.java:2022)
+        at
+javax.swing.plaf.basic.BasicTreeUI.handleExpandControlClick(BasicTreeUI.java:2009)
+        at
+javax.swing.plaf.basic.BasicTreeUI.checkForClickInExpandControl(BasicTreeUI.java:1963)
+        at
+javax.swing.plaf.basic.BasicTreeUI$MouseHandler.mousePressed(BasicTreeUI.java:2674)
+        at java.awt.Component.processMouseEvent(Component.java:3712)
+        at java.awt.Component.processEvent(Component.java:3544)
+        at java.awt.Container.processEvent(Container.java:1164)
+        at java.awt.Component.dispatchEventImpl(Component.java:2593)
+        at java.awt.Container.dispatchEventImpl(Container.java:1213)
+        at java.awt.Component.dispatchEvent(Component.java:2497)
+        at java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:2451)
+        at java.awt.LightweightDispatcher.processMouseEvent(Container.java:2210)
+        at java.awt.LightweightDispatcher.dispatchEvent(Container.java:2125)
+        at java.awt.Container.dispatchEventImpl(Container.java:1200)
+        at java.awt.Window.dispatchEventImpl(Window.java:914)
+        at java.awt.Component.dispatchEvent(Component.java:2497)
+        at java.awt.EventQueue.dispatchEvent(EventQueue.java:339)
+        at
+java.awt.EventDispatchThread.pumpOneEventForHierarchy(EventDispatchThread.java:131)
+        at
+java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:98)
+        at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:93)
+        at java.awt.EventDispatchThread.run(EventDispatchThread.java:85)
+
+This occurs every time a node is expanded. I changed the line to:
+
+    int[] ci = new int[] { 0 };
+
+This fixed the problem.
+
+
+
+[578]  last line;
+public void insert(MutableTreeNode child, int index)
+
+to append a child, the index should be the node's getChildCount(), NOT getChildCount() + 1, which will cause ArrayIndexOutOfBoundsE
+xception as indices start from 0.
+
+
+{654}  2nd & 4th lines;
+Returns true if the edit is inProgress and super.canRedo() returns true.
+
+Should read:
+
+Returns true if the edit is not inProgress and super.canRedo() returns true.
+
+
+[721] The HTMLExample code example refers to a BasicWindowMonitor class.
+
+This is not a Swing class, and is not listed in the index. It is not 
+explained here and had me scratching my head, because it is actually 
+only explained on page 24.
+
+BasicWindowMonitor should be listed in the index. 
+
+
+(764) In "The GapContent Class," it now reads
+
+	Initially, the entire array is the gap (actually, GapContent
+	starts with a single \n in the array, but we'll ignore that 
+	detail). As text is inserted (lines 1 and 2), the right edge 
+	of the gap is shifted, staying just beyond that last inserted 
+	character.
+
+I believe that the word "right", above, should be "left".
+
+
+(Chapter 24) There were three instances of SimpleEditor.this which caused 
+compilation errors in IOStyledEditor.java. They should be 
+changed to IOStyledEditor.this. The changes appear in the 
+text of Chapter 24, but not in the source code archive.
+
+Enter text. Apply a style to a few words. Backspace into the
+styled text.
+
+The first backspace into the styled area of text is ignored.
+
+The second backspace into the styled area of text produces
+the following exception:
+
+Exception occurred during event dispatching:
+javax.swing.text.StateInvariantError: LabelView: Stale view: javax.swing.
+text.BadLocationException: Invalid location
+	at javax.swing.text.LabelView.loadText(Compiled Code)
+	at javax.swing.text.LabelView$LabelFragment.getBreakWeight
+	(Compiled Code)
+	at javax.swing.text.LabelView.getBreakWeight(Compiled Code)
+	at javax.swing.text.ParagraphView.layoutRow(Compiled Code)
+	at javax.swing.text.ParagraphView.rebuildRows(Compiled Code)
+	at javax.swing.text.ParagraphView.layout(Compiled Code)
+	at javax.swing.text.ParagraphView.removeUpdate(ParagraphView.java:866)
+	at javax.swing.text.BoxView.removeUpdate(Compiled Code)
+	at javax.swing.plaf.basic.BasicTextUI$RootView.removeUpdate
+	(BasicTextUI.java:1166)
+	at javax.swing.plaf.basic.BasicTextUI$UpdateHandler.removeUpdate
+	(BasicTextUI.java:1383)
+	at javax.swing.text.AbstractDocument.fireRemoveUpdate(Compiled Code)
+	at javax.swing.text.AbstractDocument.remove(Compiled Code)
+	at javax.swing.text.DefaultEditorKit$DeletePrevCharAction.action
+	Performed(DefaultEditorKit.java:946)
+	at javax.swing.text.JTextComponent.mapEventToAction(Compiled Code)
+	at javax.swing.text.JTextComponent.processComponentKeyEvent(Compiled 
+	Code)
+	at javax.swing.JEditorPane.processComponentKeyEvent(Compiled Code)
+	at javax.swing.JComponent.processKeyEvent(Compiled Code)
+	at java.awt.Component.processEvent(Compiled Code)
+	at java.awt.Container.processEvent(Compiled Code)
+	at java.awt.Component.dispatchEventImpl(Compiled Code)
+	at java.awt.Container.dispatchEventImpl(Compiled Code)
+	at java.awt.Component.dispatchEvent(Compiled Code)
+	at java.awt.LightweightDispatcher.processKeyEvent(Compiled Code)
+	at java.awt.LightweightDispatcher.dispatchEvent(Compiled Code)
+	at java.awt.Container.dispatchEventImpl(Compiled Code)
+	at java.awt.Window.dispatchEventImpl(Compiled Code)
+	at java.awt.Component.dispatchEvent(Compiled Code)
+	at java.awt.EventQueue.dispatchEvent(Compiled Code)
+	at java.awt.EventDispatchThread.run(EventDispatchThread.java:68)
+
+This problem was observed on Windows NT 4.0 SP5 and Solaris 2.7,
+both running Java 1.2.1.
+
+
+[942]  1st Half and Bottom;
+While compiling the IOStyledEditor.java with JBuilder 4.0 (Foundation)
+following error messages occur:
+
+"IOStyledEditor.java": Error #: 483 : not an enclosing class: SimpleEditor 
+at line 63, column 52
+"IOStyledEditor.java": Error #: 483 : not an enclosing class: SimpleEditor 
+at line 94, column 52
+"IOStyledEditor.java": Error #: 483 : not an enclosing class: SimpleEditor 
+at line 98, column 52
+
+
+You have to change SimpleEditor against IOStyledEditor in line 63, 94, 98 
+and all is fine.
+
+
+(1031)  code;
+In the calls to UIManager.put() for icons, the resource names are 
+incorrectly listed as InternalFrameTitlePane.<some icon>.  They should be 
+InternalFrame.<some icon>.  Example: should be InternalFrame.closeIcon, NOT 
+InternalFrameTitlePane.closeIcon.
+
+Also, the zip containing program samples does not include "altMax.gif", as 
+needed by ResourceModExample.java.
+
+
+[1050]  The line:
+
+	protected void initComponentDefaults(UIDefautls table) {
+
+Should be:
+
+	protected void initComponentDefaults(UIDefaults table) {
+
+the "l" and "t" in "UIDefaults" are transposed.
+
+
+(Chapter 26) The source download for the Chapter 26 examples is 
+             not complete.
+
+Also, the final figure (26-14) in the chapter does not come with a
+corresponding example.
+
+
+[1117]  When I run the Sketch class in chapter 28, I get the following:
+
+---------------------------
+
+UIDefaults.getUI() failed: no ComponentUI class for: 
+p05.JogShuttle[,0,0,0x0,invalid,alignmentX=null,alignmentY=null,border=,flag 
+  s=0,maximumSize=,minimumSize=java.awt.Dimension[width=80,height=80],prefer 
+=0,maximumSize=,minimumSize=java.awt.Dimension[width=80,height=80],preferre 
+dSize=java.awt.Dimension[width=80,height=80]]
+
+java.lang.Error
+
+	at javax.swing.UIDefaults.getUIError(UIDefaults.java:351)
+
+	at javax.swing.UIDefaults.getUI(UIDefaults.java:379)
+
+	at javax.swing.UIManager.getUI(UIManager.java:568)
+
+	at p05.JogShuttle.updateUI(JogShuttle.java:50)
+
+	at p05.JogShuttle.init(JogShuttle.java:44)
+
+	at p05.JogShuttle.<init>(JogShuttle.java:35)
+
+	at p05.Sketch.<init>(Sketch.java:34)
+
+	at p05.Sketch.main(Sketch.java:76)
+
+UIDefaults.getUI() failed: no ComponentUI class for: 
+p05.JogShuttle[,0,0,0x0,invalid,alignmentX=null,alignmentY=null,border=,flag 
+  s=0,maximumSize=,minimumSize=java.awt.Dimension[width=80,height=80],prefer 
+=0,maximumSize=,minimumSize=java.awt.Dimension[width=80,height=80],preferre 
+dSize=java.awt.Dimension[width=80,height=80]]
+
+java.lang.Error
+
+	at javax.swing.UIDefaults.getUIError(UIDefaults.java:351)
+
+	at javax.swing.UIDefaults.getUI(UIDefaults.java:379)
+
+	at javax.swing.UIManager.getUI(UIManager.java:568)
+
+	at p05.JogShuttle.updateUI(JogShuttle.java:50)
+
+	at p05.JogShuttle.init(JogShuttle.java:44)
+
+	at p05.JogShuttle.<init>(JogShuttle.java:35)
+
+	at p05.Sketch.<init>(Sketch.java:35)
+
+	at p05.Sketch.main(Sketch.java:76)
+
+----------------
+
+(colophon)
+In Java Swing, 1998, "Colophon" page refers to Java Servlet Programming"
+instead of the proper book title.

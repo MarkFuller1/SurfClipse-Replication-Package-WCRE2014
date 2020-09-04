@@ -1,0 +1,616 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- code.jsp -->
+
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>org.apache.harmony.luni.net: PlainSocketImpl.java</title>
+</head>
+<body style="padding:0 0 0 0;margin:0 0 0 0">
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/apache-harmony-6.0-src-r917296-snapshot-code.html">apache-harmony-6.0-src-r917296-snapshot</a> &#187; org.apache.harmony.luni.net &#187; 
+ [<a href="/docs/api/org/apache/harmony/luni/net/PlainSocketImpl.html">javadoc</a> | source]
+</div>
+<pre>
+<a name='1'>    1 &nbsp; /*
+    2 &nbsp;  *  Licensed to the Apache Software Foundation (ASF) under one or more
+    3 &nbsp;  *  contributor license agreements.  See the NOTICE file distributed with
+    4 &nbsp;  *  this work for additional information regarding copyright ownership.
+    5 &nbsp;  *  The ASF licenses this file to You under the Apache License, Version 2.0
+    6 &nbsp;  *  (the "License"); you may not use this file except in compliance with
+    7 &nbsp;  *  the License.  You may obtain a copy of the License at
+    8 &nbsp;  *
+    9 &nbsp;  *     http://www.apache.org/licenses/LICENSE-2.0
+   10 &nbsp;  *
+<a name='11'>   11 &nbsp;  *  Unless required by applicable law or agreed to in writing, software
+   12 &nbsp;  *  distributed under the License is distributed on an "AS IS" BASIS,
+   13 &nbsp;  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   14 &nbsp;  *  See the License for the specific language governing permissions and
+   15 &nbsp;  *  limitations under the License.
+   16 &nbsp;  */
+   17 &nbsp; 
+   18 &nbsp; <span class='kw'>package</span> <a href=/docs/api/org/apache/harmony/luni/net/package-index.html>org.apache.harmony.luni.net</a>;
+   19 &nbsp; 
+   20 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/FileDescriptor.html>java.io.FileDescriptor</a>;
+<a name='21'>   21 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/IOException.html>java.io.IOException</a>;
+   22 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/InputStream.html>java.io.InputStream</a>;
+   23 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/InterruptedIOException.html>java.io.InterruptedIOException</a>;
+   24 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/io/OutputStream.html>java.io.OutputStream</a>;
+   25 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/lang/reflect/Field.html>java.lang.reflect.Field</a>;
+   26 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/ConnectException.html>java.net.ConnectException</a>;
+   27 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/InetAddress.html>java.net.InetAddress</a>;
+   28 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/InetSocketAddress.html>java.net.InetSocketAddress</a>;
+   29 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/Proxy.html>java.net.Proxy</a>;
+   30 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/SocketAddress.html>java.net.SocketAddress</a>;
+<a name='31'>   31 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/SocketException.html>java.net.SocketException</a>;
+   32 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/SocketImpl.html>java.net.SocketImpl</a>;
+   33 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/SocketOptions.html>java.net.SocketOptions</a>;
+   34 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/SocketTimeoutException.html>java.net.SocketTimeoutException</a>;
+   35 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/net/UnknownHostException.html>java.net.UnknownHostException</a>;
+   36 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/security/AccessController.html>java.security.AccessController</a>;
+   37 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/security/PrivilegedAction.html>java.security.PrivilegedAction</a>;
+   38 &nbsp; 
+   39 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/apache/harmony/luni/platform/INetworkSystem.html>org.apache.harmony.luni.platform.INetworkSystem</a>;
+   40 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/apache/harmony/luni/platform/Platform.html>org.apache.harmony.luni.platform.Platform</a>;
+<a name='41'>   41 &nbsp; <span class='kw'>import</span> <a href=/docs/api/org/apache/harmony/luni/internal/nls/Messages.html>org.apache.harmony.luni.internal.nls.Messages</a>;
+   42 &nbsp; 
+   43 &nbsp; /**
+   44 &nbsp;  * A concrete connected-socket implementation.
+   45 &nbsp;  */
+   46 &nbsp; public class PlainSocketImpl extends SocketImpl {
+   47 &nbsp; 
+   48 &nbsp;     // Const copy from socket
+   49 &nbsp; 
+   50 &nbsp;     static final int MULTICAST_IF = 1;
+<a name='51'>   51 &nbsp; 
+   52 &nbsp;     static final int MULTICAST_TTL = 2;
+   53 &nbsp; 
+   54 &nbsp;     static final int TCP_NODELAY = 4;
+   55 &nbsp; 
+   56 &nbsp;     static final int FLAG_SHUTDOWN = 8;
+   57 &nbsp; 
+   58 &nbsp;     // For SOCKS support. A SOCKS bind() uses the last
+   59 &nbsp;     // host connected to in its request.
+   60 &nbsp;     static private InetAddress lastConnectedAddress;
+<a name='61'>   61 &nbsp; 
+   62 &nbsp;     static private int lastConnectedPort;
+   63 &nbsp; 
+   64 &nbsp;     private static Field fdField;
+   65 &nbsp; 
+   66 &nbsp;     private static Field localportField;
+   67 &nbsp; 
+   68 &nbsp;     private boolean tcpNoDelay = true;
+   69 &nbsp; 
+   70 &nbsp;     /**
+<a name='71'>   71 &nbsp;      * used to store the trafficClass value which is simply returned as the
+   72 &nbsp;      * value that was set. We also need it to pass it to methods that specify an
+   73 &nbsp;      * address packets are going to be sent to
+   74 &nbsp;      */
+   75 &nbsp;     private int trafficClass;
+   76 &nbsp; 
+   77 &nbsp;     protected INetworkSystem netImpl = Platform.getNetworkSystem();
+   78 &nbsp; 
+   79 &nbsp;     public int receiveTimeout = 0;
+   80 &nbsp; 
+<a name='81'>   81 &nbsp;     public boolean streaming = true;
+   82 &nbsp; 
+   83 &nbsp;     public boolean shutdownInput;
+   84 &nbsp; 
+   85 &nbsp;     Proxy proxy;
+   86 &nbsp; 
+   87 &nbsp;     public PlainSocketImpl() {
+   88 &nbsp;         super();
+   89 &nbsp;         fd = new FileDescriptor();
+   90 &nbsp;     }
+<a name='91'>   91 &nbsp; 
+   92 &nbsp;     public PlainSocketImpl(FileDescriptor fd) {
+   93 &nbsp;         super();
+   94 &nbsp;         this.fd = fd;
+   95 &nbsp;     }
+   96 &nbsp;     
+   97 &nbsp;     /**
+   98 &nbsp;      * creates an instance with specified proxy.
+   99 &nbsp;      */
+  100 &nbsp;     public PlainSocketImpl(Proxy proxy) {
+<a name='101'>  101 &nbsp;         this();
+  102 &nbsp;         this.proxy = proxy;
+  103 &nbsp;     }
+  104 &nbsp;     
+  105 &nbsp;     public PlainSocketImpl(FileDescriptor fd, int localport, InetAddress addr, int port) {
+  106 &nbsp;         super();
+  107 &nbsp;         this.fd = fd;
+  108 &nbsp;         this.localport = localport;
+  109 &nbsp;         this.address = addr;
+  110 &nbsp;         this.port = port;
+<a name='111'>  111 &nbsp;     }
+  112 &nbsp;     
+  113 &nbsp;     @Override
+  114 &nbsp;     protected void accept(SocketImpl newImpl) throws IOException {
+  115 &nbsp;         if (NetUtil.usingSocks(proxy)) {
+  116 &nbsp;             ((PlainSocketImpl) newImpl).socksBind();
+  117 &nbsp;             ((PlainSocketImpl) newImpl).socksAccept();
+  118 &nbsp;             return;
+  119 &nbsp;         }
+  120 &nbsp; 
+<a name='121'>  121 &nbsp;         try {
+  122 &nbsp;             if (newImpl instanceof PlainSocketImpl) {
+  123 &nbsp;                 PlainSocketImpl newPlainSocketImpl = (PlainSocketImpl) newImpl;
+  124 &nbsp;                 netImpl.acceptStreamSocket(fd, newImpl, newPlainSocketImpl
+  125 &nbsp;                         .getFileDescriptor(), receiveTimeout);
+  126 &nbsp;                 newPlainSocketImpl.setLocalport(getLocalPort());
+  127 &nbsp;             } else {
+  128 &nbsp;                 // if newImpl is not an instance of PlainSocketImpl, use
+  129 &nbsp;                 // reflection to get/set protected fields.
+  130 &nbsp;                 if (null == fdField) {
+<a name='131'>  131 &nbsp;                     fdField = getSocketImplField("fd"); //$NON-NLS-1$
+  132 &nbsp;                 }
+  133 &nbsp;                 FileDescriptor newFd = (FileDescriptor) fdField.get(newImpl);
+  134 &nbsp;                 netImpl.acceptStreamSocket(fd, newImpl, newFd, receiveTimeout);
+  135 &nbsp; 
+  136 &nbsp;                 if (null == localportField) {
+  137 &nbsp;                     localportField = getSocketImplField("localport"); //$NON-NLS-1$
+  138 &nbsp;                 }
+  139 &nbsp;                 localportField.setInt(newImpl, getLocalPort());
+  140 &nbsp;             }
+<a name='141'>  141 &nbsp;         } catch (InterruptedIOException e) {
+  142 &nbsp;             throw new SocketTimeoutException(e.getMessage());
+  143 &nbsp;         } catch (IllegalAccessException e) {
+  144 &nbsp;             // empty
+  145 &nbsp;         }
+  146 &nbsp;     }
+  147 &nbsp; 
+  148 &nbsp;     /**
+  149 &nbsp;      * gets SocketImpl field by reflection.
+  150 &nbsp;      */
+<a name='151'>  151 &nbsp;     private Field getSocketImplField(final String fieldName) {
+  152 &nbsp;         return AccessController.doPrivileged(new PrivilegedAction&lt;Field&gt;() {
+  153 &nbsp;             public Field run() {
+  154 &nbsp;                 Field field = null;
+  155 &nbsp;                 try {
+  156 &nbsp;                     field = SocketImpl.class.getDeclaredField(fieldName);
+  157 &nbsp;                     field.setAccessible(true);
+  158 &nbsp;                 } catch (NoSuchFieldException e) {
+  159 &nbsp;                     throw new Error(e);
+  160 &nbsp;                 }
+<a name='161'>  161 &nbsp;                 return field;
+  162 &nbsp;             }
+  163 &nbsp;         });
+  164 &nbsp;     }
+  165 &nbsp; 
+  166 &nbsp;     @Override
+  167 &nbsp;     protected synchronized int available() throws IOException {
+  168 &nbsp;         // we need to check if the input has been shutdown. If so
+  169 &nbsp;         // we should return that there is no data to be read
+  170 &nbsp;         if (shutdownInput == true) {
+<a name='171'>  171 &nbsp;             return 0;
+  172 &nbsp;         }
+  173 &nbsp;         return netImpl.availableStream(fd);
+  174 &nbsp;     }
+  175 &nbsp; 
+  176 &nbsp;     @Override
+  177 &nbsp;     protected void bind(InetAddress anAddr, int aPort) throws IOException {
+  178 &nbsp;         netImpl.bind(fd, anAddr, aPort);
+  179 &nbsp;         // PlainSocketImpl2.socketBindImpl2(fd, aPort, anAddr);
+  180 &nbsp;         address = anAddr;
+<a name='181'>  181 &nbsp;         if (0 != aPort) {
+  182 &nbsp;             localport = aPort;
+  183 &nbsp;         } else {
+  184 &nbsp;             localport = netImpl.getSocketLocalPort(fd, NetUtil
+  185 &nbsp;                     .preferIPv6Addresses());
+  186 &nbsp;         }
+  187 &nbsp;     }
+  188 &nbsp; 
+  189 &nbsp;     @Override
+  190 &nbsp;     protected void close() throws IOException {
+<a name='191'>  191 &nbsp;         synchronized (fd) {
+  192 &nbsp;             if (fd.valid()) {
+  193 &nbsp;                 if ((netImpl.getSocketFlags() &amp; FLAG_SHUTDOWN) != 0) {
+  194 &nbsp;                     try {
+  195 &nbsp;                         shutdownOutput();
+  196 &nbsp;                     } catch (Exception e) {
+  197 &nbsp;                     }
+  198 &nbsp;                 }
+  199 &nbsp;                 netImpl.socketClose(fd);
+  200 &nbsp;                 fd = new FileDescriptor();
+<a name='201'>  201 &nbsp;             }
+  202 &nbsp;         }
+  203 &nbsp;     }
+  204 &nbsp; 
+  205 &nbsp;     @Override
+  206 &nbsp;     protected void connect(String aHost, int aPort) throws IOException {
+  207 &nbsp;         InetAddress anAddr = netImpl.getHostByName(aHost, NetUtil
+  208 &nbsp;                 .preferIPv6Addresses());
+  209 &nbsp;         connect(anAddr, aPort);
+  210 &nbsp;     }
+<a name='211'>  211 &nbsp; 
+  212 &nbsp;     @Override
+  213 &nbsp;     protected void connect(InetAddress anAddr, int aPort) throws IOException {
+  214 &nbsp;         connect(anAddr, aPort, 0);
+  215 &nbsp;     }
+  216 &nbsp; 
+  217 &nbsp;     /**
+  218 &nbsp;      * Connects this socket to the specified remote host address/port.
+  219 &nbsp;      * 
+  220 &nbsp;      * @param anAddr
+<a name='221'>  221 &nbsp;      *            the remote host address to connect to
+  222 &nbsp;      * @param aPort
+  223 &nbsp;      *            the remote port to connect to
+  224 &nbsp;      * @param timeout
+  225 &nbsp;      *            a timeout where supported. 0 means no timeout
+  226 &nbsp;      * @throws IOException
+  227 &nbsp;      *             if an error occurs while connecting
+  228 &nbsp;      */
+  229 &nbsp;     private void connect(InetAddress anAddr, int aPort, int timeout)
+  230 &nbsp;             throws IOException {
+<a name='231'>  231 &nbsp;         
+  232 &nbsp;         InetAddress normalAddr = anAddr.isAnyLocalAddress() ? InetAddress.getLocalHost() : anAddr;
+  233 &nbsp;         try {
+  234 &nbsp;             if (streaming) {
+  235 &nbsp;                 if (NetUtil.usingSocks(proxy)) {
+  236 &nbsp;                     socksConnect(anAddr, aPort, 0);
+  237 &nbsp;                 } else {
+  238 &nbsp;                     if (timeout == 0) {
+  239 &nbsp;                         netImpl.connect(fd, trafficClass, normalAddr, aPort);
+  240 &nbsp;                     } else {
+<a name='241'>  241 &nbsp;                         netImpl.connectStreamWithTimeoutSocket(fd, aPort,
+  242 &nbsp;                                 timeout, trafficClass, normalAddr);
+  243 &nbsp;                     }
+  244 &nbsp;                 }
+  245 &nbsp;             } else {
+  246 &nbsp;             	netImpl.connectDatagram(fd, aPort, trafficClass, normalAddr);
+  247 &nbsp;             }
+  248 &nbsp;         } catch (ConnectException e) {
+  249 &nbsp;             throw new ConnectException(anAddr + ":" + aPort + " - "
+  250 &nbsp;                     + e.getMessage());
+<a name='251'>  251 &nbsp;         }
+  252 &nbsp;         super.address = normalAddr;
+  253 &nbsp;         super.port = aPort;
+  254 &nbsp;     }
+  255 &nbsp; 
+  256 &nbsp;     @Override
+  257 &nbsp;     protected void create(boolean streaming) throws IOException {
+  258 &nbsp;         this.streaming = streaming;
+  259 &nbsp;         if (streaming) {
+  260 &nbsp;             netImpl.createStreamSocket(fd, NetUtil.preferIPv4Stack());
+<a name='261'>  261 &nbsp;         } else {
+  262 &nbsp;             netImpl.createDatagramSocket(fd, NetUtil.preferIPv4Stack());
+  263 &nbsp;         }
+  264 &nbsp;     }
+  265 &nbsp; 
+  266 &nbsp;     @Override
+  267 &nbsp;     protected void finalize() throws IOException {
+  268 &nbsp;         close();
+  269 &nbsp;     }
+  270 &nbsp; 
+<a name='271'>  271 &nbsp;     @Override
+  272 &nbsp;     protected synchronized InputStream getInputStream() throws IOException {
+  273 &nbsp;         if (!fd.valid()) {
+  274 &nbsp;             throw new SocketException(Messages.getString("luni.0C"));
+  275 &nbsp;         }
+  276 &nbsp; 
+  277 &nbsp;         return new SocketInputStream(this);
+  278 &nbsp;     }
+  279 &nbsp; 
+  280 &nbsp;     @Override
+<a name='281'>  281 &nbsp;     public Object getOption(int optID) throws SocketException {
+  282 &nbsp;         if (optID == SocketOptions.SO_TIMEOUT) {
+  283 &nbsp;             return Integer.valueOf(receiveTimeout);
+  284 &nbsp;         } else if (optID == SocketOptions.IP_TOS) {
+  285 &nbsp;             return Integer.valueOf(trafficClass);
+  286 &nbsp;         } else {
+  287 &nbsp;             // Call the native first so there will be
+  288 &nbsp;             // an exception if the socket if closed.
+  289 &nbsp;             Object result = netImpl.getSocketOption(fd, optID);
+  290 &nbsp;             if (optID == SocketOptions.TCP_NODELAY
+<a name='291'>  291 &nbsp;                     &amp;&amp; (netImpl.getSocketFlags() &amp; TCP_NODELAY) != 0) {
+  292 &nbsp;                 return Boolean.valueOf(tcpNoDelay);
+  293 &nbsp;             }
+  294 &nbsp;             return result;
+  295 &nbsp;         }
+  296 &nbsp;     }
+  297 &nbsp; 
+  298 &nbsp;     @Override
+  299 &nbsp;     protected synchronized OutputStream getOutputStream() throws IOException {
+  300 &nbsp;         if (!fd.valid()) {
+<a name='301'>  301 &nbsp;             throw new SocketException(Messages.getString("luni.0C")); //$NON-NLS-1$
+  302 &nbsp;         }
+  303 &nbsp;         return new SocketOutputStream(this);
+  304 &nbsp;     }
+  305 &nbsp; 
+  306 &nbsp;     @Override
+  307 &nbsp;     protected void listen(int backlog) throws IOException {
+  308 &nbsp;         if (NetUtil.usingSocks(proxy)) {
+  309 &nbsp;             // Do nothing for a SOCKS connection. The listen occurs on the
+  310 &nbsp;             // server during the bind.
+<a name='311'>  311 &nbsp;             return;
+  312 &nbsp;         }
+  313 &nbsp;         netImpl.listenStreamSocket(fd, backlog);
+  314 &nbsp;     }
+  315 &nbsp; 
+  316 &nbsp;     @Override
+  317 &nbsp;     public void setOption(int optID, Object val) throws SocketException {
+  318 &nbsp;         if (optID == SocketOptions.SO_TIMEOUT) {
+  319 &nbsp;             receiveTimeout = ((Integer) val).intValue();
+  320 &nbsp;         } else {
+<a name='321'>  321 &nbsp;             try {
+  322 &nbsp;                 netImpl.setSocketOption(fd, optID, val);
+  323 &nbsp;                 if (optID == SocketOptions.TCP_NODELAY
+  324 &nbsp;                         &amp;&amp; (netImpl.getSocketFlags() &amp; TCP_NODELAY) != 0) {
+  325 &nbsp;                     tcpNoDelay = ((Boolean) val).booleanValue();
+  326 &nbsp;                 }
+  327 &nbsp;             } catch (SocketException e) {
+  328 &nbsp;                 // we don't throw an exception for IP_TOS even if the platform
+  329 &nbsp;                 // won't let us set the requested value
+  330 &nbsp;                 if (optID != SocketOptions.IP_TOS) {
+<a name='331'>  331 &nbsp;                     throw e;
+  332 &nbsp;                 }
+  333 &nbsp;             }
+  334 &nbsp; 
+  335 &nbsp;             /*
+  336 &nbsp;              * save this value as it is actually used differently for IPv4 and
+  337 &nbsp;              * IPv6 so we cannot get the value using the getOption. The option
+  338 &nbsp;              * is actually only set for IPv4 and a masked version of the value
+  339 &nbsp;              * will be set as only a subset of the values are allowed on the
+  340 &nbsp;              * socket. Therefore we need to retain it to return the value that
+<a name='341'>  341 &nbsp;              * was set. We also need the value to be passed into a number of
+  342 &nbsp;              * natives so that it can be used properly with IPv6
+  343 &nbsp;              */
+  344 &nbsp;             if (optID == SocketOptions.IP_TOS) {
+  345 &nbsp;                 trafficClass = ((Integer) val).intValue();
+  346 &nbsp;             }
+  347 &nbsp;         }
+  348 &nbsp;     }
+  349 &nbsp; 
+  350 &nbsp;     /**
+<a name='351'>  351 &nbsp;      * Gets the SOCKS proxy server port.
+  352 &nbsp;      */
+  353 &nbsp;     private int socksGetServerPort() {
+  354 &nbsp;         // get socks server port from proxy. It is unnecessary to check
+  355 &nbsp;         // "socksProxyPort" property, since proxy setting should only be
+  356 &nbsp;         // determined by ProxySelector.
+  357 &nbsp;         InetSocketAddress addr = (InetSocketAddress) proxy.address();
+  358 &nbsp;         return addr.getPort();
+  359 &nbsp; 
+  360 &nbsp;     }
+<a name='361'>  361 &nbsp; 
+  362 &nbsp;     /**
+  363 &nbsp;      * Gets the InetAddress of the SOCKS proxy server.
+  364 &nbsp;      */
+  365 &nbsp;     private InetAddress socksGetServerAddress() throws UnknownHostException {
+  366 &nbsp;         String proxyName;
+  367 &nbsp;         // get socks server address from proxy. It is unnecessary to check
+  368 &nbsp;         // "socksProxyHost" property, since all proxy setting should be
+  369 &nbsp;         // determined by ProxySelector.
+  370 &nbsp;         InetSocketAddress addr = (InetSocketAddress) proxy.address();
+<a name='371'>  371 &nbsp;         proxyName = addr.getHostName();
+  372 &nbsp;         if (null == proxyName) {
+  373 &nbsp;             proxyName = addr.getAddress().getHostAddress();
+  374 &nbsp;         }
+  375 &nbsp; 
+  376 &nbsp;         InetAddress anAddr = netImpl.getHostByName(proxyName, NetUtil
+  377 &nbsp;                 .preferIPv6Addresses());
+  378 &nbsp;         return anAddr;
+  379 &nbsp;     }
+  380 &nbsp; 
+<a name='381'>  381 &nbsp;     /**
+  382 &nbsp;      * Connect using a SOCKS server.
+  383 &nbsp;      */
+  384 &nbsp;     private void socksConnect(InetAddress applicationServerAddress,
+  385 &nbsp;             int applicationServerPort, int timeout) throws IOException {
+  386 &nbsp;         try {
+  387 &nbsp;             if (timeout == 0) {
+  388 &nbsp;                 netImpl.connect(fd, trafficClass, socksGetServerAddress(),
+  389 &nbsp;                         socksGetServerPort());
+  390 &nbsp;             } else {
+<a name='391'>  391 &nbsp;                 netImpl.connectStreamWithTimeoutSocket(fd,
+  392 &nbsp;                         socksGetServerPort(), timeout, trafficClass,
+  393 &nbsp;                         socksGetServerAddress());
+  394 &nbsp;             }
+  395 &nbsp; 
+  396 &nbsp;         } catch (Exception e) {
+  397 &nbsp;             throw new SocketException(Messages.getString("luni.0D", e)); //$NON-NLS-1$
+  398 &nbsp;         }
+  399 &nbsp; 
+  400 &nbsp;         socksRequestConnection(applicationServerAddress, applicationServerPort);
+<a name='401'>  401 &nbsp; 
+  402 &nbsp;         lastConnectedAddress = applicationServerAddress;
+  403 &nbsp;         lastConnectedPort = applicationServerPort;
+  404 &nbsp;     }
+  405 &nbsp; 
+  406 &nbsp;     /**
+  407 &nbsp;      * Request a SOCKS connection to the application server given. If the
+  408 &nbsp;      * request fails to complete successfully, an exception is thrown.
+  409 &nbsp;      */
+  410 &nbsp;     private void socksRequestConnection(InetAddress applicationServerAddress,
+<a name='411'>  411 &nbsp;             int applicationServerPort) throws IOException {
+  412 &nbsp;         socksSendRequest(Socks4Message.COMMAND_CONNECT,
+  413 &nbsp;                 applicationServerAddress, applicationServerPort);
+  414 &nbsp;         Socks4Message reply = socksReadReply();
+  415 &nbsp;         if (reply.getCommandOrResult() != Socks4Message.RETURN_SUCCESS) {
+  416 &nbsp;             throw new IOException(reply.getErrorString(reply
+  417 &nbsp;                     .getCommandOrResult()));
+  418 &nbsp;         }
+  419 &nbsp;     }
+  420 &nbsp; 
+<a name='421'>  421 &nbsp;     /**
+  422 &nbsp;      * Perform an accept for a SOCKS bind.
+  423 &nbsp;      */
+  424 &nbsp;     public void socksAccept() throws IOException {
+  425 &nbsp;         Socks4Message reply = socksReadReply();
+  426 &nbsp;         if (reply.getCommandOrResult() != Socks4Message.RETURN_SUCCESS) {
+  427 &nbsp;             throw new IOException(reply.getErrorString(reply
+  428 &nbsp;                     .getCommandOrResult()));
+  429 &nbsp;         }
+  430 &nbsp;     }
+<a name='431'>  431 &nbsp; 
+  432 &nbsp;     /**
+  433 &nbsp;      * Shutdown the input portion of the socket.
+  434 &nbsp;      */
+  435 &nbsp;     @Override
+  436 &nbsp;     protected void shutdownInput() throws IOException {
+  437 &nbsp;         shutdownInput = true;
+  438 &nbsp;         netImpl.shutdownInput(fd);
+  439 &nbsp;     }
+  440 &nbsp; 
+<a name='441'>  441 &nbsp;     /**
+  442 &nbsp;      * Shutdown the output portion of the socket.
+  443 &nbsp;      */
+  444 &nbsp;     @Override
+  445 &nbsp;     protected void shutdownOutput() throws IOException {
+  446 &nbsp;         netImpl.shutdownOutput(fd);
+  447 &nbsp;     }
+  448 &nbsp; 
+  449 &nbsp;     /**
+  450 &nbsp;      * Bind using a SOCKS server.
+<a name='451'>  451 &nbsp;      */
+  452 &nbsp;     private void socksBind() throws IOException {
+  453 &nbsp;         try {
+  454 &nbsp;             netImpl.connect(fd, trafficClass, socksGetServerAddress(),
+  455 &nbsp;                     socksGetServerPort());
+  456 &nbsp;         } catch (Exception e) {
+  457 &nbsp;             throw new IOException(Messages.getString("luni.0E", e)); //$NON-NLS-1$
+  458 &nbsp;         }
+  459 &nbsp; 
+  460 &nbsp;         // There must be a connection to an application host for the bind to
+<a name='461'>  461 &nbsp;         // work.
+  462 &nbsp;         if (lastConnectedAddress == null) {
+  463 &nbsp;             throw new SocketException(Messages.getString("luni.0F")); //$NON-NLS-1$
+  464 &nbsp;         }
+  465 &nbsp; 
+  466 &nbsp;         // Use the last connected address and port in the bind request.
+  467 &nbsp;         socksSendRequest(Socks4Message.COMMAND_BIND, lastConnectedAddress,
+  468 &nbsp;                 lastConnectedPort);
+  469 &nbsp;         Socks4Message reply = socksReadReply();
+  470 &nbsp; 
+<a name='471'>  471 &nbsp;         if (reply.getCommandOrResult() != Socks4Message.RETURN_SUCCESS) {
+  472 &nbsp;             throw new IOException(reply.getErrorString(reply
+  473 &nbsp;                     .getCommandOrResult()));
+  474 &nbsp;         }
+  475 &nbsp; 
+  476 &nbsp;         // A peculiarity of socks 4 - if the address returned is 0, use the
+  477 &nbsp;         // original socks server address.
+  478 &nbsp;         if (reply.getIP() == 0) {
+  479 &nbsp;             address = socksGetServerAddress();
+  480 &nbsp;         } else {
+<a name='481'>  481 &nbsp;             // IPv6 support not yet required as
+  482 &nbsp;             // currently the Socks4Message.getIP() only returns int,
+  483 &nbsp;             // so only works with IPv4 4byte addresses
+  484 &nbsp;             byte[] replyBytes = new byte[4];
+  485 &nbsp;             NetUtil.intToBytes(reply.getIP(), replyBytes, 0);
+  486 &nbsp;             address = InetAddress.getByAddress(replyBytes);
+  487 &nbsp;         }
+  488 &nbsp;         localport = reply.getPort();
+  489 &nbsp;     }
+  490 &nbsp; 
+<a name='491'>  491 &nbsp;     /**
+  492 &nbsp;      * Send a SOCKS V4 request.
+  493 &nbsp;      */
+  494 &nbsp;     private void socksSendRequest(int command, InetAddress address, int port)
+  495 &nbsp;             throws IOException {
+  496 &nbsp;         Socks4Message request = new Socks4Message();
+  497 &nbsp;         request.setCommandOrResult(command);
+  498 &nbsp;         request.setPort(port);
+  499 &nbsp;         request.setIP(address.getAddress());
+  500 &nbsp;         request.setUserId("default"); //$NON-NLS-1$
+<a name='501'>  501 &nbsp; 
+  502 &nbsp;         getOutputStream().write(request.getBytes(), 0, request.getLength());
+  503 &nbsp;     }
+  504 &nbsp; 
+  505 &nbsp;     /**
+  506 &nbsp;      * Read a SOCKS V4 reply.
+  507 &nbsp;      */
+  508 &nbsp;     private Socks4Message socksReadReply() throws IOException {
+  509 &nbsp;         Socks4Message reply = new Socks4Message();
+  510 &nbsp;         int bytesRead = 0;
+<a name='511'>  511 &nbsp;         while (bytesRead &lt; Socks4Message.REPLY_LENGTH) {
+  512 &nbsp;             int count = getInputStream().read(reply.getBytes(), bytesRead,
+  513 &nbsp;                     Socks4Message.REPLY_LENGTH - bytesRead);
+  514 &nbsp;             if (-1 == count) {
+  515 &nbsp;                 break;
+  516 &nbsp;             }
+  517 &nbsp;             bytesRead += count;
+  518 &nbsp;         }
+  519 &nbsp;         if (Socks4Message.REPLY_LENGTH != bytesRead) {
+  520 &nbsp;             throw new SocketException(Messages.getString("luni.10")); //$NON-NLS-1$
+<a name='521'>  521 &nbsp;         }
+  522 &nbsp;         return reply;
+  523 &nbsp;     }
+  524 &nbsp; 
+  525 &nbsp;     @Override
+  526 &nbsp;     protected void connect(SocketAddress remoteAddr, int timeout)
+  527 &nbsp;             throws IOException {
+  528 &nbsp;         InetSocketAddress inetAddr = (InetSocketAddress) remoteAddr;
+  529 &nbsp;         connect(inetAddr.getAddress(), inetAddr.getPort(), timeout);
+  530 &nbsp;     }
+<a name='531'>  531 &nbsp; 
+  532 &nbsp;     /**
+  533 &nbsp;      * Answer if the socket supports urgent data.
+  534 &nbsp;      */
+  535 &nbsp;     @Override
+  536 &nbsp;     protected boolean supportsUrgentData() {
+  537 &nbsp;         return !streaming || netImpl.supportsUrgentData(fd);
+  538 &nbsp;     }
+  539 &nbsp; 
+  540 &nbsp;     @Override
+<a name='541'>  541 &nbsp;     protected void sendUrgentData(int value) throws IOException {
+  542 &nbsp;         netImpl.sendUrgentData(fd, (byte) value);
+  543 &nbsp;     }
+  544 &nbsp; 
+  545 &nbsp;     FileDescriptor getFD() {
+  546 &nbsp;         return fd;
+  547 &nbsp;     }
+  548 &nbsp; 
+  549 &nbsp;     private void setLocalport(int localport) {
+  550 &nbsp;         this.localport = localport;
+<a name='551'>  551 &nbsp;     }
+  552 &nbsp; 
+  553 &nbsp;     int read(byte[] buffer, int offset, int count) throws IOException {
+  554 &nbsp;         if (shutdownInput) {
+  555 &nbsp;             return -1;
+  556 &nbsp;         }
+  557 &nbsp;         int read = netImpl.read(fd, buffer, offset, count, receiveTimeout);
+  558 &nbsp;         // Return of zero bytes for a blocking socket means a timeout occurred
+  559 &nbsp;         if (read == 0) {
+  560 &nbsp;             throw new SocketTimeoutException();
+<a name='561'>  561 &nbsp;         }
+  562 &nbsp;         // Return of -1 indicates the peer was closed
+  563 &nbsp;         if (read == -1) {
+  564 &nbsp;             shutdownInput = true;
+  565 &nbsp;         }
+  566 &nbsp;         return read;
+  567 &nbsp;     }
+  568 &nbsp; 
+  569 &nbsp;     int write(byte[] buffer, int offset, int count) throws IOException {
+  570 &nbsp;         if (!streaming) {
+<a name='571'>  571 &nbsp;             return netImpl.sendDatagram2(fd, buffer, offset, count, port,
+  572 &nbsp;                     address);
+  573 &nbsp;         }
+  574 &nbsp;         return netImpl.write(fd, buffer, offset, count);
+  575 &nbsp;     }
+  576 &nbsp; }
+
+</pre>
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/apache-harmony-6.0-src-r917296-snapshot-code.html">apache-harmony-6.0-src-r917296-snapshot</a> &#187; org.apache.harmony.luni.net &#187; 
+ [<a href="/docs/api/org/apache/harmony/luni/net/PlainSocketImpl.html">javadoc</a> | source]
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-138120-1");
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- end -->

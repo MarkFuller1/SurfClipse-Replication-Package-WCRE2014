@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [jdom-interest] FODC0002: java.io.UTFDataFormatException: Invalid
+	byte 1 of 1-byte UTF-8
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:jdom-interest%40jdom.org?Subject=%5Bjdom-interest%5D%20FODC0002%3A%20java.io.UTFDataFormatException%3A%20Invalid%0A%09byte%201%20of%201-byte%20UTF-8&In-Reply-To=309190.94689.qm%40web59604.mail.ac4.yahoo.com">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="016399.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[jdom-interest] FODC0002: java.io.UTFDataFormatException: Invalid
+	byte 1 of 1-byte UTF-8</H1>
+    <B>Michael Kay</B> 
+    <A HREF="mailto:jdom-interest%40jdom.org?Subject=%5Bjdom-interest%5D%20FODC0002%3A%20java.io.UTFDataFormatException%3A%20Invalid%0A%09byte%201%20of%201-byte%20UTF-8&In-Reply-To=309190.94689.qm%40web59604.mail.ac4.yahoo.com"
+       TITLE="[jdom-interest] FODC0002: java.io.UTFDataFormatException: Invalid
+	byte 1 of 1-byte UTF-8">mike at saxonica.com
+       </A><BR>
+    <I>Mon Aug 16 07:32:06 PDT 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="016399.html">[jdom-interest] FODC0002: java.io.UTFDataFormatException: Invalid
+	byte 1 of 1-byte UTF-8
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16400">[ date ]</a>
+              <a href="thread.html#16400">[ thread ]</a>
+              <a href="subject.html#16400">[ subject ]</a>
+              <a href="author.html#16400">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>This is nothing to do with JDOM - you are on the wrong list. The problem 
+is with a document that is being read using the document() function 
+within your Saxon stylesheet. The error means that the XML parser is 
+trying to read the document (&quot;car.xml&quot;) as UTF-8, but it contains byte 
+combinations that are not valid in UTF-8.
+
+You need to change the XML declaration of car.xml so that it correctly 
+describes the actual encoding of the file.
+
+Michael Kay
+Saxonica
+
+On 16/08/2010 14:30, Jack Bush wrote:
+&gt;<i> Hi All,
+</I>&gt;<i>
+</I>&gt;<i> I am getting the following error when reading secondary xml documents using
+</I>&gt;<i> document() in XSLT 2.0 stylesheet from within an EJB (Glassfish 2.1) container:
+</I>&gt;<i>
+</I>&gt;<i> Recoverable error on line 8
+</I>&gt;<i> FODC0002: java.io.UTFDataFormatException: Invalid byte 1 of 1-byte UTF-8
+</I>&gt;<i> sequence.
+</I>&gt;<i>
+</I>&gt;<i> The transformation snippet in Java is as follows:
+</I>&gt;<i>
+</I>&gt;<i> TransformerFactory transformerFactory = new
+</I>&gt;<i> net.sf.saxon.TransformerFactoryImpl();
+</I>&gt;<i> transformerFactory.setAttribute(&quot;<A HREF="http://saxon.sf.net/feature/sourceParserClass&quot;,&quot;org.apache.xml.resolver.tools.ResolvingXMLReader&quot;">http://saxon.sf.net/feature/sourceParserClass&quot;,&quot;org.apache.xml.resolver.tools.ResolvingXMLReader&quot;</A>);
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> FileInputStream stylesheet = new FileInputStream(&quot;C:/stylesheet.xsl&quot;);
+</I>&gt;<i> Transformer transformer = transformerFactory.newTransformer(new
+</I>&gt;<i> StreamSource(stylesheet));
+</I>&gt;<i> JDOMSource source = new JDOMSource(mainJDomDocument);
+</I>&gt;<i> JDOMResult result = new JDOMResult();
+</I>&gt;<i>
+</I>&gt;<i> transformer.transform(source, result);
+</I>&gt;<i>
+</I>&gt;<i> The relevant lines in C:/stylesheet.xsl is:
+</I>&gt;<i>
+</I>&gt;<i> 1&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+</I>&gt;<i> 2&lt;xsl:stylesheet version=&quot;2.0&quot;
+</I>&gt;<i> 3 xmlns:xsl=&quot;<A HREF="http://www.w3.org/1999/XSL/Transform&quot;">http://www.w3.org/1999/XSL/Transform&quot;</A>
+</I>&gt;<i> 4 xmlns:xs=&quot;<A HREF="http://www.w3.org/2001/XMLSchema&quot;">http://www.w3.org/2001/XMLSchema&quot;</A>
+</I>&gt;<i> 5 exclude-result-prefixes=&quot;ns&quot;&gt;
+</I>&gt;<i> 6
+</I>&gt;<i> 7&lt;xsl:template match=&quot;/&quot;&gt;
+</I>&gt;<i> 8&lt;xsl:apply-templates select=&quot;document('<A HREF="file:///C:/car.xml'">file:///C:/car.xml'</A>))/catalog&quot;&gt;
+</I>&gt;<i> ...........
+</I>&gt;<i> 15&lt;/xsl:apply-templates&gt;
+</I>&gt;<i> 16&lt;/xsl:template&gt;
+</I>&gt;<i> 17
+</I>&gt;<i> 18 .........
+</I>&gt;<i>
+</I>&gt;<i> All xml documents have been encoded with UTF-8. Changing encoding on
+</I>&gt;<i> C:/stylesheet.xsl to UTF-8 or using InputStreamReader(styleSheetIS,&quot;UTF-8&quot;) did
+</I>&gt;<i> not make any difference. This application have been working fine until it
+</I>&gt;<i> is moved into an EJB 3.0 (Glassfish 2.1) container. It appears that it is the
+</I>&gt;<i> EJB container which has overrided the way these secondary documents have been
+</I>&gt;<i> read using a different method that checks the encoding. I believe from other
+</I>&gt;<i> threats that the same issue also occur in a web container as well.
+</I>&gt;<i>
+</I>&gt;<i> I am running JDK 1.6.0_17, Netbeans 6.7, XSLT 2.0 (Saxon 9.1), JDOM 1.1 on
+</I>&gt;<i> Windows XP.
+</I>&gt;<i>
+</I>&gt;<i> Any suggestion would be appreciated.
+</I>&gt;<i>
+</I>&gt;<i> Thanks a lot,
+</I>&gt;<i>
+</I>&gt;<i> Jack
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> To control your jdom-interest membership:
+</I>&gt;<i> <A HREF="http://www.jdom.org/mailman/options/jdom-interest/youraddr@yourhost.com">http://www.jdom.org/mailman/options/jdom-interest/youraddr@yourhost.com</A>
+</I>&gt;<i>
+</I>&gt;<i>    
+</I>
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="016399.html">[jdom-interest] FODC0002: java.io.UTFDataFormatException: Invalid
+	byte 1 of 1-byte UTF-8
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16400">[ date ]</a>
+              <a href="thread.html#16400">[ thread ]</a>
+              <a href="subject.html#16400">[ subject ]</a>
+              <a href="author.html#16400">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="http://www.jdom.org/mailman/listinfo/jdom-interest">More information about the jdom-interest
+mailing list</a><br>
+</body></html>

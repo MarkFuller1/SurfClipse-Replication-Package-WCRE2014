@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>c# - Domain Validation in a CQRS architecture - Stack Overflow</title>
+    <link rel="shortcut icon" href="//cdn.sstatic.net/stackoverflow/img/favicon.ico">
+    <link rel="apple-touch-icon image_src" href="//cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+    <link rel="search" type="application/opensearchdescription+xml" title="Stack Overflow" href="/opensearch.xml">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:domain" content="stackoverflow.com"/>
+    <meta name="og:type" content="website" />
+    <meta name="og:image" content="http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon@2.png?v=fde65a5a78c6"/>
+    <meta name="og:title" content="Domain Validation in a CQRS architecture" />
+    <meta name="og:description" content="Danger ... Danger Dr. Smith... Philosophical post ahead
+
+The purpose of this post is to determine if placing the validation logic outside of my domain entities (aggregate root actually) is actually " />
+    <meta name="og:url" content="http://stackoverflow.com/questions/10879421/domain-validation-in-a-cqrs-architecture"/>
+    <link rel="canonical" href="http://stackoverflow.com/questions/10879421/domain-validation-in-a-cqrs-architecture" />
+
+    
+    
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="//cdn.sstatic.net/Js/stub.en.js?v=184c221cbfa3" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="//cdn.sstatic.net/stackoverflow/all.css?v=1b6de4192b97">
+    
+    <link rel="alternate" type="application/atom+xml" title="Feed for question &#39;Domain Validation in a CQRS architecture&#39;" href="/feeds/question/10879421">
+    <script type="text/javascript">
+        
+        StackExchange.ready(function () {
+            StackExchange.using("postValidation", function () {
+                StackExchange.postValidation.initOnBlurAndSubmit($('#post-form'), 2, 'answer');
+            });
+
+            
+            StackExchange.question.init({showAnswerHelp:true,totalCommentCount:1,shownCommentCount:1,highlightColor:'#F4A83D',backgroundColor:'#FFF',questionId:10879421});
+
+            styleCode();
+
+                StackExchange.realtime.subscribeToQuestion('1', '10879421');
+            
+                    });
+    </script>
+
+
+    <script type="text/javascript">
+        StackExchange.init({"locale":"en","stackAuthUrl":"https://stackauth.com","serverTime":1386977778,"styleCode":true,"enableUserHovercards":true,"site":{"name":"Stack Overflow","description":"Q&A for professional and enthusiast programmers","isNoticesTabEnabled":true,"recaptchaPublicKey":"6LdchgIAAAAAAJwGpIzRQSOFaO0pU6s44Xt8aTwc","nonAsciiTags":true,"enableSocialMediaInSharePopup":true},"user":{"fkey":"924444e9d656bd8bb28009690bceb305","isAnonymous":true}});
+        StackExchange.using.setCacheBreakers({"js/prettify-full.en.js":"e0bbd4760e83","js/moderator.en.js":"1a411fd265fe","js/full-anon.en.js":"f11ad0c721c5","js/full.en.js":"4281101ad6b6","js/wmd.en.js":"849f408083f3","js/third-party/jquery.autocomplete.min.js":"e5f01e97f7c3","js/third-party/jquery.autocomplete.min.en.js":"","js/mobile.en.js":"d1d834ef85d2","js/help.en.js":"d3cc74d8a93a","js/tageditor.en.js":"6d51a5f8d7f3","js/tageditornew.en.js":"111b781cf314","js/inline-tag-editing.en.js":"f951bd09dc69","js/revisions.en.js":"33fd38144303","js/review.en.js":"b44cee8b2b0b","js/tagsuggestions.en.js":"e4e7b952fcc7","js/post-validation.en.js":"c275fe37d674","js/explore-qlist.en.js":"73825bd006fc","js/events.en.js":"23bb11cfe220"});
+        StackExchange.using("gps", function() {
+             StackExchange.gps.init(true);
+        });
+        
+    </script>
+    
+        <script type="text/javascript">
+            StackExchange.ready(function () {
+                $('#nav-tour').click(function () {
+                    StackExchange.using("gps", function() {
+                        StackExchange.gps.track("aboutpage.click", { aboutclick_location: "headermain" }, true);
+                    });
+                });
+            });
+        </script>
+</head>
+<body class="question-page new-topbar">
+    <noscript><div id="noscript-padding"></div></noscript>
+    <div id="notify-container"></div>
+    <div id="overlay-header"></div>
+    <div id="custom-header"></div>
+<div class="topbar">
+    <div class="topbar-wrapper">
+        
+        <div class="js-topbar-dialog-corral">
+
+<div class="topbar-dialog siteSwitcher-dialog dno">
+    <div class="header">
+        <h3><a href="//stackexchange.com/sites">Explore our sites</a></h3>
+    </div>
+    <div class="modal-content">
+        <ul class="current-site">
+                <li>
+                        <a href="//stackoverflow.com" 
+       class="current-site-link site-link js-site-link js-gps-track"
+            data-gps-track="site_switcher.click({ item_type:3 })"
+>
+        <div class="site-icon favicon favicon-stackoverflow" title="Stack Overflow"></div>
+        Stack Overflow
+    </a>
+    <div class="related-links js-related-links">
+            <a href="http://chat.stackoverflow.com"     data-gps-track="site_switcher.click({ item_type:6 })"
+>chat</a>
+                    <a href="http://blog.stackexchange.com"     data-gps-track="site_switcher.click({ item_type:7 })"
+>blog</a>
+            </div>
+
+                </li>
+                <li class="related-site">
+                        <a href="//meta.stackoverflow.com" 
+       class="site-link js-site-link js-gps-track"
+            data-gps-track="site.switch({ target_site:4, item_type:3 });site_switcher.click({ item_type:4 })"
+>
+        <div class="site-icon favicon favicon-stackoverflowmeta" title="Meta Stack Overflow"></div>
+        Meta Stack Overflow
+    </a>
+
+                    
+                </li>
+                            <li class="related-site">
+                    <a class="site-link js-site-link" 
+                       href="//careers.stackoverflow.com" 
+                           data-gps-track="site_switcher.click({ item_type:9 })"
+>
+                        <div class="site-icon favicon favicon-careers" title="Stack Overflow Careers"></div>
+                        Careers 2.0
+                    </a>
+                </li>
+        </ul>
+        
+
+
+        
+            <div class="child-content"></div>
+
+    </div>
+</div>        </div>
+
+        <div class="network-items">
+            
+            <a href="//stackexchange.com" 
+               class="topbar-icon icon-site-switcher js-site-switcher-button js-gps-track"
+               data-gps-track="site_switcher.show"
+               data-child-content-url="/topbar/site-switcher/site-list"
+               data-on-class="icon-site-switcher-on"
+               title="A list of all 112 Stack Exchange sites">
+                <span class="hidden-text">Stack Exchange</span>
+            </a>
+            
+        </div>
+
+        <div class="topbar-links">
+            
+                <div class="links-container">
+                    <span class="topbar-menu-links">
+                        <a href="/users/login?returnurl=%2fquestions%2f10879421%2fdomain-validation-in-a-cqrs-architecture" class="login-link">sign up</a>    
+                        <a href="/users/login?returnurl=%2fquestions%2f10879421%2fdomain-validation-in-a-cqrs-architecture" class="login-link">log in</a>
+                        <a href="/tour">tour</a>
+                        <a href="/help">help</a>
+                            <a href="//careers.stackoverflow.com">careers 2.0</a>
+                    </span>
+                </div>
+
+			<div class="search-container">
+                <form id="search" action="/search" method="get" autocomplete="off">
+                    <input name="q" type="text" placeholder="search" value="" tabindex="1" autocomplete="off" maxlength="240" />
+                </form>
+			</div>
+            	
+        </div>      
+    </div> 
+</div>
+<script>
+    StackExchange.ready(function () {
+        //topbar.init();
+        StackExchange.topbar.init();
+    });
+</script>    <div class="container">
+        <div id="header" class=headeranon>
+            <br class="cbt">
+            <div id="hlogo">
+                <a href="/">
+                    Stack Overflow
+                </a>
+            </div>
+            <div id="hmenus">
+                <div class="nav mainnavs mainnavsanon">
+                    <ul>
+                            <li class="youarehere"><a id="nav-questions" href="/questions">Questions</a></li>
+                            <li><a id="nav-tags" href="/tags">Tags</a></li>
+                            <li><a id="nav-tour" href="/about">Tour</a></li>
+                            <li><a id="nav-users" href="/users">Users</a></li>
+                    </ul>
+                </div>
+                <div class="nav askquestion">
+                    <ul>
+                        <li>
+                            <a id="nav-askquestion"  href="/questions/ask">Ask Question</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+
+
+
+        <div id="content">
+            
+
+<div itemscope itemtype="http://schema.org/Article">
+	<link itemprop="image" href="//cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png">
+			<!--googleoff: all-->
+<div id="herobox-mini">
+    <div id="hero-content">
+        <span id="controls">
+            <a href="/about" id="tell-me-more" class="button">Take the tour</a>
+            <span id="close"><a title="click to dismiss">&times;</a></span>
+        </span>
+        <div id="blurb">
+            Stack Overflow is a question and answer site for professional and enthusiast programmers. It&#39;s 100% free, no registration required.
+        </div>        
+    </div>
+    <script>
+        $('#tell-me-more').click(function () {
+            var clickSource = $("body").attr("class") + '-mini';
+            if ($("body").hasClass("questions-page")) {
+                clickSource = 'questionpagemini';
+            }
+            if ($("body").hasClass("home-page")) {
+                clickSource = 'homepagemini';
+            }
+
+            StackExchange.using("gps", function () {
+                StackExchange.gps.track("aboutpage.click", { aboutclick_location: clickSource } , true);
+            });
+        });
+        $('#herobox-mini #close').click(function () {
+            StackExchange.using("gps", function () {
+                StackExchange.gps.track("hero.action", { hero_action_type: "close" }, true);
+            });
+            $.cookie("hero", "none", { path: "/" });
+            var $hero = $("#herobox-mini");
+            $hero.slideUp('fast', function () { $hero.remove(); });
+            return false;
+        });
+    </script>
+</div>
+			<!--googleon: all-->
+			<div id="question-header">
+			<h1 itemprop="name"><a href="/questions/10879421/domain-validation-in-a-cqrs-architecture" class="question-hyperlink">Domain Validation in a CQRS architecture</a></h1>
+		</div>
+			<div id="mainbar">
+
+			
+
+<div class="question" data-questionid="10879421"  id="question">
+    
+    <script type="text/javascript">
+                var ados = ados || {};ados.run = ados.run || [];
+                ados.run.push(function() { ados_add_placement(22,8277,"adzerk1665134455",4).setZone(43) ; });                    
+            </script>
+            <div class="everyonelovesstackoverflow" id="adzerk1665134455">
+            </div>    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="10879421">
+    <a class="vote-up-off" title="This question shows research effort; it is useful and clear">up vote</a>
+    <span class="vote-count-post ">15</span>
+    <a class="vote-down-off" title="This question does not show any research effort; it is unclear or not useful">down vote</a>
+    
+    <a class="star-off" href="#" title="This is a favorite question (click again to undo)">favorite</a>
+    <div class="favoritecount"><b>12</b></div>   
+
+</div>
+
+            </td>
+            
+<td class="postcell">
+<div>
+    <div class="post-text" itemprop="description">
+
+        <p><em>Danger ... Danger Dr. Smith... Philosophical post ahead</em></p>
+
+<p>The purpose of this post is to determine if placing the validation logic outside of my domain entities (aggregate root actually) is actually granting me more flexibility or it's <em>kamikaze code</em></p>
+
+<p>Basically I want to know if there is a better way to validate my domain entities. This is how I am planning to do it but I would like your opinion</p>
+
+<p>The first approach I considered was:</p>
+
+<pre><code>class Customer : EntityBase&lt;Customer&gt;
+{
+   public void ChangeEmail(string email)
+   {
+      if(string.IsNullOrWhitespace(email))   throw new DomainException(â€œ...â€?);
+      if(!email.IsEmail())  throw new DomainException();
+      if(email.Contains(â€œ@mailinator.comâ€?))  throw new DomainException();
+   }
+}
+</code></pre>
+
+<p>I actually do not like this validation because even when I am encapsulating the validation logic in the correct entity, this is violating the Open/Close principle (Open for extension but Close for modification) and I have found that violating this principle, code maintenance becomes a real pain when the application grows up in complexity. Why? Because domain rules change more often than we would like to admit, and if the rules are <strong>hidden and embedded</strong> in an entity like this, they are hard to test, hard to read, hard to maintain but the real reason why I do not like this approach is: if the validation rules change, I have to come and edit my domain entity. This has been a really simple example but in RL the validation could be more complex</p>
+
+<p>So following the philosophy of Udi Dahan, <strong>making roles explicit</strong>, and the recommendation from Eric Evans in the blue book, the next try was to implement the specification pattern, something like this</p>
+
+<pre><code>class EmailDomainIsAllowedSpecification : IDomainSpecification&lt;Customer&gt;
+{
+   private INotAllowedEmailDomainsResolver invalidEmailDomainsResolver;
+   public bool IsSatisfiedBy(Customer customer)
+   {
+      return !this.invalidEmailDomainsResolver.GetInvalidEmailDomains().Contains(customer.Email);
+   }
+}
+</code></pre>
+
+<p>But then I realize that in order to follow this approach I had to mutate my entities first in order to pass the <em>value being valdiated</em>, in this case the email, but mutating them would cause  my domain events being fired which I wouldnâ€™t like to happen until the new email is valid</p>
+
+<p><strong>So after considering these approaches, I came out with this one, since I am going to implement a CQRS architecture:</strong></p>
+
+<pre><code>class EmailDomainIsAllowedValidator : IDomainInvariantValidator&lt;Customer, ChangeEmailCommand&gt;
+{
+   public void IsValid(Customer entity, ChangeEmailCommand command)
+   {
+      if(!command.Email.HasValidDomain())  throw new DomainException(â€œ...â€?);
+   }
+}
+</code></pre>
+
+<p>Well thatâ€™s the main idea, the entity is passed to the validator in case we need some value from the entity to perform the validation, the command contains the data coming from the user and since the validators are considered <strong>injectable</strong> objects they could have external dependencies injected if the validation requires it.</p>
+
+<p><strong>Now the dilemma</strong>, I am happy with a design like this because my validation is encapsulated in individual objects which brings many advantages: easy unit test, easy to maintain, domain invariants are explicitly expressed using the Ubiquitous Language, easy to extend, validation logic is centralized and validators can be used together to enforce complex domain rules. And even when I know  I am placing the validation of my entities outside of them (You could argue a code smell - Anemic Domain) but I think the trade-off is acceptable</p>
+
+<p>But there is one thing that I have not figured out how to implement it in a clean way. <em>How should I use this components...</em></p>
+
+<p>Since they will be injected, they wonâ€™t fit naturally inside my domain entities, so basically I see two options:</p>
+
+<ol>
+<li><p>Pass the validators to each method of my entity</p></li>
+<li><p>Validate my objects externally (from the command handler)</p></li>
+</ol>
+
+<p>I am not happy with the option 1 so I would explain how I would do it with the option 2</p>
+
+<pre><code>class ChangeEmailCommandHandler : ICommandHandler&lt;ChangeEmailCommand&gt;
+{
+   // here I would get the validators required for this command injected
+   private IEnumerable&lt;IDomainInvariantValidator&gt; validators;
+   public void Execute(ChangeEmailCommand command)
+   {
+      using (var t = this.unitOfWork.BeginTransaction())
+      {
+         var customer = this.unitOfWork.Get&lt;Customer&gt;(command.CustomerId);
+         // here I would validate them, something like this
+         this.validators.ForEach(x =. x.IsValid(customer, command));
+         // here I know the command is valid
+         // the call to ChangeEmail will fire domain events as needed
+         customer.ChangeEmail(command.Email);
+         t.Commit();
+      }
+   }
+}
+</code></pre>
+
+<p>Well this is it. Can you give me your thoughts about this or share your experiences with Domain entities validation</p>
+
+<p><strong>EDIT</strong></p>
+
+<p>I think it is not clear from my question, but the real problem is: Hiding the domain rules has serious implications in the future maintainability of the application, and also domain rules change often during the life-cycle of the app. Hence implementing them with this in mind would let us extend them easily. Now imagine in the future a rules engine is implemented, if the rules are encapsulated outside of the domain entities, this change would be easier to implement</p>
+
+<p>I am aware that placing the validation outside of my entities breaks the encapsulation as @jgauffin mentioned in his answer, but I think that the benefits of placing the validation in individual objects is much more substantial than just keeping the encapsulation of an entity. Now I think the encapsulation makes more sense in a traditional n-tier architecture because the entities were used in several places of the domain layer, but in a CQRS architecture, when a command arrives, there will be  a command handler accessing an aggregate root and performing operations against the aggregate root only creating a perfect window to place the validation.</p>
+
+<p>I'd like to make a small comparison between the advantages to place validation inside an entity vs placing it in individual objects</p>
+
+<ul>
+<li><p>Validation in Individual objects</p>
+
+<ul>
+<li>Pro. Easy to write</li>
+<li>Pro. Easy to test</li>
+<li>Pro. It's explicitly expressed</li>
+<li>Pro. It becomes part of the Domain design, expressed with the current Ubiquitous Language</li>
+<li>Pro. Since it's now part of the design, it can be modeled using UML diagrams</li>
+<li>Pro. Extremely easy to maintain</li>
+<li>Pro. Makes my entities and the validation logic loosely coupled</li>
+<li>Pro. Easy to extend</li>
+<li>Pro. Following the SRP</li>
+<li>Pro. Following the Open/Close principle</li>
+<li>Pro. Not breaking the law of Demeter (mmm)?</li>
+<li>Pro. I'is centralized</li>
+<li>Pro. It could be reusable</li>
+<li>Pro. If required, external dependencies can be easily injected</li>
+<li>Pro. If using a plug-in model, new validators can be added just by dropping the new assemblies without the need to re-compile the whole application</li>
+<li>Pro. Implementing a rules engine would be easier</li>
+<li>Con. Breaking encapsulation</li>
+<li>Con. If encapsulation is mandatory, we would have to pass the individual validators to the entity  (aggregate) method</li>
+</ul></li>
+<li><p>Validation encapsulated inside the entity</p>
+
+<ul>
+<li>Pro. Encapsulated?</li>
+<li>Pro. Reusable?</li>
+</ul></li>
+</ul>
+
+<p>I would love to read your thoughts about this</p>
+
+    </div>
+    <div class="post-taglist">
+        <a href="/questions/tagged/c%23" class="post-tag" title="show questions tagged &#39;c#&#39;" rel="tag">c#</a> <a href="/questions/tagged/validation" class="post-tag" title="show questions tagged &#39;validation&#39;" rel="tag">validation</a> <a href="/questions/tagged/architecture" class="post-tag" title="show questions tagged &#39;architecture&#39;" rel="tag">architecture</a> <a href="/questions/tagged/domain-driven-design" class="post-tag" title="show questions tagged &#39;domain-driven-design&#39;" rel="tag">domain-driven-design</a> <a href="/questions/tagged/cqrs" class="post-tag" title="show questions tagged &#39;cqrs&#39;" rel="tag">cqrs</a> 
+    </div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/q/10879421" title="short permalink to this question" class="short-link" id="link-post-10879421">share</a><span class="lsep">|</span><a href="/posts/10879421/edit" class="suggest-edit-post" title="">improve this question</a></div>        
+    </td>
+    <td align="right" class="post-signature">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="/posts/10879421/revisions" title="show all edits to this post">edited <span title="2012-06-04 21:56:57Z" class="relativetime">Jun 4 '12 at 21:56</span></a>
+    </div>
+    <div class="user-gravatar32">
+        
+    </div>
+    <div class="user-details">
+        <br>
+        
+    </div>
+</div>    </td>
+    <td class="post-signature owner">
+        <div class="user-info user-hover">
+    <div class="user-action-time">
+        asked <span title="2012-06-04 09:54:20Z" class="relativetime">Jun 4 '12 at 9:54</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/1268570/jupaol"><div><img src="https://www.gravatar.com/avatar/a9f8bf08d8148a6418b86b469578fc20?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/1268570/jupaol">Jupaol</a><br>
+        <span class="reputation-score" title="reputation score 11004" dir="ltr">11k</span><span title="3 gold badges"><span class="badge1"></span><span class="badgecount">3</span></span><span title="16 silver badges"><span class="badge2"></span><span class="badgecount">16</span></span><span title="42 bronze badges"><span class="badge3"></span><span class="badgecount">42</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</div>
+</td>
+        </tr>
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-10879421" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-14298734" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Most of the items listed as &quot;pros&quot; for placing validation logic in individual objects can also be listed as &quot;pros&quot; for placing validation logic in the entity.</span>
+	&ndash;&nbsp;
+		<a href="/users/13855/eulerfx" 
+		   title="13871 reputation" 
+		   class="comment-user">eulerfx</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-08 18:43:52Z" class="relativetime-clean">Jun 8 '12 at 18:43</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-10879421" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid answering questions in comments." 
+				>add comment</a>
+    </td>
+</tr>            </table>    
+</div>
+
+
+			<div id="answers">
+
+				<a name="tab-top"></a>
+				<div id="answers-header">
+					<div class="subheader answers-subheader">
+						<h2>
+								7 Answers
+						</h2>
+						<div>
+							<div id="tabs">
+        <a href="/questions/10879421/domain-validation-in-a-cqrs-architecture?answertab=active#tab-top" title="Answers with the latest activity first">active</a>
+        <a href="/questions/10879421/domain-validation-in-a-cqrs-architecture?answertab=oldest#tab-top" title="Answers in the order they were provided">oldest</a>
+        <a class="youarehere" href="/questions/10879421/domain-validation-in-a-cqrs-architecture?answertab=votes#tab-top" title="Answers with the highest score first">votes</a>
+</div>
+						</div>
+					</div>    
+				</div>    
+
+
+
+
+  
+<a name="10981103"></a>
+<div id="answer-10981103" class="answer" data-answerid="10981103" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="10981103">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">5</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>I agree with a number of the concepts presented in other responses, but I put them together in my code.</p>
+
+<p>First, I agree that using Value Objects for values that include behavior is a great way to encapsulate common business rules and an e-mail address is a perfect candidate. However, I tend to limit this to rules that are constant and will not change frequently. I'm sure you are looking for a more general approach and e-mail is just an example, so I won't focus on that one use-case.</p>
+
+<p>The key to my approach is recognizing that validation serves different purposes at different locations in an application.  Put simply, validate only what is required to ensure that the current operation can execute without unexpected/unintended results.  That leads to the question what validation should occur where?</p>
+
+<p>In your example, I would ask myself if the domain entity really cares that the e-mail address conforms to some pattern and other rules or do we simply care that 'email' cannot be null or blank when ChangeEmail is called?  If the latter, than a simple check to ensure a value is present is all that is needed in the ChangeEmail method.</p>
+
+<p>In CQRS, all changes that modify the state of the application occur as commands with the implementation in command handlers (as you've shown). I will typically place any 'hooks' into business rules, etc. that validate that the operation MAY be performed in the command handler. I actually follow your approach of injecting validators into the command handler which allows me to extend/replace the rule set without making changes to the handler. These 'dynamic' rules allow me to define the business rules, such as what constitutes a valid e-mail address, before I change the state of the entity - further ensuring it does not go into an invalid state. But 'invalidity' in this case is defined by the business logic and, as you pointed out, is highly volitile.</p>
+
+<p>Having come up through the CSLA ranks, I found this change difficult to adopt because it does seem to break encapsulation. But, I agrue that encapsulation is not broken if you take a step back and ask what role validation truly serves in the model.</p>
+
+<p>I've found these nuances to be very important in keeping my head clear on this subject.  There is validation to prevent bad data (eg missing arguments, null values, empty strings, etc) that belongs in the method itself and there is validation to ensure the business rules are enforced.  In the case of the former, if the Customer must have an e-mail address, then the only rule I need to be concerned about to prevent my domain object from becoming invalid is to ensure that an e-mail address has been provided to the ChangeEmail method.  The other rules are higher level concerns regarding the validity of the value itself and really have no affect on the validity of the domain entity itself.</p>
+
+<p>This has been the source of a lot of 'discussions' with fellow developers but when most take a broader view and investigate the role validation really serves, they tend to see the light.</p>
+
+<p>Finally, there is also a place for UI validation (and by UI I mean whatever serves as the interface to the application be it a screen, service endpoint or whatever). I find it perfectly reasonably to duplicate some of the logic in the UI to provide better interactivity for the user.  But it is because this validation serves that single purpose why I allow such duplication.  However, using injected validator/specification objects promotes reuse in this way without the negative implications of having these rules defined in multiple locations.</p>
+
+<p>Not sure if that helps or not...</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/10981103" title="short permalink to this answer" class="short-link" id="link-post-10981103">share</a><span class="lsep">|</span><a href="/posts/10981103/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2012-06-11 13:31:01Z" class="relativetime">Jun 11 '12 at 13:31</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/173281/sonofpirate"><div><img src="https://www.gravatar.com/avatar/a353bc866eb7d691e73ab1307f251ca3?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/173281/sonofpirate">SonOfPirate</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">1,778</span><span title="8 silver badges"><span class="badge2"></span><span class="badgecount">8</span></span><span title="41 bronze badges"><span class="badge3"></span><span class="badgecount">41</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-10981103" class="comments dno" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+					    <tr><td></td><td></td></tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-10981103" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+<script type="text/javascript">
+                var ados = ados || {};ados.run = ados.run || [];
+                ados.run.push(function() { ados_add_placement(22,8277,"adzerk1408487561",4).setZone(44) ; });                    
+            </script>
+            <div class="everyonelovesstackoverflow" id="adzerk1408487561">
+            </div>
+  
+<a name="10882371"></a>
+<div id="answer-10882371" class="answer" data-answerid="10882371" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="10882371">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">2</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>I cannot say what I did is the perfect thing to do for I am still struggling with this problem myself and fighting one fight at a time. But I have been doing so far the following thing :</p>
+
+<p>I have basic classes for encapsulating validation :</p>
+
+<pre><code>public interface ISpecification&lt;TEntity&gt; where TEntity : class, IAggregate
+    {
+        bool IsSatisfiedBy(TEntity entity);
+    }
+
+internal class AndSpecification&lt;TEntity&gt; : ISpecification&lt;TEntity&gt; where TEntity: class, IAggregate
+    {
+        private ISpecification&lt;TEntity&gt; Spec1;
+        private ISpecification&lt;TEntity&gt; Spec2;
+
+        internal AndSpecification(ISpecification&lt;TEntity&gt; s1, ISpecification&lt;TEntity&gt; s2)
+        {
+            Spec1 = s1;
+            Spec2 = s2;
+        }
+
+        public bool IsSatisfiedBy(TEntity candidate)
+        {
+            return Spec1.IsSatisfiedBy(candidate) &amp;&amp; Spec2.IsSatisfiedBy(candidate);
+        }
+
+
+    }
+
+    internal class OrSpecification&lt;TEntity&gt; : ISpecification&lt;TEntity&gt; where TEntity : class, IAggregate
+    {
+        private ISpecification&lt;TEntity&gt; Spec1;
+        private ISpecification&lt;TEntity&gt; Spec2;
+
+        internal OrSpecification(ISpecification&lt;TEntity&gt; s1, ISpecification&lt;TEntity&gt; s2)
+        {
+            Spec1 = s1;
+            Spec2 = s2;
+        }
+
+        public bool IsSatisfiedBy(TEntity candidate)
+        {
+            return Spec1.IsSatisfiedBy(candidate) || Spec2.IsSatisfiedBy(candidate);
+        }
+    }
+
+    internal class NotSpecification&lt;TEntity&gt; : ISpecification&lt;TEntity&gt; where TEntity : class, IAggregate
+    {
+        private ISpecification&lt;TEntity&gt; Wrapped;
+
+        internal NotSpecification(ISpecification&lt;TEntity&gt; x)
+        {
+            Wrapped = x;
+        }
+
+        public bool IsSatisfiedBy(TEntity candidate)
+        {
+            return !Wrapped.IsSatisfiedBy(candidate);
+        }
+    }
+
+    public static class SpecsExtensionMethods
+    {
+        public static ISpecification&lt;TEntity&gt; And&lt;TEntity&gt;(this ISpecification&lt;TEntity&gt; s1, ISpecification&lt;TEntity&gt; s2) where TEntity : class, IAggregate
+        {
+            return new AndSpecification&lt;TEntity&gt;(s1, s2);
+        }
+
+        public static ISpecification&lt;TEntity&gt; Or&lt;TEntity&gt;(this ISpecification&lt;TEntity&gt; s1, ISpecification&lt;TEntity&gt; s2) where TEntity : class, IAggregate
+        {
+            return new OrSpecification&lt;TEntity&gt;(s1, s2);
+        }
+
+        public static ISpecification&lt;TEntity&gt; Not&lt;TEntity&gt;(this ISpecification&lt;TEntity&gt; s) where TEntity : class, IAggregate
+        {
+            return new NotSpecification&lt;TEntity&gt;(s);
+        }
+    }
+</code></pre>
+
+<p>and to use it, I do the following :</p>
+
+<p>command handler :</p>
+
+<pre><code> public class MyCommandHandler :  CommandHandler&lt;MyCommand&gt;
+{
+  public override CommandValidation Execute(MyCommand cmd)
+        {
+            Contract.Requires&lt;ArgumentNullException&gt;(cmd != null);
+
+           var existingAR= Repository.GetById&lt;MyAggregate&gt;(cmd.Id);
+
+            if (existingIntervento.IsNull())
+                throw new HandlerForDomainEventNotFoundException();
+
+            existingIntervento.DoStuff(cmd.Id
+                                , cmd.Date
+                                ...
+                                );
+
+
+            Repository.Save(existingIntervento, cmd.GetCommitId());
+
+            return existingIntervento.CommandValidationMessages;
+        }
+</code></pre>
+
+<p>the aggregate :</p>
+
+<pre><code> public void DoStuff(Guid id, DateTime dateX,DateTime start, DateTime end, ...)
+        {
+            var is_date_valid = new Is_dateX_valid(dateX);
+            var has_start_date_greater_than_end_date = new Has_start_date_greater_than_end_date(start, end);
+
+        ISpecification&lt;MyAggregate&gt; specs = is_date_valid .And(has_start_date_greater_than_end_date );
+
+        if (specs.IsSatisfiedBy(this))
+        {
+            var evt = new AgregateStuffed()
+            {
+                Id = id
+                , DateX = dateX
+
+                , End = end        
+                , Start = start
+                , ...
+            };
+            RaiseEvent(evt);
+        }
+    }
+</code></pre>
+
+<p>the specification is now embedded in these two classes :</p>
+
+<pre><code>public class Is_dateX_valid : ISpecification&lt;MyAggregate&gt;
+    {
+        private readonly DateTime _dateX;
+
+        public Is_data_consuntivazione_valid(DateTime dateX)
+        {
+            Contract.Requires&lt;ArgumentNullException&gt;(dateX== DateTime.MinValue);
+
+            _dateX= dateX;
+        }
+
+        public bool IsSatisfiedBy(MyAggregate i)
+        {
+            if (_dateX&gt; DateTime.Now)
+            {
+                i.CommandValidationMessages.Add(new ValidationMessage("datex greater than now"));
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    public class Has_start_date_greater_than_end_date : ISpecification&lt;MyAggregate&gt;
+    {
+        private readonly DateTime _start;
+        private readonly DateTime _end;
+
+        public Has_start_date_greater_than_end_date(DateTime start, DateTime end)
+        {
+            Contract.Requires&lt;ArgumentNullException&gt;(start == DateTime.MinValue);
+            Contract.Requires&lt;ArgumentNullException&gt;(start == DateTime.MinValue);
+
+            _start = start;
+            _end = end;
+        }
+
+        public bool IsSatisfiedBy(MyAggregate i)
+        {
+            if (_start &gt; _end)
+            {
+                i.CommandValidationMessages.Add(new ValidationMessage(start date greater then end date"));
+                return false;
+            }
+
+            return true;
+        }
+    }
+</code></pre>
+
+<p>This allows me to reuse some validations for different aggregate and it is easy to test. If you see any flows in it. I would be real happy to discuss it.</p>
+
+<p>yours,</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/10882371" title="short permalink to this answer" class="short-link" id="link-post-10882371">share</a><span class="lsep">|</span><a href="/posts/10882371/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+    <td align="right" class="post-signature">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="/posts/10882371/revisions" title="show all edits to this post">edited <span title="2012-06-04 14:02:55Z" class="relativetime">Jun 4 '12 at 14:02</span></a>
+    </div>
+    <div class="user-gravatar32">
+        
+    </div>
+    <div class="user-details">
+        <br>
+        
+    </div>
+</div>    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info user-hover">
+    <div class="user-action-time">
+        answered <span title="2012-06-04 13:42:13Z" class="relativetime">Jun 4 '12 at 13:42</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/259240/arthis"><div class="gravatar-wrapper-32"><img src="http://i.stack.imgur.com/rCeak.jpg?s=32&g=1" alt=""></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/259240/arthis">Arthis</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">1,386</span><span title="4 silver badges"><span class="badge2"></span><span class="badgecount">4</span></span><span title="17 bronze badges"><span class="badge3"></span><span class="badgecount">17</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-10882371" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-14192188" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">It looks like your process is almost the process I presented which makes me think I am not alone with this tendency, the only difference is that you encapsulated the rules inside the method which at first glance looks good, but I have a question for you, are you heavily writing unit tests for you code? because since you are creating the objects inside you cannot test in isolation the aggregate root method. As another side effect, if the validator requires an external dependency, you would have to use the Service Locator anti-pattern, and to test that you would end  up with integration tests</span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 21:04:21Z" class="relativetime-clean">Jun 4 '12 at 21:04</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14192341" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Your implementation of the specification pattern, actually solves the problem to have to <i>mutate first the entity in order to validate it</i> I will evaluate this kind of design. Just from the top of my head, I&#39;m not sure if I would use a constructor to pass the values, because I intended to have a flexible design where I can inject dependencies to the validators. Check this link based on Misko Hevery <a href="http://www.loosecouplings.com/2011/01/how-to-write-testable-code-overview.html" rel="nofollow">loosecouplings.com/2011/01/&hellip;</a></span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 21:12:45Z" class="relativetime-clean">Jun 4 '12 at 21:12</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14199408" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">So far I was not testing in isolation  my aggregate root method. It&#39;s a flaw I discover while running through the &quot;discussion&quot; you had with @jgauffin. I have a class per method IsSatisfiedBy(MyAggregate i) basically, so if I need external dependencies. These would come from Ctor injection. Actually, to me , so far at least, even arguments coming from the command are external dependencies. But I might change in the future. I will definitely be looking into this validation injection to decouple my aggregate root method from the validation. Have a nice day...</span>
+	&ndash;&nbsp;
+		<a href="/users/259240/arthis" 
+		   title="1386 reputation" 
+		   class="comment-user">Arthis</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-05 06:56:49Z" class="relativetime-clean">Jun 5 '12 at 6:56</span></span>
+		<span class="edited-yes" title="this comment was edited 2 times"></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-10882371" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="10908964"></a>
+<div id="answer-10908964" class="answer" data-answerid="10908964" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="10908964">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">2</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>I wouldn't suggest trowing big pieces of code into your domain for validation. We eliminated most of our awkward placed validations by seeing them as a smell of missing concepts in our domain. In your sample code you write I see validation for an e-mail address. A Customer doesn't have anything to do with email validation. </p>
+
+<p>Why not make an <code>ValueObject</code> called <code>Email</code> that does this validation at construct?</p>
+
+<p>My experience is that awkward placed validations are hints to missed concepts in your domain. You can catch them in Validator objects, but I prefer value object because you make the related concept part of your domain.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/10908964" title="short permalink to this answer" class="short-link" id="link-post-10908964">share</a><span class="lsep">|</span><a href="/posts/10908964/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2012-06-06 06:08:37Z" class="relativetime">Jun 6 '12 at 6:08</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/637967/pjvds"><div><img src="https://www.gravatar.com/avatar/49da8c8c28fb5e82fed6ed36d8c69927?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/637967/pjvds">pjvds</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">528</span><span title="2 silver badges"><span class="badge2"></span><span class="badgecount">2</span></span><span title="7 bronze badges"><span class="badge3"></span><span class="badgecount">7</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-10908964" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-14299604" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy"><i>I wouldn&#39;t suggest trowing big pieces of code</i> But the validators are really small and concrete and they follow the SRP. <i>but I prefer value object because you make the related concept part of your domain</i> The validators can be seeing as part of the domain, and they can be modeled in the domain, and in my opinion they make validation explicit, when you place validation inside an entity or a value object, the valdiation is hidden (encapsulated indeed).</span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-08 19:22:03Z" class="relativetime-clean">Jun 8 '12 at 19:22</span></span>
+		<span class="edited-yes" title="this comment was edited 1 time"></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14300035" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">About the value object, it makes sense to me, I would be encapsulating the validation where it really belongs, not in the entity, but I think the problems are the same as placing it in the entity, I mean the advantages I listed in the post, they are the same either the validation is inside the entity or a value object. So specifically, what would be the trade-offs when using validation inside a value object over the trade-offs of placing them in individual objects???</span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-08 19:40:56Z" class="relativetime-clean">Jun 8 '12 at 19:40</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-10908964" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="10999427"></a>
+<div id="answer-10999427" class="answer" data-answerid="10999427" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="10999427">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">2</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>I am at the beginning of a project and I am going to implement my validation outside my domain entities. My domain entities will contain logic to protect any invariants (such as missing arguments, null values, empty strings, collections, etc). But the actual business rules will live in validator classes. I am of the mindset of @SonOfPirate...</p>
+
+<p>I am using <a href="http://fluentvalidation.codeplex.com/" rel="nofollow">FluentValidation</a> that will essentially give me bunch of validators that act on my domain entities: aka, the specification pattern. Also, in accordance with the patterns described in Eric's blue book, I can construct the validators with any data they may need to perform the validations (be it from the database or another repository or service). I would also have the option to inject any dependencies here too. I can also compose and reuse these validators (e.g. an address validator can be reused in both an Employee validator and Company validator). I have a Validator factory that acts as a "service locator":</p>
+
+<pre><code>public class ParticipantService : IParticipantService
+{
+    public void Save(Participant participant)
+    {
+        IValidator&lt;Participant&gt; validator = _validatorFactory.GetValidator&lt;Participant&gt;();
+        var results = validator.Validate(participant);
+            //if the participant is valid, register the participant with the unit of work
+            if (results.IsValid)
+            {
+                if (participant.IsNew)
+                {
+                    _unitOfWork.RegisterNew&lt;Participant&gt;(participant);
+                }
+                else if (participant.HasChanged)
+                {
+                    _unitOfWork.RegisterDirty&lt;Participant&gt;(participant);
+                }
+            }
+            else
+            {
+                _unitOfWork.RollBack();
+                //do some thing here to indicate the errors:generate an exception (or fault) that contains the validation errors. Or return the results
+            }
+    }
+
+}
+</code></pre>
+
+<p>And the validator would contain code, something like this:</p>
+
+<pre><code>   public class ParticipantValidator : AbstractValidator&lt;Participant&gt;
+    {
+        public ParticipantValidator(DateTime today, int ageLimit, List&lt;string&gt; validCompanyCodes, /*any other stuff you need*/)
+        {...}
+
+    public void BuildRules()
+    {
+             RuleFor(participant =&gt; participant.DateOfBirth)
+                    .NotNull()
+                    .LessThan(m_today.AddYears(m_ageLimit*-1))
+                    .WithMessage(string.Format("Participant must be older than {0} years of age.", m_ageLimit));
+
+            RuleFor(participant =&gt; participant.Address)
+                .NotNull()
+                .SetValidator(new AddressValidator());
+
+            RuleFor(participant =&gt; participant.Email)
+                .NotEmpty()
+                .EmailAddress();
+            ...
+}
+
+    }
+</code></pre>
+
+<p>We have to support more than one type of presentation: websites, winforms and bulk loading of data via services. Under pinning all these are a set of services that expose the functionality of the system in a single and consistent way. We do not use Entity Framework or ORM for reasons that I will not bore you with.</p>
+
+<p>Here is why I like this approach:</p>
+
+<ul>
+<li>The business rules that are contained in the validators are totally unit testable.</li>
+<li>I can compose more complex rules from simpler rules</li>
+<li>I can use the validators in more than one location in my system (we support websites and Winforms, and services that expose functionality), so if there is a slightly different rule required for a use case in a service that differs from the websites, then I can handle that.</li>
+<li>All the vaildation is expressed in one location and I can choose how / where to inject and compose this.</li>
+</ul>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/10999427" title="short permalink to this answer" class="short-link" id="link-post-10999427">share</a><span class="lsep">|</span><a href="/posts/10999427/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2012-06-12 15:05:28Z" class="relativetime">Jun 12 '12 at 15:05</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/412758/robertms"><div><img src="https://www.gravatar.com/avatar/d7fbd9d2ee74f1732b87a98054607c31?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/412758/robertms">RobertMS</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">600</span><span title="2 silver badges"><span class="badge2"></span><span class="badgecount">2</span></span><span title="10 bronze badges"><span class="badge3"></span><span class="badgecount">10</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-10999427" class="comments dno" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+					    <tr><td></td><td></td></tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-10999427" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="10921076"></a>
+<div id="answer-10921076" class="answer" data-answerid="10921076" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="10921076">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">1</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>You put validation in the wrong place.</p>
+
+<p>You should use ValueObjects for such things.
+Watch this presentation <a href="http://www.infoq.com/presentations/Value-Objects-Dan-Bergh-Johnsson" rel="nofollow">http://www.infoq.com/presentations/Value-Objects-Dan-Bergh-Johnsson</a>
+It will also teach you about Data as Centers of Gravity.</p>
+
+<p>There also a sample of how to reuse data validation, like for example using static validation methods ala Email.IsValid(string)</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/10921076" title="short permalink to this answer" class="short-link" id="link-post-10921076">share</a><span class="lsep">|</span><a href="/posts/10921076/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2012-06-06 19:44:10Z" class="relativetime">Jun 6 '12 at 19:44</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/1188209/yevhen-bobrov"><div><img src="https://www.gravatar.com/avatar/8b87945c5cf3bb9d38e52ebafa60574a?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/1188209/yevhen-bobrov">Yevhen Bobrov</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">236</span><span title="1 silver badge"><span class="badge2"></span><span class="badgecount">1</span></span><span title="5 bronze badges"><span class="badge3"></span><span class="badgecount">5</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-10921076" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-14292788" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">thanks a lot Yevhen. As a ddd beginner, your answers are always inspiring.</span>
+	&ndash;&nbsp;
+		<a href="/users/259240/arthis" 
+		   title="1386 reputation" 
+		   class="comment-user">Arthis</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-08 14:36:09Z" class="relativetime-clean">Jun 8 '12 at 14:36</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14300167" class="comment">
+        <td class="comment-actions">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                                <span title="number of &#39;useful comment&#39; votes received" 
+                                        class="cool">1</span>   
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy"><i>You put validation in the wrong place</i> I totally respect your opinion and If you could point me concrete advantages (trade-offs) between placing the validation inside a value object vs placing it in individual objects (as I did at the end of my post) I would appreciate it.</span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-08 19:47:30Z" class="relativetime-clean">Jun 8 '12 at 19:47</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-10921076" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="10879699"></a>
+<div id="answer-10879699" class="answer" data-answerid="10879699" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="10879699">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">0</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>I would not call a class which inherits from <code>EntityBase</code> my domain model since it couples it to your persistence layer. But that's just my opinion.</p>
+
+<p>I would not move the email validation logic from the <code>Customer</code> to anything else to follow the  Open/Closed principle. To me, following open/closed would mean that you have the following hierarchy:</p>
+
+<pre><code>public class User
+{
+    // some basic validation
+    public virtual void ChangeEmail(string email);
+}
+
+public class Employee : User
+{
+    // validates internal email
+    public override void ChangeEmail(string email);
+}
+
+public class Customer : User
+{
+    // validate external email addresses.
+    public override void ChangeEmail(string email);
+}
+</code></pre>
+
+<p>You suggestions moves the control from the domain model to an arbitrary class, hence breaking the encapsulation. I would rather refactor my class (<code>Customer</code>) to comply to the new business rules than doing that.</p>
+
+<p>Use domain events to trigger other parts of the system to get a more loosely coupled architecture, but don't use commands/events to violate the encapsulation.</p>
+
+<p><strong>Exceptions</strong></p>
+
+<p>I just noticed that you throw <code>DomainException</code>. That's a way to generic exception. Why don't you use the argument exceptions or the <code>FormatException</code>? They describe the error much better. And don't forget to include context information helping you to prevent the exception in the future.</p>
+
+<p><strong>Update</strong></p>
+
+<p>Placing the logic outside the class is asking for trouble imho. How do you control which validation rule is used? One part of the code might use <code>SomeVeryOldRule</code> when validating  while another using <code>NewAndVeryStrictRule</code>. It might not be on purpose, but it can and will happen when the code base grows. </p>
+
+<p>It sounds like you have already decided to ignore one of the OOP fundamentals (encapsulation). Go ahead and use a generic / external validation framework, but don't say that I didn't warn you ;)</p>
+
+<p><strong>Update2</strong></p>
+
+<blockquote>
+  <p>Thanks for your patience and your answers, and that's the reason why I posted this question, I feel the same an entity should be responsible to guarantee it's in a valid state (and I have done it in previous projects) but the benefits of placing it in individual objects is huge and like I posted there's even a way to use individual objects and keep the encapsulation but personally I am not so happy with design but on the other hand it is not out of the table, consider this ChangeEmail(IEnumerable> validators, string email) I have not thought in detail the imple. though</p>
+</blockquote>
+
+<p>That allows the programmer to specify any rules, it may or may not be the currently correct business rules. The developer could just write </p>
+
+<pre><code>customer.ChangeEmail(new IValidator&lt;Customer&gt;[] { new NonValidatingRule&lt;Customer&gt;() }, "notAnEmail")
+</code></pre>
+
+<p>which accepts everything. And the rules have to be specified in every single place where <code>ChangeEmail</code> is being called. </p>
+
+<p>If you want to use a rule engine, create a singleton proxy:</p>
+
+<pre><code>public class Validator
+{
+    IValidatorEngine _engine;
+
+    public static void Assign(IValidatorEngine engine)
+    {
+        _engine = engine;
+    }
+
+    public static IValidatorEngine Current { get { return _engine; } }
+}
+</code></pre>
+
+<p>.. and use it from within the domain model methods like</p>
+
+<pre><code>public class Customer
+{
+    public void ChangeEmail(string email)
+    {
+        var rules = Validator.GetRulesFor&lt;Customer&gt;("ChangeEmail");
+        rules.Validate(email);
+
+        // valid
+    }
+
+}
+</code></pre>
+
+<p>The problem with that solution is that it will become a maintenance nightmare since the rule dependencies are hidden. You can never tell if all rules have been specified and working unless you test every domain model method and each rule scenario for every method.</p>
+
+<p>The solution is more flexible but will imho take a lot more time to implement than to refactor the method who's business rules got changed.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/10879699" title="short permalink to this answer" class="short-link" id="link-post-10879699">share</a><span class="lsep">|</span><a href="/posts/10879699/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+    <td align="right" class="post-signature">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="/posts/10879699/revisions" title="show all edits to this post">edited <span title="2012-06-04 13:17:03Z" class="relativetime">Jun 4 '12 at 13:17</span></a>
+    </div>
+    <div class="user-gravatar32">
+        
+    </div>
+    <div class="user-details">
+        <br>
+        
+    </div>
+</div>    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info user-hover">
+    <div class="user-action-time">
+        answered <span title="2012-06-04 10:16:58Z" class="relativetime">Jun 4 '12 at 10:16</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/70386/jgauffin"><div><img src="https://www.gravatar.com/avatar/56a2a55982a1fb84d691f8ca772a4982?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/70386/jgauffin">jgauffin</a><br>
+        <span class="reputation-score" title="reputation score 45839" dir="ltr">45.8k</span><span title="11 gold badges"><span class="badge1"></span><span class="badgecount">11</span></span><span title="85 silver badges"><span class="badge2"></span><span class="badgecount">85</span></span><span title="161 bronze badges"><span class="badge3"></span><span class="badgecount">161</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-10879699" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="11" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-14178365" class="comment">
+        <td class="comment-actions">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                                <span title="number of &#39;useful comment&#39; votes received" 
+                                        class="cool">1</span>   
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy"><code>EntityBase</code> has nothing to do with persitence. It is a POCO adding common logic to GetHashCode, and Equals basically. I do not agree with the way you model the Open/Close principle. But I totally agree with you about that moving the logic from <code>Customer</code> breaks the encapsulation (I said that in the post), and I am not happy with that but the trade-offs vs placing it outside are bigger and more important from my point of view don&#39;t you think? The other approach that I could use is passing the validator objects to my entities methods something like this <code>ChangeEmail(IEnumerable&lt;IValidator&gt; v)</code></span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 10:26:16Z" class="relativetime-clean">Jun 4 '12 at 10:26</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14178494" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">I think it is not clear from my question, but the real problem is: Hiding the domain rules has serious implications in the future maintainability of the application, and also domain rules change often during the life-cycle of the app. Hence implementing them with this in mind would let us extend them easily. Now imagine in the future a rules engine is implemented, if the rules are encapsulated outside of the domain entities will make this change easier.</span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 10:32:49Z" class="relativetime-clean">Jun 4 '12 at 10:32</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14178513" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">The <code>DomainException</code> is just as an example, there are several specific exceptions</span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 10:33:46Z" class="relativetime-clean">Jun 4 '12 at 10:33</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14178774" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">But why do you have to know the email business rules outside the method? The user who enters the email should get a hint from the exception messages about what he entered incorrectly. (and I said that your first code sample do not violate OCP other than it do not have the <code>virtual</code> keyword)</span>
+	&ndash;&nbsp;
+		<a href="/users/70386/jgauffin" 
+		   title="45839 reputation" 
+		   class="comment-user">jgauffin</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 10:47:29Z" class="relativetime-clean">Jun 4 '12 at 10:47</span></span>
+		<span class="edited-yes" title="this comment was edited 1 time"></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14178879" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">hehe That&#39;s exactly the point (YOU GOT IT), and I understand (see my edited post) and I agree with you but can you give me some key points or advantages  that I will gain encapsulating the validation in an entity? I will update the post to specify key points of placing it outside</span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 10:53:46Z" class="relativetime-clean">Jun 4 '12 at 10:53</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-10879699" data-rep=50 data-anon=true
+			   class="comments-link " 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>show <b>11</b> more comments</a>
+    </td>
+</tr>
+    </table>
+</div>
+
+  
+<a name="10879573"></a>
+<div id="answer-10879573" class="answer" data-answerid="10879573" >
+    <table>
+        <tr>
+            <td class="votecell">
+                
+
+<div class="vote">
+    <input type="hidden" name="_id_" value="10879573">
+    <a class="vote-up-off" title="This answer is useful">up vote</a>
+    <span class="vote-count-post ">-2</span>
+    <a class="vote-down-off" title="This answer is not useful">down vote</a>
+    
+
+
+</div>
+
+            </td>
+
+
+
+<td class="answercell">
+    <div class="post-text"><p>You can use a message based solution with Domain Events as explained <a href="http://www.udidahan.com/2009/06/14/domain-events-salvation" rel="nofollow">here</a>.</p>
+
+<p>Exceptions are not the right method for all validation errors, is not said that a not valid entity is an exceptional case.</p>
+
+<p>If the validation is not trivial, the logic to validate the aggregate can be executed directly on the <em>server</em> and while you are trying to set new input you can raise a Domain Event to tell to the <em>user</em> (or the application that is using your domain) why the input is not correct.</p>
+</div>
+    <table class="fw">
+    <tr>
+    <td class="vt">
+<div class="post-menu"><a href="/a/10879573" title="short permalink to this answer" class="short-link" id="link-post-10879573">share</a><span class="lsep">|</span><a href="/posts/10879573/edit" class="suggest-edit-post" title="">improve this answer</a></div>                    </td>
+    <td align="right" class="post-signature">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="/posts/10879573/revisions" title="show all edits to this post">edited <span title="2012-06-26 21:45:01Z" class="relativetime">Jun 26 '12 at 21:45</span></a>
+    </div>
+    <div class="user-gravatar32">
+        
+    </div>
+    <div class="user-details">
+        <br>
+        
+    </div>
+</div>    </td>
+            
+
+
+    <td align="right" class="post-signature">   
+       
+
+    <div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2012-06-04 10:06:25Z" class="relativetime">Jun 4 '12 at 10:06</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="/users/462337/matteo-migliore"><div><img src="https://www.gravatar.com/avatar/2d27c5a0d7ef61fbc75dce0d7f9a2382?s=32&d=identicon&r=PG" alt="" width="32" height="32"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="/users/462337/matteo-migliore">Matteo Migliore</a><br>
+        <span class="reputation-score" title="reputation score " dir="ltr">559</span><span title="3 silver badges"><span class="badge2"></span><span class="badgecount">3</span></span><span title="12 bronze badges"><span class="badge3"></span><span class="badgecount">12</span></span>
+    </div>
+</div>
+    </td>
+    </tr>
+    </table>
+</td>        </tr>
+
+<tr>
+    <td class="votecell"></td>
+    <td>
+	    <div id="comments-10879573" class="comments" data-localized="true">
+		    <table>
+			    <tbody data-remaining-comments-count="0" 
+			           data-addlink-html="add comment" 
+			           data-addlink-disabled="true">
+
+    <tr id="comment-14178165" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">According to Martin Fowler <i>&quot;The essence of a Domain Event is that you use it to capture things that can trigger a change to the state of the application you are developing. These event objects are then processed to cause changes to the system, and stored to provide an Audit Log&quot;</i>. I DO use domain events in this context</span>
+	&ndash;&nbsp;
+		<a href="/users/1268570/jupaol" 
+		   title="11004 reputation" 
+		   class="comment-user owner">Jupaol</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 10:14:37Z" class="relativetime-clean">Jun 4 '12 at 10:14</span></span>
+		<span class="edited-yes" title="this comment was edited 2 times"></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14178261" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">According to wikipedia &quot;<i>anomalous or exceptional situations requiring special processing â€“ often changing the normal flow of program execution</i>&quot;. Somebody says that when you use the word <b>when</b>, there, there is a Domain Event. So if the domain expert says: &quot;<i>when the customer email is not valid do...</i>&quot; there is a domain event.</span>
+	&ndash;&nbsp;
+		<a href="/users/462337/matteo-migliore" 
+		   title="559 reputation" 
+		   class="comment-user">Matteo Migliore</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 10:20:47Z" class="relativetime-clean">Jun 4 '12 at 10:20</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14179907" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">A domain entity should always be in a consistent state. Thus trying to specify data which is not valid is exceptional.</span>
+	&ndash;&nbsp;
+		<a href="/users/70386/jgauffin" 
+		   title="45839 reputation" 
+		   class="comment-user">jgauffin</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 11:44:19Z" class="relativetime-clean">Jun 4 '12 at 11:44</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14180143" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">The exceptions should be used only if you do not know how to solve the problem in a certain context, a validation error is not the case.
+If the email is wrong, yes, the validation at the level of presentation and/or service layers did not work, but it is easy to re-ask to the user to enter a valid address, so the workflow is not compromised.</span>
+	&ndash;&nbsp;
+		<a href="/users/462337/matteo-migliore" 
+		   title="559 reputation" 
+		   class="comment-user">Matteo Migliore</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-04 11:56:37Z" class="relativetime-clean">Jun 4 '12 at 11:56</span></span>
+				</div>
+
+        </td>
+    </tr>
+    <tr id="comment-14341675" class="comment">
+        <td>
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="comment-score">
+                            
+                        </td>
+                        <td>
+                                &nbsp;
+                        </td>
+                    </tr>
+                </tbody>
+            </table>   
+        </td>
+        <td class="comment-text">
+            <div style="display: block;" class="comment-body">
+	<span class="comment-copy">Agreed, but that is the role of UI validation and touches on the fact that there should be validation in each layer focused on what purpose validation serves in each. For example, UI validation is used to provide interactivity and (hopefully) prevent bad data being submitted to the domain. In the domain layer, validation is used to prevent domain entities from entering an invalid state. I agree that exceptions are appropriate in the domain layer. If you don&#39;t want the exception to occur, implement UI validation to help the &#39;user&#39; provide the correct data.</span>
+	&ndash;&nbsp;
+		<a href="/users/173281/sonofpirate" 
+		   title="1778 reputation" 
+		   class="comment-user">SonOfPirate</a>
+	<span class="comment-date" dir="ltr"><span title="2012-06-11 13:04:42Z" class="relativetime-clean">Jun 11 '12 at 13:04</span></span>
+				</div>
+
+        </td>
+    </tr>
+			    </tbody>
+		    </table>
+	    </div>
+			<a id="comments-link-10879573" data-rep=50 data-anon=true
+			   class="comments-link disabled-link" 
+			   title="Use comments to ask for more information or suggest improvements. Avoid comments like â€œ+1â€? or â€œthanksâ€?." 
+				>add comment</a>
+    </td>
+</tr>
+    </table>
+</div>
+									<a name='new-answer'></a>
+						<form id="post-form" action="/questions/10879421/answer/submit" method="post"  class="post-form">
+							<input type="hidden" id="post-id" value="10879421" />
+							<h2 class="space">Your Answer</h2>
+
+
+
+    
+
+<script type="text/javascript">
+    StackExchange.ready(function() {
+        initTagRenderer("".split(" "), "".split(" "));
+         
+        prepareEditor({
+            heartbeatType: 'answer',
+            bindNavPrevention: true,
+            postfix: "",
+            onDemand: true,
+            discardSelector: ".discard-answer"
+            ,immediatelyShowMarkdownHelp:true
+        });
+        
+
+    });  
+</script>
+
+
+<div id="post-editor" class="post-editor">
+
+    <div style="position: relative;">     
+        <div class="wmd-container">
+            <div id="wmd-button-bar" class="wmd-button-bar"></div>
+            <textarea id="wmd-input" class="wmd-input" name="post-text" cols="92" rows="15" tabindex="101" data-min-length=""></textarea>
+        </div>
+    </div>
+
+    <div class="fl" style="margin-top: 8px; height:24px;">&nbsp;</div>
+    <div id="draft-saved" class="draft-saved community-option fl" style="margin-top: 8px; height:24px; display:none;">draft saved</div>
+
+    <div id="draft-discarded" class="draft-discarded community-option fl" style="margin-top: 8px; height:24px; display:none;">draft discarded</div>
+
+
+
+    <div id="wmd-preview" class="wmd-preview"></div>
+    <div></div>
+    <div class="edit-block">
+        <input id="fkey" name="fkey" type="hidden" value="924444e9d656bd8bb28009690bceb305">
+        <input id="author" name="author" type="text">
+    </div>
+</div>
+							<div style="position: relative;">
+								
+            <div class="form-item dno new-post-login">
+        
+                <div class="new-login-form">
+                    <div class="new-login-left">
+                        <h3>Sign up or <a id="login-link" href="/users/login?returnurl=%2fquestions%2f10879421%2fdomain-validation-in-a-cqrs-architecture%23new-answer">login</a></h3>
+                        <script type="text/javascript">
+                            StackExchange.ready(function () {
+                                StackExchange.helpers.onClickDraftSave('#login-link');
+                            });
+                        </script>
+                        <div class="preferred-login google-login">
+                            <p><span class="icon"></span><span>Sign up using Google</span></p>
+                        </div>
+                        <div class="preferred-login facebook-login">
+                            <p><span class="icon"></span><span>Sign up using Facebook</span></p>
+                        </div>
+                        <div class="preferred-login stackexchange-login">
+                            <p><span class="icon"></span><span>Sign up using Stack Exchange</span></p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="manual-openid" class="manual-openid" />
+                    <input type="hidden" name="use-facebook" class="use-facebook" value="false" />
+                    <input type="button" class="submit-openid" value="Submit" style="display:none" />
+                    <div class="new-login-right">
+                                <h3>Post as a guest</h3>
+    <div class="form-item">
+        <table>
+        <tr>
+                    <script type="text/javascript">
+                StackExchange.ready(function () {
+                    StackExchange.helpers.bindHelpOverlayEvents($('.vm input'));
+                });
+            </script>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="30" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but not shown</span>
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                StackExchange.ready(
+                    function () {
+                        StackExchange.openid.initPostLogin('.new-post-login', '%2fquestions%2f10879421%2fdomain-validation-in-a-cqrs-architecture%23new-answer');
+                    }
+                );
+            </script>
+            <noscript>
+                        <h3>Post as a guest</h3>
+    <div class="form-item">
+        <table>
+        <tr>
+                    <script type="text/javascript">
+                StackExchange.ready(function () {
+                    StackExchange.helpers.bindHelpOverlayEvents($('.vm input'));
+                });
+            </script>
+            <td class="vm">
+                <div>
+                    <label for="display-name">Name</label>
+                    <input id="display-name" name="display-name" type="text" size="30" maxlength="30" value="" tabindex="105">
+                </div>
+                <div>
+                    <label for="m-address">Email</label>
+                    <input id="m-address" name="m-address" type="text" size="30" maxlength="100" value="" tabindex="106">
+                    <span class="edit-field-overlay">required, but not shown</span>
+                </div>
+            </td>
+        </tr>
+        </table>
+    </div>
+
+            </noscript>
+							</div>
+           
+															<div class="form-submit cbt">
+									<input id="submit-button" type="submit" value="Post Your Answer" tabindex="110">
+									<a href="#" class="discard-answer dno">discard</a>
+
+<p class="privacy-policy-agreement">
+By posting your answer, you agree to the <a href='http://stackexchange.com/legal/privacy-policy' target='_blank'>privacy policy</a> and <a href='http://stackexchange.com/legal/terms-of-service' target='_blank'>terms of service</a>.</p>
+<input type="hidden" name="legalLinksShown" value="1" />								</div>
+						</form>
+
+
+
+						<h2 class="bottom-notice">
+Not the answer you&#39;re looking for?							Browse other questions tagged <a href="/questions/tagged/c%23" class="post-tag" title="show questions tagged &#39;c#&#39;" rel="tag">c#</a> <a href="/questions/tagged/validation" class="post-tag" title="show questions tagged &#39;validation&#39;" rel="tag">validation</a> <a href="/questions/tagged/architecture" class="post-tag" title="show questions tagged &#39;architecture&#39;" rel="tag">architecture</a> <a href="/questions/tagged/domain-driven-design" class="post-tag" title="show questions tagged &#39;domain-driven-design&#39;" rel="tag">domain-driven-design</a> <a href="/questions/tagged/cqrs" class="post-tag" title="show questions tagged &#39;cqrs&#39;" rel="tag">cqrs</a>  or <a href="/questions/ask">ask your own question</a>.						</h2>
+			</div>
+		</div>
+				<div id="sidebar" class="show-votes">
+							<div class="module question-stats">
+					<p class="label-key">tagged</p>
+					<div class="tagged"><a href="/questions/tagged/c%23" class="post-tag" title="show questions tagged &#39;c#&#39;" rel="tag">c#</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">561876</span></span><br>
+<a href="/questions/tagged/validation" class="post-tag" title="show questions tagged &#39;validation&#39;" rel="tag">validation</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">21556</span></span><br>
+<a href="/questions/tagged/architecture" class="post-tag" title="show questions tagged &#39;architecture&#39;" rel="tag">architecture</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">7885</span></span><br>
+<a href="/questions/tagged/domain-driven-design" class="post-tag" title="show questions tagged &#39;domain-driven-design&#39;" rel="tag">domain-driven-design</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">2629</span></span><br>
+<a href="/questions/tagged/cqrs" class="post-tag" title="show questions tagged &#39;cqrs&#39;" rel="tag">cqrs</a>&nbsp;<span class="item-multiplier"><span class="item-multiplier-x">&times;</span>&nbsp;<span class="item-multiplier-count">473</span></span><br>
+</div>
+					<table id="qinfo">
+						<tr>
+							<td>
+								<p class="label-key">asked</p>
+							</td>
+							<td style="padding-left: 10px">
+								<p class="label-key" title="2012-06-04 09:54:20Z"><b>1 year ago</b></p>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<p class="label-key">viewed</p>
+							</td>
+
+							<td style="padding-left: 10px">
+								<p class="label-key">
+									<b>1502 times</b>
+								</p>
+							</td>
+						</tr>
+							<tr>
+								<td>
+									<p class="label-key">active</p>
+								</td>
+								<td style="padding-left: 10px">
+									<p class="label-key"><b><a href="?lastactivity" class="lastactivity-link" title="2012-06-26 21:45:01Z">1 year ago</a></b></p>
+								</td>
+							</tr>
+					</table>
+				</div>
+						
+			<script type="text/javascript">
+                var ados = ados || {};ados.run = ados.run || [];
+                ados.run.push(function() { ados_add_placement(22,8277,"adzerk532296043",17).setZone(45) ; });                    
+            </script>
+            <div class="everyonelovesstackoverflow" id="adzerk532296043">
+            </div>  
+    <div id="hireme">
+        <script type="text/javascript">
+window.careers_adurl="//careers.stackoverflow.com/gethired/js",window.careers_cssurl="//cdn-careers.sstatic.net/careers/gethired/sidebar.min.css?v=3c55a7a05afd",window.careers_leaderboardcssurl="//cdn-careers.sstatic.net/careers/gethired/ninja.min.css?v=78ccbfa5c59f",window.careers_companycssurl="//cdn-careers.sstatic.net/careers/gethired/company",window.careers_adselector="div.hireme, div#hireme",StackExchange.ready(function(){$.ajax({url:"//cdn-careers.sstatic.net/careers/gethired/loader.min.js?v=c151d0261983",dataType:"script",cache:!0})});        </script>
+    </div>
+			  
+    
+            <div class="module sidebar-linked">
+	<h4 id="h-linked">Linked</h4>
+	<div class="linked" data-tracker="lq=1">
+<div class="spacer">
+	<a href="/q/11425993" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">5</div>
+	</a>
+	<a href="/questions/11425993/making-entity-class-closed-for-changes" class="question-hyperlink">Making Entity Class Closed for Changes</a>
+</div><div class="spacer">
+	<a href="/q/12645574" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">5</div>
+	</a>
+	<a href="/questions/12645574/asp-net-mvc-custom-validation-in-view-model-best-practice" class="question-hyperlink">ASP.NET MVC Custom Validation in View Model Best Practice</a>
+</div><div class="spacer">
+	<a href="/q/11241541" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">1</div>
+	</a>
+	<a href="/questions/11241541/ddd-approach-to-access-external-information" class="question-hyperlink">DDD Approach to Access External Information</a>
+</div><div class="spacer">
+	<a href="/q/20310524" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">0</div>
+	</a>
+	<a href="/questions/20310524/domain-driven-design-depends-on-static-methods" class="question-hyperlink">domain driven design depends on static methods?</a>
+</div>			</div>
+</div>
+
+				<div class="module sidebar-related">
+					<h4 id="h-related">Related</h4>
+					<div class="related" data-tracker="rq=1">
+						<div class="spacer">
+<a href="/q/3932791" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">20
+    </div>
+</a><a href="/questions/3932791/alternatives-to-many-to-many-relationships-with-cqrs" class="question-hyperlink">Alternatives to many-to-many relationships with CQRS</a>
+</div>
+<div class="spacer">
+<a href="/q/5210249" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">17
+    </div>
+</a><a href="/questions/5210249/does-validation-in-cqrs-have-to-occur-separately-once-in-the-ui-and-once-in-the" class="question-hyperlink">Does validation in CQRS have to occur separately once in the UI, and once in the business domain?</a>
+</div>
+<div class="spacer">
+<a href="/q/9455305" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">5
+    </div>
+</a><a href="/questions/9455305/uniqueness-validation-when-using-cqrs-and-event-sourcing" class="question-hyperlink">Uniqueness validation when using CQRS and Event sourcing</a>
+</div>
+<div class="spacer">
+<a href="/q/10652329" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">1
+    </div>
+</a><a href="/questions/10652329/cqrs-ddd-domain-model-business-rules-validation-using-cqrs-read-model" class="question-hyperlink">CQRS &amp; DDD - Domain Model Business Rules validation using cqrs read model</a>
+</div>
+<div class="spacer">
+<a href="/q/11169097" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">1
+    </div>
+</a><a href="/questions/11169097/is-cqrs-correct-for-my-domain" class="question-hyperlink">Is CQRS correct for my domain?</a>
+</div>
+<div class="spacer">
+<a href="/q/11465025" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/11465025/cqrs-business-logic-on-the-query-side" class="question-hyperlink">CQRS: business logic on the query side</a>
+</div>
+<div class="spacer">
+<a href="/q/12214257" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes default">0
+    </div>
+</a><a href="/questions/12214257/cqrs-command-validity-and-ui" class="question-hyperlink">CQRS: Command validity and UI</a>
+</div>
+<div class="spacer">
+<a href="/q/13018502" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/13018502/non-domain-model-update-in-cqrs" class="question-hyperlink">Non-Domain Model update in CQRS</a>
+</div>
+<div class="spacer">
+<a href="/q/18021763" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/18021763/cqrs-dddd-in-an-accounting-domain" class="question-hyperlink">CQRS, DDDD in an accounting domain</a>
+</div>
+<div class="spacer">
+<a href="/q/19278493" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes answered-accepted default">0
+    </div>
+</a><a href="/questions/19278493/cqrs-and-domain-model" class="question-hyperlink">CQRS and domain model</a>
+</div>
+
+					</div>
+				</div>
+		</div>
+	
+<div id="feed-link">
+    <div id="feed-link-text"><a href="/feeds/question/10879421" title="feed of this question and its answers"><span class="feed-icon"></span>question feed</a></div>
+</div>
+	<script type="text/javascript">
+StackExchange.ready(function(){$.get('/posts/10879421/ivc/04fc');});
+</script>
+<noscript>
+    <div><img src="/posts/10879421/ivc/04fc" class="dno" alt="" width="0" height="0"></div>
+</noscript><div style="display:none" id="prettify-lang">lang-cs</div></div>
+
+
+        </div>
+    </div>
+    <div id="footer" class="categories">
+        <div class="footerwrap">
+            <div id="footer-menu">
+                <div class="top-footer-links">
+                        <a href="/about">about</a>
+                    <a href="/help">help</a>
+                        <a href="/help/badges">badges</a>
+                    <a href="http://blog.stackexchange.com?blb=1">blog</a>
+                        <a href="http://chat.stackoverflow.com">chat</a>
+                    <a href="http://data.stackexchange.com">data</a>
+                    <a href="http://stackexchange.com/legal">legal</a>
+                    <a href="http://stackexchange.com/legal/privacy-policy">privacy policy</a>
+                    <a href="http://stackexchange.com/about/hiring">jobs</a>
+                    <a href="http://engine.adzerk.net/r?e=eyJhdiI6NDE0LCJhdCI6MjAsImNtIjo5NTQsImNoIjoxMTc4LCJjciI6Mjc3NiwiZG0iOjQsImZjIjoyODYyLCJmbCI6Mjc1MSwibnciOjIyLCJydiI6MCwicHIiOjExNSwic3QiOjAsInVyIjoiaHR0cDovL3N0YWNrb3ZlcmZsb3cuY29tL2Fib3V0L2NvbnRhY3QiLCJyZSI6MX0&s=hRods5B22XvRBwWIwtIMekcyNF8">advertising info</a>
+
+                    <a onclick='StackExchange.switchMobile("on")'>mobile</a>
+                    <b><a href="/contact">contact us</a></b>
+                        <b><a href="http://meta.stackoverflow.com">feedback</a></b>
+                    
+                </div>
+                <div id="footer-sites">
+                    <table>
+    <tr>
+            <th colspan=3>
+                Technology
+            </th>
+            <th >
+                Life / Arts
+            </th>
+            <th >
+                Culture / Recreation
+            </th>
+            <th >
+                Science
+            </th>
+            <th >
+                Other
+            </th>
+    </tr>
+    <tr>
+            <td>
+                <ol>
+                        <li><a href="http://stackoverflow.com" title="professional and enthusiast programmers">Stack Overflow</a></li>
+                        <li><a href="http://serverfault.com" title="professional system and network administrators">Server Fault</a></li>
+                        <li><a href="http://superuser.com" title="computer enthusiasts and power users">Super User</a></li>
+                        <li><a href="http://webapps.stackexchange.com" title="power users of web applications">Web Applications</a></li>
+                        <li><a href="http://askubuntu.com" title="Ubuntu users and developers">Ask Ubuntu</a></li>
+                        <li><a href="http://webmasters.stackexchange.com" title="pro webmasters">Webmasters</a></li>
+                        <li><a href="http://gamedev.stackexchange.com" title="professional and independent game developers">Game Development</a></li>
+                        <li><a href="http://tex.stackexchange.com" title="users of TeX, LaTeX, ConTeXt, and related typesetting systems">TeX - LaTeX</a></li>
+                            </ol></td><td><ol>
+                        <li><a href="http://programmers.stackexchange.com" title="professional programmers interested in conceptual questions about software development">Programmers</a></li>
+                        <li><a href="http://unix.stackexchange.com" title="users of Linux, FreeBSD and other Un*x-like operating systems.">Unix &amp; Linux</a></li>
+                        <li><a href="http://apple.stackexchange.com" title="power users of Apple hardware and software">Ask Different (Apple)</a></li>
+                        <li><a href="http://wordpress.stackexchange.com" title="WordPress developers and administrators">WordPress Answers</a></li>
+                        <li><a href="http://gis.stackexchange.com" title="cartographers, geographers and GIS professionals">Geographic Information Systems</a></li>
+                        <li><a href="http://electronics.stackexchange.com" title="electronics and electrical engineering professionals, students, and enthusiasts">Electrical Engineering</a></li>
+                        <li><a href="http://android.stackexchange.com" title="enthusiasts and power users of the Android operating system">Android Enthusiasts</a></li>
+                        <li><a href="http://security.stackexchange.com" title="Information security professionals">Information Security</a></li>
+                            </ol></td><td><ol>
+                        <li><a href="http://dba.stackexchange.com" title="database professionals who wish to improve their database skills and learn from others in the community">Database Administrators</a></li>
+                        <li><a href="http://drupal.stackexchange.com" title="Drupal developers and administrators">Drupal Answers</a></li>
+                        <li><a href="http://sharepoint.stackexchange.com" title="SharePoint enthusiasts">SharePoint</a></li>
+                        <li><a href="http://ux.stackexchange.com" title="user experience researchers and experts">User Experience</a></li>
+                        <li><a href="http://mathematica.stackexchange.com" title="users of Mathematica">Mathematica</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#technology" class="more">
+                                more (14)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://photo.stackexchange.com" title="professional, enthusiast and amateur photographers">Photography</a></li>
+                        <li><a href="http://scifi.stackexchange.com" title="science fiction and fantasy enthusiasts">Science Fiction &amp; Fantasy</a></li>
+                        <li><a href="http://cooking.stackexchange.com" title="professional and amateur chefs">Seasoned Advice (cooking)</a></li>
+                        <li><a href="http://diy.stackexchange.com" title="contractors and serious DIYers">Home Improvement</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#lifearts" class="more">
+                                more (13)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://english.stackexchange.com" title="linguists, etymologists, and serious English language enthusiasts">English Language &amp; Usage</a></li>
+                        <li><a href="http://skeptics.stackexchange.com" title="scientific skepticism">Skeptics</a></li>
+                        <li><a href="http://judaism.stackexchange.com" title="those who base their lives on Jewish law and tradition and anyone interested in learning more">Mi Yodeya (Judaism)</a></li>
+                        <li><a href="http://travel.stackexchange.com" title="road warriors and seasoned travelers">Travel</a></li>
+                        <li><a href="http://christianity.stackexchange.com" title="committed Christians, experts in Christianity and those interested in learning more">Christianity</a></li>
+                        <li><a href="http://gaming.stackexchange.com" title="passionate videogamers on all platforms">Arqade (gaming)</a></li>
+                        <li><a href="http://bicycles.stackexchange.com" title="people who build and repair bicycles, people who train cycling, or commute on bicycles">Bicycles</a></li>
+                        <li><a href="http://rpg.stackexchange.com" title="gamemasters and players of tabletop, paper-and-pencil role-playing games">Role-playing Games</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#culturerecreation" class="more">
+                                more (21)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://math.stackexchange.com" title="people studying math at any level and professionals in related fields">Mathematics</a></li>
+                        <li><a href="http://stats.stackexchange.com" title="statisticians, data analysts, data miners and data visualization experts">Cross Validated (stats)</a></li>
+                        <li><a href="http://cstheory.stackexchange.com" title="theoretical computer scientists and researchers in related fields">Theoretical Computer Science</a></li>
+                        <li><a href="http://physics.stackexchange.com" title="active researchers, academics and students of physics">Physics</a></li>
+                        <li><a href="http://mathoverflow.net" title="professional mathematicians">MathOverflow</a></li>
+                    
+                        <li>
+                            <a href="http://stackexchange.com/sites#science" class="more">
+                                more (7)
+                            </a>
+                        </li>
+                </ol>
+            </td>
+            <td>
+                <ol>
+                        <li><a href="http://stackapps.com" title="apps, scripts, and development with the Stack Exchange API">Stack Apps</a></li>
+                        <li><a href="http://meta.stackoverflow.com" title="meta-discussion of the Stack Exchange family of Q&amp;A websites">Meta Stack Overflow</a></li>
+                        <li><a href="http://area51.stackexchange.com" title="proposing new sites in the Stack Exchange network">Area 51</a></li>
+                        <li><a href="http://careers.stackoverflow.com">Stack Overflow Careers</a></li>
+                    
+                </ol>
+            </td>
+    </tr>
+</table>
+                </div>
+            </div>
+
+            <div id="copyright">
+                site design / logo &#169; 2013 stack exchange inc; user contributions licensed under <a href="http://creativecommons.org/licenses/by-sa/3.0/" rel="license">cc-wiki</a> 
+ with <a href="http://blog.stackoverflow.com/2009/06/attribution-required/" rel="license">attribution required</a>
+            </div>
+            <div id="footer-flair">
+                <a href="http://creativecommons.org/licenses/by-sa/3.0/" class="cc-wiki-link"></a>
+            </div>
+            <div id="svnrev">
+                rev 2013.12.13.1229
+            </div>
+            
+        </div>
+    </div>
+    <noscript>
+        <div id="noscript-warning">Stack Overflow works best with JavaScript enabled<img src="http://pixel.quantserve.com/pixel/p-c1rF4kxgLUzNc.gif" alt="" class="dno"></div>
+    </noscript>
+<script type="text/javascript">var p = "http", d = "static"; if (document.location.protocol == "https:") { p += "s"; d = "engine"; } var z = document.createElement("script"); z.type = "text/javascript"; z.async = true; z.src = p + "://" + d + ".adzerk.net/ados.js"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(z, s);</script>
+<script type="text/javascript">
+    var ados = ados || {};
+    ados.run = ados.run || [];
+    ados.run.push(function () { ados_setKeywords('c%23,validation,architecture,domain-driven-design,cqrs');; ados_load(); });         
+</script>
+
+    <script type="text/javascript">var _gaq=_gaq||[];_gaq.push(['_setAccount','UA-5620270-1']);
+        _gaq.push(['_setCustomVar', 1, 'tags', '|c#|validation|architecture|domain-driven-design|cqrs|']); 
+_gaq.push(['_trackPageview']);
+    var _qevents = _qevents || [];
+    var _comscore = _comscore || [];
+    (function () {
+        var ssl='https:'==document.location.protocol,
+            s=document.getElementsByTagName('script')[0],
+            ga=document.createElement('script');
+        ga.type='text/javascript';
+        ga.async=true;
+        ga.src=(ssl?'https://ssl':'http://www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(ga,s);
+        var sc=document.createElement('script');
+        sc.type='text/javascript';
+        sc.async=true;
+        sc.src=(ssl?'https://secure':'http://edge')+'.quantserve.com/quant.js';
+        s.parentNode.insertBefore(sc, s);
+        
+        var s = document.createElement("script"), el = document.getElementsByTagName("script")[0]; s.async = true;
+        s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+        el.parentNode.insertBefore(s, el);
+        
+    })();
+    _comscore.push({ c1: "2", c2: "17440561" });
+    _qevents.push({ qacct: "p-c1rF4kxgLUzNc" });
+    </script>
+            
+</body>
+</html>

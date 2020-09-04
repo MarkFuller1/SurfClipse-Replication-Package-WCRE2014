@@ -1,0 +1,879 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>netty3.2.3�?�?分�?--ServerBootstrap�?�动分�?</title>
+		<meta name="keywords" content="Java" />
+        <meta name="description" content="null" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" type="text/css" href="/css/base.css">
+        <link rel="stylesheet" type="text/css" href="/css/common.css">
+        <script src="/js/jquery.min.js" type="text/javascript"></script>
+        <script src="/js/common.js" type="text/javascript"></script>
+        <!--[if IE 6]>
+        <script src="/js/DD_belatedPNG_0.0.8a-min.js" type="text/javascript"></script>
+        <![endif]--><link rel="stylesheet" type="text/css" href="/css/content.css">
+		<link rel="stylesheet" type="text/css" href="/admin/js/kindeditor/plugins/code/prettify.css">
+		<script src="/js/message.js" type="text/javascript"></script>
+		<script src="/js/lazyload.js" type="text/javascript"></script>
+		<script src="/admin/js/kindeditor/plugins/code/prettify.js" type="text/javascript"></script>
+		<script>$(function(){prettyPrint();$("pre").css("white-space","pre-wrap");});</script>
+		<style type="text/css">
+			.top-div,.nav-div,.main-div{
+			  width:1001px;
+			}
+			.main-div{
+			  font-size:14px;
+			}
+			.main-div .left-div{
+			 width:686px;
+			 overflow:hidden;
+			}
+			.main-div .right-div{
+			 width:302px;
+			 overflow:hidden;
+			}
+			.tag-div .tag2 .content2 ul li {
+			 width:280px;
+			 background: url("../images/dot1.gif") no-repeat 0px 11px;
+			 height: 26px;
+			 line-height:26px;
+			}
+			.tag-div .tag2 .content2 ul li a{
+			  color:#4CB7EA;
+			  font-family: "微软雅黑";
+			  font-weight: bolder;
+			}
+			.tag-div .tag2 .content2 ul li a:hover{
+			  color: #646464;
+			}
+			.tag-div .tag2 .content3 .list .right {
+			width: 221px;
+			}
+		</style>
+	</head>
+	<body>
+	<!--顶部-->
+		<div class="w100p">
+			<div class="top-div center">
+				<div class="logo-div">
+					<a href="/"><img src="/images/logo.gif" alt="Logo" width="244" height="74"/></a>
+				</div>
+				<div class="search-div">
+					<div class="left">
+						<input id="searchInput" class="input" type="text" value="请输入�?�索�?�件…" />
+					</div>
+					<div class="right">
+						<a id="searchButton" href="#" target="_blank">�?�&nbsp;索</a>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<a id="advancedSearchButton" href="#" target="_blank">高级�?�索</a>
+					</div>
+					<div class="cl">
+					</div>
+				</div>
+				<div class="hot-search-div">
+				  热门�?�索： <a href="/search/?kw=JQuery%20%E6%8F%92%E4%BB%B6">JQuery �?�件</a>&nbsp;
+				           <a href="/search/?kw=Struts">Struts</a>&nbsp;
+				           <a href="/search/?kw=Spring">Spring</a>&nbsp;
+				           <a href="/search/?kw=Hibernate">Hibernate</a>&nbsp;
+				           <a href="/search/?kw=%E6%95%B0%E6%8D%AE%E5%BA%93">数�?�库</a>&nbsp;
+				           <a href="/search/?kw=Linux">Linux</a>&nbsp;
+				           <a href="/search/?kw=Android">Android</a>&nbsp;
+				           <a href="/search/?kw=Iphone">Iphone</a>&nbsp;
+				           <a href="/search/?kw=%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F">设计模�?</a>&nbsp;
+				</div>
+				<div class="reg-login">
+					<a target="_blank" href="http://www.niwozhi.net">你我知</a>&nbsp;
+					<a target="_blank" href="/library.html">书�?下载</a>&nbsp;
+					<a target="_blank" href="/search/?kw=%E9%9D%A2%E8%AF%95%E9%A2%98">�?�试题库</a>&nbsp;
+					<a target="_blank" href="/map.html">网站地图</a>
+				</div>
+			</div>
+		</div>
+		<!--顶部结�?�-->
+		<!--导航-->
+		<div class="w100p">
+			<div class="nav-div" style="padding-bottom:5px;">
+				<ul id="navUl">
+				    <li><a href="/">首页</a></li>
+					<li><a href="/one_c52.html">编程语言</a></li>
+					<li><a href="/one_c53.html">Web开�?�</a></li>
+					<li><a href="/one_c54.html">�?端技术</a></li>
+					<li><a href="/one_c55.html">移动开�?�</a></li>
+					<li><a href="/one_c56.html">数�?�库</a></li>
+					<li><a href="/one_c57.html">�?作系统</a></li>
+					<li><a href="/one_c58.html">嵌入开�?�</a></li>
+					<li class="active"><a href="/one_c59.html">网络安全</a></li>
+					<li><a href="/one_c60.html">办公软件</a></li>
+					</ul>
+				<div class="cl"></div>
+				<div class="nav-more-div">
+					<a href="/map.html">全部列表&gt;&gt;</a>
+				</div>
+			</div>
+		</div>
+		<!--导航结�?�-->
+<!--主架构-->
+		<div class="w100p">
+			 <div class="content-title rel" style="width:1001px;margin:0 auto;">
+				<h1>netty3.2.3�?�?分�?--ServerBootstrap�?�动分�?</h1>
+			 </div>
+		</div>
+		<div class="w100p">
+			<div class="main-div">
+				<!--左架构-->
+				<div class="left-div">
+					<script src="/js/ads/demo/demo_top_double.js" type="text/javascript"></script>
+					<div class="content-info rel">
+						<span class="kind">分类：</span>
+						<a href="/one_c59.html">网络安全</a><span class="kind">/</span>
+						<a href="/two_c447.html">�?洞分�?</a><span class="kind">/</span>
+						<a href="/two_c447.html">文章</a>
+						</div>
+					<div class="content-content" id="verydemo_content_div">
+					<link href="/js/syntaxhighlighter/SyntaxHighlighter.css" rel="stylesheet" type="text/css" />
+<div id="article_content" class="article_content">
+
+<p><span >转载地�?�:http://www.blogjava.net/alex-zheng/articles/339552.html<br>
+</span></p>
+<p><span >这里首先<strong><strong>分�?</strong></strong>下ServerBootstrap的<strong>�?�动</strong>过程，在netty中，channel�?�以看�?是socketchannel的抽象</span></p>
+<span >channelpipeline里存放�?�channelhandler，channelpipeline根�?��?�?�的channelevent触�?�对应的�?作<br>
+如channel的open，bind，connect等<br>
+</span>
+<p><span >下�?�以TelnetServer为例�?�一步步看server<strong>�?�动</strong></span></p>
+<p></p>
+<div ><span ><span >public</span><span >&nbsp;</span><span >static</span><span >&nbsp;</span><span >void</span><span >&nbsp;main(String[]&nbsp;args)&nbsp;</span><span >throws</span><span >&nbsp;Exception&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Configure&nbsp;the&nbsp;server.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;new&nbsp;NioServerSocketChannelFactory中�?始化一个NioServerSocketPipelineSink，用�?�处�?�downstreamhandler</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ServerBootstrap&nbsp;bootstrap&nbsp;</span><span >=</span><span >&nbsp;</span><span >new</span><span >&nbsp;ServerBootstrap(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span ><span >&nbsp;</span>NioServerSocketChannelFactory(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Executors.newCachedThreadPool(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Executors.newCachedThreadPool()));<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Set&nbsp;up&nbsp;the&nbsp;event&nbsp;pipeline&nbsp;factory.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bootstrap.setPipelineFactory(</span><span >new</span><span >&nbsp;TelnetServerPipelineFactory());<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Bind&nbsp;and&nbsp;start&nbsp;to&nbsp;accept&nbsp;incoming&nbsp;connections.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bootstrap.bind(</span><span >new</span><span >&nbsp;InetSocketAddress(</span><span >8080</span><span >));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></span><br>
+<span ></span></div>
+<p></p>
+<p><span >直接看serverbootstrap的bind方法</span></p>
+<p></p>
+<div ><span><span >public</span><span >&nbsp;Channel&nbsp;bind(</span><span >final</span><span >&nbsp;SocketAddress&nbsp;localAddress)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(localAddress&nbsp;</span><span >==</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >throw</span><span >&nbsp;</span><span >new</span><span >&nbsp;NullPointerException(</span><span >&quot;</span><span >localAddress</span><span >&quot;</span><span >);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >该队列中�?�放了一个Binder</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >final</span><span >&nbsp;BlockingQueue</span><span >&lt;</span><span >ChannelFuture</span><span >&gt;</span><span >&nbsp;futureQueue&nbsp;</span><span >=</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;LinkedBlockingQueue</span><span >&lt;</span><span >ChannelFuture</span><span >&gt;</span><span >();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >Binder&nbsp;extends&nbsp;SimpleChannelUpstreamHandler，处�?�channelOpen</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelHandler&nbsp;binder&nbsp;</span><span >=</span><span >&nbsp;</span><span >new</span><span >&nbsp;Binder(localAddress,&nbsp;futureQueue);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>&nbsp;</span></span><span >//</span><span >这里parenthandler为null</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelHandler&nbsp;parentHandler&nbsp;</span><span >=</span><span >&nbsp;getParentHandler();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >�?始化DefaultChannelPipeline<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >在绑定端�?��?的pipeline里�?�有一个binder的upstreamhandler</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelPipeline&nbsp;bossPipeline&nbsp;</span><span >=</span><span >&nbsp;pipeline();&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >这里调用DefaultChannelPipeline的addlast方法，�?始化一个DefaultChannelHandlerContext，<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >handlercontext里�?�是一个链表结构<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>&nbsp;</span></span><span >//</span><span >该context中�?�有一个binder&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bossPipeline.addLast(</span><span >&quot;</span><span >binder</span><span >&quot;</span><span >,&nbsp;binder);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(parentHandler&nbsp;</span><span >!=</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bossPipeline.addLast(</span><span >&quot;</span><span >userHandler</span><span >&quot;</span><span >,&nbsp;parentHandler);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >一切从这里开始,getFactory()==NioServerSocketChannelFactory</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Channel&nbsp;channel&nbsp;</span><span >=</span><span >&nbsp;getFactory().newChannel(bossPipeline);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></span><br>
+<span ></span></div>
+<p><span >NioServerSocketChannelFactory.newChannel(ChannelPipeline pipeline)如下</span></p>
+<div >
+<p><span ><span >&nbsp;</span><span >public</span> ServerSocketChannel newChannel(ChannelPipeline pipeline) {<span >//</span><span >�?始化一个NioServerSocketChannel,pipeline中放的是binder，sink是NioServerSocketPipelineSink</span><span ><br>
+</span></span></p>
+<span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >&nbsp;</span><span >new</span><span >&nbsp;NioServerSocketChannel(</span><span >this</span><span >,&nbsp;pipeline,&nbsp;sink);<br>
+&nbsp;}</span><br>
+</div>
+<p><span >�?�看NioServerSocketChannel的构造函数中我们看到这么一�?�fireChannelOpen(this);引用自Channles</span></p>
+<p></p>
+<div ><span ><span >public</span><span >&nbsp;</span><span >static</span><span >&nbsp;</span><span >void</span><span >//</span><span >&nbsp;Notify&nbsp;the&nbsp;parent&nbsp;handler.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(channel.getParent()&nbsp;</span><span >!=</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fireChildChannelStateChanged(channel.getParent(),&nbsp;channel);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >这里调用DefaultChannelPipeline的sendUpstream方法</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.getPipeline().sendUpstream(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;UpstreamChannelStateEvent(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel,&nbsp;ChannelState.OPEN,&nbsp;Boolean.TRUE));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></span><br>
+</div>
+<p></p>
+<p><span >DefaultChannelPipeline.sendUpstream(ChannelEvent e)</span><span ><span ><br>
+</span></span></p>
+<div ><span ><span >public</span><span >&nbsp;</span><span >void</span><span >&nbsp;sendUpstream(ChannelEvent&nbsp;e)&nbsp;{<br>
+</span></span><span ><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+<span ><span ><span >//</span><span >this.head==binder</span></span></span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DefaultChannelHandlerContext&nbsp;head&nbsp;</span><span >=</span><span >&nbsp;getActualUpstreamContext(</span><span >this</span><span >.head);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(head&nbsp;</span><span >==</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logger.warn(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >&quot;</span><span >The&nbsp;pipeline&nbsp;contains&nbsp;no&nbsp;upstream&nbsp;handlers;&nbsp;discarding:&nbsp;</span><span >&quot;</span><span >&nbsp;</span><span >&#43;</span><span >&nbsp;e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sendUpstream(head,&nbsp;e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></span></div>
+<p><span >执行</span></p>
+<p><span ></span></p>
+<div ><span >void</span><span >&nbsp;sendUpstream(DefaultChannelHandlerContext&nbsp;ctx,&nbsp;ChannelEvent&nbsp;e)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >ctx.getHandler()==binder--&gt;SimpleChannelUpstreamHandler</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((ChannelUpstreamHandler)&nbsp;ctx.getHandler()).handleUpstream(ctx,&nbsp;e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(Throwable&nbsp;t)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notifyHandlerException(e,&nbsp;t);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+这里会在SimpleChannelUpstreamHandler.handleUpstream(ctx, e);中调用binder的channelOpen<br>
+<div ><span >public</span><span >&nbsp;</span><span >void</span><span >&nbsp;channelOpen(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelHandlerContext&nbsp;ctx,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelStateEvent&nbsp;evt)&nbsp;{<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >设置NioServerSocketChannel的DefaultServerSocketChannelConfig的pipelinetfactory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >在之�?�的线程分�?�中会去�?�该factory的pipeline，�?�TelnetServerPipelineFactory中的pipeline</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;evt.getChannel().getConfig().setPipelineFactory(getPipelineFactory());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >finally</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ctx.sendUpstream(evt);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >执行NioServerSocketChannel.bind，最终会调用Channels.bind(Channel&nbsp;channel,&nbsp;SocketAddress&nbsp;localAddress)</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >boolean</span><span >&nbsp;finished&nbsp;</span><span >=</span><span >&nbsp;futureQueue.offer(evt.getChannel().bind(localAddress));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >assert</span><span >&nbsp;finished;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+Channels.bind方法如下：<br>
+&nbsp;<span>&nbsp;</span><br>
+<div ><span >public</span><span >&nbsp;</span><span >static</span><span >&nbsp;ChannelFuture&nbsp;bind(Channel&nbsp;channel,&nbsp;SocketAddress&nbsp;localAddress)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(localAddress&nbsp;</span><span >==</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >throw</span><span >&nbsp;</span><span >new</span><span >&nbsp;NullPointerException(</span><span >&quot;</span><span >localAddress</span><span >&quot;</span><span >);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelFuture&nbsp;future&nbsp;</span><span >=</span><span >&nbsp;future(channel);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >�?�调用了DefaultChannelPipeline的senddownstream，对应事件是bound</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.getPipeline().sendDownstream(</span><span >new</span><span >&nbsp;DownstreamChannelStateEvent(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel,&nbsp;future,&nbsp;ChannelState.BOUND,&nbsp;localAddress));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >&nbsp;future;<br>
+}</span></div>
+DefaultChannelPipeline的senddownstream<br>
+&nbsp;<br>
+<div ><span >public</span><span >&nbsp;</span><span >void</span><span >&nbsp;sendDownstream(ChannelEvent&nbsp;e)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DefaultChannelHandlerContext&nbsp;tail&nbsp;</span><span >=</span><span >&nbsp;getActualDownstreamContext(</span><span >this</span><span >.tail);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(tail&nbsp;</span><span >==</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getSink().eventSunk(</span><span >this</span><span >,&nbsp;e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(Throwable&nbsp;t)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;notifyHandlerException(e,&nbsp;t);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sendDownstream(tail,&nbsp;e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+从getActualDownstreamContext返回的是null，所以上�?�会执行 getSink().eventSunk(this, e);<br>
+<div ><span >DefaultChannelHandlerContext&nbsp;getActualDownstreamContext(DefaultChannelHandlerContext&nbsp;ctx)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(ctx&nbsp;</span><span >==</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >&nbsp;</span><span >null</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DefaultChannelHandlerContext&nbsp;realCtx&nbsp;</span><span >=</span><span >&nbsp;ctx;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >Binder是upstream，这里返回null</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >while</span><span >&nbsp;(</span><span >!</span><span >realCtx.canHandleDownstream())&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;realCtx&nbsp;</span><span >=</span><span >&nbsp;realCtx.prev;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(realCtx&nbsp;</span><span >==</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >&nbsp;</span><span >null</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >&nbsp;realCtx;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+sendDownstream将执行 getSink().eventSunk(this, e);<br>
+getSink()获得的是NioServerSocketPipelineSink，<br>
+<div ><span >public</span><span >&nbsp;</span><span >void</span><span >&nbsp;eventSunk(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelPipeline&nbsp;pipeline,&nbsp;ChannelEvent&nbsp;e)&nbsp;</span><span >throws</span><span >&nbsp;Exception&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Channel&nbsp;channel&nbsp;</span><span >=</span><span >&nbsp;e.getChannel();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(channel&nbsp;</span><span >instanceof</span><span >&nbsp;NioServerSocketChannel)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handleServerSocket(e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >else</span><span >&nbsp;</span><span >if</span><span >&nbsp;(channel&nbsp;</span><span >instanceof</span><span >&nbsp;NioSocketChannel)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handleAcceptedSocket(e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;</span><span >private</span><span >&nbsp;</span><span >void</span><span >&nbsp;handleServerSocket(ChannelEvent&nbsp;e)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(</span><span >!</span><span >(e&nbsp;</span><span >instanceof</span><span >&nbsp;ChannelStateEvent))&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >return</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelStateEvent&nbsp;event&nbsp;</span><span >=</span><span >&nbsp;(ChannelStateEvent)&nbsp;e;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NioServerSocketChannel&nbsp;channel&nbsp;</span><span >=</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(NioServerSocketChannel)&nbsp;event.getChannel();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelFuture&nbsp;future&nbsp;</span><span >=</span><span >&nbsp;event.getFuture();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelState&nbsp;state&nbsp;</span><span >=</span><span >&nbsp;event.getState();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Object&nbsp;value&nbsp;</span><span >=</span><span >&nbsp;event.getValue();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >根�?�new&nbsp;DownstreamChannelStateEvent(channel,&nbsp;future,&nbsp;ChannelState.BOUND,&nbsp;localAddress)</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >switch</span><span >&nbsp;(state)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >case</span><span >&nbsp;OPEN:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(Boolean.FALSE.equals(value))&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close(channel,&nbsp;future);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >break</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >case</span><span >&nbsp;BOUND:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(value&nbsp;</span><span >!=</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >在这里完�?socketAddress绑定</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bind(channel,&nbsp;future,&nbsp;(SocketAddress)&nbsp;value);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >else</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close(channel,&nbsp;future);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >break</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+<br>
+对应的NioServerSocketPipelineSink.bind方法<br>
+<div ><span >private</span><span >&nbsp;</span><span >void</span><span >&nbsp;bind(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NioServerSocketChannel&nbsp;channel,&nbsp;ChannelFuture&nbsp;future,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SocketAddress&nbsp;localAddress)&nbsp;{<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >boolean</span><span >&nbsp;bound&nbsp;</span><span >=</span><span >&nbsp;</span><span >false</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >boolean</span><span >&nbsp;bossStarted&nbsp;</span><span >=</span><span >&nbsp;</span><span >false</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.socket.socket().bind(localAddress,&nbsp;channel.getConfig().getBacklog());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bound&nbsp;</span><span >=</span><span >&nbsp;</span><span >true</span><span >;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;future.setSuccess();<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >触�?�channelbound</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fireChannelBound(channel,&nbsp;channel.getLocalAddress());<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Executor&nbsp;bossExecutor&nbsp;</span><span >=</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((NioServerSocketChannelFactory)&nbsp;channel.getFactory()).bossExecutor;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bossExecutor.execute(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;IoWorkerRunnable(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;ThreadRenamingRunnable(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;Boss(channel),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >&quot;</span><span >New&nbsp;I/O&nbsp;server&nbsp;boss&nbsp;#</span><span >&quot;</span><span >&nbsp;</span><span >&#43;</span><span >&nbsp;id&nbsp;</span><span >&#43;</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >&quot;</span><span >&nbsp;(</span><span >&quot;</span><span >&nbsp;</span><span >&#43;</span><span >&nbsp;channel&nbsp;</span><span >&#43;</span><span >&nbsp;</span><span >'</span><span >)</span><span >'</span><span >)));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bossStarted&nbsp;</span><span >=</span><span >&nbsp;</span><span >true</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(Throwable&nbsp;t)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;future.setFailure(t);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fireExceptionCaught(channel,&nbsp;t);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >finally</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(</span><span >!</span><span >bossStarted&nbsp;</span><span >&amp;&amp;</span><span >&nbsp;bound)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close(channel,&nbsp;future);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+先�?�看Channels.fireChannelBound方法�?�了什么<br>
+&nbsp;<span>&nbsp;</span><br>
+<div ><span >public</span><span >&nbsp;</span><span >static</span><span >&nbsp;</span><span >void</span><span >&nbsp;fireChannelBound(Channel&nbsp;channel,&nbsp;SocketAddress&nbsp;localAddress)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >channel.getPipeline()的DefaultChannelPipeline中�?�有一个binder<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >这里调用SimpleChannelUpstreamHandler的handleUpstream中的hannelBound(ctx,&nbsp;evt);</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.getPipeline().sendUpstream(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;UpstreamChannelStateEvent(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel,&nbsp;ChannelState.BOUND,&nbsp;localAddress));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+<br>
+接�?�看bind方法<br>
+<div ><span >Executor&nbsp;bossExecutor&nbsp;</span><span >=</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((NioServerSocketChannelFactory)&nbsp;channel.getFactory()).bossExecutor;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >在bossexcutor中创建一个boss线程<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >在该boss线程中分派新的客户端连接给workerExecutor,workerExecutor的数�?为cpu*2</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bossExecutor.execute(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;IoWorkerRunnable(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;ThreadRenamingRunnable(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;Boss(channel),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >&quot;</span><span >New&nbsp;I/O&nbsp;server&nbsp;boss&nbsp;#</span><span >&quot;</span><span >&nbsp;</span><span >&#43;</span><span >&nbsp;id&nbsp;</span><span >&#43;</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >&quot;</span><span >&nbsp;(</span><span >&quot;</span><span >&nbsp;</span><span >&#43;</span><span >&nbsp;channel&nbsp;</span><span >&#43;</span><span >&nbsp;</span><span >'</span><span >)</span><span >'</span><span >)));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>&nbsp;</span><br>
+</span></div>
+在new Boss的时候，注册channel的accept事件<br>
+<div ><span >Boss(NioServerSocketChannel&nbsp;channel)&nbsp;</span><span >throws</span><span >&nbsp;IOException&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >this</span><span >.channel&nbsp;</span><span >=</span><span >&nbsp;channel;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selector&nbsp;</span><span >=</span><span >&nbsp;Selector.open();<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >boolean</span><span >&nbsp;registered&nbsp;</span><span >=</span><span >&nbsp;</span><span >false</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.socket.register(selector,&nbsp;SelectionKey.OP_ACCEPT);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registered&nbsp;</span><span >=</span><span >&nbsp;</span><span >true</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >finally</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(</span><span >!</span><span >registered)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closeSelector();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.selector&nbsp;</span><span >=</span><span >&nbsp;selector;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+<br>
+最终调用Boss.run()<br>
+<br>
+<div ><span >public</span><span >&nbsp;</span><span >void</span><span >&nbsp;run()&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >获得当�?boss线程，mainreactor</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >final</span><span >&nbsp;Thread&nbsp;currentThread&nbsp;</span><span >=</span><span >&nbsp;Thread.currentThread();<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.shutdownLock.lock();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >for</span><span >&nbsp;(;;)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(selector.select(</span><span >1000</span><span >)&nbsp;</span><span >&gt;</span><span >&nbsp;</span><span >0</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selector.selectedKeys().clear();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >接收新的客户端连接</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SocketChannel&nbsp;acceptedSocket&nbsp;</span><span >=</span><span >&nbsp;channel.socket.accept();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(acceptedSocket&nbsp;</span><span >!=</span><span >&nbsp;</span><span >null</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >分派当�?连接给workerexcutor，�?�subreactor</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registerAcceptedChannel(acceptedSocket,&nbsp;currentThread);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >finally</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.shutdownLock.unlock();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closeSelector();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+<br>
+<div ><span >private</span><span >&nbsp;</span><span >void</span><span >&nbsp;registerAcceptedChannel(SocketChannel&nbsp;acceptedSocket,&nbsp;Thread&nbsp;currentThread)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >这里获得用户的pipleline，那么这个是在哪里设置的呢，在Binder的channelopen方法的第一�?�<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;evt.getChannel().getConfig().setPipelineFactory(getPipelineFactory());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >在这之�?的pipeline都是defalutchannelpipeline，里�?��?�有一个Binder<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >在这之�?�，�?一个NioAcceptedSocketChannel的pipeline获得的是TelnetServerPipelineFactory中的pipeline</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ChannelPipeline&nbsp;pipeline&nbsp;</span><span >=</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.getConfig().getPipelineFactory().getPipeline();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >nioworker充当subreactor</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NioWorker&nbsp;worker&nbsp;</span><span >=</span><span >&nbsp;nextWorker();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;worker.register(</span><span >new</span><span >&nbsp;NioAcceptedSocketChannel(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;channel.getFactory(),&nbsp;pipeline,&nbsp;channel,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NioServerSocketPipelineSink.</span><span >this</span><span >,&nbsp;acceptedSocket,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;worker,&nbsp;currentThread),&nbsp;</span><span >null</span><span >);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+<br>
+这里调用NioWorker.register<br>
+<div ><span >void</span><span >&nbsp;register(NioSocketChannel&nbsp;channel,&nbsp;ChannelFuture&nbsp;future)&nbsp;{<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >boolean</span><span >&nbsp;server&nbsp;</span><span >=</span><span >&nbsp;</span><span >!</span><span >(channel&nbsp;</span><span >instanceof</span><span >&nbsp;NioClientSocketChannel);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >�?始化新的task，将当�?accept的socketchannel绑定到nioworker的selecortkey的attch</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Runnable&nbsp;registerTask&nbsp;</span><span >=</span><span >&nbsp;</span><span >new</span><span >&nbsp;RegisterTask(channel,&nbsp;future,&nbsp;server);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selector&nbsp;selector;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >synchronized</span><span >&nbsp;(startStopLock)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(</span><span >!</span><span >started)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Open&nbsp;a&nbsp;selector&nbsp;if&nbsp;this&nbsp;worker&nbsp;didn't&nbsp;start&nbsp;yet.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >this</span><span >.selector&nbsp;</span><span >=</span><span >&nbsp;selector&nbsp;</span><span >=</span><span >&nbsp;Selector.open();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(Throwable&nbsp;t)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >throw</span><span >&nbsp;</span><span >new</span><span >&nbsp;ChannelException(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >&quot;</span><span >Failed&nbsp;to&nbsp;create&nbsp;a&nbsp;selector.</span><span >&quot;</span><span >,&nbsp;t);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Start&nbsp;the&nbsp;worker&nbsp;thread&nbsp;with&nbsp;the&nbsp;new&nbsp;Selector.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;threadName&nbsp;</span><span >=</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(server&nbsp;</span><span >?</span><span >&nbsp;</span><span >&quot;</span><span >New&nbsp;I/O&nbsp;server&nbsp;worker&nbsp;#</span><span >&quot;</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;</span><span >&quot;</span><span >New&nbsp;I/O&nbsp;client&nbsp;worker&nbsp;#</span><span >&quot;</span><span >)&nbsp;</span><span >&#43;</span><span >&nbsp;bossId&nbsp;</span><span >&#43;</span><span >&nbsp;</span><span >'</span><span >-</span><span >'</span><span >&nbsp;</span><span >&#43;</span><span >&nbsp;id;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >boolean</span><span >&nbsp;success&nbsp;</span><span >=</span><span >&nbsp;</span><span >false</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span ><strong>�?�动</strong>一个线程�?�处�?�该连接</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;executor.execute(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;IoWorkerRunnable(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >new</span><span >&nbsp;ThreadRenamingRunnable(</span><span >this</span><span >,&nbsp;threadName)));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;success&nbsp;</span><span >=</span><span >&nbsp;</span><span >true</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >finally</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(</span><span >!</span><span >success)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Release&nbsp;the&nbsp;Selector&nbsp;if&nbsp;the&nbsp;execution&nbsp;fails.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selector.close();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(Throwable&nbsp;t)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logger.warn(</span><span >&quot;</span><span >Failed&nbsp;to&nbsp;close&nbsp;a&nbsp;selector.</span><span >&quot;</span><span >,&nbsp;t);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >this</span><span >.selector&nbsp;</span><span >=</span><span >&nbsp;selector&nbsp;</span><span >=</span><span >&nbsp;</span><span >null</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;The&nbsp;method&nbsp;will&nbsp;return&nbsp;to&nbsp;the&nbsp;caller&nbsp;at&nbsp;this&nbsp;point.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >else</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Use&nbsp;the&nbsp;existing&nbsp;selector&nbsp;if&nbsp;this&nbsp;worker&nbsp;has&nbsp;been&nbsp;started.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selector&nbsp;</span><span >=</span><span >&nbsp;</span><span >this</span><span >.selector;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >assert</span><span >&nbsp;selector&nbsp;</span><span >!=</span><span >&nbsp;</span><span >null</span><span >&nbsp;</span><span >&amp;&amp;</span><span >&nbsp;selector.isOpen();<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;started&nbsp;</span><span >=</span><span >&nbsp;</span><span >true</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >加入到任务队列</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >boolean</span><span >&nbsp;offered&nbsp;</span><span >=</span><span >&nbsp;registerTaskQueue.offer(registerTask);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >assert</span><span >&nbsp;offered;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(wakenUp.compareAndSet(</span><span >false</span><span >,&nbsp;</span><span >true</span><span >))&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selector.wakeup();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+�?�看registertask的run方法<br>
+<div >public void run() {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SocketAddress localAddress = channel.getLocalAddress();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SocketAddress remoteAddress = channel.getRemoteAddress();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (localAddress == null || remoteAddress == null) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (future != null) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; future.setFailure(new ClosedChannelException());<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; close(channel, succeededFuture(channel));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (server) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; channel.socket.configureBlocking(false);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; synchronized (channel.interestOpsLock) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //这里注册当�?accepted的socketchannel的read事件<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; channel.socket.register(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; selector, channel.getRawInterestOps(), channel);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (future != null) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; channel.setConnected();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; future.setSuccess();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } catch (IOException e) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (future != null) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; future.setFailure(e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; close(channel, succeededFuture(channel));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!(e instanceof ClosedChannelException)) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new ChannelException(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;Failed to register a socket to the selector.&quot;, e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!server) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!((NioClientSocketChannel) channel).boundManually) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fireChannelBound(channel, localAddress);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fireChannelConnected(channel, remoteAddress);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</div>
+<br>
+其中executor.execute(new IoWorkerRunnable(new ThreadRenamingRunnable(this, threadName)));<br>
+这里的this指�?�当�?的nioworker,调用nioworker.run<br>
+<div ><span >public</span><span >&nbsp;</span><span >void</span><span >&nbsp;run()&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >当�?nioworker</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;thread&nbsp;</span><span >=</span><span >&nbsp;Thread.currentThread();<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >boolean</span><span >&nbsp;shutdown&nbsp;</span><span >=</span><span >&nbsp;</span><span >false</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selector&nbsp;selector&nbsp;</span><span >=</span><span >&nbsp;</span><span >this</span><span >.selector;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >for</span><span >&nbsp;(;;)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wakenUp.set(</span><span >false</span><span >);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(CONSTRAINT_LEVEL&nbsp;</span><span >!=</span><span >&nbsp;</span><span >0</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selectorGuard.writeLock().lock();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;This&nbsp;empty&nbsp;synchronization&nbsp;block&nbsp;prevents&nbsp;the&nbsp;selector<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;from&nbsp;acquiring&nbsp;its&nbsp;lock.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selectorGuard.writeLock().unlock();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SelectorUtil.select(selector);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;'wakenUp.compareAndSet(false,&nbsp;true)'&nbsp;is&nbsp;always&nbsp;evaluated<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;before&nbsp;calling&nbsp;'selector.wakeup()'&nbsp;to&nbsp;reduce&nbsp;the&nbsp;wake-up<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;overhead.&nbsp;(Selector.wakeup()&nbsp;is&nbsp;an&nbsp;expensive&nbsp;operation.)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;However,&nbsp;there&nbsp;is&nbsp;a&nbsp;race&nbsp;condition&nbsp;in&nbsp;this&nbsp;approach.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;The&nbsp;race&nbsp;condition&nbsp;is&nbsp;triggered&nbsp;when&nbsp;'wakenUp'&nbsp;is&nbsp;set&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;true&nbsp;too&nbsp;early.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;'wakenUp'&nbsp;is&nbsp;set&nbsp;to&nbsp;true&nbsp;too&nbsp;early&nbsp;if:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;1)&nbsp;Selector&nbsp;is&nbsp;waken&nbsp;up&nbsp;between&nbsp;'wakenUp.set(false)'&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;&nbsp;&nbsp;&nbsp;'selector.select(<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" >)'.&nbsp;(BAD)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;2)&nbsp;Selector&nbsp;is&nbsp;waken&nbsp;up&nbsp;between&nbsp;'selector.select(<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" >)'&nbsp;and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;&nbsp;&nbsp;&nbsp;'if&nbsp;(wakenUp.get())&nbsp;{&nbsp;<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" >&nbsp;}'.&nbsp;(OK)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;In&nbsp;the&nbsp;first&nbsp;case,&nbsp;'wakenUp'&nbsp;is&nbsp;set&nbsp;to&nbsp;true&nbsp;and&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;following&nbsp;'selector.select(<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" >)'&nbsp;will&nbsp;wake&nbsp;up&nbsp;immediately.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Until&nbsp;'wakenUp'&nbsp;is&nbsp;set&nbsp;to&nbsp;false&nbsp;again&nbsp;in&nbsp;the&nbsp;next&nbsp;round,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;'wakenUp.compareAndSet(false,&nbsp;true)'&nbsp;will&nbsp;fail,&nbsp;and&nbsp;therefore<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;any&nbsp;attempt&nbsp;to&nbsp;wake&nbsp;up&nbsp;the&nbsp;Selector&nbsp;will&nbsp;fail,&nbsp;too,&nbsp;causing<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;the&nbsp;following&nbsp;'selector.select(<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" >)'&nbsp;call&nbsp;to&nbsp;block<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;unnecessarily.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;To&nbsp;fix&nbsp;this&nbsp;problem,&nbsp;we&nbsp;wake&nbsp;up&nbsp;the&nbsp;selector&nbsp;again&nbsp;if&nbsp;wakenUp<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;is&nbsp;true&nbsp;immediately&nbsp;after&nbsp;selector.select(<img src ="/images/loading.gif" original="http://cdn.verydemo.com/inc/test.jsp?url=http%3A%2F%2Fwww.blogjava.net%2FImages%2Fdot.gif" alt="" >).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;It&nbsp;is&nbsp;inefficient&nbsp;in&nbsp;that&nbsp;it&nbsp;wakes&nbsp;up&nbsp;the&nbsp;selector&nbsp;for&nbsp;both<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;the&nbsp;first&nbsp;case&nbsp;(BAD&nbsp;-&nbsp;wake-up&nbsp;required)&nbsp;and&nbsp;the&nbsp;second&nbsp;case<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;(OK&nbsp;-&nbsp;no&nbsp;wake-up&nbsp;required).</span><span ><br>
+</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(wakenUp.get())&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selector.wakeup();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cancelledKeys&nbsp;</span><span >=</span><span >&nbsp;</span><span >0</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;processRegisterTaskQueue();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;processWriteTaskQueue();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;processSelectedKeys(selector.selectedKeys());<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Exit&nbsp;the&nbsp;loop&nbsp;when&nbsp;there's&nbsp;nothing&nbsp;to&nbsp;handle.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;The&nbsp;shutdown&nbsp;flag&nbsp;is&nbsp;used&nbsp;to&nbsp;delay&nbsp;the&nbsp;shutdown&nbsp;of&nbsp;this<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;loop&nbsp;to&nbsp;avoid&nbsp;excessive&nbsp;Selector&nbsp;creation&nbsp;when<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;connections&nbsp;are&nbsp;registered&nbsp;in&nbsp;a&nbsp;one-by-one&nbsp;manner&nbsp;instead&nbsp;of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;concurrent&nbsp;manner.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(selector.keys().isEmpty())&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(shutdown&nbsp;</span><span >||</span><span ><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;executor&nbsp;</span><span >instanceof</span><span >&nbsp;ExecutorService&nbsp;</span><span >&amp;&amp;</span><span >&nbsp;((ExecutorService)&nbsp;executor).isShutdown())&nbsp;{<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >synchronized</span><span >&nbsp;(startStopLock)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(registerTaskQueue.isEmpty()&nbsp;</span><span >&amp;&amp;</span><span >&nbsp;selector.keys().isEmpty())&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;started&nbsp;</span><span >=</span><span >&nbsp;</span><span >false</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;selector.close();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(IOException&nbsp;e)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logger.warn(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >&quot;</span><span >Failed&nbsp;to&nbsp;close&nbsp;a&nbsp;selector.</span><span >&quot;</span><span >,&nbsp;e);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >finally</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >this</span><span >.selector&nbsp;</span><span >=</span><span >&nbsp;</span><span >null</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >break</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >else</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shutdown&nbsp;</span><span >=</span><span >&nbsp;</span><span >false</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >else</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Give&nbsp;one&nbsp;more&nbsp;second.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shutdown&nbsp;</span><span >=</span><span >&nbsp;</span><span >true</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >else</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shutdown&nbsp;</span><span >=</span><span >&nbsp;</span><span >false</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(Throwable&nbsp;t)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logger.warn(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >&quot;</span><span >Unexpected&nbsp;exception&nbsp;in&nbsp;the&nbsp;selector&nbsp;loop.</span><span >&quot;</span><span >,&nbsp;t);<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Prevent&nbsp;possible&nbsp;consecutive&nbsp;immediate&nbsp;failures&nbsp;that&nbsp;lead&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;excessive&nbsp;CPU&nbsp;consumption.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.sleep(</span><span >1000</span><span >);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(InterruptedException&nbsp;e)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Ignore.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}</span></div>
+<br>
+<br>
+�?�看processSelectedKeys(selector.selectedKeys());<br>
+<div ><span >&nbsp;</span><span >private</span><span >&nbsp;</span><span >void</span><span >&nbsp;processSelectedKeys(Set</span><span >&lt;</span><span >SelectionKey</span><span >&gt;</span><span >&nbsp;selectedKeys)&nbsp;</span><span >throws</span><span >&nbsp;IOException&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >for</span><span >&nbsp;(Iterator</span><span >&lt;</span><span >SelectionKey</span><span >&gt;</span><span >&nbsp;i&nbsp;</span><span >=</span><span >&nbsp;selectedKeys.iterator();&nbsp;i.hasNext();)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SelectionKey&nbsp;k&nbsp;</span><span >=</span><span >&nbsp;i.next();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i.remove();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >try</span><span >&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >int</span><span >&nbsp;readyOps&nbsp;</span><span >=</span><span >&nbsp;k.readyOps();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >�?�读，处�?�downstream</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;((readyOps&nbsp;</span><span >&amp;</span><span >&nbsp;SelectionKey.OP_READ)&nbsp;</span><span >!=</span><span >&nbsp;</span><span >0</span><span >&nbsp;</span><span >||</span><span >&nbsp;readyOps&nbsp;</span><span >==</span><span >&nbsp;</span><span >0</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(</span><span >!</span><span >read(k))&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >&nbsp;Connection&nbsp;already&nbsp;closed&nbsp;-&nbsp;no&nbsp;need&nbsp;to&nbsp;handle&nbsp;write.</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >continue</span><span >;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >//</span><span >�?�写，处�?�upstream</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;((readyOps&nbsp;</span><span >&amp;</span><span >&nbsp;SelectionKey.OP_WRITE)&nbsp;</span><span >!=</span><span >&nbsp;</span><span >0</span><span >)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writeFromSelectorLoop(k);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;</span><span >catch</span><span >&nbsp;(CancelledKeyException&nbsp;e)&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close(k);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >if</span><span >&nbsp;(cleanUpCancelledKeys())&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span >break</span><span >;&nbsp;</span><span >//</span><span >&nbsp;break&nbsp;the&nbsp;loop&nbsp;to&nbsp;avoid&nbsp;ConcurrentModificationException</span><span ><br>
+</span><span >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+</span></div>
+从这个过程�?�看，在netty中，boss线程用�?�侦�?�socket的连接，然�?�分派该连接给nioworker，在nioworker中有读和写的任务注册线程池，nioworker线程负责从这些线程中获�?�任务进行读写�?作<br>
+<p></p>
+
+</div><script src="/js/syntaxhighlighter/shCore.js" type="text/javascript"></script>
+
+</div>
+					<div style="line-height:26px;">
+				     <table width="100%" cellpadding="0" cellspacing="0" border="0">
+				     <tr>
+				     <td>
+				      <b>上一篇&nbsp;</b><a href="/demo_c447_i21840.html">选择安全�?洞扫�??工具</a>
+				     </td>
+				     <td>
+				      <b>下一篇&nbsp;</b><a href="/demo_c447_i21842.html">函数�?�数和返回值分�?</a>
+				     </td>
+				     </tr>
+				     </table>
+				    </div>
+					<script src="/js/ads/demo/demo_bottom_double.js" type="text/javascript"></script>
+					<div>
+						<!-- UJian Button BEGIN -->
+						<div class="ujian-hook"></div>
+						<script type="text/javascript">var ujian_config = {num:10,showType:4,lkrc:0};</script>
+						<script type="text/javascript" src="http://v1.ujian.cc/code/ujian.js?uid=1821176"></script>
+						<a href="http://www.ujian.cc" style="border:0;"><img src="http://img.ujian.cc/pixel.png" alt="�?��??云推�??" style="border:0;padding:0;margin:0;" /></a>
+						<!-- UJian Button END -->
+					</div>
+					<div class="content-message" style="border-top:none;width:686px;">
+						<div class="pl" style="line-height:32px;">
+							<img class="vm" src="/images/comments.gif"/>
+							<b style="font-size:16px;">文章评论</b> 以下网�?�留言�?�代表其个人观点，�?代表本网站的观点和立场。
+						</div>
+						<div>
+						<!-- UY BEGIN -->
+						<div id="uyan_frame"></div>
+						<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1821176"></script>
+						<!-- UY END -->
+						</div>
+					</div>
+				</div>
+				<!--左架构结�?�-->
+				<!--�?�架构-->
+				<div class="right-div" id="right_tj">
+					<div class="tag-container" style="padding-top:0px;">
+						<div class="tag-div">
+							<div class="tag2">
+								<div class="title">
+									<div>
+									 <table width="100%" cellpadding="0" cellspacing="0" border="0">
+									 <tr>
+									  <td><a href="/library.html" style="color:red;">热门书�?(PDF版�?�?费下载)</a></td>
+									  <td align="right"><a href="/library.html" style="color:red;">更多书�?下载&nbsp;&nbsp;</a></td>
+									 </tr>
+									</table>
+									</div>
+								</div>
+								<div class="content3">
+								    <div class="list">
+					                 <div class="left">
+					                   <a href="" title="《Ruby编程语言》中文高清PDF版"><img width="50" alt="《Ruby编程语言》中文高清PDF版" alt="《Ruby编程语言》中文高清PDF版" src="/upload/cms/120/2012-04-02/thumb (9).gif"/></a>
+					                 </div>
+					                 <div class="right">
+					                  <div><a href="/demo_c120_i1.html" title="《Ruby编程语言》中文高清PDF版">《Ruby编程语言》中文高清PDF版</a></div>
+					                  <div class="tr"><a href="/demo_c120_i1.html" title="《Ruby编程语言》中文高清PDF版下载">下载次数：285</a></div>
+					                 </div>
+					                 <div class="cl"></div>
+					               </div>
+					               <div class="list">
+					                 <div class="left">
+					                   <a href="" title="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第四版"><img width="50" alt="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第四版" alt="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第四版" src="/upload/cms/120/2012-04-02/thumb (13).gif"/></a>
+					                 </div>
+					                 <div class="right">
+					                  <div><a href="/demo_c120_i6.html" title="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第四版">《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第四版</a></div>
+					                  <div class="tr"><a href="/demo_c120_i6.html" title="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第四版下载">下载次数：254</a></div>
+					                 </div>
+					                 <div class="cl"></div>
+					               </div>
+					               <div class="list">
+					                 <div class="left">
+					                   <a href="" title="《深入浅出 Ruby on Rails》高清扫�??PDF格�?"><img width="50" alt="《深入浅出 Ruby on Rails》高清扫�??PDF格�?" alt="《深入浅出 Ruby on Rails》高清扫�??PDF格�?" src="/upload/cms/120/2012-04-02/thumb (12).gif"/></a>
+					                 </div>
+					                 <div class="right">
+					                  <div><a href="/demo_c120_i4.html" title="《深入浅出 Ruby on Rails》高清扫�??PDF格�?">《深入浅出 Ruby on Rails》高清扫�??PDF格�?</a></div>
+					                  <div class="tr"><a href="/demo_c120_i4.html" title="《深入浅出 Ruby on Rails》高清扫�??PDF格�?下载">下载次数：192</a></div>
+					                 </div>
+					                 <div class="cl"></div>
+					               </div>
+					               <div class="list">
+					                 <div class="left">
+					                   <a href="" title="《Ruby Programming》——�?�Ruby之父学程�?设计�?扫�??版"><img width="50" alt="《Ruby Programming》——�?�Ruby之父学程�?设计�?扫�??版" alt="《Ruby Programming》——�?�Ruby之父学程�?设计�?扫�??版" src="/upload/cms/120/2012-04-02/thumb (15).gif"/></a>
+					                 </div>
+					                 <div class="right">
+					                  <div><a href="/demo_c120_i8.html" title="《Ruby Programming》——�?�Ruby之父学程�?设计�?扫�??版">《Ruby Programming》——�?�Ruby之父学程�?设计�?扫�??版</a></div>
+					                  <div class="tr"><a href="/demo_c120_i8.html" title="《Ruby Programming》——�?�Ruby之父学程�?设计�?扫�??版下载">下载次数：168</a></div>
+					                 </div>
+					                 <div class="cl"></div>
+					               </div>
+					               <div class="list">
+					                 <div class="left">
+					                   <a href="" title="《�?续测试：使用Ruby, Rails, and JavaScript》高清扫�??PDF格�?"><img width="50" alt="《�?续测试：使用Ruby, Rails, and JavaScript》高清扫�??PDF格�?" alt="《�?续测试：使用Ruby, Rails, and JavaScript》高清扫�??PDF格�?" src="/upload/cms/120/2012-04-02/thumb (14).gif"/></a>
+					                 </div>
+					                 <div class="right">
+					                  <div><a href="/demo_c120_i7.html" title="《�?续测试：使用Ruby, Rails, and JavaScript》高清扫�??PDF格�?">《�?续测试：使用Ruby, Rails, and JavaScript》高清扫�??PDF格�?</a></div>
+					                  <div class="tr"><a href="/demo_c120_i7.html" title="《�?续测试：使用Ruby, Rails, and JavaScript》高清扫�??PDF格�?下载">下载次数：146</a></div>
+					                 </div>
+					                 <div class="cl"></div>
+					               </div>
+					               <div class="list">
+					                 <div class="left">
+					                   <a href="" title="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第三版"><img width="50" alt="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第三版" alt="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第三版" src="/upload/cms/120/2012-04-02/thumb (13).gif"/></a>
+					                 </div>
+					                 <div class="right">
+					                  <div><a href="/demo_c120_i5.html" title="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第三版">《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第三版</a></div>
+					                  <div class="tr"><a href="/demo_c120_i5.html" title="《Web开�?��?�?�之�?�：应用Rails进行�?�?�Web开�?�》第三版下载">下载次数：136</a></div>
+					                 </div>
+					                 <div class="cl"></div>
+					               </div>
+					               </div>
+							</div>
+						</div>
+					</div>
+					<script src="/js/ads/demo/demo_right_300x250_1.js" type="text/javascript"></script>
+					<div class="tag-container">
+						<div class="tag-div">
+							<div class="tag2">
+								<div class="title">
+									<div style="font-size:16px;line-height:34px;">&nbsp;相关文章推�??�?</div>
+								</div>
+								<div class="content2" style="border-top:1px dotted #ccc;margin-top:4px;">
+								 <ul>
+								 <li><a href="/demo_c161_i102181.html" title="Quake2�?�?分�?（3）">Quake2�?�?分�?（3）</a></li>
+								 <li><a href="/demo_c447_i5549.html" title="LDD3�?�?分�?之llseek分�?(2)">LDD3�?�?分�?之llseek分�?(2)</a></li>
+								 <li><a href="/demo_c202_i1429.html" title="Jboss Netty�?�?分�?1">Jboss Netty�?�?分�?1</a></li>
+								 <li><a href="/demo_c202_i1736.html" title="netty �?�?分�?之起动�?始化">netty �?�?分�?之起动�?始化</a></li>
+								 <li><a href="/demo_c447_i5597.html" title="netty �?�?分�?之（8）Channel">netty �?�?分�?之（8）Channel</a></li>
+								 <li><a href="/demo_c447_i5633.html" title="netty �?�?分�?之（7）ChannelBuffer">netty �?�?分�?之（7）ChannelBuffer</a></li>
+								 <li><a href="/demo_c447_i19802.html" title="netty�?�?分�?之FrameDecoder(DelimiterBasedFrameDecoder)">netty�?�?分�?之FrameDecoder(DelimiterBasedFrameDecoder)</a></li>
+								 <li><a href="/demo_c447_i19805.html" title="Netty�?�?分�?之handler decoder">Netty�?�?分�?之handler decoder</a></li>
+								 <li><a href="/demo_c447_i19809.html" title="netty�?�?分�?之FrameDecoder">netty�?�?分�?之FrameDecoder</a></li>
+								 <li><a href="/demo_c447_i19816.html" title="netty�?�?分�?之FrameDecoder(LengthFieldBasedFrameDecoder)">netty�?�?分�?之FrameDecoder(LengthFieldBasedFrameDecoder)</a></li>
+								 <li><a href="/demo_c447_i19901.html" title="netty�?�?分�?之ChannelPipeline">netty�?�?分�?之ChannelPipeline</a></li>
+								 <li><a href="/demo_c199_i2538.html" title="tomcat�?�?分�?3">tomcat�?�?分�?3</a></li>
+								 <li><a href="/demo_c447_i989.html" title="nebula3 �?�?分�?">nebula3 �?�?分�?</a></li>
+								 <li><a href="/demo_c447_i2644.html" title="Leveldb�?�?分�?--3">Leveldb�?�?分�?--3</a></li>
+								 <li><a href="/demo_c447_i3666.html" title="sitemesh3 �?�?分�?">sitemesh3 �?�?分�?</a></li>
+								 <li><a href="/demo_c447_i3765.html" title="Jeecms�?�?分�?（3）">Jeecms�?�?分�?（3）</a></li>
+								 <li><a href="/demo_c447_i5099.html" title="SWT�?�?分�?(3)">SWT�?�?分�?(3)</a></li>
+								 <li><a href="/demo_c447_i11965.html" title="uboot�?�?分�?（3）">uboot�?�?分�?（3）</a></li>
+								 <li><a href="/demo_c110_i26923.html" title="Jquery�?�?分�?---Event分�?(3)">Jquery�?�?分�?---Event分�?(3)</a></li>
+								 <li><a href="/demo_c110_i26927.html" title="Jquery�?�?分�?---Ajax分�?(3)">Jquery�?�?分�?---Ajax分�?(3)</a></li>
+								 </ul>
+                                </div>
+							</div>
+						</div>
+					</div>
+					<script src="/js/ads/demo/demo_right_300x250_4.js" type="text/javascript"></script>
+				</div>
+				<!--�?�架构结�?�-->
+				<div class="cl">
+				</div>
+			</div>
+		</div>
+		<!--主架构结�?�-->
+	    <!--底部-->
+
+<div class="100p">
+	<div class="footer-div">
+		版�?�声明:本站大部分内容�?�为原创内容,部分文章摘自互�?�网,如果侵犯了您的版�?�,请�?�系管�?�员删除(�?�系邮箱:421584397#qq.com)
+		<br />
+		Copyright © 2012, WWW.VERYDEMO.COM, All Rights Reserved
+	</div>
+</div>
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=slide&amp;img=5&amp;pos=left&amp;uid=0" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+var bds_config={"bdTop":170};
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000);
+</script>
+<!-- Baidu Button END --><script src="/js/ads/demo/demo_dui_lian_and_pop.js" type="text/javascript"></script>
+    </body>
+</html>
+<!--150-->

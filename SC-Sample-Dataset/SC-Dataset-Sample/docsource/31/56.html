@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!-- code.jsp -->
+
+
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>javax.xml.crypto.dsig: XMLSignature.java</title>
+</head>
+<body style="padding:0 0 0 0;margin:0 0 0 0">
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; javax &#187;  <a href='/docs/api/javax/xml/package-index.html'>xml</a> &#187;  <a href='/docs/api/javax/xml/crypto/package-index.html'>crypto</a> &#187;  <a href='/docs/api/javax/xml/crypto/dsig/package-index.html'>dsig</a> &#187; 
+ [<a href="/docs/api/javax/xml/crypto/dsig/XMLSignature.html">javadoc</a> | source]
+</div>
+<pre>
+<a name='1'>    1 &nbsp; /*
+    2 &nbsp;  * Copyright (c) 2005, Oracle and/or its affiliates. All rights reserved.
+    3 &nbsp;  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+    4 &nbsp;  *
+    5 &nbsp;  * This code is free software; you can redistribute it and/or modify it
+    6 &nbsp;  * under the terms of the GNU General Public License version 2 only, as
+    7 &nbsp;  * published by the Free Software Foundation.  Oracle designates this
+    8 &nbsp;  * particular file as subject to the "Classpath" exception as provided
+    9 &nbsp;  * by Oracle in the LICENSE file that accompanied this code.
+   10 &nbsp;  *
+<a name='11'>   11 &nbsp;  * This code is distributed in the hope that it will be useful, but WITHOUT
+   12 &nbsp;  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   13 &nbsp;  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+   14 &nbsp;  * version 2 for more details (a copy is included in the LICENSE file that
+   15 &nbsp;  * accompanied this code).
+   16 &nbsp;  *
+   17 &nbsp;  * You should have received a copy of the GNU General Public License version
+   18 &nbsp;  * 2 along with this work; if not, write to the Free Software Foundation,
+   19 &nbsp;  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+   20 &nbsp;  *
+<a name='21'>   21 &nbsp;  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+   22 &nbsp;  * or visit www.oracle.com if you need additional information or have any
+   23 &nbsp;  * questions.
+   24 &nbsp;  */
+   25 &nbsp; 
+   26 &nbsp; /*
+   27 &nbsp;  * ===========================================================================
+   28 &nbsp;  *
+   29 &nbsp;  * (C) Copyright IBM Corp. 2003 All Rights Reserved.
+   30 &nbsp;  *
+<a name='31'>   31 &nbsp;  * ===========================================================================
+   32 &nbsp;  */
+   33 &nbsp; /*
+   34 &nbsp;  * $Id: XMLSignature.java,v 1.10 2005/05/10 16:03:48 mullan Exp $
+   35 &nbsp;  */
+   36 &nbsp; <span class='kw'>package</span> <a href=/docs/api/javax/xml/crypto/dsig/package-index.html>javax.xml.crypto.dsig</a>;
+   37 &nbsp; 
+   38 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/xml/crypto/KeySelector.html>javax.xml.crypto.KeySelector</a>;
+   39 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/xml/crypto/KeySelectorResult.html>javax.xml.crypto.KeySelectorResult</a>;
+   40 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/xml/crypto/MarshalException.html>javax.xml.crypto.MarshalException</a>;
+<a name='41'>   41 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/xml/crypto/XMLStructure.html>javax.xml.crypto.XMLStructure</a>;
+   42 &nbsp; <span class='kw'>import</span> <a href=/docs/api/javax/xml/crypto/dsig/keyinfo/KeyInfo.html>javax.xml.crypto.dsig.keyinfo.KeyInfo</a>;
+   43 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/security/Signature.html>java.security.Signature</a>;
+   44 &nbsp; <span class='kw'>import</span> <a href=/docs/api/java/util/List.html>java.util.List</a>;
+   45 &nbsp; 
+   46 &nbsp; /**
+   47 &nbsp;  * A representation of the XML &lt;code&gt;Signature&lt;/code&gt; element as
+   48 &nbsp;  * defined in the &lt;a href="http://www.w3.org/TR/xmldsig-core/"&gt;
+   49 &nbsp;  * W3C Recommendation for XML-Signature Syntax and Processing&lt;/a&gt;.
+   50 &nbsp;  * This class contains methods for signing and validating XML signatures
+<a name='51'>   51 &nbsp;  * with behavior as defined by the W3C specification. The XML Schema Definition
+   52 &nbsp;  * is defined as:
+   53 &nbsp;  * &lt;pre&gt;&lt;code&gt;
+   54 &nbsp;  * &amp;lt;element name="Signature" type="ds:SignatureType"/&amp;gt;
+   55 &nbsp;  * &amp;lt;complexType name="SignatureType"&amp;gt;
+   56 &nbsp;  *    &amp;lt;sequence&amp;gt;
+   57 &nbsp;  *      &amp;lt;element ref="ds:SignedInfo"/&amp;gt;
+   58 &nbsp;  *      &amp;lt;element ref="ds:SignatureValue"/&amp;gt;
+   59 &nbsp;  *      &amp;lt;element ref="ds:KeyInfo" minOccurs="0"/&amp;gt;
+   60 &nbsp;  *      &amp;lt;element ref="ds:Object" minOccurs="0" maxOccurs="unbounded"/&amp;gt;
+<a name='61'>   61 &nbsp;  *    &amp;lt;/sequence&amp;gt;
+   62 &nbsp;  *    &amp;lt;attribute name="Id" type="ID" use="optional"/&amp;gt;
+   63 &nbsp;  * &amp;lt;/complexType&amp;gt;
+   64 &nbsp;  * &lt;/code&gt;&lt;/pre&gt;
+   65 &nbsp;  * &lt;p&gt;
+   66 &nbsp;  * An &lt;code&gt;XMLSignature&lt;/code&gt; instance may be created by invoking one of the
+   67 &nbsp;  * {@link XMLSignatureFactory#newXMLSignature newXMLSignature} methods of the
+   68 &nbsp;  * {@link XMLSignatureFactory} class.
+   69 &nbsp;  *
+   70 &nbsp;  * &lt;p&gt;If the contents of the underlying document containing the
+<a name='71'>   71 &nbsp;  * &lt;code&gt;XMLSignature&lt;/code&gt; are subsequently modified, the behavior is
+   72 &nbsp;  * undefined.
+   73 &nbsp;  *
+   74 &nbsp;  * &lt;p&gt;Note that this class is named &lt;code&gt;XMLSignature&lt;/code&gt; rather than
+   75 &nbsp;  * &lt;code&gt;Signature&lt;/code&gt; to avoid naming clashes with the existing
+   76 &nbsp;  * {@link Signature java.security.Signature} class.
+   77 &nbsp;  *
+   78 &nbsp;  * @see XMLSignatureFactory#newXMLSignature(SignedInfo, KeyInfo)
+   79 &nbsp;  * @see XMLSignatureFactory#newXMLSignature(SignedInfo, KeyInfo, List, String, String)
+   80 &nbsp;  * @author Joyce L. Leung
+<a name='81'>   81 &nbsp;  * @author Sean Mullan
+   82 &nbsp;  * @author Erwin van der Koogh
+   83 &nbsp;  * @author JSR 105 Expert Group
+   84 &nbsp;  * @since 1.6
+   85 &nbsp;  */
+   86 &nbsp; public interface XMLSignature extends XMLStructure {
+   87 &nbsp; 
+   88 &nbsp;     /**
+   89 &nbsp;      * The XML Namespace URI of the W3C Recommendation for XML-Signature
+   90 &nbsp;      * Syntax and Processing.
+<a name='91'>   91 &nbsp;      */
+   92 &nbsp;     final static String XMLNS = "http://www.w3.org/2000/09/xmldsig#";
+   93 &nbsp; 
+   94 &nbsp;     /**
+   95 &nbsp;      * Validates the signature according to the
+   96 &nbsp;      * &lt;a href="http://www.w3.org/TR/xmldsig-core/#sec-CoreValidation"&gt;
+   97 &nbsp;      * core validation processing rules&lt;/a&gt;. This method validates the
+   98 &nbsp;      * signature using the existing state, it does not unmarshal and
+   99 &nbsp;      * reinitialize the contents of the &lt;code&gt;XMLSignature&lt;/code&gt; using the
+  100 &nbsp;      * location information specified in the context.
+<a name='101'>  101 &nbsp;      *
+  102 &nbsp;      * &lt;p&gt;This method only validates the signature the first time it is
+  103 &nbsp;      * invoked. On subsequent invocations, it returns a cached result.
+  104 &nbsp;      *
+  105 &nbsp;      * @param validateContext the validating context
+  106 &nbsp;      * @return &lt;code&gt;true&lt;/code&gt; if the signature passed core validation,
+  107 &nbsp;      *    otherwise &lt;code&gt;false&lt;/code&gt;
+  108 &nbsp;      * @throws ClassCastException if the type of &lt;code&gt;validateContext&lt;/code&gt;
+  109 &nbsp;      *    is not compatible with this &lt;code&gt;XMLSignature&lt;/code&gt;
+  110 &nbsp;      * @throws NullPointerException if &lt;code&gt;validateContext&lt;/code&gt; is
+<a name='111'>  111 &nbsp;      *    &lt;code&gt;null&lt;/code&gt;
+  112 &nbsp;      * @throws XMLSignatureException if an unexpected error occurs during
+  113 &nbsp;      *    validation that prevented the validation operation from completing
+  114 &nbsp;      */
+  115 &nbsp;     boolean validate(XMLValidateContext validateContext)
+  116 &nbsp;         throws XMLSignatureException;
+  117 &nbsp; 
+  118 &nbsp;     /**
+  119 &nbsp;      * Returns the key info of this &lt;code&gt;XMLSignature&lt;/code&gt;.
+  120 &nbsp;      *
+<a name='121'>  121 &nbsp;      * @return the key info (may be &lt;code&gt;null&lt;/code&gt; if not specified)
+  122 &nbsp;      */
+  123 &nbsp;     KeyInfo getKeyInfo();
+  124 &nbsp; 
+  125 &nbsp;     /**
+  126 &nbsp;      * Returns the signed info of this &lt;code&gt;XMLSignature&lt;/code&gt;.
+  127 &nbsp;      *
+  128 &nbsp;      * @return the signed info (never &lt;code&gt;null&lt;/code&gt;)
+  129 &nbsp;      */
+  130 &nbsp;     SignedInfo getSignedInfo();
+<a name='131'>  131 &nbsp; 
+  132 &nbsp;     /**
+  133 &nbsp;      * Returns an {@link java.util.Collections#unmodifiableList unmodifiable
+  134 &nbsp;      * list} of {@link XMLObject}s contained in this &lt;code&gt;XMLSignature&lt;/code&gt;.
+  135 &nbsp;      *
+  136 &nbsp;      * @return an unmodifiable list of &lt;code&gt;XMLObject&lt;/code&gt;s (may be empty
+  137 &nbsp;      *    but never &lt;code&gt;null&lt;/code&gt;)
+  138 &nbsp;      */
+  139 &nbsp;     List getObjects();
+  140 &nbsp; 
+<a name='141'>  141 &nbsp;     /**
+  142 &nbsp;      * Returns the optional Id of this &lt;code&gt;XMLSignature&lt;/code&gt;.
+  143 &nbsp;      *
+  144 &nbsp;      * @return the Id (may be &lt;code&gt;null&lt;/code&gt; if not specified)
+  145 &nbsp;      */
+  146 &nbsp;     String getId();
+  147 &nbsp; 
+  148 &nbsp;     /**
+  149 &nbsp;      * Returns the signature value of this &lt;code&gt;XMLSignature&lt;/code&gt;.
+  150 &nbsp;      *
+<a name='151'>  151 &nbsp;      * @return the signature value
+  152 &nbsp;      */
+  153 &nbsp;     SignatureValue getSignatureValue();
+  154 &nbsp; 
+  155 &nbsp;     /**
+  156 &nbsp;      * Signs this &lt;code&gt;XMLSignature&lt;/code&gt;.
+  157 &nbsp;      *
+  158 &nbsp;      * &lt;p&gt;If this method throws an exception, this &lt;code&gt;XMLSignature&lt;/code&gt; and
+  159 &nbsp;      * the &lt;code&gt;signContext&lt;/code&gt; parameter will be left in the state that
+  160 &nbsp;      * it was in prior to the invocation.
+<a name='161'>  161 &nbsp;      *
+  162 &nbsp;      * @param signContext the signing context
+  163 &nbsp;      * @throws ClassCastException if the type of &lt;code&gt;signContext&lt;/code&gt; is
+  164 &nbsp;      *    not compatible with this &lt;code&gt;XMLSignature&lt;/code&gt;
+  165 &nbsp;      * @throws NullPointerException if &lt;code&gt;signContext&lt;/code&gt; is
+  166 &nbsp;      *    &lt;code&gt;null&lt;/code&gt;
+  167 &nbsp;      * @throws MarshalException if an exception occurs while marshalling
+  168 &nbsp;      * @throws XMLSignatureException if an unexpected exception occurs while
+  169 &nbsp;      *    generating the signature
+  170 &nbsp;      */
+<a name='171'>  171 &nbsp;     void sign(XMLSignContext signContext) throws MarshalException,
+  172 &nbsp;         XMLSignatureException;
+  173 &nbsp; 
+  174 &nbsp;     /**
+  175 &nbsp;      * Returns the result of the {@link KeySelector}, if specified, after
+  176 &nbsp;      * this &lt;code&gt;XMLSignature&lt;/code&gt; has been signed or validated.
+  177 &nbsp;      *
+  178 &nbsp;      * @return the key selector result, or &lt;code&gt;null&lt;/code&gt; if a key
+  179 &nbsp;      *    selector has not been specified or this &lt;code&gt;XMLSignature&lt;/code&gt;
+  180 &nbsp;      *    has not been signed or validated
+<a name='181'>  181 &nbsp;      */
+  182 &nbsp;     KeySelectorResult getKeySelectorResult();
+  183 &nbsp; 
+  184 &nbsp;     /**
+  185 &nbsp;      * A representation of the XML &lt;code&gt;SignatureValue&lt;/code&gt; element as
+  186 &nbsp;      * defined in the &lt;a href="http://www.w3.org/TR/xmldsig-core/"&gt;
+  187 &nbsp;      * W3C Recommendation for XML-Signature Syntax and Processing&lt;/a&gt;.
+  188 &nbsp;      * The XML Schema Definition is defined as:
+  189 &nbsp;      * &lt;p&gt;
+  190 &nbsp;      * &lt;pre&gt;
+<a name='191'>  191 &nbsp;      *   &amp;lt;element name="SignatureValue" type="ds:SignatureValueType"/&amp;gt;
+  192 &nbsp;      *     &amp;lt;complexType name="SignatureValueType"&amp;gt;
+  193 &nbsp;      *       &amp;lt;simpleContent&amp;gt;
+  194 &nbsp;      *         &amp;lt;extension base="base64Binary"&amp;gt;
+  195 &nbsp;      *           &amp;lt;attribute name="Id" type="ID" use="optional"/&amp;gt;
+  196 &nbsp;      *         &amp;lt;/extension&amp;gt;
+  197 &nbsp;      *       &amp;lt;/simpleContent&amp;gt;
+  198 &nbsp;      *     &amp;lt;/complexType&amp;gt;
+  199 &nbsp;      * &lt;/pre&gt;
+  200 &nbsp;      *
+<a name='201'>  201 &nbsp;      * @author Sean Mullan
+  202 &nbsp;      * @author JSR 105 Expert Group
+  203 &nbsp;      */
+  204 &nbsp;     public interface SignatureValue extends XMLStructure {
+  205 &nbsp;         /**
+  206 &nbsp;          * Returns the optional &lt;code&gt;Id&lt;/code&gt; attribute of this
+  207 &nbsp;          * &lt;code&gt;SignatureValue&lt;/code&gt;, which permits this element to be
+  208 &nbsp;          * referenced from elsewhere.
+  209 &nbsp;          *
+  210 &nbsp;          * @return the &lt;code&gt;Id&lt;/code&gt; attribute (may be &lt;code&gt;null&lt;/code&gt; if
+<a name='211'>  211 &nbsp;          *    not specified)
+  212 &nbsp;          */
+  213 &nbsp;         String getId();
+  214 &nbsp; 
+  215 &nbsp;         /**
+  216 &nbsp;          * Returns the signature value of this &lt;code&gt;SignatureValue&lt;/code&gt;.
+  217 &nbsp;          *
+  218 &nbsp;          * @return the signature value (may be &lt;code&gt;null&lt;/code&gt; if the
+  219 &nbsp;          *    &lt;code&gt;XMLSignature&lt;/code&gt; has not been signed yet). Each
+  220 &nbsp;          *    invocation of this method returns a new clone of the array to
+<a name='221'>  221 &nbsp;          *    prevent subsequent modification.
+  222 &nbsp;          */
+  223 &nbsp;         byte[] getValue();
+  224 &nbsp; 
+  225 &nbsp;         /**
+  226 &nbsp;          * Validates the signature value. This method performs a
+  227 &nbsp;          * cryptographic validation of the signature calculated over the
+  228 &nbsp;          * &lt;code&gt;SignedInfo&lt;/code&gt; of the &lt;code&gt;XMLSignature&lt;/code&gt;.
+  229 &nbsp;          *
+  230 &nbsp;          * &lt;p&gt;This method only validates the signature the first
+<a name='231'>  231 &nbsp;          * time it is invoked. On subsequent invocations, it returns a cached
+  232 &nbsp;          * result.
+  233 &nbsp;          *
+  234 &nbsp;          * @return &lt;code&gt;true&lt;/code&gt; if the signature was
+  235 &nbsp;          *    validated successfully; &lt;code&gt;false&lt;/code&gt; otherwise
+  236 &nbsp;          * @param validateContext the validating context
+  237 &nbsp;          * @throws NullPointerException if &lt;code&gt;validateContext&lt;/code&gt; is
+  238 &nbsp;          *    &lt;code&gt;null&lt;/code&gt;
+  239 &nbsp;          * @throws XMLSignatureException if an unexpected exception occurs while
+  240 &nbsp;          *    validating the signature
+<a name='241'>  241 &nbsp;          */
+  242 &nbsp;         boolean validate(XMLValidateContext validateContext)
+  243 &nbsp;             throws XMLSignatureException;
+  244 &nbsp;     }
+  245 &nbsp; }
+
+</pre>
+<div style="width:100%;background-color:#ddeeff;border:1px solid #ccddee;margin:0 0 0 0;padding:2px 2px 2px 2px">
+<div style="float:right"><a href="http://del.icio.us/post" onclick="window.open('http://del.icio.us/post?v=4&noui&jump=close&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title), 'delicious','toolbar=no,width=700,height=400'); return false;"><img src="http://images.del.icio.us/static/img/delicious.small.gif" border=0> Save This Page</a></div>
+<a href="/">Home</a> &#187; <a href="/projects/openjdk-7-java.html">openjdk-7</a> &#187; javax &#187;  <a href='/docs/api/javax/xml/package-index.html'>xml</a> &#187;  <a href='/docs/api/javax/xml/crypto/package-index.html'>crypto</a> &#187;  <a href='/docs/api/javax/xml/crypto/dsig/package-index.html'>dsig</a> &#187; 
+ [<a href="/docs/api/javax/xml/crypto/dsig/XMLSignature.html">javadoc</a> | source]
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-138120-1");
+pageTracker._trackPageview();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- end -->

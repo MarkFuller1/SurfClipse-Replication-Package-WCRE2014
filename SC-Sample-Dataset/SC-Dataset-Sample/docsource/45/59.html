@@ -1,0 +1,986 @@
+
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+
+
+
+
+
+
+<!-- TwoX header.doc -->
+
+<link rel="schema.DC" href="http://purl.org/DC/elements/1.0/"/>
+<link rel="SHORTCUT ICON" href="//www.ibm.com/favicon.ico"/>
+<meta name="DC.Rights" content="© Copyright IBM Corp. 2012, 2013"/>
+<meta name="Keywords" content="ZZZZ"/>
+<meta name="DC.Date" scheme="iso8601" content="2013-02-21"/>
+<meta name="Source" content="v17 Template Generator, Template 17.02"/>
+<meta name="Security" content="public"/>
+<meta name="Abstract" content="This document is intended to help diagnose WebSphere MQ V7 Java™ or JMS SSL setup errors.  It lists most of the common configuration errors that can cause an SSL connection from a Java/JMS client to a queue manager to fail, and gives the course of action to resolve the problem.  In each case the error can be diagnosed by a combination of the error seen in the client log - either a console output, trace file or SystemOut.log file - and the queue manager's error logs.  The document is quite long, so the eas"/>
+<meta name="IBM.Effective" scheme="W3CDTF" content="2013-02-21"/>
+<meta name="IBM.Expires" scheme="W3CDTF" content="2027-02-21"/>
+<meta name="DC.Subject" scheme="IBM_SubjectTaxonomy" content="SSFKSJ"/>
+<meta name="Owner" content="ibmsupt@us.ibm.com"/>
+<meta name="DC.Language" scheme="rfc1766" content="en-US"/>
+<meta name="IBM.Country" content="US"/>
+<meta name="Robots" content="index,follow"/>
+<meta name="DC.Type" scheme="IBM_ContentClassTaxonomy" content="CT741"/>
+<meta name="Description" content="This document is intended to help diagnose WebSphere MQ V7 Java™ or JMS SSL setup errors.  It lists most of the common configuration errors that can cause an SSL connection from a Java/JMS client to a queue manager to fail, and gives the course of action to resolve the problem.  In each case the error can be diagnosed by a combination of the error seen in the client log - either a console output, trace file or SystemOut.log file - and the queue manager's error logs.  The document is quite long, so the eas"/>
+<meta name="IBM.WTMSite" content="ESTDBL"/>
+<meta name="IBM.Selective" content="sid=1010"/>
+<script type="text/javascript" language="JavaScript1.2">
+var SP = {
+	"AVPCompanyName": "",
+	"WICO": "",
+	"CAMCO": "",
+	"WIDM": ""
+};
+var NTPT_PGEXTRA = "";
+if (SP.AVPCompanyName != null && SP.AVPCompanyName != "") {
+	NTPT_PGEXTRA += "SP.AVPCompanyName=null";
+}
+if (SP.WICO != null && SP.WICO != "") {
+	if (NTPT_PGEXTRA.length > 0) {
+		NTPT_PGEXTRA += "&";
+	}
+	NTPT_PGEXTRA += "SP.WICO=" + SP.WICO;
+}
+if (SP.CAMCO != null && SP.CAMCO != "") {
+	if (NTPT_PGEXTRA.length > 0) {
+		NTPT_PGEXTRA += "&";
+	}
+	NTPT_PGEXTRA += "SP.CAMCO=" + SP.CAMCO;
+}
+if (SP.WIDM != null && SP.WIDM != "") {
+	if (NTPT_PGEXTRA.length > 0) {
+		NTPT_PGEXTRA += "&";
+	}
+	NTPT_PGEXTRA += "SP.WIDM=" + SP.WIDM;
+}
+</script>
+
+
+
+<meta name="IBM.WTMCategory" scheme="IBM_WTMCategory" content="ELSDBANONTAGRATE"/>
+<link href="//www.ibm.com/support/docview.wss?uid=swg21614686" rel="canonical"/>
+
+<title>IBM Troubleshooting Java/JMS SSL Configurations - United States</title>
+<link href="//1.www.s81c.com/common/v17/css/www.css" rel="stylesheet" title="www" type="text/css"/>
+
+<script src="//1.www.s81c.com/common/js/dojo/www.js" type="text/javascript">//</script>
+<link type="text/css" rel="stylesheet" href="/support/include/v17/dblue.css" />
+<script src="/support/include/v17/dblue.js" type="text/javascript">//</script>
+<script src="/support/wordwrap4v17.js" type="text/javascript">//</script>
+<script type="text/javascript" language="JavaScript1.2">
+var doc_loc = "en-US";
+var req_Str;
+var isDD = false;
+var legal_accept = false;
+var user_loc = "en_US";
+var legal_tile = "Terms and conditions";
+var result_title = "Search result";
+var rs="0";
+<!-- var tpl="null";  -->
+</script>
+<script type="text/javascript" language="JavaScript1.2">
+<!-- 
+function _dSectionExpand() {
+	if( document.getElementById("cSec") != null && document.getElementById("xSec") != null ) {
+		document.getElementById("cSec").style.display = "none";
+		document.getElementById("xSec").style.display = "";
+	}
+}
+function _dSectionCollapse() {
+	if( document.getElementById("cSec") != null && document.getElementById("xSec") != null ) {
+		document.getElementById("xSec").style.display = "none";
+		document.getElementById("cSec").style.display = "";
+	}
+}
+// -->
+</script>
+<script type="text/javascript" language="JavaScript1.2" src="/support/dldirector/tqdl04.js"></script>
+<script type="text/javascript" language="JavaScript1.2" src="/support/legal.js"></script>
+
+<link href="//1.www.s81c.com/common/js/dojo/1.6/dijit/themes/soria/soria.css" rel="stylesheet" title="www" type="text/css" />
+<link href="/support/include/star-rating/rating-widget4v17.css" rel="stylesheet" title="www" type="text/css" />
+<script src="/support/include/star-rating/rating-widget4v17.js?20131213" type="text/javascript">//</script>
+<script src="/support/include/star-rating/json2.js?20131213" type="text/javascript" ></script>
+<script type="text/javascript" language="JavaScript1.2">
+dojo.require('dojo.parser');
+dojo.addOnLoad(function() {
+	dojo.parser.parse();
+	getRatingWidget("swg21614686", 4, "Click to rate", "star(s).", "You have rated this document today. Would you like to update your rating score?", "9.57.56.253", "(", "users", ")", "Input the verification number to submit feedback", "Comments", "Thank you for your feedback.<br><br>Your anonymous comments will be used to improve the content of the document.", "Please enter the mandatory verification code.", "Please enter the correct verification code.", "Please enter your comments.", "Incorrect verification code or session expired. Please re-enter the code.", 'Input the following verification code to submit feedback:<span class="ibm-required">*</span>', 'Poor', 'Fair', 'Average', 'Good', 'Very good');
+});
+</script>
+<link href="/support/include/social-tagging/v17/tagging-widget.css" rel="stylesheet" title="www" type="text/css" />
+<script src="/support/include/social-tagging/tagging-widget4v17.js?20131213" type="text/javascript">//</script>
+<script type="text/javascript" language="JavaScript1.2">
+dojo.require('dojo.parser');
+dojo.addOnLoad(function() {
+	dojo.parser.parse();
+	getTaggingWidget("swg21614686", "Tags", "My tags", "All tags", "cloud", "list", "Delete", "More", "Less", "Add a tag", "Search all tags", "View as  ", "", "", "Sign in", "&nbsp;to view your tags", "Tag already existed", "Please enter a tag following these rules,", "Only one tag per day", "You can only create 5 tags per document per day.", "Unknown error", "Session expired. Please press &quot;OK&quot; to restart.", "<br>Your tag:<br>1. Must be at least one character long<br>    (non-English and double-byte characters are supported)<br>2. Cannot be more than 30 characters<br>3. Cannot include a double quote (&quot;), semicolon (;), or dollar sign ($)<br>4. Cannot contain profanity", "The &quot;Web Identity (WI)&quot; user validation service is currently unavailable.", "Please close your browser and open the document again.", "https://www-304.ibm.com", "", "uid=swg21614686", "", "Sign in to IBM.com to add a tag for this page and to view tags that you have created in the My tags list. Click All tags to view all the active tags for this page. Click a tag in the tag cloud or tag list to see a list of pages tagged with that tag. Click Search all tags and enter a tag in the Search all tags box to find pages with that tag. Use a semicolon as the delimiter when searching multiple tags. Use the slider bar to control the number of tags in the tag cloud. Click list to display all the tags in list format.", "", "");
+});
+</script>
+
+<style type="text/css">
+#ibm-navigation #ibm-primary-links { background: none; padding-bottom: 0px;}
+#ibm-navigation #ibm-secondary-navigation a.ibm-forward-link { padding-top: 7px;}
+fieldset legend { display: none;}
+</style>
+<script type="text/javascript">
+dojo.addOnLoad(function() {
+	var spUrl = dojo.cookie("spe_return_url");
+	if (spUrl) {
+		dojo.query("#ibm-parent-link a").attr("href", spUrl).text("Return to IBM Support Portal");
+	}
+});
+</script>
+</head>
+<body id="ibm-com">
+<div id="ibm-top" class="ibm-liquid">
+
+<!-- MASTHEAD_BEGIN -->
+
+
+
+
+<!-- TwoX masthead -->
+
+
+<!-- MASTHEAD_BEGIN -->
+<div id="ibm-masthead">
+<div id="ibm-mast-options">
+<ul>
+<li id="ibm-geo"><a href="http://www.ibm.com/planetwide/select/selector.html"><span class="ibm-access">Select a country/region: </span>United States</a></li>
+</ul>
+</div>
+<div id="ibm-universal-nav">
+<ul id="ibm-unav-links">
+<li id="ibm-home"><a href="http://www.ibm.com/us/en/">IBM®</a></li>
+</ul>
+<ul id="ibm-menu-links">
+<li><a href="http://www.ibm.com/sitemap/us/en/">Site map</a></li>
+</ul>
+<div id="ibm-search-module">
+<form id="ibm-search-form" action="http://www.ibm.com/Search/" method="get">
+<p>
+<label for="q"><span class="ibm-access">Search</span></label>
+<input type="text" maxlength="100" value="" name="q" id="q"/>
+<input type="hidden" value="17" name="v"/>
+<input type="hidden" value="utf" name="en"/>
+<input type="hidden" value="en" name="lang"/>
+<input type="hidden" value="us" name="cc"/>
+<input type="submit" id="ibm-search" class="ibm-btn-search" value="Submit"/>
+</p>
+</form>
+</div>
+</div>
+</div>
+<!-- MASTHEAD_END -->
+<!-- MASTHEAD_END -->
+<div id="ibm-pcon">
+<!-- CONTENT_BEGIN -->
+<div id="ibm-content">
+<div id="ibm-leadspace-head" class="ibm-alternate">
+<!-- TITLE_BEGIN -->
+<div id="ibm-leadspace-body">
+
+
+
+
+
+<!-- TwoX wstitle.doc -->
+
+<h1>Troubleshooting Java/JMS SSL Configurations</h1>
+</div>
+<!-- TITLE_END -->
+</div>
+<!-- CONTENT_BODY -->
+<div id="ibm-content-body">
+<div id="ibm-content-main">
+
+
+
+
+
+<!-- TwoX body.doc -->
+
+
+
+
+
+<div class="ibm-container ibm-alternate">
+ <!--BEGIN MAIN BODY CONTENT--> 
+ <!--BEGIN CONTENT--> 
+ <h2>Technote (troubleshooting)</h2> 
+ <div class="ibm-container-body"> 
+  <br /> 
+  <h2>Problem(Abstract)</h2> 
+  <p> This document is intended to help diagnose WebSphere MQ V7 Java™ or JMS SSL setup errors. <br /> It lists most of the common configuration errors that can cause an SSL connection from a Java/JMS client to a queue manager to fail, and gives the course of action to resolve the problem. <br /> <br /> In each case the error can be diagnosed by a combination of the error seen in the client log - either a console output, trace file or SystemOut.log file - and the queue manager's error logs. <br /> <br /> The document is quite long, so the easiest way to find the potential error is to search for one of the errors seen in this list, then filter this list using the error from the opposite end of the channel. All cases here assume that 2-way authentication is being attempted (SSLCAUTH set to REQUIRED on the queue manager's SVRCONN channel). This is the default, and the errors are very similar for 1-way authentication (SSLCAUTH set to OPTIONAL). <br /> <br /> </p> 
+  <h2>Symptom</h2> 
+  <div class="ibm-domino-rtf">
+   <p> </p>
+   <div class="ibm-rule">
+    <hr />
+   </div> 
+   <ul class="ibm-link-list"> 
+    <li> <b><a class="ibm-anchor-down-em-link" href="#Diag">Instructions on collecting documentation</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#1">Cause 1: Client missing personal certificate</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#2">Cause 2: Missing server personal certificate </a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#3">Cause 3: Missing server signer on client</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#4">Cause 4: Missing client signer on server</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#5">Cause 5: Cipher spec mismatch</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#6">Cause 6: No cipher enabled on client</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#7">Cause 7: No cipher enabled on queue manager's server connection channel </a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#8">Cause 8 Using non-FIPS cipher, FIPS enabled on client (not on server)</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#9">Cause 9: Using non_FIPS cipher, FIPS enabled on server (not on client)</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#10">Cause 10: Using FIPS cipher, FIPS not enabled on client</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#11">Cause 11: Using non_FIPS cipher, FIPS enabled at both ends</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#12">Cause 12: Value of SSLPEER on client does not match personal certificate</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#13">Cause 13: Value of SSLPEER on server does not match personal certificate</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#14">Cause 14: Listener not running on server</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#15">Cause 15: Can not find client keystore</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#16">Cause 16: Client keystore password incorrect </a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#17">Cause 17: Can not find client truststore</a> </b></li>
+    <li><b><a class="ibm-anchor-down-em-link" href="#18">Cause 18: Client truststore password incorrect</a> </b></li>
+   </ul> 
+   <br />
+   <div class="ibm-rule">
+    <hr />
+   </div> 
+   <br /> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="Diag"></a>
+  </div> 
+  <br class="ibm-dblue-delete" /> 
+  <h2>Diagnosing the problem</h2> 
+  <div class="ibm-domino-rtf">
+   <p> </p>
+   <p>Two sets of documentation are required: </p>
+   <ul> 
+    <li>SystemOut, console output or <a href="http://www.ibm.com/support/docview.wss?uid=swg21174924" target=" ">Java/JMS trace</a> - this will show the exceptions with stack outputs as seen below </li>
+    <li><a href="http://www.ibm.com/support/docview.wss?uid=swg21172370" target=" ">AMQERR*.LOG files </a>from the queue manager install location. these will contain the AMQxxxx errors as seen below <br /> <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> <br /><br /> <br /> <br /> </li>
+   </ul>
+  </div> 
+  <h2>Resolving the problem</h2> 
+  <div class="ibm-domino-rtf">
+   <p> <a name="1"></a> </p>
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 1</b></td> 
+      <td> Client missing personal certificate </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018</b><b>: Failed to connect to queue manager.</b><br /><br /> <b>JMSCMQ0001</b><b>: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2059' ('MQRC_Q_MGR_NOT_AVAILABLE')</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2059;<br />AMQ9204: Connection to host localhost(1414)' rejected.<br /> [1=com.ibm.mq.jmqi.JmqiException[CC=2;RC=2059;<br />AMQ9503: Channel negotiation failed.<br /> [3=SYSTEM.DEF.SVRCONN]],3=localhost(1414),<br />5=RemoteConnection.analyseErrorSegment]<br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:2010)<br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1227)<br /> at com.ibm.msg.client.wmq.internal.WMQConnection.<br />(WMQConnection.java:355)<br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2059;<br />AMQ9503: Channel negotiation failed.<br /> [3=SYSTEM.DEF.SVRCONN]<br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection<br />.analyseErrorSegment(RemoteConnection.java:4366)<br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection<br />.receiveTSH(RemoteConnection.java:2902)<br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection<br />.initSess(RemoteConnection.java:1440)<br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection<br />.connect(RemoteConnection.java:1115)<br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350)<br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599)<br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9637</b><b>: Channel is lacking a certificate.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Add a personal certificate to the client's keystore which has been signed by a certificate in the queue manager's key database.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="2"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 2</b></td> 
+      <td> Missing server personal certificate </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager.</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR'))</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;<br />AMQ9771: SSL handshake failed.<br /> [1=javax.net.ssl.SSLHandshakeException<br />[Remote host closed connection during<br /> handshake],3=localhost/127.0.0.1:1414(localhost),<br />4=SSLSocket.startHandshake,5=default]<br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection<br />.protocolConnect(RemoteTCPConnection.java:1020)<br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection<br />.connect(RemoteConnection.java:1112)<br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350)<br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599)<br /> ... 8 more<br /> Caused by: javax.net.ssl.SSLHandshakeException:<br /> Remote host closed connection during handshake<br /> at com.ibm.jsse2.tc.a(tc.java:438)<br /> at com.ibm.jsse2.tc.g(tc.java:416)<br /> at com.ibm.jsse2.tc.a(tc.java:60)<br /> at com.ibm.jsse2.tc.startHandshake(tc.java:381)<br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection$6<br />.run(RemoteTCPConnection.java:1005)<br /> at java.security.AccessController.doPrivileged(AccessController.java:202)<br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection<br />.protocolConnect(RemoteTCPConnection.java:1000)<br /> ... 11 more<br /> Caused by: java.io.EOFException: SSL peer shut down incorrectly<br /> at com.ibm.jsse2.a.a(a.java:120)<br /> at com.ibm.jsse2.tc.a(tc.java:540)<br /> ... 17 more )<br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9637: Channel is lacking a certificate.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Add a personal certificate to the queue manager's key database which has been signed by a certificate in the client's truststore, and which has a label of the form&quot;ibmwebspheremq<i>qmname.</i>&quot;<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="3"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 3</b></td> 
+      <td> Missing server signer on client </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR')</b><br /><br /> <b>Stack includes:</b><br /> Caused by:<br /> com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;<br />AMQ9771: SSL handshake failed.<br /> [1=javax.net.ssl.SSLHandshakeException[com.ibm.jsse2.util.g: PKIX path building failed :<br /> java.security.cert.CertPathBuilderException: <br /> PKIXCertPathBuilderImpl could not build a valid CertPath.; internal cause is: <br /> java.security.cert.CertPathValidatorException: The certificate issued by CN=Some Name, <br /> O=IBM, L=Hursley, ST=Hampshire, C=UK is not trusted; internal cause is: <br /> java.security.cert.CertPathValidatorException: Signature does not match.],3=localhost/127.0.0.1:1414 <br /> (localhost),4=SSLSocket.startHandshake,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection<br />.protocolConnect(RemoteTCPConnection.java:1020) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection<br />.connect(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: javax.net.ssl.SSLHandshakeException: com.ibm.jsse2.util.g: PKIX path building failed: <br /> java.security.cert.CertPathBuilderException: <br /> PKIXCertPathBuilderImpl could not build a valid CertPath.;internal cause is: <br /> java.security.cert.CertPathValidatorException: The certificate issued by CN=Some Name, <br /> O=IBM, L=Hursley, ST=Hampshire, C=UK is not trusted; internal cause is: <br /> java.security.cert.CertPathValidatorException: Signature does not match <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9665: SSL connection closed by remote end of channel '????'.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Add the certificate used to sign the queue manager's personal certificate to the client's truststore.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="4"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 4</b></td> 
+      <td> Missing client signer on server </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9204: Connection to host 'localhost(1414)' rejected.<br /> [1=com.ibm.mq.jmqi.JmqiException[CC=2;RC=2397;AMQ9771: SSL handshake failed.<br /> [1=java.net.SocketException[Software caused connection abort: socket write error], <br /> 3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.startHandshake,5=default]],<br /> 3=localhost(1414),5=RemoteTCPConnection.protocolConnect]<br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:2010) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1227) <br /> at com.ibm.msg.client.wmq.internal.WMQConnection.<br />(WMQConnection.java:355) <br /> ... 6 more<br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9771: SSL handshake failed. <br /> [1=java.net.SocketException[Software caused connection abort: socket write error], <br /> 3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.startHandshake,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:1020) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: java.net.SocketException: Software caused connection abort: socket write error <br /> <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9633: Bad SSL certificate for channel '????'.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Add the certificate used to sign the queue manager's personal certificate to the client's truststore.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="5"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 5</b></td> 
+      <td> Cipher spec mismatch </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR'). </b><br /><br /> <b>Stack includes:</b><br /> Caused by:<br /> com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9641: Remote CipherSpec error for channel 'SYSTEM.DEF.SVRCONN'. [3=SYSTEM.DEF.SVRCONN] <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.analyseErrorSegment<br />(RemoteConnection.java:4322) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.receiveTSH<br />(RemoteConnection.java:2902) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.initSess<br />(RemoteConnection.java:1440) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1115) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool.getConnection<br />(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect(RemoteFAP.java:1599) <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9631: The CipherSpec negotiated during the SSL handshake does not match the required CipherSpec for channel 'SYSTEM.DEF.SVRCONN'.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Ensure that the cipher suite on the client matches the cipher spec on the queue manager's server connection channel.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="6"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 6</b></td> 
+      <td> No cipher enabled on client </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9641: Remote CipherSpec error for channel 'SYSTEM.DEF.SVRCONN'. [3=SYSTEM.DEF.SVRCONN] <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.analyseErrorSegment<br />(RemoteConnection.java:4322) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.receiveTSH<br />(RemoteConnection.java:2902) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.initSess<br />(RemoteConnection.java:1440) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1115) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool.getConnection<br />(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect(RemoteFAP.java:1599) <br /> <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9639: Remote channel 'SYSTEM.DEF.SVRCONN' did not specify a CipherSpec.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Ensure that there is a cipher suite set on the client matching the cipher spec on the queue manager's server connection channel.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="7"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 7</b></td> 
+      <td> No cipher enabled on queue manager's server connection channel </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager.</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9641: Remote CipherSpec error for channel 'SYSTEM.DEF.SVRCONN'. [3=SYSTEM.DEF.SVRCONN] <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.analyseErrorSegment<br />(RemoteConnection.java:4322) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.receiveTSH<br />(RemoteConnection.java:2902) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.initSess<br />(RemoteConnection.java:1440) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1115) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9635: Channel 'SYSTEM.DEF.SVRCONN' did not specify a valid CipherSpec.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Ensure that there is a cipher spec on the queue manager's server connection channel matching the cipher suite set on the client..<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="8"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 8</b></td> 
+      <td> Using non-FIPS cipher, FIPS enabled on client (not on server) </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2393' ('MQRC_SSL_INITIALIZATION_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by:<br /> com.ibm.mq.jmqi.JmqiException: CC=2;RC=2393;AMQ9771: SSL handshake failed. <br /> [1=java.lang.IllegalArgumentException[Unsupported ciphersuite SSL_RSA_WITH_NULL_MD5 or ciphersuite is not supported in FIPS mode],<br /> 3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.createSocket,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1748) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.connnectUsingLocalAddress<br /> (RemoteTCPConnection.java:674) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect <br />(RemoteTCPConnection.java:991) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br /> (RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool.getConnection<br /> (RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: java.lang.IllegalArgumentException: Unsupported ciphersuite <br /> SSL_RSA_WITH_NULL_MD5 or ciphersuite is not supported in FIPS mode <br /> at com.ibm.jsse2.q.a(q.java:84) <br /> at com.ibm.jsse2.r.(r.java:75) <br /> at com.ibm.jsse2.tc.setEnabledCipherSuites(tc.java:184) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br /> (RemoteTCPConnection.java:1741) <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>No errors seen</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Either disable FIPS on the client or ensure both FIPS is enabled on the server and a FIPS-enabled cipher is being used.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="9"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 9</b></td> 
+      <td> Using non_FIPS cipher, FIPS enabled on server (not on client) </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9771: SSL handshake failed. <br /> [1=javax.net.ssl.SSLHandshakeException[Received fatal alert: handshake_failure],3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.startHandshake,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:1020) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool.getConnection<br />(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: javax.net.ssl.SSLHandshakeException: Received fatal alert: handshake_failure at com.ibm.jsse2.n.a(n.java:8) <br /> <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b> AMQ9616: The CipherSpec proposed is not enabled on the SSL server.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Either disable FIPS on the server or ensure both FIPS is enabled on the client and a FIPS-enabled cipher is being used.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="10"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 10</b></td> 
+      <td> Using FIPS cipher, FIPS not enabled on client </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by:<br /> com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9771: SSL handshake failed. <br /> [1=javax.net.ssl.SSLHandshakeException[Received fatal alert: handshake_failure],3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.startHandshake,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:1020) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool.getConnection<br />(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: javax.net.ssl.SSLHandshakeException: Received fatal alert: handshake_failure <br /> at com.ibm.jsse2.n.a(n.java:8) <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9616: The CipherSpec proposed is not enabled on the SSL server.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Either enable FIPS on the client or ensure a non FIPS-enabled cipher is being used.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="11"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 11</b></td> 
+      <td> Using non_FIPS cipher, FIPS enabled at both ends </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager.</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2393' ('MQRC_SSL_INITIALIZATION_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2393;AMQ9771: SSL handshake failed. <br /> [1=java.lang.IllegalArgumentException[Unsupported ciphersuite SSL_RSA_WITH_NULL_MD5 or ciphersuite is not supported in FIPS mode], 3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.createSocket,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1748) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.connnectUsingLocalAddress<br /> (RemoteTCPConnection.java:674) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:991) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: java.lang.IllegalArgumentException: Unsupported ciphersuite SSL_RSA_WITH_NULL_MD5 or ciphersuite is not supported in FIPS mode at com.ibm.jsse2.q.a(q.java:84) <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>No errors seen..</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Either disable FIPS at both ends or ensure a FIPS-enabled cipher is being used.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="12"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 12</b></td> 
+      <td> Value of SSLPEER on client does not match personal certificate </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2398' ('MQRC_SSL_PEER_NAME_MISMATCH').</b><br /><br /> <b>Stack includes:</b><br /> Caused by:<br /> com.ibm.mq.jmqi.JmqiException: CC=2;RC=2398;AMQ9636: SSL distinguished name does not match peer name, channel '?'. <br /> [4=CN=Some Name, O=IBM, ST=Hampshire, C=UK] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:1071) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>No errors seen</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Ensure the value of SSLPEER matches the distinguished name of the personal certificate.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="13"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 13</b></td> 
+      <td> Value of SSLPEER on server does not match personal certificate </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2059' ('MQRC_Q_MGR_NOT_AVAILABLE').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2059;AMQ9643: Remote SSL peer name error for channel 'SYSTEM.DEF.SVRCONN'. [3=SYSTEM.DEF.SVRCONN] <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.analyseErrorSegment<br />(RemoteConnection.java:4330) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.receiveTSH<br />(RemoteConnection.java:2902) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.initSess<br />(RemoteConnection.java:1440) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1115) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>AMQ9636: SSL distinguished name does not match peer name, channel 'SYSTEM.DEF.SVRCONN'.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td>Ensure the value of SSLPEER matches the distinguished name of the personal certificate.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="14"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 14</b></td> 
+      <td> Listener not running on server </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager.</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2059' ('MQRC_Q_MGR_NOT_AVAILABLE').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2059;AMQ9213: A communications error for occurred. [1=java.net.ConnectException[Connection refused: connect],3=localhost] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.connnectUsingLocalAddress (RemoteTCPConnection.java:663) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:991) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: java.net.ConnectException: Connection refused: connect <br /> at java.net.PlainSocketImpl.socketConnect(Native Method) <br /> <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>No errors seen</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Start the listener on the queue manager.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="15"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 15</b></td> 
+      <td> Can not find client keystore </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by:<br /> com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9204: Connection to host 'localhost(1414)' rejected. <br /> [1=com.ibm.mq.jmqi.JmqiException[CC=2;RC=2397;AMQ9771: SSL handshake failed. [1=java.net.SocketException[java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: ],3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.createSocket,5=default]], 3=localhost(1414),5=RemoteTCPConnection.makeSocketSecure] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:2010) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1227) <br /> at com.ibm.msg.client.wmq.internal.WMQConnection.(WMQConnection.java:355) <br /> ... 6 more <br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9771: SSL handshake failed. [1=java.net.SocketException[java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: ],3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.createSocket,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1706) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.connnectUsingLocalAddress<br /> (RemoteTCPConnection.java:674) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:991) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: java.net.SocketException: java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: <br /> at javax.net.ssl.DefaultSSLSocketFactory.a(SSLSocketFactory.java:7) <br /> at javax.net.ssl.DefaultSSLSocketFactory.createSocket<br />(SSLSocketFactory.java:1) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1699) <br /> ... 13 more <br /> Caused by: java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: <br /> at java.security.Provider$Service.newInstance(Provider.java:894) <br /> at sun.security.jca.GetInstance.getInstance(GetInstance.java:299) <br /> at sun.security.jca.GetInstance.getInstance(GetInstance.java:237) <br /> at javax.net.ssl.SSLContext.getInstance(SSLContext.java:25) <br /> at javax.net.ssl.SSLContext.getDefault(SSLContext.java:15) <br /> at javax.net.ssl.SSLSocketFactory.getDefault(SSLSocketFactory.java:17) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.chooseSocketFactory<br />(RemoteTCPConnection.java:2158) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1689) <br /> ... 13 more <br /> Caused by: java.security.KeyStoreException: IBMKeyManager: Problem accessing key store java.lang.Exception: Keystore file does not exist: C:\keystore\wrongfile.jks <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>No errors seen</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Specify the correct name and location for the client keystore.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="16"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 16</b></td> 
+      <td> Client keystore password incorrect </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9771: SSL handshake failed. <br /> [1=java.net.SocketException[java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: ],3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.createSocket,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1706) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.connnectUsingLocalAddress<br /> (RemoteTCPConnection.java:674) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:991) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: java.net.SocketException: java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: <br /> at javax.net.ssl.DefaultSSLSocketFactory.a(SSLSocketFactory.java:7) <br /> at javax.net.ssl.DefaultSSLSocketFactory.createSocket(SSLSocketFactory.java:1) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1699) <br /> ... 13 more <br /> Caused by: java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: <br /> at java.security.Provider$Service.newInstance(Provider.java:894) <br /> at sun.security.jca.GetInstance.getInstance(GetInstance.java:299) <br /> at sun.security.jca.GetInstance.getInstance(GetInstance.java:237) <br /> at javax.net.ssl.SSLContext.getInstance(SSLContext.java:25) <br /> at javax.net.ssl.SSLContext.getDefault(SSLContext.java:15) <br /> at javax.net.ssl.SSLSocketFactory.getDefault(SSLSocketFactory.java:17) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.chooseSocketFactory<br />(RemoteTCPConnection.java:2158) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1689) <br /> ... 13 more <br /> Caused by: java.security.KeyStoreException: IBMKeyManager: Problem accessing key store java.io.IOException: Keystore was tampered with, or password was incorrect <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>No errors seen</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Specify the correct password for the client keystore.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br /> 
+   <a name="17"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 17</b></td> 
+      <td> Can not find client truststore </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9771: SSL handshake failed. [1=java.net.SocketException[java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: ],3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.createSocket,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1706) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.connnectUsingLocalAddress (RemoteTCPConnection.java:674) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:991) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool.getConnection<br />(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: java.net.SocketException: java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: <br /> at javax.net.ssl.DefaultSSLSocketFactory.a(SSLSocketFactory.java:7) <br /> at javax.net.ssl.DefaultSSLSocketFactory.createSocket<br />(SSLSocketFactory.java:1) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1699) <br /> ... 13 more <br /> Caused by: java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: <br /> at java.security.Provider$Service.newInstance(Provider.java:894) <br /> at sun.security.jca.GetInstance.getInstance(GetInstance.java:299) <br /> at sun.security.jca.GetInstance.getInstance(GetInstance.java:237) <br /> at javax.net.ssl.SSLContext.getInstance(SSLContext.java:25) <br /> at javax.net.ssl.SSLContext.getDefault(SSLContext.java:15) <br /> at javax.net.ssl.SSLSocketFactory.getDefault(SSLSocketFactory.java:17) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.chooseSocketFactory<br />(RemoteTCPConnection.java:2158) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1689) <br /> ... 13 more <br /> Caused by: java.lang.Exception: Truststore file does not exist: C:\keystore\wrongfile.jks <br /> <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>No errors seen..</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Specify the correct name and location for the client truststore.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br />
+   <br /> 
+   <a name="18"></a> 
+   <table border="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+    <tbody>
+     <tr> 
+      <td><b>Cause 18</b></td> 
+      <td> Client truststore password incorrect </td> 
+     </tr> 
+     <tr> 
+      <td> <b>SystemOut.log or Console Output</b></td> 
+      <td> <b>JMSWMQ0018: Failed to connect to queue manager</b><br /><br /> <b>JMSCMQ0001: WebSphere MQ call failed with compcode '2' ('MQCC_FAILED') reason '2397' ('MQRC_JSSE_ERROR').</b><br /><br /> <b>Stack includes:</b><br /> Caused by: com.ibm.mq.jmqi.JmqiException: CC=2;RC=2397;AMQ9771: SSL handshake failed. <br /> [1=java.net.SocketException[java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: ],3=localhost/127.0.0.1:1414 (localhost),4=SSLSocket.createSocket,5=default] <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1706) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.connnectUsingLocalAddress<br /> (RemoteTCPConnection.java:674) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.protocolConnect<br />(RemoteTCPConnection.java:991) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnection.connect<br />(RemoteConnection.java:1112) <br /> at com.ibm.mq.jmqi.remote.internal.system.RemoteConnectionPool<br />.getConnection(RemoteConnectionPool.java:350) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteFAP.jmqiConnect<br />(RemoteFAP.java:1599) <br /> ... 8 more <br /> Caused by: java.net.SocketException: java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: <br /> at javax.net.ssl.DefaultSSLSocketFactory.a(SSLSocketFactory.java:7) <br /> at javax.net.ssl.DefaultSSLSocketFactory.createSocket<br />(SSLSocketFactory.java:1) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1699) <br /> ... 13 more <br /> Caused by: java.security.NoSuchAlgorithmException: SSLContext Default implementation not found: <br /> at java.security.Provider$Service.newInstance(Provider.java:894) <br /> at sun.security.jca.GetInstance.getInstance(GetInstance.java:299) <br /> at sun.security.jca.GetInstance.getInstance(GetInstance.java:237) <br /> at javax.net.ssl.SSLContext.getInstance(SSLContext.java:25) <br /> at javax.net.ssl.SSLContext.getDefault(SSLContext.java:15) <br /> at javax.net.ssl.SSLSocketFactory.getDefault(SSLSocketFactory.java:17) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.chooseSocketFactory<br />(RemoteTCPConnection.java:2158) <br /> at com.ibm.mq.jmqi.remote.internal.RemoteTCPConnection.makeSocketSecure<br />(RemoteTCPConnection.java:1689) <br /> ... 13 more <br /> Caused by: java.io.IOException: Keystore was tampered with, or password was incorrect <br /> at com.ibm.crypto.provider.JavaKeyStore.engineLoad(Unknown Source) <br /> at java.security.KeyStore.load(KeyStore.java:414) <br /> at com.ibm.jsse2.uc.a(uc.java:54) <br /> at com.ibm.jsse2.lc.f(lc.java:12) <br /> at com.ibm.jsse2.lc.(lc.java:16) <br /> at java.lang.J9VMInternals.newInstanceImpl(Native Method) <br /> at java.lang.Class.newInstance(Class.java:1345) <br /> at java.security.Provider$Service.newInstance(Provider.java:880) <br /> ... 20 more <br /> Caused by: java.security.UnrecoverableKeyException: Password verification failed <br /> <br /> <br /> </td> 
+     </tr> 
+     <tr> 
+      <td> <b>Queue Manager<br />Error Logs</b></td> 
+      <td> <b>No errors seen.</b><br /> </td> 
+     </tr> 
+     <tr> 
+      <td><b>Solution</b></td> 
+      <td> Specify the correct password for the client truststore.<br /> </td> 
+     </tr> 
+    </tbody>
+   </table> 
+   <p class="ibm-ind-link ibm-back-to-top"><a class="ibm-anchor-up-link" href="#ibm-content">Back to top</a></p> 
+   <br />
+   <br />
+   <br /> 
+  </div>
+  <br /> 
+  <p></p>
+  <div class="ibm-domino-rtf">
+   <p></p>
+  </div> 
+ </div> 
+ <p></p>
+ <table border="0" cellpadding="0" cellspacing="0" class="ibm-data-table ibm-alternate" rules="" summary="Data table with alternating rows example" cell-padding="0"> 
+  <caption>
+   <em>Cross reference information</em>
+  </caption> 
+  <thead> 
+  </thead>
+  <tbody>
+   <tr> 
+    <th scope="col">Segment</th> 
+    <th scope="col">Product</th> 
+    <th scope="col">Component</th> 
+    <th scope="col">Platform</th> 
+    <th scope="col">Version</th> 
+    <th scope="col">Edition</th> 
+   </tr> 
+  </tbody>
+  <tbody> 
+  </tbody>
+  <tbody>
+   <tr>
+    <th class="ibm-table-row" scope="row">Business Integration</th>
+    <td>WebSphere MQ</td>
+    <td>Security</td>
+    <td></td>
+    <td></td>
+    <td></td>
+   </tr> 
+  </tbody>
+ </table> 
+ <br /> 
+ <div class="ibm-container-body"> 
+  <h2>Product Alias/Synonym</h2> 
+  <p> WMQ MQ </p> 
+ </div> 
+ <!--END CONTENT--> 
+ <!--END MAIN BODY CONTENT-->
+</div>
+
+
+<div id ="ibm-star-rating" class="ibm-container ibm-no-print">
+<h2 class="ibm-first">Rate this page:</h2>
+<div class="ibm-container-body">
+<span class="ratingHits">(0 users)</span>Average rating <div id="ibm-star-rating-item" dojoType="dojox.form.Rating" numStars="5"></div>
+
+<div id="ibm-ratepage">
+<div class="ibm-alternate-rule"><hr></div>
+
+<form id="ibm-docfb" action="/support/docfb.wss" class="ibm-row-form ibm-styled-form" name="docfb" method="post">
+<fieldset>
+<legend>Add comments</legend>
+<input type="hidden" name="rs" value="0"/>
+<input type="hidden" name="uid" value="swg21614686"/>
+<input type="hidden" name="loc" value="en_US"/>
+<input type="hidden" name="sec" value="71896"/>
+<input type="hidden" name="ip" id="ibm-docfb-ip" value=""/>
+<input type="hidden" name="rnumber" id="ibm-docfb-rnumber" value="0"/>
+
+
+<div id="ibm-achievement-question">
+<label id="ibm-grp-achievement-question">Did the information help you achieve your goal?</label>
+<p class="ibm-form-elem-grp">
+<span class="ibm-input-group ibm-radio-group" role="radiogroup" aria-labelledby="ibm-grp-achievement-question">
+<input type="radio" name="q3" id="scale3_1" value="yes"/><label for="scale3_1">Yes</label>
+<input type="radio" name="q3" id="scale3_2" value="no"/><label for="scale3_2">No</label>
+<input type="radio" name="q3" id="scale3_3" value="y/n"/><label for="scale3_3">Don't know</label>
+</span>
+</p>
+</div>
+
+<div id="ibm-comment-box" >
+<label for="fbtxt">Comments:<span class="ibm-required">*</span></label>
+<p><span><textarea id="fbtxt" cols="17" rows="3" name="comment" style="width:98%" title="enter comment" aria-required="true"></textarea></span>
+</p>
+<div id="ibm-verification-box" >
+<p><label for="scale3_4"></label>
+<input type="text" name="secfd" id="scale3_4" size="10" title="secfd" style="display: none;" aria-required="true"/></p>
+</div>
+</div>
+
+<p><input value="Submit" id="comment_submit" type="submit" name="ibm-submit" class="ibm-btn-arrow-pri" /></p>
+</fieldset>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!-- FEATURES_BEGIN -->
+
+
+
+
+
+<!-- TwoX sidebar.doc -->
+<div id="ibm-content-sidebar">
+
+<div id="ibm-contact-module">
+<!--IBM Contact Module-->
+</div>
+
+<div id="ibm-merchandising-module">
+<!--IBM Web Merchandising Module-->
+</div>
+
+<div id="ibm-sidebar-star-rating" class="ibm-no-print" style= "display:none">
+<div class="ibm-container">
+<h2 class="ibm-first">Rate this page:</h2>
+<div class="ibm-container-body">
+<div id="ibm-sidebar-star-rating-item" dojoType="dojox.form.Rating" numStars="5"></div>
+<p><span class="ratingHits">(0 users)</span>Average rating</p>
+</div>
+</div>
+</div>
+<div id="ibm-sidebar-ratepage" class="ibm-no-print" style= "display:none">
+<div class="ibm-container ibm-show-hide">
+<h2><a id="ibm-sibebar-dlf" href="#show-hide">Add comments</a></h2>
+<div class="ibm-container-body" style="overflow-x: hidden; overflow-y: hidden; height: 1px; display: none;">
+
+<form id="ibm-sidebar-docfb" action="/support/docfb.wss" name="docfb" method="post" class="ibm-row-form ibm-styled-form">
+<fieldset>
+<legend>Add comments</legend>
+<input type="hidden" name="rs" value="0"/>
+<input type="hidden" name="uid" value="swg21614686"/>
+<input type="hidden" name="loc" value="en_US"/>
+<input type="hidden" name="sec" value="11285"/>
+<input type="hidden" name="ip" id="ibm-sidebar-docfb-ip" value=""/>
+<input type="hidden" name="rnumber" id="ibm-sidebar-docfb-rnumber" value="0"/>
+
+<div id="ibm-sidebar-achievement-question" >
+	<label id="ibm-grp-sidebar-achievement-question">Did the information help you achieve your goal?</label>
+	<p class="ibm-form-elem-grp">
+	<span class="ibm-input-group ibm-radio-group" role="radiogroup" aria-labelledby="ibm-grp-sidebar-achievement-question">
+		<input type="radio" name="q4" id="scale3_5" value="yes"/><label for="scale3_5">Yes</label><br/>
+		<input type="radio" name="q4" id="scale3_6" value="no"/><label for="scale3_6">No</label><br/>
+		<input type="radio" name="q4" id="scale3_7" value="y/n"/><label for="scale3_7">Don't know</label>
+	</span>
+	</p>
+</div>
+
+<div id="ibm-sidebar-comment-box">
+	<p><textarea id="sidebar_fbtxt" cols="17" rows="3" name="comment" style="width:92%" title="enter comment" aria-required="true"></textarea></p>
+</div>
+<div id="ibm-sidebar-verification-box">
+	<p><label for="scale3_8"></label><input type="text" name="secfd" id="scale3_8" title="secfd" size="10" style="display: none;" aria-required="true"/></p>
+</div>
+<p><input value="Submit" type="submit" id="sidebar_submit" name="ibm-submit" class="ibm-btn-arrow-pri" /></p>
+</fieldset>
+</form>
+</div>
+</div>
+</div>
+
+<div class="ibm-container"><h2 class="ibm-first">Document information</h2>
+<div class="ibm-container-body">
+<div class="ibm-rule"><hr /></div>
+<h3>More support for:</h3>
+
+	<a href="http://www.ibm.com/support/entry/portal/product/WebSphere/WebSphere_MQ">WebSphere MQ</a><br>
+
+	SSL<br>
+
+	<div class="ibm-rule"><hr /></div>
+
+
+
+	<h3>Software version:</h3>
+	7.0, 7.0.1, 7.1, 7.5
+	<div class="ibm-rule"><hr /></div>
+
+
+	<h3>Operating system(s):</h3>
+	AIX, HP-UX, Linux, Solaris, Windows
+	<div class="ibm-rule"><hr /></div>
+
+
+
+	<h3>Reference #:</h3>
+1614686
+<div class="ibm-rule"><hr /></div>
+
+<h3>Modified date:</h3>
+<p>2013-02-21</p>
+</div>
+</div>
+
+<!-- Machine Translation section start -->
+<div class="ibm-container ibm-no-print"><h2>Translate my page</h2>
+<div class="ibm-container-body">
+<form id="ibm-translation-form" action="javascript:void(0)" method="get">
+<fieldset><legend>Machine Translation</legend>
+<label for="ietran_ui_langselect" style="display: none;">Machine Translation</label>
+<p>
+<!-- rate this pop-up -->
+<script type='text/javascript'>
+	showRateThis = function() {
+		window.open('https://www-304.ibm.com/support/entitlement/CustAssist.wss?topic=mt&popup=1&from=' + escape(location.href),
+		"custAssistPopup",
+		"channelmode=no,directories=no,location=no,menubar=no,scrollbars=yes,toolbar=no,width=570,height=440");
+	}
+</script>
+<!-- start of the source code of the customized embedded TransWidget -->
+<script type="text/javascript" src="http://www-146.ibm.com/nfluent/transwidget/tw.jsp?app=ibm-esupport.dBlue&from=en_US&sl=1&banner=1&style=minimal&corr=0&cd=.ibm.com&ratefunc=showRateThis"></script>
+<!-- end of the source code of the customized embedded TransWidget -->
+</p>
+</fieldset>
+</form>
+</div>
+</div>
+<!-- Machine Translation section end -->
+
+
+
+<script src="//www.ibm.com/survey/v17/trigger.js" type="text/javascript"></script>
+<script type="text/javascript" language="JavaScript1.2">
+	ibmSurvey.setBrandProductData([{"brand":"SSHPST","prods":["SSCFMKK,SSC6SX2"]}]);
+	ibmSurvey.launch( { page: "http://www.ibm.com/survey/oid/wsb.dll/s/ag244?wsb2=dblue&wsb48=swg21614686&wsb50=SSFKSJ" , rate: .75 } );
+</script>
+
+
+</div>
+<!-- FEATURES_END -->
+<!-- CONTENT_BODY_END -->
+</div>
+</div>
+<!-- CONTENT_END -->
+<!-- NAVIGATION_BEGIN -->
+<div id="ibm-navigation" class="ibm-parent">
+
+
+
+
+<!-- TwoX navbar -->
+<h2 class="ibm-access">Content navigation</h2>
+<ul id="ibm-primary-links" style="background: none;">
+<li id="ibm-parent-link"><a href="http://www.ibm.com/support/">Go to IBM Support Portal</a></li>
+<li id="ibm-overview" style="display: none;"></li>
+</ul>
+</div>
+<!-- NAVIGATION_END -->
+</div>
+<div id="ibm-related-content"></div>
+<!-- FOOTER_BEGIN -->
+
+
+
+
+<!-- TwoX footer -->
+
+
+<!-- FOOTER_BEGIN -->
+<div id="ibm-footer-module">
+</div>
+<div id="ibm-footer">
+<h2 class="ibm-access">Footer links
+</h2>
+<ul>
+<li><a href="http://www.ibm.com/contact/us/en/">Contact</a></li>
+<li><a href="http://www.ibm.com/privacy/us/en/">Privacy</a></li>
+<li><a href="http://www.ibm.com/legal/us/en/">Terms of use</a></li>
+<li><a href="http://www.ibm.com/accessibility/us/en/">Accessibility</a></li>
+</ul>
+</div>
+<!-- FOOTER_END -->
+<!-- FOOTER_END -->
+</div>
+<div id="ibm-metrics">
+<script src="//www.ibm.com/common/stats/stats.js" type="text/javascript">//</script>
+</div>
+</body>
+</html>

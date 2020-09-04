@@ -1,0 +1,885 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>StAX the odds with Woodstox - XML tutorial - developer Fusion</title>
+    <link media="all" type="text/css" rel="stylesheet" href="http://cdn.developerfusion.com/site.compressed.css?v=2.0.0.52"/>
+    <meta name="description" content="If you work with XML, you already know the limitations of DOM and SAX parsers. Overcome these limitations with the new Streaming API for XML - StAX."/>
+    <!--[if IE 6]><style type="text/css">body { behavior: url("/csshover3.htc"); }</style><![endif]-->
+      <meta name="robots" content="noodp,noydir"/>
+      <meta name="keywords" content="XML"/>
+<link rel="alternate" type="application/atom+xml" title="Tutorials &amp; Articles (Atom)" href="/tutorials/format/atom/"/>
+<link rel="alternate" type="application/rss+xml" title="Tutorials &amp; Articles (RSS)" href="/tutorials/format/rss/"/>
+
+
+<meta name="tweetmeme-title" content="StAX the odds with Woodstox"/>
+<link rel="canonical" href="http://www.developerfusion.com/article/84523/stax-the-odds-with-woodstox/"/>
+</head>
+<body>
+<!--[if lt IE 7]> <div style='clear: both; text-align: center; width: 820px; margin: 0 auto; position: relative;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0000_us.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." /></a></div> <![endif]-->
+<div id="wrapper">
+<div id="header">
+    <div id="logo"><a href="/">Developer Fusion - The global developer community for .NET and Java programmers</a></div>
+</div><div id="nav" class="clearfix">
+  <ul class="nav-root">
+    <li id="navitem-.net" class="nav-item first">
+      <a title="" class="nav-link" href="/t/.net/">.NET</a>
+    </li>
+    <li id="navitem-java" class="nav-item">
+      <a title="" class="nav-link" href="/t/java/">Java</a>
+    </li>
+    <li id="navitem-open-source" class="nav-item">
+      <a title="" class="nav-link" href="/t/open-source/">Open Source</a>
+    </li>
+    <li id="navitem-mobile" class="nav-item">
+      <a title="" class="nav-link" href="/t/mobile/">Mobile</a>
+    </li>
+    <li id="navitem-database" class="nav-item">
+      <a title="" class="nav-link" href="/t/database/">Database</a>
+    </li>
+    <li id="navitem-architecture" class="nav-item">
+      <a title="" class="nav-link" href="/t/architecture/">Architecture</a>
+    </li>
+    <li id="navitem-ria" class="nav-item selected">
+      <a title="" class="nav-link" href="/t/ria/">RIA &amp; Web</a>
+      <div class="dropdown" id="navdrop-ria">
+            <ul>
+              
+  <li id="navitem-css" class=" first">
+    <a href="/t/css/">CSS</a></li>
+  <li id="navitem-flash">
+    <a href="/t/flash/">Flash</a></li>
+  <li id="navitem-flex">
+    <a href="/t/flex/">Flex</a></li>
+  <li id="navitem-html">
+    <a href="/t/html/">HTML</a></li>
+  <li id="navitem-javascript">
+    <a href="/t/javascript/">JavaScript</a></li>
+  <li id="navitem-silverlight">
+    <a href="/t/silverlight/">Silverlight</a></li>
+  <li id="navitem-xml" class=" last">
+    <a href="/t/xml/">XML</a></li></ul>
+      </div>
+    </li>
+    <li id="navitem-labs" class="nav-item last">
+      <a title="" class="nav-link" href="/tools/">Toolbox</a>
+    </li>
+    <li class="search">
+      <form action="/search/" method="post">
+        <fieldset>
+          <div class="search-panel">
+            <input type="text" class="search-query text_autoclear" name="query" value="Search this site" id="search_query" maxlength="20"/>
+            <input type="submit" class="search-button" value="  " title="Search"/>
+          </div>
+        </fieldset>
+        </form></li>
+  </ul>
+</div>
+
+  <div id="subnav" class="subnav clearfix">
+  <div class="breadcrumb-wrapper">
+    <ul class="breadcrumb">
+      <li class="crumb1">
+        <a href="/t/xml/">XML</a></li>
+    </ul>
+    <ul class="breadcrumb-subnav">
+      
+  
+  <li class=" first">
+    <a title="News" href="/t/xml/news/">News</a></li>
+  <li class="selected">
+    <a title="Tutorials" href="/t/xml/tutorials/">Tutorials</a></li>
+  <li>
+    <a title="Code" href="/t/xml/code/">Code</a></li>
+  <li>
+    <a title="XML Training &amp; Events" href="/t/xml/training/">Training</a></li>
+  <li>
+    <a title="XML User Groups" href="/t/xml/usergroups/">User Groups</a></li>
+  <li>
+    <a title="Books" href="/t/xml/books/">Books</a></li>
+  <li>
+    <a title="Podcasts" href="/t/xml/media/">Podcasts</a></li>
+  <li>
+    <a title="Forum" href="/t/xml/forum/">Forum</a></li>
+  <li class=" last">
+    <a title="Jobs" href="/t/xml/jobs/">Jobs</a></li>
+    </ul>
+  </div>
+</div>
+  <div id="ad-leaderboard">
+    <div id="div-gpt-ad-1342895737372-0" style="width:728px; height:90px;"></div>
+</div>
+  
+<div id="content" class="clearfix">
+  <div id="main-content" class="clearfix">  
+  <div id="breadcrumb" class="clearfix">
+        
+  <ul class="breadcrumb">
+    <li class="crumb1"><a href="/">Home</a></li>
+      
+  
+    
+  <li class="crumb2">
+    <a href="/t/ria/">RIA &amp; Web</a>
+  </li>
+  <li class="crumb3">
+    <a href="/t/xml/">XML</a>
+  </li>
+    <li>
+      <a title="Tutorials" href="/t/xml/tutorials/">Tutorials</a>
+    </li>
+  </ul>
+  </div>
+
+<div class="detail-page">
+<h1 class="">StAX the odds with Woodstox</h1>
+<div class="">
+  <div class="article-info clearfix">
+    <span class="label">
+      28 Jun 2010 | by <a href="/profile/sing.li/" id="author-name" rel="author">Sing Li</a>
+      |  Filed in
+    </span>
+
+<ul class="detail-functions">
+  <li class="comments">
+    <a href="#disqus_thread" data-disqus-identifier="page-84523">Comments</a>
+  </li>
+    
+    <li class="pdf"><a href="/article/84523/stax-the-odds-with-woodstox/pdf/">PDF</a></li>
+    
+  </ul>
+  <ul class="tag-list clearfix">
+    <li>
+      <a href="/t/xml/">XML</a>
+    </li>
+  </ul>
+<div class=" social-media addthis_toolbox addthis_default_style " addthis:title="StAX the odds with Woodstox">
+    <a style="float:right" class="addthis_counter addthis_pill_style"></a>
+    <a class="addthis_button_google_plusone" g:plusone:size="medium" g:plusone:count="false"></a>
+    <a class="addthis_button_tweet" tw:via="developerfusion" tw:count="none"></a>
+    <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+</div>
+  </div>
+
+
+
+<div class="content">
+    <div class="articlepartner">
+        <em>This article was originally published in VSJ, which is now part of Developer Fusion.</em>
+    </div>
+    <div id="article-body">
+    XML has achieved immortality. Love it or hate it, it&#8217;s everywhere. As a developer, you are likely to work with XML-based configuration files, XML documents, XML-based messages&#8230; the list goes on and on. Present day software uses one of two parser models &#8211; DOM (Document Object Model) or SAX (Simple API for XML).
+<p>Over a decade into XML evolution, however, these parsing technologies are slowly showing their age, requiring bypasses and optimizations to overcome their well-known limitations. StAX, or Streaming API for XML, is the new-age XML parser that offers the best features of the existing models, and at the same time provides high performance and efficient access to the underlying XML document.
+<p>This article introduces you to StAX 2, and gets you hands-on writing code using an open source StAX 2 implementation called Woodstox.
+<h3>About DOM and SAX</h3>
+Chances are that you already work with DOM or SAX parsers in one form or another.
+<p>DOM is Document Object Model, a <a href="http://www.w3.org/DOM/" target="_blank">W3C standard</a> for representing and manipulating XML documents programmatically. DOM has one of the simplest to learn interfaces, and provides extremely developer-friendly objects and methods for accessing an XML document. In fact, many scripting languages support DOM for these reasons. <b>Figure 1</b> shows how DOM works.
+<p><img src="/pix/articleimages/may07/woodstox1.jpg" width=500 height=352 alt="Figure 1" vspace=2><small><br>
+Figure 1: DOM Operation</small>
+<p>Essentially, the XML document is parsed into memory, and the various elements and sub-elements are transformed into data structures. This creates a large in-memory version of the XML document. Using the DOM APIs, you can easily query for different nodes in the tree, get their attributes, contents, namespace information, etc. The powerful, document-wide queries that you can make using DOM also distinguishes it from other parser technologies. For example, to get all the elements named &#8220;bigelement&#8221; in the entire XML document, you only need a call similar to:
+<pre>NodeList nodes = document.
+	getElementsByTagName("bigelement");</pre>
+Since DOM has access to the entire document, document validation is usually quite straightforward to implement and is a part of most DOM parsers.
+<p>DOM works great when the XML documents are relatively small. The Achilles&#8217; heel for a DOM parser is the memory requirement when parsing moderate to large sized documents. The fact that the entire document is represented in memory makes working with large documents difficult. A DOM parser must read through the entire XML file before output can be generated by your code; with a large document, this parsing can take a significant time.
+<p>Many optimizations have been made to the basic DOM model to deal with these problems (such as lazy on-demand loading of certain parts of the document tree), and some of them work well for certain application scenarios.
+<h3>DOM&#8217;s low level cousin: SAX</h3>
+The Simple API for XML (SAX), although widely used, has never been formally defined or ratified by any standards bodies. The initial SAX 1.0 API is practically defined by the API that implements it (in Java). The new SAX 2.0 API provides more configurability and support for XML details such as namespaces. You can find the latest official SAX downloads at <a href="http://sourceforge.net/projects/sax/" target="_blank">SourceForge</a>.
+<p>If you view DOM as a high-level way of accessing an XML document, then you can think of SAX as a very low-level way of accessing the document. In fact, you frequently find that DOM parsers use SAX under the hood.
+<p>A SAX parser does not read in an entire XML document before allowing you to process the data. Instead, it fires specific events back into your code as it encounters different elements in the XML document. <b>Figure 2</b> shows the operation of a SAX parser.
+<p><img src="/pix/articleimages/may07/woodstox2.jpg" width=500 height=373 alt="Figure 2" vspace=2><small><br>
+Figure 2: SAX Operation</small>
+<p>When you write code using a SAX parser, you must add a content handler to handle the different events. As the SAX parser parses the document, events such as start of document, start of element, end of element, content characters parsed, and so on, are fired into your content handler. Since the document doesn&#8217;t need to be loaded in its entirety, the SAX parser has considerably lower memory requirements than a DOM parser. However, also because the entire document is not loaded, and the document is only accessed one symbol at a time, SAX provides no document query capability. In addition, SAX parsers do not provide any document validation capabilities.
+<p>SAX parses documents in a forward-only manner, allowing the parser to free data structures used during parsing soon after an element has been parsed. This results in a considerably smaller memory footprint while parsing large documents.
+<p>Writing SAX-based parser code is considerably more difficult than writing DOM code. The current state during parsing must be maintained by the code that you write. If you need to know where you are in a document tree at some time, you must save enough information to determine it yourself.
+<h3>Streaming XML &#8211; StAX</h3>
+StAX (Streaming API for XML) is detailed in <a href="http://jcp.org/en/jsr/detail?id=173" target="_blank">specification JSR-173</a>, stewarded by an expert group headed by BEA. StAX 2 is an extension of the StAX 1.0 specification to address some of the issues identified with the StAX 1.0 APIs. However, <a href="http://woodstox.codehaus.org/StAX2/" target="_blank">StAX 2</a> is not the product of formal specification. A StAX 2 parser implements the full StAX 1.0 specification in addition to the extensions.
+<p>StAX is similar to SAX parsers in that it does not build an in-memory tree of the document, and reads the document in a forward-only manner. Because of this, StAX also offers small parser memory footprint and parse code efficiency.
+<p>While StAX 1.0 API does not define any assistance in document validation, the StAX 2 extensions provide a full framework to assist in DTD-based document validation.
+<p><img src="/pix/articleimages/may07/woodstox3.jpg" width=500 height=302 alt="Figure 3" vspace=2><small><br>
+Figure 3: StAX Operation</small>
+<p>Unlike SAX, StAX&#8217;s strength lies in the availability of cursor level access to the document. You can think of a StAX cursor as a low-level file pointer into well-defined points (aligned with XML elements) within the document. With StAX, you can move this pointer forward, skipping to only the elements that you care to parse and process (see <b>Figure 3</b>).
+<p><i>In addition to the cursor-based APIs, StAX also includes an event object-based iterative API. With this API, you can pull complete Java objects representing the parser events. These objects can be passed along to delegates for parsing, through an XML processing pipeline, or back to a StAX writer for XML output. This object-based API is out of the scope of this article, see StAX 1.0 specification for more details.</i>
+<p>There is another key difference between StAX parsers and SAX parser: StAX is a &#8220;pull&#8221; parser model while SAX is a &#8220;push&#8221; parser model. The next section explains this very important difference.
+<h3>Push versus pull</h3>
+Unlike the SAX model, when you are working with StAX you have control over the parsing code, and can incrementally move the parser engine forward by asking for the next piece of data. <b>Figure 4</b> shows this difference.
+<p><img src="/pix/articleimages/may07/woodstox4.jpg" width=500 height=326 alt="Figure 4" vspace=2><small><br>
+Figure 4: Push versus pull</small>
+<p>With SAX, the document is parsed by the parser, and the opportunity to process the parsed document is &#8220;pushed&#8221; to you. If you do nothing with these opportunities, the document is still parsed and nothing will be done.
+<p>With pull parsers such as a StAX implementation, you must write code to ask for data and move the parser engine forward. If you do nothing, the document will not be parsed at all. You need to actively &#8220;pull&#8221; data from the document. This is the key to high efficiency parsing &#8211; you can optimally direct the parser to only work on parsing the portion of the XML file that you need to process, and there is no work wasted.
+<p>Since a pull parser leaves the developer with full control of the XML parsing engine, code can actually work on multiple documents on the same execution thread. This is in contrast with most push parsers, where there is usually a one-to-one correspondence between execution threads and documents being processed.
+<h3>Bidirectional API supporting XML output</h3>
+Unlike SAX but similar to DOM, the StAX API also includes the ability to write XML documents. This makes the creation of XML filtering and transformation applications quite straightforward.
+<p>In StAX 2, this capability is further extended to provide pass-through abilities where elements with large and complex bodies can be directly passed between the reader and writer to increase processing efficiency.
+<p>With this background, let&#8217;s explore StAX 2 further by writing some actual code to process an XML file.
+<h3>Hands On with Woodstox</h3>
+While there are StAX 1.0 parser implementations from SUN, BEA and Oracle, among others, there is currently only one parser that implements StAX 2. Called Woodstox, it is an open source parser released under the Apache Software License 2.0 (a version for the LGPL 2.1 licence is also available). You can find the download and documentation <a href="http://woodstox.codehaus.org/download/" target="_blank">here</a>.
+<p>The code for this article has been tested with Woodstox 3.2.0. After you have unzipped the download, you will only need two JAR files to compile and run the example:
+<ul>
+<li>stax2.jar</li>
+<li>wstx-asl-3.2.0.jar</li>
+</ul>
+It is also assumed that you have Java SE 6 installed and running. The code in this article was tested with JDK 1.6 update 1.
+<h3>Large XML files with huge elements</h3>
+In this example, you first use the bidirectional support of StAX to create a very large XML file. The XML file contains elements with large text content &#8211; up to about 5 MB in size. Randomly embedded in the content is the &#8216;@&#8217; character. You will then create two parsers to parse the XML file:
+<ul>
+<li>a DOM-based parser</li>
+<li>a StAX-based parser</li>
+</ul>
+Both parsers will locate the big elements and scan the body to determine the number of @ characters embedded in them.
+<p>You will see how to program Woodstox to parse and write XML files; and you will appreciate at first hand the difference between a DOM parser and a StAX parser.
+<p>The code to write the large XML file (about 380 MB in size) is in BigFileGen.java from the source code download &#8211; www.vsj.co.uk. This file provides the input for the StAX parser code that you will write; it also helps to illustrate the limitations of a DOM-based alternative.
+<p>The general form of the generated XML file is:
+<pre>&lt;mydoc&gt;
+	&lt;myelement&gt;
+		&lt;bigelement&gt;
+	abcdefghijklmnopqrstuvwxyzABC ...
+		&lt;/bigelement&gt;
+		&lt;withnested&gt;
+			&lt;nested1&gt;abcdefg...
+			&lt;/nested1&gt;
+			&lt;nested2&gt;abcdefg...
+			&lt;/nested2&gt;
+			...
+			&lt;nested49&gt;abcdefg...
+			&lt;/nested49&gt;
+		&lt;/withnested&gt;
+	&lt;/myelement&gt;
+	...
+&lt;/mydoc&gt;</pre>
+The document element is &lt;mydoc&gt; and it contains 50 &lt;myelement&gt; elements. Each &lt;myelement&gt; contains a &lt;bigelement&gt; and a &lt;withnested&gt; sub-element. The &lt;bigelement&gt; has a very large content text of about 5 MB in size. In this content are a random number of embedded &#8216;@&#8217; characters. Each of the 49 &lt;nestedxx&gt; elements has a body of about 5k in size, and they also contain text with embedded &#8216;@&#8217; characters.
+<p>The code of BigFileGen.java is annotated in the following listing. First, note the XMLStreamWriter2 extends from XMLStreamWriter. XMLStreamWriter is the StAX 1 inteface, while XMLStreamWriter2 has additional StAX 2 features.
+<pre>package uk.co.vsj.woodstox;
+import java.io.FileWriter;
+import
+	javax.xml.stream.XMLOutputFactory;
+import
+javax.xml.stream.XMLStreamException;
+import
+org.codehaus.stax2.XMLStreamWriter2;
+
+public class BigFileGen {
+private static String filename =
+	"c:\\bigfile.xml";
+private String alphabet =
+	"abcdefghijklmopqrstuvwxyz";
+private String alphabetUpper =
+	alphabet.toUpperCase();
+private String egg = "@";</pre>
+The alphabet and alphabetUpper strings are used to compose the large content bodies of the big element. The egg is the character that will be embedded randomly in the content, in this case the &#8216;@&#8217; character. The main() method creates an instance of BigFileGen and calls the writeFile() method to write out the XML file.
+<pre>public static void main(String[] args)
+	throws Exception {
+	BigFileGen bfg = new BigFileGen();
+	bfg.writeFile();
+}</pre>
+All of the work of writing out the XML file is located in the writeFile() method. Parser timing is calculated by maintaining a startTime variable.
+<pre>public void writeFile() {
+	long startTime =
+		System.currentTimeMillis();
+	try{</pre>
+You need an instance of XMLStreamWriter2 to write the XML file, this can be obtained from an instance of the class factory called XMLOutputFactory. Since the only StAX implementation in the classpath will be Woodstox, this obtains a Woodstox XMLStreamWriter2.
+<pre>XMLOutputFactory xof =
+	XMLOutputFactory.newInstance();
+XMLStreamWriter2 xtw = null;
+xtw = (XMLStreamWriter2)
+	xof.createXMLStreamWriter(
+		new FileWriter(filename));</pre>
+XMLStreamWriter2 has many useful writexxxx() methods, including:
+<ul>
+<li>writeStartDocument()</li>
+<li>writeStartElement()</li>
+<li>writeEndElement()</li>
+<li>writeEndDocument()</li>
+<li>writeAttribute()</li>
+<li>writeCData()</li>
+<li>writeCharacters()</li>
+<li>writeComment()</li>
+<li>writeEmptyElement()</li>
+<li>writeDTD()</li>
+<li>writeNamespace()</li>
+<li>writeEntityRef()</li>
+<li>writeProcessingInstruction()</li>
+</ul>
+You can see that these methods cover everything you need to generate a full XML document. Generating an XML document is a matter of assembling these methods. The following code segment writes out the large XML. You can see that each xtw.writeStartElement() is matched with a xtw.writeEndElement(). Our own writeLargeBody() method is used to write out the content of &lt;bigelement&gt; and &lt;nestedxx&gt; elements.
+<pre>	xtw.writeStartDocument();
+	xtw.writeStartElement("mydoc");
+	for (int j=0; j &lt; 50; j++) {
+		xtw.writeStartElement(
+			"bigelement");
+		writeLargeBody(xtw, 100000);
+		xtw.writeEndElement();
+		xtw.writeStartElement(
+			"withnested");
+		for (int i=1; i &lt; 500; i++) {
+			xtw.writeStartElement(
+				"nested" + i);
+			writeLargeBody(xtw, 100);
+			xtw.writeEndElement();
+		}
+		xtw.writeEndElement();
+	}
+	xtw.writeEndDocument();
+	xtw.flush();
+	xtw.close();
+}catch(Exception ex){
+	System.err.println("Exception
+		occurred while writing");
+	ex.printStackTrace();
+}
+	System.out.println(
+		"Writing completed in " +
+		(System.currentTimeMillis()
+		-startTime) + " ms");
+}</pre>
+The writeLargeBody() method uses XMLStreamWriter2&#8217;s writeRaw() method to write out an alphabet string a specified number of times. The writeRaw() method is only available with StAX 2. This method will write out characters to the document without any encoding or escape codes. It is useful for high performance write when you know ahead of time that content needs no further escape or encoding. This may occur, for example, if the content originated from an XML file that you are reading. In our case, the alphabet and alphabetUpper string is used to assemble the content. The &#8216;@&#8217; character is randomly embedded in approximately half the number of iterations.
+<pre>	private void writeLargeBody(
+		XMLStreamWriter2 xw,
+		int iterations) throws
+		XMLStreamException {
+		for (int i=0; i&lt; iterations;
+			i++) {
+			xw.writeRaw(alphabet);
+			if (Math.random() &gt; 0.5) {
+				xw.writeRaw(egg);
+			}
+			xw.writeRaw(alphabetUpper);
+		}
+	}
+}</pre>
+<h3>Testing the File Generator</h3>
+You need to compile the code first; from the distribution&#8217;s src directory, run the command:
+<pre>javac -classpath
+	c:\woodstox\stax2.jar;
+	c:\woodstox\wstx-asl-3.2.0.jar
+	-d ..\bin *.java</pre>
+Make sure you change the c:\woodstox directory to wherever you have Woodstox installed. The above should compile the code and place the binaries in the bin directory.
+<p>To run the generator, from the src directory, use the command (typed on one line):
+<pre>java -classpath
+	c:\woodstox\stax2.jar;c:\
+	woodstox\wstx-asl-3.2.0.jar;..\
+	bin uk.co.vsj.woodstox.BigFileGen</pre>
+The file may take a little while to write out. On a Pentium 4 Dual Core 3.2 GHz system, it took about 20 seconds to generate. You will see a timing summary similar to:
+<pre>Writing completed in 19797 ms</pre>
+Check your c:\ directory for the generated bigfile.xml.
+<h3>Parsing with DOM</h3>
+The first parser you write will be a DOM parser. The code is in SlowParser.java. The main() method creates an instance of SlowParser and call its parseFile() method.
+<pre>package uk.co.vsj.woodstox;
+import
+	javax.xml.parsers.DocumentBuilder;
+import
+	javax.xml.parsers.
+	DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+
+public class SlowParser {
+	public static void main(
+		String[] args)
+		throws Exception {
+		SlowParser xsp =
+			new SlowParser();
+		String filename =
+			"c:\\bigfile.xml";
+		xsp.parseFile(filename);
+	}</pre>
+The core code is in the parseFile() method. This parser uses the DOM parser implementation that is included as part of the Java SE 6 distribution. This parser is obtained from DocumentBuilderFactory.
+<pre>	public void parseFile(String
+		filename) throws Exception {
+		long starttime =
+			System.currentTimeMillis() ;
+		DocumentBuilderFactory
+			parserFactory =
+			DocumentBuilderFactory.
+			newInstance();
+		DocumentBuilder parser =
+			parserFactory.
+			newDocumentBuilder();</pre>
+Here, you ask the DOM parser to parse document. This step takes a significant time, as the entire file must be read and transformed to in-memory tree. No output can be generated until the entire document is parsed. Once the document tree is constructed, it can be used to query all instances of &lt;bigelement&gt;.
+<pre>		Document document =
+			parser.parse(filename);
+		NodeList nodes =
+		document.getElementsByTagName(
+			"bigelement");</pre>
+The next section of code goes through the content of all the &lt;bigelement&gt; instances and calls countFilter() to print out the number of &#8216;@&#8217; signs found.
+<pre>	for(int i = 0;
+		i &lt; nodes.getLength(); i ++) {
+		Element titleElem =
+			(Element)nodes.item(i);
+		Node childNode =
+			titleElem.getFirstChild();
+		if (childNode instanceof Text){
+			System.out.println(
+				"Element #" + (i+1) +
+				" : " + countFilter(
+		childNode.getNodeValue(),'@'));
+		}
+	}
+	System.out.println("Total of "
++ nodes.getLength() + " occurrences");
+	System.out.println(" completed in "
+		+ (System.currentTimeMillis()
+		- starttime) + " ms");
+	}</pre>
+The countFilter() method simply looks through every character of the incoming String and counts up the number of &#8216;@&#8217; signs.
+<pre>	private int countFilter(String
+		inStr, char filteredChar) {
+	int count = 0;
+	for (int i=0; i &lt; inStr.length();
+		i++) {
+		if (inStr.charAt(i) ==
+			filteredChar) {
+			count++;
+		}
+	}
+	return count;
+	}
+}</pre>
+<h3>Testing the DOM parser</h3>
+Assuming you have compiled the code in the previous test, and have already generated the c:\bigfile.xml. In the src directory, type the command:
+<pre>java -classpath c:\woodstox\stax2.jar;
+	c:\woodstox\wstx-asl-3.2.0.jar;
+	..\bin
+	uk.co.vsj.woodstox.SlowParser</pre>
+This runs the DOM parser against the large XML file. After a very short while, you should see something similar to:
+<pre>Exception in thread "main"
+	java.lang.OutOfMemoryError: Java
+	heap space at
+	java.util.Arrays.copyOfRange(
+	Arrays.java:3209) at
+	java.lang.String.&lt;init&gt;(
+	String.java:216)</pre>
+The DOM parser has run out of heap space while parsing the document. You will need to increase this space. Try using the command:
+<pre>java -classpath c:\woodstox\stax2.jar;
+	c:\woodstox\wstx-asl-3.2.0.jar;
+	..\bin -Xmx1000m
+	uk.co.vsj.woodstox.SlowParser</pre>
+This increases the heap to 1 GB (assuming you have that much memory). This time, the parsing takes a lot longer, and output starts until somewhere half way and you get the out of memory error again.
+<p>On my system, you have to increase the heap to 1.28 GB(-Xmx1280m) before the parser can complete. Depending on the version of Java VM you use, this required size may be different. Note that this parse took over 33 seconds. The huge memory footprint of a DOM-based parser is also evident. You needed over 1.2 GB of memory to successfully parse this 380 MB XML file. You may want to run this a few times to get an average timing, as the disk cache on modern operating systems has a big effect on this sort of test.
+<h3>Parsing with StAX 2</h3>
+On to the more efficient alternative &#8211; using StAX 2. The code in the main() method is similar to the DOM case. It creates an instance of FastParser and call its parseFile() method.
+<pre>package uk.co.vsj.woodstox;
+package uk.co.vsj.woodstox;
+import java.io.FileInputStream;
+import java.io.FilterWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import
+	javax.xml.stream.XMLInputFactory;
+import
+javax.xml.stream.XMLStreamException;
+import
+	javax.xml.stream.events.XMLEvent;
+import
+org.codehaus.stax2.XMLInputFactory2;
+import
+org.codehaus.stax2.XMLStreamReader2;
+
+public class FastParser {
+	public static void main(String[]
+		args) throws Exception {
+		FastParser xfp =
+			new FastParser();
+		String filename =
+			"c:\\bigfile.xml";
+		xfp.parseFile(filename);
+	}</pre>
+To parse an XML file using StAX 2, you need to get an instance of XMLStreamReader2. This must be obtained from an instance of XMLInputFactory2. Note that you can configure the behaviour of the parser by working with the properties of the XMLInputFactory. Since our XML document has no entities, the factory is configured to ignore them. The IS_COALESCING property can be set to true if you want the character content of an XML document to be returned in one single call &#8211; this can save you from having to merge them yourself. In addition to these properties, the StAX 2 XMLInputFactory2 implementation also provides methods to tune the parser for different objectives. These methods include:
+<ul>
+<li>configureForSpeed()</li>
+<li>configureForLowMemUsage()</li>
+<li>configureForRoundTripping()</li>
+<li>configureForXmlConformance()</li>
+<li>configureForConvenience()</li>
+</ul>
+The following code segment creates and configures the parser:
+<pre>public void parseFile(String filename){
+	XMLInputFactory2 xmlif = null ;
+	try{
+		xmlif = (XMLInputFactory2)
+		XMLInputFactory2.newInstance();
+		xmlif.setProperty(
+			XMLInputFactory.
+		IS_REPLACING_ENTITY_REFERENCES,
+			Boolean.FALSE);
+		xmlif.setProperty(
+			XMLInputFactory.
+	IS_SUPPORTING_EXTERNAL_ENTITIES,
+			Boolean.FALSE);
+		xmlif.setProperty(
+			XMLInputFactory.
+			IS_COALESCING,
+			Boolean.FALSE);
+		xmlif.configureForSpeed();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	System.out.println(
+		"Starting to parse "+ filename);
+	System.out.println("");
+	long starttime =
+		System.currentTimeMillis() ;
+	int elementCount = 0;
+	int filteredCharCount = 0;</pre>
+The XMLInputFactory2 instance is used to create an instance of XMLStreamReader2 for the bigfile.xml that you will parse.
+<pre>try{
+	XMLStreamReader2 xmlr =
+		(XMLStreamReader2)
+		xmlif.createXMLStreamReader(
+		filename, new
+		FileInputStream(filename));</pre>
+The parsing involve a loop that calls the next() method on the XMLStreamReader2. Each time this method is called, the next event is returned as an int. The event can be decoded by comparing them with constants on the XMLEvent interface. Since an int is returned for each event, there is no Java object creation overhead between the parser code and your code. Note how you are &#8220;pulling&#8221; events one at a time from the StAX parsing engine. The available XMLEvent code includes:
+<ul>
+<li>START_DOCUMENT</li>
+<li>END_DOCUMENT</li>
+<li>START_ELEMENT</li>
+<li>END_ELEMENT</li>
+<li>ENTITY_DECLARATION</li>
+<li>ENTITY_REFRERENCE</li>
+<li>NAMESPACE</li>
+<li>CDATA</li>
+<li>CHARACTERS</li>
+<li>COMMENTS</li>
+<li>ATTRIBUTE</li>
+<li>PROCESSING_INSTRUCTION</li>
+</ul>
+Note that you can easily control the parser and move it incrementally forward by calling XMLStreamReader2.next(); you can do this until you reach an expected element.
+<p>Depending on the event, the parser can be in different state. For example, when you have rectrieved the XMLEvent.CHARACTERS event, you can use the getText() method to access the content of the element. If you are at the XMLEvent.START_ELEMENT, however, this method is not available. On the other hand, while you are at the XMLEvent.START_ELEMENT, the name of the element is available, and you should save this information if you need it in your parsing.
+<p>There are a few variations of getText(). In this case, you call one that takes a Writer as an argument. The content of the element will be written to the Writer when you call getText(). This is an efficient way to access large content &#8211; since no additional copy or instantiation is required. A custom Writer, called a CountingWriter is supplied to getText(). This writer examines every written content character and counts up the &#8216;@&#8217; occurrences.
+<pre>	int eventType =
+		xmlr.getEventType();
+	String curElement = "";
+	CountingWriter cw =
+		new CountingWriter(
+		new StringWriter(), '@');
+	while(xmlr.hasNext()){
+		eventType = xmlr.next();
+		switch (eventType) {
+			case XMLEvent.START_ELEMENT:
+				curElement =
+			xmlr.getName().toString();
+				filteredCharCount = 0;
+				break;
+			case XMLEvent.CHARACTERS:
+				if (curElement.equals(
+					"bigelement")) {
+					cw.resetCount();
+				xmlr.getText(cw,true);
+	filteredCharCount += cw.getCount();
+				}
+				break;
+			case XMLEvent.END_ELEMENT:
+				if (curElement.equals(
+					"bigelement")) {
+					elementCount++;
+	System.out.println("Element #" +
+					elementCount + " : "
+					+ filteredCharCount);
+				}
+				break;
+			case XMLEvent.END_DOCUMENT:
+				System.out.println(
+					"Total of "
+					+ elementCount
+					+ " occurrences");
+			}
+		if (eventType == XMLEvent.START_ELEMENT) {
+			curElement =
+			xmlr.getName().toString();
+		} else {
+			if (eventType ==
+				XMLEvent.CHARACTERS) {
+			}
+		}
+	}
+}
+catch(XMLStreamException ex){
+	System.out.println(
+		ex.getMessage());
+	if(ex.getNestedException()
+		!= null) {
+		ex.getNestedException().
+			printStackTrace();
+	}
+}
+catch(Exception ex){
+	ex.printStackTrace();
+}
+System.out.println(" completed in "
+	+ (System.currentTimeMillis()
+	- starttime) + " ms");
+}</pre>
+This following is the implementation of the CountingWriter class. It extends FilterWriter for convenience, overriding the write() methods. The write() methods are overridden to not produce output, but simply count up the number of occurrences of a filter character.
+<pre>class CountingWriter extends
+	FilterWriter {
+	long filtCount = 0;
+	char filteredChar = 0;
+	public CountingWriter(Writer out,
+		char filter) {
+		super(out);
+		filteredChar = filter;
+		filtCount = 0;
+	}
+	public long getCount() {
+		return filtCount;
+	}
+	public void resetCount() {
+		filtCount = 0;
+	}
+	public void write(int c) throws
+		IOException {
+		if (filteredChar == c) {
+			//out.write(c);
+			filtCount++;
+		}
+	}
+	public void write(char[] cbuf,
+		int off, int len) throws
+		IOException{
+		int idx = off;
+		int count = 0;
+		while (count &lt; len) {
+			write(cbuf[idx]);
+			idx++;
+			count++;
+		}
+	}
+	public void write(String str,
+		int off, int len) throws
+		IOException {
+		int idx = off;
+		int count = 0;
+		while (count &lt; len) {
+			write(str.charAt(idx));
+			idx++;
+			count++;
+		}
+	}
+}</pre>
+<h3>Testing the Woodstox StAX 2 parser</h3>
+You should have the code compiled and be in the src directory &#8211; type the command:
+<pre>java -classpath c:\woodstox\stax2.jar;
+	c:\woodstox\wstx-asl-3.2.0.jar;
+	..\bin
+	uk.co.vsj.woodstox.FastParser</pre>
+Note you don&#8217;t need to set a large heap value, StAX parsers have very small memory footprint &#8211; even when parsing very large documents. Instead of a long pulse before seeing output, you will see the output right away. However, the rate of output is slower than the DOM parser &#8211; since the file is processed on-the-fly with StAX; whereas the DOM parser is querying an in-memory document tree during processing.
+<p>The output is identical to the DOM Parser test, on my machine the timing is:
+<pre>completed in 6547 ms</pre>
+This is almost five times faster than the DOM implementation! Again, you may want to run this a few times to get an average timing &#8211; and get rid of the disk cache effect.
+<h3>Conclusion</h3>
+While StAX-based XML parsing may not be the easiest way to code an XML parser, it certainly provides the highest performance and most efficient possible access to the underlying XML document. Woodstox is a well-tested and high performance implementation of StAX 2, providing several time-saving value-added APIs that greatly simplify typical XML processing work. When your XML parsing work is hampered by the weight of DOM, or the awkward push model of SAX, it is time to integrate Woodstox with StAX 2 to give them a new life.
+<p><hr>
+<p><small>Sing Li has been writing software, and writing about software, for over twenty years. His specialities include scalable distributed computing systems and peer-to-peer technologies. He now spends a lot of time working with open source Java technologies. Sing&#8217;s recent publications include <i>Professional Geronimo</i> and <i>Professional Apache Tomcat</i> from Wrox Press.</small>
+
+    </div>
+</div>
+
+
+<h2>You might also like...</h2>
+<div class="outbrain_widget_wrapper">
+	<div id="outbrain_widget" class="outbrain"></div>
+</div>
+<div id="comments">
+    <h2>Comments</h2>
+    <div id="disqus_thread"></div>
+</div>
+</div>
+</div>
+
+  </div>
+  <div id="secondary-content" class="clearfix">
+<div class="panel">
+  <h2>About the author</h2>
+  <div class="panel-content">
+    <h3>
+      <a href="/profile/sing.li/">Sing Li</a> <span class="country-name"><img src="http://cdn.developerfusion.com/images/shared/shim.gif" class="country-icon country-icon-us" alt="United States" title="United States" /></span>
+      </h3>
+    <p>Sing Li has been writing software, and writing about software for twenty plus years. His specialities include scalable distributed computing systems and peer-to-peer technologies. He now spends ...
+    <ul class="activity-list clearfix">
+    </ul>
+    <p style="color:#333;font-style:italic">Interested in writing for us? <a href="/about-us/write/">Find out more</a>.</p>
+  </div>
+</div>
+<div class="panel panel-link">
+    <h2><a href="/t/xml/tutorials/">XML tutorials</a></h2>
+    <ul>
+        <li><a href="/article/84298/linqing-to-xml/">LINQ-ing to XML</a></li>
+        <li><a href="/article/84372/data-integration-suite/">Data Integration Suite</a></li>
+        <li><a href="/column/8326/losing-your-religion-suns-tim-bray-on-surviving-the-tech-downturn/">Losing your religion: Sun&#39;s Tim Bray on surviving the tech downturn</a></li>
+        <li><a href="/article/7570/understanding-open-xml/">Understanding Open XML</a></li>
+    </ul>
+</div>
+<div class="panel panel-link">
+    <h2><a href="/t/xml/books/">XML books</a></h2>
+    <ul class="book-list clearfix">
+        <li>
+            <div class="cover"><a href="/book/93623/access-2010-bible/"><img src="/resource/get/content/93623/icon/"  alt="Access 2010 Bible" /></a></div>
+            <h3><a href="/book/93623/access-2010-bible/">Access 2010 Bible</a></h3>
+            <p>The expert guidance you need to get the most out of Access 2010Get the Access 2010 information you need to succeed with this comprehensive reference. If this is your first encounter with Access, you&#39;ll appreciate the thorough attention to database fu...</p>
+        </li>
+   </ul>
+</div><div id="ad-mpu">
+    <div id="div-gpt-ad-1342895737372-1" style="width:300px; height:250px;"></div>
+</div>
+
+<div class="panel panel-link">
+    <h2><a href="/t/xml/forum/">XML forum discussion</a></h2>
+    <ul class="discuss">
+        
+        <li>
+            <h3><a href="/forum/thread/36994/">XBrowse</a></h3>
+            <h4> by liuying9104 <span style="font-weight: bold;">(3 replies)</span></h4>
+        </li>
+    
+        <li>
+            <h3><a href="/forum/thread/55009/">generating xml file</a></h3>
+            <h4> by huangdm05941 <span style="font-weight: bold;">(2 replies)</span></h4>
+        </li>
+    
+        <li>
+            <h3><a href="/forum/thread/54967/">urgent</a></h3>
+            <h4> by huangdm05941 <span style="font-weight: bold;">(2 replies)</span></h4>
+        </li>
+    
+        <li>
+            <h3><a href="/forum/thread/54900/">How to increment variable value in xslt</a></h3>
+            <h4> by huangdm05941 <span style="font-weight: bold;">(1 replies)</span></h4>
+        </li>
+    
+        <li>
+            <h3><a href="/forum/thread/52228/">Inside Open XML</a></h3>
+            <h4> by jettimadhu <span style="font-weight: bold;">(2 replies)</span></h4>
+        </li>
+    
+    </ul>
+</div>
+
+    
+
+<div class="panel panel-link">
+    <h2><a href="/t/xml/media/">XML podcasts</a></h2>
+    <ul>
+    
+    <li>
+        <h3>Stack Overflow Podcast: <a href="/media/132723/se-podcast-27-dave-winer/">SE Podcast #27 – Dave Winer</a></h3>
+        <h4>Published 2 years ago, running time 1h2m</h4>
+        <p>Jeff &amp; Joel are joined today by Dave Winer, who’s upset that we don’t have a jingle to start the show! He “invented�? (well, pioneered, really) the&#160;XML-RPC protocol. Dave tells us the story of how and why the protocol came to be. Right now, Dave’s working on a “magnificent symphony of software <span class="tags"></span></p>
+    </li>
+    
+    </ul>
+</div>
+
+    
+
+
+    
+  </div>
+</div><div id="sitemap">
+    <div id="sitemap-content">
+      <div class="section">
+        <h3>Contribute</h3>
+        <p>
+          Why not <a href="/about-us/write/">write for us</a>? Or you could <a href="/training/new/">submit an event</a> or a <a href="/usergroups/new/">user group</a> in your area. Alternatively just <a href="http://feedback.developerfusion.com">tell us what you think</a>!</p> 
+    </p>
+      </div>
+        <div class="section">
+        <h3>Web Development</h3>
+        <ul>
+            <li><a href="http://quickstart.developerfusion.co.uk/quickstart/">ASP.NET Quickstart</a></li>
+            <li><a href="/news/">Programming news</a></li>
+            <li><a href="/t/java/">Java programming</a></li>
+            <li><a href="/t/asp.net/tutorials/">ASP.NET tutorials</a></li>
+            <li><a href="/t/csharp/">C# programming</a></li>
+        </ul>
+        </div>
+        <div class="section">
+        <h3>Developer Jobs</h3>
+        <ul>
+            <li><a href="/t/asp.net/jobs/">ASP.NET Jobs</a></li>
+            <li><a href="/t/java/jobs/">Java Jobs</a></li>
+            <li><a href="/jobs/">Developer Jobs</a></li>
+        </ul>
+        </div>
+      
+        <div class="section">
+        <h3>Our tools</h3>
+          <p>We've got automatic conversion tools to convert <a href="/tools/convert/csharp-to-vb/">C# to VB.NET</a>,
+          <a href="/tools/convert/csharp-to-vb/">VB.NET to C#</a>. Also you can <a href="/tools/compressjavascript/">compress javascript</a> and
+            <a href="/tools/compresscss/">compress css</a> and <a href="/tools/sql-connection-string/">generate sql connection strings</a>.
+        </p>
+        </div>
+    </div>
+</div>
+<div id="members">
+    <div class="member-panel">
+        <ul>
+
+        <li class="first" id="join-us"><a href="/user/signin/?returnUrl=%2Farticle%2F84523%2Fstax-the-odds-with-woodstox%2F">Join us</a></li>
+        <li id="sign-in"><a href="/user/signin/?returnUrl=%2Farticle%2F84523%2Fstax-the-odds-with-woodstox%2F">Sign in</a></li>
+
+        <li class="country"><img src="http://cdn.developerfusion.com/images/shared/shim.gif" class="country-icon country-icon-ca" alt="Canada" title="Canada" /> <a href="/location/north-america/ca/">Canada</a></li>
+    </ul>
+    <div id="sign-in-panel">
+        <form action="/user/signin/?returnUrl=%2Farticle%2F84523%2Fstax-the-odds-with-woodstox%2F" method="post">
+          <input name="__RequestVerificationToken" type="hidden" value="ZiHbqfK-VaGB4ujY-YzbH69G6oPhWIjBwQb8VY_n5jQSVWHKqegZkIS67pT2l__rhelXBMoYxVfwJwYxZFBo1mKkkka4mwwKSI05dbeF91ulPJVAOV-Y4S_41rYI4NGjuDLlaQ2" />
+            <fieldset>
+            <label for="QuickSignInUsername">Username</label><input class="text" id="QuickSignInUsername" type="text" name="EmailAddress"/>
+            <label for="QuickSignInPassword">Password</label><input class="text" id="QuickSignInPassword" type="password" name="Password"/>
+            <input type="hidden" name="RememberMe" value="true"/>
+            <input type="submit" value="Sign in"/>
+            </fieldset>
+            <div class="cancel"><a href="#">Cancel</a></div>
+        </form>
+    </div><div class="quote">
+    &#8220;A computer lets you make more mistakes faster than any other invention in human history, with the possible exceptions of handguns and tequila&#8221; <span class="author">- Mitch Ratcliffe</span>
+</div>
+    </div>
+    
+</div>
+
+<div id="footer" class="clearfix">
+    <div id="footer-content">
+        <ul>
+            <li><a rel="nofollow" href="http://feedback.developerfusion.com/">Send feedback</a></li>
+            <li><a href="http://blog.developerfusion.com/">Blog</a></li>
+            <li><a href="/about-us/" rel="nofollow">About us</a></li>
+            <li><a href="/about-us/contact/" rel="nofollow">Contact us</a></li>
+            <li><a href="/about-us/advertise/" rel="nofollow">Advertise</a></li>
+        </ul>
+        <div class="copyright">&copy; <a href="/about-us/legal/" rel="nofollow">1999-2013 Developer Fusion Ltd</a></div>
+        <div class="hosted-by"><a href="http://www.everycity.co.uk/#utm_source=devfusion&utm_medium=footer&utm_campaign=devfusion">Managed hosting by Everycity</a></div>
+    </div>
+</div>
+</div>
+<script type="text/javascript" src="http://cdn.developerfusion.com/scripts/site.compressed.js?v=2.0.0.52"></script>
+<script type="text/javascript">
+  
+  window.adSlots = window.adSlots || {};
+  window.adSlots.mpu = true;
+  window.adSlots.leaderboard = true;
+</script>
+<script type="text/javascript">
+if (window.Site) {
+  var SiteInstance = new Site({ assetUrl : 'http://cdn.developerfusion.com/', version: '2.0.0.52', adSlots : window.adSlots, topic: 'xml', topics:['xml'], debug : false });
+}
+</script>
+<script type="text/javascript">
+SiteInstance.writeDelayedScript('http://static.developerfusion.com/scripts/highlight.compressed.js');
+</script>
+  <script type="text/javascript">
+    var OB_isLateStarter = true;
+    var OB_containerClass = 'outbrain';
+    var OB_permalink = 'http://www.developerfusion.com/article/84523/stax-the-odds-with-woodstox/';
+    SiteInstance.writeDelayedScript('http://widgets.outbrain.com/outbrainWidget.js');
+    var disqus_shortname = 'devfusion';
+    var disqus_identifier = 'page-84523';
+    var disqus_url = OB_permalink;
+    SiteInstance.writeDelayedScript('http://devfusion.disqus.com/embed.js');
+    SiteInstance.writeDelayedScript('http://devfusion.disqus.com/count.js');
+  </script>
+</body>
+</html>

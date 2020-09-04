@@ -1,0 +1,693 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html itemscope itemtype="http://schema.org/Blog" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>  Java Instrumentation</title>
+<meta itemprop="name" content="  Java Instrumentation">
+<meta itemprop="description" content="Java Instrumentation will give a demonstration of how powerful Java is. Most importantly, this power can be realized by a developer for innovative means. For example using Java instrumentation, we can access a class that is loaded by the Java classloader from the JVM and modify its bytecode by inserting our custom code, all these [&#8230;]">
+<meta name="description" content="Java Instrumentation will give a demonstration of how powerful Java is. Most importantly, this power can be realized by a developer for innovative means. For example using Java instrumentation, we can access a class that is loaded by the Java classloader from the JVM and modify its bytecode by inserting our custom code, all these [&#8230;]" />
+<meta name="keywords" content="  Java Instrumentation" />
+<meta name="verify-v1" content="1OVd8tvioq4O1NR0pxuDN93LbCUNz3uxPbkbevsrObw=" />
+<meta http-equiv="Content-Type" content="UTF-8" />
+<meta charset="UTF-8">
+<meta name="robots" content="index,follow" /><link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://javapapers.com/feed/" />
+<link rel="alternate" type="text/xml" title="RSS .92" href="http://javapapers.com/feed/rss/" />
+<link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="http://javapapers.com/feed/atom/" />
+<link rel="pingback" href="http://javapapers.com/xmlrpc.php" />
+<link rel="shortcut icon" href="http://javapapers.com/favicon.ico" type="image/x-icon" />	
+	
+<link rel="alternate" type="application/rss+xml" title="Java Tutorial Blog &raquo; Java Instrumentation Comments Feed" href="http://javapapers.com/core-java/java-instrumentation/feed/" />
+<link rel='stylesheet' id='papers-style-css'  href='http://javapapers.com/wp-content/themes/papers/style.css?ver=13122013' type='text/css' media='all' />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://javapapers.com/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://javapapers.com/wp-includes/wlwmanifest.xml" /> 
+<link rel='prev' title='Android Development Environment Setup' href='http://javapapers.com/android/android-development-environment-setup/' />
+<link rel='next' title='Spring @Component, @Service, @Repository, @Controller Difference' href='http://javapapers.com/spring/spring-component-service-repository-controller-difference/' />
+<meta name="generator" content="WordPress 3.6.1" />
+<link rel='canonical' href='http://javapapers.com/core-java/java-instrumentation/' />
+<link rel='shortlink' href='http://javapapers.com/?p=1682' />
+<style type="text/css" id="syntaxhighlighteranchor"></style>
+	
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-4275351-1']);
+  _gaq.push(['_setDomainName', 'javapapers.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+<body>
+<div align="center">
+<div class="logocomponent">
+<div class="logo"><a href="/"><img src="http://javapapers.com/wp-content/themes/papers/images/javapapers.png" alt="javapapers.com" title="javapapers home" width="195px" height="60px"></a></div>
+<div class="header-right">
+	<div class="javacup" ></div>
+</div>
+</div>
+<div id="container"><div class="notepadHead" >
+	<div class="notepadHeadCover"></div>
+	<div class="notepadHeadMiddle"><h1>Java Instrumentation</h1></div>
+	<div class="notepadHeadMargin"></div>
+</div>
+
+<div class="notepad">
+<div id="content">
+
+<div class="entry single">
+<div class="date">27/10/2013<!-- at 06:20pm--></div>
+
+<p>Java Instrumentation will give a demonstration of how powerful Java is. Most importantly, this power can be realized by a developer for innovative means. For example using Java instrumentation, we can access a class that is loaded by the <a href="http://javapapers.com/core-java/java-class-loader/">Java classloader</a> from the JVM and modify its bytecode by inserting our custom code, all these done at runtime. Don’t worry about security, these are governed by the same security context applicable for Java classes and respective classloaders.</p>
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="instrumentation" border="0" alt="instrumentation" src="http://javapapers.com/wp-content/uploads/2013/10/instrumentation.jpg" width="200" height="150" /></p>
+<p>With this tutorial let us learn to instrument Java byte code using Java instrumentation. Mostly profilers, application monitoring agents, event loggers use Java instrumentation. This will serve as introductory level tutorial and once it is done, you can write a basic Java agent and do instrumentation on the Java byte code.</p>
+<h2>Key Components of Java Instrumentation</h2>
+<ul>
+<li>Agent – is a jar file containing agent and transformer class files. </li>
+<li>Agent Class – A java class file, containing a method named ‘premain’. </li>
+<li>Manifest – manifest.mf file containing the “premain-class�? property.</li>
+<li>Transformer – A Java class file implementing the interface ClassFileTransformer.</li>
+</ul>
+<h2>Instrumentation Agent Class</h2>
+<p>Agent class contains the premain method and that is key in Java insturmentation. This is similar to the ‘main’ method. This class is loaded by the same system classloader as it loads the other Java classes. premain method can have the following signatures,</p>
+<ol>
+<li><em>public static void premain(String agentArgs, Instrumentation inst); </em></li>
+<li><em>public static void premain(String agentArgs); </em></li>
+</ol>
+<div class="ads"><div class="adLabel">Ads by Google</div><script type="text/javascript"><!--
+	google_ad_client = "ca-pub-2525233393528874";
+	/* JP 336 x 280 MidPost */
+	google_ad_slot = "2140733579";
+	google_ad_width = 336;
+	google_ad_height = 280;
+	//-->
+	</script>
+	<script type="text/javascript"
+	src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+	</script></div>
+<p>In general, System classloader after loading the Agent Class, then invokes the premain (premain is roughly equal to main method for normal Java classes) method in the above given order. Either 1 or 2 must be present in the class. Initiating the tool’s agent in Java instrumentation is <a href="http://javapapers.com/core-java/differentiate-jvm-jre-jdk-jit/" title="Differentiate JVM JRE JDK JIT">JVM</a> implementation dependent, so you got to read the implementation specs. premain method runs under the same security context as the application main method.</p>
+<ul>
+<li>Similar to passing arguments to main method of an application, we can pass arguments to agent via agentArgs parameter. The difference is main method accepts array as parameter, but premain accepts only a String. May be we should find our own way, like send a long string and parse it inside the code to pass multiple parameters. </li>
+<li>If the premain method throws an exception and it goes uncaught then the JVM will abort instantly. </li>
+<li>instrumentation is an instance passed by the classloader using which we can register our transformers.</li>
+<p> <!--EndFragment--></ul>
+<h2>Instrumentation Transformer</h2>
+<p>Transformer classes are to be registered with ‘instrumentation’ instance. All those transformers that are registered with instrumentation instance will be invoked by the classloader every time a new class is loaded by that. ClassFileTransformer has got a method with following signature, which must be implemented,</p>
+<ul>
+<li><em>public byte[] transform(ClassLoader loader,        <br /></em><em>String className,       <br />Class classBeingRedefined,         <br />ProtectionDomain&#160; protectionDomain,&#160; <br />byte[] classfileBuffer) throws llegalClassFormatException </em></li>
+</ul>
+<p>When the transformer is invoked by the classloader, it will pass all these arguments, on which class loading this is invoked, etc and the bytecode of the class being loaded. So that’s our entry ticket to manipulating the class loaded. We can take a copy of the classfileBuffer and make modifications to the copy and return it. So the returned bytes are loaded by the classloader which will include the modifications we have done.</p>
+<h2>Instrumentation Activity Sequence</h2>
+<p>Following diagram summarizes the activity flow in Java instrumentation,</p>
+<p><img style="background-image: none; border-bottom: 0px; border-left: 0px; padding-left: 0px; padding-right: 0px; display: inline; border-top: 0px; border-right: 0px; padding-top: 0px" title="Java Instrumentation Activity Flow" border="0" alt="Java Instrumentation Activity Flow" src="http://javapapers.com/wp-content/uploads/2013/10/Java-Instrumentation-Activity-Flow.jpg" width="509" height="827" /></p>
+<h2>Example for Java Instrumentation</h2>
+<p>In this example, we will use Java instrumentation to modify the loaded <a href="http://javapapers.com/core-java/java-binary/" title="Java Binary">bytecode (java classes)</a> and add statements. Using which we will find out how much duration a method executes. This is a real time use case for <a href="http://javapapers.com/core-java/performance-of-jvm-server-and-client-mode/" title="Performance of JVM Server and Client Mode">java performance profiling</a>.</p>
+<h3>DurationTransformer.java</h3>
+<p>
+This is the Java class that will be registered with the Java instrumentation agent. This will modify the class&#8217; bytecode by inserting new lines and the original class will be replaced by the classloader.</p>
+</p>
+<p>
+<pre class="brush: java; title: ; notranslate" title="">
+package com.javapapers.java.instrumentation;
+
+import java.io.ByteArrayInputStream;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
+
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+
+//this class will be registered with instrumentation agent
+public class DurationTransformer implements ClassFileTransformer {
+	public byte[] transform(ClassLoader loader, String className,
+			Class classBeingRedefined, ProtectionDomain protectionDomain,
+			byte[] classfileBuffer) throws IllegalClassFormatException {
+		byte[] byteCode = classfileBuffer;
+
+		// since this transformer will be called when all the classes are
+		// loaded by the classloader, we are restricting the instrumentation
+		// using if block only for the Lion class
+		if (className.equals(&quot;com/javapapers/java/instrumentation/Lion&quot;)) {
+			System.out.println(&quot;Instrumenting......&quot;);
+			try {
+				ClassPool classPool = ClassPool.getDefault();
+				CtClass ctClass = classPool.makeClass(new ByteArrayInputStream(
+						classfileBuffer));
+				CtMethod[] methods = ctClass.getDeclaredMethods();
+				for (CtMethod method : methods) {
+					method.addLocalVariable(&quot;startTime&quot;, CtClass.longType);
+					method.insertBefore(&quot;startTime = System.nanoTime();&quot;);
+					method.insertAfter(&quot;System.out.println(\&quot;Execution Duration &quot;
+							+ &quot;(nano sec): \&quot;+ (System.nanoTime() - startTime) );&quot;);
+				}
+				byteCode = ctClass.toBytecode();
+				ctClass.detach();
+				System.out.println(&quot;Instrumentation complete.&quot;);
+			} catch (Throwable ex) {
+				System.out.println(&quot;Exception: &quot; + ex);
+				ex.printStackTrace();
+			}
+		}
+		return byteCode;
+	}
+}
+
+</pre>
+</p>
+<h3>DurationAgent.java</h3>
+<p>
+<pre class="brush: java; title: ; notranslate" title="">
+package com.javapapers.java.instrumentation;
+
+import java.lang.instrument.Instrumentation;
+
+public class DurationAgent {
+	public static void premain(String agentArgs, Instrumentation inst) {
+		System.out.println(&quot;Executing premain.........&quot;);
+		inst.addTransformer(new DurationTransformer());
+	}
+}
+</pre>
+</p>
+<h3>Lion.java</h3>
+<p>
+<pre class="brush: java; title: ; notranslate" title="">
+package com.javapapers.java.instrumentation;
+
+//to be instrumented java class
+public class Lion {
+	public void runLion() throws InterruptedException {
+		System.out.println(&quot;Lion is going to run........&quot;);
+		Thread.sleep(2000L);
+	}
+
+}
+
+</pre>
+</p>
+<h3>TestInstrumentation.java</h3>
+<p>
+<pre class="brush: java; title: ; notranslate" title="">
+package com.javapapers.java.instrumentation;
+
+public class TestInstrumentation {
+	public static void main(String args[]) throws InterruptedException {
+		Lion l = new Lion();
+		l.runLion();
+	}
+}
+</pre>
+</p>
+<h2>Java Instrumentation Project Execution</h2>
+<p>Execution of this program is not done as usual and you have to follow the steps as below</p>
+<ol>
+<li>Compile the program and prepare the Java Jar file. This is the agent jar.</li>
+<li>Pass the agent jar prepared for instrumentation using -javaagent argument while the execution of the program.</li>
+</ol>
+<ul>
+<li>You can download the Java instrumentation sample project and it is an Eclipse project.</li>
+<li>Build it using Eclipse and you will get the class files.</li>
+<li>You may run the &#8216;jar&#8217; command from command line and prepare the agent jar.<em><strong>jar cvfm instrumentation.jar ..\meta-inf\manifest.mf .</strong></em> Run this from the bin folder.</li>
+<li>Execute the Java instrumentation project using command, <em><strong>java -cp .;./lib/javassist-3.14.0-GA.jar -javaagent:./instrumentation.jar com.javapapers.java.instrumentation.TestInstrumentation</strong></em>. Run it from the instrumentation Java project root.</li>
+</ul>
+<h2>Output of the Java instrumentation Project</h2>
+<p>
+<a href="http://javapapers.com/wp-content/uploads/2013/10/compile-and-run.png"><img src="http://javapapers.com/wp-content/uploads/2013/10/compile-and-run-300x183.png" alt="Java Instrumentation Sample Project: compile and run" width="300" height="183" class="alignright size-medium wp-image-1686" /></a>
+</p>
+<p><em><br />
+Executing premain&#8230;&#8230;&#8230;<br />
+Instrumenting&#8230;&#8230;<br />
+Instrumentation complete.<br />
+Lion is going to run&#8230;&#8230;..<br />
+<strong>Execution Duration (nano sec): 2000755165</strong></em>
+</p>
+<p>The line &#8216;Execution Duration&#8217; is what is inserted by the Java instrumentation and this line is not present in the original Java code</p>
+<div class="download" >Download Example Project Source Code:<a href="http://javapapers.com/wp-content/uploads/2013/10/JavaInstrumentation.zip">JavaInstrumentation</a></div>
+
+	<div>
+	<div class="adLabel">Ads by Google</div>
+		<script type="text/javascript">
+		<!-- 
+		google_ad_client = "ca-pub-2525233393528874";
+		/* JP 336 x 280 3March2013 */
+		google_ad_slot = "8791530770";
+		google_ad_width = 336;
+		google_ad_height = 280;
+		//-->
+		</script>
+		<script type="text/javascript"src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+		</script>
+	</div>
+
+
+</div>			<div id="postfooter">
+			<div id="previousnext">
+					
+				<a href="http://javapapers.com/android/android-development-environment-setup/">
+					<div id="previous">
+						<img width="75" height="75" src="http://javapapers.com/wp-content/uploads/2013/10/AVD-Configuration-150x150.png" class="attachment-75x75" alt="AVD-Configuration.png" /><div class='tit'>PREV: Android Development Environment Setup</div>					</div>
+				</a>
+									
+				<a href="http://javapapers.com/spring/spring-component-service-repository-controller-difference/">
+					<div id="next">
+						<img width="75" height="75" src="http://javapapers.com/wp-content/uploads/2013/10/difference-150x150.jpg" class="attachment-75x75" alt="difference.jpg" /><div class='tit'>NEXT: Spring @Component, @Service, @Repository, @Controller Difference</div>					</div>
+				</a>				
+							</div>
+			</div>
+
+
+
+	<div id="comments">
+	
+	
+			<h3 id="comments-title">
+			12 comments on &ldquo;<span>Java Instrumentation</span>&rdquo;		</h3>
+
+		
+		<ol class="commentlist">
+				<li class="comment even thread-even depth-1" id="li-comment-49671">
+		<article id="comment-49671" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn">Patrick</span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49671"><time pubdate datetime="2013-10-28T01:12:40+00:00">28/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>This is a difficult concept to understand. You have made it amazingly simple and easy. Thanks.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49671#respond' onclick='return addComment.moveForm("comment-49671", "49671", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-49905">
+		<article id="comment-49905" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn"><a href='http://javapapers.com' rel='external nofollow' class='url'>Joe</a></span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49905"><time pubdate datetime="2013-10-29T11:03:14+00:00">29/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thanks Patrick.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49905#respond' onclick='return addComment.moveForm("comment-49905", "49905", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-49746">
+		<article id="comment-49746" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn">sudha</span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49746"><time pubdate datetime="2013-10-28T16:59:54+00:00">28/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Nice article. thanks!</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49746#respond' onclick='return addComment.moveForm("comment-49746", "49746", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-49906">
+		<article id="comment-49906" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn"><a href='http://javapapers.com' rel='external nofollow' class='url'>Joe</a></span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49906"><time pubdate datetime="2013-10-29T11:03:29+00:00">29/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Welcome Sudha.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49906#respond' onclick='return addComment.moveForm("comment-49906", "49906", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-49754">
+		<article id="comment-49754" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn">sridhar</span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49754"><time pubdate datetime="2013-10-28T17:43:06+00:00">28/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Joy,</p>
+<p>As usual your explanation is awesome. Long back i did code coverage using EMMA which is depending on this concept. Now i understood this concept very well.</p>
+<p>Thank you verymuch</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49754#respond' onclick='return addComment.moveForm("comment-49754", "49754", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-49907">
+		<article id="comment-49907" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn"><a href='http://javapapers.com' rel='external nofollow' class='url'>Joe</a></span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49907"><time pubdate datetime="2013-10-29T11:03:48+00:00">29/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Welcome Sridhar.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49907#respond' onclick='return addComment.moveForm("comment-49907", "49907", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1" id="li-comment-49779">
+		<article id="comment-49779" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn">Karthik Prabakaran</span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49779"><time pubdate datetime="2013-10-28T20:22:37+00:00">28/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Thanks for your article on this topic Joe.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49779#respond' onclick='return addComment.moveForm("comment-49779", "49779", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2" id="li-comment-49908">
+		<article id="comment-49908" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn"><a href='http://javapapers.com' rel='external nofollow' class='url'>Joe</a></span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49908"><time pubdate datetime="2013-10-29T11:04:02+00:00">29/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Welcome Karthik.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49908#respond' onclick='return addComment.moveForm("comment-49908", "49908", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-49964">
+		<article id="comment-49964" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn"><a href='http://mahd-shabani.com' rel='external nofollow' class='url'>Mahdi</a></span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49964"><time pubdate datetime="2013-10-29T17:13:23+00:00">29/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Prefect really !</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49964#respond' onclick='return addComment.moveForm("comment-49964", "49964", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-49985">
+		<article id="comment-49985" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn">damith</span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-49985"><time pubdate datetime="2013-10-29T18:51:23+00:00">29/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Great work!!</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=49985#respond' onclick='return addComment.moveForm("comment-49985", "49985", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1" id="li-comment-50321">
+		<article id="comment-50321" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn">Ali</span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-50321"><time pubdate datetime="2013-10-31T09:52:09+00:00">31/10/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Excellent! presentation in its simplest representation.Just a request if you could start a series for profiling in java w.r.t to performance bottleneck.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=50321#respond' onclick='return addComment.moveForm("comment-50321", "50321", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-50549">
+		<article id="comment-50549" class="comment">
+			<footer class="comment-meta">
+				<div class="comment-author vcard">
+					<span class="fn">sanjeev</span> said on <a href="http://javapapers.com/core-java/java-instrumentation/#comment-50549"><time pubdate datetime="2013-11-01T16:43:06+00:00">01/11/2013</time></a>, 
+									</div><!-- .comment-author .vcard -->
+
+				
+			</footer>
+
+			<div class="comment-content"><p>Very well explained, indeed.</p>
+</div>
+
+			<div class="reply">
+				<a class='comment-reply-link' href='/core-java/java-instrumentation/?replytocom=50549#respond' onclick='return addComment.moveForm("comment-50549", "50549", "respond", "1682")'>Reply</a>			</div><!-- .reply -->
+		</article><!-- #comment-## -->
+
+	</li><!-- #comment-## -->
+		</ol>
+
+		
+	
+									<div id="respond" class="comment-respond">
+				<h3 id="reply-title" class="comment-reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="/core-java/java-instrumentation/#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://javapapers.com/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+																			<p class="comment-notes">Your email address will not be published.</p>							<p class="comment-form-author"><label for="author">Name</label> <input id="author" name="author" type="text" value="" size="30" /></p>
+<p class="comment-form-email"><label for="email">Email</label> <input id="email" name="email" type="text" value="" size="30" /></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30" /></p>
+												<p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href=&quot;&quot; title=&quot;&quot;&gt; &lt;abbr title=&quot;&quot;&gt; &lt;acronym title=&quot;&quot;&gt; &lt;b&gt; &lt;blockquote cite=&quot;&quot;&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=&quot;&quot;&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=&quot;&quot;&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment" />
+							<input type='hidden' name='comment_post_ID' value='1682' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+						</p>
+						<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="0ae08f1d12" /></p>					</form>
+							</div><!-- #respond -->
+						
+</div><!-- #comments -->
+</div><div id="subcontent">
+<div class="about shadow" align="center"><div><img style="margin-top:-14px;" src="http://javapapers.com/wp-content/themes/papers/images/sello.png"></div><div class="about_text"><div class="authorPhoto"><img title="Joe" src="http://javapapers.com/wp-content/themes/papers/images/joe.png" alt="" width="65" height="79"></div>I'm <a href="/about-me/" title="About Joe and javapapers.com">Joe</a>, author of javapapers and a Java enthusiast. javapapers is a Java tutorial blog passionately followed by many Java programmers.<div>Say hi: <a href="mailto:joe@javapapers.com">joe@javapapers.com</a> 
+	<div class="stayInTouchGooglePlus">	
+<div class="g-follow" data-href="https://plus.google.com/+JosephKulandai" data-rel="author" data-annotation="none" data-height="20"></div>
+	</div></div></div></div>
+<div class="ads">
+<div class="adLabel">Ads by Google</div>
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-2525233393528874";
+/* JP 300 x 250 */
+google_ad_slot = "3145278778";
+google_ad_width = 300;
+google_ad_height = 250;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
+
+
+<div class="stayInTouch shadow">
+	<div class="stayInTouchHeading">STAY IN TOUCH</div>
+	<div class="stayInTouchContent">		<div>
+	<form action="http://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open('http://feedburner.google.com/fb/a/mailverify?uri=javapapers/java-interview-questions', 'popupwindow', 'scrollbars=yes,width=550,height=520');return true">
+	<p>Email:
+	<input type="text" style="margin-left:3px;margin-bottom:1px; width: 220px; height:25px; border: 1px solid rgb(152, 192, 152); -webkit-border-radius:3px;border-radius:3px;" name="email">
+	<input type="hidden" value="javapapers/java-interview-questions" name="uri"/>
+	<input type="hidden" name="loc" value="en_US"/>
+	<input type="submit" value="Subscribe" class="subscribe" /></p></form>
+	</div>	
+	<div class="feedCount floatRight">
+	<a href="http://feeds.feedburner.com/javapapers/java-interview-questions"><img src="http://feeds.feedburner.com/~fc/javapapers/java-interview-questions?bg=99CCFF&amp;fg=444444&amp;anim=0" height="26" width="88" style="border:0" alt="" /></a>
+	</div>	</div>
+</div>
+
+<div class="sidecomponent">
+	<div class="sideHeading">SEARCH JAVAPAPERS</div>
+<script>
+  (function() {
+    var cx = 'partner-pub-2525233393528874:5904465173';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search>
+</div>
+
+<div class="sidecomponent">
+	<div class="sideHeading">JAVAPAPERS MENU</div>
+	<div>
+		<ul class="categories">
+		<li><a href="/category/android/">Android</a></li>      
+		<li><a href="/category/core-java/">Core Java</a></li>      
+		<li><a href="/category/servlet/">Servlet</a></li>
+		<li><a href="/category/jsp/">JSP</a></li>
+		<li><a href="/category/design-patterns/">Design Patterns</a></li>
+		<li><a href="/category/spring/">Spring</a></li>      		
+		</ul>
+	</div>
+</div>
+
+<div class="ads">
+<div class="adLabel">Ads by Google</div>
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-2525233393528874";
+/* JP 200 x 90 Link */
+google_ad_slot = "7888787575";
+google_ad_width = 200;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="//pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
+
+<div class="sidecomponent">
+<div class="sideHeading">EVERGREEN</div>
+<div><ul class="categories">
+<li><a href="/oops/association-aggregation-composition-abstraction-generalization-realization-dependency/" title="Association, Aggregation, Composition, Abstraction, Generalization, Realization, Dependency">Association, Aggregation, Composition, Abstraction, Generalization, Realization, Dependency</a></li>    <li><a href="/core-java/eclipse-shortcuts/" title="Eclipse Shortcuts">Eclipse Shortcuts</a></li>    <li><a href="/core-java/java-features-and-history/" title="Java Versions, Features and History">Java Versions, Features and History</a></li>    <li><a href="/core-java/java-serialization/" title="Java Serialization">Java Serialization</a></li>    <li><a href="/core-java/abstract-and-interface-core-java-2/difference-between-a-java-interface-and-a-java-abstract-class/" title="Difference Between Interface and Abstract Class">Difference Between Interface and Abstract Class</a></li>    <li><a href="/core-java/java-hashtable/" title="Java Hashtable">Java Hashtable</a></li>    <li><a href="/jsp/difference-between-forward-and-sendredirect/" title="Difference between forward and sendRedirect">Difference between forward and sendRedirect</a></li>    <li><a href="/core-java/differentiate-jvm-jre-jdk-jit/" title="Differentiate JVM JRE JDK JIT">Differentiate JVM JRE JDK JIT</a></li>    <li><a href="/core-java/java-jvm-memory-types/" title="Java (JVM) Memory Types">Java (JVM) Memory Types</a></li>    <li><a href="/core-java/why-multiple-inheritance-is-not-supported-in-java/" title="Why Multiple Inheritance is Not Supported in Java">Why Multiple Inheritance is Not Supported in Java</a></li>
+</ul></div>
+</div>
+
+<div>
+<div>
+<g:plusone annotation="none"></g:plusone>
+<!-- G+ Follow Widget in About section also needs the below script -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+</div>
+
+<div class="facebook">
+<script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:like show_faces="false" width="450"></fb:like>
+</div>
+
+</div>
+
+
+</div>
+
+
+<div id="tagmenu">
+<a href="/"><img src="http://javapapers.com/wp-content/themes/papers/images/taghome.png" width="37px" height="101px" alt="Home" ></a>
+<a href="/category/core-java/"><img src="http://javapapers.com/wp-content/themes/papers/images/tagcorejava.png" width="37px" height="101px" alt="Java"></a>
+<a href="/category/servlet/"><img src="http://javapapers.com/wp-content/themes/papers/images/tagservlet.png" width="37px" height="99px" alt="Servlet"></a>
+<a href="/category/jsp/"><img src="http://javapapers.com/wp-content/themes/papers/images/tagjsp.png" width="37px" height="100px" alt="JSP"></a>
+<a href="/category/design-patterns/"><img src="http://javapapers.com/wp-content/themes/papers/images/tagdesignpatterns.png" width="37px" height="130px" alt="Design Patterns"></a>
+</div><div style="clear:both"></div></div>
+</div>
+
+<div class="notepad-bottom">
+
+<!--
+<div class="searchform"><form action="/index.php" method="get"><img src="http://javapapers.com/wp-content/themes/papers/images/searchTitle.png" class="searchtitle" width="68px" height="19px"><input class="txtsearch" value="" name="s" /></form></div>
+-->
+
+<script type='text/javascript' src='http://javapapers.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shCore.js?ver=3.0.83c'></script>
+<script type='text/javascript' src='http://javapapers.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushJava.js?ver=3.0.83c'></script>
+<script type='text/javascript'>
+	(function(){
+		var corecss = document.createElement('link');
+		var themecss = document.createElement('link');
+		var corecssurl = "http://javapapers.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shCore.css?ver=3.0.83c";
+		if ( corecss.setAttribute ) {
+				corecss.setAttribute( "rel", "stylesheet" );
+				corecss.setAttribute( "type", "text/css" );
+				corecss.setAttribute( "href", corecssurl );
+		} else {
+				corecss.rel = "stylesheet";
+				corecss.href = corecssurl;
+		}
+		document.getElementsByTagName("head")[0].insertBefore( corecss, document.getElementById("syntaxhighlighteranchor") );
+		var themecssurl = "http://javapapers.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shThemeDjango.css?ver=3.0.83c";
+		if ( themecss.setAttribute ) {
+				themecss.setAttribute( "rel", "stylesheet" );
+				themecss.setAttribute( "type", "text/css" );
+				themecss.setAttribute( "href", themecssurl );
+		} else {
+				themecss.rel = "stylesheet";
+				themecss.href = themecssurl;
+		}
+		//document.getElementById("syntaxhighlighteranchor").appendChild(themecss);
+		document.getElementsByTagName("head")[0].insertBefore( themecss, document.getElementById("syntaxhighlighteranchor") );
+	})();
+	SyntaxHighlighter.config.strings.expandSource = '+ expand source';
+	SyntaxHighlighter.config.strings.help = '?';
+	SyntaxHighlighter.config.strings.alert = 'SyntaxHighlighter\n\n';
+	SyntaxHighlighter.config.strings.noBrush = 'Can\'t find brush for: ';
+	SyntaxHighlighter.config.strings.brushNotHtmlScript = 'Brush wasn\'t configured for html-script option: ';
+	SyntaxHighlighter.defaults['auto-links'] = false;
+	SyntaxHighlighter.defaults['light'] = true;
+	SyntaxHighlighter.defaults['pad-line-numbers'] = true;
+	SyntaxHighlighter.defaults['tab-size'] = 2;
+	SyntaxHighlighter.defaults['toolbar'] = false;
+	SyntaxHighlighter.all();
+</script>
+<script type='text/javascript' src='http://javapapers.com/wp-includes/js/comment-reply.min.js?ver=3.6.1'></script>
+</div></div>
+<div class="ruler">
+<div class="footerOptions">
+<div class="footerMenu"><a href="/category/core-java/">Core Java</a> | <a href="/category/servlet/">Servlet</a> | <a href="/category/jsp/">JSP</a> | <a href="/category/design-patterns/">Design Patterns</a> | <a href="/category/android/">Android</a> | <a href="/category/spring/">Spring</a> | <a href="/category/web-service/">Web Service</a> | © 2008-2013 javapapers.</div>
+<div class="social">	<a href="http://www.facebook.com/javapapers" title="javapapers.com on Facebook"><img src="http://javapapers.com/wp-content/themes/papers/images/facebook.png" alt="facebook" width="16px" height="16px" class="social_icon_spacing"></a><a href="https://plus.google.com/101468817683594003129?rel=author" title="Google Plus"><img src="http://javapapers.com/wp-content/themes/papers/images/googleplus.png" alt="Google Plus" width="16px" height="16px" class="social_icon_spacing"></a><a href="http://twitter.com/javapapers/" title="Follow Me on Twitter"><img src="http://javapapers.com/wp-content/themes/papers/images/twitter.png" alt="twitter" width="16px" height="16px" class="social_icon_spacing"></a><a href="/feed/" title="Subscribe Using Feed"><img src="http://javapapers.com/wp-content/themes/papers/images/feed.png" alt="feed" width="16px" height="16px"></a></div>
+</div>
+</div>
+</body></html><!-- hyper cache: 619054d1b53f7a67a6b0322ffed47ebf 13-12-13 05:35:49 -->

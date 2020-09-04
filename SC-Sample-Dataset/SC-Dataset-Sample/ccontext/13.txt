@@ -1,0 +1,32 @@
+import javax.swing.*;
+import java.awt.event.*;
+import java.awt.*;
+class InstantiationExceptionDemo {
+     //static JTextField field = new JTextField();// works if uncommented
+
+    public static void main( String [] args ) {
+        JFrame frame = new JFrame();
+        JButton button = new JButton("Click");
+        final JTextField field = new JTextField();// fails if uncommented
+
+        button.addActionListener( new _(){{
+            System.out.println("click " + field.getText());
+        }});
+
+        frame.add( field );
+        frame.add( button, BorderLayout.SOUTH );
+        frame.pack();frame.setVisible( true );
+
+    }
+}
+class _ implements ActionListener {
+    public void actionPerformed( ActionEvent e ){
+        try {
+            this.getClass().newInstance();
+        } catch( InstantiationException ie ){
+            throw new RuntimeException( ie );
+        } catch( IllegalAccessException ie ){
+            throw new RuntimeException( ie );
+        }
+    }
+}

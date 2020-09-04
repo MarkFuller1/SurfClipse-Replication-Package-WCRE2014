@@ -1,0 +1,723 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Exceptions in Java</title>
+<link rel="stylesheet" href="/cfg/format.css" type="text/css">
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="keywords" content="Java, learn Java, exceptions, OOP, object-oriented programming, programming, language">
+<meta name="description" content="In this part of the Java tutorial, we work with exceptions.">
+<meta name="language" content="en">
+<meta name="author" content="Jan Bodnar">
+<meta name="distribution" content="global">
+
+<script type="text/javascript" src="/lib/jquery.js"></script>
+<script type="text/javascript" src="/lib/common.js"></script>
+
+</head>
+
+<body>
+
+<div class="container2">
+
+<div id="wide_ad" class="ltow">
+<script type="text/javascript"><!--
+google_ad_client = "pub-9706709751191532";
+/* 160x600, August 2011 */
+google_ad_slot = "2484182563";
+google_ad_width = 160;
+google_ad_height = 600;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
+
+
+<div class="content2">
+
+<a href="/" title="Home">Home</a>&nbsp;
+<a href="..">Contents</a>
+
+
+<h1>Exceptions</h1>
+
+<p>
+In this chapter of the Java tutorial, we work with exceptions. Java uses exceptions 
+to handle errors.
+</p>
+
+<p>
+During the execution of our application many things might go wrong. A disk might get full 
+and we cannot save our data. An Internet connection might go down while our application tries 
+to connect to a site. A user fills invalid data to a form. These errors can crash the
+application, make it unresponsive, and in some cases even compromise the security of a system. 
+It is a responsibility of a programmer to handle errors that can be anticipated. 
+</p>
+
+<div class="big_hor">
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-9706709751191532";
+/* big_horizontal */
+google_ad_slot = "2904953388";
+google_ad_width = 728;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</div>
+
+<p>
+In Java we recognize three kinds of exceptions: checked exceptions, unchecked exceptions
+and errors.
+</p>
+<p>
+<i>Checked exceptions</i> are error conditions that can be anticipated and
+recovered from (invalid user input, database problems, network outages, absent files). 
+All subclasses of <code>Exception</code> except for <code>RuntimeException</code> 
+and its subclasses are checked exceptions. IOException, SQLException, or PrinterException
+are examples of checked exceptions. Checked exceptions are forced by Java compiler to be either catched or declared
+in the method signature (using the <code>throws</code> keyword). 
+</p>
+<p>
+<i>Unchecked exceptions</i> are error conditions that cannot be anticipated and recovered
+from. They are usually programming errors and cannot be handled at runtime.
+Unchecked Exceptions are subclasses of <code>java.lang.RuntimeException</code>.
+ArithmeticException, NullPointerException, or BufferOverflowException belong to this
+group of exceptions. Unchecked exceptions are not enforced by the Java compiler.
+</p>
+
+<p>
+<i>Errors</i> are serious problems that programmers cannot solve. For example hardware or 
+system malfunctions cannot be handled by applications.
+Errors are instances of the <code>java.lang.Error</code> class. 
+Examples of errors include InternalError, OutOfMemoryError, StackOverflowError or 
+AssertionError.  
+</p>
+
+<p>
+Errors and runtime exceptions are often referred to as unchecked exceptions.
+</p>
+
+<p>
+The <code>try</code>, <code>catch</code> and <code>finally</code> 
+keywords are used to handle exceptions. The <code>throws</code> keyword is
+used in method declarations to specify which exceptions are not handled within the method 
+but rather passed to the next higher level of the program.
+The <code>throw</code> keyword causes the declared exception instance to be thrown. 
+After the exception is thrown, the runtime system attempts to find an appropriate exception
+handler. The call stack is a hierarchy of methods that are searched for the handler.
+</p>
+
+<pre class="code">
+package com.zetcode;
+
+public class UncheckedException {
+
+    public static void main(String[] args) {
+
+        int[] n = { 5, 2, 4, 5, 6, 7, 2 };
+        
+        System.out.format("The last element in the array is %d%n", n[n.length]);
+    }
+}
+</pre>
+
+<p>
+In the above program, there is a bug. We try to access an element that does not exist.
+This is a programming error. There is no reason to handle this error; the code must be 
+fixed.
+</p>
+
+<pre class="explanation">
+System.out.format("The last element in the array is %d%n", n[n.length]);
+</pre>
+
+<p>
+The array indexes start from zero. Therefore, the last index is n.length - 1.
+</p>
+
+<pre>
+$ java com.zetcode.UncheckedException 
+Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 7
+        at com.zetcode.UncheckedException.main(UncheckedException.java:9)
+</pre>
+
+<p>
+A java.lang.ArrayIndexOutOfBoundsException is thrown by the runtime system.
+This is an example of an unchecked exception. 
+</p>
+
+<p>
+The Scanner class throws an <code>InputMismatchException</code> to indicate that the token 
+retrieved does not match the pattern for the expected type. This exception is an example
+of an unchecked exception. We are not forced to handle this exception by the compiler. 
+</p>
+
+<pre class="code">
+package com.zetcode;
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class UncheckedException2 {
+
+    public static void main(String[] args) {
+
+        System.out.println("Enter an integer: ");        
+        
+        try {
+            
+            Scanner sc = new Scanner(System.in);
+            int x = sc.nextInt();          
+            
+            System.out.println(x);
+            
+        } catch (InputMismatchException e) {
+            
+            Logger.getLogger(UncheckedException2.class.getName()).log(Level.SEVERE, 
+                    null, e);            
+        }                  
+    }
+}
+</pre>
+
+<p>
+The error prone code is placed in the <code>try</code> block. If
+an exception is thrown, the code jumps to the <code>catch</code> block.
+The exception class that is thrown must match the exception following
+the catch keyword.
+</p>
+
+<pre class="explanation">
+try {
+            
+    Scanner sc = new Scanner(System.in);
+    int x = sc.nextInt();          
+    
+    System.out.println(x);           
+}
+</pre>
+
+<p>
+The <code>try</code> keyword defines a block of statements which can throw an exception.
+</p>
+
+<pre class="explanation">
+} catch (InputMismatchException e) {
+    
+    Logger.getLogger(UncheckedException2.class.getName()).log(Level.SEVERE, 
+            null, e);            
+}   
+</pre>
+
+<p>
+The exception is handled in the <code>catch</code> block. We use the <code>Logger</code>
+class to log the error. 
+</p>
+
+<p>
+The following code example connects to a MySQL database and finds out
+the version of the database system. Connecting to databases is error prone.
+</p>
+
+<pre class="code">
+package zetcode;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class Version {
+
+    public static void main(String[] args) {
+
+        Connection con = null;
+        Statement st = null;
+        ResultSet rs = null;
+
+        String url = "jdbc:mysql://localhost:3306/testdb";
+        String user = "testuser";
+        String password = "test623";
+
+        try {
+
+            con = DriverManager.getConnection(url, user, password);
+            st = con.createStatement();
+            rs = st.executeQuery("SELECT VERSION()");
+
+            if (rs.next()) {
+
+                System.out.println(rs.getString(1));
+            }
+
+        } catch (SQLException ex) {
+
+            Logger lgr = Logger.getLogger(Version.class.getName());
+            lgr.log(Level.SEVERE, ex.getMessage(), ex);
+
+        } finally {
+
+            try {
+
+                if (rs != null) {
+                    rs.close();
+                }
+
+                if (st != null) {
+                    st.close();
+                }
+
+                if (con != null) {
+                    con.close();
+                }
+
+            } catch (SQLException ex) {
+
+                Logger lgr = Logger.getLogger(Version.class.getName());
+                lgr.log(Level.WARNING, ex.getMessage(), ex);
+            }
+        }
+    }
+}
+</pre>
+
+<p>
+An <code>SQLException</code> is an example of a checked exceptions. We are
+forced to handle it.
+</p>
+
+<pre class="explanation">
+try {
+
+    con = DriverManager.getConnection(url, user, password);
+    st = con.createStatement();
+    rs = st.executeQuery("SELECT VERSION()");
+
+    if (rs.next()) {
+
+        System.out.println(rs.getString(1));
+    }
+
+}
+</pre>
+
+<p>
+The code that might lead to an error is placed in the <code>try</code> block.
+</p>
+
+<pre class="explanation">
+} catch (SQLException ex) {
+
+    Logger lgr = Logger.getLogger(Version.class.getName());
+    lgr.log(Level.SEVERE, ex.getMessage(), ex);
+}
+</pre>
+
+<p>
+When an exception occurs, we jump to the <code>catch</code> block. We handle
+the exception by logging what happened. 
+</p>
+
+<pre class="explanation">
+} finally {
+
+    try {
+
+        if (rs != null) {
+            rs.close();
+        }
+
+        if (st != null) {
+            st.close();
+        }
+
+        if (con != null) {
+            con.close();
+        }
+
+    } catch (SQLException ex) {
+
+        Logger lgr = Logger.getLogger(Version.class.getName());
+        lgr.log(Level.WARNING, ex.getMessage(), ex);
+    }
+}
+</pre>
+
+<p>
+The <code>finally</code> block is executed whether we received and exception
+or not. We are trying to close the resources. Even in this process, there 
+might be an exception. Therefore, we have another <code>catch</code> block.
+</p>
+
+
+<h2>Throwing exceptions</h2>
+
+<p>
+The <code>Throwable</code> class is the superclass of all errors and exceptions 
+in the Java language. Only objects that are instances of this class (or one of its subclasses) 
+are thrown by the Java Virtual Machine or can be thrown by the Java <code>throw</code> statement. 
+Similarly, only this class or one of its subclasses can be the argument type in a catch clause.
+</p>
+
+<p>
+Programmers can throw exceptions using the <code>throw</code> keyword.
+Exceptions are often handled in a different place from where they are thrown. Methods can 
+throw off their responsibility to handle exception by using the <code>throws</code> keyword
+at the end of the method definition. The keyword is followed by comma-separated list of
+all exceptions thrown by that method. Thrown exceptions travel through a call stack and
+look for the closest match. 
+</p>
+
+<pre class="code">
+package com.zetcode;
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class ThrowingExceptions {
+
+    public static void main(String[] args) {
+        
+        System.out.println("Enter your age: ");
+
+        try {
+
+            Scanner sc = new Scanner(System.in);
+            short age = sc.nextShort();
+            
+            if (age &lt;= 0 || age &gt; 130) {
+                
+                throw new IllegalArgumentException("Incorrect age");
+            }
+
+            System.out.format("Your age is: %d %n", age);
+
+        } catch (IllegalArgumentException | InputMismatchException e) {
+
+            Logger.getLogger(ThrowingExceptions.class.getName()).log(Level.SEVERE,
+                    null, e);
+        }
+    }
+}
+</pre>
+
+<p>
+In the example, we ask the user to enter his age. We read the value and throw an
+exception if the value is outside the range of the expected human age.
+</p>
+
+<pre class="explanation">
+if (age &lt;= 0 || age &gt; 130) {
+    
+    throw new IllegalArgumentException("Incorrect age");
+}
+</pre>
+
+<p>
+An age cannot be a negative value and there is no record of a person older than
+130 years. If the value is outside of this range we throw a built-in <code>IllegalArgumentException</code>.
+This exception is thrown to indicate that a method has been passed an illegal or 
+inappropriate argument.
+</p>
+
+<pre class="explanation">
+} catch (IllegalArgumentException | InputMismatchException e) {
+
+    Logger.getLogger(ThrowingExceptions.class.getName()).log(Level.SEVERE,
+            null, e);
+}
+</pre>
+
+<p>
+Since Java 7, it is possible to catch multiple exceptions in one catch clause. However,
+these exceptions cannot be subclasses of each other. For example, IOException and FileNotFoundException
+cannot be used in one catch statement.
+</p>
+
+<p>
+The following example will show how to pass the responsibility for handling exceptions 
+to other methods. 
+</p>
+
+<pre class="code">
+package com.zetcode;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+public class ThrowingExceptions {
+    
+    public static void readFileContents(String fname) 
+            throws FileNotFoundException, IOException {
+        
+        BufferedReader br = new BufferedReader(new FileReader(fname));        
+        
+        String line;
+        while((line = br.readLine()) != null) {
+
+            System.out.println(line);
+        }                     
+           
+        br.close();
+    }
+    
+
+    public static void main(String[] args) {
+        
+        try {
+            readFileContents("quotes.txt");
+            
+        } catch (FileNotFoundException ex)  {
+            
+            Logger.getLogger(ThrowingExceptions.class.getName()).log(Level.SEVERE, 
+                    null, ex);        
+            
+        } catch (IOException ex) {
+            
+            Logger.getLogger(ThrowingExceptions.class.getName()).log(Level.SEVERE, 
+                    null, ex);            
+        }           
+    }
+}
+</pre>
+
+<p>
+This example will read the contents of a text file. The responsibility to handle exceptions
+is delegated from the readFileContents() method to the main() method.
+</p>
+
+<pre class="explanation">
+public static void readFileContents(String fname) 
+        throws FileNotFoundException, IOException {
+</pre>
+
+<p>
+When we read from a file, we deal with two checked exceptions. The readFileContents()
+method throws both exceptions. The task to handle these exceptions is delegated to 
+the caller. 
+</p>
+
+<pre class="explanation">
+try {
+    readFileContents("quotes.txt");
+    
+} catch (FileNotFoundException ex)  {
+    
+    Logger.getLogger(ThrowingExceptions.class.getName()).log(Level.SEVERE, 
+            null, ex);        
+    
+} catch (IOException ex) {
+    
+    Logger.getLogger(ThrowingExceptions.class.getName()).log(Level.SEVERE, 
+            null, ex);            
+}     
+</pre>
+
+<p>
+The main() method calls the readFileContents() method. The readFileContents() method 
+throws two checked exceptions, thereofore, the main() method must handle them.
+</p>
+
+
+<h2>Try with resources</h2>
+
+<p>
+The try-with-resources statement is a special kind of a try statement. 
+It was introduced in Java 7. In parentheses we put one or more 
+resources. These resources will be automatically closed at the end
+of the statement. We do not have to manually close the resources.
+</p>
+
+<pre class="code">
+package com.zetcode;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class TryWithResources {
+
+
+    public static void main(String[] args) {
+
+        try (BufferedReader br = new BufferedReader(new FileReader("quotes"))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+
+                System.out.println(line);
+            }
+            
+        } catch (FileNotFoundException ex) {
+
+            Logger.getLogger(TryWithResources.class.getName()).log(Level.SEVERE,
+                    null, ex);
+
+        } catch (IOException ex) {
+
+            Logger.getLogger(TryWithResources.class.getName()).log(Level.SEVERE,
+                    null, ex);
+        }
+    }
+}
+</pre>
+
+<p>
+In the example, we read the contents of a file and use the try-with-resources
+statement. 
+</p>
+
+<pre class="explanation">
+try (BufferedReader br = new BufferedReader(new FileReader("quotes"))) {
+
+    String line;
+    while ((line = br.readLine()) != null) {
+
+        System.out.println(line);
+    }
+    
+}
+</pre>
+
+<p>
+An opened file is a resource that must be closed. The input stream will be closed
+regardless of whether the try statement completes normally or abruptly.
+</p>
+
+
+<h2>Custom exception</h2>
+
+<p>
+Custom exceptions are user defined exception classes that extend either the 
+<code>Exception</code> class or the <code>RuntimeException</code> class.
+The custom exception is cast off with the <code>throw</code> keyword.
+</p>
+
+<pre class="code">
+package com.zetcode;
+
+class BigValueException extends Exception {
+
+  public BigValueException(String message) {
+      
+        super(message);
+    }
+}
+
+public class BigValueExceptions {
+
+    public static void main(String[] args) {
+
+        int x = 340004;
+        final int LIMIT = 333;
+
+        try {
+            
+            if (x > LIMIT) {
+
+                throw new BigValueException("Exceeded the maximum value");
+            }
+            
+        } catch (BigValueException e) {
+
+            System.out.println(e.getMessage());
+        }
+    }
+}
+</pre>
+
+<p>
+We assume that we have a situation in which we cannot deal with big numbers. 
+</p>
+
+<pre class="explanation">
+class BigValueException extends Exception {
+
+  public BigValueException(String message) {
+      
+        super(message);
+    }
+}
+</pre>
+
+<p>
+We have a BigValueException class. This class derives from the 
+built-in <code>Exception</code> class. It passes the error message 
+to the parent class using the <code>super</code> keyword. 
+</p>
+
+<pre class="explanation">
+final int LIMIT = 333;
+</pre>
+
+<p>
+Numbers bigger than this constant are considered to be "big" by 
+our program.
+</p>
+
+<pre class="explanation">
+if (x > LIMIT) {
+
+    throw new BigValueException("Exceeded the maximum value");
+}
+</pre>
+
+<p>
+If the value is bigger than the limit, we throw our custom exception.
+We give the exception a message "Exceeded the maximum value". 
+</p>
+
+<pre class="explanation">
+} catch (BigValueException e) {
+
+    System.out.println(e.getMessage());
+}
+</pre>
+
+<p>
+We catch the exception and print its message to the console. 
+</p>
+
+
+<p>
+In this part of the Java tutorial, we have talked about exceptions in Java.
+</p>
+
+
+<div class="botNav, center">
+<span class="botNavItem"><a href="/">Home</a></span> ‡ <span class="botNavItem"><a href="..">Contents</a></span> ‡
+<span class="botNavItem"><a href="#">Top of Page</a></span>
+</div>
+
+
+<div class="footer">
+<div class="signature">
+<a href="/">ZetCode</a> last modified August 16, 2013  <span class="copyright">&copy; 2007 - 2013 Jan Bodnar</span>
+</div>
+</div>
+
+</div> <!-- content -->
+
+</div> <!-- container -->
+
+</body>
+</html>

@@ -1,0 +1,558 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<style type="text/css">
+@import url( /templates/default/mobile/styles/mobile.css?1386831159603 ) ;
+</style>
+
+<meta name="viewport" content="width = 320" />
+
+<title>RMI SocketPermission exception from Applet - works from Netbeans (Distributed Java forum at JavaRanch)</title>
+<link rel="canonical" href="http://www.coderanch.com/t/454685/java/java/RMI-SocketPermission-exception-Applet-works"/>
+<link rel="alternate" media="handheld" href="http://www.coderanch.com/mobile/t/454685/java/java/RMI-SocketPermission-exception-Applet-works?foo=a">
+</head>
+<body class="en_US">
+
+<a name="top"></a>
+<table cellspacing="0" cellpadding="0" border="0">
+    <tr>
+        <td align="center">
+                <a href="/forums/list"><img
+                src="/templates/default/mobile/images/mobile-moose.gif"
+                vspace="1" border="0" alt="[Logo]" width="100" height="100" /></a>
+		</td>
+        <td class="logo" valign="center">
+          A friendly place for programming greenhorns!
+        <a href="#bottom"><img src="/templates/default/mobile/images/down_arrow.gif" width="10" height="10" alt="Jump to bottom of page" /></a>
+        </td>
+    </tr>
+</table>
+
+<p>
+  <a id="register" class="mainmenu" href="/forums/user/insert">Register</a> /
+  <a id="login" class="mainmenu" href="/forums/user/login">Login</a>
+</p>
+<a class="maintitle" href="http://www.coderanch.com/forums">Java Forums</a>
+
+
+
+&raquo; <a class="maintitle" href="/forums/c/1/java">Java</a> &raquo;
+<a class="maintitle" href="/forums/f-4/java">Distributed Java</a>
+<div class="subject">RMI SocketPermission exception from Applet - works from Netbeans</div>
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tannis Bo, Greenhorn<br />
+  on <span class="lastPostTime">Jul 18, 2009 17:21:05</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I have created an RMI server and an applet that accesses the server.
+<br /> 
+<br /> When I run the applet from Netbeans, everything works great and I get the response back from the server.  I have also created a non-applet client and that seems to work as well.
+<br /> Even though the code was developed using Netbeans, I didn't use any of the GUI tools.
+<br /> 
+<br /> If I run it from my browser (either FireFox or IE), the applet loads, but when I push the button that calls the RMI method I get the following exception:
+<br /> 
+<br /> java.security.AccessControlException: access denied (java.net.SocketPermission 127.0.0.1:1099 connect,resolve) 
+<br /> 
+<br /> I have found lots of topics and tips on this, but can't really seem to get anything to work.
+<br /> 
+<br /> This is the first RMI server / applet combination I have written, so bear with me if it's an obvious problem.
+<br /> 
+<br /> Server Code:
+<br /> <textarea name="code" class="java" cols="60" rows="10"> package tme4;
+
+import java.math.BigInteger;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+/**
+ *
+ * @author tbo
+ */
+public interface PrimeGen extends Remote {
+    public BigInteger getLargestPrime(BigInteger min, BigInteger max) throws RemoteException;
+
+}   </textarea>
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10"> package tme4;
+
+import java.rmi.*;
+import java.rmi.server.UnicastRemoteObject;
+import java.math.BigInteger;
+
+/**
+ *
+ * @author tbo
+ */
+public class PrimeGenImp extends UnicastRemoteObject implements PrimeGen{
+
+    public PrimeGenImp() throws RemoteException{
+        super();
+    }
+
+    public BigInteger getLargestPrime(BigInteger min, BigInteger max) throws RemoteException{
+        BigInteger largestPrime = BigInteger.ZERO;
+        System.out.println("Calculating the largest prime in the range " + min.toString() + " to " + max.toString());
+        return largestPrime;
+    }
+
+
+
+}
+   </textarea>
+<br /> 
+<br /> <textarea name="code" class="java" cols="60" rows="10"> package tme4;
+
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+
+/**
+ *
+ * @author tbo
+ */
+public class PrimeGenServer {
+
+    public static void main(String... args){
+        try{
+      
+            PrimeGenImp pgi = new PrimeGenImp();
+            Naming.rebind("primegen", pgi);
+            System.out.println("Prime Generator Server ready.");
+        }
+        catch (RemoteException rmex){
+            System.out.println("PrimeGenServer " + rmex.getMessage());
+        }
+        catch (MalformedURLException muex){
+            System.out.println("MalformedURL " + muex.getMessage());
+        }
+    }
+
+}   </textarea>
+<br /> 
+<br /> 
+<br /> Applet:
+<br /> <textarea name="code" class="java" cols="60" rows="10"> package tme4;
+
+import java.applet.Applet;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.GridLayout;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.TextArea;
+import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.rmi.Naming;
+
+/**
+ *
+ * @author tbo
+ */
+public class PrimeGeneratorApplet extends Applet {
+
+    private TextArea resultArea = new TextArea("",20, 72, TextArea.SCROLLBARS_BOTH);
+    private TextField inputMinRange = new TextField(24);
+    private TextField inputMaxRange = new TextField(24);
+
+    private Button calculate = new Button ("Calculate Prime");
+    private String server;
+    /**
+     * Initialization method that will be called after the applet is loaded
+     * into the browser.
+     */
+    public void init() {
+        this.setLayout(new BorderLayout());
+
+        Panel north = new Panel();
+        north.setLayout(new GridLayout(0, 1));
+        north.add(new Label("Type a non-negative integer for the bottom end of range:"));
+        north.add(inputMinRange);
+        north.add(new Label("Type a non-negative integer for the top end of range:") );
+        north.add(inputMaxRange);
+        north.add(calculate);
+        this.add(resultArea, BorderLayout.CENTER);
+        this.add(north, BorderLayout.NORTH);
+        PGCalculator pg = new PGCalculator();
+        inputMinRange.addActionListener(pg);
+        inputMaxRange.addActionListener(pg);
+        calculate.addActionListener(pg);
+        resultArea.setEditable(false);
+
+        server = "rmi://" + this.getCodeBase().getHost() + "/primegen";
+       // server = "rmi://192.168.0.100:1099/primegen";
+    }
+
+    class PGCalculator implements ActionListener {
+        public void actionPerformed(ActionEvent evt){
+            try {
+                String minInput = inputMinRange.getText();
+                String maxInput = inputMaxRange.getText();
+                if (minInput != null && maxInput != null){
+                    BigInteger minBI = new BigInteger(minInput);
+                    BigInteger maxBI = new BigInteger(maxInput);
+                    PrimeGen pg = (PrimeGen) Naming.lookup(server);
+                    BigInteger primeResult = pg.getLargestPrime(minBI, maxBI);
+                    resultArea.setText(primeResult.toString());
+                }
+
+            }
+            catch (Exception ex){
+               StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+              ex.printStackTrace(pw);
+             System.out.println("Exeption is :"  + ex.toString());
+                resultArea.setText("Exception is: " + ex.toString() + " " + ex.getMessage() + "/r/nStacktrace: " + sw.toString());
+
+
+            }
+        }   </textarea>
+<br /> 
+<br /> HTML
+<br /> <textarea name="code" class="java" cols="60" rows="10">&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Prime Number Generator &lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Prime Number Generator&lt;/h1&gt;
+&lt;p&gt;
+&lt;applet align="center" code="tme4.PrimeGeneratorApplet" width ="300" height="400"&gt;
+&lt;/applet&gt;
+&lt;hr /&gt;
+&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+    </textarea>
+<br /> 
+<br /> I have verified that the server is running using the netstat command.
+<br /> I am running Java version 1.6.0_13.
+<br /> Also, I'm just trying to get this to work, that's why the getLargestPrime method is really rather useless....
+<br /> 
+<br /> Any help on this would be greatly appreciated!</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: K. Tsang, Bartender<br />
+  on <span class="lastPostTime">Jul 19, 2009 01:44:27</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">You got a SocketPermission exception. And what does this tell you? What port are you using on the client and server? These ports should match. 1099 for server then 1099 for client. 
+<br /> 
+<br /> Not sure if this may relate to security since applets have their own sandbox restrictions. And RMI security manager may or may not help. Did you use one? 
+<br /> 
+<br /> Before you change any code, try it with the appletviewer. 
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tannis Bo, Greenhorn<br />
+  on <span class="lastPostTime">Jul 19, 2009 08:50:07</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I'm thinking SocketPermission exception indicates that the socket the client is attempting to connect to and the socket the server is listening on are different.   I started the rmiregistry explicitly like 'start rmiregistry 1099' just to make sure it is using the expected port.  After I started the RMI Server, I ran netstat and found this line 'TCP  192.168.0.100:1099     myPC:49695 ESTABLISHED'.  The IP address here corresponds to my PCs IP address.
+<br /> 
+<br /> Using the appletviewer, I'm getting the same Exception as I'm getting from the browsers.  Here is the Stacktrace:
+<br /> 
+<br />  java.security.AccessControlException: access denied (java.net.SocketPermission 127.0.0.1:1099 connect,resolve)
+<br /> 	at java.security.AccessControlContext.checkPermission(AccessControlContext.java:323)
+<br /> 	at java.security.AccessController.checkPermission(AccessController.java:546)
+<br /> 	at java.lang.SecurityManager.checkPermission(SecurityManager.java:532)
+<br /> 	at java.lang.SecurityManager.checkConnect(SecurityManager.java:1034)
+<br /> 	at java.net.Socket.connect(Socket.java:513)
+<br /> 	at java.net.Socket.connect(Socket.java:469)
+<br /> 	at java.net.Socket.&lt;init&gt;(Socket.java:366)
+<br /> 	at java.net.Socket.&lt;init&gt;(Socket.java:180)
+<br /> 	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:22)
+<br /> 	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:128)
+<br /> 	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:595)
+<br /> 	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:198)
+<br /> 	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:184)
+<br /> 	at sun.rmi.server.UnicastRef.newCall(UnicastRef.java:322)
+<br /> 	at sun.rmi.registry.RegistryImpl_Stub.lookup(Unknown Source)
+<br /> 	at java.rmi.Naming.lookup(Naming.java:84)
+<br /> 	at tme4.PrimeGeneratorApplet$PGCalculator.actionPerformed(PrimeGeneratorApplet.java:74)
+<br /> 	at java.awt.Button.processActionEvent(Button.java:392)
+<br /> 	at java.awt.Button.processEvent(Button.java:360)
+<br /> 	at java.awt.Component.dispatchEventImpl(Component.java:4583)
+<br /> 	at java.awt.Component.dispatchEvent(Component.java:4413)
+<br /> 	at java.awt.EventQueue.dispatchEvent(EventQueue.java:599)
+<br /> 	at java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:269)
+<br /> 	at java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:184)
+<br /> 	at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:174)
+<br /> 	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
+<br /> 	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
+<br /> 	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+<br /> 
+<br /> Am I correct in my understanding that the RMI Server will use the same port as the RMI Registry?
+<br /> 
+<br /> As far as using a security manager, I didn't have much luck, however it could have been that I didn't fully understand how to use it.  Also, I thought that the security manager was for applications and not for applets?
+<br /> 
+<br /> I was just reading some documentation that talked about hosting both the applet, server and html on a webserver.  Do I need to be doing this? (Very new to all of this!)  I realize if I want the world to see it, it needs to be hosted, but I just need it to work locally.
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: K. Tsang, Bartender<br />
+  on <span class="lastPostTime">Jul 19, 2009 09:26:51</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Are you running this on Windows or Unix? On windows if your IP address is say 192.168.0.100 then the server log should say "192.168.0.100:1099" but I it said "127.0.0.1:1099". Only unix can produce 127.0.0.1 without changing the networking hosts file. 
+<br /> 
+<br /> Also how are you binding your remote object? I'm not sure if applet binds with RMI different from application or not because your applet code does not have some sort of lookup code for the RMI remote object that applications do.
+<br /> 
+<br /> For your server main method, try adding the createRegistry line and specifying the rmi protocol:
+<br /> <textarea name="code" class="java" cols="60" rows="10">PrimeGen primeGen = new PrimeGenImpl();
+String hostIP = InetAddress.getLocalHost().getHostAddress(); // get 192.168.x.x
+String serverStr = "rmi://" + hostIP + ":" + 1099 + " primegen";
+Registry reg = LocateRegistry.createRegistry(1099); // add this line
+Naming.rebind(serverStr, primeGen);
+</textarea></span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tannis Bo, Greenhorn<br />
+  on <span class="lastPostTime">Jul 19, 2009 22:31:11</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">I have made the code changes you suggested and am now getting the following Exception when I attempt to run the client:
+<br /> 
+<br /> tme4.PrimeGenServer PrimeGenServer Port already in use: 1099; nested exception is java.net.BindException: Address is already in use: JVM_Bind
+<br /> 
+<br /> I am assuming I am getting this because the RMI Registry is using port 1099.  I checked before I ran the 'start rmiregistry' command and nothing was running on port 1099.
+<br /> 
+<br /> I am running on Windows [Vista 32-bit].
+<br /> 
+<br /> I guess the part of this that perplexes me is what is Netbeans doing that allows the Applet to run from the IDE with no issues?  
+<br /> 
+<br /> Unfortunately I have no other option but to run this as an Applet as that is the requirement...</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: K. Tsang, Bartender<br />
+  on <span class="lastPostTime">Jul 20, 2009 04:10:05</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Then you need to change the client code 
+<br /> <textarea name="code" class="java" cols="60" rows="10">String server = "rmi://" + address + ":" + 1099 + " primegen"; // address is the IP
+Registry registry = LocateRegistry.getRegistry(address, 1099);
+// PrimeGen is your remote service interface not the impl class
+PrimeGen remoteService = (PrimeGen) registry.lookup(server); 
+</textarea>
+<br /> 
+<br /> Try that and see it dislike that. You may get another error.</span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tannis Bo, Greenhorn<br />
+  on <span class="lastPostTime">Jul 20, 2009 21:12:51</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Thanks.
+<br /> I made the change to the Applet code and now I'm getting the same error but it is referencing the  127.0.0.1:1099 IP, even though I hard coded my regular IP in the java.
+<br /> 
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: Tannis Bo, Greenhorn<br />
+  on <span class="lastPostTime">Jul 20, 2009 22:10:30</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">So..... I finally got this working with the original code I had.
+<br /> 
+<br /> The problem the entire time was the java.policy file in the jre/lib/security folder. I had done a search for a 'java.policy' file on my PC when I was trying to diagnose the issue, but apparently the default search in Vista doesn't look at non-indexed files, even if you say to look at all files.  
+<br /> 
+<br /> I replaced the default with a 'grant all permissions' file and voila everything is working!  Now, I just need to figure out how to do this in a more appropriate fashion as I really don't want to be giving all permissions to all java files...
+<br /> 
+<br /> Thanks K. Tsang for all the pointers and assistance - I learned quite a bit during the whole process!
+<br /> 
+<br /> 
+<br /> 
+<br /> </span>
+    </div>
+ <br />
+
+
+
+  
+  <div class="mobilePostBody">
+  
+
+  Post by: K. Tsang, Bartender<br />
+  on <span class="lastPostTime">Jul 21, 2009 07:07:21</span>
+  
+
+
+    
+  </div>
+  
+  
+    <div class="mobilePostText">
+                        
+        <span class="postbody">Nice to hear that you got it working. Well you are running applet and applets are bound by that sandbox security issue. I guess you can play around with the policy file and set it to the most secured way (ie allowing least privilege).</span>
+    </div>
+ <br />
+
+
+
+<br />
+
+
+               <input type="button" value="Reply" onclick="location.href='/forums/posts/reply/0/454685'" />
+	
+
+    <input type="button" value="New Topic" onclick="location.href='/jforum?module=posts&amp;action=insert&amp;forum_id=4'" />
+
+
+
+
+
+
+<br /><br />
+
+
+<br />
+
+<div class="gensmall center">
+All times above are in ranch (not your local) time.<br />
+The current ranch time is <br />
+<span class="mobileLabel">Dec 13, 2013 16:51:39</span>.
+</div>
+<br />
+<div>
+  <a id="search" href="/forums/search/filters/4"><span class="mobileLabel">Search</span></a>
+  |
+<a href="/forums/recentTopics/list"><span class="mobileLabel">Recent Topics</span></a>
+</div>
+
+ <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+    if (typeof _gat !== "undefined") {
+        var pageTracker = _gat._getTracker("UA-2371260-2");
+        pageTracker._trackPageview();
+
+        dt = new Date();
+        pageTracker._setVar("hour: " + dt.getHours());
+    }
+</script>
+
+<br />
+<div>Copyright &copy; 1998-2013 <a href="http://www.javaranch.com/paul-wheaton.jsp">Paul Wheaton</a></div>
+<br />
+<a name="bottom"></a>
+<a href="#top"><img src="/templates/default/mobile/images/up_arrow.gif" width="10" height="10" alt="Jump to top of page" /></a>
+<br />
+<a href="http://www.coderanch.com/t/454685/java/java/RMI-SocketPermission-exception-Applet-works?nonMobile=true">Or visit our non-mobile (full) site</a>
+</body>
+</html>

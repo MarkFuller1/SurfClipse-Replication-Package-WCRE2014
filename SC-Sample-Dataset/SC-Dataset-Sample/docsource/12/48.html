@@ -1,0 +1,2035 @@
+> How can I make sure that the objects being sorted had some
+> comparison operator defined -- prefereably at compile
+> time.
+
+How about implementing a Comparable interface:
+
+
+  public interface Comparable {
+
+    /**
+     * @returns 0 if equal-to anObject
+     * @returns <0 if less-than anObject
+     * @returns >0 if greater-than anObject
+     */
+    public int compare(Comparable anObject);
+
+  };
+
+Implement this interface in whatever classes must be
+sortable.  This is a common type of operation used in
+many collection class libraries (RogueWave, etc.).
+
+Note that you will be responsible for handling situations
+where the actual classes being compared are incompatible.
+
+
+I was actually surprised that Object does not define a
+comparison method.... they defined hashCode(), but no
+compare().  I guess they didn't want to force another
+method on the whole class hierarchy.
+
+
+-eric
+
+--------------------------------------------
+
+Java's DataInput Streams and DataOutputStreams use XDR, the External
+Data Representation Standard for their definition of byte orders. If
+memory serves me correctly, this is documented in the Java Class Libs 
+somewhere (possible in the source).  XDR itself is specified in
+RFC1832. A copy can be found at:
+
+  http://www.cis.ohio-state.edu/htbin/rfc/rfc1832.html.
+
+This is the same representation that Remote Procedure Calls (RPC)
+use for communication, and hence NFS and several other services.
+
+Note that XDR was invented to do data exchange in a completely
+processor independent manner.  It also has the effect of
+completely hiding the underlaying endianess of the processor.
+
+I will lay money that a java interpreter on a big endian machine
+will use big endian internals, and that a java interpreter on
+a little endian machine will use little endian internals.  This
+makes questions of "is java little or big endian" completely
+senseless.
+
+
+- Jeff Younker - jeff@uh.edu - These are my views, not UH's -
+
+Subject: Re: Method verification error...? HELP!
+Filip Gyllensvaan  <filio@algonet.se> wrote:
+>OK, I've uploaded my html docs & images & sounds to my homepage- 
+>location. When I try to read them with my browser I get a 
+>
+>"Applet can't start: class Animator got a security violation: method 
+>verification error"
+>
+>message. They work fine when I run them "local". 
+
+There is a bug relating to synchronization that could be causing your 
+problem. The problem is triggered by attempting to create a scynchronization
+block using an array as the monitor. 
+
+The current work-around is 'don't do that' :-) 
+There are very few time when you need to use this construct; most of the 
+cases that aren't solved by declaring a method synchronized aren't 
+really helped by this case either. Sun is working on the problem.
+
+Handy debugging hint: If you get hit with a verification error, run your 
+code under java or java_g using the "-verify" flag. This will report any 
+verification errors with the method in which they occur.
+
+Simon
+
+Subject: Re: help with a trivial piece of source code
+Date: Mon, 04 Mar 1996 19:28:02 GMT
+Organization: Implicit Software Corp.
+
+josh@cpsc.ucalgary.ca (Josh Heidebrecht) wrote:
+
+>Ok, I wanted to find out a bit about how arrays function in Java so I wrote
+>the following:
+...
+>      System.out.print("a is ");
+>      for (i=0; i<10; i++) { 
+>         System.out.print(a[i] + " ");
+>      }
+>      
+>      System.out.println();
+>      System.out.print("b is ");
+...
+>Ok, looks pretty straight forward, but the only output I get is this:
+>a is 1 2 3 4 5 6 7 8 9 0
+...
+>and if System.out.println(); and System.out.print("b is "); are commented out
+>I don't even get information about the array 'a' displayed to the screen..
+...
+
+I think System.out works with a "line discipline", which means that it
+waits for a newline character to flush its buffer to the console. If 
+you add another "System.out.println()' at the end of your code, you
+shoud see "b is..." appear.
+
+
+
+Subject: Re: java != C++ ??!!
+Date: 05 Mar 1996 02:40:19 GMT
+Organization: U of Maryland, Dept. of Computer Science, Coll. Pk., MD 20742
+
+In article <4hel2l$63p@unlisys.unlisys.net> thomast@berlin.snafu.de
+(Thomas Tomiczek) writes:
+>   What about
+>   #ifdef _DEBUG_
+>   to make a normal and a debug-version out of the same source?
+>   Would be VERY useful for complicated Objects.
+
+I tend to agree with this point, although generally speaking, I'm glad
+to be rid of the preprocessor.
+
+They say the solution now is something like this:
+
+	// class variable:
+	static bool DEBUG = true;
+
+	// inside any method of this class:
+	if( DEBUG ) {
+		:
+		:
+	}
+
+It isn't conditional compilation, but it does the job.  If you're
+worried about the time wasted in checking the DEBUG flag in a
+production version, then go back to C/C++.  This does have one nicety,
+in that it's easy to flag WHICH classes in your program to DEBUG.
+
+Christopher League		    league@cs.umd.edu
+University of Maryland		    http://www.cs.umd.edu/users/league
+Department of Computer Science	    PGP Public Key available
+
+From: jeremy@suede.sw.oz.au (Jeremy Fitzhardinge)
+
+Actually, if you use
+	static final boolean DEBUG = TRUE;
+then the compiler will eliminate the if statement check altogether, and
+either incorporate or exclude the debug code entirely.
+
+Subject: Re: Peer
+>Could someone please explain with a Peer is?  
+
+Five word summary: you don't need to know.
+
+Longer explanation: these are the native window system objects 
+that implement the AWT on each platform.  You don't access them
+directly, and you never need worry about them.   Mnemonic: Peer
+objects help you "peer" at the underlying window system.
+
+From: David Mitchell <zeno@hurpop.hursley.ibm.com>
+Subject: Re: simple animation problem (duh!)
+Date: Tue, 05 Mar 1996 12:58:30 +0000
+
+James Closs wrote:
+> Please will someone tell me why the following code doesn't work.
+> I get absolutely nothing on screen, what I want is an image to be
+> drawn, then move from left to right.
+> 
+> With the for loop taken out of the run method I get the image drawn once.
+> 
+> Here's the source: 
+> import java.awt.*;
+> import java.applet.*;
+> public class rocketFridge extends Applet implements Runnable{
+> 
+>         protected boolean running = true;
+>         protected Thread rocketThread=null;
+>         protected Image rocketSprite;
+>         int rocketV = 150;
+>         int rocketH = 150;
+> 
+>         public void init () {
+>                 resize (300, 350);
+> 
+>         }
+> 
+>         public void start () {
+>                 rocketThread = new Thread (this);
+>                 rocketThread.start();
+>         }
+> 
+>         public void run () {
+> 
+>                 rocketSprite = getImage(getDocumentBase(), "rocketFridge.gif");
+>                 for (int i=0;i < 300; i++) {
+>                 rocketH++;
+>                 repaint();
+>                 delay();
+>                 }
+>         }
+> 
+>         protected void delay (){
+>                 for (int i=0; i<5000; i++);
+>         }
+> 
+> 
+>         public void paint (Graphics g) {
+>                 g.drawImage(rocketSprite, rocketH, rocketV, this);
+>         }
+> 
+>         public void stop() {
+>         }
+> }
+
+Use Thread.sleep(50) instead of your delay() method - you're not giving
+Java a chance to do the painting!
+
+
+From: Dan Groner <dgroner@lehman.com>
+Subject: Math class exceptions... Not!
+Date: Mon, 04 Mar 1996 12:37:22 -0500
+
+Math.sqrt() indicates in the code comment that it throws an Exception if
+the parameter is negative. The method declation includes a throws
+ArithmeticException. Running a simple example (Math.sqrt(-1)) indicates
+that Double.NaN is returned instead.
+
+log() and pow() also have similar comments and behavior. Returning
+special values (instead of throwing exceptions) would be consistent
+with  Java's behavior in certain primitive operations (e.g., 0/0).
+
+So either the code comment is wrong and the throws clause is unneeded,
+or I'm confused.
+
+Subject: Re: getting environment variable
+Date: Fri, 08 Mar 1996 14:35:01 -0800
+In article <31409001.1DAD@scruznet.com>,
+Vijay Talati <vijay@scruznet.com> wrote:
+
+  >If getenv in comp.lang.System is obsolete whats the right 
+  >method to use for getting environment variables?
+
+getEnv is obsoleted. You need to use the new way of setting properties when
+starting the java application, and reading them via GetProperties.
+Something like:
+
+% java -DMyProperty=blue myapplication.java
+
+String myProperty = System.getProperty("MyProperty");
+
+malcolm@interele.demon.co.uk wrote:
+> 
+> Why doesn't this code create a Dialog box and put a button on it ????
+> 
+> import java.awt.*;
+> import java.applet.*;
+> 
+> public class nbcs extends Applet
+> {
+> 
+>         Frame d;
+> 
+>         public void init()
+>         {
+> 
+>                 d = new Frame();
+>                 add(new Button("Show Window"));
+>                 add(new Button("Hide Window"));
+>                 d.add(new Button("Hide Window"));
+>         }
+> 
+>         public boolean action( Event e, Object o )
+>         {
+> 
+>                 if (o == "Show Window" )
+>               {
+>                         if (!d.isShowing())
+>                         d.show();
+> 
+>                 }
+> 
+>                 if (o == "Hide Window" )
+>                 {
+>                         if (d.isShowing())
+>                         d.hide();
+>                 }
+> 
+>             return true;
+>         }
+> }
+
+
+I had the same question a week ago ... I just figured it out ...
+you have to add have to set a layout manager; like this
+
+	setLayout( null );
+
+before you add any buttons. Or you can set any other layout.
+
+Subject: Re: getting size of applet as two integer
+lvgeuns@laser.iaehv.nl (Edward van Geuns) writes:
+>Does anyone know how to get the height and width of an Applet as an 
+>integer? I tried using size(), it is in java.awt.Dimension and than
+>toString(), same class,but could not find out how to get the *integer*
+>values out of the string he gave me, which looked something like: 
+>
+
+Just use size().width and size().height 
+or you can do something like this inside your Applet:
+
+Dimension windowSize=size();
+int widthOfWindow=windowSize.width;
+int heightOfWindow=windowSize.height;
+
+size() returns a Dimension object and width and height are publicly-accessible
+members of Dimension.
+
+Subject: Re: All Classes from Object?
+> Is ...
+> public class foo
+> {
+>    ...
+> }
+> ... the same as ...
+> public class foo extends Object
+> {
+>    ...
+> }
+> 
+> In other words, is the 1st extended from Object by 
+> default?
+
+
+Yes.
+
+Subject: Re: Object Array Question...
+Michele Rosen wrote:
+> I'm trying to create an array of objects, all different but
+> sharing the same parent class, and then accessing the subclasses'
+> methods.  A snippet of code
+> is shown below:
+>abstract class Layer
+>{}
+>class InputLayer extends Layer
+>{ method1(){};
+>}
+>class OutputLayer extends Layer
+>{ method2(){};
+>}
+>class MakeLayers
+>{ Layer[] layernumber = new Layer[MAX_LAYERS];         // The compiler has no 
+>  layernumber[0] = new InputLayer();           // problem with these 
+>  layernumber[1] = new OutputLayer();          // lines...
+>
+>  layernumber[0].method1();                    // This line bombs.
+>}
+>
+>When the compiler gets to the last line it says 'Method method1 not found in 
+>class Layer'?!  I've tried stuffing the Layer subclasses into a Vector but 
+>that didn't work either.  Is the above technique inherently flawed or am I 
+
+
+1. Let's examine your problem.  The compiler knows that the
+   array is made up of "Layers".
+
+   Now pretend that you are the compiler.  Somebody asks you
+   to pull a "Layer" out of a barrel of "Layers".  You pull
+   something out (now don't peek).  Can you execute "method1" on
+   this "Layer"?  I don't know.  You don't know.  Nobody knows.
+   It is just a "Layer".  Until you check (cast) you "can't" know.
+   This is what the compiler error is about.
+
+
+2. Now,  this may sound like a silly question, but why are you
+   making "InputLayer" and "OutputLayer" inherit from "Layer"?
+   The two classes don't shave anything in common. 
+
+   "Superclasses" are used for sharing common functionality.  They
+   are not used to group things together arbitrarily (this is what
+   packages are for).
+
+
+3. Use abstract classes to share code.  Use interfaces to
+   declare functionality.
+
+- Jeff Younker - jeff@uh.edu - These are my opinions, and not UH's -
+
+
+Inherently flawed, very good.  method1 isn't in Layer, it's in
+InputLayer.  If you want layernumber[0] to be treated as an instance of
+InputLayer then you need to explicitly cast it like this:
+
+  ((InputLayer)layernumber[0]).method1();
+
+If you try to cast layernumber[1] to an instace of InputLayer then a
+runtime exception will be thrown because layernumber[1] is an
+OutputLayer, not an InputLayer.
+
+This is probably not the best way to do what you want to do, to use this
+method of calling member functions you have to know which type each
+member of the array is, you could use the instanceof operator to find
+out but this is can get very untidy if you have a lot of diferent types
+and you have to know all the tpyes you are going to use when you write
+the calls.
+
+A better sloution is to use polymorphism something like this:
+
+abstract class Layer
+{
+public abstract void methodx();
+}
+class InputLayer extends Layer
+{
+public void methodx(){ /* Do something */ };
+}
+class OutputLayer extends Layer
+{
+public void methodx(){ /* Do something else */ };
+}
+class MakeLayers
+{ Layer[] layernumber = new Layer[MAX_LAYERS];
+  layernumber[0] = new InputLayer();
+  layernumber[1] = new OutputLayer();
+
+ layernumber[0].methodx();      // Call some implementation of methodx()
+}
+
+It is ok to call methodx() because it is a member of Layer.  The
+appropriate implementation for the derived class is automaticaly called.
+
+Hope this helps
+--
+Mark Guile                                      mark@nipltd.com
+New Information Paradigms Ltd.                  http://www.nipltd.com/
+
+
+Well, layernumber[0] is of class Layer, so the compiler is right to give
+an error message.  What you need to do is inform the compiler of facts
+which you know, such as layernumber[0] is an instance of InputLayer.
+You could do something like:
+
+((InputLayer)layernumber[0]).method1() //cast it as an InputLayer.
+
+If you are going to loop through the array, you may need to do something
+like this:
+
+for(int i = 0; i < layernumber.length; i++) {
+   Layer l = layernumber[i]; 
+   if (l instanceof InputLayer) 
+      ((InputLayer)l).method1();
+   else if (l instanceof OutputLayer)
+       ((OutputLayer)l).method2();
+   else //error?
+}
+
+- Jesse
+http://www.cs.princeton.edu/~jhammons/java	     *Java Powered!*
+
+Subject: (fwd) List of Netscape 2.0 Vulnerabilities
+It's about time for a comprehensive list of the vulnerabilities
+in Netscape 2.0. I'm not an expert. But here's my draft. Maybe
+y'all could elaborate a bit on it and then we spread the word.. =)
+
+List of Vulnerabilities in Netscape 2.0  (darft)
+---------------------------------------
+
+1. Javascript Bugs:
+
+  1.1 Javascript makes user's browser send an email
+      (from user's account) to an address defined by the script.
+       More Info: (first sighting)
+       http://www.popco.com/grabtest.htm
+
+  1.2 John Robert LoVerso's Bug:
+      Javascript opens small window and uses it to monitor
+      the activity of user's browser, grabs the URLs of open
+      documents and sends them to remote server.
+      More Info:
+      http://www.osf.org/~loverso/javascript/track-me.html
+
+  1.3 Javascripts sends recursive directory listing of the user's
+      local disk and all disks mounted to any address on the 
+      Internet.
+      More Info:
+      http://www.osf.org/~loverso/javascript/track-me.html
+
+  1.4 Further holes in Beta Version of Netscape 2.0
+      More Info:
+      http://www.c2.org/~aelana/javascript.html
+
+
+2. Java Bugs:
+
+ 
+  2.1 Drew Dean's Bug:
+      A hole in the implementation that allows Applets
+      to make connections to any host on the internet,
+      that is once download on user's machine they can 
+      try to connect (rsh/rlogin/rcp) on (trusted) machines
+      on the user's local network (even behind firewalls).
+      More Info:
+      http://www.cs.princeton.edu/~ddean/java/
+      THERE'S A PATCH FOR THIS PROBLEM. (link on dean's page)
+
+  2.2 David Hopwood's Bug (see RISKS DIGEST 17:87 in comp.risks):
+      You view attacker's site, when -secretly- two files get 
+      installed in your Netscape cache, allowing an applet to 
+      run arbitrary code with the permissions of the user.
+      That is: As soon as you view attacker's web page,
+               he can run commands on your machine.
+ 
+
+3  Disabling them:
+  
+      I haven't read a way to deal with Problem 1.1, 1.2, 1.3.
+      (Disabling Java won't help with them.)
+      With 2.1, 2.2 'Disable Java' is supposed to help.
+      As far as I know, there is a patch for Problem 2.1,
+      but not for 2.2 - is that correct?
+
+
+
+Disclaimer: I'm not an expert. This is draft version. 
+            I might be wrong. (Just flame me into oblivion.. =] )
+ 
+        
+Subject: Re: System.in.read() errors....
+> a = (char)System.in.read();
+> after which i check the character using a switch.  At compile time i get an 
+> error that says:
+> 
+> Exception java.io.IOException must be caught, or it must be declared in the 
+> throws clause of this method.
+> 
+The error means that you have to have something like:
+
+try {
+  a = (char)System.in.read(); 
+} catch (IOException e) {
+ //handle IO error
+}
+
+
+
+Gerard
+
+Subject: Re: Binary Trees - How?
+>Can somebody tell me whether it is possible to create a binary tree of objects?
+>
+>Now, I know Java does not have external pointers, and this is how I would creat
+>such a structure in C++, so any ideas?
+>
+public class Tree {
+  int info;
+  Tree left;
+  Tree right;
+
+  public Tree(int i) {
+     this(i, null, null);
+  }
+
+  public Tree(int i, Tree l, Tree r) {
+    info = i;
+    left = l;
+    right = r;
+  }
+
+}
+
+Standard tree operations apply.  Methods like search(), delete(),
+insert(), etc are left as an exercise for the reader.  Binary tree
+classes are probably available from Gamelan and other web sites.
+-- 
+- Jesse
+http://www.cs.princeton.edu/~jhammons/java	     *Java Powered!*
+
+A tree data structure consists of nodes, just like a linked list. Each
+node contains some data and references to zero or more children. The first
+node of the tree is called the root and is itself not the child of any
+other node. All other nodes are the child of exactly one node which is
+called the parent. Nodes without any children are called leaves.
+Many applications only need a tree in which there are at most two children
+of any given node. This is called a binary tree. The two children of each
+node are called the left child and the right child. Either or both
+children may be null. A non-binary tree would include a Vector of nodes as
+the children.
+
+Binary trees are most often used to store sorted data. Binary trees can
+sort data as it arrives, rather having to first wait for all the data to
+be accumulated as an array or a Vector would. Program 22.6 is a tree which
+can be used to store a sorted list of doubles. The tree is initialized
+with a number that¹s placed at the root. After the construction of the
+tree, values are added to the tree through its store method.
+
+Program 22.6 shows a treenode class for a binary tree of doubles.
+Program 22.6 A  node of a binary tree
+public class treenode {
+
+  double data;
+
+  treenode left;
+  treenode right;
+
+  public treenode (double d) {
+    data = d;
+    left = null;
+    right = null;
+  }
+
+  public void store (double d) {
+    if (d <= data) {
+      if (left == null) left = new treenode(d);
+      else left.store(d);
+    }
+    else {
+       if (right == null) right = new treenode(d);
+      else right.store(d);
+    }
+  }
+  
+  public void print() {
+  
+    if (left != null) left.print();
+    System.out.println(data);
+    if (right != null) right.print();
+  
+  }
+  
+
+}
+ 
+The store method is the key to the tree. As values are put in the tree
+they¹re compared with the value of the root. If a value is smaller than or
+equal to the root it moves down the left-hand side of the tree. Otherwise
+it moves down the right.
+
+If the child it moves to is null, then a new leaf node is created and the
+value stored there. Otherwise the value is tested against the value stored
+in the child and moves to the left or right according to whether it is or
+isn¹t larger than the child¹s value. This process continues recursively
+until eventually the value is put into a new node.
+When values are taken out of the tree in the print method they are
+returned in sorted order via the recursive procedure print. 
+
+Adding an element to a tree is quite fast. Furthermore since you generally
+don¹t have to process more than a few elements to find any one piece of
+data, trees can be much faster for random access than Vectors and compare
+favorably with arrays. It¹s almost always faster to insert a sorted
+element in a binary tree than in a vector or an array. The only exception
+would be when the data arrives presorted.
+
+Program 22.7 demonstrates the utility of a sorted binary tree by storing
+ten random numbers into a tree, and then printing them out. 
+
+Program 22.7 Tree sort
+public class treesort {
+
+  public static void main (String[] args) {
+  
+    treenode root = new treenode(Math.random());
+
+    for (int i = 1; i < 10; i++) {
+      root.store(Math.random());
+    }
+  
+    root.print();
+  
+  }
+
+}
+
+-- 
+Elliotte Rusty Harold
+elharo@sunsite.unc.edu <URL:http://sunsite.unc.edu/javafaq/>
+elharo@shock.njit.edu   <URL:http://www.macfaq.com/>
+webmaster@nymug.org  <URL:http://www.nymug.org/>
+
+
+here is a comparison of a tree in Java and C++ by Patrick Noughton (he posted it
+a while back) :
+
+Tree.cpp
+---
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+
+class Tree {
+    private:
+        int     data;
+        Tree   *left;
+        Tree   *right;
+
+    public:
+        Tree(int n) {
+            data = n;
+            left = NULL;
+            right = NULL;
+        }
+
+        ~Tree() {
+        }
+
+        void insert(int n) {
+            if (n < data) {
+                if (left != NULL)
+                    left->insert(n);
+                else
+                    left = new Tree(n);
+            }
+            else if (n > data) {
+                if (right != NULL)
+                    right->insert(n);
+                else
+                    right = new Tree(n);
+            }
+        }
+
+        void inorder() {
+            if (left != NULL) {
+                left->inorder();
+            }
+            if (right != NULL) {
+                right->inorder();
+            }
+        }
+};
+
+
+int
+main(int argc, char *argv[])
+{
+    Tree        *root = NULL;
+    int         n = 1000000;
+    int         i;
+    int         m;
+    time_t      preTime;
+    time_t      postTime;
+
+    srand(unsigned(time(NULL)));
+    time(&preTime);
+    for (i = 0; i < n; i++) {
+        m = rand();
+        if (root == NULL) {
+            root = new Tree(m);
+        } else {
+            root->insert(m);
+        }
+    }
+    root->inorder();
+    time(&postTime);
+    printf("Total runtime, %ld seconds\n", (postTime - preTime));
+    return(0);
+}
+
+---
+Tree.java
+---
+
+import java.util.Random;
+class Tree {
+    private int data;
+    private Tree left = null;
+    private Tree right = null;
+
+    public Tree(int n) {
+        data = n;
+    }
+    public void insert(int n) {
+        if (n < data) {
+            if (left != null)
+                left.insert(n);
+            else
+                left = new Tree(n);
+        } else if (n > data) {
+            if (right != null)
+                right.insert(n);
+            else
+                right = new Tree(n);
+        }
+    }
+    public void infix() {
+        if (left != null)
+            left.infix();
+        if (right != null)
+            right.infix();
+    }
+    public static void main(String args[]) {
+        long start = System.currentTimeMillis();
+        Random r = new Random(start);
+        Tree t = null;
+        int n = 1000000;
+        for (int i = 0; i < n; i++) {
+            int m = Math.abs(r.nextInt()%1000);
+            if (t == null)
+                t = new Tree(m);
+            else
+                t.insert(m);
+        }
+        t.inorder();
+        long stop = System.currentTimeMillis();
+        System.out.println("Total runtime: " + ((stop - start) / 1000));
+    }
+}
+
+..darcy
+
+-- 
+   D'Arcy Smith, Systems Analyst
+   Applied Research in Computer Systems (ARCS) Laboratory
+   British Columbia Institute of Technology (BCIT), Burnaby, BC, Canada
+   E-Mail: darcy@arcs.bcit.bc.ca        URL http://www.arcs.bcit.bc.ca
+   Tel:  (604) 432-8281      		Fax:  (604) 436-1297
+
+Subject: Re: Help: Subclassing constructors
+
+graeme (csi@iconz.co.nz) wrote:
+: I am trying to subclass classes which require parameters for their 
+: constructors. Eg the Dialog class requires the parent Frame and the modal
+: status.
+
+: In C++, you can do this by declaring the constructor 
+
+: 	SubDialog(Frame f, boolean m) : Dialog(f, m)
+: 	{ 
+
+	SubDialog (Frame f, boolean m)
+	{
+	  super(f,m);
+
+
+Keith Robison
+Harvard University
+Department of Molecular & Cellular Biology
+Department of Genetics 
+
+robison@mito.harvard.edu 
+
+
+
+I find the following statement to be a useful mnemonic:
+
+  "Constructor invocation is always the first thing in a method."
+
+(Either the programmer explicitly calls one of super's constructors, 
+or the compiler implicitly calls super's default constructor.)
+It's a compile-time error to put any statements before the call
+to super's constructor. 
+
+//dk
+-- 
+ ISC Consultants, Inc.                                      +1 212-477-8800  
+ "Quality Software Development Since 1973"    C++ Delphi OCX's Java Paradox 
+
+What you want is:
+
+	SubDialog( Frame f, boolean m ) {
+		super( f, m );
+		{ ...
+
+
+This also allows calling one's own constructors:
+
+	SubDialog( Frame f ) {
+		this( f, true );
+		{ ...
+
+"this(...)" and "super(...)" are only allowed on the first line of a 
+constructor, so the following produces a compiler error:
+
+	SubDialog( Frame f, boolean m1, boolean m2 ) {
+		this.m2 = m2;
+		super( f,m1 );		// <<< COMPILER ERROR
+
+James
+
+
+Subject: Re: Help -- wait(), notify
+>     can anybody tell me how exactly wait(), and notify() works ?  and what is
+> this thing called monitor?  where can i find detailed information about
+> them ?
+> 
+>     i wrote some code to see how they works, the thread that calls wait()
+> wakes up without any notify().  why is that ?
+> 
+> class singleThread extends Thread
+> {
+>         int num;
+> 
+>         singleThread( int num )
+>         {
+>                 this.num = num;
+>         }
+> 
+>         public void run()
+>         {
+>                 System.out.println( "Thread " + num + " started and wait..."
+> );
+>                 try{
+>                      wait();
+>                 } catch( Exception e ){}
+> 
+>                 System.out.println( "Thread " + num + " wake up");
+>                 System.out.println( "Thread " + num + " stop" );
+>         }
+> }
+> 
+> public class test
+> {
+>         public static void main( String arg[] )
+>         {
+>            singleThread [] threads = new singleThread[4];
+>            int i = 0;
+> 
+>                    System.out.println( "create thread " + i );
+>                    threads[i] = new singleThread( i );
+>                    threads[i].start();
+>                    try{
+>                            Thread.sleep( 7000 );
+>                    } catch( Exception e ){}
+> 
+>                 threads[i].notify();
+>         }
+> }
+> 
+> //////////////////////////////////////////
+> 
+> the output look like this........
+> 
+> created thread 0
+> Thread 0 started and wait...
+> Thread 0 wake up
+> Thread 0 stop
+> java.lang.IllegalMonitorStateException: current thread not owner
+>         at trywait2.main(trywait2.java:50)
+
+wait/notify are really only useful in synchronized blocks.  By calling 
+wait, you are letting someone else who is synchronized run.  They would 
+then need to call notify to let you continue.  Really simple.  :-)
+
+John Zukowski
+Rapid Systems Solutions
+http://www.rssi.com
+john.zukowski@rssi.com
+
+> wait/notify are really only useful in synchronized blocks.  By calling 
+                  ^^^^^^^^^^^^^^^^^^
+> wait, you are letting someone else who is synchronized run.  They would 
+> then need to call notify to let you continue.  Really simple.  :-)
+
+The requirement is more stringent than that, you are _obliged_ to use 
+wait(), notify() and notifyAll() __only__ on objects you currently
+have the monitor for....   The results are undefined if you don't.
+(For some reason Sun's implementation doesn't raise an
+IllegalThreadStateException for this ??)
+
+From java/lang/Object.java
+>      * <em>The method wait() can only be called from within a synchronized method.</em>
+>      * <em>The method notifyAll() can only be called from within a synchronized method.</em>
+>      * <em>The method notify() can only be called from within a synchronized method.</em>
+
+Of course this isn't quite true, in that you can use them inside a
+method called from the synchronized method, or (dynamically) inside a
+"synchronized (thing) {}" block...
+
+Subject: Re: enumeration type in C and any equivalence in java?
+Concerning a work-around for enums in JAVA:
+|> >>I am trying to convert some C code into java and having some trouble
+|> >>converting the enumeration type to java.
+|> >class Mood {
+|> >  public static int HAPPY = 1;
+|> >  public static int ANGRY = 2;
+|> >}
+|> >
+|> >class X {
+|> >  int x1 = Mood.HAPPY;
+|> >}
+|> 
+|> Of course, this destroys any hope of type checking, 'cause all of these
+|> things are just ints.  You can assign any old int to one of these
+|> values.
+|> 
+I agree: emulating enums in the way shown above is no better than using #defines 
+in C for the same purpose: you don't get any runtime-checking!
+
+I usually use the following workaround:
+
+public final class MyEnum
+     {
+     private int v;
+     private MyEnum(int value) {v = value;}
+     public static final MyEnum ENUM_VAL_1 = new MyEnum(0);
+     public static final MyEnum ENUM_VAL_2 = new MyEnum(1);
+     
+     public synchronized boolean equals(Object o)
+          {
+          if ((o instanceof MyEnum) && (((MyEnum) o).v == v)) return true;
+          else                                                return false;
+          }
+     }
+
+No MyEnum is a true type with the values MyEnum.ENUM_VAL_1 and MyEnum.ENUM_VAL_2 
+that can be used as follows (sorry, no switch, just if):
+
+public synchronized void doSomething(MyEnum e)
+     {
+     if (e.equals(MyEnum.ENUM_VAL_1))
+          {
+          ...
+          }
+     else if (e.equals(MyEnum.ENUM_VAL_2))
+          {
+          ...
+          }
+     }
+
+and then call doSomething() _only_ as
+     doSomething(MyEnum.ENUM_VAL_1);
+or as
+     doSomething(MyEnum.ENUM_VAL_2);
+
+Maybe one could even factor the int member and the equals() method
+from all enums into a common base class Enum, such that creating
+a new enum just means subclassing from Enum and defining the
+class-constants...
+
+-- 
+Gerald Loeffler
+PhD student in Theoretical Biochemistry
+EMail: Gerald.Loeffler@mdy.univie.ac.at
+Phone: +43 1 40480 612
+Fax:   +43 1 4028525
+SMail: University of Vienna
+       Institute for Theoretical Chemistry
+       Theoretical Biochemistry Group
+       Waehringerstrasse 17/Parterre
+       A-1090 Wien, Austria
+
+
+Subject: Re: java Vector troubles
+
+> Anybody out there using Vectors?
+> I'm having trouble making "contains" find a instance in the
+> vector.
+> Here's the scenario:
+> 
+> Create a vector like so:
+> protected Vector record = new Vector(40,5);
+> ...
+> 
+> then fill it up a bit from a data file (or whereever):
+> record.addElement(new Record("123,456",10));
+> [note: constants shown here going to the constructor for brevity)
+> ...
+> 
+> get some input from somewhere else:
+>   String s   = "123,456";
+>   int    num = 10;
+> ...
+> 
+> make a record out of it
+> 
+>   Record myRec = new Record(s,num);
+> 
+> ...
+> then (finally) see if record "contains" it.
+> 
+>    if ( record.contains(myRec) )
+>       System.out.println("celebrate!");
+>    else
+>       System.out.println("cry.");
+> 
+> But it's never there.
+> 
+You specifically need to implement the equals() method in your Record 
+class, otherwise the Vector class has no criteria of equality that makes 
+sense with an object it does not know.
+
+
+George Reese (borg@imaginary.com)      http://www.imaginary.com/~borg
+
+Subject: Re: Array Will Crash Your Computer
+:  public void paint(Graphics g) 
+:  {  
+:     char array[] = new char [10];
+:         
+:     array = "Hello";
+:     g.drawString (array[0], 25, 50);
+:  }
+
+For one thing, I'd expect it to be:
+	g.drawString( array, x, y );
+Not "array[0]".
+"array[0]" is a character, not a string.
+
+Then again, perhaps you should just declare "array" as a string:
+
+String array = "Hello".
+
+Avi Pilosof      -       avip@cse.unsw.edu.au
+		 -	 http://www.cse.unsw.edu.au/~avip/
+
+Subject: Re: pointers to functions in java
+> Basically I would like to know how to define the equivalent of a  
+pointer
+> to a member function in Java.
+
+It is very diffrent that might be expected, but it can be done after  
+a fashion.  You would need to define an interface that defines the  
+function signature:
+
+interface SimpleFunction
+ {
+  // interface for a function f(x)
+  public double f(double x);
+ };
+
+You would then define a clatt that implements it
+class Exponential implements SimpleFunction
+ {
+  public double f(double x)
+   { 
+    int return = 0;
+    for (int i = 1; i < 20; i++)
+      return += x / MyMath.factorial(i) // probobly wrong!
+   };
+ };
+
+Then for the "member function pointer" you would have a variable
+  SimpleFunciton myf;
+
+ and to get the pointer you would get the refrence to myfunc.
+
+There is no ->* or .* operators, as there would be a security threat.   
+Also methods cannot be taken out of context of the class that defined  
+them, unlike c++.
+
+--Danno
+Colorado School of Mines -- undergraduate CS
+
+Subject: NEWBIES - Fix the problem - Watch the filename !!!
+
+In c:\testcode\applet, I create a file called helloWorld.java I compile
+it and get the following error.
+
+helloapplet.java:5: Warning: Public class HelloApplet must be defined in
+a file
+called "HelloApplet.java".
+public class HelloApplet extends java.applet.Applet {
+             ^
+1 error
+
+...
+
+The file MUST be called HelloApplet.java - not HelloWorld.java
+
+it seems crazy when you are used to independence from the actual 
+filename - but its the truth...
+
+Subject: Re: Class not Found Errors
+> So once again I am going to ask if anyone has an answer (I sure it is
+> real simple) to why when accessin my host I my classes cannot be
+> found.
+> 
+> They are all in the propper context and also in the proper case. I
+> have gotten some replies telling me to check that and I have over and
+> over again.
+> 
+> I can view and load and run all the applets from my own system on my
+> page without a problem. It is when i try to access exactly the same
+> page just on the unix host that it does not work..
+> 
+> Any suggestions???
+> 
+
+I had the same problem, classes would load locally, but not from a 
+server.  I fixed it as follows:  I reviewed all classes that were 
+instantiated within the class that was not found.  I added
+constructor methods in those classes, even tho I never directly call
+the constructors.  For unknown reasons, the problem then went away.
+Hope this helps you.
+
+e.g.
+
+import java.awt.*;
+public class CTGraphicButton extends Canvas()
+{
+    CTGraphicButton() {}   //I had to add this even tho i never call it.
+     ...
+}
+
+import java.awt.*;
+public class CTToolbarButton extends CTGraphicButton
+{
+    CTToolbarButton() {}  // same thing here.
+    ...
+}
+
+Subject: Bug in java.util.Properties.java
+Anyone is using the Properties class in JDK-1.0, should be aware of the
+following bug in the "load" method:
+
+Lines 92-100 which read:
+ 92:	    while ((ch == ' ') && (ch == '\t')) {
+ 93:		ch = in.read();
+ 94:	    }
+ 95:	    if ((ch == '=') || (ch == ':')) {
+ 96:		ch = in.read();
+ 97:	    }
+ 98:	    while ((ch == ' ') && (ch == '\t')) {
+ 99:		ch = in.read();
+100:	    }
+
+should read:
+ 92:	    while ((ch == ' ') || (ch == '\t')) {
+ 93:		ch = in.read();
+ 94:	    }
+ 95:	    if ((ch == '=') || (ch == ':')) {
+ 96:		ch = in.read();
+ 97:	    }
+ 98:	    while ((ch == ' ') || (ch == '\t')) {
+ 99:		ch = in.read();
+100:	    }
+
+Note the use of || rather than && in lines 92 and 98.  The class the way it
+is originally written incorrectly handles whitespace around the '=' or ':'
+characters.
+
+I have report this to java-bugs but, of course, the known bug list has not
+been updated.
+
+......................................................
+: Greg Hilton          : greg@vignette.com : Austin, :
+: Vignette Corporation : (512)502-0223 x12 : Texas   :
+:......................:...................:.........:
+
+Subject: Re: Please ask before taking someone's applet!
+
+>I think the only protection is to include a visible
+>copyright notice in your *running* applet, and not merely in your source
+>(which is not downloaded).  I don't like that solution, but I don't know
+>of any more attractive alternative.
+
+A while ago someone mentioned a clever safegaurd: call getDocumentBase
+and/or getCodeBase, and refuse to run if they don't match your home page.
+
+In any case, from my (extremely limited) knowledge of US copyright law, I
+believe that anything you write is automatically copyrighted by you, even
+without a copyright notice. I know this applies to stories, novels, etc.,
+I assume it applies to programs as well.
+
+Alex Rosen
+http://www.tiac.net/users/axlrosen/
+
+Alex is completely correct. Applets are not "freeware" unless
+explicitly stated as such. (Just like .gif images aren't free)
+As applets become more popular this will be more of an issue.
+
+Fortunately one can hunt down the more stupid pirates by
+using http://altavista.digital.com
+
+Go to advanced search and type:
+applet: YourAppletName.class
+
+and see all of the web pages that have your applet on them.
+
+--Chuck
+
+Subject: Re: Maybe It's Me
+> I don't know. All I want to do is print out the letter "H". Instead, I 
+> get a "[] can only be applied to arrays" message when I want to compile
+> this snippet:
+>     public void paint(Graphics g) 
+>     {
+>         String messages [] = new String [10];
+>         messages [0] = "Hello";
+>         g.drawString (messages[0][0], 25, 50); <== THE OFFENDER!!
+>      }
+
+Barry,
+
+Strings in Java are not the same as they are in C.  You can't treat an array of
+characters as a string.  (Or an array of Strings as an array of characters.) 
+Above, what you did was create an array of 10 references to the class String. 
+What you want is:
+
+String messages = "Hello";
+g.drawString(messages.subString(0,0), 25, 50);  //or some such thing as this
+
+Scott Deeg
+
+Subject: Re: Arrays in Java
+> How can I declare and initialise a 2D array of a user defined type? I have
+> tried (as shown below), but the array is not initialised correctly.
+> 
+<snip>
+> The declaration looks like this:-
+> 
+>     private Cell array[][];
+> 
+> and the initialisation looks like this:-
+> 
+>     array = new Cell[10][10];
+
+When you do what you call initialization, what you are actually doing is
+creating an array of references (not instantiating new instances of Cell).  You
+still need to actually call the constructor.  i.e.:
+
+array[0][0] = new Cell();
+
+This instantiates a new Cell and assigns it to the reference in the array at
+0,0.  My guess is that you will be able to figure it out from here.
+
+Scott Deeg
+
+Subject: Re: Enums && Java
+>does
+>Java support enumerated types (like C and C++)? I don't think it does.
+>
+
+Directly, no, it doesn't.  But here's a better alternative, one
+with type safety.
+
+Use a class to represent your types, and each element of your enum can
+be an instance of that class.  Like so:
+
+public class IceCream
+{
+    public static final Flavor CHOCOLATE = new Flavor();
+    public static final Flavor VANILLA = new Flavor();
+
+    public void addScoop(Flavor flav)
+    {
+	if(flav == CHOCOLATE)
+	{
+	    // Add a scoop of chocolate
+	}
+	else if(flav == VANILLA)
+	{
+	    // Add a scoop of vanilla
+	}
+    }
+
+    public Flavor mostPopularFlavor()
+    {
+	return VANILLA;
+    }
+}
+
+class Flavor
+{
+}
+
+You can use the class as follows:
+
+public class SodaJerk
+{
+    public void dishItOut()
+    {
+	IceCream dessert = new IceCream();
+	dessert.addScoop(dessert.mostPopularFlavor());
+	dessert.addScoop(dessert.CHOCOLATE);
+    }
+}
+
+
+You know a few things: CHOCOLATE is guaranteed to be different from
+VANILLA (i.e.  CHOCOLATE != VANILLA).  It can't be spoofed by somebody
+guessing the values.  It's type safe, it involves very little code,
+and you can override methods (like toString) in your enumerated class
+for easy printing.  So it costs a few bytes and a few nanoseconds;
+this isn't exactly microcode you're writing.
+
+Note that SodaJerk can't actually possess a member of type Flavor; the
+class is not public.  You could make it public if you wanted, but then
+you'd have to stick it in its own file.  Alternatively, the SodaJerk
+could assign IceCream.CHOCOLATE to an Object; the type safety will
+hold because the Object still knows its real type.
+
+Thanks to Bill Andersen of UMCP for showing me this.
+
+C ya.
+
+-------
+Joshua Engel
+engel@access.digex.net
+
+Subject: (fwd) WARNING: NEW SECURITY HOLE FOUND IN JAVA
+
+We have discovered another serious security flaw in the Java programming
+language, which allows a malicious Java applet running under Netscape
+Navigator (version 2.0 or 2.01) to execute arbitrary machine code.  We have
+implemented an applet that exploits the flaw to remove a file.  Until a fix
+is issued, Netscape users can protect themselves by disabling Java in the
+Security Preferences dialog.
+
+At present we are not releasing technical details about the flaw.  We will
+announce the full details later; some of the details will also appear in our
+upcoming paper in the proceedings of the IEEE Symposium on Security and
+Privacy, to be published in May.  Our paper also contains an overall
+analysis of Java's security.  For an advance copy of the paper, send mail to
+felten@cs.princeton.edu.  The paper will be available in about a week.
+
+[Note that the "security enhancements" announced by Netscape in version 2.01 
+of Netscape Navigator do not fix this flaw.  They fix two separate flaws found 
+last month, one found by us (RISKS-17.77) and independently by Steve Gibbons, 
+and the other found by David Hopwood (RISKS-17.83).]
+
+For more information, see http://www.cs.princeton.edu/~ddean/java, or contact 
+Ed Felten at (609) 258-5906 or felten@cs.princeton.edu.
+
+Drew Dean, Ed Felten, Dan Wallach, Dept of Computer Science, Princeton Univ.
+----
+
+Subject: (fwd) Re: "cpu eaters" with java threads
+        From:	Ingo Wechsung <iw@return-online.de>
+Jari Ojala wrote:
+
+>
+> My point was here that you *can't* stop the counter. I can use
+> your computer as a resource for my own private purposes.
+> The counter will continue as long your netscape process is running.
+> Eaven while you read other web pages or load other applets the
+> counter thread will stay on. I could use this bug/feature to
+> use your computer as a resource in my private
+> computations and you don't have any way to stop me.. :)
+>
+
+You are absolutely right. If I could post, I'd have done this,
+but unfortunately I am limited to read news only.
+
+Yesterday, I checked the number of threads netscape had before
+and after consulting some pages with applets. When I start a
+fresh copy of netscape, there are initially 3 threads. After
+only half an hour I had 18 threads, some of them still eating
+cpu.
+
+The bad thing is, that the browser user can't do anything about
+bad programming style (or intentional written unstopping
+applets). I think this is an area, where people should think
+again about an applets lifecycle.
+
+Please feel free to post this to comp.lang.java if you like.
+
+Subject: Re: Testing Applets with Netscape?
+>Does anyone know how to let netscape update the applet every time. (to 
+>turn the internal cache of - to turn the memory cache off does not solve 
+>the problem!)
+
+Did you try holding the shift key while you click on the reload button?
+
+
+Subject: Re: Questions on Object Oriented Programming
+> What is  a 'class' and an 'instance' of an object. Any examples?
+
+Basketball player is a class, and Michael Jordan is an instance.
+
+In other words, an instance is something real, a unique thing in the 
+universe.  A class is an abstraction of world objects.  You cannot point 
+to anything and say 'That is basketball player.'  But you can point to 
+Michael Jordan and say 'That is Michael Jordan.'  Furthermore, you can 
+point to him and say, 'Michael Jordan is a basketball player' which is 
+really saying 'Michael Jordan is an instance of a basketball player.'
+
+> what is the state and behavior of an object each refer to.
+
+The state is simply a snapshot of its values at a given time.  For a dog 
+object, we might describe its state to be sleeping and not wagging its 
+tail.
+
+Behaviour is simply whatever the object does.  
+
+
+> What is a method?
+
+A method is a function.  Specifically, a function that belongs to a 
+class.
+ 
+> What is a 'message' is. Any example?
+
+A message is an abstract way of describing methods.  Whenever you want 
+an object to do something, you send a message.  The message is made up 
+of:
+who is receiving the message
+the name of the message
+any parameters to the message
+
+thus:
+dog.eat(alpo)
+
+is a message.
+ 
+> What two states can the button object "OPEN" in the Netscape toolbar
+> be in?
+
+This sounds like you are asking homework questions on the net :)
+I won't answer this one for that reason.  The above questions, IMHO, are 
+generally useful, and thus ok for me to answer.  If I was successful 
+with them, then you can answer this one yourself :)
+
+-- 
+George Reese (borg@imaginary.com)      http://www.imaginary.com/~borg
+
+Subject: arrrrrrgh: no local final anymore?
+We've just upgraded from a Fall 1995 Java compiler for
+Sun Sparc boxes to the Winter 96 release....
+
+In the old one the following compiled:
+	class Dummy1{
+	 public void dumb(int i0, int j0){
+	   final int n=j0+1-i0; 
+	 }
+	}
+
+Now it does not.
+	tttt.java:2: Missing term.
+	public void dumb(int i0, int j0){
+				        ^
+	tttt.java:2: ';' expected.
+	public void dumb(int i0, int j0){
+				         ^
+	tttt.java:3: Invalid expression statement.
+	   final int n=j0+1-i0; // number of items to be sorted
+	   ^
+But  The following is OK.
+	class Dummy3{
+	 public void dumb(int i0, int j0){
+	   int n=j0+1-i0; 
+	 }
+	}
+
+(*Scream*)
+
+Thanks.... I feel better now.
+
+Subject: Re: Why array.length not length()?
+> There is a small problem that puzzle me: why array use array.length to
+> determine length, but string uses string.length()?
+
+  From page 143 of "Just Java" published by SunSoft Press, written by me,
+
+  "Think of it this way, for an array, length is just a final data field
+   set when the array object is created.  There is no need to have the 
+   overhead of a method call."
+
+    ... "since Strings are fixed in size once created, why isn't length
+   just a final data field [for String]?  The thinking seems to be that
+   it is better for String to be consistent with StringBuffer (which has
+   to do it via a method)... "
+
+  Peter van der Linden
+   
+Subject: Rotations & Layouts
+Rotations:
+
+Lately I've been seeing lots of questions about rotating text and
+images. I have never tried rotating text but I will assume that if you
+can rotate an image then you can rotate text. You might draw the text
+on a graphic object and then use the CropFIlter to create an Image.
+Let me know if it works :-).
+
+To rotate an image you will need an ImageFilter. Fortunately Sun
+provides one in its online tutorial at 
+
+  http://www.javasoft.com/tutorial/ui/drawing/example/RotateFilter.java
+
+It works. It has examples. What more could you want?
+
+Well, I actually needed something slightly different, I needed to ratate
+an image by 90 degrees with no distortion so I wrote a filter called
+Rotate90Filter. You can find it at:
+
+   http://www.walrus.com/~check/src/Tiler/Rotate90Filter.java
+
+Rotating images can be slow. The best approach is to eliminate
+unnecessary or redundant rotations (optimizing the filter won't buy
+you that much). One approach is to use double buffering.
+
+Note:
+
+The Rotation filters assume that setDimension() is the first method
+called. This may not be strictly kosher -- the ImageProducer and
+ImageConsumer can call their methods in any order (I think). Can
+anyone comment on this?
+
+
+Layouts:
+
+I also see lots of questions about Layout Managers and about
+GridBagLayout in particular. I think that writing a geneeral purpose,
+very flexible, and powerful layout manager is very difficult.
+GridBagLayout is a nice try -- it is certainly better than anything I've
+written. But, I could never get it to do what I want. So I wrote my own
+specialized layout manager -- I needed to have square components that
+would remain square after resizing.
+
+My point is this: if you are struggling with Layout managers try rolling
+your own. The benifits are: complete control, and self-education. I
+found that the GridLayout and CardLayout managers were good ones to
+study.
+
+Tip:
+
+A lot of people want to change their layouts when some event occurs --
+if a button is pressed display 3 text panels -- if another button is
+pressed display a graphic panel. Use the CardLayout and save yourself
+a lot of work.
+
+Tip:
+
+If you create a GridLayout with three panels and don't add 3 components
+it may get confused. At one time I had a bug where panels were being
+drawn all over the place, I went back and made sure that I was adding
+the right number of components to each layout -- this cleared things up.
+If you write your own layout manager you might want to add a sanity
+check if appropos.
+
+Christopher Helck                         Telesphere Inc.
+chris@telesph.com                         1 State Street Plaza
+(212) 487-2784                            New York, NY 10004
+
+Subject: Re: Integer I/O
+
+In article <316050F4.6DC1@eng.auburn.edu>, carlisle@eng.auburn.edu says...
+>
+>I am running Sun Solaris 2.5.  Am having problems with Java integer
+>IO in an application.
+>
+>the following program:
+>
+>import java.io.*
+>public class Input {
+>  public static void main (String argv[]) {
+>    DataInputStream inStream = new DataInputStream(System.in);
+>    DataOutputStream outStream = new DataOutputSteam(system.out);
+>    int n;
+>    System.out.print("Input n: ");
+>    // following line is needed to see prompt ...why?
+>    System.out.flush();
+>    try { n = inStream.readInt();
+>          outStream.writeInt(n);
+>          outStream.flush(); } catch(IOException e) {
+>              System.out.print("Error"); }
+>  }
+>}
+>
+>This works fine if the integer is long enough to overcome the
+>buffering problem...i.e. this program works for 5 digit integers
+>but not for single digit ones....
+>
+>Now...if I modify the above program, deleting the outStream
+>and try { System.out.println(" n is: " + n); }  I will get
+>garbage out.  However if I assign 3 to n rather than read
+>it with a DataInputStream method the above prints the assigned
+>value.
+>
+>WHAT's the deal?  
+>
+>BTW....the following seems to work fine....
+>String line = instream.readLine();
+>m = Integer.valueOf(line).intValue();
+>for those who REALLY need to I/O an integer.
+>
+>Please reply by e-mail to carlisle@eng.auburn.edu.
+>Thanks.
+> 
+
+The deal is that readInt() is reading a 4 byte binary representation of an 
+integer.  Not a textual represntation of an integer.  System.in is reading in 
+ascii text characters, not the binary equivalent.  This is why your
+
+String line = instream.readLine();
+m = Integer.valueOf(line).intValue();
+
+this works.  Here you are reading a string that represents an integer and 
+converting it to an actual integer.
+
+Subject: Re: HELP!!!  Applet works AND doesn't work!
+>    The Java Console says:
+>
+>
+># Applet exception: error: BorderWindow
+>java.lang.IllegalAccessError: BorderWindow
+>        at Robot.<init>(Robot.java:41)
+>        at netscape.applet.EmbeddedAppletFrame.run(EmbeddedAppletFrame.java:230)
+>        at java.lang.Thread.run(Thread.java:289)
+
+Did you compile the program with javac -O? It sometimes creates direct links
+to private variables when it's inlining a method from another class. This
+caused me to get an error like this once. Try recompiling Robot.java without
+the -O option.
+
+
+Subject: Re: Testing Applets with Netscape?
+In article <316596EC.1EBB@comm.hq.af.mil> "Stephen C. Johnson" <johnsons@comm.hq.af.mil> writes:
+>
+>If you get tired of waiting for NS to load up, close, and load 
+>up when you recompile a class, I would suggest testing your 
+>applets through the appletviewer included with the JDK.  Once 
+>the applet is good to go, spruce up the HTML and view it with 
+>NS. It saves me quite a bit of time during development...
+
+I almost always make an applet run as an application during development.
+I use code like the following:
+
+    public class CardDemo extends java.applet.Applet
+    {
+	...
+    }
+
+
+    public static void main(String args[])
+    {
+        Frame f = new Frame("Card Demo");
+        CardDemo demo = new CardDemo();
+        demo.init();
+        f.add("Center", demo);
+        f.pack();
+        f.resize(f.preferredSize());
+        f.show();
+    }
+
+ACME (http://www.acme.com/java/software) even has an application framework.
+
+Tom
+
+ubject: Packages
+>Ok, I'm just not understanding this. I can't seem to get packages, as a 
+>general concept, to work for me.
+
+>I've created a directory ~/Developer/Dreams.
+>I've set CLASSPATH to ~/Developer.
+>I've placed "package Dreams.PictureCanvas" at the top of my code.
+>I've a file called PictureCanvasApplet.java in the directory...
+>	~/Developer/Dreams/PictureCanvas
+
+>All compiles fine, but when I try to use appletviewer this is what I get 
+>back:
+
+>231% appletviewer PictureCanvasApplet.html
+>thread applet-PictureCanvasApplet.class find class PictureCanvasApplet
+>Opening stream to: 
+>file:/C:/Users/zac/Developer/Dreams/PictureCanvas/PictureCanv
+>asApplet.class to get PictureCanvasApplet
+>File format exception when loading: PictureCanvasApplet
+>load: class PictureCanvasApplet not found
+>java.lang.ClassNotFoundException: PictureCanvasApplet
+>        at 
+>sun.applet.AppletClassLoader.loadClass(AppletClassLoader.java:125)
+>        at 
+>sun.applet.AppletClassLoader.loadClass(AppletClassLoader.java:101)
+>        at sun.applet.AppletPanel.run(AppletPanel.java:200)
+>        at java.lang.Thread.run(Thread.java:289)
+>232%
+>  [snip!]
+
+>Please help! This is driving me crazy! Thanks in advance...
+
+I can't be certain without your .html file, but after a simple test with
+the provided code it looks like your .html contains something like:
+
+       <APPLET CODE="PictureCanvasApplet.class" ...>
+
+and that you might be running this from the Dreams/PictureCanvas
+directory.  When appletviewer tries to load PictureCanvasApplet it
+loads PictureCanvasApplet.class from the current directory, but when
+reading the file it can only find Dreams.PictureCanvas.PictureCanvaseApplet,
+which is different than PictureCanvasApplet.
+
+To make it work, I changed the .html file's CODE= tag to read:
+
+       <APPLET CODE="Dreams.PictureCanvas.PictureCanvasApplet.class" ...>
+
+Joe Millar joe@millar.mv.com
+
+
+
+Subject: Re: how to convert #xxxxxx to xxx,xxx,xxx
+>Does anyone out there know how to convert a color supplied as #xxxxxx
+>like #abc123 to a xxx,xxx,xxx RGB format? LIke say a tag has <APPLET
+>PARAM NAME="fg" VALUE="#cfcfcf"> ... i want to get that color and put
+>it to 200,200,200 (or whatever it is).
+
+An example on page 161 of Hooked on Java might do what you
+want if you leave off the # sign ... its code says in part:
+
+   public Color colorFromString(String s, Color defaultColor) {
+        Integer i;
+        try {
+            i = Integer.valueOf(s, 16);
+            return new Color(i.intValue());
+        } catch (NumberFormatException e) {
+            if (s.equalsIgnoreCase("red")) {
+                return Color.red;
+            } else if (s.equalsIgnoreCase("green")) {
+
+and so forth.  Note base 16 in fourth line.
+
+Some shorter code that gets Color from name (so I can say (eg)
+   <applet code="j1.class" width=137 height=177>
+   <param name=color value=green>
+   </applet>
+) appears in applets at http://biobio.cs.uiuc.edu/~j-waldby/japplets.html
+(The Color Table applet only paints once for some reason I've yet to
+figure out.)
+
+
+Given: <PARAM NAME="COLOR" VALUE="FFFFFF"> (no pound sign)
+
+What I do is:
+
+  ....begin code fragment
+
+  int red, green, blue;
+
+  String param = getParameter("COLOR");
+  if (param != null)
+  {
+    red   = Integer.parseInt(param.substring(0,2),16);
+    green = Integer.parseInt(param.substring(2,4),16);
+    blue  = Integer.parseInt(param.substring(4,6),16);
+  }
+
+  ....end code fragment
+  Mike
+  mjimenez@studio.sgi.com
+
+Subject: Functions as objects!
+There was a discussion arlier about the possibillity and goodness
+for treating functions as objects in Java. It is quite easy,
+and indeed interesting to declare a Java intervase that
+abstracts the meaning of a function:  Something that can be
+applied to an Object, and returns and object:
+
+interface Function{
+	public Object of(Object arg);
+}
+
+You can then declare a class implementing
+Function, and then hand in objects of that class to
+other methods of objects... Here is the paradigmatic
+example -- integerating a function (Unchecked code!)
+
+	class Quadrant implements Function{
+		public Object of(Object arg){
+			return sqrt(1-arg.doubleValue()arg.doubleValue());
+		}
+	}
+	Function f = new Quadrant;
+	double mypi=4*Integrators.simpson(f, 0,1);
+
+where 
+	Integrators.simpson(Function f, double lo, double hi)
+returns a double aproximately equal to the result of integrating
+f(x) with respect to x from lo to hi.
+
+Please see the documentation in
+	http://www.csci.csusb.edu/cs320/java/Function.html
+For real examples and even a Composition functor-Object, see
+	ftp://www.csci.csusb.edu/cs320/java/fun3.java
+
+This technique is based on an article I remember from in another
+Usenet Newsgroup that discusses a Certain hybrid language.  I regret
+that I've lost the detailed citation.
+
+Subject: mathclass, please comment
+I am currently completing the work of my undergrad project at the
+university and I have some comments to java etc.
+
+My class takes a string formatted using the (as close as possible)
+TeX format of math formulas. It also takes the desired fontsize as input,
+and what it generates is a graphical representation of the formula.
+i am aware of several other such classes, but they are all limited
+to a certain size as they use gif images frequently for symbols
+not supported. My goal was to make a more flexible classlibrary
+than those.
+
+When I started the project I was under the impression that java
+could handle locally stored fonts. According to Arthur van Hoff
+this should be possible, but after weeks of experimenting I gave
+this up, and limited the project to using only the 5 predefined
+fonts, ergo only latin characters, and then made it flexible
+to expand the class library whenever sun got around to include
+more fonts.
+But this was not the end of my griefs. When finishing the classes
+satisfied with the output, I copied the program from my pc and onto
+a sun sparc station and to my great surprise I found out that the
+fonts i use are not scaleable on the sparc station (Symbol and
+TimesRoman), which resulted in an awfull blocky output. Also I found out that some examples
+that worked excelent under win95 took ages on the sparc and some even just hang.
+
+Further experiments showed me that even under similar configurations
+the output varied. Some pc's antialiased the fonts and some didnt.
+Some machines (I predict the slow ones) used massive amount of memory
+to run the program (as much as 22 mb) while on my machine it used
+insignificantly amounts.
+
+The speed also varied alot, and my final overall impression was
+that the java implementation for win32 is by far the most stable
+and predictable, and also faster. On my 75mhz pentium it takes
+about .5 sec to execute the applet while on a sparc 5 it takes at
+least 15 sec (and it even looks shite)
+
+The worst example is when i ran the program from a sparc 1000 via
+a terminal where the applet caused an exception when trying to
+load the fonts, saying something like fileNotFoundException.
+
+To me these things are just as fine. Gives me lots to write about
+in the report. But this is not the effects of a distributed
+programming language. When java limits you as much as it does,
+you should be able to predict the output.
+
+If you are interested to have a look at the program use netscape
+or appletviewer on:
+
+http://www.ee.surrey.ac.uk/Societies/norsoc/homepages/ee41sn/project/example1.html
+http://www.ee.surrey.ac.uk/Societies/norsoc/homepages/ee41sn/project/example2.html
+http://www.ee.surrey.ac.uk/Societies/norsoc/homepages/ee41sn/project/example3.html
+http://www.ee.surrey.ac.uk/Societies/norsoc/homepages/ee41sn/project/example4.html
+
+I want to make a javascript page so you can edit the formula yourself,
+but I will have to postpone that until after the exams.
+
+Any kind of response to this would be highly appreciated. If you feel
+in the very helpfull corner, please grab the output on your screen (
+while displaying the applet :) describe your systmem, and email it to me.
+
+Sourcecode, classes and documentation can be sent on request.
+
+
+
+oh, and another thing, about symantec cafe. i like the tool, but think
+it is inconveniente to have to set up a network in order to make
+the debugger to work. never got it to work on my standalone pc, aparently
+because you cant set up a network under win95 before you have a network
+card installed. and why to have that on a standalone machine???
+
+and another thing, when part of you project is a package, symantec
+refuses to compile those files. rather annoying.
+
+Snorre Narum                                  ee41sn@surrey.ac.uk
+http://www.ee.surrey.ac.uk/Societies/norsoc/homepages/ee41sn/
+
+Subject: CLASSPATH-Conflict: Netscape & JDK-1.0.1 under Solaris 2.4
+
+The problem:
+
+	The classes-files of the JDK (classes.zip) and 	of Netscape 2.0/2.01 
+(moz2_0.zip/moz2_01.zip) are having conflicts under Sparc-Solaris 2.4 if
+there exists an CLASSPATH-variable referencing to one (or both) of these files.
+
+If
+	
+a) the path to classes.zip stands in front of moz2_0.zip in CLASSPATH  
+   (or moz2_0.zip is not in the CLASSPATH) I am not able to view applets
+   within Netscape, though moz2_0.zip is in ~/.netscape (one of the
+   default-directories);
+
+b) moz2_0.zip comes first I am able to view applets :-), but now I have
+   problems with starting applications which use the AWT. I tried the
+   FileViewer-Application from 'Java in a Nutshell' and a window came
+   up that was sometimes empty and somtimes contained the components
+   it should, but wasn't reacting at all (e.g. the scrollbars were not 
+   working); after removing the moz2_0.zip-entry out of my CLASSPATH the
+   application behaved the way it should;
+
+c) there isn't any CLASSPATH and moz2_0.zip is located in one of the
+   standard-directories, then everything is fine except that the
+   command-line gets it bit long  when compiling/starting programs.
+
+I hope that my description was not to confusing and that I didn't overlook
+a trivial problem-solution. 
+
+Christian Frey
+
+(frey@ls3.informatik.uni-dortmund.de)
+
+Subject: Re: Does Object retain the type?
+> In Vector, I have to cast everything to Object before I store it. Let's say
+> I store a String and Integer into Vector, when I retrieve them back, is
+> there a way to know the retrieved object IS a String OR Integer? - so that
+> I can cast them back to the original type?
+> 
+> If not, then I will create a new class called Item which extends Object with
+> a field called type. Then I create a class extends Vector called Table.
+> Table stores Item, and you can ask Table what is the type of say, 6th item?
+
+You don't need to cast classes to Object before storing them in a Vector, it 
+won't hurt anything though.
+
+you can compare objects against known types by using instanceof 
+
+if (obj instanceof String) {
+}
+carl haynes, applet guy
+starwave corp. -- http://www.starwave.com/people/haynes
+206-957-2709   -- mailto:haynes@starwave.com
+
+Subject: Re: Need help.. What's wrong with this code??
+>public class PanelDemo must be defined in a file called "PanelDemo.java".
+>public class PanelDemo extends Applet {
+
+>Please help me out.. I know it's probably a stupid mistake.....
+
+>        public class PanelDemo extends Applet {
+
+Your problem is that PanelDemo is identified as public, take out that
+word and things should be improved.  I'm no Java expert but my applets
+have only one public class, which is named the same as the filename
+the applet is saved under.  Literally remove the word public in the
+above line.
+
+Bill Ray
+
+
+Subject: Re: Most annoying Java gotchas
+> >  : > String s = foo.GetSomeString();
+> >  : > if (s == "Fat chance")
+> >  : >     sorryCharlie();
+> 
+> What is the fix to this gotcha?  How are you supposed to do string comparisons?
+
+RTFM: the equals() method does string comparisons.  So replace that line
+with "if (s.equals("Fat Chance"))", or even "if ("Fat Chance".equals(s))".
+
+

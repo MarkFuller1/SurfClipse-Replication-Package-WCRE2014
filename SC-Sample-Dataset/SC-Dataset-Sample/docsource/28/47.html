@@ -1,0 +1,1453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- $Revision: 1.47.2.2 $ -->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraphprotocol.org/schema/" lang="en" xml:lang="en">
+  <head>
+    <script>
+      cdcPageTimers={
+        topOfHead: new Date()
+      };
+    </script>
+    <title>
+Troubleshooting High CPU Utilization Caused by the HyBridge Input Process on Routers With ATM Interfaces&nbsp; [IP over ATM] - Cisco Systems
+</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+    <meta name="concept" content="IP over ATM"/>
+    <meta name="accessLevel" content="Guest"/>
+    <meta name="country" content="US"/>
+    <meta name="primaryObjectId" content="ccmigration:09186a0080093c91"/>
+    <meta name="docType" content="TSD Technologies Tech Note"/>
+    <meta name="language" content="en"/>
+    <meta name="contentType" content="cisco.com#US#postSales"/>
+    <meta name="iaPath" content="cisco.com#Technologies#Asynchronous Transfer Mode (ATM)#IP over ATM"/>
+    <meta name="ioProblemType" content="Troubleshoot"/>
+    <meta name="Synonym" content="IPoATM"/>
+    <meta name="ioContentSource" content="PAWS"/>
+    <meta name="description" content="This document explains how to troubleshoot high CPU utilization in a router due to the HyBridge Input process. ATM interfaces can support a large number of permanent virtual circuits (PVCs) configured to use request for comments (RFC) 1483 bridged-format protocol data units (PDUs) with standard Cisco IOS® bridging and integrated routing and bridging (IRB). This approach relies heavily on broadcasts for connectivity to remote users. As the number of remote users and PVCs increases, the number of broadcasts among these users also increases. Under certain circumstances, these broadcasts produce high CPU utilization on the router. "/>
+    <meta name="locale" content="US"/>
+    <meta name="date" content="Sun Jun 05 00:00:00 PDT 2005"/>
+    <meta name="docRequest" content="/en/US/tech/tk39/tk371/technologies_tech_note09186a0080093c91.shtml"/>
+    <link rel="canonical" href="http://www.cisco.com/en/US/tech/tk39/tk371/technologies_tech_note09186a0080093c91.shtml"/>
+    <meta name="title" content="Troubleshooting High CPU Utilization Caused by the HyBridge Input Process on Routers With ATM Interfaces&amp;nbsp; [IP over ATM]"/>
+    <meta property="og:site_name" content="Cisco" />
+    <meta property="og:image" content="http://www.cisco.com/web/fw/i/logo-open-graph.gif" />
+    <meta property="og:title" content="Troubleshooting High CPU Utilization Caused by the HyBridge Input Process on Routers With ATM Interfaces&amp;nbsp; [IP over ATM]" />
+    <meta property="fb:app_id" content="156494687694418" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="This document explains how to troubleshoot high CPU utilization in a router due to the HyBridge Input process. ATM interfaces can support a large number of permanent virtual circuits (PVCs) configured to use request for comments (RFC) 1483 bridged-format protocol data units (PDUs) with standard Cisco IOS® bridging and integrated routing and bridging (IRB). This approach relies heavily on broadcasts for connectivity to remote users. As the number of remote users and PVCs increases, the number of broadcasts among these users also increases. Under certain circumstances, these broadcasts produce high CPU utilization on the router. " />
+    <meta property="og:url" content="http://www.cisco.com/en/US/tech/tk39/tk371/technologies_tech_note09186a0080093c91.shtml" />
+    
+    
+    <script type="text/javascript" src="/web/fw/j/masterbrand.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/fw/c/masterbrand.min.css" />
+    <link rel="stylesheet" type="text/css" href="/web/fw/w/cl/cl.min.css" />
+    
+    
+    <link rel="search" type="application/opensearchdescription+xml" title="Search Cisco.com" href="http://www.cisco.com/web/tsweb/searchplugins/cdc_search.xml" />
+    <script type="text/javascript">cdc.util.useBackpack=true;</script>
+  </head>
+
+  <body id="w1x" class="cdc-fw"><!--googleoff: index--><!--googleoff: snippet -->
+    <script>cdcPageTimers.topOfBody = new Date();</script>
+    <!--[if gte IE 9]><div id="gte-ie9" class="ie"><![endif]-->
+    <!--[if IE 8]><div id="ie8" class="ie"><![endif]-->
+    <!--[if IE 7]><div id="ie7" class="ie ie67"><![endif]-->
+    <!--[if lte IE 6]><div id="ie6" class="ie ie67"><![endif]--> 
+
+    
+
+    <div id="fw-mb">
+      <div id="fw-mb-w1">
+        
+    
+<div id="fw-banner">
+<div id="fw-banner-w1"><!-- skiplinks -->
+<div id="fw-mbsk">
+<p><a href="/" tabindex="3">Home</a> <a href="#content">Skip to content</a> <a href="#hinav">Skip to navigation</a> <a href="#pagefooter">Skip to footer</a></p>
+</div>
+
+<!-- logo -->
+<div id="fw-mbl">
+<p><a href="/en/US/hmpgs/index.html">Cisco.com Worldwide Home</a></p>
+</div>
+
+<!-- megamenus -->
+<div id="fw-mm">
+<table class="mm-items" cellspacing="0" summary="">
+<tr>
+<td class="mm-item" id="products-mm-item"><a href="http://www.cisco.com/en/US/products/index.html" class="mm-link">Products &amp; Services</a> <a href="http://www.cisco.com/web/fw/co/menu-content.html#products-mm-menu" class="mm-reflink">(menu)</a> </td>
+<td class="mm-item" id="support-mm-item"><a href="http://www.cisco.com/cisco/web/support/index.html" class="mm-link">Support</a> <a href="http://www.cisco.com/web/fw/co/menu-content.html#support-mm-menu" class="mm-reflink">(menu)</a> </td>
+<td class="mm-item" id="ordering-mm-item"><a href="http://www.cisco.com/web/ordering/root/index.html" class="mm-link">How to Buy</a> <a href="http://www.cisco.com/web/fw/co/menu-content.html#ordering-mm-menu" class="mm-reflink">(menu)</a> </td>
+<td class="mm-item" id="training-mm-item"><a href="http://www.cisco.com/en/US/learning/index.html" class="mm-link">Training &amp; Events</a> <a href="http://www.cisco.com/web/fw/co/menu-content.html#training-mm-menu" class="mm-reflink">(menu)</a> </td>
+<td class="mm-item" id="partner-mm-item"><a href="http://www.cisco.com/en/US/partners/index.html" class="mm-link">Partners</a> <a href="http://www.cisco.com/web/fw/co/menu-content.html#partner-mm-menu" class="mm-reflink">(menu)</a> </td>
+</tr>
+</table>
+</div>
+
+<!-- end #fw-mm -->
+<!-- search -->
+<span class="search-entitlement">Guest</span> 
+
+<div id="fw-mbs">
+<form name="sitewidesearch" action="http://tools.cisco.com/search/JSP/search-results.get" method="get" id="sitewidesearch"><label for="searchPhrase" name="search" id="search">Search</label> 
+
+<p class="field-button"><input type="text" tabindex="1" name="strQueryText" class="field-button-field" id="searchPhrase" value="" autocomplete="off"> <input type="submit" tabindex="2" value="Search" class="field-button-button" id="go"></p>
+
+<input type="hidden" value="cisco.com" name="Search All cisco.com"> <input type="hidden" value="en" name="language"> <input type="hidden" value="US" name="country"> <input type="hidden" value="f" name="thissection"> <input type="hidden" value="Guest" name="accessLevel"></form>
+</div>
+
+<!-- end #fw-mbs -->
+<script type="text/javascript">
+          if ((typeof cdc.search) == "undefined"){
+             cdc.search = new Object();
+          }
+          cdc.search.country = "US";
+          cdc.search.language = "en";
+        
+</script>
+
+ <!-- toolbar -->
+ 
+
+<div id="fw-ft-basic">
+<div class="ft-toolbar">
+<div class="ft-group ft-country-lang-group">
+<div class="ft-sect ft-country"><a href="http://cisco.com/en/US/swassets/sw274/sitewide_country_language_selector.html" class="ft-label"><span class="ft-country-name">Worldwide</span> <span class="ft-country-change">[change]</span></a></div>
+</div>
+
+<div class="ft-group ft-guest-group">
+<div class="ft-sect ft-login"><a href="/cgi-bin/login" class="ft-label">Log In</a></div>
+
+<div class="ft-sect ft-account"><a href="http://www.cisco.com/web/siteassets/account/index.html" class="ft-label">Account</a></div>
+
+<div class="ft-sect ft-register"><a href="http://tools.cisco.com/RPF/register/register.do" class="ft-label">Register</a></div>
+
+<div class="ft-sect"><a href="http://www.cisco.com/cisco/psn/web/workspace" class="ft-label">My Cisco</a></div>
+</div>
+</div>
+
+<!-- end #ft-toolbar -->
+</div>
+
+<!-- end #fw-ft-basic -->
+</div>
+
+<!-- end #fw-banner-w1 -->
+</div>
+
+<!-- end #fw-banner -->
+<!-- END MasterBrand Banner SSI (guest) -->
+
+  
+
+        
+        <div id="mb-title-nav-bar" class="clearfix">
+          <div id="framework-content-titles"><!--googleon: index--><!--googleon: snippet-->
+            <h1 class="title-section">IP over ATM</h1>
+            <h2 class="title-page">Troubleshooting High CPU Utilization Caused by the HyBridge Input Process on Routers With ATM Interfaces</h2><!--googleoff: index--><!--googleoff: snippet-->
+          </div>
+          
+          
+          
+        </div> <!-- end #mb-title-nav-bar -->
+        
+        
+
+        <table id="framework-base-main" cellspacing="0" cellpadding="0" border="0" summary="">
+          <tr>
+            <td id="framework-column-left" valign="top"><a name="hinav"></a>
+              <div class="hinav"><h3>Hierarchical Navigation</h3><ul class="outer"><li><a href="/en/US/hmpgs/index.html" class="parent">HOME</a><ul><li><a href="/en/US/support/index.html" class="parent">SUPPORT</a><ul><li><a href="/cisco/web/psa/design.html?mode=tech" class="parent">TECHNOLOGY SUPPORT</a><ul><li><a href="/cisco/web/psa/design.html?mode=tech&amp;level0=268435599" class="parent">ASYNCHRONOUS TRANSFER MODE (ATM)</a><ul><li><a href="/en/US/tech/tk39/tk371/tsd_technology_support_protocol_home.html" class="parent">IP OVER ATM</a><ul><li><a href="/en/US/tech/tk39/tk371/tsd_technology_support_design.html" class="parent">DESIGN</a><ul><li><a href="/en/US/tech/tk39/tk371/tech_tech_notes_list.html" class="parent">DESIGN TECHNOTES</a><ul><li><strong><a href="/en/US/tech/tk39/tk371/technologies_tech_note09186a0080093c91.shtml" class="selected">Troubleshooting High CPU Utilization Caused by the HyBridge Input Process on Routers With ATM Interfaces</a></strong></li></ul></li></ul></li></ul></li></ul></li></ul></li></ul></li></ul></li></ul></div>
+              
+              
+              
+              
+              
+              
+              
+              
+              
+            </td> <!-- end #framework-column-left -->
+
+            <td id="framework-column-center">
+              <!-- temporary place for c1 and c2 -->
+              
+              
+
+              <table cellspacing="0" id="framework-base-content">
+                <tr>
+                  <td id="framework-column-main"><a name="content"></a><!--googleon: index--><!--googleon: snippet-->
+                    <div id="framework-content-main">
+                      <!-- Start of the actual text content -->
+
+                      <table id="content-right-top" align="right" border="0" cellspacing="0" cellpadding="0" summary="">
+                        <tr><td valign="top" align="right"></td></tr>
+                        <tr><td valign="top" align="right"></td></tr>
+                        <tr><td valign="top" align="right"></td></tr>
+                        <tr><td valign="top" align="right"></td></tr>
+                      </table>
+
+                      <?xml version="1.0" encoding="UTF-8"?>
+<div class="contentMargins"><span class="content">
+<!-- META NAME="audience" CONTENT="support" -->
+<!-- META NAME="contributors" CONTENT="djanssen, hussainm" -->
+<!-- META NAME="coverage" CONTENT="US" -->
+<!-- META NAME="creator" CONTENT="lebrooks" -->
+<!-- META NAME="date.created" CONTENT="11-29-2001" -->
+<!-- META NAME="date.modified" CONTENT="06-05-2005" -->
+<!-- META NAME="identifier" CONTENT="/en/US/tech/tk39/tk371/technologies_tech_note09186a0080093c91.shtml" -->
+<!-- META NAME="language" CONTENT="US_eng" -->
+<!-- META NAME="maintainers" CONTENT="tacwebteam-atm,CCO-Techtips" -->
+<!-- META NAME="reviewers" CONTENT="mlluis, snallasa, ajethnan" -->
+<!-- META NAME="publishers" CONTENT="jefwagne, jvaglia, kabartel" -->
+<!-- META NAME="security" CONTENT="External" -->
+<!-- META NAME="size" CONTENT="15222" -->
+<!-- META NAME="Description" CONTENT="This document explains how to troubleshoot high CPU utilization in a router due to the HyBridge Input process. ATM interfaces can support a large number of permanent virtual circuits (PVCs) configured to use request for comments (RFC) 1483 bridged-format protocol data units (PDUs) with standard Cisco IOS® bridging and integrated routing and bridging (IRB). This approach relies heavily on broadcasts for connectivity to remote users. As the number of remote users and PVCs increases, the number of broadcasts among these users also increases. Under certain circumstances, these broadcasts produce high CPU utilization on the router. " -->
+<!-- META NAME="subject.primary" CONTENT="Technologies:Asynchronous Transfer Mode (ATM):IP over ATM" -->
+<!-- META NAME="title" CONTENT="Troubleshooting High CPU Utilization Caused by the HyBridge Input Process on Routers With ATM Interfaces" -->
+<!-- META NAME="type.information" CONTENT="Technology Tech Note" -->
+<!-- META NAME="type.problem" CONTENT="Troubleshoot" -->
+<!-- META NAME="roadMap" CONTENT="ATM" -->
+<!-- META NAME="document.id" CONTENT="10448" --><link rel="stylesheet" type="text/css" href="/web/tsweb/css/support-docs.css">
+<!--[if IE 7]>
+	<link rel="stylesheet" type="text/css" href="http://www.cisco.com/web/tsweb/css/ie7.css">
+<![endif]-->
+<!--[if IE 8]>
+	<link rel="stylesheet" type="text/css" href="http://www.cisco.com/web/tsweb/css/ie8.css">
+<![endif]-->
+<!--googleoff: all-->
+<!-- AddThis Button BEGIN -->
+<script type="text/javascript" src="http://www.cisco.com/image/gif/paws/101/parseXml.json"></script>
+<SCRIPT LANGUAGE="JavaScript"> loadjscssfile('/web/tsweb/css/support-docs.css','css');</SCRIPT>
+<script type="text/javascript">var addthis_config = {"data_track_clickback":true};</script>
+<div id="right-rail">
+  <style type="text/css">
+	@media print {.noPrint { position:absolute; display: none; }}
+  </style>
+  <div class="noPrint" >
+    
+    <p class="docinfo"><strong>Document ID</strong>: 10448</p><PEM-BR-TAG>
+    <p class="docinfo"><strong>Updated</strong>: Jun 05, 2005</p>
+    
+<div id="tg-dl-print">
+<div class="pdf-print">
+	<div class="pdf"><a href="http://www.cisco.com/image/gif/paws/10448/hybridge.pdf" target="_blank"><img src="http://www.cisco.com/web/tsweb/images/pdficon_small.png"></a>&nbsp;&nbsp;&nbsp;<a href="http://www.cisco.com/image/gif/paws/10448/hybridge.pdf" target="_blank">Download PDF</a></div>
+	<div class="print"><a href="javascript:window.print()"><img src="http://www.cisco.com/web/tsweb/images/print.png"></a>&nbsp;&nbsp;&nbsp;<a href="javascript:window.print()">Print</a></div>
+</div>
+</div>
+<div style="clear:both;"></div>
+
+<div id="tg-share">
+<div class="social-media"><PEM-BR-TAG>
+    <script type="text/javascript" >function toggle(obj) {  var el = document.getElementById(obj); el.style.display = (el.style.display != 'none' ? 'none' : '' ); }  </script>
+    <p class="media-icons addthis_toolbox addthis_default_style"><a class="addthis_button_email" title="Email"></a><a class="addthis_button_favorites" title="Save to Favorites"></a><a class="addthis_button_google"></a><a class="addthis_button_twitter"></a><a class="addthis_button_facebook"></a></p>
+    <div class="feedback-link">
+	<a href="javascript: void(0)" onclick="window.open('https://secure.opinionlab.com/ccc01/o.asp?id=smGvSVee&referer='+document.URL+'&resize=false', 'feedback', 'width=550, height=460, scrollbars=1, menubar=1, resizable=1'); return false;">
+	<img id="feedback_img" border="0" style="cursor: pointer;" title="Feedback" src="http://www.cisco.com/web/fw/i/sm_0000EE_oo1.gif">
+&nbsp;
+	</a>
+	<a href="javascript: void(0)" onclick="window.open('https://secure.opinionlab.com/ccc01/o.asp?id=smGvSVee&referer='+document.URL+'&resize=false', 'feedback', 'width=550, height=460, scrollbars=1, menubar=1, resizable=1'); return false;">Feedback</a></div>
+</div>
+</div>
+    <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js?username=ciscosupport"></script>
+	<!-- AddThis Button END --><!--googleon: all-->
+
+
+
+
+
+
+
+<!--StartReplaceDivFrame--><!--PAWS:StartOFRelatedDocumentsSection--><!--googleoff: all--><link href="http://www.cisco.com/web/fw/c/painted_libra.css" rel="stylesheet" type="text/css"  ></link>  <style type="text/css">@media print {.noPrint { position:absolute; display: none; }}</style><script language="JavaScript">function toggle(obj) {  var el = document.getElementById(obj); el.style.display = (el.style.display != 'none' ? 'none' : '' ); }  </script> <div id="tg-related-docs"><h3 class="main-header">Related Documents</h3><ul id="relatedDocumentsUL"></ul><div id="firstFiveDcosRelDocs"><UL id="relatedDocumentsDefaultUL"><script type="text/javascript" src="http://www.cisco.com/image/gif/paws/101/parseXml.json"></script> <SCRIPT LANGUAGE="JavaScript"> doSearch('14','21','Troubleshooting High CPU Utilization Caused by the HyBridge Input Process on Routers With ATM Interfaces'); </SCRIPT><li><a target="_blank" href="http://www.cisco.com/en/US/tech/tk39/tk371/technologies_tech_note09186a0080093c91.shtml?referring_site=smartnavRD"><key>Troubleshooting</key> <key>High</key> <key>CPU</key> <key>Utilization</key> <key>Caused</key> <key>by</key> <key>the</key> <key>HyBridge</key> <key>Input</key> <key>Process</key> <key>on</key> <key>Routers</key> <key>With</key> <key>ATM</key> <key>Interfaces</key> [IP over <key>ATM</key>] </a></li><li><a target="_blank" href="http://www.cisco.com/en/US/products/hw/routers/ps133/products_tech_note09186a00800a70f2.shtml?referring_site=smartnavRD"><key>Troubleshooting</key> <key>High</key> <key>CPU</key> <key>Utilization</key> <key>on</key> Cisco <key>Routers</key> </a></li><li><a target="_blank" href="http://www.cisco.com/en/US/tech/tk39/tk371/tsd_technology_support_troubleshooting_technotes_list.html?referring_site=smartnavRD">IP over <key>ATM</key> <key>Troubleshooting</key> TechNotes </a></li><li><a target="_blank" href="http://www.cisco.com/en/US/products/hw/iad/ps397/products_tech_note09186a00800a73e9.shtml?referring_site=smartnavRD">Dealing <key>with</key> mallocfail and <key>High</key> <key>CPU</key> <key>Utilization</key> Resulting From <key>the</key> "Code Red" Worm </a></li><li><a target="_blank" href="http://www.cisco.com/en/US/docs/optical/l3_csr_atm_csr/12_1_27b_e2/8540/release/notes/4027be22.html?referring_site=smartnavRD">Release Notes for <key>the</key> Catalyst 8540 Switch for Cisco IOS Release 12.1(27b)E2, Part 2: Caveats [Cisco Catalyst 8500 Series Multiservice Switch <key>Routers</key>] </a></li></UL> </div></div> <div id="tg-related-docs"><a class="noPrint"  href="http://tools.cisco.com/search/JSP/search-results.get?strQueryText=Troubleshooting High CPU Utilization Caused by the HyBridge Input Process on Routers With ATM Interfaces">More...</a></div><div id="tg-related-prod"><h3 class="main-header">Related Products</h3><div id="firstFiveDcos"><UL><li><a target="_blank" href="http://www.cisco.com/en/US/tech/tk39/tk371/tsd_technology_support_troubleshoot_and_alerts.html?referring_site=smartnavRPT">IP over ATM </a></li></UL></div></div></div><div id="tg-dgen"><div id="mbox-seot"><!-- Javascript for Support Demand Gen 2.0 Offer --><migrate><script type="text/javascript" src="http://www.cisco.com/web/fw/tools/mbox/mbox.js"></script><script type="text/javascript" src="http://www.cisco.com/web/fw/tools/mbox/seot-mbox.js"></script></migrate><div id="dg-seot-container" ><!-- DIV for Support Demand Gen 2.0 Offer --><div class="mboxDefault"></div><script type="text/javascript">mboxCreate("us_support_small", "seg=switches");</script></div></div></div></div><!--googleon: all--><!--PAWS:EndOFRelatedDocumentsSection-->
+
+<div id="tg-body"><div id="support-toc">
+<h2>Contents</h2>
+<div class="toc-h2">
+<a href="#intro">Introduction</a>
+</div>
+<div class="toc-h2">
+<a href="#prereq">Prerequisites</a>
+</div>
+<div class="toc-h3">
+<a href="#req">Requirements</a>
+</div>
+<div class="toc-h3">
+<a href="#conv">Conventions</a>
+</div>
+<div class="toc-h2">
+<a href="#std">Standard Bridging Architecture</a>
+</div>
+<div class="toc-h2">
+<a href="#backinfo">Typical Symptoms</a>
+</div>
+<div class="toc-h2">
+<a href="#topic1">Troubleshooting</a>
+</div>
+<div class="toc-h2">
+<a href="#work">Workarounds</a>
+</div>
+<div class="toc-h2">
+<a href="#related">Related Information</a></div><div class="toc-h2"><a href="#comm-anc">Related Cisco Support Community Discussions</a>
+</div>
+</div>
+    
+<h2>
+<a name="intro">Introduction</a>
+</h2> 
+ 
+  <p>This document explains how to troubleshoot high CPU utilization in a
+	 router due to the HyBridge Input process. ATM interfaces can support a large
+	 number of permanent virtual circuits (PVCs) configured to use request for
+	 comments (RFC) 1483 bridged-format protocol data units (PDUs) with standard
+	 Cisco IOS<sup>®</sup> bridging and integrated routing and
+	 bridging (IRB). This approach relies heavily on broadcasts for connectivity to
+	 remote users. As the number of remote users and PVCs increases, the number of
+	 broadcasts among these users also increases. Under certain circumstances, these
+	 broadcasts produce high CPU utilization on the router. </p> 
+  <h2>
+<a name="prereq">Prerequisites</a>
+</h2>
+<h3>
+<a name="req">Requirements</a>
+</h3> 
+  <p>There are no specific requirements for this document.</p> 
+ 
+<h3>
+<a name="conv">Conventions</a>
+</h3> 
+  <p>Refer to
+	 <a href="http://www.cisco.com/en/US/tech/tk801/tk36/technologies_tech_note09186a0080121ac5.shtml">Cisco
+	 Technical Tips Conventions</a> for more information on document
+	 conventions.</p> 
+ 
+<h2>
+<a name="std">Standard Bridging Architecture</a>
+</h2> 
+ 
+  <p>The TRFC 1483 specifies that a transparent bridge (which includes a
+	 Cisco router configured for bridging) must be able to flood, forward, and
+	 filter bridged frames. Flooding is the process by which a frame is copied to
+	 all possible appropriate destinations. An ATM bridge floods a frame when it
+	 explicitly copies the frame to each virtual circuit (VC), or whenit uses a
+	 point-to-multipoint VC.</p> 
+  <p>With standard Cisco IOS bridging, frames such as Address Resolution
+	 Protocols (ARPs), broadcasts, multicasts, and spanning-tree packets must go
+	 through this flooding process. Cisco IOS bridging logic handles every such
+	 packet:</p> <ol type="1"> 
+  <li> 
+	 <p>Runs through the list of interfaces and subinterfaces configured in
+		the bridge group.</p>
+</li> 
+  <li> 
+	 <p>Runs through the list of VCs configured on the member interfaces in
+		the bridge group.</p>
+</li> 
+  <li> 
+	 <p>Replicates the frame to each VC.</p>
+</li>
+</ol> 
+  <p>The Cisco IOS software routines that handle replication need to run in
+	 a loop to duplicate the packet on each PVC. If the router supports a large
+	 number of bridged-format PVCs, the replication routines run for an extended
+	 period, which drive up the CPU. A capture of the <b>show process
+	 cpu</b> command displays a large "5sec" value for HyBridge input,
+	 which is responsible for forwarding packets that use the process switching
+	 method of packet forwarding. Cisco IOS needs to process-switch such packets as
+	 spanning tree bridge protocol data units (BPDUs), broadcasts, and multicasts
+	 that cannot be multicast fast-switched. Process switching can consume large
+	 amounts of CPU time since only a limited number of packets are processed per
+	 invocation. </p> 
+  <p>When a single interface supports many VCs, traversal of the VC list can
+	 overwhelm the CPU. Cisco Bug ID CSCdr11146 resolves this problem. When the
+	 bridging logic runs in a loop to replicate the broadcasts, it relinquishes the
+	 CPU intermittently. Relinquishment of the CPU is also called suspension of the
+	 CPU.</p> 
+   
+	 <p>
+<b>Note:&nbsp;</b>Configurement of many subinterfaces in the same bridge group can also
+		overwhelm the CPU.</p> 
+   
+<h2>
+<a name="backinfo">Typical Symptoms</a>
+</h2> 
+ 
+  <p>If your bridged PVCs result in high CPU utilization on the router, the
+	 first thing to look for is a high number of broadcasts on your interface:
+	 </p> 
+  <blockquote>
+<pre>ATM_Router# <b>show interface atm1/0</b> 
+   ATM1/0 is up, line protocol is up 
+      Hardware is ENHANCED ATM PA 
+      MTU 4470 bytes, sub MTU 4470, BW 44209 Kbit,    DLY 190 usec, 
+         reliability 0/255, txload    1/255, rxload 1/255 
+      Encapsulation ATM, loopback not set    
+      Keepalive not supported 
+      Encapsulation(s): AAL5 
+      4096 maximum active VCs, 0 current VCCs    
+      VC idle disconnect time: 300 seconds    
+      77103 carrier transitions 
+      Last input 01:06:21, output 01:06:21, output    hang never 
+      Last clearing of "show interface" counters    never 
+      Input queue: 0/75/0/702097 (size/max/drops/flushes);    <b>Total output drops: 12201965 </b>
+      Queueing strategy: Per VC Queueing    
+      5 minute input rate 0 bits/sec, 0 packets/sec    
+      5 minute output rate 0 bits/sec, 0 packets/sec    
+         59193134 packets input,    3597838975 bytes, 1427069 no buffer 
+        <b> Received 463236 broadcasts</b>,    0 runts, 0 giants, 0 throttles 
+         46047 input errors, 46047    CRC, 0 frame, 0 overrun, 0 ignored, 0 abort 
+         91435145 packets output,    2693542747 bytes, 0 underruns 
+         0 output errors, 0 collisions,    4 interface resets 
+         0 output buffer failures,    0 output buffers swapped out  </pre>
+</blockquote> 
+  <p>As a side effect, you can see a high number of drops on the interface.
+	 Under this situation, the problem can be anywhere from slow response on the
+	 router to the complete inaccessibility of the router. If you bring the
+	 interface down or disconnect the cable from the ATM interface, it should bring
+	 the router back.</p> 
+  <p>If the broadcast traffic is bursty, which results only in CPU spikes
+	 for short periods of time, the problem can be alleviated if you change the
+	 input hold queue on the interface to accommodate the bursts. The default hold
+	 queue size is 75 packets and can be changed with the <b>hold-queue
+	 &lt;queue length&gt; in|out </b>command. Typically, the size of the
+	 hold queue must not be increased above 150 because this causes more
+	 process-level load on the CPU. </p> 
+<h2>
+<a name="topic1">Troubleshooting</a>
+</h2> 
+ 
+  <p>If you encounter problems with high CPU utilization caused by HyBridge
+	 input, capture this output when you contact the Cisco Technical Assistance
+	 Center (TAC). To capture this output, use these commands:</p> 
+  <ul> 
+  <li> 
+	 <p>
+<b>show process cpu</b> - If you notice high CPU
+		utilization, use the <b>show process CPU</b> command to
+		isolate which process is at fault. See
+		<a href="http://www.cisco.com/en/US/customer/products/hw/routers/ps133/products_tech_note09186a00800a70f2.shtml">Troubleshooting
+		High CPU Utilization on Cisco Routers</a>.</p>
+</li> 
+  <li> 
+	 <p>
+<b>show stacks {process ID}</b> - You can also
+		use this command to see what processes are operative and look for potential
+		problems. Paste the output of this command in the
+		<a href="https://www.cisco.com/cgi-bin/Support/OutputInterpreter/home.pl">Output Interpreter Tool</a>
+           (<a href="http://tools.cisco.com/RPF/register/register.do">registered</a> customers only)
+        . Once the processes have
+		been decoded, you can search for possible bugs with the
+		<a href="http://www.cisco.com/pcgi-bin/Support/Bugtool/launch_bugtool.pl">Software Bug
+		Toolkit</a>. </p> 
+	  
+		<p>
+<b>Note:&nbsp;</b>You need to
+		  <a href="http://tools.cisco.com/RPF/register/register.do">register</a> for
+		  a CCO account and be logged on to use both of these tools.</p> 
+	 </li> 
+  <li> 
+	 <p>
+<b>show bridge verbose</b> - Use this show
+		command to determine how many subinterfaces are put in the same bridge group,
+		as well as to see if the interface is
+		overwhelmed.</p>
+</li>
+</ul> 
+  <blockquote>
+<pre>   router#<b>show process cpu</b>
+
+   <b>CPU utilization for five seconds: 100%/26%; one minute: 94%; five minutes: 56% </b>
+   PID   Runtime(ms)   Invoked   uSecs   5Sec   1Min   5Min   TTY   Process 
+    1            44    38169     1       0.00%  0.00%  0.00%    0   Load Meter 
+    2           288    733       392     0.00%  0.00%  0.00%    0   PPP auth 
+    3         44948    19510     2303    0.00%  0.05%  0.03%    0   Check heaps    
+    4             4    1         4000    0.00%  0.00%  0.00%    0   Chunk Manager 
+    5          2500    6229      401     0.00%  0.00%  0.00%    0   Pool Manager 
+   [output omitted] 
+    86            4    1         4000    0.00%  0.00%  0.00%    0   CCSWVOFR    
+   <b> 87      3390588    1347552   2516    72.72% 69.79% 41.31%   0   HyBridge Input </b>
+    88          172    210559    0       0.00%  0.00%  0.00%    0   Tbridge Monitor    
+    89      1139592    189881    6001    0.39%  0.42%  0.43%    0   SpanningTree 
+
+  router#<b>show stacks 87</b> 
+   Process 87: HyBridge Input Process 
+    Stack segment 0x61D15C5C - 0x61D18B3C 
+    FP: 0x61D18A18, RA: 0x60332608 
+    FP: 0x61D18A58, RA: 0x608C5400 
+    FP: 0x61D18B00, RA: 0x6031A6D4 
+    FP: 0x61D18B18, RA: 0x6031A6C0
+
+   router#<b>show bridge verbose</b>
+   Total of 300 station blocks, 299 free 
+   Codes: P - permanent, S - self
+
+   BG  Hash   Address          Action   Interface       VC Age   RX count   TX count      
+     1 8C/0   0000.0cd5.f07c   forward  ATM4/0/0.1      9   0    1857       0
+   
+Flood ports (BG 1)      RX count TX count 
+     ATM4/0/0.1                   0        0
+</pre>
+</blockquote> 
+ 
+ 
+  <p>In addition, shut down the Bridge Group Virtual Interface (BVI) and
+	 monitor CPU utilization with several captures of output from the<b>
+	 show process cpu</b> command.</p> 
+  <h2>
+<a name="work">Workarounds</a>
+</h2> 
+ 
+  <p>Cisco recommends that you implement these workarounds as a solution to
+	 high CPU utilization caused by standard bridging: </p>
+<ul> 
+  <li> 
+	 <p>Implement the Cisco IOS
+		<a href="http://www.cisco.com/en/US/docs/ios/11_3/feature/guide/xdsl.html">x
+		Digital Subscriber Line Bridge Support</a> feature, which configures the
+		router for intelligent bridge flooding through subscriber policies. Selectively
+		block ARPs, broadcasts, multicasts and spanning-tree BPDUs.</p>
+</li> 
+  <li> 
+	 <p>Break up the VCs on a few multipoint interfaces, each with a
+		different IP network.</p>
+</li> 
+  <li> 
+	 <p>Configure the aging timer of IP ARP and bridging table entries to the
+		same value. Otherwise, you can see unnecessary flooding of traffic in your
+		links. The default ARP timeout is four hours. The default bridge aging-time is
+		10 minutes. For a remote user that has been idle for 10 minutes, the router
+		purges the user's bridge table entry only and retains the ARP table entry. When
+		the router needs to send traffic downstream to the remote user, it checks the
+		ARP table and finds a valid entry to point to the MAC address. When the router
+		checks the bridge table for this MAC address and fails to find it, the router
+		floods the traffic out every VC in the bridge group. Use these commands to set
+		the ARP and bridge table aging times.</p> 
+	 <blockquote>
+<pre> router(config)#<b>bridge 1 aging-time ?</b>
+ &lt;10-1000000&gt; Seconds
+
+ router(config)#<b>interface bvi1 </b>   
+
+ router(config-if)#<b>arp timeout ?</b> 
+      &lt;0-2147483&gt; Seconds 
+</pre>
+</blockquote>
+</li> 
+  <li> 
+	 <p>Replace standard bridging and IRB with routed bridge encapsulation
+		(RBE) or bridged-style PVCs at the head-end ATM interface. RBE increases
+		forwarding performance as it supports Cisco Express Forwarding (CEF) and runs
+		IP packets only through a routing decision and not through a bridging decision.
+		On the 12.1(1)T train, the packets can be software switched. If so, you can see
+		this error message: </p> 
+	 <blockquote>
+<pre>%FIB-4-PUNTINTF: CEF punting packets switched to        ATM1/0.100 to next slower path 
+%FIB-4-PUNTINTF: CEF punting packets switched to ATM1/0.101        to next slower path  </pre>
+</blockquote> 
+	 <p>The problem is documented in CSCdr37618, and the fix is to upgrade to
+		12.2 mainline. Refer to
+		<a href="http://www.cisco.com/en/US/tech/tk175/tk15/technologies_white_paper09186a0080093e56.shtml">Routed
+		Bridged Encapsulation Baseline Architecture</a> and
+		<a href="http://www.cisco.com/en/US/tech/tk39/tk48/technologies_configuration_example09186a0080094ceb.shtml">Configuring
+		Bridged-Style PVCs on ATM Interfaces in the GSR and 7500 Series</a> for more
+		information.</p>
+</li>
+</ul> 
+ 
+<h2>
+<a name="related">Related Information</a>
+</h2>
+<ul> 
+  <li>
+<b> 
+	 <a href="http://www.cisco.com/en/US/customer/products/hw/routers/ps133/products_tech_note09186a00800a70f2.shtml?referring_site=bodynav">Troubleshooting
+		High CPU Utilization on Cisco Routers</a> 
+  </b>
+</li> 
+  <li>
+<b> 
+	 <a href="http://www.cisco.com/cisco/web/support/index.html?referring_site=bodynav">Technical Support &amp;
+		Documentation - Cisco Systems</a> 
+  </b>
+</li> 
+  <li>
+<b> 
+	 <a href="http://www.cisco.com/public/support/tac/tools.shtml?referring_site=bodynav">Tools and Utilities -
+		Cisco Systems</a> 
+  </b>
+</li> 
+</ul> <p xmlns:cal="xalan://java.util.GregorianCalendar" />
+
+<p xmlns:cal="xalan://java.util.GregorianCalendar" />
+
+<p xmlns:cal="xalan://java.util.GregorianCalendar" />
+<font xmlns:cal="xalan://java.util.GregorianCalendar" size="-1">
+
+</font>
+</div><script type="text/javascript">
+function showfeedback(divid){
+   document.getElementById(divid).style.visibility="visible";
+   document.getElementById(divid).className = "show";
+}function hidefeedback(divid){
+   document.getElementById(divid).style.visibility="hidden";
+   document.getElementById(divid).className = "hide";
+}</script>
+<script type="text/javascript" src="/image/gif/paws/101/parseXml.json"></script>
+<SCRIPT LANGUAGE="JavaScript"> loadjscssfile('/web/tsweb/css/support-docs.css','css');</SCRIPT>
+<meta http-equiv="X-UA-Compatible" content="IE=9">
+<div class="feedback-community">
+<div id="helpful">
+	<div id="tg-rating">
+		<div id="helpful-feedback" class="show">
+		  <p>Was this document helpful? <span class="helpful-btns"> <a href="#" onclick="hidefeedback('helpful-feedback');showfeedback('thankyou');return false;" class="btn-gray poly">Yes</a>&nbsp;<a href="#" onclick="hidefeedback('helpful-feedback');showfeedback('thankyou');return false;" class="btn-gray poly">No</a> </span></p>
+		</div>
+		<div id="thankyou" class="hide">
+		  <p>Thank you for your feedback.</p>
+		</div>
+	</div>
+	<div id="tg-open-case">
+		<div id="open-case">
+		  <p> <a href="https://tools.cisco.com/ServiceRequestTool/scm/mgmt/case?referring_site=supportdocs">Open a Support Case</a> <img alt="Login Required" title="Login Required" src="http://www.cisco.com/web/fw/ltc/tools/shp/images/lockblue.gif"> <span>(Requires a <a href="http://www.cisco.com/web/services/order-services/service-contracts/index.html?referring_site=supportdocs">Cisco Service Contract</a>.)</span> </p>
+		</div>
+	</div>
+</div>
+<div id="tg-community">
+<div id="community">
+  <h2><a name="comm-anc"></A>Related Cisco Support Community Discussions</h2>
+  <iframe frameborder="0" border="0" src="http://tools.cisco.com/swtg/pyout2/widgets/search/v1/communitySearch/index.app?custId=paws.gen#!searchTerm=IP over ATM" name="discussions"> </iframe>
+  <p>The <a href="https://supportforums.cisco.com/index.jspa?referring_site=cdcsupportdocs&channel=pkwidgets">Cisco Support Community</a> is a forum for you to ask and answer questions, share suggestions, and
+    collaborate with your peers.</p>
+</div>
+</div>
+<p>Refer to <a href="http://www.cisco.com/en/US/tech/tk801/tk36/technologies_tech_note09186a0080121ac5.shtml">Cisco Technical Tips Conventions</a> for information on conventions used in this document.</p>
+</div><!-- PIDLMD --><div id="docinfo"><div class="dateupdated">Updated: Jun 05, 2005</div><div class="docid">Document ID: 10448</div></div><!-- PIDLMD -->
+<script type="text/javascript" src="/web/tsweb/js/dest_pg_metricsrule.js"></script><script type="text/javascript">NTPT_PGEXTRA = 'status=Anonymous';cdc.util.checkLogin(function(val) {if ( val === "valid") {NTPT_PGEXTRA = 'status=LoggedIn';}});</script></span></div>
+
+                      <table id="content-right-bottom" align="right" border="0" cellspacing="0" cellpadding="0" summary="">
+                        <tr><td valign="top" align="right"></td></tr>
+                        <tr><td valign="top" align="right"></td></tr>
+                        <tr><td valign="top" align="right"></td></tr>
+                        <tr><td valign="top" align="right"></td></tr>
+                      </table>
+
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+
+                      <!-- End of the actual text content --><!--googleoff: index--><!--googleoff: snippet-->
+                    </div> <!-- end #framework-content-main -->
+                  </td> <!-- end #framework-column-main -->
+
+                  <td id="framework-column-right">
+                    <div id="framework-content-right">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                    </div> <!-- end #framework-content-right -->
+                  </td> <!-- end #framework-column-right -->
+                </tr>
+              </table> <!-- end #framework-base-content -->
+            </td> <!-- end #framework-column-center -->
+          </tr>
+        </table> <!-- end #framework-base-main -->
+
+        
+        
+    
+<div id="ff">
+<div class="ffoot clearfix">
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/netsol/index.html">Information For</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/cisco/web/solutions/small_business/index.html">Small Business</a></li>
+
+<li><a href="//www.cisco.com/web/midsize/index.html">Midsize Business</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns341/networking_solutions_service_provider_home.html">Service Provider</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1168/index.html">Executives</a></li>
+
+<li><a href="//home.cisco.com">Home (Linksys)</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<div class="ffoot-menu">
+<h3><a href="//www.cisco.com/web/strategy/index.html">Industries</a></h3>
+
+<div class="ffoot-menucontainer">
+<div class="ffoot-menucontent" id="industriesmenu">
+<ul>
+<li><a href="//www.cisco.com/web/strategy/cpg/index.html">Consumer Packaged Goods</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/education/index.html">Education</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/energy/index.html">Energy</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/financial/index.html">Financial Services</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/government/index.html">Government</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/healthcare/index.html">Healthcare</a></li>
+</ul>
+
+<ul>
+<li><a href="//www.cisco.com/web/strategy/manufacturing/index.html">Manufacturing</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/public_sector/index.html">Public Sector</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/retail/index.html">Retail</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/smart_connected_communities.html">Smart+Connected Communities</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/sports/index.html">Sports and Entertainment</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/transportation/index.html">Transportation</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="/cisco/web/siteassets/contacts/index.html">Contacts</a></h3>
+
+<ul>
+<li><a href="/cisco/web/siteassets/contacts/index.html">Contact Cisco</a></li>
+
+<li><a href="//tools.cisco.com/WWChannels/LOCATR/openBasicSearch.do">Find a Partner</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//newsroom.cisco.com/">News &amp; Alerts</a></h3>
+
+<ul>
+<li><a href="//newsroom.cisco.com/">Newsroom</a></li>
+
+<li><a href="//blogs.cisco.com/">Blogs</a></li>
+
+<!-- li><a href="//www.cisco.com/offer/subctr/nl/190612_1">Newsletters</a></li -->
+<li><a href="//www.cisco.com/en/US/support/tsd_products_field_notice_summary.html">Field Notices</a></li>
+
+<li><a href="//www.cisco.com/en/US/products/products_security_advisories_listing.html">Security Advisories</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/web/solutions/tech_trends.html">Technology Trends</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/web/solutions/trends/cloud/index.html">Cloud</a></li>
+
+<li><a href="//www.cisco.com/web/solutions/trends/ipv6/index.html">IPv6</a></li>
+
+<li><a href="//www.cisco.com/web/solutions/trends/mobility/index.html">Mobility</a></li>
+
+<li><a href="//www.cisco.com/web/solutions/trends/open_network_environment/index.html">Open Network Environment</a></li>
+
+<li><a href="//www.cisco.com/web/solutions/trends/trustworthy_systems/index.html">Trustworthy Systems</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/support/index.html">Support</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/cisco/software/navigator.html?i=!ch">Downloads</a></li>
+
+<li><a href="//www.cisco.com/cisco/web/psa/default.html">Documentation</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/web/communities/index.html">Communities</a></h3>
+
+<ul>
+<li><a href="http://developer.cisco.com/">Developer Network</a></li>
+
+<li><a href="https://learningnetwork.cisco.com/index.jspa?ciscoHome=true">Learning Network</a></li>
+
+<li><a href="https://supportforums.cisco.com/index.jspa">Support Community</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<div class="ffoot-menu">
+<h3><a href="http://video.cisco.com" target="_blank">Video Portal</a></h3>
+
+<div class="ffoot-menucontainer">
+<div class="ffoot-menucontent" id="videomenu">
+<ul>
+<li><a href="http://video.cisco.com/video/Products/categoryTags/Products/CategoryTags/" target="_blank">Products</a></li>
+
+<li><a href="http://video.cisco.com/video/Services/categoryTags/Services/CategoryTags/" target="_blank">Services</a></li>
+
+<li><a href="http://video.cisco.com/video/Certifications/categoryTags/Certifications/CategoryTags/" target="_blank">Certifications</a></li>
+
+<li><a href="http://video.cisco.com/video/Events/categoryTags/Events/CategoryTags/" target="_blank">Event</a></li>
+
+<li><a href="http://video.cisco.com/video/Industries/categoryTags/Industries/CategoryTags/" target="_blank">Industries</a></li>
+</ul>
+
+<ul>
+<li><a href="http://video.cisco.com/video/TechWiseTV/categoryTags/TechWiseTV/CategoryTags/" target="_blank">TechWiseTV</a></li>
+
+<li><a href="http://video.cisco.com/video/InsideCisco/categoryTags/InsideCisco/CategoryTags/" target="_blank">Inside Cisco</a></li>
+
+<li><a href="http://video.cisco.com/video/TechnologyTrends/categoryTags/TechnologyTrends/CategoryTags/" target="_blank">Technology Trends</a></li>
+
+<li><a href="http://video.cisco.com/">All Videos</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col last-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/about/index.html">About Cisco</a></h3>
+
+<ul>
+<li><a href="http://investor.cisco.com/">Investor Relations</a></li>
+
+<li><a href="http://csr.cisco.com/" target="_blank">Corporate Social Responsibility</a></li>
+
+<li><a href="http://csr.cisco.com/pages/environment" target="_blank">Environmental Sustainability</a></li>
+
+<li><a href="//www.cisco.com/web/tomorrow-starts-here/index.html?CAMPAIGN=tomorrowstartshere&amp;COUNTRY_SITE=us&amp;POSITION=link&amp;REFERRING_SITE=Cisco.com+homepage&amp;CREATIVE=homepage+fat+footer">Tomorrow Starts Here</a></li>
+
+<li><a href="//www.cisco.com/web/about/ac40/about_cisco_careers_home.html">Career Opportunities</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3>Programs</h3>
+
+<ul>
+<li><a href="/web/solutions/trends/cisco-powered/index.html">Cisco Powered</a></li>
+
+<li><a href="//www.cisco.com/web/ordering/ciscocapital/index.html">Financing Options</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col .last-col -->
+</div>
+
+<!-- end .ffoot -->
+</div>
+
+<!-- end #ff -->
+<div id="ff-hidden" style="display:none;">
+<div id="ff-collaboration">
+<div class="ffoot clearfix">
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/netsol/ns1007/index.html">Collaboration</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/en/US/products/ps7060/index.html">Collaboration Endpoints</a></li>
+
+<li><a href="//www.cisco.com/en/US/products/ps10352/index.html">Conferencing</a></li>
+
+<li><a href="//www.cisco.com/en/US/products/ps10680/index.html">Customer Collaboration</a></li>
+
+<li><a href="//www.cisco.com/en/US/products/sw/voicesw/index.html">Unified Communications</a></li>
+
+<li><a href="http://communities.cisco.com/community/technology/collaboration?view=overview">Community</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/netsol/index.html">Information For</a></h3>
+
+<ul>
+<li><a href="/cisco/web/solutions/small_business/index.html">Small Business</a></li>
+
+<li><a href="//www.cisco.com/web/midsize/index.html">Midsize Business</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns341/networking_solutions_service_provider_home.html">Service Provider</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1168/index.html">Executives</a></li>
+
+<li><a href="http://home.cisco.com">Home (Linksys)</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<div class="ffoot-menu">
+<h3><a href="//www.cisco.com/web/strategy/index.html">Industries</a></h3>
+
+<div class="ffoot-menucontainer">
+<div class="ffoot-menucontent" id="industriesmenu">
+<ul>
+<li><a href="//www.cisco.com/web/strategy/cpg/index.html">Consumer Packaged Goods</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/education/index.html">Education</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/energy/index.html">Energy</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/financial/index.html">Financial Services</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/government/index.html">Government</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/healthcare/index.html">Healthcare</a></li>
+</ul>
+
+<ul>
+<li><a href="//www.cisco.com/web/strategy/manufacturing/index.html">Manufacturing</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/public_sector/index.html">Public Sector</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/retail/index.html">Retail</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/smart_connected_communities.html">Smart+Connected Communities</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/sports/index.html">Sports and Entertainment</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/transportation/index.html">Transportation</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="/cisco/web/siteassets/contacts/index.html">Contacts</a></h3>
+
+<ul>
+<li><a href="/cisco/web/siteassets/contacts/index.html">Contact Cisco</a></li>
+
+<li><a href="http://tools.cisco.com/WWChannels/LOCATR/openBasicSearch.do">Find a Partner</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/support/index.html">Support</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/cisco/software/navigator.html?i=!ch">Downloads</a></li>
+
+<li><a href="//www.cisco.com/cisco/web/psa/default.html">Documentation</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/web/communities/index.html">Communities</a></h3>
+
+<ul>
+<li><a href="http://developer.cisco.com/">Developer Network</a></li>
+
+<li><a href="https://learningnetwork.cisco.com/index.jspa?ciscoHome=true">Learning Network</a></li>
+
+<li><a href="https://supportforums.cisco.com/index.jspa">Support Community</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<div class="ffoot-menu">
+<h3><a href="http://video.cisco.com" target="_blank">Video Portal</a></h3>
+
+<div class="ffoot-menucontainer">
+<div class="ffoot-menucontent" id="videomenu">
+<ul>
+<li><a href="http://video.cisco.com/video/Products/categoryTags/Products/CategoryTags/" target="_blank">Products</a></li>
+
+<li><a href="http://video.cisco.com/video/Services/categoryTags/Services/CategoryTags/" target="_blank">Services</a></li>
+
+<li><a href="http://video.cisco.com/video/Certifications/categoryTags/Certifications/CategoryTags/" target="_blank">Certifications</a></li>
+
+<li><a href="http://video.cisco.com/video/Events/categoryTags/Events/CategoryTags/" target="_blank">Event</a></li>
+
+<li><a href="http://video.cisco.com/video/Industries/categoryTags/Industries/CategoryTags/" target="_blank">Industries</a></li>
+</ul>
+
+<ul>
+<li><a href="http://video.cisco.com/video/TechWiseTV/categoryTags/TechWiseTV/CategoryTags/" target="_blank">TechWiseTV</a></li>
+
+<li><a href="http://video.cisco.com/video/InsideCisco/categoryTags/InsideCisco/CategoryTags/" target="_blank">Inside Cisco</a></li>
+
+<li><a href="http://video.cisco.com/video/TechnologyTrends/categoryTags/TechnologyTrends/CategoryTags/" target="_blank">Technology Trends</a></li>
+
+<li><a href="http://video.cisco.com/">All Videos</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col last-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/about/index.html">About Cisco</a></h3>
+
+<ul>
+<li><a href="http://investor.cisco.com/">Investor Relations</a></li>
+
+<li><a href="http://csr.cisco.com/" target="_blank">Corporate Social Responsibility</a></li>
+
+<li><a href="http://csr.cisco.com/pages/environment" target="_blank">Environmental Sustainability</a></li>
+
+<li><a href="//www.cisco.com/web/tomorrow-starts-here/index.html?CAMPAIGN=tomorrowstartshere&amp;COUNTRY_SITE=us&amp;POSITION=link&amp;REFERRING_SITE=Cisco.com+homepage&amp;CREATIVE=homepage+fat+footer">Tomorrow Starts Here</a></li>
+
+<li><a href="//www.cisco.com/web/about/ac40/about_cisco_careers_home.html">Career Opportunities</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3>Programs</h3>
+
+<ul>
+<li><a href="/web/solutions/trends/cisco-powered/index.html">Cisco Powered</a></li>
+
+<li><a href="//www.cisco.com/web/ordering/ciscocapital/index.html">Financing Options</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col .last-col -->
+</div>
+
+<!-- end .ffoot -->
+</div>
+
+<!-- end #ff-collaboration -->
+<div id="ff-data-center">
+<div class="ffoot clearfix">
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/netsol/ns340/ns394/ns224/index.html">Data Center and Virtualization</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/en/US/netsol/ns340/ns394/ns224/products.html">Products and Solutions</a></li>
+
+<li><a href="//www.cisco.com/en/US/solutions/ns340/ns517/ns224/dc_case_studies.html">Case Studies</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns743/networking_solutions_program_home.html">Data Center Design Zone</a></li>
+
+<li><a href="//www.cisco.com/en/US/solutions/ns340/ns857/ns156/ns1094/analyst_reports.html">Analyst Reports</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns340/ns394/ns224/services.html">Data Center Services</a></li>
+
+<li><a href="http://socialmedia.cisco.com/datacentervirtualization">Data Center Social Media</a></li>
+
+<li><a href="http://communities.cisco.com/community/technology/datacenter?view=overview">Community</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/netsol/index.html">Information For</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/cisco/web/solutions/small_business/index.html">Small Business</a></li>
+
+<li><a href="//www.cisco.com/web/midsize/index.html">Midsize Business</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns341/networking_solutions_service_provider_home.html">Service Provider</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1168/index.html">Executives</a></li>
+
+<li><a href="http://home.cisco.com">Home (Linksys)</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<div class="ffoot-menu">
+<h3><a href="//www.cisco.com/web/strategy/index.html">Industries</a></h3>
+
+<div class="ffoot-menucontainer">
+<div class="ffoot-menucontent" id="industriesmenu">
+<ul>
+<li><a href="//www.cisco.com/web/strategy/cpg/index.html">Consumer Packaged Goods</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/education/index.html">Education</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/energy/index.html">Energy</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/financial/index.html">Financial Services</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/government/index.html">Government</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/healthcare/index.html">Healthcare</a></li>
+</ul>
+
+<ul>
+<li><a href="//www.cisco.com/web/strategy/manufacturing/index.html">Manufacturing</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/public_sector/index.html">Public Sector</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/retail/index.html">Retail</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/smart_connected_communities.html">Smart+Connected Communities</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/sports/index.html">Sports and Entertainment</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/transportation/index.html">Transportation</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="/cisco/web/siteassets/contacts/index.html">Contacts</a></h3>
+
+<ul>
+<li><a href="/cisco/web/siteassets/contacts/index.html">Contact Cisco</a></li>
+
+<li><a href="http://tools.cisco.com/WWChannels/LOCATR/openBasicSearch.do">Find a Partner</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/support/index.html">Support</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/cisco/software/navigator.html?i=!ch">Downloads</a></li>
+
+<li><a href="//www.cisco.com/cisco/web/psa/default.html">Documentation</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/web/communities/index.html">Communities</a></h3>
+
+<ul>
+<li><a href="http://developer.cisco.com/">Developer Network</a></li>
+
+<li><a href="https://learningnetwork.cisco.com/index.jspa?ciscoHome=true">Learning Network</a></li>
+
+<li><a href="https://supportforums.cisco.com/index.jspa">Support Community</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<div class="ffoot-menu">
+<h3><a href="http://video.cisco.com" target="_blank">Video Portal</a></h3>
+
+<div class="ffoot-menucontainer">
+<div class="ffoot-menucontent" id="videomenu">
+<ul>
+<li><a href="http://video.cisco.com/video/Products/categoryTags/Products/CategoryTags/" target="_blank">Products</a></li>
+
+<li><a href="http://video.cisco.com/video/Services/categoryTags/Services/CategoryTags/" target="_blank">Services</a></li>
+
+<li><a href="http://video.cisco.com/video/Certifications/categoryTags/Certifications/CategoryTags/" target="_blank">Certifications</a></li>
+
+<li><a href="http://video.cisco.com/video/Events/categoryTags/Events/CategoryTags/" target="_blank">Event</a></li>
+
+<li><a href="http://video.cisco.com/video/Industries/categoryTags/Industries/CategoryTags/" target="_blank">Industries</a></li>
+</ul>
+
+<ul>
+<li><a href="http://video.cisco.com/video/TechWiseTV/categoryTags/TechWiseTV/CategoryTags/" target="_blank">TechWiseTV</a></li>
+
+<li><a href="http://video.cisco.com/video/InsideCisco/categoryTags/InsideCisco/CategoryTags/" target="_blank">Inside Cisco</a></li>
+
+<li><a href="http://video.cisco.com/video/TechnologyTrends/categoryTags/TechnologyTrends/CategoryTags/" target="_blank">Technology Trends</a></li>
+
+<li><a href="http://video.cisco.com/">All Videos</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col last-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/about/index.html">About Cisco</a></h3>
+
+<ul>
+<li><a href="http://investor.cisco.com/">Investor Relations</a></li>
+
+<li><a href="http://csr.cisco.com/" target="_blank">Corporate Social Responsibility</a></li>
+
+<li><a href="http://csr.cisco.com/pages/environment" target="_blank">Environmental Sustainability</a></li>
+
+<li><a href="//www.cisco.com/web/tomorrow-starts-here/index.html?CAMPAIGN=tomorrowstartshere&amp;COUNTRY_SITE=us&amp;POSITION=link&amp;REFERRING_SITE=Cisco.com+homepage&amp;CREATIVE=homepage+fat+footer">Tomorrow Starts Here</a></li>
+
+<li><a href="//www.cisco.com/web/about/ac40/about_cisco_careers_home.html">Career Opportunities</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3>Programs</h3>
+
+<ul>
+<li><a href="/web/solutions/trends/cisco-powered/index.html">Cisco Powered</a></li>
+
+<li><a href="//www.cisco.com/web/ordering/ciscocapital/index.html">Financing Options</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col .last-col -->
+</div>
+
+<!-- end .ffoot -->
+</div>
+
+<!-- end #ff-data-center -->
+<div id="ff-enterprise-networks">
+<div class="ffoot clearfix">
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/netsol/ns1015/index.html">Enterprise Networks</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/en/US/netsol/ns1015/products.html">Products</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1015/solutions.html">Solutions</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1063/networking_solutions_program_home.html">Design Zone</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1015/architecture.html">Architecture</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1015/services.html">Services</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1015/industries.html">Case Studies</a></li>
+
+<li><a href="https://communities.cisco.com/community/technology/borderless_networks/fun">Community</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/netsol/index.html">Information For</a></h3>
+
+<ul>
+<li><a href="/cisco/web/solutions/small_business/index.html">Small Business</a></li>
+
+<li><a href="//www.cisco.com/web/midsize/index.html">Midsize Business</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns341/networking_solutions_service_provider_home.html">Service Provider</a></li>
+
+<li><a href="//www.cisco.com/en/US/netsol/ns1168/index.html">Executives</a></li>
+
+<li><a href="http://home.cisco.com">Home (Linksys)</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<div class="ffoot-menu">
+<h3><a href="//www.cisco.com/web/strategy/index.html">Industries</a></h3>
+
+<div class="ffoot-menucontainer">
+<div class="ffoot-menucontent" id="industriesmenu">
+<ul>
+<li><a href="//www.cisco.com/web/strategy/cpg/index.html">Consumer Packaged Goods</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/education/index.html">Education</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/energy/index.html">Energy</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/financial/index.html">Financial Services</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/government/index.html">Government</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/healthcare/index.html">Healthcare</a></li>
+</ul>
+
+<ul>
+<li><a href="//www.cisco.com/web/strategy/manufacturing/index.html">Manufacturing</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/public_sector/index.html">Public Sector</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/retail/index.html">Retail</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/smart_connected_communities.html">Smart+Connected Communities</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/sports/index.html">Sports and Entertainment</a></li>
+
+<li><a href="//www.cisco.com/web/strategy/transportation/index.html">Transportation</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="/cisco/web/siteassets/contacts/index.html">Contacts</a></h3>
+
+<ul>
+<li><a href="/cisco/web/siteassets/contacts/index.html">Contact Cisco</a></li>
+
+<li><a href="http://tools.cisco.com/WWChannels/LOCATR/openBasicSearch.do">Find a Partner</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/en/US/support/index.html">Support</a></h3>
+
+<ul>
+<li><a href="//www.cisco.com/cisco/software/navigator.html?i=!ch">Downloads</a></li>
+
+<li><a href="//www.cisco.com/cisco/web/psa/default.html">Documentation</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/web/communities/index.html">Communities</a></h3>
+
+<ul>
+<li><a href="http://developer.cisco.com/">Developer Network</a></li>
+
+<li><a href="https://learningnetwork.cisco.com/index.jspa?ciscoHome=true">Learning Network</a></li>
+
+<li><a href="https://supportforums.cisco.com/index.jspa">Support Community</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<div class="ffoot-menu">
+<h3><a href="http://video.cisco.com" target="_blank">Video Portal</a></h3>
+
+<div class="ffoot-menucontainer">
+<div class="ffoot-menucontent" id="videomenu">
+<ul>
+<li><a href="http://video.cisco.com/video/Products/categoryTags/Products/CategoryTags/" target="_blank">Products</a></li>
+
+<li><a href="http://video.cisco.com/video/Services/categoryTags/Services/CategoryTags/" target="_blank">Services</a></li>
+
+<li><a href="http://video.cisco.com/video/Certifications/categoryTags/Certifications/CategoryTags/" target="_blank">Certifications</a></li>
+
+<li><a href="http://video.cisco.com/video/Events/categoryTags/Events/CategoryTags/" target="_blank">Event</a></li>
+
+<li><a href="http://video.cisco.com/video/Industries/categoryTags/Industries/CategoryTags/" target="_blank">Industries</a></li>
+</ul>
+
+<ul>
+<li><a href="http://video.cisco.com/video/TechWiseTV/categoryTags/TechWiseTV/CategoryTags/" target="_blank">TechWiseTV</a></li>
+
+<li><a href="http://video.cisco.com/video/InsideCisco/categoryTags/InsideCisco/CategoryTags/" target="_blank">Inside Cisco</a></li>
+
+<li><a href="http://video.cisco.com/video/TechnologyTrends/categoryTags/TechnologyTrends/CategoryTags/" target="_blank">Technology Trends</a></li>
+
+<li><a href="http://video.cisco.com/">All Videos</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- end .ffoot-col -->
+<div class="ffoot-col last-col">
+<div class="ffoot-block">
+<h3><a href="//www.cisco.com/web/about/index.html">About Cisco</a></h3>
+
+<ul>
+<li><a href="http://investor.cisco.com/">Investor Relations</a></li>
+
+<li><a href="http://csr.cisco.com/" target="_blank">Corporate Social Responsibility</a></li>
+
+<li><a href="http://csr.cisco.com/pages/environment" target="_blank">Environmental Sustainability</a></li>
+
+<li><a href="//www.cisco.com/web/tomorrow-starts-here/index.html?CAMPAIGN=tomorrowstartshere&amp;COUNTRY_SITE=us&amp;POSITION=link&amp;REFERRING_SITE=Cisco.com+homepage&amp;CREATIVE=homepage+fat+footer">Tomorrow Starts Here</a></li>
+
+<li><a href="//www.cisco.com/web/about/ac40/about_cisco_careers_home.html">Career Opportunities</a></li>
+</ul>
+</div>
+
+<div class="ffoot-block">
+<h3>Programs</h3>
+
+<ul>
+<li><a href="/web/solutions/trends/cisco-powered/index.html">Cisco Powered</a></li>
+
+<li><a href="//www.cisco.com/web/ordering/ciscocapital/index.html">Financing Options</a></li>
+</ul>
+</div>
+</div>
+
+<!-- end .ffoot-col .last-col -->
+</div>
+
+<!-- end .ffoot -->
+</div>
+
+<!-- end #ff-enterprise-networks -->
+</div>
+
+<!-- end #ff-hidden -->
+<script type="text/javascript">
+cdc.ff.init();
+</script>
+
+<!-- END MasterBrand FatFooter SSI (generic plus hubs)(guest) -->
+
+  
+        <!-- $Revision: 1.5 $ -->
+<a name="pagefooter"></a>
+<div id="framework-footer">
+	<div id="footer-nav">
+	
+	<a href="/web/siteassets/contacts/index.html">Contacts</a> | 
+	<a href="https://secure.opinionlab.com/ccc01/o.asp?id=jBjOhqOJ">Feedback</a> | 
+	<a href="/web/help/index.html">Help</a> | 
+	<a href="/web/siteassets/sitemap/index.html">Site Map</a> | 
+	
+	</div>
+	<div id="footer-legal"><a href="/web/siteassets/legal/terms_condition.html">Terms &amp; Conditions</a> |
+     <a href="/web/siteassets/legal/privacy.html">Privacy Statement</a> |
+     <a href="/web/siteassets/legal/privacy.html#cookies">Cookie Policy</a> |
+     <a href="/web/siteassets/legal/trademark.html">Trademarks</a></div>
+	
+</div>		
+
+
+      </div><!-- end #fw-mb-w1 -->
+    </div><!-- end #fw-mb -->
+
+    
+    <!--[if IE]></div><![endif]-->
+    
+    <script>cdcPageTimers.endOfContent= new Date();</script>
+    
+    <script>cdcPageTimers.bottomOfBody = new Date();</script>
+  </body>
+</html>

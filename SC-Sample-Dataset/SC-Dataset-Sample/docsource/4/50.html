@@ -1,0 +1,1668 @@
+
+
+
+<!DOCTYPE html>
+<html>
+  <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# githubog: http://ogp.me/ns/fb/githubog#">
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=10">
+        <title>Fork in test should handle exceptions during creation of test class · Issue #653 · sbt/sbt · GitHub</title>
+    <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub" />
+    <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-114.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-144.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144.png" />
+    <link rel="logo" type="image/svg" href="https://github-media-downloads.s3.amazonaws.com/github-logo.svg" />
+    <meta property="og:image" content="https://github.global.ssl.fastly.net/images/modules/logos_page/Octocat.png">
+    <meta name="hostname" content="github-fe137-cp1-prd.iad.github.net">
+    <meta name="ruby" content="ruby 1.9.3p194-tcs-github-tcmalloc (e1c0c3f392) [x86_64-linux]">
+    <link rel="assets" href="https://github.global.ssl.fastly.net/">
+    <link rel="conduit-xhr" href="https://ghconduit.com:25035/">
+    <link rel="xhr-socket" href="/_sockets" />
+    
+
+
+    <meta name="msapplication-TileImage" content="/windows-tile.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="selected-link" value="repo_issues" data-pjax-transient />
+    <meta content="collector.githubapp.com" name="octolytics-host" /><meta content="collector-cdn.github.com" name="octolytics-script-host" /><meta content="github" name="octolytics-app-id" /><meta content="80E93F25:218D:27F39C1:52AB96DB" name="octolytics-dimension-request_id" />
+    
+
+    
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <meta content="authenticity_token" name="csrf-param" />
+<meta content="Z76be6FPbhU16AuwPFRvBOzLMCnFiS79YY0gY/kOWnw=" name="csrf-token" />
+
+    <link href="https://github.global.ssl.fastly.net/assets/github-57e7b076c45ea1a1a64bba5ee473eecb65fe9d7b.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="https://github.global.ssl.fastly.net/assets/github2-739ae94074bd58ea5f487331d9a79836678e5db7.css" media="all" rel="stylesheet" type="text/css" />
+    
+
+    
+
+      <script src="https://github.global.ssl.fastly.net/assets/frameworks-5970f5a0a3dcc441d5f7ff74326ffd59bbe9388e.js" type="text/javascript"></script>
+      <script src="https://github.global.ssl.fastly.net/assets/github-44188494b76ae62bb834f936309193eec69b2810.js" type="text/javascript"></script>
+      
+      <meta http-equiv="x-pjax-version" content="673481c1299373d170ad7f3d60ff3fc1">
+
+        <meta property="og:title" content="sbt"/>
+  <meta property="og:type" content="githubog:gitrepository"/>
+  <meta property="og:url" content="https://github.com/sbt/sbt"/>
+  <meta property="og:image" content="https://github.global.ssl.fastly.net/images/gravatars/gravatar-user-420.png"/>
+  <meta property="og:site_name" content="GitHub"/>
+  <meta property="og:description" content="We recently ran into a pretty severe issue where a ScalaTest test class was throwing a NPE during construction, which caused test execution to stop but for success to be reported. This meant that we were running 1/3 of our test suite instead of the full test suite and failures were not reported. Note that this was a multi-module build.
+
+I can provide a simple test case if that helps.
+
+The output was:
+
+Exception in thread &quot;Thread-32&quot; java.io.EOFException
+    at java.io.ObjectInputStream$BlockDataInputStre..."/>
+
+  <meta name="description" content="We recently ran into a pretty severe issue where a ScalaTest test class was throwing a NPE during construction, which caused test execution to stop but for success to be reported. This meant that we were running 1/3 of our test suite instead of the full test suite and failures were not reported. Note that this was a multi-module build.
+
+I can provide a simple test case if that helps.
+
+The output was:
+
+Exception in thread &quot;Thread-32&quot; java.io.EOFException
+    at java.io.ObjectInputStream$BlockDataInputStre..." />
+
+  <meta content="1158012" name="octolytics-dimension-user_id" /><meta content="sbt" name="octolytics-dimension-user_login" /><meta content="279553" name="octolytics-dimension-repository_id" /><meta content="sbt/sbt" name="octolytics-dimension-repository_nwo" /><meta content="true" name="octolytics-dimension-repository_public" /><meta content="false" name="octolytics-dimension-repository_is_fork" /><meta content="279553" name="octolytics-dimension-repository_network_root_id" /><meta content="sbt/sbt" name="octolytics-dimension-repository_network_root_nwo" />
+  <link href="https://github.com/sbt/sbt/commits/0.13.atom" rel="alternate" title="Recent Commits to sbt:0.13" type="application/atom+xml" />
+
+  </head>
+
+
+  <body class="logged_out  env-production  vis-public">
+    <div class="wrapper">
+      
+      
+      
+      
+
+
+      
+      <div class="header header-logged-out">
+  <div class="container clearfix">
+
+    <a class="header-logo-wordmark" href="https://github.com/">
+      <span class="mega-octicon octicon-logo-github"></span>
+    </a>
+
+    <div class="header-actions">
+        <a class="button primary" href="/join">Sign up</a>
+      <a class="button signin" href="/login?return_to=%2Fsbt%2Fsbt%2Fissues%2F653">Sign in</a>
+    </div>
+
+    <div class="command-bar js-command-bar  in-repository">
+
+      <ul class="top-nav">
+          <li class="explore"><a href="/explore">Explore</a></li>
+        <li class="features"><a href="/features">Features</a></li>
+          <li class="enterprise"><a href="https://enterprise.github.com/">Enterprise</a></li>
+          <li class="blog"><a href="/blog">Blog</a></li>
+      </ul>
+        <form accept-charset="UTF-8" action="/search" class="command-bar-form" id="top_search_form" method="get">
+
+<input type="text" data-hotkey="/ s" name="q" id="js-command-bar-field" placeholder="Search or type a command" tabindex="1" autocapitalize="off"
+    
+    
+      data-repo="sbt/sbt"
+      data-branch="0.13"
+      data-sha="a501366dcd52b5eba2323e655a929feabb8ee423"
+  >
+
+    <input type="hidden" name="nwo" value="sbt/sbt" />
+
+    <div class="select-menu js-menu-container js-select-menu search-context-select-menu">
+      <span class="minibutton select-menu-button js-menu-target">
+        <span class="js-select-button">This repository</span>
+      </span>
+
+      <div class="select-menu-modal-holder js-menu-content js-navigation-container">
+        <div class="select-menu-modal">
+
+          <div class="select-menu-item js-navigation-item js-this-repository-navigation-item selected">
+            <span class="select-menu-item-icon octicon octicon-check"></span>
+            <input type="radio" class="js-search-this-repository" name="search_target" value="repository" checked="checked" />
+            <div class="select-menu-item-text js-select-button-text">This repository</div>
+          </div> <!-- /.select-menu-item -->
+
+          <div class="select-menu-item js-navigation-item js-all-repositories-navigation-item">
+            <span class="select-menu-item-icon octicon octicon-check"></span>
+            <input type="radio" name="search_target" value="global" />
+            <div class="select-menu-item-text js-select-button-text">All repositories</div>
+          </div> <!-- /.select-menu-item -->
+
+        </div>
+      </div>
+    </div>
+
+  <span class="octicon help tooltipped downwards" title="Show command bar help">
+    <span class="octicon octicon-question"></span>
+  </span>
+
+    <input type="hidden" name="type" value="Issues" />
+
+  <input type="hidden" name="ref" value="cmdform">
+
+</form>
+    </div>
+
+  </div>
+</div>
+
+
+      
+
+
+          <div class="site" itemscope itemtype="http://schema.org/WebPage">
+    
+    <div class="pagehead repohead instapaper_ignore readability-menu">
+      <div class="container">
+        
+
+<ul class="pagehead-actions">
+
+
+  <li>
+    <a href="/login?return_to=%2Fsbt%2Fsbt"
+    class="minibutton with-count js-toggler-target star-button tooltipped upwards"
+    title="You must be signed in to use this feature" rel="nofollow">
+    <span class="octicon octicon-star"></span>Star
+  </a>
+
+    <a class="social-count js-social-count" href="/sbt/sbt/stargazers">
+      1,695
+    </a>
+
+  </li>
+
+    <li>
+      <a href="/login?return_to=%2Fsbt%2Fsbt"
+        class="minibutton with-count js-toggler-target fork-button tooltipped upwards"
+        title="You must be signed in to fork a repository" rel="nofollow">
+        <span class="octicon octicon-git-branch"></span>Fork
+      </a>
+      <a href="/sbt/sbt/network" class="social-count">
+        263
+      </a>
+    </li>
+</ul>
+
+        <h1 itemscope itemtype="http://data-vocabulary.org/Breadcrumb" class="entry-title public">
+          <span class="repo-label"><span>public</span></span>
+          <span class="mega-octicon octicon-repo"></span>
+          <span class="author">
+            <a href="/sbt" class="url fn" itemprop="url" rel="author"><span itemprop="title">sbt</span></a>
+          </span>
+          <span class="repohead-name-divider">/</span>
+          <strong><a href="/sbt/sbt" class="js-current-repository js-repo-home-link">sbt</a></strong>
+
+          <span class="page-context-loader">
+            <img alt="Octocat-spinner-32" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+          </span>
+
+        </h1>
+      </div><!-- /.container -->
+    </div><!-- /.repohead -->
+
+    <div class="container">
+
+      <div class="repository-with-sidebar repo-container  ">
+
+        <div class="repository-sidebar">
+            
+
+<div class="sunken-menu vertical-right repo-nav js-repo-nav js-repository-container-pjax js-octicon-loaders">
+  <div class="sunken-menu-contents">
+    <ul class="sunken-menu-group">
+      <li class="tooltipped leftwards" title="Code">
+        <a href="/sbt/sbt" aria-label="Code" class="js-selected-navigation-item sunken-menu-item" data-gotokey="c" data-pjax="true" data-selected-links="repo_source repo_downloads repo_commits repo_tags repo_branches /sbt/sbt">
+          <span class="octicon octicon-code"></span> <span class="full-word">Code</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+        <li class="tooltipped leftwards" title="Issues">
+          <a href="/sbt/sbt/issues" aria-label="Issues" class="selected js-selected-navigation-item sunken-menu-item js-disable-pjax" data-gotokey="i" data-selected-links="repo_issues /sbt/sbt/issues">
+            <span class="octicon octicon-issue-opened"></span> <span class="full-word">Issues</span>
+            <span class='counter'>103</span>
+            <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>        </li>
+
+      <li class="tooltipped leftwards" title="Pull Requests">
+        <a href="/sbt/sbt/pulls" aria-label="Pull Requests" class="js-selected-navigation-item sunken-menu-item js-disable-pjax" data-gotokey="p" data-selected-links="repo_pulls /sbt/sbt/pulls">
+            <span class="octicon octicon-git-pull-request"></span> <span class="full-word">Pull Requests</span>
+            <span class='counter'>6</span>
+            <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+
+        <li class="tooltipped leftwards" title="Wiki">
+          <a href="/sbt/sbt/wiki" aria-label="Wiki" class="js-selected-navigation-item sunken-menu-item" data-pjax="true" data-selected-links="repo_wiki /sbt/sbt/wiki">
+            <span class="octicon octicon-book"></span> <span class="full-word">Wiki</span>
+            <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>        </li>
+    </ul>
+    <div class="sunken-menu-separator"></div>
+    <ul class="sunken-menu-group">
+
+      <li class="tooltipped leftwards" title="Pulse">
+        <a href="/sbt/sbt/pulse" aria-label="Pulse" class="js-selected-navigation-item sunken-menu-item" data-pjax="true" data-selected-links="pulse /sbt/sbt/pulse">
+          <span class="octicon octicon-pulse"></span> <span class="full-word">Pulse</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+      <li class="tooltipped leftwards" title="Graphs">
+        <a href="/sbt/sbt/graphs" aria-label="Graphs" class="js-selected-navigation-item sunken-menu-item" data-pjax="true" data-selected-links="repo_graphs repo_contributors /sbt/sbt/graphs">
+          <span class="octicon octicon-graph"></span> <span class="full-word">Graphs</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+
+      <li class="tooltipped leftwards" title="Network">
+        <a href="/sbt/sbt/network" aria-label="Network" class="js-selected-navigation-item sunken-menu-item js-disable-pjax" data-selected-links="repo_network /sbt/sbt/network">
+          <span class="octicon octicon-git-branch"></span> <span class="full-word">Network</span>
+          <img alt="Octocat-spinner-32" class="mini-loader" height="16" src="https://github.global.ssl.fastly.net/images/spinners/octocat-spinner-32.gif" width="16" />
+</a>      </li>
+    </ul>
+
+
+  </div>
+</div>
+
+            <div class="only-with-full-nav">
+              
+
+  
+
+<div class="clone-url open"
+  data-protocol-type="http"
+  data-url="/users/set_protocol?protocol_selector=http&amp;protocol_type=clone">
+  <h3><strong>HTTPS</strong> clone URL</h3>
+  <div class="clone-url-box">
+    <input type="text" class="clone js-url-field"
+           value="https://github.com/sbt/sbt.git" readonly="readonly">
+
+    <span class="js-zeroclipboard url-box-clippy minibutton zeroclipboard-button" data-clipboard-text="https://github.com/sbt/sbt.git" data-copied-hint="copied!" title="copy to clipboard"><span class="octicon octicon-clippy"></span></span>
+  </div>
+</div>
+
+  
+
+<div class="clone-url "
+  data-protocol-type="subversion"
+  data-url="/users/set_protocol?protocol_selector=subversion&amp;protocol_type=clone">
+  <h3><strong>Subversion</strong> checkout URL</h3>
+  <div class="clone-url-box">
+    <input type="text" class="clone js-url-field"
+           value="https://github.com/sbt/sbt" readonly="readonly">
+
+    <span class="js-zeroclipboard url-box-clippy minibutton zeroclipboard-button" data-clipboard-text="https://github.com/sbt/sbt" data-copied-hint="copied!" title="copy to clipboard"><span class="octicon octicon-clippy"></span></span>
+  </div>
+</div>
+
+
+<p class="clone-options">You can clone with
+      <a href="#" class="js-clone-selector" data-protocol="http">HTTPS</a>,
+      or <a href="#" class="js-clone-selector" data-protocol="subversion">Subversion</a>.
+  <span class="octicon help tooltipped upwards" title="Get help on which URL is right for you.">
+    <a href="https://help.github.com/articles/which-remote-url-should-i-use">
+    <span class="octicon octicon-question"></span>
+    </a>
+  </span>
+</p>
+
+
+
+              <a href="/sbt/sbt/archive/0.13.zip"
+                 class="minibutton sidebar-button"
+                 title="Download this repository as a zip file"
+                 rel="nofollow">
+                <span class="octicon octicon-cloud-download"></span>
+                Download ZIP
+              </a>
+            </div>
+        </div><!-- /.repository-sidebar -->
+
+        <div id="js-repo-pjax-container" class="repository-content context-loader-container" data-pjax-container>
+          
+<style type="text/css" media="screen">
+  span.labelstyle-e10c02, .linked-labelstyle-e10c02 {  background-color: #e10c02 !important;  color: #fff !important;}.labelstyle-e10c02.selected {  background-color: #e10c02 !important;  color: #fff !important;}.label-select-menu .labelstyle-e10c02.selected {  background:rgba(225, 12, 2, 0.12) !important;  color: #990801 !important;}
+
+span.labelstyle-02d7e1, .linked-labelstyle-02d7e1 {  background-color: #02d7e1 !important;  color: #003033 !important;}.labelstyle-02d7e1.selected {  background-color: #02d7e1 !important;  color: #003033 !important;}.label-select-menu .labelstyle-02d7e1.selected {  background:rgba(2, 215, 225, 0.12) !important;  color: #019299 !important;}
+
+span.labelstyle-444444, .linked-labelstyle-444444 {  background-color: #444444 !important;  color: #fff !important;}.labelstyle-444444.selected {  background-color: #444444 !important;  color: #fff !important;}.label-select-menu .labelstyle-444444.selected {  background:rgba(68, 68, 68, 0.12) !important;  color: #999999 !important;}
+
+span.labelstyle-02e10c, .linked-labelstyle-02e10c {  background-color: #02e10c !important;  color: #fff !important;}.labelstyle-02e10c.selected {  background-color: #02e10c !important;  color: #fff !important;}.label-select-menu .labelstyle-02e10c.selected {  background:rgba(2, 225, 12, 0.12) !important;  color: #019908 !important;}
+
+span.labelstyle-0b02e1, .linked-labelstyle-0b02e1 {  background-color: #0b02e1 !important;  color: #fff !important;}.labelstyle-0b02e1.selected {  background-color: #0b02e1 !important;  color: #fff !important;}.label-select-menu .labelstyle-0b02e1.selected {  background:rgba(11, 2, 225, 0.30720418300653585) !important;  color: #040066 !important;}
+</style>
+
+
+
+<div id="issues_next">
+  <div class="tabnav tabnav-issues">
+    <div class="tabnav-right">
+      <div class="tabnav-widget ">
+        <a href="/sbt/sbt/issues/new" class="button minibutton primary bigger js-new-issue-button" data-hotkey="c">New Issue</a>
+      </div>
+    </div>
+
+    <ul class="tabnav-tabs">
+      <li><a href="/sbt/sbt/issues" class="tabnav-tab selected">Browse Issues</a></li>
+      <li><a href="/sbt/sbt/issues/milestones" class="tabnav-tab ">Milestones</a></li>
+    </ul>
+  </div>
+    <div id="show_issue" class="js-issues-results">
+
+      <div class="issue-head clearfix">
+        <span class="back">
+          <span class="octicon octicon-arrow-left"></span>
+          <a href="/sbt/sbt/issues" data-hotkey="u" id="to_isssues_list">Back to issue list</a>
+        </span>
+
+        <span class="number">
+          Issue <strong>#653</strong>
+        </span>
+      </div><!-- /.issue-head -->
+
+    <div id="discussion_bucket" class="tab-content">
+      <div class="discussion-sidebar">
+        
+<div id="js-discussion-stats"
+     class="discussion-stats js-socket-channel js-updatable-content"
+     data-channel="sbt/sbt:issue:10311579"
+     data-url="/sbt/sbt/issues/653/show_partial?partial=discussion_stats">
+
+    <span class="state-indicator closed">
+      Closed
+    </span>
+
+    <p>
+      <strong>20</strong>
+      comments
+    </p>
+</div>
+
+
+  <hr>
+  <div class="discussion-labels">
+    <div class="label-manager">
+  <strong>Labels</strong>
+</div>
+
+<ul class="color-label-list filter-list small">
+  
+    <li>
+      <span class="filter-item color-label labelstyle-e10c02" title="Bug">Bug</span>
+    </li>
+
+</ul>
+
+  </div>
+
+      </div>
+
+      <div class="discussion-timeline js-quote-selection-container">
+
+        <div class="js-discussion">
+            
+
+<div class="discussion-bubble js-comment-container js-task-list-container">
+  <a href="/ijuma"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/996e25bb6f9488a816e53af0c027f76d?d=https%3A%2F%2Fidenticons.github.com%2F5833f44355c400ad3efd00141ecca9a7.png&amp;r=x&amp;s=140" width="48" /></a>
+
+  <div class="discussion-bubble-content bubble ">
+    <div class="discussion-bubble-inner">
+      <div class="js-comment comment discussion-topic starting-comment" id="issue-10311579" data-body-version="630ae9726dcac30cb7e2827ca46226a7">
+
+        <div class="discussion-topic-header ">
+          <span class="discussion-topic-author"><a href="/ijuma">ijuma</a> opened this issue <time class="js-relative-date" datetime="2013-01-25T05:54:48-08:00" title="2013-01-25 05:54:48">January 25, 2013</time></span>
+            <h2 class="discussion-topic-title js-comment-body-title">Fork in test should handle exceptions during creation of test class</h2>
+        </div> <!-- /.topic-comment-header -->
+
+        <div class="discusion-topic-infobar js-infobar js-form-issues">
+          <div class="milestone infobar-widget">
+  <span class="text js-milestone-infobar-item-wrapper">
+    
+    Milestone:
+  <a title="0.12.3" href="/sbt/sbt/issues?milestone=3&amp;state=closed">0.12.3</a>
+    <span class="progress-bar"><span class="progress" style="width: 100.0%">&nbsp;</span></span>
+
+  </span>
+
+</div>
+
+<div class="assignee infobar-widget">
+  <span class="css-truncate text js-assignee-infobar-item-wrapper">
+      <span class="avatar"><img height="18" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="18" /></span>
+      <a href="/harrah" class="css-truncate-target">harrah</a> is assigned
+  </span>
+
+</div>
+        </div> <!-- /.discusion-topic-infobar -->
+
+        <div class="comment-content">
+
+          <div class="edit-comment-hide">
+            <div class="js-comment-body comment-body markdown-body markdown-format">
+                <p>We recently ran into a pretty severe issue where a ScalaTest test class was throwing a NPE during construction, which caused test execution to stop but for success to be reported. This meant that we were running 1/3 of our test suite instead of the full test suite and failures were not reported. Note that this was a multi-module build.</p>
+
+<p>I can provide a simple test case if that helps.</p>
+
+<p>The output was:</p>
+
+<pre><code>Exception in thread "Thread-32" java.io.EOFException
+    at java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:2571)
+    at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1315)
+    at java.io.ObjectInputStream.readObject(ObjectInputStream.java:369)
+    at sbt.React.react(ForkTests.scala:98)
+    at sbt.ForkTests$$anonfun$apply$2$Acceptor$2$.run(ForkTests.scala:66)
+    at java.lang.Thread.run(Thread.java:722)
+Exception in thread "Thread-32" java.io.EOFException
+    at java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:2571)
+    at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1315)
+    at java.io.ObjectInputStream.readObject(ObjectInputStream.java:369)
+    at sbt.React.react(ForkTests.scala:98)
+    at sbt.ForkTests$$anonfun$apply$2$Acceptor$2$.run(ForkTests.scala:66)
+    at java.lang.Thread.run(Thread.java:722)
+[info] Passed: : Total 0, Failed 0, Errors 0, Passed 0, Skipped 0
+</code></pre>
+            </div>
+          </div>
+
+          
+
+        </div> <!-- /.comment-content -->
+      </div> <!-- /.comment -->
+    </div> <!-- /.discussion-bubble-content -->
+  </div> <!-- /.discussion-bubble-inner -->
+</div> <!-- /.discussion-bubble -->
+
+
+            
+<div id="js-users-participants" class="js-socket-channel js-updatable-content"
+    data-channel="sbt/sbt:issue:10311579"
+      data-url="/sbt/sbt/issues/653/show_partial?partial=participants"
+  >
+  <div class="pull-participation">
+    <p class="quickstat"><a href="#pr_contributors_box" rel="facebox"><strong>5</strong> participants</a></p>
+
+      <a class="avatar tooltipped downwards" title="ijuma" href="/ijuma"><img height="24" src="https://1.gravatar.com/avatar/996e25bb6f9488a816e53af0c027f76d?d=https%3A%2F%2Fidenticons.github.com%2F5833f44355c400ad3efd00141ecca9a7.png&amp;r=x&amp;s=140" width="24" /></a>
+      <a class="avatar tooltipped downwards" title="harrah" href="/harrah"><img height="24" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="24" /></a>
+      <a class="avatar tooltipped downwards" title="taylorleese" href="/taylorleese"><img height="24" src="https://2.gravatar.com/avatar/4374a176f51f309c5a49f44fd1d7a730?d=https%3A%2F%2Fidenticons.github.com%2F19502caeca55491a4200a34f7367dd33.png&amp;r=x&amp;s=140" width="24" /></a>
+      <a class="avatar tooltipped downwards" title="benburton" href="/benburton"><img height="24" src="https://1.gravatar.com/avatar/fe981ba1d30b3b54836d158ce528416c?d=https%3A%2F%2Fidenticons.github.com%2F118c3612332330c4226caac0b73a81ed.png&amp;r=x&amp;s=140" width="24" /></a>
+      <a class="avatar tooltipped downwards" title="cchantep" href="/cchantep"><img height="24" src="https://2.gravatar.com/avatar/12e92f7dd3e8c432ca551cf263c89177?d=https%3A%2F%2Fidenticons.github.com%2Fc20c96bf441d023d22d71d4a632966bc.png&amp;r=x&amp;s=140" width="24" /></a>
+  </div>
+</div>
+
+<div id="pr_contributors_box" style="display:none">
+  <h2 class="facebox-header">People participating in this issue</h2>
+  <ul class="facebox-user-list">
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://1.gravatar.com/avatar/996e25bb6f9488a816e53af0c027f76d?d=https%3A%2F%2Fidenticons.github.com%2F5833f44355c400ad3efd00141ecca9a7.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/ijuma">ijuma</a>
+    </li>
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/harrah">harrah</a>
+    </li>
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://2.gravatar.com/avatar/4374a176f51f309c5a49f44fd1d7a730?d=https%3A%2F%2Fidenticons.github.com%2F19502caeca55491a4200a34f7367dd33.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/taylorleese">taylorleese</a>
+    </li>
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://1.gravatar.com/avatar/fe981ba1d30b3b54836d158ce528416c?d=https%3A%2F%2Fidenticons.github.com%2F118c3612332330c4226caac0b73a81ed.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/benburton">benburton</a>
+    </li>
+    <li class="facebox-user-list-item">
+      <img height="24" src="https://2.gravatar.com/avatar/12e92f7dd3e8c432ca551cf263c89177?d=https%3A%2F%2Fidenticons.github.com%2Fc20c96bf441d023d22d71d4a632966bc.png&amp;r=x&amp;s=140" width="24" />
+      <a href="/cchantep">cchantep</a>
+    </li>
+  </ul>
+</div>
+
+
+
+          
+
+  <div class="discussion-bubble js-comment-container">
+    <a href="/ijuma"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/996e25bb6f9488a816e53af0c027f76d?d=https%3A%2F%2Fidenticons.github.com%2F5833f44355c400ad3efd00141ecca9a7.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-12701469" class="js-comment comment  js-task-list-container" data-body-version="b09c29b15fd86be6d58fc99512b3935d">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-12701469" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/ijuma" class="comment-header-author">ijuma</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-12701469">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-12701469" class="comment-header-date"><time class="js-relative-date" datetime="2013-01-25T05:55:05-08:00" title="2013-01-25 05:55:05">January 25, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>/cc <a href="https://github.com/aloiscochard" class="user-mention">@aloiscochard</a></p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-12703511" class="js-comment comment  js-task-list-container" data-body-version="ef5e58f5eca1659c00482bc71569c564">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-12703511" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/harrah" class="comment-header-author">harrah</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-12703511">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-12703511" class="comment-header-date"><time class="js-relative-date" datetime="2013-01-25T06:50:22-08:00" title="2013-01-25 06:50:22">January 25, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Yes, a test case usually helps fix it sooner.  You are on 0.12.2, right?</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/ijuma"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/996e25bb6f9488a816e53af0c027f76d?d=https%3A%2F%2Fidenticons.github.com%2F5833f44355c400ad3efd00141ecca9a7.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-12734300" class="js-comment comment  js-task-list-container" data-body-version="34ae36c4d3cd7d31c7f83e118436b697">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-12734300" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/ijuma" class="comment-header-author">ijuma</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-12734300">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-12734300" class="comment-header-date"><time class="js-relative-date" datetime="2013-01-26T03:46:50-08:00" title="2013-01-26 03:46:50">January 26, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>0.12.2 indeed. Will try to create an isolated test case.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/ijuma"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/996e25bb6f9488a816e53af0c027f76d?d=https%3A%2F%2Fidenticons.github.com%2F5833f44355c400ad3efd00141ecca9a7.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-12757472" class="js-comment comment  js-task-list-container" data-body-version="ef58d63c3edb0f76a7add410d8603478">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-12757472" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/ijuma" class="comment-header-author">ijuma</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-12757472">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-12757472" class="comment-header-date"><time class="js-relative-date" datetime="2013-01-27T09:16:09-08:00" title="2013-01-27 09:16:09">January 27, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>I updated a previous project with a SBT test case to throw an exception during test construction:</p>
+
+<p><a href="https://github.com/ijuma/sbt-test-bug/commit/ac82782ad3558c5d48121dda0e3fa063e7127ac1" class="commit-link">ijuma/sbt-test-bug@<tt>ac82782</tt></a></p>
+
+<p>The output using SBT 0.12.2 in my machine:</p>
+
+<pre><code>ijuma% sbt test
+[info] Loading project definition from /Users/ijuma/src/sbt-test-bug/project
+[info] Set current project to root (in build file:/Users/ijuma/src/sbt-test-bug/)
+[info] No tests to run for root/test:test
+Exception in thread "Thread-1" java.io.EOFException
+    at java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:2572)
+    at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1315)
+    at java.io.ObjectInputStream.readObject(ObjectInputStream.java:369)
+    at sbt.React.react(ForkTests.scala:98)
+    at sbt.ForkTests$$anonfun$apply$2$Acceptor$2$.run(ForkTests.scala:66)
+    at java.lang.Thread.run(Thread.java:722)
+[info] Passed: : Total 0, Failed 0, Errors 0, Passed 0, Skipped 0
+[info] No tests to run for data/test:test
+[success] Total time: 1 s, completed 27-Jan-2013 17:14:31
+</code></pre>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  
+
+    
+
+    <div class="discussion-bubble discussion-commit-list js-comment-container">
+      <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+      <div class="discussion-bubble-content bubble">
+        <div class="discussion-bubble-inner">
+          <div class="js-comment comment" id="ref-commit-9702d3d">
+
+            <div class="comment-header">
+              <span class="comment-type-icon octicon octicon-move-left"></span>
+              <a href="/harrah" class="comment-header-author" truncate="true">harrah</a>
+              <span class='comment-header-action-text'>
+                <a href='#ref-commit-9702d3d'>
+                  closed
+                  this issue
+                  from a commit
+                </a>
+              </span>
+              <span class="comment-header-right">
+                <a href="#ref-commit-9702d3d" class="comment-header-date">
+                  <time class="js-relative-date" datetime="2013-01-28T14:14:53-08:00" title="2013-01-28 14:14:53">January 28, 2013</time>
+                </a>
+              </span>
+            </div> <!-- ./comment-header -->
+
+            <div class="comment-content">
+              <table class='commits commits-condensed' cellspacing='0' width="100%">
+                
+
+
+  <tr class="commit js-details-container js-socket-channel js-updatable-content"
+        data-channel="sbt/sbt:commit:9702d3d3186ae70c0713276e3d98cbac01fe1dc0"
+        data-url="/sbt/sbt/commit/9702d3d3186ae70c0713276e3d98cbac01fe1dc0/show_partial?partial=condensed"
+        id="commit-9702d3d3186ae70c0713276e3d98cbac01fe1dc0"
+      >
+
+    <td class="gravatar" width="1%">
+        <span class="gravatar"><a href="/harrah"><img height="16" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="16" /></a></span>
+    </td>
+
+    <td class="author">
+        <span class="commit-author">
+          <a href="/harrah" rel="author">harrah</a>
+        </span>
+    </td>
+
+    <td class="message">
+        <code><a href="/sbt/sbt/commit/9702d3d3186ae70c0713276e3d98cbac01fe1dc0" class="message" data-pjax="true" title="Handle exceptions not caught by the test framework when forking.  Fixes ...
+
+...#653.">Handle exceptions not caught by the test framework when forking. Fixes</a> <a href="https://github.com/sbt/sbt/issues/653" class="issue-link" title="Fork in test should handle exceptions during creation of test class">…</a></code>
+
+          <span class="hidden-text-expander inline"><a href="#" class="js-details-target">…</a></span>
+          <div class="commit-desc"><pre><a href="https://github.com/sbt/sbt/issues/653" class="issue-link" title="Fork in test should handle exceptions during creation of test class">&#8230;#653</a>.</pre></div>
+
+    </td>
+
+    <td class="commit-meta" width="1%">
+        
+
+
+        <code><a href="/sbt/sbt/commit/9702d3d3186ae70c0713276e3d98cbac01fe1dc0">9702d3d</a></code>
+    </td>
+
+  </tr>
+
+
+              </table>
+            </div> <!-- /.comment-content -->
+          </div> <!-- /.comment -->
+        </div>
+      </div>
+    </div><!-- /.discussion-bubble -->
+
+
+
+
+    <div class="action-bubble action-bubble-closed">
+      <span class="action">
+        <span class="state-indicator closed">Closed</span>
+      </span>
+      <div class="bubble">
+          <p>
+            <strong><span class="avatar"><img height="24" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="24" /></span>
+              <a href="/harrah">harrah</a></strong>
+            closed the issue
+            in <code><a href="/sbt/sbt/commit/9702d3d3186ae70c0713276e3d98cbac01fe1dc0">9702d3d</a></code>
+            <time class="js-relative-date" datetime="2013-01-28T16:27:16-08:00" title="2013-01-28 16:27:16">January 28, 2013</time>
+          </p>
+      </div><!-- /.bubble -->
+    </div><!-- /.action-bubble -->
+
+
+    <div class="closed-banner"></div>
+
+  <div class="discussion-bubble js-comment-container">
+    <a href="/ijuma"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/996e25bb6f9488a816e53af0c027f76d?d=https%3A%2F%2Fidenticons.github.com%2F5833f44355c400ad3efd00141ecca9a7.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-12813869" class="js-comment comment  js-task-list-container" data-body-version="38f5c24717fedaa404babb0c4710152e">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-12813869" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/ijuma" class="comment-header-author">ijuma</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-12813869">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-12813869" class="comment-header-date"><time class="js-relative-date" datetime="2013-01-28T16:28:48-08:00" title="2013-01-28 16:28:48">January 28, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Thanks!</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  
+
+    
+
+    <div class="discussion-bubble discussion-commit-list js-comment-container">
+      <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+      <div class="discussion-bubble-content bubble">
+        <div class="discussion-bubble-inner">
+          <div class="js-comment comment" id="ref-commit-c602233">
+
+            <div class="comment-header">
+              <span class="comment-type-icon octicon octicon-move-left"></span>
+              <a href="/harrah" class="comment-header-author" truncate="true">harrah</a>
+              <span class='comment-header-action-text'>
+                <a href='#ref-commit-c602233'>
+                  referenced
+                  this issue
+                  from a commit
+                </a>
+              </span>
+              <span class="comment-header-right">
+                <a href="#ref-commit-c602233" class="comment-header-date">
+                  <time class="js-relative-date" datetime="2013-01-28T14:14:53-08:00" title="2013-01-28 14:14:53">January 28, 2013</time>
+                </a>
+              </span>
+            </div> <!-- ./comment-header -->
+
+            <div class="comment-content">
+              <table class='commits commits-condensed' cellspacing='0' width="100%">
+                
+
+
+  <tr class="commit js-details-container js-socket-channel js-updatable-content"
+        data-channel="sbt/sbt:commit:c60223330d6d390eb058361b93a3a8c4cde51f63"
+        data-url="/sbt/sbt/commit/c60223330d6d390eb058361b93a3a8c4cde51f63/show_partial?partial=condensed"
+        id="commit-c60223330d6d390eb058361b93a3a8c4cde51f63"
+      >
+
+    <td class="gravatar" width="1%">
+        <span class="gravatar"><a href="/harrah"><img height="16" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="16" /></a></span>
+    </td>
+
+    <td class="author">
+        <span class="commit-author">
+          <a href="/harrah" rel="author">harrah</a>
+        </span>
+    </td>
+
+    <td class="message">
+        <code><a href="/sbt/sbt/commit/c60223330d6d390eb058361b93a3a8c4cde51f63" class="message" data-pjax="true" title="Handle exceptions not caught by the test framework when forking.  Fixes ...
+
+...#653.">Handle exceptions not caught by the test framework when forking. Fixes</a> <a href="https://github.com/sbt/sbt/issues/653" class="issue-link" title="Fork in test should handle exceptions during creation of test class">…</a></code>
+
+          <span class="hidden-text-expander inline"><a href="#" class="js-details-target">…</a></span>
+          <div class="commit-desc"><pre><a href="https://github.com/sbt/sbt/issues/653" class="issue-link" title="Fork in test should handle exceptions during creation of test class">&#8230;#653</a>.</pre></div>
+
+    </td>
+
+    <td class="commit-meta" width="1%">
+        
+
+
+        <code><a href="/sbt/sbt/commit/c60223330d6d390eb058361b93a3a8c4cde51f63">c602233</a></code>
+    </td>
+
+  </tr>
+
+
+              </table>
+            </div> <!-- /.comment-content -->
+          </div> <!-- /.comment -->
+        </div>
+      </div>
+    </div><!-- /.discussion-bubble -->
+
+
+  <div class="discussion-bubble js-comment-container">
+    <a href="/taylorleese"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/4374a176f51f309c5a49f44fd1d7a730?d=https%3A%2F%2Fidenticons.github.com%2F19502caeca55491a4200a34f7367dd33.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-27276030" class="js-comment comment  js-task-list-container" data-body-version="7e861c178b774b7bace32cc39f8d8618">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-27276030" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/taylorleese" class="comment-header-author">taylorleese</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-27276030">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-27276030" class="comment-header-date"><time class="js-relative-date" datetime="2013-10-28T20:21:37-07:00" title="2013-10-28 20:21:37">October 28, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>I seem to be getting this error with sbt 0.13.0.</p>
+
+<div class="highlight highlight-scala"><pre><span class="nc">Exception</span> <span class="n">in</span> <span class="n">thread</span> <span class="s">"Thread-3"</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">EOFException</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">ObjectInputStream$BlockDataInputStream</span><span class="o">.</span><span class="n">peekByte</span><span class="o">(</span><span class="nc">ObjectInputStream</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">2577</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">ObjectInputStream</span><span class="o">.</span><span class="n">readObject0</span><span class="o">(</span><span class="nc">ObjectInputStream</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">1297</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="nc">ObjectInputStream</span><span class="o">.</span><span class="n">readObject</span><span class="o">(</span><span class="nc">ObjectInputStream</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">349</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">sbt</span><span class="o">.</span><span class="nc">React</span><span class="o">.</span><span class="n">react</span><span class="o">(</span><span class="nc">ForkTests</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">110</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">sbt</span><span class="o">.</span><span class="nc">ForkTests$$anonfun$mainTestTask$1$Acceptor$2</span><span class="n">$</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="nc">ForkTests</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">69</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Thread</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="nc">Thread</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">695</span><span class="o">)</span>
+</pre></div>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-27690144" class="js-comment comment  js-task-list-container" data-body-version="9a0a4b786426fb7a47e12694dec233ec">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-27690144" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/harrah" class="comment-header-author">harrah</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-27690144">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-27690144" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-04T06:51:17-08:00" title="2013-11-04 06:51:17">November 04, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/taylorleese" class="user-mention">@taylorleese</a> certainly it is a bug, but it is unlikely to have the same cause and warrants a separate issue.  Unfortunately, I'd need a test case.  sbt 0.13.1 might help pinpoint the problem with more logging, but I don't know if it will do anything at this point in execution.  (0.13.1-RC1 had some issues so it wasn't announced- RC2 will be out this week.)</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/benburton"><img class="discussion-bubble-avatar" height="48" src="https://1.gravatar.com/avatar/fe981ba1d30b3b54836d158ce528416c?d=https%3A%2F%2Fidenticons.github.com%2F118c3612332330c4226caac0b73a81ed.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28320181" class="js-comment comment  js-task-list-container" data-body-version="5a8e312c412a4d0fc7a620de83aeb430">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28320181" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/benburton" class="comment-header-author">benburton</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28320181">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28320181" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-12T10:36:34-08:00" title="2013-11-12 10:36:34">November 12, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>I'm seeing this as well on sbt 0.13.0</p>
+
+<pre><code>Exception in thread "Thread-18" java.io.EOFException
+    at java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:2598)
+    at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1318)
+    at java.io.ObjectInputStream.readObject(ObjectInputStream.java:370)
+    at sbt.React.react(ForkTests.scala:98)
+    at sbt.ForkTests$$anonfun$apply$2$Acceptor$2$.run(ForkTests.scala:66)
+    at java.lang.Thread.run(Thread.java:744)
+</code></pre>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cchantep"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/12e92f7dd3e8c432ca551cf263c89177?d=https%3A%2F%2Fidenticons.github.com%2Fc20c96bf441d023d22d71d4a632966bc.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28909180" class="js-comment comment  js-task-list-container" data-body-version="3971ef0774fa1de4ad0f7e282bf40759">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28909180" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cchantep" class="comment-header-author">cchantep</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28909180">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28909180" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T09:21:22-08:00" title="2013-11-20 09:21:22">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Same on sbt 0.13.1-RC2:</p>
+
+<pre><code>Exception in thread "Thread-54" java.io.EOFException
+    at java.io.ObjectInputStream$BlockDataInputStream.peekByte(ObjectInputStream.java:2577)
+    at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1315)
+    at java.io.ObjectInputStream.readObject(ObjectInputStream.java:369)
+    at sbt.React.react(ForkTests.scala:116)
+    at sbt.ForkTests$$anonfun$mainTestTask$1$Acceptor$2$.run(ForkTests.scala:75)
+    at java.lang.Thread.run(Thread.java:722)
+</code></pre>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28909626" class="js-comment comment  js-task-list-container" data-body-version="ed304bf1d8900813520d87c72e55dbd2">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28909626" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/harrah" class="comment-header-author">harrah</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28909626">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28909626" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T09:25:44-08:00" title="2013-11-20 09:25:44">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p><a href="https://github.com/cchantep" class="user-mention">@cchantep</a> right, there hasn't been a new fix since the original fix.  I need a test case to be able to do anything- the stack trace doesn't help much, unfortunately.  The earlier comment about 0.13.1 was that it might have additional information useful for producing a test case.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cchantep"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/12e92f7dd3e8c432ca551cf263c89177?d=https%3A%2F%2Fidenticons.github.com%2Fc20c96bf441d023d22d71d4a632966bc.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28909774" class="js-comment comment  js-task-list-container" data-body-version="c0020976c5da68dbc4fb39a1858787a9">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28909774" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cchantep" class="comment-header-author">cchantep</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28909774">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28909774" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T09:27:17-08:00" title="2013-11-20 09:27:17">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Will see if I can extract a clear test case from the erroneous involved specs test.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28909909" class="js-comment comment  js-task-list-container" data-body-version="59231b029461ffcf2fcc5b4913d901b4">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28909909" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/harrah" class="comment-header-author">harrah</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28909909">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28909909" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T09:28:40-08:00" title="2013-11-20 09:28:40">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Thanks a lot.  I'd appreciate it.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cchantep"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/12e92f7dd3e8c432ca551cf263c89177?d=https%3A%2F%2Fidenticons.github.com%2Fc20c96bf441d023d22d71d4a632966bc.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28911202" class="js-comment comment  js-task-list-container" data-body-version="6db246ae853f20403bc8a57ff5314f53">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28911202" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cchantep" class="comment-header-author">cchantep</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28911202">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28911202" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T09:42:56-08:00" title="2013-11-20 09:42:56">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Unfortunatly it seems several test combinations given the blocking situation, I can restrict it more than <a href="https://github.com/playframework/playframework/blob/master/framework/src/anorm/src/test/scala/anorm/AnormSpec.scala">https://github.com/playframework/playframework/blob/master/framework/src/anorm/src/test/scala/anorm/AnormSpec.scala</a> .</p>
+
+<p>If you comment out at least one test, sbt execution is ok, running all is blocked (sometime, but majority of time for me today).</p>
+
+<pre><code>playframework/framework# sbt
+sbt&gt; project Anorm
+sbt&gt; test
+</code></pre>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28911331" class="js-comment comment  js-task-list-container" data-body-version="31f3bb1947290cd0e5a4034c77bb3f9f">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28911331" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/harrah" class="comment-header-author">harrah</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28911331">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28911331" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T09:44:20-08:00" title="2013-11-20 09:44:20">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>but it is reproducible on a public codebase?  that's a good enough start for me to reopen, thanks.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  
+
+
+
+
+    <div class="action-bubble action-bubble-reopened">
+      <span class="action">
+        <span class="state-indicator reopened">Reopened</span>
+      </span>
+      <div class="bubble">
+          <p>
+            <strong><span class="avatar"><img height="24" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="24" /></span>
+              <a href="/harrah">harrah</a></strong>
+            reopened the issue
+            <time class="js-relative-date" datetime="2013-11-20T09:44:20-08:00" title="2013-11-20 09:44:20">November 20, 2013</time>
+          </p>
+      </div><!-- /.bubble -->
+    </div><!-- /.action-bubble -->
+
+
+
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cchantep"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/12e92f7dd3e8c432ca551cf263c89177?d=https%3A%2F%2Fidenticons.github.com%2Fc20c96bf441d023d22d71d4a632966bc.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28911420" class="js-comment comment  js-task-list-container" data-body-version="b4cc3685f0ad519a3f032c17ad0eb684">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28911420" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cchantep" class="comment-header-author">cchantep</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28911420">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28911420" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T09:45:24-08:00" title="2013-11-20 09:45:24">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>yep, no need of specific fixture, checking out play master allow to reproduce it.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28913387" class="js-comment comment  js-task-list-container" data-body-version="6df0940be94bd5e365031121e01c3707">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28913387" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/harrah" class="comment-header-author">harrah</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28913387">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28913387" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T10:08:35-08:00" title="2013-11-20 10:08:35">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>I don't see an EOFException, just a hang, which appears to be in the application/test code and not in sbt.  The relevant stack traces from the remote jvm:</p>
+
+<div class="highlight highlight-scala"><pre><span class="s">"specs2.DefaultExecutionStrategy1"</span> <span class="n">prio</span><span class="k">=</span><span class="mi">10</span> <span class="n">tid</span><span class="k">=</span><span class="mh">0x00007fddf83e4000</span> <span class="n">nid</span><span class="k">=</span><span class="mh">0xfbf</span> <span class="n">in</span> <span class="nc">Object</span><span class="o">.</span><span class="n">wait</span><span class="o">()</span> <span class="o">[</span><span class="err">0</span><span class="kt">x00007fddf4de8000</span><span class="o">]</span>
+   <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Thread</span><span class="o">.</span><span class="nc">State</span><span class="k">:</span> <span class="kt">RUNNABLE</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Class</span><span class="o">.</span><span class="n">forName0</span><span class="o">(</span><span class="nc">Native</span> <span class="nc">Method</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Class</span><span class="o">.</span><span class="n">forName</span><span class="o">(</span><span class="nc">Class</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">188</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="n">H2Database$class</span><span class="o">.</span><span class="n">withConnection</span><span class="o">(</span><span class="n">H2Database</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">11</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec</span><span class="n">$</span><span class="o">.</span><span class="n">withConnection</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">9</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec$$anonfun$1$$anonfun$apply$1</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">11</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec$$anonfun$1$$anonfun$apply$1</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">11</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">org</span><span class="o">.</span><span class="n">specs2</span><span class="o">.</span><span class="n">specification</span><span class="o">.</span><span class="nc">ContextsInjection$$anon$1$$anonfun$asResult$1</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">ContextsInjection</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">11</span><span class="o">)</span>
+
+<span class="s">"specs2.DefaultExecutionStrategy2"</span> <span class="n">prio</span><span class="k">=</span><span class="mi">10</span> <span class="n">tid</span><span class="k">=</span><span class="mh">0x00007fddf8363000</span> <span class="n">nid</span><span class="k">=</span><span class="mh">0xfc0</span> <span class="n">waiting</span> <span class="k">for</span> <span class="n">monitor</span> <span class="n">entry</span> <span class="o">[</span><span class="err">0</span><span class="kt">x00007fddf4ce7000</span><span class="o">]</span>
+   <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Thread</span><span class="o">.</span><span class="nc">State</span><span class="k">:</span> <span class="kt">BLOCKED</span> <span class="o">(</span><span class="kt">on</span> <span class="kt">object</span> <span class="kt">monitor</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">java.sql.DriverManager.registerDriver</span><span class="o">(</span><span class="kt">DriverManager.java:</span><span class="err">295</span><span class="o">)</span>
+    <span class="kt">-</span> <span class="kt">waiting</span> <span class="kt">to</span> <span class="kt">lock</span> <span class="kt">&lt;</span><span class="err">0</span><span class="kt">x000000077bd95720&gt;</span> <span class="o">(</span><span class="kt">a</span> <span class="kt">java.lang.Class</span> <span class="kt">for</span> <span class="kt">java.sql.DriverManager</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">org.h2.Driver.load</span><span class="o">(</span><span class="kt">Driver.java:</span><span class="err">160</span><span class="o">)</span>
+    <span class="kt">-</span> <span class="kt">locked</span> <span class="kt">&lt;</span><span class="err">0</span><span class="kt">x000000077bdb25f0&gt;</span> <span class="o">(</span><span class="kt">a</span> <span class="kt">java.lang.Class</span> <span class="kt">for</span> <span class="kt">org.h2.Driver</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">org.h2.Driver.&lt;clinit&gt;</span><span class="o">(</span><span class="kt">Driver.java:</span><span class="err">45</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">java.lang.Class.forName0</span><span class="o">(</span><span class="kt">Native</span> <span class="kt">Method</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">java.lang.Class.forName</span><span class="o">(</span><span class="kt">Class.java:</span><span class="err">188</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">anorm.H2Database$class.withConnection</span><span class="o">(</span><span class="kt">H2Database.scala:</span><span class="err">11</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">anorm.AnormSpec$.withConnection</span><span class="o">(</span><span class="kt">AnormSpec.scala:</span><span class="err">9</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">anorm.AnormSpec$$anonfun$1$$anonfun$apply$6.apply</span><span class="o">(</span><span class="kt">AnormSpec.scala:</span><span class="err">24</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">anorm.AnormSpec$$anonfun$1$$anonfun$apply$6.apply</span><span class="o">(</span><span class="kt">AnormSpec.scala:</span><span class="err">24</span><span class="o">)</span>
+    <span class="kt">at</span> <span class="kt">org.specs2.specification.ContextsInjection$$anon$1$$anonfun$asResult$1.apply</span><span class="o">(</span><span class="kt">ContextsInjection.scala:</span><span class="err">11</span><span class="o">)</span>
+
+<span class="err">"</span><span class="kt">specs2.DefaultExecutionStrategy3</span><span class="err">"</span> <span class="kt">prio</span><span class="o">=</span><span class="mi">10</span> <span class="n">tid</span><span class="k">=</span><span class="mh">0x00007fddf83e8800</span> <span class="n">nid</span><span class="k">=</span><span class="mh">0xfc1</span> <span class="n">in</span> <span class="nc">Object</span><span class="o">.</span><span class="n">wait</span><span class="o">()</span> <span class="o">[</span><span class="err">0</span><span class="kt">x00007fddf4be6000</span><span class="o">]</span>
+   <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Thread</span><span class="o">.</span><span class="nc">State</span><span class="k">:</span> <span class="kt">RUNNABLE</span>
+    <span class="n">at</span> <span class="n">acolyte</span><span class="o">.</span><span class="nc">Acolyte</span><span class="n">$</span><span class="o">.</span><span class="n">connection</span><span class="o">(</span><span class="nc">Acolyte</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">37</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormTest$class</span><span class="o">.</span><span class="n">withQueryResult</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">65</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec</span><span class="n">$</span><span class="o">.</span><span class="n">withQueryResult</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">9</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec$$anonfun$1$$anonfun$apply$11$$anonfun$apply$12</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">37</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec$$anonfun$1$$anonfun$apply$11$$anonfun$apply$12</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">37</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">org</span><span class="o">.</span><span class="n">specs2</span><span class="o">.</span><span class="n">specification</span><span class="o">.</span><span class="nc">ContextsInjection$$anon$1$$anonfun$asResult$1</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">ContextsInjection</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">11</span><span class="o">)</span>
+
+<span class="s">"specs2.DefaultExecutionStrategy4"</span> <span class="n">prio</span><span class="k">=</span><span class="mi">10</span> <span class="n">tid</span><span class="k">=</span><span class="mh">0x00007fddf8342000</span> <span class="n">nid</span><span class="k">=</span><span class="mh">0xfc2</span> <span class="n">in</span> <span class="nc">Object</span><span class="o">.</span><span class="n">wait</span><span class="o">()</span> <span class="o">[</span><span class="err">0</span><span class="kt">x00007fddf4ae4000</span><span class="o">]</span>
+   <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Thread</span><span class="o">.</span><span class="nc">State</span><span class="k">:</span> <span class="kt">RUNNABLE</span>
+    <span class="n">at</span> <span class="n">sun</span><span class="o">.</span><span class="n">reflect</span><span class="o">.</span><span class="nc">NativeConstructorAccessorImpl</span><span class="o">.</span><span class="n">newInstance0</span><span class="o">(</span><span class="nc">Native</span> <span class="nc">Method</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">sun</span><span class="o">.</span><span class="n">reflect</span><span class="o">.</span><span class="nc">NativeConstructorAccessorImpl</span><span class="o">.</span><span class="n">newInstance</span><span class="o">(</span><span class="nc">NativeConstructorAccessorImpl</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">57</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">sun</span><span class="o">.</span><span class="n">reflect</span><span class="o">.</span><span class="nc">DelegatingConstructorAccessorImpl</span><span class="o">.</span><span class="n">newInstance</span><span class="o">(</span><span class="nc">DelegatingConstructorAccessorImpl</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">45</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">reflect</span><span class="o">.</span><span class="nc">Constructor</span><span class="o">.</span><span class="n">newInstance</span><span class="o">(</span><span class="nc">Constructor</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">532</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Class</span><span class="o">.</span><span class="n">newInstance0</span><span class="o">(</span><span class="nc">Class</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">374</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Class</span><span class="o">.</span><span class="n">newInstance</span><span class="o">(</span><span class="nc">Class</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">327</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">ServiceLoader$LazyIterator</span><span class="o">.</span><span class="n">next</span><span class="o">(</span><span class="nc">ServiceLoader</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">373</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="nc">ServiceLoader$1</span><span class="o">.</span><span class="n">next</span><span class="o">(</span><span class="nc">ServiceLoader</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">445</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="nc">DriverManager$2</span><span class="o">.</span><span class="n">run</span><span class="o">(</span><span class="nc">DriverManager</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">537</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="nc">AccessController</span><span class="o">.</span><span class="n">doPrivileged</span><span class="o">(</span><span class="nc">Native</span> <span class="nc">Method</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="nc">DriverManager</span><span class="o">.</span><span class="n">loadInitialDrivers</span><span class="o">(</span><span class="nc">DriverManager</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">517</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="nc">DriverManager</span><span class="o">.</span><span class="n">initialize</span><span class="o">(</span><span class="nc">DriverManager</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">650</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="nc">DriverManager</span><span class="o">.</span><span class="n">registerDriver</span><span class="o">(</span><span class="nc">DriverManager</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">296</span><span class="o">)</span>
+    <span class="o">-</span> <span class="n">locked</span> <span class="o">&lt;</span><span class="mh">0x000000077bd95720</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">a</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Class</span> <span class="k">for</span> <span class="n">java</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="nc">DriverManager</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">acolyte</span><span class="o">.</span><span class="nc">Driver</span><span class="o">.&lt;</span><span class="n">clinit</span><span class="o">&gt;(</span><span class="nc">Driver</span><span class="o">.</span><span class="n">java</span><span class="k">:</span><span class="err">41</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">acolyte</span><span class="o">.</span><span class="nc">Acolyte</span><span class="n">$</span><span class="o">.</span><span class="n">connection</span><span class="o">(</span><span class="nc">Acolyte</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">37</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormTest$class</span><span class="o">.</span><span class="n">withQueryResult</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">65</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec</span><span class="n">$</span><span class="o">.</span><span class="n">withQueryResult</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">9</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec$$anonfun$1$$anonfun$apply$11$$anonfun$apply$16</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">45</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">anorm</span><span class="o">.</span><span class="nc">AnormSpec$$anonfun$1$$anonfun$apply$11$$anonfun$apply$16</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">AnormSpec</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">45</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">org</span><span class="o">.</span><span class="n">specs2</span><span class="o">.</span><span class="n">specification</span><span class="o">.</span><span class="nc">ContextsInjection$$anon$1$$anonfun$asResult$1</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">ContextsInjection</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">11</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">org</span><span class="o">.</span><span class="n">specs2</span><span class="o">.</span><span class="n">specification</span><span class="o">.</span><span class="nc">ContextsInjection$$anon$1$$anonfun$asResult$1</span><span class="o">.</span><span class="n">apply</span><span class="o">(</span><span class="nc">ContextsInjection</span><span class="o">.</span><span class="n">scala</span><span class="k">:</span><span class="err">11</span><span class="o">)</span>
+
+</pre></div>
+
+<p>If you forcibly kill sbt, yes, I see an EOFException, but that's not surprising- it is being forcibly shutdown in the middle of communicating with a remove jvm.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cchantep"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/12e92f7dd3e8c432ca551cf263c89177?d=https%3A%2F%2Fidenticons.github.com%2Fc20c96bf441d023d22d71d4a632966bc.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28913611" class="js-comment comment  js-task-list-container" data-body-version="f0029785da4ecb1628931a2652d18778">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28913611" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cchantep" class="comment-header-author">cchantep</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28913611">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28913611" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T10:11:28-08:00" title="2013-11-20 10:11:28">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Do you see it ending at some point? if you don't kill?<br>
+I've let it running for more than 10min, without end.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28915054" class="js-comment comment  js-task-list-container" data-body-version="e43b62925d16e84b92c2ba6b2af0c90c">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28915054" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/harrah" class="comment-header-author">harrah</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28915054">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28915054" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T10:28:47-08:00" title="2013-11-20 10:28:47">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>Right, you have to kill it.  But, that's a problem with the tests themselves, not sbt.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/cchantep"><img class="discussion-bubble-avatar" height="48" src="https://2.gravatar.com/avatar/12e92f7dd3e8c432ca551cf263c89177?d=https%3A%2F%2Fidenticons.github.com%2Fc20c96bf441d023d22d71d4a632966bc.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28915105" class="js-comment comment  js-task-list-container" data-body-version="498c381ba18fc1be2160719e3e0a7c45">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28915105" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/cchantep" class="comment-header-author">cchantep</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28915105">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28915105" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T10:29:25-08:00" title="2013-11-20 10:29:25">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>weird</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  <div class="discussion-bubble js-comment-container">
+    <a href="/harrah"><img class="discussion-bubble-avatar" height="48" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="48" /></a>
+    <div class="discussion-bubble-content bubble">
+      <div class="discussion-bubble-inner">
+        
+
+        <div id="issuecomment-28916521" class="js-comment comment  js-task-list-container" data-body-version="0d44d85624554e6ca8e4821b6f93166c">
+          <div class="comment-header -comment-header">
+              <a href="#issuecomment-28916521" class="comment-type-icon octicon octicon-comment" title=""></a>
+            <a href="/harrah" class="comment-header-author">harrah</a>
+            <span class='comment-header-action-text'>
+              <a href="#issuecomment-28916521">
+              commented
+              </a>
+            </span>
+
+            <span class="comment-header-right">
+                <a href="#issuecomment-28916521" class="comment-header-date"><time class="js-relative-date" datetime="2013-11-20T10:45:49-08:00" title="2013-11-20 10:45:49">November 20, 2013</time></a>
+            </span>
+          </div> <!-- /.comment-header -->
+
+          <div class="comment-content">
+
+            <div class="edit-comment-hide">
+              <div class="js-comment-body comment-body markdown-body markdown-format">
+                  <p>To be clear, the problem is that the tests hang.  This means that the user has to kill sbt.  During forcible termination, sbt generates a spurious exception that is unavoidable as far as I can see.  So, I'm (re)closing this.</p>
+              </div>
+            </div>
+          </div> <!-- /.comment-content -->
+        </div> <!-- /.comment -->
+
+
+      </div>
+    </div>
+  </div><!-- /.discussion-bubble -->
+  
+
+
+
+
+    <div class="action-bubble action-bubble-closed">
+      <span class="action">
+        <span class="state-indicator closed">Closed</span>
+      </span>
+      <div class="bubble">
+          <p>
+            <strong><span class="avatar"><img height="24" src="https://0.gravatar.com/avatar/c9e8de1be98d66ac0eb22fd7473aa263?d=https%3A%2F%2Fidenticons.github.com%2F6f8dc78184691467ee401c115b5b2d54.png&amp;r=x&amp;s=140" width="24" /></span>
+              <a href="/harrah">harrah</a></strong>
+            closed the issue
+            
+            <time class="js-relative-date" datetime="2013-11-20T10:45:49-08:00" title="2013-11-20 10:45:49">November 20, 2013</time>
+          </p>
+      </div><!-- /.bubble -->
+    </div><!-- /.action-bubble -->
+
+
+    <div class="closed-banner"></div>
+
+
+
+
+<!-- Rendered timeline since 2013-11-20 10:45:49 -->
+<div id="js-timeline-marker"
+      class="js-socket-channel js-updatable-content"
+      data-channel="sbt/sbt:issue:10311579"
+      data-url="/sbt/sbt/issues/653/show_partial?partial=timeline_marker&amp;since=1384973149"
+      data-last-modified="Wed, 20 Nov 2013 18:45:49 GMT">
+</div>
+
+
+
+        </div>
+
+          <div class="signed-out-comment">
+	<a href="/join" class="minibutton btn-default green" rel="nofollow">Sign up for free</a>
+	<strong>to join this conversation on GitHub</strong>.
+	Already have an account?
+	<a href="/login?return_to=%2Fsbt%2Fsbt%2Fissues%2F653" rel="nofollow">Sign in to comment</a>
+</div>
+
+
+        
+
+      </div><!-- /.discussion-timeline -->
+
+    </div><!-- /#discussion_bucket -->
+    <div class="clear"></div>
+  </div>
+
+</div>
+
+
+        </div>
+
+      </div><!-- /.repo-container -->
+      <div class="modal-backdrop"></div>
+    </div><!-- /.container -->
+  </div><!-- /.site -->
+
+
+    </div><!-- /.wrapper -->
+
+      <div class="container">
+  <div class="site-footer">
+    <ul class="site-footer-links right">
+      <li><a href="https://status.github.com/">Status</a></li>
+      <li><a href="http://developer.github.com">API</a></li>
+      <li><a href="http://training.github.com">Training</a></li>
+      <li><a href="http://shop.github.com">Shop</a></li>
+      <li><a href="/blog">Blog</a></li>
+      <li><a href="/about">About</a></li>
+
+    </ul>
+
+    <a href="/">
+      <span class="mega-octicon octicon-mark-github"></span>
+    </a>
+
+    <ul class="site-footer-links">
+      <li>&copy; 2013 <span title="0.42524s from github-fe137-cp1-prd.iad.github.net">GitHub</span>, Inc.</li>
+        <li><a href="/site/terms">Terms</a></li>
+        <li><a href="/site/privacy">Privacy</a></li>
+        <li><a href="/security">Security</a></li>
+        <li><a href="/contact">Contact</a></li>
+    </ul>
+  </div><!-- /.site-footer -->
+</div><!-- /.container -->
+
+
+    <div class="fullscreen-overlay js-fullscreen-overlay" id="fullscreen_overlay">
+  <div class="fullscreen-container js-fullscreen-container">
+    <div class="textarea-wrap">
+      <textarea name="fullscreen-contents" id="fullscreen-contents" class="js-fullscreen-contents" placeholder="" data-suggester="fullscreen_suggester"></textarea>
+          <div class="suggester-container">
+              <div class="suggester fullscreen-suggester js-navigation-container" id="fullscreen_suggester"
+                 data-url="/sbt/sbt/suggestions/commit">
+              </div>
+          </div>
+    </div>
+  </div>
+  <div class="fullscreen-sidebar">
+    <a href="#" class="exit-fullscreen js-exit-fullscreen tooltipped leftwards" title="Exit Zen Mode">
+      <span class="mega-octicon octicon-screen-normal"></span>
+    </a>
+    <a href="#" class="theme-switcher js-theme-switcher tooltipped leftwards"
+      title="Switch themes">
+      <span class="octicon octicon-color-mode"></span>
+    </a>
+  </div>
+</div>
+
+
+
+    <div id="ajax-error-message" class="flash flash-error">
+      <span class="octicon octicon-alert"></span>
+      <a href="#" class="octicon octicon-remove-close close ajax-error-dismiss"></a>
+      Something went wrong with that request. Please try again.
+    </div>
+
+  </body>
+</html>
+

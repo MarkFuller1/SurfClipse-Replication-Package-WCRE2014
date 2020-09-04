@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Re: Mapper for counting character positions in line</title>
+  <link rel="stylesheet" type="text/css" href="/archives/style.css" />
+ </head>
+
+ <body id="archives">
+  <h1>hadoop-common-user mailing list archives</h1>
+
+  <h5>
+<a href="http://mail-archives.apache.org/mod_mbox/" title="Back to the archives depot">Site index</a> &middot; <a href="/mod_mbox/hadoop-common-user" title="Back to the list index">List index</a></h5>  <table class="static" id="msgview">
+   <thead>
+    <tr>
+    <th class="title">Message view</th>
+    <th class="nav"><a href="/mod_mbox/hadoop-common-user/201011.mbox/%3cBLU147-DS119D0FF9A7A329D31CF1F3F53D0@phx.gbl%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/hadoop-common-user/201011.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/hadoop-common-user/201011.mbox/%3cD13734BD-303F-4958-9180-12EE7A4ECF45@spadac.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/hadoop-common-user/201011.mbox/%3cAANLkTikFFutAaZnpwBymaXmmfH4Csokc7HZzhv_TanTG@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/hadoop-common-user/201011.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/hadoop-common-user/201011.mbox/%3c4CE61B1E.7090106@orkash.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </thead>
+
+   <tfoot>
+    <tr>
+    <th class="title"><a href="#archives">Top</a></th>
+    <th class="nav"><a href="/mod_mbox/hadoop-common-user/201011.mbox/%3cBLU147-DS119D0FF9A7A329D31CF1F3F53D0@phx.gbl%3e" title="Previous by date">&laquo;</a> <a href="/mod_mbox/hadoop-common-user/201011.mbox/date" title="View messages sorted by date">Date</a> <a href="/mod_mbox/hadoop-common-user/201011.mbox/%3cD13734BD-303F-4958-9180-12EE7A4ECF45@spadac.com%3e" title="Next by date">&raquo;</a> &middot; <a href="/mod_mbox/hadoop-common-user/201011.mbox/%3cAANLkTikFFutAaZnpwBymaXmmfH4Csokc7HZzhv_TanTG@mail.gmail.com%3e" title="Previous by thread">&laquo;</a> <a href="/mod_mbox/hadoop-common-user/201011.mbox/thread" title="View messages sorted by thread">Thread</a> <a href="/mod_mbox/hadoop-common-user/201011.mbox/%3c4CE61B1E.7090106@orkash.com%3e" title="Next by thread">&raquo;</a></th>
+   </tr>
+   </tfoot>
+
+   <tbody>
+   <tr class="from">
+    <td class="left">From</td>
+    <td class="right">Attila Csordas &lt;attilacsor...@gmail.com&gt;</td>
+   </tr>
+   <tr class="subject">
+    <td class="left">Subject</td>
+    <td class="right">Re: Mapper for counting character positions in line</td>
+   </tr>
+   <tr class="date">
+    <td class="left">Date</td>
+    <td class="right">Mon, 22 Nov 2010 19:58:20 GMT</td>
+   </tr>
+   <tr class="contents"><td colspan="2"><pre>
+Problem solved: closing curly brace of the Map class included the main
+method of the PositionCounter class that's why it was not recognised.
+
+Hope that helps for the next guy who is searching for this exception,
+
+Best,
+Attila
+
+On Mon, Nov 22, 2010 at 12:13 AM, Attila Csordas &lt;attilacsordas@gmail.com&gt;wrote:
+
+&gt; Dear All,
+&gt;
+&gt; I get the following NoSuchMethodException
+&gt;
+&gt; Exception in thread "main" java.lang.NoSuchMethodException:
+&gt; PositionCounter.main([Ljava.lang.String;)
+&gt;  at java.lang.Class.getMethod(Class.java:1605)
+&gt; at org.apache.hadoop.util.RunJar.main(RunJar.java:150)
+&gt;
+&gt; when running the following PositionCounter class:
+&gt;
+&gt;
+&gt; public class PositionCounter {
+&gt;
+&gt;
+&gt;  @SuppressWarnings("deprecation")
+&gt;
+&gt; public static class Map extends MapReduceBase implements
+&gt;
+&gt; Mapper&lt;LongWritable, Text, Text, IntWritable&gt; {
+&gt;
+&gt;
+&gt;  public void map(LongWritable key, Text value,
+&gt;
+&gt;   OutputCollector&lt;Text, IntWritable&gt; output, Reporter reporter)
+&gt;
+&gt;  throws IOException {
+&gt;
+&gt;
+&gt;   String line = value.toString();
+&gt;
+&gt;  StringTokenizer tokenizer = new StringTokenizer(line);
+&gt;
+&gt;
+&gt;   for (int i = 0; i &lt; line.length(); i++) {
+&gt;
+&gt;
+&gt;   String s = new StringBuilder().append(line.charAt(i)).toString();
+&gt;
+&gt;   output.collect(new Text(s), new IntWritable(i));
+&gt;
+&gt;
+&gt;   }
+&gt;
+&gt;  }
+&gt;
+&gt;
+&gt;  @SuppressWarnings("deprecation")
+&gt;
+&gt;  public static void main(String[] args) throws Exception {
+&gt;
+&gt;  JobConf conf = new JobConf(PositionCounter.class);
+&gt;
+&gt;  conf.setJobName("positioncounter");
+&gt;
+&gt;
+&gt;   conf.setOutputKeyClass(Text.class);
+&gt;
+&gt;  conf.setOutputValueClass(IntWritable.class);
+&gt;
+&gt;
+&gt;   conf.setMapperClass(Map.class);
+&gt;
+&gt;  // conf.setCombinerClass(Reduce.class);
+&gt;
+&gt;  //conf.setReducerClass(Reduce.class);
+&gt;
+&gt;
+&gt;   conf.setInputFormat(TextInputFormat.class);
+&gt;
+&gt;  conf.setOutputFormat(TextOutputFormat.class);
+&gt;
+&gt;
+&gt;   //conf.setNumReduceTasks(new Integer(1));
+&gt;
+&gt;
+&gt;   FileInputFormat.setInputPaths(conf, new Path(args[0]));
+&gt;
+&gt;  FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+&gt;
+&gt;
+&gt;   JobClient.runJob(conf);
+&gt;
+&gt;  }
+&gt;
+&gt; }
+&gt;
+&gt; }
+&gt;
+&gt; Any help is greatly appreciated,
+&gt; Best,
+&gt; Attila
+&gt;
+&gt;
+&gt;
+&gt; On Thu, Nov 18, 2010 at 11:46 PM, Attila Csordas &lt;attilacsordas@gmail.com&gt;wrote:
+&gt;
+&gt;&gt; Dear All,
+&gt;&gt;
+&gt;&gt; Java, Hadoop rookie here coming from biology, more wet lab than dry lab so
+&gt;&gt; far.
+&gt;&gt;
+&gt;&gt; I'd like to build a mapper which emits (charAt(i), i+1) (in
+&gt;&gt; StandardStringJava not in HadoopTextJava) pairs from lines containing
+&gt;&gt; a sequence.
+&gt;&gt;
+&gt;&gt; Which is the more easier and obvious way to implement this: using Text
+&gt;&gt; and charAt() and IntWritable within the Mapper or build a
+&gt;&gt; CustomWritable class?
+&gt;&gt;
+&gt;&gt; Hints, not total solutions please (so I can write again if unable to
+&gt;&gt; figure it out shortly)
+&gt;&gt; Best,
+&gt;&gt; --
+&gt;&gt; Attila Csordas
+&gt;&gt; Bioinformatician
+&gt;&gt; EMBL European Bioinformatics Institute
+&gt;&gt; Wellcome Trust Genome Campus
+&gt;&gt; Hinxton, Cambridge, UK
+&gt;&gt;
+&gt;
+&gt;
+&gt;
+&gt;
+&gt;
+&gt;
+&gt;
+&gt;
+&gt;
+
+</pre></td></tr>
+   <tr class="mime">
+    <td class="left">Mime</td>
+    <td class="right">
+<ul>
+<li>Unnamed multipart/alternative (inline, None, 0 bytes)</li>
+<ul>
+<li><a rel="nofollow" href="/mod_mbox/hadoop-common-user/201011.mbox/raw/%3cAANLkTi=rUNh275BKRxqo+x4oNCu0k+Rbsp1S1TSen+Ug@mail.gmail.com%3e/1">Unnamed text/plain</a> (inline, None, 2860 bytes)</li>
+</ul>
+</ul>
+</td>
+</tr>
+   <tr class="raw">
+    <td class="left"></td>
+    <td class="right"><a href="/mod_mbox/hadoop-common-user/201011.mbox/raw/%3cAANLkTi=rUNh275BKRxqo+x4oNCu0k+Rbsp1S1TSen+Ug@mail.gmail.com%3e" rel="nofollow">View raw message</a></td>
+   </tr>
+   </tbody>
+  </table>
+ </body>
+</html>

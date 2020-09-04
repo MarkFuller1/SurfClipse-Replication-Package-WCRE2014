@@ -1,0 +1,351 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-5smp i686) [Netscape]">
+  <link rel="SHORTCUT ICON"
+ href="http://www.cs.ucdavis.edu/%7Eolsson/research/jr/logo.ico">
+  <title>JR: translating and executing FAQ</title>
+</head>
+<body alink="#ff0000" bgcolor="#ffffff" link="#0000ee" text="#000000"
+ vlink="#551a8b">
+<br>
+Here are some Frequently-Asked-Questions (with answers ;-) and some
+common mistakes people make when trying to translate and run JR
+programs. Some of
+this information applies specifically to UC Davis's CS
+department's CSIF systems, but it is also likely to apply to other
+systems.<br>
+<br>
+<ul>
+  <li>Java versions:</li>
+  <ul>
+    <li>"... class file has wrong version 50.0, should be 49.0 ..." <br>
+The version difference suggests a setup problem:&nbsp; 49 is for Java
+1.5, 50 is for Java 1.6.&nbsp; It's likely you have a non-1.6 Java in
+your PATH.&nbsp; Make sure each of the following commands shows 1.6:<br>
+&nbsp;&nbsp;&nbsp; javac -version <br>
+&nbsp;&nbsp;&nbsp; java -version <br>
+    </li>
+  </ul>
+  <br>
+  <li>Simple translation problems:</li>
+</ul>
+<ul>
+  <ul>
+    <li>Translation (e.g., jrgo, jr, or jrc) complains about variable
+JR, e.g.:<br clear="all">
+&nbsp; &nbsp; main.jr:6: cannot find symbol<br clear="all">
+&nbsp; &nbsp; symbol : variable JR<br>
+&nbsp; &nbsp; location: class main<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; JR.exit(0);<br>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ^<br>
+&nbsp; &nbsp; Not generating jrGen/main.java due to errors.<br>
+&nbsp; &nbsp; 1 error<br>
+You've probably forgotten <br>
+&nbsp; &nbsp; import edu.ucdavis.jr.JR; <br>
+    </li>
+  </ul>
+</ul>
+<ul>
+  <ul>
+    <li>"main.jr:6: unreported exception
+java.lang.InterruptedException;
+must be caught or declared to be thrown".&nbsp; Thread.sleep (or some
+other
+method that can throw the above exception) needs to be in a try/catch
+block.&nbsp; See, e.g., p11 of the JR book..&nbsp; (Or, replace
+Thread.sleep
+via the new JR.nap, which doesn't need to be in a try/catch block.)</li>
+  </ul>
+</ul>
+<ul>
+  <li>Simple execution problems:</li>
+</ul>
+<ul>
+  <ul>
+    <li>"jr Foo<br>
+jrvm exception: java.lang.ClassNotFoundException: Foo<br>
+java.lang.ClassNotFoundException: java.lang.ClassNotFoundException: Foo"<br>
+You've probably misspelled the name of your main class "Fooo".&nbsp;
+Suggestion: use "jrgo".&nbsp; You don't specify the name of the main
+class to "jrgo"; instead, "jrgo" will be able to figure that out (in
+most
+cases).<br>
+    </li>
+  </ul>
+</ul>
+<ul>
+  <ul>
+    <li>"Contact with a VM on pi.cs.ucdavis.edu has been lost ...
+exiting".&nbsp; This message is normal if your program has caused a
+run-time error, such as "java.lang.ClassCastException".&nbsp; In such a
+case, the exception stack trace will appear before the above message.</li>
+  </ul>
+</ul>
+<ul>
+  <li>Exceptions during execution:&nbsp; If your JR code causes an
+exception (e.g., java.lang.NullPointerException), you'll see a
+stacktrace as you would for an exception during execution of a Java
+program.&nbsp; However, this JR stacktrace is more difficult to
+understand because your JR program is translated into Java code; the
+stacktrace shows the trace of the generated Java code, not your
+original JR code, and contains methods that you didn't include in your
+code, but that the JR implementation did.&nbsp; In most cases, though,
+the stacktrace is still useful.&nbsp; Here's how:</li>
+</ul>
+<ul>
+  <ul>
+    <li>find the <span style="font-style: italic;">first</span> line
+in the stacktrace that mentions the file X.java where you have an X.jr
+file in your code.</li>
+    <li>look at the given line in the file jrGen/X.java; that line
+caused the exception.&nbsp; You might recognize code on that line that
+looks like something that corresponds to what you have in your X.jr
+code.</li>
+  </ul>
+</ul>
+<div style="margin-left: 40px;">Here's an example:<br>
+<br>
+</div>
+<div style="margin-left: 80px;">jrvm exception: null<br>
+java.lang.NullPointerException<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at Main.main(Main.java:24)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+java.lang.reflect.Method.invoke(Method.java:597)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+edu.ucdavis.jr.jrx.jrvm.startmain(jrvm.java:333)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+edu.ucdavis.jr.jrx.jrvm.main(jrvm.java:449)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+java.lang.reflect.Method.invoke(Method.java:597)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+edu.ucdavis.jr.jrx.jrvm_wrap.startmain(jrvm_wrap.java:67)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+edu.ucdavis.jr.jrx.jrvm_wrap.main(jrvm_wrap.java:124)<br>
+</div>
+<br>
+<div style="margin-left: 40px;">So, look at line 24 in jrGen/Main.java
+for the cause of the exception.&nbsp; Then, locate the corresponding
+line in Main.jr.<br>
+</div>
+<ul>
+  <li>My JR program can't create all its processe<a name="maxprocesses"></a>s!</li>
+  <ul>
+    <li>I get errors like "jrvm exception: unable to create new native
+thread; java.lang.OutOfMemoryError: unable to create new native thread"
+      <br>
+      <ul>
+        <li>Be sure you're not trying to create too many processes,
+e.g., via an infinite loop that sends to an op-method.</li>
+        <li>How many processes is "too many"? It depends on your
+system, but somewhere around 200-300 should work on most systems.&nbsp;
+(You might find the program in vsuite/environment/maxproc/jr useful to
+get an idea of what your system supports.) However, an important
+detail: we've seen systems configured such that they restrict the
+number of threads that can be created due to their limit on
+stacksize.&nbsp; In particular, on one such group of systems, under
+[t]csh, the stacksize limit was set to 256M ("limit"), which
+effectively limits the number of threads to about 12.&nbsp; A more
+reasonable setting is 8192K ("limit stacksize 8192") or even
+4096K.&nbsp; And you might want to change the maxproc if it's too low;
+a more than reasonable setting is 1024 ("limit maxproc 1024"). Also, if
+you do change stacksize or maxproc, do so in your .cshrc so that the
+change also applies to multi-VM JR programs.&nbsp; Note that we've seen
+systems whose settings vary according to which shell you're using, so
+be careful with that.&nbsp; (Under bash, use "ulimit" instead of
+"limit" and place the commands in your .bashrc file.)<br>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</ul>
+<ul>
+  <li>My JR program using Swing or AWT doesn't work!</li>
+  <ul>
+    <li>My program seems just to terminate after it starts up.&nbsp;
+See discussion on p309 of the JR book.&nbsp; Add a "sleeper process" to
+your JR code or use "jr -explicit name_of_main_class".<br>
+    </li>
+    <li>My program just hangs without opening up any windows on the
+screen.&nbsp; Be sure your constructors for the class that is creating
+the
+window terminates.<br>
+    </li>
+  </ul>
+  <ul>
+    <li>Make sure DISPLAY is set properly. The <a
+ href="instructions.html">instructions page</a> shows how to set
+DISPLAY when you want the displays to show up on the local
+console.&nbsp; However, if you instead want the displays to show on
+your local system:
+      <ul>
+        <li>
+If you're using
+VNC, you'll need to do something like "vncserver :4" and then use
+"setenv DISPLAY :4.0" in your .cshrc.
+        </li>
+        <li>
+If you're using, say, "ssh -X pc63",
+then use something like "setenv DISPLAY localhost:10.0" in your
+.cshrc on pc63.
+&nbsp; To find the exact DISPLAY string, temporarily put "echo
+$DISPLAY" in your .cshrc on pc63 and "ssh -X pc63"; then remove the
+echo
+and add the setenv to your .cshrc on pc63.
+&nbsp;(You'll likely need to change DISPLAY each session.)
+        </li>
+      </ul>
+    </li>
+    <li>Make sure&nbsp; you've executed the xhost command (see the <a
+ href="instructions.html">instructions
+page</a>); if not, you'll get an ugly bunch of exceptions, but the key
+symptom is the line:<br clear="all">
+&nbsp;&nbsp;&nbsp; Caused by: java.lang.InternalError: Can't connect to
+X11 window server using ':0.0' as the value of the DISPLAY variable.<br>
+    </li>
+    <li>As a good, quick test: Make sure the BnB program (in the
+codeextract) runs for you.<br>
+    </li>
+  </ul>
+</ul>
+<ul>
+  <li>My multi-VM program doesn't work!</li>
+  <ul>
+    <li>I get errors that say something like "Cannot&nbsp; create
+virtual machine on pc51..." or "Cannot create virtual machine on
+localhost...".</li>
+    <ul>
+      <li>Be sure to check that the tests in Steps 4 and 5 on the <a
+ href="instructions.html">instructions page</a> work.&nbsp; Even if you
+checked those previously and your program used to work on this
+particular system, sometimes systems get upgraded, etc., which can
+break the ssh setup.</li>
+    </ul>
+    <ul>
+      <li>Pay special attention that CLASSPATH and DISPLAY are exactly
+as specified on the <a href="instructions.html">instructions page</a>.</li>
+    </ul>
+    <ul>
+      <li>Try your program on a different system(s).&nbsp; Again,
+sometime system problems or changes can break things.</li>
+    </ul>
+    <ul>
+      <li>Be sure your program isn't trying to create too many
+VMs.&nbsp;&nbsp; (How many you actually can create depends on system,
+etc., but on CSIF I wouldn't try to create more than about 10 on a
+single host.) Also, see notes on <a href="#maxprocesses">maximum
+number of processes</a>.<br>
+      </li>
+    </ul>
+    <li>My program isn't able to open files.&nbsp; Non-main JR VMs
+execute in the home directory rather than the
+current directory, which might make a difference if the JR program uses
+relative pathnames for files.</li>
+    <li>I'm getting<br clear="all">
+"edu.ucdavis.jr.jrCommunicationException: java.rmi.MarshalException:<br>
+error marshalling arguments; nested exception is:&nbsp;
+java.io.NotSerializableException: Server<br>
+...".<br clear="all">
+You'll need to make the Server class "implements
+java.io.Serializable".&nbsp; See p152 and p305 in the JR text.<br>
+    </li>
+    <li>I'm getting a weird, ugly bunch of errors:<br clear="all">
+"java.lang.NoSuchMethodException:
+MainFrame.&lt;init&gt;(java.lang.String)<br clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+java.lang.Class.getConstructor0(Class.java:2647)<br clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+java.lang.Class.getConstructor(Class.java:1629)<br clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+edu.ucdavis.jr.jrx.jrvm.innerCreateInstance(jrvm.java:163)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+java.lang.reflect.Method.invoke(Method.java:585)<br clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:294)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.rmi.transport.Transport$1.run(Transport.java:153)<br clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+java.security.AccessController.doPrivileged(Native Method)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.rmi.transport.Transport.serviceCall(Transport.java:149)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:460)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:701)<br
+ clear="all">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+java.lang.Thread.run(Thread.java:595)<br clear="all">
+jrvm exception: java.rmi.ServerException: RemoteException occurred in
+server thread; nested exception is:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.RemoteException:
+java.lang.NoSuchMethodException:
+MainFrame.&lt;init&gt;(java.lang.String)<br>
+edu.ucdavis.jr.jrCommunicationException:
+java.rmi.ServerException:RemoteException occurred in server thread;
+nested exception is:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; java.rmi.RemoteException:
+java.lang.NoSuchMethodException:MainFrame.&lt;init&gt;(java.lang.String)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at
+edu.ucdavis.jr.jrx.jrvm.createInstance(jrvm.java:139)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; at Start.main(Start.java:23)<br>
+...".<br clear="all">
+You probably forgot to make your remote class constructors public.</li>
+  </ul>
+</ul>
+<ul>
+  <li>Miscellany:</li>
+  <ul>
+    <li>"error: Unexpected end of file encountered while reading the
+class file".&nbsp; You've probably exceeded your disk quota.</li>
+    <li>"sh: Translator.out: Permission denied<br>
+&nbsp;&nbsp;&nbsp; expected 0, got 1 from jrc"<br>
+when running jrv.&nbsp; You're trying to run jrv in a directory where
+you don't have write permissions.&nbsp; If you really want to run jrv,
+then copy the vsuite to someplace where you do have write permissions
+(and then use "jrv -d ." in that new directory).&nbsp; Do you need to
+run jrv?&nbsp; If you're using the already installed JR implementation
+in the CSIF, then no.&nbsp; If you've installed your own version of JR
+on CSIF, then you should run jrv, but first: why do you need your own
+JR when you can just use the already installed one?&nbsp; If you're
+running JR on your home machine, then running jrv is a good idea to
+check that it works.</li>
+    <li>"An exception has occurred in the jr translator ...".&nbsp;
+Oops, looks like you found a bug.&nbsp; Please send us your <span
+ style="font-weight: bold;">complete</span> program (all .jr files and
+whatever data files are needed to run your program) and
+we'll try to fix it.<br>
+    </li>
+  </ul>
+</ul>
+<br>
+</body>
+</html>

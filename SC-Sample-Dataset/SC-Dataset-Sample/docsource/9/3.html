@@ -1,0 +1,838 @@
+<!DOCTYPE HTML><html lang="en-US">
+
+<head>
+<meta charset="UTF-8" />
+<link rel="profile" href="http://gmpg.org/xfn/11" />
+
+<!-- Title -->
+<title>Creation, dynamic loading and instrumentation with javaagents | Dhruba Bandopadhyay</title><link rel='canonical' href='http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/' />
+
+
+<!-- Stylesheets -->
+<link rel='stylesheet' id='headway-general-css'  href='http://dhruba.name/wp-content/uploads/headway/cache/general-dcc370f.css?ver=3.6.1' type='text/css' media='all' />
+<link rel='stylesheet' id='headway-layout-single-post-css'  href='http://dhruba.name/wp-content/uploads/headway/cache/layout-single-post-3f0c221.css?ver=3.6.1' type='text/css' media='all' />
+
+
+<!-- Scripts -->
+<script type='text/javascript' src='http://dhruba.name/wp-includes/js/comment-reply.min.js?ver=3.6.1'></script>
+
+<!--[if lt IE 9]>
+<script src="http://dhruba.name/wp-content/themes/headway/library/media/js/html5shiv.js"></script>
+<![endif]-->
+
+<!--[if lt IE 8]>
+<script src="http://dhruba.name/wp-content/themes/headway/library/media/js/ie8.js"></script>
+<![endif]-->
+
+<meta name="verify-v1" content="pU/Q4f6VOWmOsazpWT8qdJg9qv7J9QrV10xoUmcjAd8=" />
+
+<!-- START GOOGLE ANALYTICS TRACKING -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-84814-3']);
+  _gaq.push(['_trackPageview']);
+  _gaq.push(['_setDomainName', '.dhruba.name']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<!-- END GOOGLE ANALYTICS TRACKING -->
+
+<!-- Extras -->
+<link rel="alternate" type="application/rss+xml" href="http://dhruba.name/feed/" title="Dhruba Bandopadhyay" />
+<link rel="pingback" href="http://dhruba.name/xmlrpc.php" />
+	<link rel="alternate" type="application/rss+xml" title="Dhruba Bandopadhyay &raquo; Feed" href="http://dhruba.name/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Dhruba Bandopadhyay &raquo; Comments Feed" href="http://dhruba.name/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Dhruba Bandopadhyay &raquo; Creation, dynamic loading and instrumentation with javaagents Comments Feed" href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/feed/" />
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://dhruba.name/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://dhruba.name/wp-includes/wlwmanifest.xml" /> 
+<link rel='prev' title='JMockit jar loading from remote file systems enabled' href='http://dhruba.name/2010/02/07/jmockit-jar-loading-from-remote-file-systems-enabled/' />
+<link rel='next' title='Closures in JDK7 stagnate' href='http://dhruba.name/2010/05/10/closures-in-jdk7-stagnate/' />
+<meta name="generator" content="WordPress 3.6.1" />
+<link rel='shortlink' href='http://dhruba.name/?p=1516' />
+	<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+<meta id="syntaxhighlighteranchor" name="syntaxhighlighter-version" content="3.1.3" />
+
+</head><!-- End <head> -->
+
+<body class="single single-post postid-1516 single-format-standard custom layout-single-post-1516 layout-using-single-post">
+
+
+<div id="whitewrap">
+
+
+<div id="wrapper-10" class="wrapper wrapper-fixed grid-fixed-24-20-20 wrapper-last">
+
+<div class="grid-container clearfix">
+<section class="row row-1">
+<section class="column column-1 grid-left-2 grid-width-21">
+<nav id="block-10" class="block block-type-navigation block-fluid-height block-mirrored block-mirroring-10 block-original-12"><div class="block-content"><div class="nav-horizontal nav-align-left"><ul class="menu"><li class="menu-item-home"><a href="http://dhruba.name">Home</a></li><li class="page_item page-item-2"><a href="http://dhruba.name/about/">About</a></li></ul></div><!-- .nav-horizontal nav-align-left --></div><!-- .block-content -->
+</nav><!-- #block-10 -->
+</section><!-- .column --></section><!-- .row -->
+
+<section class="row row-2">
+<section class="column column-1 grid-left-2 grid-width-21">
+<header id="block-9" class="block block-type-header block-fixed-height block-mirrored block-mirroring-9 block-original-11"><div class="block-content"><span class="banner"><a href="http://dhruba.name">Dhruba Bandopadhyay</a></span><span class="tagline">Maximum Zeal ~ Emphatic prose on indulged fascinations</span>
+</div><!-- .block-content -->
+</header><!-- #block-9 -->
+</section><!-- .column --></section><!-- .row -->
+
+<section class="row row-3">
+<section class="column column-1 grid-left-2 grid-width-21">
+<div id="block-7" class="block block-type-content block-fluid-height"><div class="block-content"><div class="loop"><div id="post-1516" class="post-1516 post type-post status-publish format-standard hentry category-java category-lab49 tag-dynamic tag-instrumentation tag-java tag-javaagent tag-jmockit tag-lab49 tag-linkedin tag-twitter author-admin"><h1 class="entry-title">Creation, dynamic loading and instrumentation with javaagents</h1><div class="entry-meta entry-meta-above">Posted on <span class="entry-date published" title="2010-02-07T22:26:17+00:00">Sun, 07 Feb 2010 22:26:17 +0000</span> by <a class="author-link fn nickname url" href="http://dhruba.name/author/admin/" title="View all posts by Dhruba Bandopadhyay">Dhruba Bandopadhyay</a> &bull; <a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comments" title="Creation, dynamic loading and instrumentation with javaagents &ndash; Comments" class="entry-comments">19 Comments</a></div><!-- .entry-meta --><div class="entry-content"><p><strong>Referrers</strong>: <a href="http://reverseengineering.stackexchange.com/questions/1714/dynamic-java-instrumentation/1715?noredirect=1">ReverseEngineeringStackExchange</a>, <a href="http://stackoverflow.com/questions/1277219/starting-a-java-agent-after-program-start">StackOverflow</a>.</p>
+<p>Sometime back I had to delve into the depths of how one could dynamically and programmatically load a javaagent at runtime &#8211; in other words how a javaagent could be attached to a running process. Since then I&#8217;ve been meaning to blog my findings. Finally, after quite some time, I&#8217;ve got around to it but here I take the opportunity to expand the scope of the article to a complete treatment of how to create a javaagent, load it statically at startup or dynamically at runtime and also how to perform instrumentation of a simple class. As always the code will reside in an eclipse maven project that will be made available for <a href="http://dhruba.name/mint/pepper/tillkruess/downloads/tracker.php?url=/static/javaagent-examples.tgz">download</a>.</p>
+<h3>Introduction</h3>
+<p>Java agents are self contained components through which application classes pass at the level of byte code instructions in the form of byte arrays. They were introduced in java5 along with the powerful java.lang.instrument package. Java agents can be loaded statically at startup or dynamically (programmatically) at runtime to attach to a running process in a fail-safe fashion.</p>
+<h3>Lifecycle of a javaagent</h3>
+<p>The most important thing to understand is the lifecycle of a javaagent and its behaviour in relation to the application itself. The lifecycle hook points are as follows.</p>
+<ul>
+<li>PreMain &#8211; The PreMain method is invoked first prior to running the main method. This is the hookpoint for loading the javaagent statically at startup.</li>
+<li>Main &#8211; The main method is always invoked after the PreMain invocation.</li>
+<li>AgentMain &#8211; The AgentMain method can be invoked at any time before or after the Main method. This hookpoint is for loading the javaagent dynamically at runtime and attaching to a running process.</li>
+</ul>
+<h3>Creation of a javaagent</h3>
+<p>In order to create a java agent you must first define your chosen hook points from the lifecycle above as below.</p>
+<pre>
+package name.dhruba.javaagent;
+
+import java.lang.instrument.Instrumentation;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MyJavaAgent {
+
+    static final Logger logger = LoggerFactory.getLogger(MyJavaAgent.class);
+
+    private static Instrumentation instrumentation;
+
+    /**
+     * JVM hook to statically load the javaagent at startup.
+     * 
+     * After the Java Virtual Machine (JVM) has initialized, the premain method
+     * will be called. Then the real application main method will be called.
+     * 
+     * @param args
+     * @param inst
+     * @throws Exception
+     */
+    public static void premain(String args, Instrumentation inst) throws Exception {
+        logger.info("premain method invoked with args: {} and inst: {}", args, inst);
+        instrumentation = inst;
+        instrumentation.addTransformer(new MyClassFileTransformer());
+    }
+
+    /**
+     * JVM hook to dynamically load javaagent at runtime.
+     * 
+     * The agent class may have an agentmain method for use when the agent is
+     * started after VM startup.
+     * 
+     * @param args
+     * @param inst
+     * @throws Exception
+     */
+    public static void agentmain(String args, Instrumentation inst) throws Exception {
+        logger.info("agentmain method invoked with args: {} and inst: {}", args, inst);
+        instrumentation = inst;
+        instrumentation.addTransformer(new MyClassFileTransformer());
+    }
+
+    /**
+     * Programmatic hook to dynamically load javaagent at runtime.
+     */
+    public static void initialize() {
+        if (instrumentation == null) {
+            MyJavaAgentLoader.loadAgent();
+        }
+    }
+
+}
+</pre>
+<p>Once you&#8217;ve defined your hook points you must make the JVM aware by putting them in a manifest file.</p>
+<pre>
+Main-Class: name.dhruba.javaagent.MyMainClass
+Agent-Class: name.dhruba.javaagent.MyJavaAgent
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
+Premain-Class: name.dhruba.javaagent.MyJavaAgent
+</pre>
+<p>In the example project I&#8217;m doing so using maven and the maven assembly plugin which also packages the project as a single all inclusive uber executable jar for ease of testing.</p>
+<pre>
+&lt;plugin&gt;
+  &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+  &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;
+  &lt;executions&gt;
+    &lt;execution&gt;
+      &lt;goals&gt;
+        &lt;goal&gt;attached&lt;/goal&gt;
+      &lt;/goals&gt;
+      &lt;phase&gt;package&lt;/phase&gt;
+      &lt;configuration&gt;
+        &lt;descriptorRefs&gt;
+          &lt;descriptorRef&gt;jar-with-dependencies&lt;/descriptorRef&gt;
+        &lt;/descriptorRefs&gt;
+        &lt;archive&gt;
+          &lt;manifest&gt;
+            &lt;mainClass&gt;name.dhruba.javaagent.MyMainClass&lt;/mainClass&gt;
+          &lt;/manifest&gt;
+          &lt;manifestEntries&gt;
+            &lt;Premain-Class&gt;name.dhruba.javaagent.MyJavaAgent&lt;/Premain-Class&gt;
+            &lt;Agent-Class&gt;name.dhruba.javaagent.MyJavaAgent&lt;/Agent-Class&gt;
+            &lt;Can-Redefine-Classes&gt;true&lt;/Can-Redefine-Classes&gt;
+            &lt;Can-Retransform-Classes&gt;true&lt;/Can-Retransform-Classes&gt;
+          &lt;/manifestEntries&gt;
+        &lt;/archive&gt;
+      &lt;/configuration&gt;
+    &lt;/execution&gt;
+  &lt;/executions&gt;
+&lt;/plugin&gt;
+</pre>
+<h3>Instrumenting classes</h3>
+<p>Within the javaagent hook points one can define <code>java.lang.instrument.ClassFileTransformer</code> implementations that are invoked for all classes being loaded within an application. These receive classes as byte arrays and have the option of redefining them also in terms of byte arrays. Here I provide an example class file transformation.</p>
+<p>The following User pojo returns &#8216;foo&#8217; as its name.</p>
+<pre>
+package name.dhruba.user;
+
+public class MyUser {
+
+    public String getName() {
+        return "foo";
+    }
+
+}
+</pre>
+<p>The following class file transformer (using ASM) redefines the User pojo to return &#8216;bar&#8217; instead.</p>
+<pre>
+package name.dhruba.javaagent;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MyClassFileTransformer implements ClassFileTransformer, Opcodes {
+
+    static final Logger logger = LoggerFactory.getLogger(MyClassFileTransformer.class);
+
+    @Override
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+            ProtectionDomain protectionDomain, byte[] classfileBuffer)
+            throws IllegalClassFormatException {
+        logger.info("class file transformer invoked for className: {}", className);
+
+        if (className.equals("name/dhruba/user/MyUser")) {
+
+            ClassWriter cw = new ClassWriter(0);
+            MethodVisitor mv;
+
+            cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, "name/dhruba/user/MyUser", null,
+                    "java/lang/Object", null);
+
+            cw.visitSource(null, null);
+
+            {
+                mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+                mv.visitCode();
+                Label l0 = new Label();
+                mv.visitLabel(l0);
+                mv.visitLineNumber(3, l0);
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+                mv.visitInsn(RETURN);
+                Label l1 = new Label();
+                mv.visitLabel(l1);
+                mv.visitLocalVariable("this", "Lname/dhruba/user/MyUser;", null, l0, l1, 0);
+                mv.visitMaxs(1, 1);
+                mv.visitEnd();
+            }
+            {
+                mv = cw.visitMethod(ACC_PUBLIC, "getName", "()Ljava/lang/String;", null, null);
+                mv.visitCode();
+                Label l0 = new Label();
+                mv.visitLabel(l0);
+                mv.visitLineNumber(6, l0);
+                mv.visitLdcInsn("bar");
+                mv.visitInsn(ARETURN);
+                Label l1 = new Label();
+                mv.visitLabel(l1);
+                mv.visitLocalVariable("this", "Lname/dhruba/user/MyUser;", null, l0, l1, 0);
+                mv.visitMaxs(1, 1);
+                mv.visitEnd();
+            }
+            cw.visitEnd();
+
+            return cw.toByteArray();
+        }
+
+        return classfileBuffer;
+    }
+
+}
+</pre>
+<p>Note that this is not standard AOP or proxy logic. The class file transformer is literally redefining the bytecode instructions incrementally in the form of byte arrays.</p>
+<h3>Static loading of a javaagent at startup</h3>
+<p>Static loading of a javaagent is done by using the <code>-javaagent=/path/to/file.jar=options</code> command line option to the java executable as below.</p>
+<pre>
+$ java -javaagent:target/javaagent-examples-jar-with-dependencies.jar=foobarbaz name.dhruba.javaagent.MyMainClass foo bar baz
+21:37:50.783 [main] INFO  name.dhruba.javaagent.MyJavaAgent - premain method invoked with args: foobarbaz and inst: sun.instrument.InstrumentationImpl@1786e64
+21:37:50.789 [main] INFO  n.d.javaagent.MyClassFileTransformer - class file transformer invoked for className: name/dhruba/javaagent/MyMainClass
+21:37:50.789 [main] INFO  name.dhruba.javaagent.MyMainClass - main method invoked with args: [foo, bar, baz]
+21:37:50.789 [main] INFO  n.d.javaagent.MyClassFileTransformer - class file transformer invoked for className: name/dhruba/user/MyUser
+21:37:50.800 [main] INFO  name.dhruba.javaagent.MyMainClass - userName: bar
+21:37:50.801 [DestroyJavaVM] INFO  n.d.javaagent.MyClassFileTransformer - class file transformer invoked for className: java/lang/Shutdown
+21:37:50.801 [DestroyJavaVM] INFO  n.d.javaagent.MyClassFileTransformer - class file transformer invoked for className: java/lang/Shutdown$Lock
+</pre>
+<p>Above, the javaagent lifecycle is clearly visible. The premain (and not the agentmain) method is invoked first. The class file transformer is passed classes as they are loaded. The transformer chooses to redefine the User object prior to its use. Subsequently the classes loaded at shutdown also pass through the transformer.</p>
+<h3>Dynamic loading of a javaagent at runtime</h3>
+<p>Dynamic loading of a javaagent at runtime can be done quite easily in a programmatic fashion but requires the sun tools jar to be present on the classpath. Certain libraries like jmockit have avoided this by opting to absorb the relevant classes from the sun tools jar into its library under the same package names. In Maven the tools jar can be added to the classpath very easily.</p>
+<pre>
+&lt;dependency&gt;
+  &lt;groupId&gt;com.sun&lt;/groupId&gt;
+  &lt;artifactId&gt;tools&lt;/artifactId&gt;
+  &lt;version&gt;1.6.0&lt;/version&gt;
+  &lt;scope&gt;system&lt;/scope&gt;
+  &lt;systemPath&gt;${java.home}/../lib/tools.jar&lt;/systemPath&gt;
+&lt;/dependency&gt;
+</pre>
+<p>The sun tools jar api can then be used to load the java agent simply by provided the path to the jar file as follows.</p>
+<pre>
+package name.dhruba.javaagent;
+
+import java.lang.management.ManagementFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.tools.attach.VirtualMachine;
+
+public class MyJavaAgentLoader {
+
+    static final Logger logger = LoggerFactory.getLogger(MyJavaAgentLoader.class);
+
+    private static final String jarFilePath = "/home/dhruba/.m2/repository/"
+            + "javaagent-examples/javaagent-examples/1.0/"
+            + "javaagent-examples-1.0-jar-with-dependencies.jar";
+
+    public static void loadAgent() {
+        logger.info("dynamically loading javaagent");
+        String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
+        int p = nameOfRunningVM.indexOf('@');
+        String pid = nameOfRunningVM.substring(0, p);
+
+        try {
+            VirtualMachine vm = VirtualMachine.attach(pid);
+            vm.loadAgent(jarFilePath, "");
+            vm.detach();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
+</pre>
+<p>As you can see &#8211; the code above is querying the pid of the running process and attaching the javaagent to the process. If any kind of failure occurs at this point it is ignored silently whereas if an agent is loaded on startup failures result in termination of startup.</p>
+<p>We can now initialise the java agent prior to invoking our main method using the <code>MyJavaAgent.initialize()</code> hookpoint we declared earlier.</p>
+<pre>
+package name.dhruba.javaagent;
+
+import java.util.Arrays;
+
+import name.dhruba.user.MyUser;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MyMainClass {
+
+    static final Logger logger = LoggerFactory.getLogger(MyMainClass.class);
+
+    static {
+        MyJavaAgent.initialize();
+    }
+
+    /**
+     * Main method.
+     * 
+     * @param args
+     */
+    public static void main(String[] args) {
+        logger.info("main method invoked with args: {}", Arrays.asList(args));
+        logger.info("userName: {}", new MyUser().getName());
+    }
+
+}
+</pre>
+<p>The output is very similar but with a subtely different path through the code.</p>
+<pre>
+20:58:50.923 [main] INFO  n.dhruba.javaagent.MyJavaAgentLoader - dynamically loading javaagent
+20:58:51.249 [Attach Listener] INFO  name.dhruba.javaagent.MyJavaAgent - agentmain method invoked with args:  and inst: sun.instrument.InstrumentationImpl@c2ff5
+20:58:51.266 [main] INFO  name.dhruba.javaagent.MyMainClass - main method invoked with args: []
+20:58:51.267 [main] INFO  n.d.javaagent.MyClassFileTransformer - class file transformer invoked for className: name/dhruba/user/MyUser
+20:58:51.276 [main] INFO  name.dhruba.javaagent.MyMainClass - userName: bar
+20:58:51.276 [DestroyJavaVM] INFO  n.d.javaagent.MyClassFileTransformer - class file transformer invoked for className: java/lang/Shutdown
+20:58:51.276 [DestroyJavaVM] INFO  n.d.javaagent.MyClassFileTransformer - class file transformer invoked for className: java/lang/Shutdown$Lock
+</pre>
+<p>Note that this time the agentmain method was invoked instead of the premain method. The rest of the output is the same.</p>
+<h3>Conclusion</h3>
+<p>Javaagents along with the java.lang.instrument package are a powerful feature set of the Java language that allow you complete control over the classes of any given application. Instrumentation also has far more liberty with its capabilities than proxying or pointcut weaving. This gives complete dynamic capability to an otherwise very static language. It has allowed development of powerful non-intrusive tools like JMockit which immediately gains numerous <a href="http://dhruba.name/2009/11/08/jmockit-no-holds-barred-testing-with-instrumentation-over-mocking/">advantages</a> over other mocking tools largely because it is based on instrumentation. I look forward to further exploring the possibilities going forward.</p>
+<h3>Resources</h3>
+<p><a href="http://asm.ow2.org/">ASM</a>, <a href="http://asm.ow2.org/eclipse/index.html">ByteCodeOutline Plugin for Eclipse</a> (Eclipse 3.5 <a href="http://andrei.gmxhome.de/eclipse/">update site</a>),<a href="http://java.sun.com/javase/6/docs/api/java/lang/instrument/package-summary.html"> java.lang.instrument</a>, <a href="http://code.google.com/p/jmockit/">JMockit</a>.</p>
+<p><strong>Update [2/7/2011]</strong>: It&#8217;s nice to see this featured on <a href="http://stackoverflow.com/questions/1277219/starting-a-java-agent-after-program-start">StackOverflow</a>.</p>
+<p>Thanks to <a href="http://arhipov.blogspot.com/p/java-links.html">Anton Arhipov</a>, Software Engineer at JRebel, for kindly linking to this post.</p>
+</div><!-- .entry-content --><div class="entry-utility entry-utility-below entry-meta">Filed Under: <a href="http://dhruba.name/category/development/java/" title="View all posts in java" rel="category tag">java</a>, <a href="http://dhruba.name/category/lab49/" title="View all posts in lab49" rel="category tag">lab49</a></div><!-- .entry-utility --></div><!-- #post-1516 --><div id="nav-below" class="loop-navigation single-post-navigation loop-utility loop-utility-below"><div class="nav-previous"><a href="http://dhruba.name/2010/02/07/jmockit-jar-loading-from-remote-file-systems-enabled/" rel="prev"><span class="meta-nav">&larr;</span> JMockit jar loading from remote file systems enabled</a></div><div class="nav-next"><a href="http://dhruba.name/2010/05/10/closures-in-jdk7-stagnate/" rel="next">Closures in JDK7 stagnate <span class="meta-nav">&rarr;</span></a></div></div><!-- #nav-below --><div id="comments"><h3 id="comments">19 Responses to <em>Creation, dynamic loading and instrumentation with javaagents</em></h3><ol class="commentlist">		<li class="comment even thread-even depth-1" id="comment-28044">
+				<div id="div-comment-28044" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/0766d28adbbe97c39868829df73a3286?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">bdaddy</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-28044">
+			Tue, 28 Jun 2011 17:12:01 +0000 at 17:12</a>		</div>
+
+		<p>Great end-to-end tutorial!  I can&#8217;t wait to give this technology a spin.</p>
+<p>I imagine using this VirtualMachine.loadAgent()/TransformClassFile mechanism to wholesale replace an existing class implementation with another.  For example, say i want to simply comment out or add a couple lines to a method in the class.  It seems like this sort of &#8220;wholesale dynamic class patching&#8221; would be conceptually easier than bytecode manipulation via ASM or whatever.</p>
+<p>I envision a tool with the usage of:</p>
+<p>  jpatch   </p>
+<p>Are you aware of such a tool?  Is there some fundamental roadblock I&#8217;m overlooking that would prevent such a tool from working as expected?  (Granted I can imagine that weird things would happen if the bytecode change was too radical.)</p>
+<p>Also, when using loadAgent() to inject the agent into a running JVM, does the JVM automatically cycle the class file transfer through all already loaded classes?  This doesn&#8217;t appear to be clear from what I&#8217;ve read of the documentation so far.  Guess I&#8217;ll find out for myself when I give this stuff a try.</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=28044#respond' onclick='return addComment.moveForm("div-comment-28044", "28044", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-28438">
+				<div id="div-comment-28438" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/0eb089fec4a3442a5616214ca67a2433?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Roshan P Koshy</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-28438">
+			Thu, 07 Jul 2011 15:16:05 +0000 at 15:16</a>		</div>
+
+		<p>Thanx for the help..  However i dont know how to load java agnet dynamically&#8230; I hav seen the result of static loading &#8230;and how the result of dynamic loading comes?is it by entering command similar to staticloading?</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=28438#respond' onclick='return addComment.moveForm("div-comment-28438", "28438", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment even thread-even depth-1" id="comment-42091">
+				<div id="div-comment-42091" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://1.gravatar.com/avatar/5df352caae48661ed61558403caf1a34?s=44&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Joe Walp</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-42091">
+			Sat, 11 Feb 2012 05:48:08 +0000 at 05:48</a>		</div>
+
+		<p>Thanks for publishing this.  It helped me get lombok [1] working [2] in dev mode with Google Plugin for Eclipse:</p>
+<p>[1] <a href="http://projectlombok.org/" rel="nofollow">http://projectlombok.org/</a><br />
+[2] the workaround<br />
+<a href="http://code.google.com/p/googleappengine/issues/detail?id=4122#c4" rel="nofollow">http://code.google.com/p/googleappengine/issues/detail?id=4122#c4</a></p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=42091#respond' onclick='return addComment.moveForm("div-comment-42091", "42091", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-45792">
+				<div id="div-comment-45792" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://1.gravatar.com/avatar/ba024348937aa4a15763f651354ffc48?s=44&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Alice</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-45792">
+			Fri, 10 Aug 2012 14:53:38 +0000 at 14:53</a>		</div>
+
+		<p>I copied your project and it almost works :) What about this exception:</p>
+<p>Exception in thread &#8220;main&#8221; java.lang.NoSuchMethodError: user.MyUser: method ()V not found<br />
+	at javaagent.MyMainClass.main</p>
+<p>?</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=45792#respond' onclick='return addComment.moveForm("div-comment-45792", "45792", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment even thread-even depth-1" id="comment-45911">
+				<div id="div-comment-45911" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://1.gravatar.com/avatar/5666019ae946f06e81d3729416b76d9d?s=44&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Hari</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-45911">
+			Tue, 14 Aug 2012 18:15:44 +0000 at 18:15</a>		</div>
+
+		<p>Thanks for publishing the article. I couldn&#8217;t get the example to work though.</p>
+<p>$ java -javaagent:/home/hdara/src/javaagent-examples/target/javaagent-examples-jar-with-dependencies.jar foo<br />
+Exception in thread &#8220;main&#8221; java.lang.reflect.InvocationTargetException<br />
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br />
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)<br />
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)<br />
+        at java.lang.reflect.Method.invoke(Method.java:616)<br />
+        at sun.instrument.InstrumentationImpl.loadClassAndStartAgent(InstrumentationImpl.java:343)<br />
+        at sun.instrument.InstrumentationImpl.loadClassAndCallPremain(InstrumentationImpl.java:358)<br />
+Caused by: java.lang.Error: Unresolved compilation problem:<br />
+        Logger cannot be resolved to a type</p>
+<p>        at name.dhruba.javaagent.MyJavaAgent.premain(MyJavaAgent.java:25)<br />
+        &#8230; 6 more<br />
+FATAL ERROR in native method: processing of -javaagent failed<br />
+Aborted</p>
+<p>I checked that Logger is there in the jar, so why is it failing? Some other dependencies that Logger depends on are missing?</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=45911#respond' onclick='return addComment.moveForm("div-comment-45911", "45911", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-45913">
+				<div id="div-comment-45913" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://1.gravatar.com/avatar/5666019ae946f06e81d3729416b76d9d?s=44&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Hari</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-45913">
+			Tue, 14 Aug 2012 18:27:52 +0000 at 18:27</a>		</div>
+
+		<p>I modified the code to use the java.util.logging classes and now it fails on Opscode class, which is again there in the same jar. I am using JDK1.6.0_21x64 on ubuntu.</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=45913#respond' onclick='return addComment.moveForm("div-comment-45913", "45913", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment even thread-even depth-1" id="comment-45914">
+				<div id="div-comment-45914" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://1.gravatar.com/avatar/5666019ae946f06e81d3729416b76d9d?s=44&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Hari</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-45914">
+			Tue, 14 Aug 2012 18:42:21 +0000 at 18:42</a>		</div>
+
+		<p>I guess using java.util.logging package causes java.util.StackOverflowError, which is probably why you used an alternative logging implementation. Still not sure why it doesn&#8217;t find the classes though.</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=45914#respond' onclick='return addComment.moveForm("div-comment-45914", "45914", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-47177">
+				<div id="div-comment-47177" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://1.gravatar.com/avatar/d2a923f08608851ab3e29fe5267d46fc?s=44&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn"><a href='http://www.facebook.com/EliteTaggerPro' rel='external' class='url'>Kristof Debruyne</a></cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-47177">
+			Fri, 07 Sep 2012 19:16:37 +0000 at 19:16</a>		</div>
+
+		<p>Hi DHRUBA,</p>
+<p>First of all, really nice article ! It has helped me out from some issues&#8230; but I have a question about it because I still have an issue with the sun class agent loaded (VirtualMachine).</p>
+<p>I use Spring AOP and I need to pass a JVM parameter (java agent) on start up so the agent can be loaded with JVM.</p>
+<p>In Eclipse, I put -javaagent:spring-instrument-3.1.0.RELEASE.jar as argument and agent is loaded so all ok. But when I build my application, the agent loaded class gives an error (an annoying one, cause the meta inf is correct&#8230;)</p>
+<p>error:<br />
+Error occurred during initialization of VM<br />
+agent library failed to init: instrument<br />
+Error opening zip file or JAR manifest missing : spring-instrument-3.1.0.RELEASE.jar</p>
+<p>So I skip your part of making a custom java agent because I want to use the one of Spring&#8230;</p>
+<p>Meta-INF Spring:</p>
+<p>Manifest-Version: 1.0<br />
+Ant-Version: Apache Ant 1.8.2<br />
+Created-By: 1.6.0_29-b11-402-11M3527 (Apple Inc.)<br />
+Export-Package: org.springframework.instrument;version=&#8221;3.1.0.RELEASE&#8221;<br />
+Bundle-Vendor: SpringSource<br />
+Bundle-Version: 3.1.0.RELEASE<br />
+Tool: Bundlor 1.0.0.RELEASE<br />
+Bundle-Name: Spring Instrument<br />
+Bundle-ManifestVersion: 2<br />
+Premain-Class: org.springframework.instrument.InstrumentationSavingAge<br />
+ nt<br />
+Bundle-SymbolicName: org.springframework.instrument<br />
+Bundle-Creator: cbeams<br />
+Implementation-Title: org.springframework.instrument<br />
+Implementation-Version: 3.1.0.RELEASE</p>
+<p>any idea what the problem could be ??</p>
+<p>Grtz,</p>
+<p>Sikke</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=47177#respond' onclick='return addComment.moveForm("div-comment-47177", "47177", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment even thread-even depth-1" id="comment-60812">
+				<div id="div-comment-60812" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/c9532d51791a8337f0cf2d35a8da059c?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">asif</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-60812">
+			Tue, 08 Jan 2013 14:14:05 +0000 at 14:14</a>		</div>
+
+		<p>Is there a way to kill the atached agent?</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=60812#respond' onclick='return addComment.moveForm("div-comment-60812", "60812", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment odd alt thread-odd thread-alt depth-1" id="comment-72853">
+				<div id="div-comment-72853" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/a77d747a1261ff522c7b2b1fa18f1a86?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Sanyam</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-72853">
+			Wed, 27 Mar 2013 17:36:14 +0000 at 17:36</a>		</div>
+
+		<p>Hi Dhruba,</p>
+<p>I would like to know a bit more on Java agent. I want to attach a Java agent to a running VM instance not the one that will help in loading the Java agent. How can this be done, Let me be more clear how does these Java monitoring tool attach an agent to a running JVM instance. I tried with a process id of a Java process running on windows system but the agent does not perform any operation as it does if I do like mentioned in the tutorial Kindly suggest the reason</p>
+<p>Thanks</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=72853#respond' onclick='return addComment.moveForm("div-comment-72853", "72853", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1 parent" id="comment-72864">
+				<div id="div-comment-72864" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/eb10e74de609354f76f03bdc99db58f4?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn"><a href='http://dhruba.name' rel='external' class='url'>Dhruba Bandopadhyay</a></cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-72864">
+			Wed, 27 Mar 2013 18:41:01 +0000 at 18:41</a>		</div>
+
+		<p>Sanyam. Attaching an agent to a running process is exactly what this post talks about. It has everything you need and I can personally vouch that it works on all operating systems. I&#8217;m sorry but I have no idea why it doesn&#8217;t work for you. Thanks for stopping by.</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=72864#respond' onclick='return addComment.moveForm("div-comment-72864", "72864", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		<ul class="children">
+		<li class="comment odd alt depth-2" id="comment-72866">
+				<div id="div-comment-72866" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/a77d747a1261ff522c7b2b1fa18f1a86?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Sanyam</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-72866">
+			Wed, 27 Mar 2013 18:52:50 +0000 at 18:52</a>		</div>
+
+		<p>Hi Dhruba<br />
+The following statements find the pid of the process to which Java agent attaches</p>
+<pre>
+  String nameOfRunningVM = ManagementFactory.getRuntimeMXBean().getName();
+        int p = nameOfRunningVM.indexOf('@');
+        String pid = nameOfRunningVM.substring(0, p);  // taken from your tutorial
+</pre>
+<p>These statements attach the Java agent to the VM obtained using pid. </p>
+<pre>
+ try {
+            VirtualMachine vm = VirtualMachine.attach(pid);
+            vm.loadAgent(jarFilePath, "");
+            vm.detach();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+</pre>
+<p>This works fine, but here is the problem I am talking about,</p>
+<p>in place of pid if I give id by selecting from windows task manager it fails throwing some error and if successful the agent does not do any instrumentation to the classes of that VM instance.</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=72866#respond' onclick='return addComment.moveForm("div-comment-72866", "72866", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="comment byuser comment-author-admin bypostauthor even thread-odd thread-alt depth-1 parent" id="comment-72878">
+				<div id="div-comment-72878" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/eb10e74de609354f76f03bdc99db58f4?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn"><a href='http://dhruba.name' rel='external' class='url'>Dhruba Bandopadhyay</a></cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-72878">
+			Wed, 27 Mar 2013 21:03:25 +0000 at 21:03</a>		</div>
+
+		<p>Why are you not using the pid?</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=72878#respond' onclick='return addComment.moveForm("div-comment-72878", "72878", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		<ul class="children">
+		<li class="comment odd alt depth-2" id="comment-72919">
+				<div id="div-comment-72919" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/a77d747a1261ff522c7b2b1fa18f1a86?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Sanyam</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-72919">
+			Thu, 28 Mar 2013 05:21:00 +0000 at 05:21</a>		</div>
+
+		<p>Hi Dhruba,</p>
+<p>Suppose I want to attach my Java agent to a Java application running on my system ( say netbeans). In this case What I am doing is, from windows task manager I get the PID of netbeans. and when I execute my dynamic agent attach program in which PID is  hardcoded (of netbeans already running) as obtained from the Task manager, nothing is attaching to netbeans application.<br />
+PS. I am running this Dynamic agent loading program seperately i.e., independent of netbeans IDE running.</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=72919#respond' onclick='return addComment.moveForm("div-comment-72919", "72919", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="comment byuser comment-author-admin bypostauthor even thread-even depth-1" id="comment-72954">
+				<div id="div-comment-72954" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/eb10e74de609354f76f03bdc99db58f4?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn"><a href='http://dhruba.name' rel='external' class='url'>Dhruba Bandopadhyay</a></cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-72954">
+			Thu, 28 Mar 2013 10:43:00 +0000 at 10:43</a>		</div>
+
+		<p>Okay so you are running two processes instead of one. The post above relates only to one. You could probably find a way to call the netbeans main method from your process and then it would be in the same one. I&#8217;ve not tried two process attachment so I cannot comment on whether it works or why it fails sorry. Though I have a feeling that it has to be in the same process to work.</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=72954#respond' onclick='return addComment.moveForm("div-comment-72954", "72954", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment odd alt thread-odd thread-alt depth-1 parent" id="comment-74542">
+				<div id="div-comment-74542" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/0d9ae8f03549aeb39c4548ac329e418d?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">chardal</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-74542">
+			Tue, 09 Apr 2013 16:55:23 +0000 at 16:55</a>		</div>
+
+		<p>How can I install asm libraries to eclipse?</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=74542#respond' onclick='return addComment.moveForm("div-comment-74542", "74542", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		<ul class="children">
+		<li class="comment byuser comment-author-admin bypostauthor even depth-2" id="comment-74585">
+				<div id="div-comment-74585" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://0.gravatar.com/avatar/eb10e74de609354f76f03bdc99db58f4?s=44&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn"><a href='http://dhruba.name' rel='external' class='url'>Dhruba Bandopadhyay</a></cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-74585">
+			Wed, 10 Apr 2013 00:13:57 +0000 at 00:13</a>		</div>
+
+		<p>Follow the links in the Resources section in this post.</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=74585#respond' onclick='return addComment.moveForm("div-comment-74585", "74585", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+		<li class="pingback odd alt thread-even depth-1 comment" id="comment-76970">
+				<div id="div-comment-76970" class="comment-body">
+				<div class="comment-author vcard">
+						<cite class="fn"><a href='http://ganeshsubramanian.com/blog/2013/04/28/restful-services-at-ease/' rel='external' class='url'>RESTful services at ease | Dumb Programmer</a></cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-76970">
+			Sun, 28 Apr 2013 07:16:03 +0000 at 07:16</a>		</div>
+
+		<p>[...] helps avoiding boiler plate code, APT can help you generate the boiler plate code at compile time, javaagents can help you instrument classes at runtime and generate the boiler plate code for us. Why not use [...]</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=76970#respond' onclick='return addComment.moveForm("div-comment-76970", "76970", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+		<li class="comment even thread-odd thread-alt depth-1" id="comment-88894">
+				<div id="div-comment-88894" class="comment-body">
+				<div class="comment-author vcard">
+			<img alt='' src='http://1.gravatar.com/avatar/94f18c9ae82624959c16c459e03861ed?s=44&amp;d=http%3A%2F%2F1.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D44&amp;r=G' class='avatar avatar-44 photo' height='44' width='44' />			<cite class="fn">Tal</cite> <span class="says">says:</span>		</div>
+		
+		<div class="comment-meta commentmetadata"><a href="http://dhruba.name/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#comment-88894">
+			Wed, 07 Aug 2013 07:47:47 +0000 at 07:47</a>		</div>
+
+		<p>Hi<br />
+Nice article.<br />
+After loading java agents dynamically, it stays in memory and Transformer runs with every class call.</p>
+<p>How can it be later on Unloaded , through code ofcourse, without restating the JVM?</p>
+<p>Thanks,<br />
+Tal</p>
+
+		<div class="reply">
+			<a class='comment-reply-link' href='/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/?replytocom=88894#respond' onclick='return addComment.moveForm("div-comment-88894", "88894", "respond", "1516")'>Reply</a>		</div>
+				</div>
+		</li><!-- #comment-## -->
+</ol><!-- .commentlist --><div class="comments-navigation"><div class="alignleft"></div></div>								<div id="respond" class="comment-respond">
+				<h3 id="reply-title" class="comment-reply-title">Leave a reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="/2010/02/07/creation-dynamic-loading-and-instrumentation-with-javaagents/#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://dhruba.name/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+																										<p class="comment-form-author"><label for="author">Name <span class="required">*</span></label> <input id="author" name="author" type="text" value="" size="30" aria-required='true' /></p>
+<p class="comment-form-email"><label for="email">Email <span class="required">*</span></label> <input id="email" name="email" type="text" value="" size="30" aria-required='true' /></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30" /></p>
+												<p class="comment-form-comment"><label for="comment">Comment</label> <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>												<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment" />
+							<input type='hidden' name='comment_post_ID' value='1516' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+						</p>
+						<p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="89b3e7130e" /></p>
+
+	<p style="clear: both;" class="subscribe-to-comments">
+	<input type="checkbox" name="subscribe" id="subscribe" value="subscribe" style="width: auto;" />
+	<label for="subscribe">Notify me of followup comments via e-mail</label>
+	</p>
+
+
+					</form>
+							</div><!-- #respond -->
+						</div><!-- #comments --></div></div><!-- .block-content -->
+</div><!-- #block-7 -->
+</section><!-- .column --></section><!-- .row -->
+
+<section class="row row-4">
+<section class="column column-1 grid-left-2 grid-width-9">
+<aside id="block-1" class="block block-type-widget-area block-fluid-height block-mirrored block-mirroring-1 block-original-5"><div class="block-content"><ul class="widget-area">		<li id="recent-posts-5" class="widget widget_recent_entries">
+		<span class="widget-title">Recent Posts</span>
+		<ul>
+					<li>
+				<a href="http://dhruba.name/2013/11/05/happy-birthday-to-me-2/" title="Happy Birthday to me">Happy Birthday to me</a>
+						</li>
+					<li>
+				<a href="http://dhruba.name/2013/10/27/upcoming-coursera-course-principles-of-reactive-programming/" title="Upcoming Coursera course: Principles of Reactive Programming">Upcoming Coursera course: Principles of Reactive Programming</a>
+						</li>
+					<li>
+				<a href="http://dhruba.name/2013/10/26/scala-cookbook-simplifying-nested-pattern-matching/" title="Scala Cookbook: Simplifying nested pattern matching">Scala Cookbook: Simplifying nested pattern matching</a>
+						</li>
+					<li>
+				<a href="http://dhruba.name/2013/10/22/scala-cookbook-tail-recursive-factorial/" title="Scala Cookbook: Tail recursive factorial">Scala Cookbook: Tail recursive factorial</a>
+						</li>
+					<li>
+				<a href="http://dhruba.name/2013/10/22/scala-cookbook-pattern-matching-on-bigint/" title="Scala Cookbook: Pattern matching on BigInt">Scala Cookbook: Pattern matching on BigInt</a>
+						</li>
+					<li>
+				<a href="http://dhruba.name/2012/12/24/opencl-cookbook-10-tips-for-high-performance-kernels/" title="OpenCL Cookbook: 10 tips for high performance kernels">OpenCL Cookbook: 10 tips for high performance kernels</a>
+						</li>
+					<li>
+				<a href="http://dhruba.name/2012/12/16/amd-release-app-sdk-2-8-codexl-1-0-and-bolt/" title="AMD release APP SDK 2.8, CodeXL 1.0 and Bolt">AMD release APP SDK 2.8, CodeXL 1.0 and Bolt</a>
+						</li>
+				</ul>
+		</li><!-- .widget -->
+</ul></div><!-- .block-content -->
+</aside><!-- #block-1 -->
+</section><!-- .column --><section class="column column-2 grid-left-0 grid-width-12">
+<aside id="block-2" class="block block-type-widget-area block-fluid-height block-mirrored block-mirroring-2 block-original-6"><div class="block-content"><ul class="widget-area"><li id="recent-comments-6" class="widget widget_recent_comments">
+<span class="widget-title">Recent Comments</span>
+<ul id="recentcomments"><li class="recentcomments">Kannan on <a href="http://dhruba.name/2012/10/18/msvcprtd-libmsvcp100d-dll-fatal-error-lnk1112-module-machine-type-x86-conflicts-with-target-machine-type-x64/#comment-109980">msvcprtd.lib(MSVCP100D.dll) : fatal error LNK1112: module machine type &#8216;X86&#8242; conflicts with target machine type &#8216;x64&#8242;</a></li><li class="recentcomments">Anuj on <a href="http://dhruba.name/2012/10/16/java-pitfall-how-to-prevent-runtime-getruntime-exec-from-hanging/#comment-105638">Java pitfall: How to prevent Runtime.getRuntime().exec() from hanging</a></li><li class="recentcomments">qwertyu on <a href="http://dhruba.name/2012/10/16/java-pitfall-how-to-prevent-runtime-getruntime-exec-from-hanging/#comment-104847">Java pitfall: How to prevent Runtime.getRuntime().exec() from hanging</a></li><li class="recentcomments"><a href='http://dhruba.name' rel='external' class='url'>Dhruba Bandopadhyay</a> on <a href="http://dhruba.name/2013/10/27/upcoming-coursera-course-principles-of-reactive-programming/#comment-104726">Upcoming Coursera course: Principles of Reactive Programming</a></li><li class="recentcomments"><a href='http://streamcomputing.eu/' rel='external' class='url'>Vincent Hindriksen</a> on <a href="http://dhruba.name/2013/10/27/upcoming-coursera-course-principles-of-reactive-programming/#comment-104500">Upcoming Coursera course: Principles of Reactive Programming</a></li></ul></li><!-- .widget -->
+</ul></div><!-- .block-content -->
+</aside><!-- #block-2 -->
+</section><!-- .column --></section><!-- .row -->
+
+<section class="row row-5">
+<section class="column column-1 grid-left-2 grid-width-21">
+<footer id="block-4" class="block block-type-footer block-fluid-height block-mirrored block-mirroring-4 block-original-8"><div class="block-content">
+<div class="footer-container">
+
+<div class="footer">
+<p class="footer-left footer-headway-link footer-link">Powered by Headway, the  <a href="http://headwaythemes.com/" title="Headway Premium WordPress Theme">drag and drop WordPress theme</a></p><a href="#" class="footer-right footer-go-to-top-link footer-link">Go To Top</a><a href="http://dhruba.name/wp-admin/" class="footer-right footer-admin-link footer-link">Administration Login</a><p class="copyright footer-copyright">Copyright &copy; 2013 Dhruba Bandopadhyay</p>
+</div><!-- .footer -->
+</div><!-- .footer-container --></div><!-- .block-content -->
+</footer><!-- #block-4 -->
+</section><!-- .column --></section><!-- .row -->
+
+</div><!-- .grid-container -->
+
+</div><!-- .wrapper -->
+
+
+
+
+
+</div><!-- #whitewrap -->
+
+<!-- START MINT TRACKING -->
+<script src="/mint/?js" type="text/javascript"></script>
+<!-- END MINT TRACKING -->
+
+</body>
+
+
+</html>

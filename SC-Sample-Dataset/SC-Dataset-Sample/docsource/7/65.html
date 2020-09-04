@@ -1,0 +1,506 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<!-- ============================================================================ -->
+<!-- * Licensed Materials - Property of IBM                                       -->
+<!-- * Project  Zero                                                              -->
+<!-- *                                                                            -->
+<!-- * (C) Copyright IBM Corp. 2007,2008  All Rights Reserved.                    -->
+<!-- *                                                                            -->
+<!-- * US Government Users Restricted Rights - Use, duplication or disclosure     -->
+<!-- * restricted by GSA ADP Schedule Contract with IBM Corp.                     -->
+<!-- * ========================================================================== -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>PHP to Java bridge </title>
+<link href="../styles/ZeroDocStyle.css" rel="stylesheet" type="text/css"/>
+
+<script language="JavaScript" src="../../../../scriptsfiles/icscript.js"></script>
+
+<script>if( self == top ){ window.location.replace( "../../../../?topic=/com.ibm.websphere.sMash.doc/using/zero.php/ZeroAdvancedPHPJavaBridge.html");}</script>
+</head>
+ <body id="home">
+<div id="container">
+<!--BEGIN OF ARTICLE-->
+<div id="contentContainer">
+<div id="content">
+<div id="mainContent">
+
+<h1 id="PHP_to_Java_bridge">PHP to Java bridge </h1> 
+
+<div class="shortdesc">
+<p>The PHP Java™ Bridge in WebSphere sMash can be used to interact with Java Objects, 
+implement Java™ Interfaces and instantiate and extend Java™ classes. </p>
+</div>
+
+<h2 id="When_to_use_the_PHP_to_Java_brid">When to use the PHP to Java bridge </h2> 
+<p>The Java bridge for PHP in IBM® WebSphere® sMash can help provide access to Java classes and functionality in PHP. 
+This feature can help an application developer, for example, who wants to share a WebSphere sMash library 
+built in Java with the rest of the community. The expectation is that all data exchange occurs through 
+the global context and any custom Java object placed by the library in the global context can be accessed 
+in a PHP application through the bridge.</p>
+
+<p>Note: Using the bridge requires PHP developers to read and understand the Javadoc for the classes that 
+they are accessing. This requires PHP developers to understand the Java class.</p>
+
+<p>If you do not want PHP developers to have to understand the Java class you can write an extension to the 
+PHP language using the extension interfaces described in the <a href="ExtendingPHP.html" shape="rect">Extending 
+PHP</a> article. This enables you to provide a PHP view of the function provided by the Java class.</p>
+
+<h2 id="Example">Example </h2> 
+<p>The following code snippet shows how to access Java classes from a PHP script.</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+$date = new Java("java.util.Date", 70, 9, 4);
+var_dump($date-&gt;toString());
+$map = new Java("java.util.HashMap");
+$map-&gt;put("title", "Java Bridge!");
+$map-&gt;put("when", $date);
+echo $map-&gt;get("when")-&gt;toString()."\n";
+echo $map-&gt;get("title")."\n";
+
+$array = array(1,2,3,4,5);
+$map-&gt;put("stuff", $array);
+var_dump($map-&gt;get("stuff"))."\n";
+
+$system = new JavaClass("java.lang.System");
+echo "OS: ".$system-&gt;getProperty("os.name")."\n";
+$math = new JavaClass("java.lang.Math");
+echo "PI: ".$math-&gt;PI."\n";
+?&gt;
+</pre>
+</div>
+
+<p>The <code>new Java("java.util.Date", 70, 9, 4)</code> call creates a new instance of the <code>java.util.Date</code> 
+class using the <code>java.util.Date(int year, int month, int day)</code> constructor. Methods can then be called on the 
+object and <code>$date-&gt;toString()</code> string returns the following information <code>'Sun Oct 04 00:00:00 GMT 
+1970'</code>.</p>
+
+<p>The <code>new Java("java.util.HashMap")</code> call creates a Java hash map. The script puts the date, a string, and an 
+array into this collection and then retrieves them. Although the script creates a PHP array, what gets put into the hash 
+map is a standard Java <code>Map</code>. The same applies to strings.  The Java bridge converts a PHP string (essentially 
+a byte array) into a <code>java.lang.String</code> string so that the Java class receives argument types that it would 
+normally expect if the caller were another Java class.</p>
+
+<p>The <code>new JavaClass("java.lang.System")</code> call provides access to the <code>java.lang.System</code> class. Static 
+methods can then be called on the class. The example invokes <code>$system-&gt;getProperty()</code>. The same applies to 
+the <code>java.lang.Math</code> class although in this case the example code is accessing a public static field (<code>PI</code>) 
+rather than a static method.</p>
+
+<h2 id="Accessing_a_member">Accessing a member </h2> 
+
+<p>Accessing a member of an instance will first look for bean properties then public fields. For example 
+<code>print $date-&gt;time</code> will first attempt to be resolved as <code>$date-&gt;getTime()</code>, 
+then as <code>$date.time</code>. Both static and instance members can be accessed on an object with this syntax.</p>
+
+<p>Overload resolution is in general a hard problem given the differences in types between the two languages. The Java to 
+PHP bridge employs a simple, but fairly effective, metric for determining which overload is the best match. It chooses 
+the method that has the best matching number of arguments (types are ignored). If there is not an exact match, then if a 
+method exists that has less arguments than provided by the script it will be used. The opposite does not hold true, the 
+Java to PHP bridge will not invoke a Java method that has more arguments than the script provides because Java does not 
+have default arguments. Note that method names in PHP are not case sensitive, potentially increasing the number of 
+overloads from which to select.</p>
+
+<p>Once a method is selected, the parameters are coerced if necessary, possibly with a loss of data (example: double 
+precision floating point numbers could be converted to boolean if that is what the Java method is expecting).</p>
+
+<h2 id="Exception_handling">Exception handling </h2> 
+
+<p>The Java to PHP bridge enables a PHP script to catch exceptions thrown from the Java code.</p>
+
+<p>Since Java exceptions are not the same as PHP exceptions, there is some conversion required. All Java exceptions get 
+converted into a generic PHP exception class called JavaException. The JavaException class allows a catch handler to 
+find out the cause (to find out the Java exception that was thrown). All PHP exceptions inherit from the base PHP 
+Exception class a message and code; for JavaException exceptions the code will always be zero and the message is the 
+message extracted from the native Java exception.</p>
+
+<p>The following sample code passes an invalid argument to <code>getProperty()</code> and then catches the <code>java.lang.IllegalArgumentException</code>.</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+try {
+        $system = new Java("java.lang.System");
+        $system-&gt;getProperty(FALSE);
+} catch (JavaException $exception) {
+        echo "Cause: ".$exception-&gt;getCause()."\n";
+        echo "Message: ".$exception-&gt;getMessage()."\n";
+}
+?&gt;
+</pre>
+</div>
+
+<p>The cause is the underlying Java exception. The message in the exception is copied directly from the 
+Java exception message (in this example the <code>IllegalArgumentException</code>  contains no message 
+and so displays nothing).</p>
+
+<h2 id="Iterators">Iterating over Java objects</h2> 
+
+<p>The Java Bridge allows Java objects implementing <code>Iterable</code> to be iterated over in PHP.</p>
+<p>The following snippet shows a Java <code>ArrayList</code> being iterated over using a PHP 
+<code>foreach</code> statement:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+$list = new Java("java.util.ArrayList");
+
+$list-&gt;add("Hello World!");
+$list-&gt;add(FALSE);
+$list-&gt;add(1234567890);
+
+foreach ($list as $key =&gt; $value) {
+	echo $key." ".$value."\n";
+}
+?&gt;
+</pre>
+</div>
+
+<h2 id="Overloads">Selecting overloads with signatures</h2> 
+
+<p>The Java Bridge selects a method or constructor based on the number and type of arguments 
+supplied. If no suitable method or constructor exists then the Java Bridge throws a 
+<code>JavaException</code>. This exception can be caught in scripts if required.</p>
+
+<p>If one or methods or constructors exist that have the right number of arguments, but those 
+arguments are not good matches for the argument types supplied by the caller, then the Java 
+Bridge selects the first one and tries that. It will also output a notice signalling that a 
+<code>JavaSignature</code> should be used to help the Java Bridge resolve which overload to 
+call (see the following section).</p>
+
+<p>This problem of selecting a suitable overload has been solved in WebSphere® sMash v1.1
+with the addition of a new <code>JavaSignature</code> class. The <code>JavaSignature</code> 
+class allows a script to specify exactly which constructor or method is invoked by defining 
+the argument types to look for.</p>
+
+<p>The following sample code shows the <code>JavaSignature</code> being used to select a 
+constructor for the Java <code>String</code> class:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+$signature = new JavaSignature(JAVA_STRING);
+$string = new Java("java.lang.String", $signature, "Hello World!");
+?&gt;
+</pre>
+</div>
+
+<p>The arguments for <code>JavaSignature</code> are drawn from the following PHP constants:</p>
+
+<ul>
+    <li>
+<code>JAVA_BOOLEAN</code>
+</li>
+    <li>
+<code>JAVA_BYTE</code>
+</li>
+    <li>
+<code>JAVA_CHAR</code>
+</li>
+    <li>
+<code>JAVA_SHORT</code>
+</li>
+    <li>
+<code>JAVA_INT</code>
+</li>
+    <li>
+<code>JAVA_LONG</code>
+</li>
+    <li>
+<code>JAVA_FLOAT</code>
+</li>
+    <li>
+<code>JAVA_DOUBLE</code>
+</li>
+    <li>
+<code>JAVA_STRING</code>
+</li>
+    <li>
+<code>JAVA_OBJECT</code>
+</li>
+</ul>
+
+<p>Multiple arguments are comma separated, for example, <code>new JavaSignature(JAVA_STRING, JAVA_INT)</code>.</p>
+
+<p>You can specify arrays of Java types using the <code>JAVA_ARRAY</code> modifier. For example, the 
+following selects an array of strings: <code>new JavaSignature(JAVA_STRING | JAVA_ARRAY)</code>.</p>
+
+<p>The following snippet shows a <code>JavaSignature</code> selecting an overload of the <code>valueOf</code> 
+method on <code>java.lang.String</code>. Note how the signature is passed as the first argument to the 
+method call. The Java Bridge knows to check there for signatures.</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+$class = new JavaClass("java.lang.String");
+$signature = new JavaSignature(JAVA_INT);
+var_dump($class-&gt;valueOf($signature, 1234567890));
+?&gt;
+</pre>
+</div>
+
+<p>Java objects can be passed using the <code>JAVA_OBJECT</code> argument. The class name for the object
+is passed as an argument like this: <code>new JavaSignature(JAVA_OBJECT, "java.lang.String")</code>.</p>
+
+<h2 id="Case">Case sensitive method names</h2> 
+
+<p>Methods in PHP are case insensitive, while Java is case sensitive. The Java bridge is case 
+sensitive and so the PHP method name must match the Java method name exactly.</p>
+
+<h2 id="Import_java_classes">Importing Java classes</h2> 
+
+<p>The <code>new Java(...)</code> syntax quickly becomes tedious to use. The Java bridge can import 
+Java classes in to the PHP runtime using the <code>java_import</code> extension function.</p>
+
+<p>The following example shows the Java <code>Integer</code> and <code>Date</code> classes being imported:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+java_import("java.lang.Integer", NULL, FALSE);
+$value = new Integer(new JavaSignature(JAVA_STRING), "1234567890");
+
+java_import("java.util.Date");
+$date = new Date(70, 9, 4);
+?&gt;
+</pre>
+</div>
+
+<h3 id="Importing_interfaces">Importing interfaces</h3> 
+
+<p>Java interfaces can also be imported - the following sample code shows how to import the 
+Java <code>Comparable</code> interface:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+java_import("java.lang.Comparable");
+echo(ReflectionClass::export("Comparable"));
+?&gt;
+</pre>
+</div>
+
+<p>Running this script in a Web browser produces the following output:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+Interface [ &lt;internal&gt; interface Comparable ] {
+
+  - Constants [0] {
+  }
+
+  - Static properties [0] {
+  }
+
+  - Static methods [0] {
+  }
+
+  - Properties [0] {
+  }
+
+  - Methods [1] {
+    Method [ &lt;internal&gt; abstract public method compareTo ] {
+    }
+  }
+}
+?&gt;
+</pre>
+</div>
+
+<h3 id="Declaring_interfaces">Declaring interfaces</h3> 
+
+
+<p>When a java class is imported, the resulting PHP class can optionally be defined to implement PHP interfaces representing imported Java interfaces</p> 
+
+<p>The second argument to <code>java_import</code> is an array of interface names. The imported class
+is configured to implement only those interfaces listed in the array. This is a convenience for the
+script as many Java classes implement interfaces that are not required in PHP.</p>
+
+<p>The following sample code shows how to import the Java <code>File</code> class. The PHP class is 
+configured so that it implements the <code>Comparable</code> interface. The <code>Comparable</code> 
+interface must already be in the PHP runtime when this <code>java_import</code> call is made:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+var_dump(java_import("java.io.File", array("Comparable"), FALSE));
+$file = new File(new JavaSignature(JAVA_STRING), "/");
+?&gt;
+</pre>
+</div>
+
+<h3 id="Declaring_super_class">Declaring a super class</h3> 
+
+<p>
+<code>java_import</code> will optionally declare a super class for the class being imported. If
+the third argument to <code>java_import</code> is <code>TRUE</code> then the imported class is
+declared with a super class. The super class must already have been imported into the PHP runtime.</p>
+
+<p>The following sample code shows the Java <code>SecureRandom</code> being imported so that it
+declares a super class of <code>Random</code> (this matches the Java class hierachy):</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+java_import("java.security.SecureRandom", NULL, TRUE);
+?&gt;
+</pre>
+</div>
+
+<h3 id="Renaming_classes">Renaming classes</h3> 
+
+<p>To avoid class name collisions it is sometimes useful to rename classes during the import.
+An optional class name can be passed as the fourth argument to <code>java_import</code> as follows:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+var_dump(java_import("java.lang.Integer", NULL, FALSE, "TestInteger"));
+$value = new TestInteger(new JavaSignature(JAVA_STRING), "1234567890");
+?&gt;
+</pre>
+</div>
+
+<h3 id="inner_classes">Inner classes</h3> 
+
+<p>PHP does not have the concept of an inner class. By default all static inner classes defined in
+a Java class that is imported will also be imported as top level PHP classes. Only static inner 
+classes can be imported by the Java bridge. When a PHP class is created by importing a Java static 
+inner class, the resulting PHP class is given the name of the inner class without using the name 
+of the enclosing Java class. </p> 
+
+<p>For example: If a Java Class named <code>Zoo</code> which has a static inner class named 
+<code>Zoo.Tiger,</code> is imported then this will result in a PHP class named <code>Zoo</code> 
+and a PHP class named <code>Tiger</code>.</p>
+
+<p>The fifth and final argument to <code>java_import</code> specifies whether to also import static inner 
+classes. The default is <code>true</code>. If this argument is set to <code>true</code> or omitted 
+then any public static inner classes of the class being imported are also imported. The snippet below shows 
+<code>java.util.Map</code> being imported without its static inner class <code>Entry</code>.</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+java_import("java.util.Map", NULL, FALSE, NULL, FALSE);
+echo(ReflectionClass::export("Map"));
+var_dump(class_exists("Entry", FALSE)); // Does not exist!
+?&gt;
+</pre>
+</div>
+
+<p>Static inner classes can also be explicitly imported by specifying their fully qualified name. 
+The snippet below shows the <code>Entry</code> static inner class of <code>Map</code> being explicitly imported</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+java_import("java.util.Map.Entry");
+echo(ReflectionClass::export("Entry"));
+?&gt;
+</pre>
+</div>
+
+<p>Importing static inner classes as top level classes is convenient but has the potential to cause naming conflicts. 
+Such a conflict can be resolved by choosing to import the outer class without importing inner classes. Any 
+required static inner classes can then be explicitly imported. If required the inner classes can be renamed on the import.
+The snippet below shows the <code>Entry</code> static inner class of <code>Map</code> being explicitly imported and renamed:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+
+java_import("java.util.Map", NULL, FALSE, NULL, FALSE); // Import without inner classes
+java_import("java.util.Map$Entry", NULL, FALSE, "MapEntry", FALSE); // Import the Entry inner class as MapEntry
+echo(ReflectionClass::export("MapEntry"));
+?&gt;
+</pre>
+</div>
+
+<h2 id="java_bean">Java Bean Field Access</h2> 
+
+<p>The Java bridge provides field access to set/get methods. The snippet below shows the 
+Java <code>File</code> class being accessed through field gets:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+java_import("java.io.File");
+$file = new File("/");
+var_dump($file-&gt;Parent);
+?&gt;
+</pre>
+</div>
+
+<p>The Java bridge turns the call to <code>$file-&gt;Parent</code> into <code>$file-&gt;getParent()</code>.</p>
+
+<p>Setting a field value (<code>Length</code> in the example below) calls the matching set method:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+java_import("java.lang.StringBuffer");
+$buffer = new StringBuffer("Hello World!");
+$buffer-&gt;Length = 5;
+var_dump($buffer-&gt;toString()); // Hello
+?&gt;
+</pre>
+</div>
+
+<p>
+<em>The field names for gets and sets are case sensitive.</em>
+</p>
+
+<h2 id="Extending_java_classes">Extending Java classes</h2> 
+
+<p>The following sample code shows the Java <code>File</code> class being extended in PHP:</p>
+
+<div class="codeSample">
+<pre xml:space="preserve">
+&lt;?php
+java_import("java.io.File");
+
+class SuperFile extends File {
+	function SuperFile($signature, $path) {
+		parent::__construct($signature, $path);
+	}
+
+	function isThisCool() {
+		return TRUE; // Way cool
+	}
+}
+
+$file = new SuperFile(new JavaSignature(JAVA_STRING), "/");
+var_dump($file-&gt;isDirectory());
+var_dump($file-&gt;isThisCool());
+?&gt;
+</pre>
+</div>
+
+<h2 id="Java_bridge_limitations">Limitations</h2>
+ 
+<p>There are a few limitations to the Java bridge:</p>
+<ul>		
+	<li>PHP classes implemented via the Java bridge cannot use PHP's object callback mechanism.</li>
+	<li>Only non final Java classes can be extended.</li>
+	<li>It is not possible to extend abstract Java classes in PHP.</li>
+	<li>The PHP class and its hierachy is only visible within the PHP runtime.</li>
+
+</ul>
+	<p>The ability of the Java Bridge to instantiate and extend Java classes is implemented using proxies. Therefore 
+whilst a PHP object based on a Java class can be passed outside of the PHP runtime by calling a method on a Java object and 
+passing a PHP object as an argument, the object passed to the Java method will be an instance of the 
+java class <code>XAPIObject</code> rather than an instance of a the proxied Java class. </p>
+
+<p>
+<code>XAPIObject</code> is the programmatic (Java) interface to a PHP object. <code>XAPIObject</code> 
+is an interface and does not extend any Java base class (for example, <code>File</code> in snippet above).</p>
+	
+
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

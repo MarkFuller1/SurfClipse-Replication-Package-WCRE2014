@@ -1,0 +1,1007 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html xmlns="http://www.w3.org/1999/xhtml"> <head> <title>After updating Eclipse won&#39;t start: org.osgi.framework.BundleException - ZK Forum</title> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /> <meta name="description" content="None" /> <meta name="keywords" content="zk-studio,ZK,CNPROG,forum,community" /> <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" /> <link rel="shortcut icon" href="http://www.zkoss.org/resource/img/favicon.ico" /> <link 
+            rel="alternate"
+            type="application/rss+xml"
+            title="RSS feed from ZK Forum"
+            href="http://forum.zkoss.org/feeds/rss/"
+        /> <link href="/m/default/media/style/style.css?v=1" rel="stylesheet" type="text/css" /> <link href="/m/default/media/bootstrap/css/bootstrap.css?v=1" rel="stylesheet" type="text/css" /> <link href='//fonts.googleapis.com/css?family=Open+Sans+Condensed:700&amp;subset=latin-ext' rel='stylesheet' type='text/css'> <link href='//fonts.googleapis.com/css?family=Open+Sans+Condensed:700&amp;subset=cyrillic-ext' rel='stylesheet' type='text/css'> <link rel="canonical" href="http://forum.zkoss.org/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/" /> <link rel="stylesheet" type="text/css" href="/m/default/media/js/wmd/wmd.css?v=1" /> <link href="/m/default/media/bootstrap/css/bootstrap.css?v=1" rel="stylesheet" type="text/css" /> <style>
+	.question-content iframe,
+    .answer iframe{
+		border:none;
+	}
+	.fiddleiframe{
+		display:none;
+	}
+	.commentBody iframe{
+	   border:none;	
+	}
+	.grippie {
+		border: 1px solid #DDD;
+		border-width: 0pt 1px 1px;
+		cursor: s-resize;
+		height: 9px;
+		overflow: hidden;
+		background-color: #EEE;
+		background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB0AAAAKCAYAAABIQFUsAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEWAAABFgAVshLGQAAAAadEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjEwMPRyoQAAACNJREFUOE9jYBgxYPfu3f/phQc2UOnlS5A9oz4d2BAYdrYDABL3AkD4Z9nHAAAAAElFTkSuQmCC);
+		background-repeat: no-repeat;
+		background-position: 344px 0;
+	}
+</style> <script type="text/javascript" src="/m/default/media/js/modernizr.custom.js?v=1"></script> <script type="text/javascript" src="/jsi18n/"></script> <script type="text/javascript">
+    var askbot = {};
+    askbot['data'] = {};
+    askbot['data']['tinyurlKey'] = '00D20093CC7EB88D987A;';
+    
+        askbot['data']['userIsAuthenticated'] = false;
+        askbot['data']['userReputation'] = 0;
+    
+    askbot['data']['maxCommentLength'] = 300;
+    askbot['urls'] = {};
+    askbot['settings'] = {};
+    askbot['settings']['editorType'] = 'markdown';
+    
+        askbot['settings']['allowedUploadFileTypes'] = [
+            "jpg", "jpeg", "gif", "bmp", "png", "tiff"
+        ];
+    
+    askbot['messages'] = {};
+</script> <script type="text/javascript">/*----------------- ZK Fiddle integration --------------------------*/
+var head=document.getElementsByTagName("head")[0];var script=document.createElement("script");script.type="text/javascript";script.src="http://zkfiddle.org/status/?jsonp=forumcallback";head.appendChild(script);window.forumcallback=function(sucess){window.fiddleAlive=true;$(document).ready(function(){window.updateWidgetIframe()})};window.updateWidgetIframe=function(){if(window.fiddleAlive){var iframes=$("div[name='fiddlecontent']");iframes.each(function(){a=$(this).prev('a:contains("ZKFiddle-Link")');if(a.length)var a=a.get(0),href=a.href,newhref=href.replace(".org/sample/",".org/widget/");if(newhref)$(this.parentNode).empty().append('<iframe width="100%" height="300px" width="" src="'+newhref+'?height=250"></iframe>')})}};
+/*----------------- ZK Fiddle integration end --------------------------*/
+</script> <script type='text/javascript'>
+    askbot['data']['canEditPost'] = 1000;
+    askbot['data']['tag_names'] = askbot['data']['tag_names'] || {};
+    
+        /*<![CDATA[*/
+        //below is pure cross-browser javascript, no jQuery
+        askbot['data']['userIsThreadModerator'] = false;
+        (function(){
+            var data = askbot['data'];
+            if (data['userIsAuthenticated']){
+                var votes = {};
+                
+                data['user_votes'] = votes;
+                var posts = {};
+                
+                data['user_posts'] = posts;
+            }
+
+            function render_vote_buttons(post_type, post_id){
+                var upvote_btn = document.getElementById(
+                    post_type + '-img-upvote-' + post_id
+                );
+                var downvote_btn = document.getElementById(
+                    post_type + '-img-downvote-' + post_id
+                );
+                if (data['userIsAuthenticated']){
+                    if (post_id in data['user_votes']){
+                        var vote = data['user_votes'][post_id];
+                        if (vote == -1){
+                            var btn = downvote_btn;
+                        } else if (vote == 1){
+                            var btn = upvote_btn;
+                        } else {
+                            return;
+                        }
+                        if (post_type == 'comment'){
+                            btn.className = btn.className + ' upvoted';
+                        } else {
+                            btn.className = btn.className + ' on';
+                        }
+                    }
+                }
+            }
+
+            function hide_convert_answer_links(post_id){
+                var answer_convert_id = 'post-' + post_id + '-convert';
+                var convert_answer = document.getElementById(answer_convert_id);
+                if (data['userIsAdminOrMod']){
+                    var answer_id = 'post-id-' + post_id;
+                    var answer_container = document.getElementById(answer_id);
+                    var answer_element= answer_container.getElementsByClassName('answer-body')[0].children[1];
+                    if (
+                        answer_element.textContent.length > 
+                        askbot['data']['maxCommentLength']
+                    ){
+                        convert_answer.parentNode.removeChild(convert_answer);
+                    }
+                } else if (askbot['data']['userReputation'] < askbot['data']['canEditPost']){
+                    convert_answer.parentNode.removeChild(convert_answer);
+                }
+            }
+
+            function hidePublishAnswerLink(postId) {
+                if (data['userIsThreadModerator'] === false) {
+                    //hide publish/unpublish answer links
+                    var answerId = 'post-' + postId + '-publish';
+                    var pubBtn = document.getElementById(answerId);
+                    pubBtn.parentNode.removeChild(pubBtn);
+                }
+            }
+
+            function render_post_controls(post_id){
+                if (data['userIsAdminOrMod']){
+                    return;//all remaining functions stay on
+                }
+                if (data['user_posts'] === undefined) {
+                    return;
+                }
+                if (post_id in data['user_posts']){
+                    //todo: remove edit button from older comments
+                    return;//same here
+                }
+                if (//maybe remove "delete" button
+                    data['userReputation'] < 
+                    2000
+                ) {
+                    var delete_btn = document.getElementById(
+                        'post-' + post_id + '-delete'
+                    );
+                    delete_btn.parentNode.removeChild(delete_btn);
+                }
+                if (//maybe remove "edit" button
+                    data['userReputation'] <
+                    1000
+                ){
+                    var edit_btn = document.getElementById(
+                        'post-' + post_id + '-edit'
+                    )
+                    edit_btn.parentNode.removeChild(edit_btn);
+                }
+                if (//maybe remove retag button
+                    data['userReputation'] <
+                    500
+                ){
+                    var retag_btn = document.getElementById('retag');
+                    if (retag_btn && retag_btn.parentNode)
+	                    retag_btn.parentNode.removeChild(retag_btn);
+                }
+            }
+            function render_add_comment_button(post_id, extra_comment_count){
+                var can_add = false;
+                if (data['user_posts'] === undefined) {
+                    return;
+                }
+                
+                    if (data['user_posts'] && post_id in data['user_posts']){
+                        can_add = true;
+                    }
+                
+                var add_comment_btn = document.getElementById(
+                    'add-comment-to-post-' + post_id
+                );
+                if (can_add === false){
+                    add_comment_btn.parentNode.removeChild(add_comment_btn);
+                    return;
+                }
+
+                var text = '';
+                if (extra_comment_count > 0){
+                    if (can_add){
+                        text = 
+        "post a comment / <strong>some</strong> more";
+                    } else {
+                        text = 
+        "see <strong>some</strong> more";
+                    }
+                } else {
+                    if (can_add){
+                        text = "post a comment";
+                    }
+                }
+                add_comment_btn.innerHTML = text;
+                //add the count
+                for (node in add_comment_btn.childNodes){
+                    if (node.nodeName === 'strong'){
+                        node.innerHTML = extra_comment_count;
+                        break;
+                    }
+                }
+            }
+            function render_add_answer_button(){
+                var add_answer_btn = document.getElementById('add-answer-btn');
+                if (askbot['data']['userIsAuthenticated']){
+                    if (askbot['data']['userId'] == 7709){
+                        add_answer_btn.className += ' answer-own-question';
+                        add_answer_btn.setAttribute(
+                            'value',
+                            'Answer Your Own Question'
+                        )
+                    } else {
+                        add_answer_btn.setAttribute(
+                           'value',
+                            'Post Your Answer'
+                        )
+                    }
+                } else {
+                    add_answer_btn.setAttribute(
+                        'value',
+                        'Login/Signup to Post'
+                    );
+                }
+            }
+
+            function hide_convert_links(){
+              if (!askbot['data']['userIsAdminOrMod'] && askbot['data']['userReputation'] < askbot['data']['canEditPost']){
+                var links = document.getElementsByClassName('convert-comment');
+                for (i=0; i<links.length; i++){
+                  links[i].setAttribute('style', 'display:none;');
+                }
+              }
+            }
+            
+            askbot['functions'] = askbot['functions'] || {};
+            askbot['functions']['renderPostVoteButtons'] = render_vote_buttons;
+            askbot['functions']['renderPostControls'] = render_post_controls;
+            askbot['functions']['renderAddCommentButton'] = render_add_comment_button;
+            askbot['functions']['renderAddAnswerButton'] = render_add_answer_button;
+            askbot['functions']['hideConvertLinks'] = hide_convert_links;
+            askbot['functions']['hideConvertAnswerLinks'] = hide_convert_answer_links;
+            askbot['functions']['hidePublishAnswerLink'] = hidePublishAnswerLink;
+        })();
+        /*]]>*/
+    </script> </head> <body class="two-col user-messages question-page anon lang-en"> <div class="notify" style="display:none"> <p class="notification">First time here? Check out the FAQ!</p> <a id="closeNotify" onclick="notify.close(true)"></a> </div> <!-- template header.html --> <div 
+    id="header"
+    class="with-logo"
+> <div class="content-wrapper"> <div id="userToolsNav"> <a 
+  id="navTags"
+  style="margin-right:1px;"
+  href="/tags/"
+  
+><img src="/m/default/media/images/zk/icon_tags.png?v=1"/>&nbsp;Tags</a><a 
+  id="navUsers"
+  style="margin-right:1px;"
+  href="/users/"
+  
+><img src="/m/default/media/images/zk/icon_people.png?v=1"/>&nbsp;People</a><a 
+  id="navBadges"
+  style="margin-right:1px;"
+  href="/badges/"
+  
+><img src="/m/default/media/images/zk/icon_badges.png?v=1"/>&nbsp;Badges</a><a class="help" href="/help/" title="Help"><img src="/m/default/media/images/zk/icon_help.png?v=1"/>&nbsp;Help</a> <a 
+  style="margin-left:1px;" href="/account/signin/?next=/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/">Hi there! Please sign in</a></div> <a id="logo" href="http://www.zkoss.org"><img 
+    src="http://www.zkoss.org/resource/img/template/top_zk_logo_ext.png" 
+    title="back to ZK home page"
+    alt="ZK Forum logo"/> </a> <div id="main_menu"> <nav class="navigation_menu"> <header> <h5>Navigation Menu</h5> </header> <ul class="menu new-style"> <li class="menuitem "> <div class="menuitem-right"> <a href="http://www.zkoss.org/product/" class="menulink">Products</a> </div> <ul> <li class="round-top"></li> <li class="top"><a href="http://www.zkoss.org/product/zk" title="ZK">ZK Framework</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/product/zkspreadsheet" title="ZK Spreadsheet">ZK Spreadsheet</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/product/zkpivottable" title="ZK Pivottable">ZK Pivottable</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/product/zkstudio" title="ZK Studio">ZK Studio</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/product/zkcalendar" title="ZK Calendar">ZK Calendar</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/product/zkspring" title="ZK Spring">ZK Spring</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/product/zkjsp" title="ZK JSP">ZK JSP</a> <div class="sep"></div> </li> <!-- 
+<li class="bottom"><a href="http://www.zkoss.org/product/ztl" title="ZTL">ZTL</a> </li>
+ --> <li class="bottom"><a href="http://www.zkoss.org/product/zats" title="ZATS">ZATS</a> </li> <li class="round-bottom"></li> <li class="touch-close"><a title="Close Menu" href="http://www.zkoss.org#"></a></li> </ul></li> <li class="menuitem "> <div class="menuitem-right"> <a href="http://www.zkoss.org/demo/" class="menulink">Demos</a> </div> <ul> <li class="round-top"></li> <li class="top"><a href="http://www.zkoss.org/zkdemo/">ZK Framework</a> <div class="sep"></div> </li> <li><a href="http://zssdemo.zkoss.org">ZK SpreadSheet</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/zkdemo/application/pivottable">ZK Pivottable</a> <div class="sep"></div> </li> <li><a href="http://zcal.zkoss.org">ZK Calendar</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/zkmail/">ZK Web Mail</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/zksandbox">ZK Sandbox</a> <div class="sep"></div> </li> <li class="bottom"><a href="http://www.zkoss.org/demo/external">Real World Apps</a> </li> <li class="round-bottom"></li> <li class="touch-close"><a title="Close Menu" href="http://www.zkoss.org#"></a> </li> </ul> </li> <li class="menuitem"> <div class="menuitem-right"> <a href="http://www.zkoss.org/download/" class="menulink">Downloads</a> </div> <ul> <li class="round-top"></li> <li class="top"><a href="http://www.zkoss.org/download/zk">ZK Framework</a> <div class="sep"></div></li> <li><a href="http://www.zkoss.org/download/zkstudio">ZK Studio</a> <div class="sep"></div></li> <li><a href="http://www.zkoss.org/download/zkspring">ZK Spring</a> <div class="sep"></div></li> <li><a href="http://www.zkoss.org/download/zkspreadsheet">ZK Spreadsheet</a> <div class="sep"></div></li> <li><a href="http://www.zkoss.org/download/zkpivottable">ZK Pivottable</a> <div class="sep"></div></li> <li><a href="http://www.zkoss.org/download/zkcalendar">ZK Calendar</a> <div class="sep"></div></li> <li><a href="http://www.zkoss.org/download/zkjsp">ZK JSP</a> <div class="sep"></div></li> <li class="bottom"><a href="http://www.zkoss.org/download/zats">ZATS</a></li> <li class="round-bottom"></li> <li class="touch-close"><a title="Close Menu" href="http://www.zkoss.org#"></a> </li> </ul> </li> <li class="menuitem "> <div class="menuitem-right"> <a href="http://www.zkoss.org/whyzk/" class="menulink">Why ZK</a> </div> <ul> <li class="round-top"></li> <li class="top"><a href="http://www.zkoss.org/whyzk/TopReasons">Top Reasons</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/whyzk/Features">Features</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/whyzk/zkee">Why ZK EE</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/whyzk/WhosUsing">Who's Using</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/whyzk/casestudies">Case Studies</a> <div class="sep"></div> </li> <li class="bottom"><a href="http://www.zkoss.org/whyzk/Testimonials">Testimonials</a> </li> <li class="round-bottom"></li> <li class="touch-close"><a title="Close Menu" href="http://www.zkoss.org#"></a> </li> </ul> </li> <li class="menuitem "> <div class="menuitem-right"> <a href="http://www.zkoss.org/community/" class="menulink">Community</a> </div> <ul> <li class="round-top"></li> <li class="top"><a href="/questions">Forum</a> <div class="sep"></div> </li> <li><a href="http://blog.zkoss.org">Blog</a> <div class="sep"></div> </li> <li><a href="http://books.zkoss.org/wiki/Hall_of_Fame">Contributors</a> <div class="sep"></div> </li> <li><a href="http://books.zkoss.org/wiki/Blogosphere">Blogosphere</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/documentation#Small_Talks">Small Talks</a> <div class="sep"></div> </li> <li><a href="http://tracker.zkoss.org/secure/IssueNavigator.jspa?mode=hide&amp;requestId=10002">Request Features</a> <div class="sep"></div> </li> <li class="bottom"><a href="http://tracker.zkoss.org/secure/IssueNavigator.jspa?mode=hide&amp;requestId=10001">Report Bugs</a> </li> <li class="round-bottom"></li> <li class="touch-close"><a title="Close Menu" href="http://www.zkoss.org#"></a> </li> </ul> </li> <li class="menuitem "> <div class="menuitem-right"> <a href="http://www.zkoss.org/documentation" class="menulink">Documentation</a> </div> <ul> <li class="round-top"></li> <li class="top"><a href="http://www.zkoss.org/documentation">ZK Framework</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/documentation/zkstudio">ZK Studio</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/documentation/zkspring">ZK Spring</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/documentation/zkspreadsheet">ZK Spreadsheet</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/documentation/zkpivottable">ZK Pivottable</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/documentation/zkcalendar">ZK Calendar</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/documentation/zkjsp">ZK JSP</a> <div class="sep"></div> </li> <!-- 
+<li class="bottom"><a href="http://www.zkoss.org/documentation/ztl">ZTL</a> </li>
+--> <li class="bottom"><a href="http://www.zkoss.org/documentation/zats">ZATS</a> </li> <li class="round-bottom"></li> <li class="touch-close"><a title="Close Menu" href="http://www.zkoss.org#"></a> </li> </ul> </li> <li class="menuitem "> <div class="menuitem-right"> <a href="http://www.zkoss.org/support/" class="menulink">Support</a> </div> <ul> <li class="round-top"></li> <li class="top"><a href="http://www.zkoss.org/support/options">Support Options</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/license/">License</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/partner/">Partners</a> <div class="sep"></div> </li> <li><a href="http://www.zkoss.org/support/about">About Us</a> <div class="sep"></div> </li> <li class="bottom"><a href="http://www.zkoss.org/support/about/contact">Contact Us</a> </li> <li class="round-bottom"></li> <li class="touch-close"><a title="Close Menu" href="http://www.zkoss.org#"></a> </li> </ul> </li> </ul> </nav> </div> <div class="clean"></div> </div> </div> <!-- end template header.html --> <!-- template secondary_header.html --> <div id="secondaryHeader"> <div class="content-wrapper"> <form
+            
+                action="/questions/" id="searchForm"
+            
+            method="get"> <div> <a id="homeButton" href="/questions/"></a> <div id="scopeNav"> <a class="scope-selector "
+        href="/questions/scope:all/sort:activity-desc/page:1/" title="see all questions">ALL</a> <a class="scope-selector "
+        href="/questions/scope:unanswered/sort:age-desc/page:1/" title="see unanswered questions">UNANSWERED</a> </div> <a
+        id="askButton"
+        href="/questions/ask/"
+        > </a> <input type="submit" value="" name="search"
+                
+                 class="searchBtn" /> <input type="button"
+                    value="X"
+                    name="reset_query"
+                    class="cancelSearchBtn"
+                    
+                        style="display: none;"
+                    
+                /> <div class="clearfix"></div> </div> <div id="searchBar" ><input 
+                class="searchInput" 
+                type="text" 
+                autocomplete="off"
+                value="" 
+                name="query" 
+                id="keywords"
+            /></div> </form> </div> </div> <div class="content-wrapper"> <div id="ContentLeft"> <div> </div> <div class="vote-buttons"> <div id="question-img-upvote-31810"
+    class="question-img-upvote post-vote"> </div> <div 
+    id="question-vote-number-31810"
+    class="vote-number"
+    title="current number of votes"
+>0</div> <div
+    id="question-img-downvote-31810"
+    class="question-img-downvote post-vote"> </div> <script type="text/javascript">
+    askbot['functions']['renderPostVoteButtons']('question', '31810');
+</script> </div> <div id="post-id-31810" class="question-content"> <h1><a href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/"><span title="Discussion" class="discussion-link"></span>After updating Eclipse won&#39;t start: org.osgi.framework.BundleException</a></h1> <ul id="question-tags"
+    class="tags post-tags tags"
+> <li class="tag-left"><a
+            class="tag tag-right post-tag"
+            
+            href="/questions/scope:all/sort:activity-desc/tags:zk-studio/page:1/"
+            title="see questions tagged 'zk-studio'"
+            
+            rel="tag"
+            data-tag-name="zk-studio"
+        >zk-studio</a></li> </ul> <div id="question-table"> <div class="question-body"> <div class="post-update-info-container"> <div class='post-update-info'> <p style="line-height:12px;">
+            
+            
+                asked
+            
+            
+                <strong><abbr class="timeago" title="2009-05-21 18:39:53 +0000">
+        2009-05-21 18:39:53 +0000
+    </abbr></strong> </p> <a class="avatar-box"
+    href="/users/7709/sreed/"
+><img class="gravatar" 
+    width="32" height="32"
+    src="//www.gravatar.com/avatar/ff952a02a0e24d5b17aa00aaafc65bb3?s=32&amp;d=identicon&amp;r=PG"
+    title="sreed" 
+    alt="sreed gravatar image" 
+/></a> <a href="/users/7709/sreed/">sreed</a><br/> <span class="reputation-score"
+          title=""
+>195</span> <span title=""> <span class='badge1'>&#9679;</span> <span class="badgecount">1</span> <span class='badge2'>&#9679;</span> <span class="badgecount">3</span> <span class='badge3'>&#9679;</span> <span class="badgecount">4</span> </span> <br/> </div> <div class='post-update-info'> <p style="line-height:12px;"> <a 
+        
+            href="/questions/31810/revisions/"
+        
+            >updated <strong><abbr class="timeago" title="2009-05-21 18:41:36 +0000">
+        2009-05-21 18:41:36 +0000
+    </abbr></strong></a> </p> </div> </div> <p  style="margin:2px 2px;">I updated to the latest version of ZKStudio in response to the ZKStudio update popup dialog. When I restart Eclipse, it fails and displays an error dialog referring to the configuration log file which shows several bundles fail to load due to org.osgi.framework.BundleException. Is this just my configuration or an error in the ZKStudio update? How do I fix it?</p><p>I am running Eclipse 3.4 on Windows XP sp3.</p> </div> <div id="question-controls" class="post-controls"> <a 
+    id="post-31810-delete"
+    class="question-delete"
+>delete</a> <span 
+        id="question-offensive-flag-31810" class="offensive-flag"
+        title="report as offensive (i.e containing spam, advertising, malicious text, etc.)"
+    > <a class="question-flag">flag offensive</a> </span> <script type="text/javascript">
+    var retagUrl = "/questions/31810/retag/";
+</script> <a id="retag" class="question-retag"href="/questions/31810/retag/">retag</a> <a id="post-31810-edit" class="question-edit" href="/questions/31810/edit/">edit</a> <script type="text/javascript">
+    askbot['functions']['renderPostControls']('31810');
+</script> </div> <script type="text/javascript">
+            (function(){
+                if (askbot['data']['userIsAuthenticated'] === false){
+                    var ctrl = document.getElementById('question-controls')
+                    ctrl.parentNode.removeChild(ctrl);
+                }
+            })();
+        </script> </div> </div> <div class="clean"></div> <div class="tabBar tabBar-answer"> <h2 id="questionCount">
+    	
+        
+            7 Replies
+        
+        
+        
+    </h2> <div class="tabsA"> <span class="label">
+                    Sort by »
+                    </span> <a id="oldest" href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?sort=oldest#sort-top"
+           title="oldest answers will be shown first"
+                ><span>oldest</span></a> <a id="latest" href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?sort=latest#sort-top"
+           title="newest answers will be shown first"
+                ><span>newest</span></a> </div> </div> <div class="clean"></div> <div class="clean"></div> <a name="31823"></a> <div
+        id="post-id-31823"
+        class="answer   answered-by-owner "> <div class="answer-table"> <div class="item-right"> <div class="answer-body"> <div class="post-update-info-container"> <div class='post-update-info'> <p style="line-height:12px;">
+            
+            
+                answered
+            
+            
+                <strong><abbr class="timeago" title="2009-05-22 00:55:21 +0000">
+        2009-05-22 00:55:21 +0000
+    </abbr></strong> </p> <a class="avatar-box"
+    href="/users/7709/sreed/"
+><img class="gravatar" 
+    width="32" height="32"
+    src="//www.gravatar.com/avatar/ff952a02a0e24d5b17aa00aaafc65bb3?s=32&amp;d=identicon&amp;r=PG"
+    title="sreed" 
+    alt="sreed gravatar image" 
+/></a> <a href="/users/7709/sreed/">sreed</a><br/> <span class="reputation-score"
+          title=""
+>195</span> <span title=""> <span class='badge1'>&#9679;</span> <span class="badgecount">1</span> <span class='badge2'>&#9679;</span> <span class="badgecount">3</span> <span class='badge3'>&#9679;</span> <span class="badgecount">4</span> </span> <br/> </div> </div> <p  style="margin:2px 2px;">I gave up and reinstalled everything. :-(</p> </div> <div class="answer-controls post-controls"> <span class="action-link"> <a  class="permant-link"
+        href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?answer=31823#post-id-31823"
+        title="permanent link">
+        link
+    </a> </span> <span 
+    id="post-31823-publish"
+    class="action-link"
+> <a 
+            class="answer-publish"
+            data-answer-id="31823"
+        >publish</a> </span> <span id='post-31823-delete' class="action-link delete-post"> <a class="question-delete"
+    >delete</a> </span> <span 
+    id="answer-offensive-flag-31823"
+    class="action-link offensive-flag"
+    title="report as offensive (i.e containing spam, advertising, malicious text, etc.)"
+> <a class="question-flag">flag offensive</a> </span> <span id='post-31823-edit' class="action-link"> <a class="question-edit" href="/answers/31823/edit/">edit</a> </span> <script type="text/javascript">
+    askbot['functions']['hideConvertAnswerLinks']('31823');
+    askbot['functions']['hidePublishAnswerLink']('31823');
+    askbot['functions']['renderPostControls']('31823');
+</script> </div> </div> </div> <div class="clean"></div> </div> <div class="clean"></div> <a name="31826"></a> <div
+        id="post-id-31826"
+        class="answer   "> <div class="answer-table"> <div class="item-right"> <div class="answer-body"> <div class="post-update-info-container"> <div class='post-update-info'> <p style="line-height:12px;">
+            
+            
+                answered
+            
+            
+                <strong><abbr class="timeago" title="2009-05-22 01:12:26 +0000">
+        2009-05-22 01:12:26 +0000
+    </abbr></strong> </p> <a class="avatar-box"
+    href="/users/146/iantsai/"
+><img class="gravatar" 
+    width="32" height="32"
+    src="//www.gravatar.com/avatar/6c46106c3b4d2bb8ce7f5aa01f027cb1?s=32&amp;d=identicon&amp;r=PG"
+    title="iantsai" 
+    alt="iantsai gravatar image" 
+/></a> <a href="/users/146/iantsai/">iantsai</a><br/> <span class="reputation-score"
+          title=""
+>2745</span> <br/> </div> </div> <p  style="margin:2px 2px;">Is re-installation OK now?</p><p>could you past the error log from your old version of Eclipse?</p> </div> <div class="answer-controls post-controls"> <span class="action-link"> <a  class="permant-link"
+        href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?answer=31826#post-id-31826"
+        title="permanent link">
+        link
+    </a> </span> <span 
+    id="post-31826-publish"
+    class="action-link"
+> <a 
+            class="answer-publish"
+            data-answer-id="31826"
+        >publish</a> </span> <span id='post-31826-delete' class="action-link delete-post"> <a class="question-delete"
+    >delete</a> </span> <span 
+    id="answer-offensive-flag-31826"
+    class="action-link offensive-flag"
+    title="report as offensive (i.e containing spam, advertising, malicious text, etc.)"
+> <a class="question-flag">flag offensive</a> </span> <span id='post-31826-edit' class="action-link"> <a class="question-edit" href="/answers/31826/edit/">edit</a> </span> <script type="text/javascript">
+    askbot['functions']['hideConvertAnswerLinks']('31826');
+    askbot['functions']['hidePublishAnswerLink']('31826');
+    askbot['functions']['renderPostControls']('31826');
+</script> </div> </div> </div> <div class="clean"></div> </div> <div class="clean"></div> <a name="31828"></a> <div
+        id="post-id-31828"
+        class="answer   answered-by-owner "> <div class="answer-table"> <div class="item-right"> <div class="answer-body"> <div class="post-update-info-container"> <div class='post-update-info'> <p style="line-height:12px;">
+            
+            
+                answered
+            
+            
+                <strong><abbr class="timeago" title="2009-05-22 01:38:50 +0000">
+        2009-05-22 01:38:50 +0000
+    </abbr></strong> </p> <a class="avatar-box"
+    href="/users/7709/sreed/"
+><img class="gravatar" 
+    width="32" height="32"
+    src="//www.gravatar.com/avatar/ff952a02a0e24d5b17aa00aaafc65bb3?s=32&amp;d=identicon&amp;r=PG"
+    title="sreed" 
+    alt="sreed gravatar image" 
+/></a> <a href="/users/7709/sreed/">sreed</a><br/> <span class="reputation-score"
+          title=""
+>195</span> <span title=""> <span class='badge1'>&#9679;</span> <span class="badgecount">1</span> <span class='badge2'>&#9679;</span> <span class="badgecount">3</span> <span class='badge3'>&#9679;</span> <span class="badgecount">4</span> </span> <br/> </div> <div class='post-update-info'> <p style="line-height:12px;"> <a 
+        
+            href="/answers/31828/revisions/"
+        
+            >updated <strong><abbr class="timeago" title="2009-05-22 01:39:17 +0000">
+        2009-05-22 01:39:17 +0000
+    </abbr></strong></a> </p> </div> </div> <p  style="margin:2px 2px;">It's working fine after reinstall. I upgraded to Ganymede SR2 while I was at it. Here's the configuration log with the old Eclipse after the update:</p><p>!SESSION 2009-05-21 14:31:22.218 -----------------------------------------------<br/>eclipse.buildId=unknown<br/>java.version=1.6.0_13<br/>java.vendor=Sun Microsystems Inc.<br/>BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=en_US<br/>Command-line arguments:  -os win32 -ws win32 -arch x86</p><p>!ENTRY org.eclipse.equinox.p2.reconciler.dropins 4 0 2009-05-21 14:31:25.921<br/>!MESSAGE <br/>!STACK 0<br/>org.osgi.framework.BundleException: The bundle could not be resolved. Reason: Missing Constraint: Import-Package: org.eclipse.equinox.internal.provisional.configurator; version="0.0.0"<br/>	at org.eclipse.osgi.framework.internal.core.BundleHost.startWorker(BundleHost.java:305)<br/>	at org.eclipse.osgi.framework.internal.core.AbstractBundle.resume(AbstractBundle.java:355)<br/>	at org.eclipse.osgi.framework.internal.core.Framework.resumeBundle(Framework.java:1074)<br/>	at org.eclipse.osgi.framework.internal.core.StartLevelManager.resumeBundles(StartLevelManager.java:616)<br/>	at org.eclipse.osgi.framework.internal.core.StartLevelManager.incFWSL(StartLevelManager.java:508)<br/>	at org.eclipse.osgi.framework.internal.core.StartLevelManager.doSetStartLevel(StartLevelManager.java:299)<br/>	at org.eclipse.osgi.framework.internal.core.StartLevelManager.dispatchEvent(StartLevelManager.java:489)<br/>	at org.eclipse.osgi.framework.eventmgr.EventManager.dispatchEvent(EventManager.java:211)<br/>	at org.eclipse.osgi.framework.eventmgr.EventManager$EventThread.run(EventManager.java:321)</p><p>!ENTRY org.eclipse.osgi 4 0 2009-05-21 14:31:25.953<br/>!MESSAGE Application error<br/>!STACK 1<br/>java.lang.RuntimeException: No application id has been found.<br/>	at org.eclipse.equinox.internal.app.EclipseAppContainer.startDefaultApp(EclipseAppContainer.java:236)<br/>	at org.eclipse.equinox.internal.app.MainApplicationLauncher.run(MainApplicationLauncher.java:29)<br/>	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)<br/>	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)<br/>	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:382)<br/>	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:179)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)<br/>	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)<br/>	at java.lang.reflect.Method.invoke(Unknown Source)<br/>	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:549)<br/>	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:504)<br/>	at org.eclipse.equinox.launcher.Main.run(Main.java:1236)</p><p>!ENTRY org.eclipse.osgi 2 0 2009-05-21 14:31:25.953<br/>!MESSAGE The following is a complete list of bundles which are not resolved, see the prior log entry for the root cause if it exists:<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.953<br/>!MESSAGE Bundle reference:file:plugins\org.eclipse.equinox.p2.console_1.0.0.v20080514-1900.jar [235] was not resolved.<br/>!SUBENTRY 2 org.eclipse.equinox.p2.console 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Missing Constraint: Import-Package: org.eclipse.equinox.internal.provisional.configurator; version="0.0.0"<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.eclipse.equinox.p2.director.app_1.0.0.v20080604.jar [238] was not resolved.<br/>!SUBENTRY 2 org.eclipse.equinox.p2.director.app 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Missing Constraint: Import-Package: org.eclipse.equinox.internal.p2.console; version="0.0.0"<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.eclipse.equinox.p2.reconciler.dropins_1.0.0.v20080611.jar [248] was not resolved.<br/>!SUBENTRY 2 org.eclipse.equinox.p2.reconciler.dropins 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Missing Constraint: Import-Package: org.eclipse.equinox.internal.provisional.configurator; version="0.0.0"<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.eclipse.equinox.p2.ui_1.0.0.v20080530-1237.jar [251] was not resolved.<br/>!SUBENTRY 2 org.eclipse.equinox.p2.ui 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Missing Constraint: Require-Bundle: org.eclipse.equinox.simpleconfigurator; bundle-version="0.0.0"<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.eclipse.equinox.p2.ui.sdk_1.0.0.v20080605-1731.jar [252] was not resolved.<br/>!SUBENTRY 2 org.eclipse.equinox.p2.ui.sdk 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Missing Constraint: Import-Package: org.eclipse.equinox.internal.provisional.p2.ui; version="0.0.0"<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.zkoss.eclipse.editor_0.9.3.v200903221453.jar [617] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse.editor 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Another singleton version selected: org.zkoss.eclipse.editor_0.9.3.v200905211705<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.zkoss.eclipse.newzkfile_0.9.3.v200903221453.jar [618] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse.newzkfile 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Another singleton version selected: org.zkoss.eclipse.newzkfile_0.9.3.v200905211705<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.zkoss.eclipse.services_0.9.3.v200903221453.jar [619] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse.services 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Another singleton version selected: org.zkoss.eclipse.services_0.9.3.v200905211705<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.zkoss.eclipse.setting_0.9.3.v200903221453.jar [620] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse.setting 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Another singleton version selected: org.zkoss.eclipse.setting_0.9.3.v200905211705<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.zkoss.eclipse.style_0.9.3.v200903221453.jar [621] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse.style 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Another singleton version selected: org.zkoss.eclipse.style_0.9.3.v200905211705<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.zkoss.eclipse.ve_0.9.3.v200903221453.jar [622] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse.ve 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Another singleton version selected: org.zkoss.eclipse.ve_0.9.3.v200905211705<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.zkoss.eclipse.zeta_0.9.3.v200903221453.jar [623] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse.zeta 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Another singleton version selected: org.zkoss.eclipse.zeta_0.9.3.v200905211705<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle reference:file:plugins\org.zkoss.eclipse34.services_0.9.3.v200903221453.jar [624] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse34.services 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Missing Constraint: Require-Bundle: org.eclipse.equinox.p2.ui; bundle-version="0.0.0"<br/>!SUBENTRY 1 org.eclipse.osgi 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Bundle initial@reference:file:plugins/org.zkoss.eclipse34.services_0.9.3.v200905211705.jar/ [632] was not resolved.<br/>!SUBENTRY 2 org.zkoss.eclipse34.services 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Missing required bundle org.eclipse.equinox.p2.ui_0.0.0.<br/>!SUBENTRY 2 org.zkoss.eclipse34.services 2 0 2009-05-21 14:31:25.968<br/>!MESSAGE Missing required bundle org.eclipse.equinox.p2.ui.sdk_0.0.0.</p> </div> <div class="answer-controls post-controls"> <span class="action-link"> <a  class="permant-link"
+        href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?answer=31828#post-id-31828"
+        title="permanent link">
+        link
+    </a> </span> <span 
+    id="post-31828-publish"
+    class="action-link"
+> <a 
+            class="answer-publish"
+            data-answer-id="31828"
+        >publish</a> </span> <span id='post-31828-delete' class="action-link delete-post"> <a class="question-delete"
+    >delete</a> </span> <span 
+    id="answer-offensive-flag-31828"
+    class="action-link offensive-flag"
+    title="report as offensive (i.e containing spam, advertising, malicious text, etc.)"
+> <a class="question-flag">flag offensive</a> </span> <span id='post-31828-edit' class="action-link"> <a class="question-edit" href="/answers/31828/edit/">edit</a> </span> <script type="text/javascript">
+    askbot['functions']['hideConvertAnswerLinks']('31828');
+    askbot['functions']['hidePublishAnswerLink']('31828');
+    askbot['functions']['renderPostControls']('31828');
+</script> </div> </div> </div> <div class="clean"></div> </div> <div class="clean"></div> <a name="31837"></a> <div
+        id="post-id-31837"
+        class="answer   "> <div class="answer-table"> <div class="item-right"> <div class="answer-body"> <div class="post-update-info-container"> <div class='post-update-info'> <p style="line-height:12px;">
+            
+            
+                answered
+            
+            
+                <strong><abbr class="timeago" title="2009-05-22 06:39:42 +0000">
+        2009-05-22 06:39:42 +0000
+    </abbr></strong> </p> <a class="avatar-box"
+    href="/users/340/kkurt/"
+><img class="gravatar" 
+    width="32" height="32"
+    src="//www.gravatar.com/avatar/fdbf398f010a9202003f5060a993303c?s=32&amp;d=identicon&amp;r=PG"
+    title="kkurt" 
+    alt="kkurt gravatar image" 
+/></a> <a href="/users/340/kkurt/">kkurt</a><br/> <span class="reputation-score"
+          title=""
+>300</span> <span title=""> <span class='badge2'>&#9679;</span> <span class="badgecount">1</span> <span class='badge3'>&#9679;</span> <span class="badgecount">1</span> </span> <br/> </div> <div class='post-update-info'> <p style="line-height:12px;"> <a 
+        
+            href="/answers/31837/revisions/"
+        
+            >updated <strong><abbr class="timeago" title="2009-05-22 06:55:02 +0000">
+        2009-05-22 06:55:02 +0000
+    </abbr></strong></a> </p> </div> </div> <p  style="margin:2px 2px;">I have same problem after updating Zk Studio on RAD 7.5 and now i cant startup...
+<br/> <div style="class=code" class="code"><pre>
+!SESSION 2009&#45;05&#45;22 09:23:45.971 &#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;
+eclipse.buildId=unknown
+java.fullversion=J2RE 1.6.0 IBM J9 2.4 Windows XP x86&#45;32 jvmwi3260&#45;20090215_29883 (JIT enabled, AOT enabled)
+J9VM &#45; 20090215_029883_lHdSMr
+JIT  &#45; r9_20090213_2028
+GC   &#45; 20090213_AA
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=en_US
+Framework arguments:  &#45;product com.ibm.rational.rad.product.v75.ide
+Command&#45;line arguments:  &#45;os win32 &#45;ws win32 &#45;arch x86 &#45;product com.ibm.rational.rad.product.v75.ide
+
+!ENTRY org.eclipse.equinox.simpleconfigurator 4 0 2009&#45;05&#45;22 09:23:54.646
+!MESSAGE 
+!STACK 0
+org.osgi.framework.BundleException: State change in progress for bundle "initial@reference:file:../SDP70Shared/plugins/org.eclipse.equinox.simpleconfigurator_1.0.0.v20080604.jar/" by thread "main".
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.beginStateChange(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.suspend(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.Framework.suspendBundle(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.suspendBundle(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.processDelta(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.doResolveBundles(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl$1.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: org.eclipse.osgi.framework.internal.core.AbstractBundle$BundleStatusException
+	... 8 more
+Root exception:
+org.eclipse.osgi.framework.internal.core.AbstractBundle$BundleStatusException
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.beginStateChange(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.suspend(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.Framework.suspendBundle(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.suspendBundle(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.processDelta(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl.doResolveBundles(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.PackageAdminImpl$1.run(Unknown Source)
+	at java.lang.Thread.run(Unknown Source)
+
+!ENTRY org.eclipse.equinox.simpleconfigurator 4 0 2009&#45;05&#45;22 09:23:55.178
+!MESSAGE 
+!STACK 0
+org.osgi.framework.BundleException: Exception in org.eclipse.equinox.internal.simpleconfigurator.Activator.start() of bundle org.eclipse.equinox.simpleconfigurator.
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.startActivator(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.BundleContextImpl.start(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.BundleHost.startWorker(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.AbstractBundle.resume(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.Framework.resumeBundle(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.resumeBundles(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.incFWSL(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.doSetStartLevel(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.StartLevelManager.launch(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.SystemBundle.resume(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.Framework.launch(Unknown Source)
+	at org.eclipse.osgi.framework.internal.core.OSGi.launch(Unknown Source)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.startup(Unknown Source)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(Unknown Source)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.eclipse.equinox.launcher.Main.invokeFramework(Unknown Source)
+	at org.eclipse.equinox.launcher.Main.basicRun(Unknown Source)
+	at org.eclipse.equinox.launcher.Main.run(Unknown Source)
+	at org.eclipse.equinox.launcher.Main.main(Unknown Source)
+...
+...
+...
+
+
+!ENTRY org.eclipse.osgi 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE One or more bundles are not resolved because the following root constraints are not resolved:
+!SUBENTRY 1 org.eclipse.osgi 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Bundle reference:file:../SDP70Shared&#92;plugins&#92;org.eclipse.emf.codegen.ecore_2.4.1.v200808251517.jar was not resolved.
+!SUBENTRY 2 org.eclipse.emf.codegen.ecore 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Missing required bundle org.eclipse.core.runtime_[3.4.0,4.0.0).
+!SUBENTRY 1 org.eclipse.osgi 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Bundle reference:file:../SDP70Shared&#92;plugins&#92;org.eclipse.gmf.runtime.common.ui.action.ide_1.1.0.v20080425&#45;1959.jar was not resolved.
+!SUBENTRY 2 org.eclipse.gmf.runtime.common.ui.action.ide 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Missing required bundle org.eclipse.core.runtime_[3.4.0,4.0.0).
+!SUBENTRY 1 org.eclipse.osgi 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Bundle reference:file:../SDP70Shared&#92;plugins&#92;com.businessobjects.crystalreports.designer.enginepreferences_1.0.6.v1371.jar was not resolved.
+!SUBENTRY 2 com.businessobjects.crystalreports.designer.enginepreferences 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Missing required bundle org.eclipse.core.runtime_0.0.0.
+!SUBENTRY 1 org.eclipse.osgi 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Bundle reference:file:../SDP70Shared&#92;plugins&#92;org.eclipse.datatools.help_1.5.0.v200805152355.jar was not resolved.
+!SUBENTRY 2 org.eclipse.datatools.help 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Missing required bundle org.eclipse.core.runtime_0.0.0.
+!SUBENTRY 1 org.eclipse.osgi 2 0 2009&#45;05&#45;22 09:24:00.649
+!MESSAGE Bundle reference:file:../SDP70Shared&#92;plugins&#92;org.eclipse.datatools.sqltools.parsers.sql_1.0.1.v200808140615.jar was not resolved.
+...
+...
+...
+</pre></div></p> </div> <div class="answer-controls post-controls"> <span class="action-link"> <a  class="permant-link"
+        href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?answer=31837#post-id-31837"
+        title="permanent link">
+        link
+    </a> </span> <span 
+    id="post-31837-publish"
+    class="action-link"
+> <a 
+            class="answer-publish"
+            data-answer-id="31837"
+        >publish</a> </span> <span id='post-31837-delete' class="action-link delete-post"> <a class="question-delete"
+    >delete</a> </span> <span 
+    id="answer-offensive-flag-31837"
+    class="action-link offensive-flag"
+    title="report as offensive (i.e containing spam, advertising, malicious text, etc.)"
+> <a class="question-flag">flag offensive</a> </span> <span id='post-31837-edit' class="action-link"> <a class="question-edit" href="/answers/31837/edit/">edit</a> </span> <script type="text/javascript">
+    askbot['functions']['hideConvertAnswerLinks']('31837');
+    askbot['functions']['hidePublishAnswerLink']('31837');
+    askbot['functions']['renderPostControls']('31837');
+</script> </div> </div> </div> <div class="clean"></div> </div> <div class="clean"></div> <a name="31839"></a> <div
+        id="post-id-31839"
+        class="answer   "> <div class="answer-table"> <div class="item-right"> <div class="answer-body"> <div class="post-update-info-container"> <div class='post-update-info'> <p style="line-height:12px;">
+            
+            
+                answered
+            
+            
+                <strong><abbr class="timeago" title="2009-05-22 06:59:06 +0000">
+        2009-05-22 06:59:06 +0000
+    </abbr></strong> </p> <a class="avatar-box"
+    href="/users/340/kkurt/"
+><img class="gravatar" 
+    width="32" height="32"
+    src="//www.gravatar.com/avatar/fdbf398f010a9202003f5060a993303c?s=32&amp;d=identicon&amp;r=PG"
+    title="kkurt" 
+    alt="kkurt gravatar image" 
+/></a> <a href="/users/340/kkurt/">kkurt</a><br/> <span class="reputation-score"
+          title=""
+>300</span> <span title=""> <span class='badge2'>&#9679;</span> <span class="badgecount">1</span> <span class='badge3'>&#9679;</span> <span class="badgecount">1</span> </span> <br/> </div> </div> <p  style="margin:2px 2px;">How can i uninstall?</p> </div> <div class="answer-controls post-controls"> <span class="action-link"> <a  class="permant-link"
+        href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?answer=31839#post-id-31839"
+        title="permanent link">
+        link
+    </a> </span> <span 
+    id="post-31839-publish"
+    class="action-link"
+> <a 
+            class="answer-publish"
+            data-answer-id="31839"
+        >publish</a> </span> <span id='post-31839-delete' class="action-link delete-post"> <a class="question-delete"
+    >delete</a> </span> <span 
+    id="answer-offensive-flag-31839"
+    class="action-link offensive-flag"
+    title="report as offensive (i.e containing spam, advertising, malicious text, etc.)"
+> <a class="question-flag">flag offensive</a> </span> <span id='post-31839-edit' class="action-link"> <a class="question-edit" href="/answers/31839/edit/">edit</a> </span> <script type="text/javascript">
+    askbot['functions']['hideConvertAnswerLinks']('31839');
+    askbot['functions']['hidePublishAnswerLink']('31839');
+    askbot['functions']['renderPostControls']('31839');
+</script> </div> </div> </div> <div class="clean"></div> </div> <div class="clean"></div> <a name="31862"></a> <div
+        id="post-id-31862"
+        class="answer   "> <div class="answer-table"> <div class="item-right"> <div class="answer-body"> <div class="post-update-info-container"> <div class='post-update-info'> <p style="line-height:12px;">
+            
+            
+                answered
+            
+            
+                <strong><abbr class="timeago" title="2009-05-22 19:05:08 +0000">
+        2009-05-22 19:05:08 +0000
+    </abbr></strong> </p> <a class="avatar-box"
+    href="/users/4389/terrytornado/"
+><img class="gravatar" 
+    width="32" height="32"
+    src="//www.gravatar.com/avatar/1a401ff5227b8172d8d5ad50d07c0336?s=32&amp;d=identicon&amp;r=PG"
+    title="terrytornado" 
+    alt="terrytornado gravatar image" 
+/></a> <a href="/users/4389/terrytornado/">terrytornado</a><br/> <span class="reputation-score"
+          title=""
+>8738</span> <span title=""> <span class='badge1'>&#9679;</span> <span class="badgecount">3</span> <span class='badge2'>&#9679;</span> <span class="badgecount">4</span> <span class='badge3'>&#9679;</span> <span class="badgecount">16</span> </span> <br/> <a 
+            href="http://www.forsthaus.de/blog"
+            title="terrytornado's website is http://www.forsthaus.de/blog"
+            
+        >
+        http://www.forsthaus.de/b...
+        </a> </div> </div> <p  style="margin:2px 2px;">Hmmmm, i mean unInstalling under eclipse is deleting the 'known'  packages under the eclipse<br/>folders .\plugins and .\features.<br/>A friend of mine says all times. Don't install something on eclipse before there is a backup of the<br/>last running eclipse.</p><p>Stephan</p> </div> <div class="answer-controls post-controls"> <span class="action-link"> <a  class="permant-link"
+        href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?answer=31862#post-id-31862"
+        title="permanent link">
+        link
+    </a> </span> <span 
+    id="post-31862-publish"
+    class="action-link"
+> <a 
+            class="answer-publish"
+            data-answer-id="31862"
+        >publish</a> </span> <span id='post-31862-delete' class="action-link delete-post"> <a class="question-delete"
+    >delete</a> </span> <span 
+    id="answer-offensive-flag-31862"
+    class="action-link offensive-flag"
+    title="report as offensive (i.e containing spam, advertising, malicious text, etc.)"
+> <a class="question-flag">flag offensive</a> </span> <span id='post-31862-edit' class="action-link"> <a class="question-edit" href="/answers/31862/edit/">edit</a> </span> <script type="text/javascript">
+    askbot['functions']['hideConvertAnswerLinks']('31862');
+    askbot['functions']['hidePublishAnswerLink']('31862');
+    askbot['functions']['renderPostControls']('31862');
+</script> </div> </div> </div> <div class="clean"></div> </div> <div class="clean"></div> <a name="31908"></a> <div
+        id="post-id-31908"
+        class="answer   "> <div class="answer-table"> <div class="item-right"> <div class="answer-body"> <div class="post-update-info-container"> <div class='post-update-info'> <p style="line-height:12px;">
+            
+            
+                answered
+            
+            
+                <strong><abbr class="timeago" title="2009-05-25 02:41:45 +0000">
+        2009-05-25 02:41:45 +0000
+    </abbr></strong> </p> <a class="avatar-box"
+    href="/users/1221/dennis/"
+><img class="gravatar" 
+    width="32" height="32"
+    src="//www.gravatar.com/avatar/db2227e329d80c37ea16a5eb20a2c60d?s=32&amp;d=identicon&amp;r=PG"
+    title="dennis" 
+    alt="dennis gravatar image" 
+/></a> <a href="/users/1221/dennis/">dennis</a><br/> <span class="reputation-score"
+          title=""
+>3589</span> <span title=""> <span class='badge3'>&#9679;</span> <span class="badgecount">5</span> </span> <br/> <a 
+            href="http://www.javaworld.com.tw/roller/atticcat"
+            title="dennis's website is http://www.javaworld.com.tw/roller/atticcat"
+            
+        >
+        http://www.javaworld.com....
+        </a> <img 
+            src="/m/default/media/images/zk/zk.png?v=1"
+            alt="ZK Team"
+            title="ZK Team"
+            style="float:left"
+        /> </div> </div> <p  style="margin:2px 2px;">eclipse didn't do very well on user manually install/un-install plulgin... :( .<br/>check this.<br/><a target="external" href="http://docs.zkoss.org/wiki/Studio_userguide_Appendix#Installation_Issue">http://docs.zkoss.org/wiki/Studio_userguide_Appendix#Installation_Issue</a></p> </div> <div class="answer-controls post-controls"> <span class="action-link"> <a  class="permant-link"
+        href="/question/31810/after-updating-eclipse-wont-start-orgosgiframeworkbundleexception/?answer=31908#post-id-31908"
+        title="permanent link">
+        link
+    </a> </span> <span 
+    id="post-31908-publish"
+    class="action-link"
+> <a 
+            class="answer-publish"
+            data-answer-id="31908"
+        >publish</a> </span> <span id='post-31908-delete' class="action-link delete-post"> <a class="question-delete"
+    >delete</a> </span> <span 
+    id="answer-offensive-flag-31908"
+    class="action-link offensive-flag"
+    title="report as offensive (i.e containing spam, advertising, malicious text, etc.)"
+> <a class="question-flag">flag offensive</a> </span> <span id='post-31908-edit' class="action-link"> <a class="question-edit" href="/answers/31908/edit/">edit</a> </span> <script type="text/javascript">
+    askbot['functions']['hideConvertAnswerLinks']('31908');
+    askbot['functions']['hidePublishAnswerLink']('31908');
+    askbot['functions']['renderPostControls']('31908');
+</script> </div> </div> </div> <div class="clean"></div> </div> <div class="clean"></div> <div class="clean"></div> <form
+        id="fmanswer"
+        action="/questions/31810/answer/"
+        method="post"
+        ><div style='display:none'><input type='hidden' name='csrfmiddlewaretoken' value='4429c83bae803d435b14f8fbb6cb1de3' /></div> <div style="clear:both"></div> <div> <div class="answer-notes">
+                    	   
+	                        
+	                            Your reply
+	                        
+                        
+                    </div> </div> <div class="message"><span class='strong big'>Please start posting your answer anonymously</span> - your answer will be saved within the current session and published after you log in or create a new account. Please try to give a <strong>substantial answer</strong>, for discussions, <strong>please use comments</strong> and <strong>please do remember to vote</strong> (after you log in)!</div> <div class="wmd-container"> <div id="wmd-button-bar" class="wmd-panel"></div> <textarea rows="10" cols="40" name="text" id="editor"></textarea> </div> <div class="form-item"> <label for="editor" class="form-error"><ul class="errorlist"><li>answer must be &gt; 10 characters</li></ul></label> <p class="editor-status action-status"><span></span></p> </div> <div class="preview-toggle"> <span 
+            id="pre-collapse" 
+            title="Toggle the real time Markdown editor preview"
+        >
+            [hide preview]
+        </span> </div> <div id="previewer" class="wmd-preview"></div> <input id="add-answer-btn" type="submit" class="submit after-editor" style="float:left"/> <script type="text/javascript">
+                askbot['functions']['renderAddAnswerButton']();
+            </script> </form> </div> <div id="ContentRight"> <div class="box vote-buttons"> <h2 >Question tools</h2> <a class="button followed"
+            alt="click to follow this question">
+            Follow
+        </a> <div class="clearfix"></div> <div id="favorite-number" class="favorite-number"> </div> <div class="notify-sidebar"> <input type="checkbox" id="question-subscribe-sidebar"/> <label for="question-subscribe-sidebar"><strong>Here</strong> (once you log in) you will be able to sign up for the periodic email updates about this question.</label> <p class="rss"> <a
+                href="http://forum.zkoss.org/feeds/question/31810"
+                title="subscribe to this question rss feed"
+                >RSS</a> </p> </div> </div> <div class="clearfix"></div> <div class="box statsWidget"> <div class="clearfix"></div> <h2>Stats</h2> <p>
+        Asked: <strong><abbr class="timeago" title="2009-05-21 18:39:53 +0000">
+        2009-05-21 18:39:53 +0000
+    </abbr></strong> </p> <p> 
+        Seen: <strong>7,710 times</strong> </p> <p>
+        Last updated: <strong title="2009-05-25 02:41:45">May 25 '09</strong> </p> </div> <div class="box"> <h2>Related questions</h2> <div class="questions-related"> <p> <a href="/question/21428/zk-studio-and-eclipse-outline-problem/">ZK studio and eclipse outline problem</a> </p> <p> <a href="/question/21430/zk-package-configuration-problem/">ZK Package configuration problem</a> </p> <p> <a href="/question/21486/eclipse-autocomplete-not-working-in-zul-files/">Eclipse Autocomplete not working in ZUL files...</a> </p> <p> <a href="/question/21533/syntax-error-mark-help-me/">Syntax Error mark  ... help me!</a> </p> <p> <a href="/question/21537/manual-installation-of-zk-studio/">Manual Installation of ZK Studio</a> </p> <p> <a href="/question/21604/zk-studio-problem/">ZK Studio problem</a> </p> <p> <a href="/question/21630/cant-see-button-text-whilst-running-simple-demo/">Can&#39;t see button text whilst running simple demo</a> </p> <p> <a href="/question/21657/adding-vbox-to-center-layout-in-java/">Adding Vbox to Center layout in Java</a> </p> <p> <a href="/question/21842/the-url-for-update-zkstudio-in-eclipse-send-me-error/">the url for update zkstudio in eclipse send me error</a> </p> <p> <a href="/question/22006/preview-view-in-zk-studio/">Preview View in ZK Studio</a> </p> </div> </div> <div class="box"> </div> </div> </div> <!-- template footer.html --> <div id="ground"> <div class="content-wrapper"> <div class="footer-links" > <a href="http://www.zkoss.org/support/about" target="_blank">About Us</a><span class="link-separator"> |</span> <a href="/faq/">Faq</a><span class="link-separator"> |</span> <a href="/help/" title="help">Help</a> <span class="link-separator"> |</span> <a href="http://www.zkoss.org/support/about/contact" target="_blank">
+                        Contact Us
+                    </a> </div> <div class="copyright">
+                
+                Copyright Potix Corporation 2013. <br/>Content on this site is licensed under a <a href="http://creativecommons.org/licenses/by-sa/3.0/legalcode">Creative Commons Attribution Share Alike 3.0</a> license.
+
+            </div> <div class="clean"></div> </div> </div> <!-- end template footer.html --> <div id="no-javascript"> <noscript class="noscript">
+        Please note: ZK Forum requires javascript to work properly, please enable javascript in your browser, <a href="https://www.google.com/support/bin/answer.py?answer=23852">here is how</a> </noscript> <script type="text/javascript">
+        //IE fix to hide the red margin
+        var noscript = document.getElementsByTagName('noscript')[0];
+        noscript.style.padding = '0px';
+        noscript.style.backgroundColor = 'transparent';
+    </script> </div> <script type="text/javascript">
+    var i18nLang = 'en';
+    var scriptUrl = '/'
+    var askbotSkin = 'default';
+    var enableMathJax = false;
+    askbot['urls']['mark_read_message'] = '/messages/markread/';
+    askbot['urls']['get_tags_by_wildcard'] = '/get-tags-by-wildcard/';
+    askbot['urls']['get_tag_list'] = '/get-tag-list/';
+    askbot['urls']['follow_user'] = '/followit/follow/user/{{userId}}/';
+    askbot['urls']['unfollow_user'] = '/followit/unfollow/user/{{userId}}/';
+    askbot['urls']['user_signin'] = '/account/signin/';
+    askbot['urls']['getEditor'] = '/get-editor/';
+    askbot['urls']['titleSearch'] = '/api/title_search/';
+    askbot['urls']['ask'] = '/questions/ask/';
+	askbot['urls']['questions'] = '/questions/';
+    askbot['settings']['static_url'] = '/m/';
+    askbot['settings']['minSearchWordLength'] = 4;
+</script> <script 
+    type="text/javascript"
+    
+        src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"
+    
+></script> <script type="text/javascript" src='/m/default/media/bootstrap/js/bootstrap.js?v=1'></script> <!-- History.js --> <script type='text/javascript' src="/m/default/media/js/jquery.history.js?v=1"></script> <script type='text/javascript' src="/m/default/media/js/utils.js?v=1"></script> <script type="text/javascript" src="/m/default/media/js/live_search.js?v=1"></script> <script type="text/javascript">
+    /*<![CDATA[*/
+    if ($.browser.msie) {
+        $("body").addClass("ie");
+	}
+    $(document).ready(function(){
+    	//kissmetrics
+    	if (askbot['data']['userIsAuthenticated']) {
+    		var zks = $.cookie('zkissms');
+	    	if (zks && zks.replace(/"/g, '') != askbot['data']['userEmail']) {
+	    		_kmq.push(['identify', askbot['data']['userEmail']]);
+	    		$.cookie('zkissms', askbot['data']['userEmail'], {path: '/'});
+	    	}
+    	}
+    	
+        // focus input on the search bar endcomment
+        
+            var searchInput = $('#keywords');
+        
+
+        if (searchInput) {
+            searchInput.focus();
+            putCursorAtEnd(searchInput);
+        }
+        
+        
+        if (searchInput) {
+            var search = new FullTextSearch();
+            askbot['controllers'] = askbot['controllers'] || {};
+            askbot['controllers']['fullTextSearch'] = search;
+            
+                search.setSearchUrl('');
+            
+            
+            search.decorate(searchInput);
+        }
+        
+
+        if (askbot['data']['userIsAdminOrMod']) {
+            $('body').addClass('admin');
+        }
+        
+    });
+
+    $('#validate_email_alert').click(function(){notify.close(true)})
+    notify.show();
+
+    $('abbr.timeago').timeago();
+    /*]]>*/
+</script> <!-- Google  --> <script type="text/javascript">
+ var z_n = "null",
+	z_i = "128.233.63.37";
+ var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+ document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script> <script type="text/javascript" src="http://www.zkoss.org/resource/js/page/gaz.js"></script> <!-- Google  --> <style>
+.stuck{width:332px;height:225px;position:fixed;top:30%;right:-300px;cursor:pointer}
+.stuck-button-site{width:32px;height:225px;float:left}
+.stuck-button-site-back{width:32px;height:113px;float:left;cursor:hand;background:url(/m/default/media/images/zk/button_support.png?v=1) no-repeat scroll 0 0}
+.stuck-button-site-back:hover{background-position:-32px 0}
+.stuck-panel{background-color:#FCFCFC;box-shadow:0 0 5px rgba(0,0,0,0.2);float:left;height:225px;width:300px}
+.stuck-panel-header{height:225px;margin-left:25px;margin-top:20px}
+.learn-more{font-family:Arial;font-size:16px;color:#008db7;text-decoration:none}
+.learn-more:hover{color:#006684}
+#support-list-ul{font-family:Arial;font-size:15px;color:#7d7d7d;list-style-image:url(/m/default/media/images/zk/icon_check.png?v=1);margin-top:15px;margin-bottom:15px;padding-left:15px}
+#support-list-ul li{line-height:26px}
+.stuck-title{width:250px;color:#517423;font-family:Arial;font-size:24px;margin:0}
+</style> <div class="stuck" style="top:35%"> <div class="stuck-button-site"> <div class="stuck-button-site-back"> </div> </div> <div class="stuck-panel"> <div class="stuck-panel-header"> <div class="stuck-title">Support Options</div> <div class="support-list"> <ul id="support-list-ul"> <li>Email Support</li> <li>Training</li> <li>Consulting</li> <li>Outsourcing</li> </ul> </div> <a class="learn-more" href="http://www.zkoss.org/support/options">Learn More</a> </div> </div> </div> <script type="text/javascript">
+$("body").click(function(event){if(!$(event.target).closest(".stuck").length)$(".stuck").animate({"right":"-300px"},"slow")});$(".stuck-button-site").click(function(){var stuck=$(this).parent();if(stuck.css("right")!="0px")stuck.animate({"right":"0px"},"slow");else stuck.animate({"right":"-300px"},"slow")});</script> <script type="text/javascript">
+function isTouchDevice(){return"ontouchstart"in window}
+$(function(){var a=isTouchDevice();if(a){$("body").addClass("touch");var b;if($(".menuitem").length){$(document).mousedown(function(d){if(b&&!$.contains($("#main_menu")[0],d.target))b.removeClass("menuitem-hover")});$(".menuitem-right > a").bind("click",function(f){var g=$(this).parents("li.menuitem"),d=$("li.menuitem");if(g.hasClass("menuitem-hover"))return true;else{if(b)b.removeClass("menuitem-hover");g.addClass("menuitem-hover");b=g;return false}})}}else{if($.browser.msie)$("body").addClass("ie");if($(".menuitem").length)$(".menuitem").hover(function(){$(this).addClass("menuitem-hover")},function(){$(this).removeClass("menuitem-hover")})}});
+</script> <script type='text/javascript' src='/m/default/media/js/editor.js?v=1'></script> <script type='text/javascript'>
+    
+    var codeFriendlyMarkdown = false;
+    
+    var maxCommentLength = 300;
+    askbot['urls']['editAutoAssign'] = '/comment/editautoassign/';
+    askbot['urls']['listAutoAssign'] = '/comment/listautoassign/';
+    askbot['urls']['sendEmailkey'] = '/comment/sendemailkey/';
+    askbot['urls']['postComments'] = '/post_comments/';
+    askbot['urls']['editComment'] = '/edit_comment/';
+    askbot['urls']['deleteComment'] = '/comment/delete/';
+    askbot['urls']['convertComment'] = '/comment/convert/';
+    askbot['urls']['convertAnswer'] = '/answer/convert/';
+    askbot['urls']['getComment'] = '/comment/get_text/';
+    askbot['urls']['saveDraftAnswer'] = '/save-draft-answer/';
+    askbot['urls']['question_url_template'] = scriptUrl + 'question/{{QuestionID}}/{{questionSlug}}';
+    askbot['urls']['vote_url_template'] = scriptUrl + 'questions/{{QuestionID}}/vote/';
+    askbot['urls']['user_signin'] = '/account/signin/';
+    askbot['urls']['swap_question_with_answer'] = '/swap-question-with-answer/';
+    askbot['urls']['upvote_comment'] = '/comment/upvote/';
+    askbot['urls']['delete_post'] = '/post/delete/';
+    askbot['urls']['get_html_template'] = '/get-html-template/';
+    askbot['urls']['getGroupsList'] = '/get-groups-list/';
+    askbot['urls']['publishAnswer'] = '/answer/publish/';
+    askbot['data']['userIsThreadModerator'] = false;
+    askbot['messages']['addComment'] = 'post a comment';
+    
+        askbot['settings']['saveCommentOnEnter'] = true;
+    
+    askbot['settings']['tagSource'] = 'user-input';
+</script> <script type="text/javascript" src='/m/default/media/bootstrap/js/bootstrap.js?v=1'></script> <script type='text/javascript' src='/m/default/media/js/wmd/showdown.js?v=1'></script> <script type='text/javascript' src='/m/default/media/js/wmd/wmd.js?v=1'></script> <script type='text/javascript' src='/m/default/media/js/jquery.validate.min.js?v=1'></script> <script type='text/javascript' src='/m/default/media/js/post.js?v=1'></script> <script type="text/javascript">
+    // define reputation needs for comments
+    var repNeededForComments = 50;
+    $(document).ready(function(){
+        $("#nav_questions").attr('className',"on");
+        var answer_sort_tab = "oldest";
+        $("#" + answer_sort_tab).attr('className',"on");
+        
+        Vote.init(31810, 'after-updating-eclipse-wont-start-orgosgiframeworkbundleexception', '7709','None');
+        
+        initEditor();
+        
+        lanai.highlightSyntax();
+        $('#btLogin').bind('click', function(){window.location.href='/account/signin/'; } )
+        if (window.location.hash === 'fmanswer'){
+            $('#fmanswer textarea').focus();
+        }
+        
+
+        
+
+        if (askbot['data']['userIsAuthenticated']) {
+            var draftHandler = new DraftAnswer();
+            draftHandler.setThreadId(8308);
+            draftHandler.decorate($(document));
+        }
+    });
+
+    $(window).bind('hashchange', animate_hashes);
+
+    function animate_hashes(){
+      var id_value = window.location.hash;
+      if (id_value != ""){
+        var previous_color = $(id_value).css('background-color');
+        $(id_value).css('backgroundColor', '#FFF8C6');
+        $(id_value).animate({backgroundColor: '#ff7f2a'}, 1000).animate({backgroundColor: '#FFF8C6'}, 1000, function(){
+            $(id_value).css('backgroundColor', previous_color);
+        });
+      }
+    }
+
+    
+    function initEditor(){
+        $('#editor').TextAreaResizer();
+        //highlight code synctax when editor has new text
+        $("#editor").typeWatch({highlight: false, wait: 3000,
+                         captureLength: 5, callback: lanai.highlightSyntax});
+                         
+        var display = true;
+        var txt = "[hide preview]";
+        $('#pre-collapse').text(txt);
+        $('#pre-collapse').bind('click', function(){
+            txt = display ? "[show preview]" : "[hide preview]";
+            display = !display;
+            $('#previewer').toggle();
+            $('#pre-collapse').text(txt);
+        });
+        setupFormValidation(
+            $("#fmanswer"),
+            CPValidator.getAnswerFormRules(),
+            CPValidator.getAnswerFormMessages()
+        );
+    }
+</script> <script type="text/javascript">
+    
+    askbot['settings']['tagsAreRequired'] = 
+        true;
+    askbot['settings']['maxTagLength'] = 20;
+                            "each tag must be shorter than %(max_chars)d characters",
+    askbot['messages']['maxTagLength'] = "each tag must be shorter than 20 characters";
+    askbot['settings']['maxTagsPerPost'] = 5;
+    askbot['settings']['tagKarmaLimits'] = 1500;
+    askbot['messages']['tagKarmaLimits'] = ">1500 points required to create new tags, please apply an existing tag";
+    askbot['messages']['maxTagsPerPost'] = "please use 5 tags or less";
+    askbot['messages']['tagLimits'] = "please use up to 5 tags, less than 20 characters each";
+    askbot['urls']['upload'] = '/upload/';
+    askbot['settings']['minTitleLength'] = 10;
+    askbot['settings']['minQuestionBodyLength'] = 10;
+    askbot['settings']['minAnswerBodyLength'] = 10;
+    askbot['settings']['tag_editor'] = '{\u0022max_tag_length\u0022: 20, \u0022tag_regex\u0022: \u0022^[\u005C\u005Cw+.#\u002D]+$\u0022, \u0022max_tags_per_post\u0022: 5, \u0022messages\u0022: {\u0022wrong_chars\u0022: \u0022please use letters, numbers and characters \u005C\u0022\u002D+.#\u005C\u0022\u0022, \u0022required\u0022: \u0022tags are required\u0022}, \u0022tags_are_required\u0022: true, \u0022force_lowercase_tags\u0022: true}';
+</script> <script type="text/javascript">
+    var oldFASR = AutoCompleter.prototype.filterAndShowResults;
+    AutoCompleter.prototype.filterAndShowResults = function(results, filter) {
+    	askbot['data']['tag_names'] = {};
+    	for (var i = 0, j = results.length; i < j; i++) {
+    		if (typeof results[i] === 'object') {
+	            askbot['data']['tag_names'][results[i].value] = true;
+	        }
+    	}
+    	return oldFASR.apply(this, arguments);
+    };
+    </script> <script type="text/javascript">
+            for (url_name in askbot['urls']){
+                askbot['urls'][url_name] = cleanUrl(askbot['urls'][url_name]);
+            }
+        </script> </body> </html>

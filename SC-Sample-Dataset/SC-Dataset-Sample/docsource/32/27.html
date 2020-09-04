@@ -1,0 +1,1104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>The Axis Users List </TITLE>
+<BASE href="http://blog.gmane.org">
+<META http-equiv=Content-Type content="text/html; charset=utf-8">
+<link rel="SHORTCUT ICON" href="http://gmane.org/favicon.ico">
+<link rel="Previous" href="/gmane.text.xml.axis.user/page=6">
+<LINK href="http://gmane.org/img/leftmenu.css" type="text/css" rel="stylesheet">
+<LINK href="http://gmane.org/img/blog.css" type="text/css" rel="stylesheet">
+<style type="text/css" media="screen">
+h1.name {
+  background-image:  url(http://gmane.org/paint-blog-id.php?group=gmane.text.xml.axis.user);
+}
+</style>
+</HEAD>
+<BODY>
+<div id=banner>
+<h1 class=name>&nbsp;</h1>
+<span class=description>The Axis Users List </span>
+</div>
+<script src="http://gmane.org/img/jsblog.js" type="text/javascript"></script>
+
+<DIV id=content>
+<DIV class=blog>
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o1');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=McCullough%2C+Ryan&amp;sort=date" rel=nofollow>McCullough, Ryan</a>
+ | </span>
+<SPAN class=day>4 Dec 2008 19:29</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<img border=0 alt="Favicon" src="http://cache.gmane.org/gmane/text/xml/axis/user/73022-favicon.png">
+<br>
+</div>
+<H3 class=title>Axis 1.4: element with nillable="true" minOcurrs="0" is omitted when value is null</h3><div id="o1" class="hidden">McCullough, Ryan &lt;rmccullough &lt;at&gt; rightnow.com&gt;<br>
+2008-12-04 18:29:12 GMT<br>
+</div>
+<p>
+<div>
+
+<div class="Section1">
+
+<p class="MsoNormal">In Axis 1.4 (not Axis2) an element is omitted from the
+request if the value is set to null and it is has the nillable=&rdquo;true&rdquo;
+and minOccurs=&rdquo;0&rdquo; attributes set in the schema.<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">Here is the location where I think things are going wrong:<p></p></p>
+
+<p class="MsoNormal">org.apache.axis.encoding.ser.BeanSerializer.serialize(QName
+name, Attributes attributes, Object value, SerializationContext context)<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">Here is the chunk of code:<p></p></p>
+
+<p class="MsoNormal">// Serialize each property<p></p></p>
+
+<p class="MsoNormal">for (int i=0; i&lt;propertyDescriptor.length; i++) {<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;SNIP&gt;<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Read the value from the
+property<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (propertyDescriptor[i].isReadable())
+{<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+(itemQName != null ||<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (!propertyDescriptor[i].isIndexed()
+&amp;&amp; !isArray)) {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+Normal case: serialize the value<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Object
+propValue =<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; propertyDescriptor[i].get(value);<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+(propValue == null) {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+an element cannot be null if nillable property is set to<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+"false" and the element cannot be omitted<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+(!isNillable &amp;&amp; !isOmittable) {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+(Number.class.isAssignableFrom(javaType)) {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+If we have a null and it's a number, though,<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+we might turn it into the appropriate kind of 0.<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+TODO : Should be caching these constructors?<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try
+{<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Constructor
+constructor =<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; javaType.getConstructor(<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SimpleDeserializer.STRING_CLASS);<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; propValue
+= constructor.newInstance(ZERO_ARGS);<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+catch (Exception e) {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+If anything goes wrong here, oh well we tried.<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+(propValue == null) {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw
+new IOException(<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Messages.getMessage(<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "nullNonNillableElement",<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; propName));<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+if meta data says minOccurs=0, then we can skip<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+it if its value is null and we aren't doing SOAP<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+encoding.<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+(isOmittable &amp;&amp; !isEncoded) { // *** HERE IS THE PROBLEM I THINK ***<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; continue;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;SNIP&gt;<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+else {<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;SNIP&gt;<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal">}<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">I snipped some sections of the code to make it easier to see
+where I think things are going wrong.<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">How can I have an element that is nullable but omittable,
+but I want to explicitly set it to null. I don&rsquo;t know that I want this to
+be a global change either.<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">If it helps, I did modify the soap stub generator to
+generate an &lt;attrib_name&gt;Specified Boolean flag in the soap stubs. This
+flag is set to true when the attribute is set:<p></p></p>
+
+<p class="MsoNormal">public class Street_addr&nbsp; implements
+java.io.Serializable, api.rightnow.com.RNOWISpecified {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; boolean UseSpecified; // Flag to indicate
+that we are serializing<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private java.lang.String city;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private boolean citySpecified;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private java.lang.Integer country_id;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private boolean country_idSpecified;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private java.lang.String postal_code;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private boolean postal_codeSpecified;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private java.lang.Integer prov_id;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private boolean prov_idSpecified;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private java.lang.String street;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; private boolean streetSpecified;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; public Street_addr() {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;SNIP&gt;<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; /**<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; * Gets the prov_id value for this
+Street_addr.<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; * <p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; *  &lt;at&gt; return prov_id<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; */<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; public java.lang.Integer getProv_id() {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (UseSpecified
+&amp;&amp; !prov_idSpecified)<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return null;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return prov_id;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; /**<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; * Sets the prov_id value for this
+Street_addr.<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; * <p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; *  &lt;at&gt; param prov_id<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp; */<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; public void setProv_id(java.lang.Integer
+pprov_id) {<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+prov_idSpecified=true;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.prov_id =
+pprov_id;<p></p></p>
+
+<p class="MsoNormal">&nbsp;&nbsp;&nbsp; }<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">So I could possibly check to see if this flag is set to true
+before omitting the element.<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">Thoughts?<p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal">-Ryan <p></p></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+<p class="MsoNormal"><span>Ryan McCullough</span><span>&nbsp;| </span><span><span>RightNow Technologies</span></span><span> |
+Integration Tools Engineer</span><span><p></p></span></p>
+
+<p class="MsoNormal"><span>406-556-3162 office | </span><span><span>Bozeman</span><span>, </span><span>MT</span></span><span> | <a href="mailto:rmccullough &lt;at&gt; rightnow.com" title="mailto:rmccullough &lt;at&gt; rightnow.com
+mailto:tlarimer &lt;at&gt; rightnow.com"><span>rmccullough &lt;at&gt; rightnow.com</span></a> | <a href="http://www.rightnow.com/" title="http://www.rightnow.com/"><span>http://www.rightnow.com</span></a></span><span><p></p></span></p>
+
+<p class="MsoNormal"><p>&nbsp;</p></p>
+
+</div>
+
+</div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73022:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73022">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73022" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73022">501 comments </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o2');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Angelo+Alerta&amp;sort=date" rel=nofollow>Angelo Alerta</a>
+ | </span>
+<SPAN class=day>4 Dec 2008 22:17</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73023-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>axis2 and requestdispatcher include</h3><div id="o2" class="hidden">Angelo Alerta &lt;angelo &lt;at&gt; alerta.it&gt;<br>
+2008-12-04 21:17:58 GMT<br>
+</div>
+<pre>
+I have a web service loaded in transport session.
+The impl of my web service at some point does a
+RequestDispatcher.include to some other j2ee resource.
+After, in the response, Axis2 write out only the headers but not the xml
+output message.
+If I exclude the RequestDispatcher.include step and mock his result all
+runs ok.
+Doing some debug I see all the messages ready to be written out, but for
+some reason, this not occurs.
+
+The Application Server is weblogic 8.1 and the jdk is 1.4.2_08. The xml
+binding framework is xmlbean.
+Some idea?
+
+Thank you
+Bye.
+
+<span class="togsig"><a rel=nofollow href="#" onclick="return toggle('sig2')">--</a></span>
+<span id="sig2" class=signature>
+-- 
+Angelo Alerta
+Piazzale Ferdinando Martini, 1
+20137 Milano (MI)
+Italia
+Tel (+39)0236524478
+Cel (+39)3471991994
+angelo &lt;at&gt; alerta.it
+</span></pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73023:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73023">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73023" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73023">0 comments </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o3');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=keith+chapman&amp;sort=date" rel=nofollow>keith chapman</a>
+ | </span>
+<SPAN class=day>5 Dec 2008 03:19</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73024-picon-001.gif"></a>
+<br><a target="_top" href="http://gravatar.com/" rel="nofollow"><img border=0 alt="Gravatar" src="http://cache.gmane.org//gmane/text/xml/axis/user/73024-gravatar"></a>
+<br>
+</div>
+<H3 class=title>Re: Transport error: 405 Error: Method not allowed</h3><div id="o3" class="hidden">keith chapman &lt;keithgchapman &lt;at&gt; gmail.com&gt;<br>
+2008-12-05 02:19:26 GMT<br>
+</div>
+<p>
+<div>
+<p>Hi,<br><br>Could you post the response as well. I guess u forgot to post it. I fixed an issue similar to this on the trunk, could confirm if u post the response.<br><br>Thanks,<br>Keith.<br><br></p>
+<div class="gmail_quote">On Thu, Dec 4, 2008 at 8:26 PM, Vikrama Sanjeeva <span dir="ltr">&lt;<a href="mailto:viki.sanjeeva &lt;at&gt; gmail.com">viki.sanjeeva &lt;at&gt; gmail.com</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">
+<div dir="ltr">
+<div class="gmail_quote">
+<br><div dir="ltr">
+<div>Hi list,</div>
+<div>&nbsp;</div>
+<div>&nbsp;&nbsp;&nbsp; I have created consumer stuff using axis2 WSDL2java and while trying to consume web service (running at .NET server), I get following exception:</div>
+<div>&nbsp;</div>
+<div>***************************</div>
+<div>
+<p align="left">org.apache.axis2.AxisFault: Transport error: 405 Error: Method not allowed</p>
+<p align="left">at org.apache.axis2.transport.http.HTTPSender.handleResponse(</p>HTTPSender.java:296) 
+<p>at org.apache.axis2.transport.http.HTTPSender.sendViaPost(</p>HTTPSender.java:190)</div>
+<div>****************************</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>here is the SOAP request/response:</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>***************************</div>
+<div>POST /service/SUBS.asmx HTTP/1.1<br>Host: xx.1xx.1xx.xx<br>Content-Type: text/xml; charset=utf-8<br>Content-Length: length<br>SOAPAction: "<a href="http://ipcc/SUBS.wsdl/GetSubscribersList" target="_blank">http://IPCC/SUBS.wsdl/GetSubscribersList</a>"</div>
+
+
+<div>&lt;?xml version="1.0" encoding="utf-8"?&gt;<br>&lt;soap:Envelope xmlns:xsi="<a href="http://www.w3.org/2001/XMLSchema-instance" target="_blank">http://www.w3.org/2001/XMLSchema-instance</a>" xmlns:xsd="<a href="http://www.w3.org/2001/XMLSchema" target="_blank">http://www.w3.org/2001/XMLSchema</a>" xmlns:soap="<a href="http://schemas.xmlsoap.org/soap/envelope/" target="_blank">http://schemas.xmlsoap.org/soap/envelope/</a>"&gt;<br>
+
+&nbsp; &lt;soap:Body&gt;<br>&nbsp;&nbsp;&nbsp; &lt;GetSubscribersList xmlns="<a href="http://ipcc/SUBS.wsdl" target="_blank">http://IPCC/SUBS.wsdl</a>"&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;stringMobileNumber&gt;string&lt;/stringMobileNumber&gt;<br>&nbsp;&nbsp;&nbsp; &lt;/GetSubscribersList&gt;<br>
+
+&nbsp; &lt;/soap:Body&gt;<br>&lt;/soap:Envelope&gt;<br>
+</div>
+<div>******************************</div>
+<div>&nbsp;</div>
+<div>&nbsp;I also tried settings options property to both GET/POST:</div>
+<div>
+<p>options.setProperty(Constants.Configuration.</p>HTTP_METHOD,HTTPConstants.HTTP_METHOD_POST); 
+<p>Bye,</p>
+<p>Viki,</p>
+</div>
+</div>
+</div>
+<br>
+</div>
+</blockquote>
+</div>
+<br><br clear="all"><br>-- <br>Keith Chapman<br>Senior Software Engineer<br>WSO2 Inc.<br>Oxygenating the Web Service Platform.<br><a href="http://wso2.org/">http://wso2.org/</a><br><br>blog: <a href="http://www.keith-chapman.org">http://www.keith-chapman.org</a><br>
+</div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73024:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73024">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73024" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73024">11 comments </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o4');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Daniil+Chipenko&amp;sort=date" rel=nofollow>Daniil Chipenko</a>
+ | </span>
+<SPAN class=day>5 Dec 2008 11:55</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73025-picon-001.gif"></a>
+<br><a target="_top" href="http://gravatar.com/" rel="nofollow"><img border=0 alt="Gravatar" src="http://cache.gmane.org//gmane/text/xml/axis/user/73025-gravatar"></a>
+<br>
+</div>
+<H3 class=title>Re: Fails under some load</h3><div id="o4" class="hidden">Daniil Chipenko &lt;sumerek &lt;at&gt; gmail.com&gt;<br>
+2008-12-05 10:55:02 GMT<br>
+</div>
+<p>
+<div>
+<p>Hello,<br><br>If someone familiar with creating service clients with AXIOM, please help!<br><br>I was checked for outgoing SOAP messages with http sniffer on client requests to server and realized that&nbsp; some of them is malformed by interleaving each other why other is empty. Sometimes they become so twisted that even <span> result = sender.sendReceive(method);</span>&nbsp; can't pass XML structure analyze phase and can't do the request at all - exceptions thrown is very varied then, but all of them indicates broken XML structure.&nbsp; How can this happen? <br>
+I didn't use any static objects in my code which can assign to the same static variables and i checked content of outgoing OMElement - it's always well-formed. Problem happen inside sendReceive method. <br>I suppose sendReceive method of sender object sometimes write to same httpclient stream. How i can <br>
+avoid such interleaving?<br><br>Example of such broken request:<br><br>1 thread:&nbsp;&nbsp; &lt;??xmxlml ..... (and so on)<br>while<br>2 thread&nbsp; is empty<br>but <br>3 thread's request is properly formed and passed&nbsp; <br><br><span> ServiceClient sender = new ServiceClient();</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sender.setOptions(options);</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; result = sender.sendReceive(method);&nbsp;&nbsp;&nbsp; </span><br><br>very sorry for bad english.<br>With hope,<br>Daniil <br><br><br></p>
+<div class="gmail_quote">2008/12/4 Daniil Chipenko <span dir="ltr">&lt;<a href="mailto:sumerek &lt;at&gt; gmail.com">sumerek &lt;at&gt; gmail.com</a>&gt;</span><br><blockquote class="gmail_quote">
+Good day,<br><br>I'm using Axis2 1.4 with tomcat5.5 and created both service and client from a scratch with AXIOM via HTTP port.<br>&nbsp;And they worked together like charm, just before i'm beggining to put them under some load. Even when there is just 3 simultaneous calls - one of my client threads written with AXIOM begins to throw varied exceptions without any stack trace, like:<br><br><span>org.apache.axiom.om.OMException </span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or<br><span>org.apache.axiom.om.OMException: javax.xml.stream.XMLStreamException: ParseError at [row,col]:[1,1]</span><br><span>Message: An invalid XML character (Unicode: 0x0) was found in the comment.</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or <br><span>com.sun.org.apache.xerces.internal.xni.XNIException: Scanner State 7 not Recognized </span><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or<br><span>org.apache.axiom.om.OMException: javax.xml.stream.XMLStreamException: ParseError at [row,col]:[1,1]</span><br><span>Message: Open quote is expected for attribute "{1}" associated with an&nbsp; element type&nbsp; "name".</span><br>
+
+&nbsp;&nbsp;&nbsp; ... and this happens not always, but approx. 1/3 times&nbsp;&nbsp; of&nbsp; 3 simultaneus threads starts.<br><br>Here is my code:<br><br><div>&nbsp;<span> OMElement method = fac.createOMElement(new QName(chartName));</span><br>
+</div>
+<span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for(String key : keys){</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; OMElement value = fac.createOMElement(new QName(key));</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String mapvalue = ((String[]) params.get(key))[0];</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; value.addChild(fac.createOMText(value, mapvalue));</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; method.addChild(value);</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp; </span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br><span></span><span>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Options options = new Options();</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; options.setTo(ApplicationProperties.targetEPRFinance);</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; options.setTransportInProtocol(Constants.TRANSPORT_HTTP);</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; OMElement result = fac.createOMElement(new QName("EmptyResult"));</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; System.out.println("Payload for service: " + method.toString());</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; try {</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ServiceClient sender = new ServiceClient();</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; sender.setOptions(options);</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; result = sender.sendReceive(method);&nbsp;&nbsp;&nbsp; </span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } catch (AxisFault e) {</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // TODO Auto-generated catch block</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; e.printStackTrace();</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><br><span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; System.out.println("Result from service: " + result.toString());&nbsp;&nbsp;&nbsp; </span>
+</blockquote>
+<div>&nbsp;</div>
+</div>
+<br>
+</div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73025:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73025">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73025" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73025">2 comments </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o5');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Chinmoy+Chakraborty&amp;sort=date" rel=nofollow>Chinmoy Chakraborty</a>
+ | </span>
+<SPAN class=day>5 Dec 2008 12:34</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73026-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>MTOM issue when MTOM_THRESHOLD property is set</h3><div id="o5" class="hidden">Chinmoy Chakraborty &lt;cchinu &lt;at&gt; gmail.com&gt;<br>
+2008-12-05 11:34:43 GMT<br>
+</div>
+<p>
+<div>
+<div>Hi All,</div>
+<div>&nbsp;</div>
+<div>I am facing a problem regarding MTOM. If I do not set MTOM_THRESHOLD property, everything works fine (MTOM stuffs) for small text file (2 kb)&nbsp;but little bigger file (around 35kb .doc) file gets truncated.&nbsp;</div>
+<div>&nbsp;</div>
+<div>If I do set MTOM_THRESHOLD property, entire file content appears in SOAP node. I guess 'cid' becomes NULL When I do set MTOM_THRESHOLD property.</div>
+<div>&nbsp;</div>
+<div>Please help.</div>
+<div>&nbsp;</div>
+<div>Chinmoy&nbsp;</div>
+</div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73026:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73026">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73026" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73026">1 comment </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o6');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Michele+Mazzucco&amp;sort=date" rel=nofollow>Michele Mazzucco</a>
+ | </span>
+<SPAN class=day>5 Dec 2008 12:58</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73027-picon-001.gif"></a>
+<br><img border=0 alt="Favicon" src="http://cache.gmane.org/gmane/text/xml/axis/user/73027-favicon.png">
+<br>
+</div>
+<H3 class=title>Re: Fails under some load</h3><div id="o6" class="hidden">Michele Mazzucco &lt;Michele.Mazzucco &lt;at&gt; ncl.ac.uk&gt;<br>
+2008-12-05 11:58:33 GMT<br>
+</div>
+<pre>
+Can you please post the relevant service code too? Might it be a  
+concurrency issue?
+
+Michele
+
+On 5 Dec 2008, at 10:55, Daniil Chipenko wrote:
+
+&gt; Hello,
+&gt;
+&gt; If someone familiar with creating service clients with AXIOM,  
+&gt; please help!
+&gt;
+&gt; I was checked for outgoing SOAP messages with http sniffer on  
+&gt; client requests to server and realized that  some of them is  
+&gt; malformed by interleaving each other why other is empty. Sometimes  
+&gt; they become so twisted that even result = sender.sendReceive 
+&gt; (method);  can't pass XML structure analyze phase and can't do the  
+&gt; request at all - exceptions thrown is very varied then, but all of  
+&gt; them indicates broken XML structure.  How can this happen?
+&gt; I didn't use any static objects in my code which can assign to the  
+&gt; same static variables and i checked content of outgoing OMElement -  
+&gt; it's always well-formed. Problem happen inside sendReceive method.
+&gt; I suppose sendReceive method of sender object sometimes write to  
+&gt; same httpclient stream. How i can
+&gt; avoid such interleaving?
+&gt;
+&gt; Example of such broken request:
+&gt;
+&gt; 1 thread:   &lt;??xmxlml ..... (and so on)
+&gt; while
+&gt; 2 thread  is empty
+&gt; but
+&gt; 3 thread's request is properly formed and passed
+&gt;
+&gt; ServiceClient sender = new ServiceClient();
+&gt;                     sender.setOptions(options);
+&gt;                     result = sender.sendReceive(method);
+&gt;
+&gt; very sorry for bad english.
+&gt; With hope,
+&gt; Daniil
+&gt;
+&gt;
+&gt; 2008/12/4 Daniil Chipenko &lt;sumerek &lt;at&gt; gmail.com&gt;
+&gt; Good day,
+&gt;
+&gt; I'm using Axis2 1.4 with tomcat5.5 and created both service and  
+&gt; client from a scratch with AXIOM via HTTP port.
+&gt;  And they worked together like charm, just before i'm beggining to  
+&gt; put them under some load. Even when there is just 3 simultaneous  
+&gt; calls - one of my client threads written with AXIOM begins to throw  
+&gt; varied exceptions without any stack trace, like:
+&gt;
+&gt; org.apache.axiom.om.OMException
+&gt;       or
+&gt; org.apache.axiom.om.OMException:  
+&gt; javax.xml.stream.XMLStreamException: ParseError at [row,col]:[1,1]
+&gt; Message: An invalid XML character (Unicode: 0x0) was found in the  
+&gt; comment.
+&gt;       or
+&gt; com.sun.org.apache.xerces.internal.xni.XNIException: Scanner State  
+&gt; 7 not Recognized
+&gt;       or
+&gt; org.apache.axiom.om.OMException:  
+&gt; javax.xml.stream.XMLStreamException: ParseError at [row,col]:[1,1]
+&gt; Message: Open quote is expected for attribute "{1}" associated with  
+&gt; an  element type  "name".
+&gt;     ... and this happens not always, but approx. 1/3 times   of  3  
+&gt; simultaneus threads starts.
+&gt;
+&gt; Here is my code:
+&gt;
+&gt;   OMElement method = fac.createOMElement(new QName(chartName));
+&gt;
+&gt;                 for(String key : keys){
+&gt;                     OMElement value = fac.createOMElement(new QName 
+&gt; (key));
+&gt;                     String mapvalue = ((String[]) params.get(key))[0];
+&gt;                     value.addChild(fac.createOMText(value, mapvalue));
+&gt;                     method.addChild(value);
+&gt;                 }
+&gt;
+&gt;                Options options = new Options();
+&gt;                 options.setTo(ApplicationProperties.targetEPRFinance);
+&gt;                 options.setTransportInProtocol 
+&gt; (Constants.TRANSPORT_HTTP);
+&gt;                 OMElement result = fac.createOMElement(new QName 
+&gt; ("EmptyResult"));
+&gt;
+&gt;                 System.out.println("Payload for service: " +  
+&gt; method.toString());
+&gt;
+&gt;                 try {
+&gt;                     ServiceClient sender = new ServiceClient();
+&gt;                     sender.setOptions(options);
+&gt;                     result = sender.sendReceive(method);
+&gt;                 } catch (AxisFault e) {
+&gt;                     // TODO Auto-generated catch block
+&gt;                     e.printStackTrace();
+&gt;                 }
+&gt;
+&gt;                 System.out.println("Result from service: " +  
+&gt; result.toString());
+&gt;
+&gt;
+</pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73027:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73027">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73027" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73027">1 comment </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o7');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Daniil+Chipenko&amp;sort=date" rel=nofollow>Daniil Chipenko</a>
+ | </span>
+<SPAN class=day>5 Dec 2008 13:43</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73028-picon-001.gif"></a>
+<br><a target="_top" href="http://gravatar.com/" rel="nofollow"><img border=0 alt="Gravatar" src="http://cache.gmane.org//gmane/text/xml/axis/user/73028-gravatar"></a>
+<br>
+</div>
+<H3 class=title>Re: Fails under some load</h3><div id="o7" class="hidden">Daniil Chipenko &lt;sumerek &lt;at&gt; gmail.com&gt;<br>
+2008-12-05 12:43:29 GMT<br>
+</div>
+<p>
+<div>
+<p>There is no really any troubles with service. I'm tested both local and remotely hosted service - all exceptions thrown by client itself and service don't have any malfunctioning with pretty heavy load pressure i did to him. <br><br>here is code of service's method - its simple and everything is just as in tutorial:<br><br>public OMElement CurrencyRatesAverage(OMElement element) throws XMLStreamException, UnsupportedEncodingException{<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; element.build();<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; element.detach();<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; readInputParams(element);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (element.getFirstChildWithName(new QName("currency_type")) != null){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; in_currency_type = element.getFirstChildWithName(new QName("currency_type")).getText();&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; OMFactory fac = OMAbstractFactory.getOMFactory();<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; OMNamespace omNs =&nbsp;&nbsp; fac.createOMNamespace(namespace, "ns");&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; fac.createOMDocument();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; OMElement method = fac.createOMElement(new QName("CurrencyRatesAverage"));<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; //.... some business logic here<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; OMElement date = fac.createOMElement(new QName("date"));&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; date.addChild(fac.createOMText(date, ratedate.toString()));&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; rate.addChild(date);&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; // ..... similiar constructing<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; method.addChild(rate);&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return method;<br>&nbsp;&nbsp;&nbsp; }<br><br><br>I remaked my client code by throwing all ServiceClient stuff and replacing it with HttpClient direct request. Now all requests go through HTTP port instead of SOAP. It works much more stable now - no broken requests, but a lot slower then SOAP messages - and not actually usable, becouse my ser
+ vice must process large and structured requests sometimes.<br>
+So problem is still actual. <br><br></p>
+<div class="gmail_quote">2008/12/5 Michele Mazzucco <span dir="ltr">&lt;<a href="mailto:Michele.Mazzucco &lt;at&gt; ncl.ac.uk">Michele.Mazzucco &lt;at&gt; ncl.ac.uk</a>&gt;</span><br><blockquote class="gmail_quote">
+Can you please post the relevant service code too? Might it be a concurrency issue?<br><br><br>
+Michele<div>
+<div></div>
+<div class="Wj3C7c">
+<br><br><br>
+On 5 Dec 2008, at 10:55, Daniil Chipenko wrote:<br><br><blockquote class="gmail_quote">
+Hello,<br><br>
+If someone familiar with creating service clients with AXIOM, please help!<br><br>
+I was checked for outgoing SOAP messages with http sniffer on client requests to server and realized that &nbsp;some of them is malformed by interleaving each other why other is empty. Sometimes they become so twisted that even result = sender.sendReceive(method); &nbsp;can't pass XML structure analyze phase and can't do the request at all - exceptions thrown is very varied then, but all of them indicates broken XML structure. &nbsp;How can this happen?<br>
+
+I didn't use any static objects in my code which can assign to the same static variables and i checked content of outgoing OMElement - it's always well-formed. Problem happen inside sendReceive method.<br>
+I suppose sendReceive method of sender object sometimes write to same httpclient stream. How i can<br>
+avoid such interleaving?<br><br>
+Example of such broken request:<br><br>
+1 thread: &nbsp; &lt;??xmxlml ..... (and so on)<br>
+while<br>
+2 thread &nbsp;is empty<br>
+but<br>
+3 thread's request is properly formed and passed<br><br>
+ServiceClient sender = new ServiceClient();<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;sender.setOptions(options);<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;result = sender.sendReceive(method);<br><br>
+very sorry for bad english.<br>
+With hope,<br>
+Daniil<br><br><br>
+2008/12/4 Daniil Chipenko &lt;<a href="mailto:sumerek &lt;at&gt; gmail.com" target="_blank">sumerek &lt;at&gt; gmail.com</a>&gt;<br>
+Good day,<br><br>
+I'm using Axis2 1.4 with tomcat5.5 and created both service and client from a scratch with AXIOM via HTTP port.<br>
+&nbsp;And they worked together like charm, just before i'm beggining to put them under some load. Even when there is just 3 simultaneous calls - one of my client threads written with AXIOM begins to throw varied exceptions without any stack trace, like:<br><br>
+org.apache.axiom.om.OMException<br>
+ &nbsp; &nbsp; &nbsp;or<br>
+org.apache.axiom.om.OMException: javax.xml.stream.XMLStreamException: ParseError at [row,col]:[1,1]<br>
+Message: An invalid XML character (Unicode: 0x0) was found in the comment.<br>
+ &nbsp; &nbsp; &nbsp;or<br>
+com.sun.org.apache.xerces.internal.xni.XNIException: Scanner State 7 not Recognized<br>
+ &nbsp; &nbsp; &nbsp;or<br>
+org.apache.axiom.om.OMException: javax.xml.stream.XMLStreamException: ParseError at [row,col]:[1,1]<br>
+Message: Open quote is expected for attribute "{1}" associated with an &nbsp;element type &nbsp;"name".<br>
+ &nbsp; &nbsp;... and this happens not always, but approx. 1/3 times &nbsp; of &nbsp;3 simultaneus threads starts.<br><br>
+Here is my code:<br><br>
+ &nbsp;OMElement method = fac.createOMElement(new QName(chartName));<br><br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;for(String key : keys){<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;OMElement value = fac.createOMElement(new QName(key));<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;String mapvalue = ((String[]) params.get(key))[0];<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;value.addChild(fac.createOMText(value, mapvalue));<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;method.addChild(value);<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;}<br><br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Options options = new Options();<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;options.setTo(ApplicationProperties.targetEPRFinance);<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;options.setTransportInProtocol(Constants.TRANSPORT_HTTP);<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;OMElement result = fac.createOMElement(new QName("EmptyResult"));<br><br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;System.out.println("Payload for service: " + method.toString());<br><br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;try {<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;ServiceClient sender = new ServiceClient();<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;sender.setOptions(options);<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;result = sender.sendReceive(method);<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;} catch (AxisFault e) {<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;// TODO Auto-generated catch block<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;e.printStackTrace();<br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;}<br><br>
+ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;System.out.println("Result from service: " + result.toString());<br><br><br>
+</blockquote>
+<br><br>
+</div>
+</div>
+---------------------------------------------------------------------<br>
+To unsubscribe, e-mail: <a href="mailto:axis-user-unsubscribe &lt;at&gt; ws.apache.org" target="_blank">axis-user-unsubscribe &lt;at&gt; ws.apache.org</a><br>
+For additional commands, e-mail: <a href="mailto:axis-user-help &lt;at&gt; ws.apache.org" target="_blank">axis-user-help &lt;at&gt; ws.apache.org</a><br><br>
+</blockquote>
+</div>
+<br>
+</div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73028:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73028">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73028" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73028">0 comments </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o8');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Thilina+Gunarathne&amp;sort=date" rel=nofollow>Thilina Gunarathne</a>
+ | </span>
+<SPAN class=day>5 Dec 2008 15:31</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73029-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>Re: MTOM issue when MTOM_THRESHOLD property is set</h3><div id="o8" class="hidden">Thilina Gunarathne &lt;csethil &lt;at&gt; gmail.com&gt;<br>
+2008-12-05 14:31:51 GMT<br>
+</div>
+<p>
+<div>
+<p>Hi,</p>
+<div>Is that the MTOM_File_caching_threshold u r talking about or a new feature introduced recently?. If it's the former, it should not have any effect on the outgoing messages.</div>
+<div><br></div>
+<div>How r u looking at the messages? &nbsp;TCPMON truncates the larger messages.&nbsp;</div>
+<div><br></div>
+<div>thanks,</div>
+<div>Thilina</div>
+<div>
+<br><div class="gmail_quote">On Fri, Dec 5, 2008 at 5:34 AM, Chinmoy Chakraborty <span dir="ltr">&lt;<a href="mailto:cchinu &lt;at&gt; gmail.com">cchinu &lt;at&gt; gmail.com</a>&gt;</span> wrote:<br><blockquote class="gmail_quote">
+<div>Hi All,</div>
+<div>&nbsp;</div>
+<div>I am facing a problem regarding MTOM. If I do not set MTOM_THRESHOLD property, everything works fine (MTOM stuffs) for small text file (2 kb)&nbsp;but little bigger file (around 35kb .doc) file gets truncated.&nbsp;</div>
+<div>&nbsp;</div>
+<div>If I do set MTOM_THRESHOLD property, entire file content appears in SOAP node. I guess 'cid' becomes NULL When I do set MTOM_THRESHOLD property.</div>
+<div>&nbsp;</div>
+<div>Please help.</div>
+<div>&nbsp;</div>
+<div>Chinmoy&nbsp;</div>
+</blockquote>
+</div>
+<br><br clear="all"><br>-- <br>Thilina Gunarathne &nbsp;- <a href="http://thilinag.blogspot.com">http://thilinag.blogspot.com</a><br>
+</div>
+</div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73029:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73029">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73029" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73029">0 comments </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o9');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Vinh+Nguyen+%28vinguye2&amp;sort=date" rel=nofollow>Vinh Nguyen (vinguye2</a>
+ | </span>
+<SPAN class=day>5 Dec 2008 21:39</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73030-picon-001.gif"></a>
+<br><img border=0 alt="Favicon" src="http://cache.gmane.org/gmane/text/xml/axis/user/73030-favicon.png">
+<br>
+</div>
+<H3 class=title>EAR deployment</h3><div id="o9" class="hidden">Vinh Nguyen (vinguye2 &lt;vinguye2 &lt;at&gt; cisco.com&gt;<br>
+2008-12-05 20:39:19 GMT<br>
+</div>
+<p>
+<div>
+<div><span class="704293320-05122008">Hi,</span></div>
+<div>
+<span class="704293320-05122008"></span>&nbsp;</div>
+<div><span class="704293320-05122008">Does Axis2 support 
+deployment in an EAR file?&nbsp;&nbsp;I currently have my Axis2 application 
+packed in a WAR file, minus the libs.&nbsp; Then I put the WAR in an EAR 
+file.&nbsp; All the libs are put at the EAR level.&nbsp; This way, other 
+components in the EAR (i.e. ejbs) can share the same libraries with the Axis2 
+application.&nbsp; But when I deploy this in JBoss, Axis2 gives me a lot of 
+ClassNotFoundExceptions.</span></div>
+<div>
+<span class="704293320-05122008"></span>&nbsp;</div>
+<div><span class="704293320-05122008">Axis2&nbsp;seems to 
+expect all classes to be found in the WAR.&nbsp; But correct me if I'm wrong, 
+JEE rules should allow the WAR app to access libraries at the EAR 
+level.</span></div>
+<div>
+<span class="704293320-05122008"></span>&nbsp;</div>
+<div align="left">Aloha,</div>
+<div align="left">-Vinh</div>
+<div>&nbsp;</div>
+</div>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73030:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73030">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73030" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73030">2 comments </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+<DIV class=entry>
+<DIV class=date>
+<div class=options><a rel=nofollow href="#" onclick="return toggle('o10');">headers</a></div>
+<span class=author>
+<a href="http://search.gmane.org/?author=Jon+Seymour&amp;sort=date" rel=nofollow>Jon Seymour</a>
+ | </span>
+<SPAN class=day>5 Dec 2008 21:41</SPAN>
+</DIV>
+<DIV class=blogbody><A name=5></A>
+<div class=face>
+<a target="_top" href="http://ftp.cs.indiana.edu/pub/faces/picons/"><img border=0 alt="Picon" src="http://cache.gmane.org//gmane/text/xml/axis/user/73031-picon-001.gif"></a>
+<br>
+</div>
+<H3 class=title>Re: EAR deployment</h3><div id="o10" class="hidden">Jon Seymour &lt;jon.seymour &lt;at&gt; gmail.com&gt;<br>
+2008-12-05 20:41:27 GMT<br>
+</div>
+<pre>
+On Sat, Dec 6, 2008 at 7:39 AM, Vinh Nguyen (vinguye2)
+&lt;vinguye2 &lt;at&gt; cisco.com&gt; wrote:
+&gt; Hi,
+&gt;
+&gt; Does Axis2 support deployment in an EAR file?  I currently have my Axis2
+&gt; application packed in a WAR file, minus the libs.  Then I put the WAR in an
+&gt; EAR file.  All the libs are put at the EAR level.  This way, other
+&gt; components in the EAR (i.e. ejbs) can share the same libraries with the
+&gt; Axis2 application.  But when I deploy this in JBoss, Axis2 gives me a lot of
+&gt; ClassNotFoundExceptions.
+&gt;
+&gt; Axis2 seems to expect all classes to be found in the WAR.  But correct me if
+&gt; I'm wrong, JEE rules should allow the WAR app to access libraries at the EAR
+&gt; level.
+
+Did you add references to the jars you moved to the
+META-INF/MANIFEST.MF file of the war?
+
+If not, you need to.
+
+jon.
+</pre>
+<DIV class=posted>
+<form class="spam" method="post" action="http://spam.gmane.org/gmane.text.xml.axis.user:73031:unconfirmed" onsubmit="openSpamFrame(this); return false;">
+<A href="http://permalink.gmane.org/gmane.text.xml.axis.user/73031">Permalink</A>
+| <a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user&amp;followup=73031" rel=nofollow>Reply</a>
+| <A 
+href="http://comments.gmane.org/gmane.text.xml.axis.user/73031">1 comment </A> 
+| <input class="spam" type="submit" value="Report this as spam">
+</form>
+</DIV>  
+</DIV>  
+</DIV>  
+</DIV>  
+
+</DIV>  
+
+
+<div id="sidebox">
+<div class="sidetitle">Group</div>
+<div class="side">
+<a href="http://blog.gmane.org/gmane.text.xml.axis.user">gmane.text.xml.axis.user</a>.
+</div>
+
+
+<div class="sidetitle">Advertisement</div>
+<div class="side" align="center">
+<script type="text/javascript"><!--
+amazon_ad_tag = "gmane-20"; amazon_ad_width = "300"; amazon_ad_height = "250";//--></script>
+<script type="text/javascript" src="http://www.assoc-amazon.com/s/ads.js"></script>
+</div>
+
+
+<div class="sidetitle">Search Archive</div>
+<div class="side">
+<div align="center">
+<br/>
+<form action="http://search.gmane.org" method="get">
+<input name="query" value="" title="search_text"/><input type="submit" title="SUBMIT" value="Search"/>
+<input type=hidden name="group" value="gmane.text.xml.axis.user">
+</form>
+</div>
+</div>
+
+
+
+<div class="sidetitle">Page</div>
+<div class="side">
+<a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=0">1</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=2">3</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=3">4</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=4">5</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=5">6</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=6">7</a> | 8 | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=8">9</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=9">10</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=10">11</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=11">12</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=12">13</a> | <a rel=nofollow href="/gmane.text.xml.axis.user/month=20081201/page=49">50</a></div>
+<div class=totalarticles>Articles in period: 491</div>
+
+<div class="sidetitle">December 2008</div>
+<div align="center" class="calendar">
+<div align="center">
+
+<table summary="Monthly calendar with links to daily posts" class="calendar">
+<tr>
+<td><img src="http://gmane.org/img/e.png" alt="" width=25 height=1></td>
+<td><img src="http://gmane.org/img/e.png" alt="" width=25 height=1></td>
+<td><img src="http://gmane.org/img/e.png" alt="" width=25 height=1></td>
+<td><img src="http://gmane.org/img/e.png" alt="" width=25 height=1></td>
+<td><img src="http://gmane.org/img/e.png" alt="" width=25 height=1></td>
+<td><img src="http://gmane.org/img/e.png" alt="" width=25 height=1></td>
+<td><img src="http://gmane.org/img/e.png" alt="" width=25 height=1></td>
+</tr>
+<tr>
+<th abbr="Monday" align="center"><span class="calendar">Mon</span></th>
+
+<th abbr="Tuesday" align="center"><span class="calendar">Tue</span></th>
+<th abbr="Wednesday" align="center"><span class="calendar">Wed</span></th>
+<th abbr="Thursday" align="center"><span class="calendar">Thu</span></th>
+
+<th abbr="Friday" align="center"><span class="calendar">Fri</span></th>
+<th abbr="Saturday" align="center"><span class="calendar">Sat</span></th>
+<th abbr="Sunday" align="center"><span class="calendar">Sun</span></th>
+</tr>
+<tr class="calendar">
+<td class="vol20"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081201">1</a></td><td class="vol15"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081202">2</a></td><td class="vol15"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081203">3</a></td><td class="vol15"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081204">4</a></td><td class="vol5"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081205">5</a></td><td class="vol10"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081206">6</a></td><td>7</td></tr>
+<tr class="calendar">
+<td class="vol15"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081208">8</a></td><td class="vol25"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081209">9</a></td><td class="vol30"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081210">10</a></td><td class="vol30"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081211">11</a></td><td class="vol30"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081212">12</a></td><td class="vol5"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081213">13</a></td><td class="vol0"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081214">14</a></td></tr>
+<tr class="calendar">
+<td class="vol10"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081215">15</a></td><td class="vol15"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081216">16</a></td><td class="vol15"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081217">17</a></td><td class="vol50"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081218">18</a></td><td class="vol10"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081219">19</a></td><td class="vol0"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081220">20</a></td><td class="vol5"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081221">21</a></td></tr>
+<tr class="calendar">
+<td class="vol20"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081222">22</a></td><td class="vol15"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081223">23</a></td><td class="vol10"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081224">24</a></td><td class="vol5"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081225">25</a></td><td class="vol0"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081226">26</a></td><td class="vol0"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081227">27</a></td><td class="vol0"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081228">28</a></td></tr>
+<tr class="calendar">
+<td class="vol5"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081229">29</a></td><td class="vol30"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081230">30</a></td><td class="vol10"><a rel=nofollow href="/gmane.text.xml.axis.user/day=20081231">31</a></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+</table>
+</div>
+<div align=center class=monthnav>
+<span class="prevmonth"><a rel=nofollow href="/gmane.text.xml.axis.user/month=20081101">Previous</a></span>
+<span class="nextmonth"><a rel=nofollow href="/gmane.text.xml.axis.user/month=20090101">Next</a></span>
+</div>
+</div>
+
+<div class="sidetitle">Language</div>
+<div class="side">
+   <a rel=nofollow href="http://gmane.org/language.php">Change language</a>
+</div>
+
+
+<div class="sidetitle">Options</div>
+<div class="side">
+Current view: 
+Threads only / Showing 
+whole messages /
+ Not hiding cited text.<br/>
+    Change to 
+<a rel=nofollow href="/gmane.text.xml.axis.user?set_blog_all=yes">All messages, </a><a rel=nofollow href="/gmane.text.xml.axis.user?set_lines=20">shortened messages</a>, or 
+<a rel=nofollow href="/gmane.text.xml.axis.user?set_cite=hide">hide cited text</a>.<br /><br />
+
+<a href="http://post.gmane.org/post.php?group=gmane.text.xml.axis.user" rel=nofollow>Post a message</a><br/>
+<a href="nntp://news.gmane.org/gmane.text.xml.axis.user">NNTP Newsgroup</a><br/>
+<a rel=nofollow href="http://news.gmane.org/gmane.text.xml.axis.user">Classic Gmane web interface</a>
+<br/>
+
+<a href="http://rss.gmane.org/gmane.text.xml.axis.user"><img src="http://gmane.org/img/xml.gif" alt="XML" border=0>&nbsp;RSS Feed</a><br/>
+<a href="http://dir.gmane.org/gmane.text.xml.axis.user">List Information</a><br/><br/>
+<a href="http://gmane.org/faq.php">About Gmane</a><br/>
+</div>
+
+<div class="sidetitle">Recent entries</div>
+<div class="side">
+<a href="http://comments.gmane.org/gmane.text.xml.axis.user/83330">[Axis2] - intermittent error "The input stream for an incoming message</a> (10 Dec 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83323">Problem with creating client and service</a> (26 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83316">Creating AXIS2 Service using ADB</a> (26 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83312">Help for generating axis2 client</a> (25 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83311">Help for generating axis2 client</a> (24 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83310">Help for generating axis2 client</a> (24 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83309">AUTO: Miguel Sanders is out of the office (returning 11/26/2013)</a> (23 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83308">Data loss when AXIS2 encodes java.util.Date (date and time info) as xs</a> (23 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83306">[Axis2] Axis2 with Secure SharePoint 2013 (ADFS / FedAuth cookie)</a> (21 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83303">What is ServiceData.xml for ?</a> (15 Nov 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83302">Question about SOAP 1.1 and SOAP 1.2</a> (23 Oct 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83301">new Thread : Axis 1.6.2 + JiBX + Java Enum</a> (21 Oct 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83294">Axis2 / Spring3 / .aar file</a> (15 Oct 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83289">axis2 Could not identify the Annotation</a> (12 Oct 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83288">[Axis2] Upgrading from Axis2 1.4 to Axis2 1.6.2 version.</a> (11 Oct 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83287">Axis2 - Change of package of exception change its name in WSDL and thr</a> (10 Oct 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83285">Axis2 client not getting Digest auth challenge from server</a> (8 Oct 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83284">JAXWS/Axis2 - problems generating correct structure of SOAP message</a> (1 Oct 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83280">WS Security for exposed Corba Service</a> (19 Sep 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83278">about issue AXIS2-2883</a> (12 Sep 2013)<br /><a href="http://comments.gmane.org/gmane.text.xml.axis.user/83275">[AXIS2] Installing Axis 1.6.2 in Tomcat</a> (10 Sep 2013)<br /></div>
+
+
+<div class="sidetitle">Archives</div>
+<div class="side">
+<table class=months border=0>
+<tr><th><div class=cont><div class=bot style="width: 40px">&nbsp;</div><div class=top>83176</div></div></th><td><div class=noplot><a href="/gmane.text.xml.axis.user/month=21060101">January 2106</a></div></td></tr></table>
+</div>
+
+<div class="sidetitle">Design</div>
+<div class="side">
+<a rel=nofollow href="?set_skin=zawodny">Zawodny</a> | 
+<a rel=nofollow href="?set_skin=rightmenu">Right Menu</a> | <a rel=nofollow href="?set_skin=leftmenu">Left Menu</a>
+</div>
+
+<div class="sidetitle">Your Own Design</div>
+<div class="side">
+Paste the URL of your CSS below.
+<form rel="nofollow" method="get" action="/gmane.text.xml.axis.user/month=20081201/page=7">
+<input type=text name="set_user_css">
+<input type=hidden name="do_set_user_css" value="t">
+</form>
+<a rel="nofollow,noindex" href="http://gmane.org/download_css.php">Download CSS template</a>
+</div>
+
+
+
+
+</div>
+
+
+    <br clear="all" />
+
+<div class="bottombox"><p class="bottomtext"><a href="http://gmane.org/">Gmane</a></p></div>
+  </body>
+</html>
